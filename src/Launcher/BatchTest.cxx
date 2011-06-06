@@ -1,23 +1,23 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "BatchTest.hxx"
@@ -304,6 +304,12 @@ BatchTest::test_jobsubmit_simple()
     result = "OK";
     return result;
   }
+  if (batch_type == "slurm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
+    result = "OK";
+    return result;
+  }
   if (batch_type == "sge")
   {
     INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
@@ -472,7 +478,7 @@ BatchTest::test_jobsubmit_mpi()
     mpiImpl = new MpiImpl_MPICH2();
   else if(mpi_type == "openmpi")
     mpiImpl = new MpiImpl_OPENMPI();
-  else if(mpi_type == "slurm")
+  else if(mpi_type == "slurmmpi")
     mpiImpl = new MpiImpl_SLURM();
   else
   {
@@ -491,6 +497,13 @@ BatchTest::test_jobsubmit_mpi()
   if (batch_type == "ccc")
   {
     INFOS("test_jobsubmit_simple not yet implemented for ccc... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "slurm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
     result = "OK";
     return result;
   }

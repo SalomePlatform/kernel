@@ -1,25 +1,24 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  SALOME_ParallelContainer : implementation of container and engine for ParallelKernel
 //  File   : SALOME_ParallelContainer_i.cxx
 //  Author : André RIBES, EDF
 
@@ -923,7 +922,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
 {
   // Init de la méthode
   char * proxy_ior;
-  Engines::Component_PaCO_var work_node;
+  Engines::EngineComponent_PaCO_var work_node;
   std::string aCompName = componentName;
   std::string _proxy_containerName = proxy_containerName;
 
@@ -986,7 +985,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
-    work_node = Engines::Component_PaCO::_narrow(obj) ;
+    work_node = Engines::EngineComponent_PaCO::_narrow(obj) ;
     if (CORBA::is_nil(work_node))
     {
       INFOS("work_node reference from factory is nil !");
@@ -1125,6 +1124,14 @@ Engines_Parallel_Container_i::createPyNode(const char* nodeName, const char* cod
 {
   INFOS("Python component not yet implemented");
   Engines::PyNode_var node= Engines::PyNode::_nil();
+  return node._retn();
+}
+
+Engines::PyScriptNode_ptr 
+Engines_Parallel_Container_i::createPyScriptNode(const char* nodeName, const char* cod)
+{
+  INFOS("Python script node not yet implemented");
+  Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
   return node._retn();
 }
 

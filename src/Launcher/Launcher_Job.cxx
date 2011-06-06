@@ -1,20 +1,20 @@
-//  Copyright (C) 2009-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2009-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 // Author: André RIBES - EDF R&D
@@ -24,7 +24,6 @@
 
 #ifdef WITH_LIBBATCH
 #include <Batch/Batch_Constants.hxx>
-#include <Batch/Batch_FactBatchManager_eLL.hxx>
 #endif
 
 Launcher::Job::Job()
@@ -63,6 +62,16 @@ Launcher::Job::~Job()
 {
   LAUNCHER_MESSAGE("Deleting job number: " << _number);
 #ifdef WITH_LIBBATCH
+  if (_batch_job)
+    delete _batch_job;
+#endif
+}
+
+void
+Launcher::Job::removeJob()
+{
+  LAUNCHER_MESSAGE("Removing job number: " << _number);
+#ifdef WITH_LIBBATCH
   if (_batch_job_id.getReference() != "undefined")
   {
     try 
@@ -71,11 +80,9 @@ Launcher::Job::~Job()
     }
     catch (const Batch::EmulationException &ex)
     {
-      LAUNCHER_INFOS("WARNING: exception when deleting the job: " << ex.message);
+      LAUNCHER_INFOS("WARNING: exception when removing the job: " << ex.message);
     }
   }
-  if (_batch_job)
-    delete _batch_job;
 #endif
 }
 
@@ -511,7 +518,7 @@ Launcher::Job::common_job_params()
   // Specific parameters
   std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
   if (it != _specific_parameters.end())
-    params[Batch::LL_JOBTYPE] = it->second;
+    params["LL_JOBTYPE"] = it->second;
   return params;
 }
 
@@ -605,7 +612,6 @@ void
 Launcher::Job::addSpecificParameter(const std::string & name,
                                       const std::string & value)
 {
-  std::cerr << "Adding " << name << " " << value << std::endl;
   _specific_parameters[name] = value;
 }
 

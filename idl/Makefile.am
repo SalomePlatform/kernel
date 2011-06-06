@@ -1,23 +1,23 @@
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 # This Makefile is responsible of generating the client and server
@@ -71,7 +71,8 @@ OTHER_IDL_FILES = \
 # all the idl files are needed for make dist
 EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
 	    SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml \
-	    SALOME_PACOExtension.xml SALOME_ParamPorts.xml
+	    SALOME_PACOExtension.xml SALOME_ParamPorts.xml \
+	    SALOME_GenericObj.xml
 
 # This variable defines the files to be installed
 salomeidl_DATA        = $(IDL_FILES)
@@ -146,19 +147,21 @@ PAR = SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx \
       SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx \
       DSC_EnginesPaCO.hxx DSC_EnginesPaCO.cxx \
       SALOME_PACOExtensionPaCO.hxx SALOME_PACOExtensionPaCO.cxx \
-      SALOME_ParamPortsPaCO.hxx SALOME_ParamPortsPaCO.cxx
+      SALOME_ParamPortsPaCO.hxx SALOME_ParamPortsPaCO.cxx \
+      SALOME_GenericObjPaCO.hxx SALOME_GenericObjPaCO.cxx
 
 PAR_INCLUDES = SALOME_Exception.hxx SALOME_GenericObj.hxx SALOMEDS.hxx SALOME_PyNode.hxx
 
 PAR_LIB = libSalomeParallelIDLKernel.la
 
 IDL_PACO = SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl \
-	   SALOME_ParamPortsPaCO.idl SALOME_PACOExtensionPaCO.idl
+	   SALOME_ParamPortsPaCO.idl SALOME_PACOExtensionPaCO.idl \
+	   SALOME_GenericObjPaCO.idl
 
 GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cxx \
 	   SALOME_ComponentPaCO_Engines_Container_client.cxx \
-	   SALOME_ComponentPaCO_Engines_Component_server.cxx \
-	   SALOME_ComponentPaCO_Engines_Component_client.cxx \
+	   SALOME_ComponentPaCO_Engines_EngineComponent_server.cxx \
+	   SALOME_ComponentPaCO_Engines_EngineComponent_client.cxx \
 	   SALOME_ComponentPaCO_Engines_fileTransfer_server.cxx \
 	   SALOME_ComponentPaCO_Engines_fileTransfer_client.cxx \
 	   SALOME_ComponentPaCO_Engines_Salome_file_server.cxx \
@@ -180,12 +183,14 @@ GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cxx \
 	   SALOME_PACOExtensionPaCO_Engines_Parallel_DSC_server.cxx \
 	   SALOME_PACOExtensionPaCO_Engines_Parallel_DSC_client.cxx \
 	   SALOME_ParamPortsPaCO_Ports_Param_Double_Port_server.cxx \
-	   SALOME_ParamPortsPaCO_Ports_Param_Double_Port_client.cxx
+	   SALOME_ParamPortsPaCO_Ports_Param_Double_Port_client.cxx \
+	   SALOME_GenericObjPaCO_SALOME_GenericObj_server.cxx \
+	   SALOME_GenericObjPaCO_SALOME_GenericObj_client.cxx
 
 INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.hxx \
 		SALOME_ComponentPaCO_Engines_Container_client.hxx \
-		SALOME_ComponentPaCO_Engines_Component_server.hxx \
-		SALOME_ComponentPaCO_Engines_Component_client.hxx \
+		SALOME_ComponentPaCO_Engines_EngineComponent_server.hxx \
+		SALOME_ComponentPaCO_Engines_EngineComponent_client.hxx \
 		SALOME_ComponentPaCO_Engines_fileTransfer_server.hxx \
 		SALOME_ComponentPaCO_Engines_fileTransfer_client.hxx \
 		SALOME_ComponentPaCO_Engines_Salome_file_server.hxx \
@@ -217,10 +222,15 @@ INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.hxx \
 		SALOME_ParamPortsPaCO_Ports_Param_Double_Port_server.hxx \
 		SALOME_ParamPortsPaCO_Ports_Param_Double_Port_client.hxx \
 		SALOME_ParamPortsPaCO.hxx \
-		SALOME_ParamPorts.hxx
+		SALOME_ParamPorts.hxx \
+		SALOME_GenericObjPaCO_SALOME_GenericObj_server.hxx \
+		SALOME_GenericObjPaCO_SALOME_GenericObj_client.hxx \
+		SALOME_GenericObjPaCO.hxx \
+		SALOME_GenericObj.hxx
 
 XML           = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml \
-		SALOME_PACOExtension.xml SALOME_ParamPorts.xml
+		SALOME_PACOExtension.xml SALOME_ParamPorts.xml \
+		SALOME_GenericObj.xml
 endif
 
 idldir = $(prefix)/idl/salome
@@ -229,7 +239,8 @@ nodist_salomeinclude_HEADERS = ${INCLUDES_PACO}
 
 BUILT_SOURCES = $(IDL_SOURCES) $(PAR_INCLUDES) $(PAR)
 
-SALOME_ComponentPaCO.idl SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml
+SALOME_GenericObjPaCO.idl SALOME_GenericObjPaCO.hxx SALOME_GenericObjPaCO.cxx : SALOME_GenericObj.idl SALOME_GenericObj.xml
+SALOME_ComponentPaCO.idl SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml SALOME_GenericObjPaCO.idl
 SALOME_PortsPaCO.idl SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx : SALOME_Ports.idl SALOME_Ports.xml
 DSC_EnginesPaCO.idl DSC_EnginesPaCO.hxx DSC_EnginesPaCO.cxx : DSC_Engines.idl DSC_Engines.xml
 SALOME_PACOExtensionPaCO.idl SALOME_PACOExtensionPaCO.hxx SALOME_PACOExtensionPaCO.cxx : SALOME_PACOExtension.idl SALOME_PACOExtension.xml
@@ -270,7 +281,7 @@ if WITH_PACO_PARALLEL
 	$(IDL) -p@PACOPATH@/lib/python -bpaco -Wb$(top_srcdir)/idl/$*.xml,$(srcdir):@PACOPATH@/idl $(top_srcdir)/idl/$*.idl
 
 .idl.hxx:
-	$(IDL) $(IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
+	$(IDL) $(PACOIDLCXXFLAGS) -bcxx -Wbh=.hxx -Wbs=.cxx $<
 endif
 
 install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%) Calcium_Ports.idl

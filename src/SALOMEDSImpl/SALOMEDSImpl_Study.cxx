@@ -1,23 +1,23 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 //  File   : SALOMEDSImpl_Study.cxx
@@ -1270,7 +1270,9 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   sfp << "import " << aBatchModeScript << std::endl << std::endl;
 
   // initialization function
-  sfp << aBatchModeScript << ".salome_init()" << std::endl << std::endl;
+  sfp << aBatchModeScript << ".salome_init()" << std::endl;
+  if ( !isMultiFile )
+    sfp << "theStudy = salome.myStudy" <<std::endl << std::endl;
 
   // notebook initialization
   sfp << _GetNoteBookAccess();
@@ -1524,12 +1526,24 @@ void SALOMEDSImpl_Study::Modify()
 //============================================================================
 SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
-  if (theSavePoint < 0) return NULL;
+  if (theSavePoint < -1) return NULL;
   SALOMEDSImpl_StudyBuilder* builder = NewBuilder();
   SALOMEDSImpl_SObject so = FindComponent((char*)theID);
   if (!so) so = builder->NewComponent((char*)theID);
   SALOMEDSImpl_AttributeParameter* attParam = NULL;
 
+  if (theSavePoint == -1) {
+    int ctag = 1;
+    DF_Label savePointLabel = so.GetLabel().FindChild( ctag, /*create=*/0 );
+    DF_Label prevPointLabel;
+    while ( !savePointLabel.IsNull() ) {
+      ctag++;
+      prevPointLabel = savePointLabel;
+      savePointLabel = so.GetLabel().FindChild( ctag, /*create=*/0 );
+    }
+    if ( !prevPointLabel.IsNull() )
+      so = GetSObject( prevPointLabel );
+  }
   if (theSavePoint > 0) { // Try to find SObject that contains attribute parameter ...
     DF_Label savePointLabel = so.GetLabel().FindChild( theSavePoint, /*create=*/0 );
     if ( !savePointLabel.IsNull() )
@@ -1558,7 +1572,7 @@ SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetModuleParameters(const c
                                                                          const char* theModuleName,
                                                                          int theSavePoint)
 {
-  if(theSavePoint <= 0) return NULL;
+  if(theSavePoint < -1) return NULL;
   SALOMEDSImpl_AttributeParameter* main_ap = GetCommonParameters(theID, theSavePoint);
   SALOMEDSImpl_SObject main_so = main_ap->GetSObject();
   SALOMEDSImpl_AttributeParameter* par = NULL;

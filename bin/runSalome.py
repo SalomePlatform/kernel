@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 ## @package runSalome
@@ -286,10 +286,14 @@ class SessionServer(Server):
             list_modules = []
             #keep only modules with GUI
             for m in modules_list:
-              fr1 = os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")
-              fr2 = os.path.join(modules_root_dir[m],"share","salome","resources","SalomeApp.xml")
-              if os.path.exists(fr1) or os.path.exists(fr2):
+              if m not in modules_root_dir:
                 list_modules.insert(0,m)
+              else:
+                fr1 = os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")
+                fr2 = os.path.join(modules_root_dir[m],"share","salome","resources","SalomeApp.xml")
+                if os.path.exists(fr1) or os.path.exists(fr2):
+                  list_modules.insert(0,m)
+            list_modules.reverse()
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
 
         if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
@@ -505,7 +509,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     if args["gui"]:
-        mySessionServ = SessionServer(args,modules_list,modules_root_dir)
+        mySessionServ = SessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
 
@@ -644,7 +648,7 @@ def startSalome(args, modules_list, modules_root_dir):
         print "-- to get an external python interpreter:runSalome --interp=1"
         print "-------------------------------------------------------------"
         
-    print "additional external python interpreters: ", nbaddi
+    if verbose(): print "additional external python interpreters: ", nbaddi
     if nbaddi:
         for i in range(nbaddi):
             print "i=",i
@@ -1025,6 +1029,7 @@ if __name__ == "__main__":
         pass
     # --
     test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"
+    test = test and args['foreground']
     # --
     if test:
         foreGround(clt, args)

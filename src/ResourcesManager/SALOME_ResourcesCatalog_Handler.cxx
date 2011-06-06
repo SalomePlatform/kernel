@@ -1,23 +1,23 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 //  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
@@ -245,8 +245,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
       resource.mpi = mpich2;
     else if (anMpi == "openmpi")
       resource.mpi = openmpi;
-    else if  (anMpi == "slurm")
-      resource.mpi = slurm;
+    else if  (anMpi == "slurmmpi")
+      resource.mpi = slurmmpi;
     else if  (anMpi == "prun")
       resource.mpi = prun;
     else
@@ -531,6 +531,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.Batch = ssh_batch;
     else if  (aBatch == "ccc")
       resource.Batch = ccc;
+    else if  (aBatch == "slurm")
+      resource.Batch = slurm;
     else if  (aBatch == "ll")
       resource.Batch = ll;
     else
@@ -550,8 +552,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.mpi = mpich2;
     else if (anMpi == "openmpi")
       resource.mpi = openmpi;
-    else if  (anMpi == "slurm")
-      resource.mpi = slurm;
+    else if  (anMpi == "slurmmpi")
+      resource.mpi = slurmmpi;
     else if  (anMpi == "prun")
       resource.mpi = prun;
     else
@@ -728,6 +730,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       case ccc:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ccc");
         break;
+      case slurm:
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+        break;
       case ssh_batch:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
         break;
@@ -752,8 +757,8 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       case openmpi:
         xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
         break;
-      case slurm:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
+      case slurmmpi:
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurmmpi");
         break;
       case prun:
         xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");

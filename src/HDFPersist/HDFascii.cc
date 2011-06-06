@@ -1,23 +1,23 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 //  File      : SALOMEDS_Tool.cxx
@@ -61,6 +61,8 @@ char* makeName(char* name);
 char* restoreName(char* name);
 void write_float64(FILE* fp, hdf_float64* value);
 void read_float64(FILE* fp, hdf_float64* value);
+
+void WriteSimpleData( FILE* fp, HDFdataset *hdf_dataset, hdf_type type, long size );
 
 #define MAX_STRING_SIZE   65535
 #define MAX_ID_SIZE       20
@@ -256,49 +258,26 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   delete [] dim;
 
   fprintf(fp, "%li %i:", size, order);
+  if( type == HDF_ARRAY ) {
+    HDFarray *array = new HDFarray(hdf_dataset);
+    hdf_type data_type = array->GetDataType();
+    fprintf(fp, "\n" );
+    fprintf(fp, " %i\n", data_type ); //Write array data type
 
-  if (type == HDF_STRING) {	
-    char* val = new char[size];
-    hdf_dataset->ReadFromDisk(val);
-    fwrite(val, 1, size, fp);
-    delete [] val;
-  } else if (type == HDF_FLOAT64) {
-    hdf_float64* val = new hdf_float64[size];
-    hdf_dataset->ReadFromDisk(val);
-    fprintf(fp, "\n");
-    for (int i = 0, j = 0; i < size; i++) {
-      write_float64(fp, &val[i]);
-      if(++j == NB_FLOAT_IN_ROW) {
-	fprintf(fp, "\n");
-	j = 0;
-      }
-      else fprintf(fp,"  ");
+    //Write nDim of the array
+    int arr_ndim = array->nDim();
+    fprintf(fp, " %i\n", arr_ndim);
+    hdf_size *arr_dim = new hdf_size[arr_ndim];
+    array->GetDim(arr_dim);
+
+    for( int i = 0;i < arr_ndim; i++ ) {
+      fprintf(fp, " %i", arr_dim[i]);
     }
-    delete [] val;
-  } else if(type == HDF_INT64) {
-    hdf_int64* val = new hdf_int64[size];
-    hdf_dataset->ReadFromDisk(val);
-    fprintf(fp, "\n");
-    for (int i = 0, j = 0; i < size; i++) {
-      fprintf(fp, " %li", val[i]);
-      if(++j == NB_INTEGER_IN_ROW) {
-	fprintf(fp, "\n");
-	j = 0;
-      }
-    }
-    delete [] val;
-  } else if(type == HDF_INT32) {
-    hdf_int32* val = new hdf_int32[size];
-    hdf_dataset->ReadFromDisk(val);
-    fprintf(fp, "\n");
-    for (int i = 0, j = 0; i < size; i++) {
-      fprintf(fp, " %i", val[i]);
-      if(++j == NB_INTEGER_IN_ROW) {
-	fprintf(fp, "\n");
-	j = 0;
-      }
-    }
-    delete [] val;
+        
+    //And write the data array
+    WriteSimpleData( fp, hdf_dataset, data_type, size);
+  } else {
+    WriteSimpleData( fp, hdf_dataset, type, size);
   }
   
   fprintf(fp, "\n");
@@ -534,7 +513,7 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     sizeArray[i] = dim;
   }
  
-  // order (2-d member) was not written in earlier versions
+   // order (2-d member) was not written in earlier versions
   char tmp;
   int nbRead = fscanf(fp, "%li %i%c", &size, &order, &tmp);
   if ( nbRead < 2 ) { // fscanf stops before ":"
@@ -544,7 +523,34 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
   if ( type != HDF_FLOAT64 )  // use order only for FLOAT64
     order = H5T_ORDER_NONE;
 
-  HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim, order);
+
+  HDFarray* anArray = 0;
+  if( type == HDF_ARRAY ){
+    //Get array information
+    hdf_type arr_data_type;
+    int arr_ndim;
+    fscanf(fp, "%c", &tmp);
+    fscanf(fp, " %i\n", &arr_data_type ); //Get array data type
+    fscanf(fp, " %i\n", &arr_ndim ); //Get array nDim
+    hdf_size *arr_dim = new hdf_size[arr_ndim];
+
+    int tdim = 0;
+    for( int i = 0;i < arr_ndim; i++ ) {
+      fscanf(fp, " %i", &tdim);
+      arr_dim[i] = tdim;
+    }
+    anArray = new HDFarray(0, arr_data_type, arr_ndim, arr_dim);
+    anArray->CreateOnDisk();
+
+    type = arr_data_type;
+    delete [] arr_dim;
+  }
+
+  HDFdataset* hdf_dataset = new HDFdataset(new_name, father, anArray ? HDF_ARRAY : type, sizeArray, nbDim, order);
+  
+  if(anArray)
+    hdf_dataset->SetArrayId(anArray->GetId());
+
   delete [] new_name;
   delete [] sizeArray;
 
@@ -571,6 +577,13 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     delete [] val;
   } else if(type == HDF_INT32) {
     hdf_int32* val = new hdf_int32[size];
+    for(i=0; i<size; i++) {
+      fscanf(fp, " %i", &(val[i]));
+    }
+    hdf_dataset->WriteOnDisk(val);
+    delete [] val;
+  } else if(type == HDF_CHAR) {
+    hdf_char* val = new hdf_char[size];
     for(i=0; i<size; i++) {
       fscanf(fp, " %i", &(val[i]));
     }
@@ -603,6 +616,11 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
 
   hdf_dataset->CloseOnDisk();
   hdf_dataset = 0; //will be deleted by father destructor
+
+  if(anArray) {
+    anArray->CloseOnDisk();
+    anArray = 0; //will be deleted by father destructor
+  }
 
   return true;
 }
@@ -790,3 +808,60 @@ void Move(const std::string& fName, const std::string& fNameDst)
 #endif
 }
 
+void WriteSimpleData( FILE* fp, HDFdataset *hdf_dataset, hdf_type type, long size ) {
+  if (type == HDF_STRING) {	
+    char* val = new char[size];
+    hdf_dataset->ReadFromDisk(val);
+    fwrite(val, 1, size, fp);
+    delete [] val;
+  } else if (type == HDF_FLOAT64) {
+    hdf_float64* val = new hdf_float64[size];
+    hdf_dataset->ReadFromDisk(val);
+    fprintf(fp, "\n");
+    for (int i = 0, j = 0; i < size; i++) {
+      write_float64(fp, &val[i]);
+      if(++j == NB_FLOAT_IN_ROW) {
+	fprintf(fp, "\n");
+	j = 0;
+      }
+      else fprintf(fp,"  ");
+    }
+    delete [] val;
+  } else if(type == HDF_INT64) {
+    hdf_int64* val = new hdf_int64[size];
+    hdf_dataset->ReadFromDisk(val);
+    fprintf(fp, "\n");
+    for (int i = 0, j = 0; i < size; i++) {
+      fprintf(fp, " %li", val[i]);
+      if(++j == NB_INTEGER_IN_ROW) {
+	fprintf(fp, "\n");
+	j = 0;
+      }
+    }
+    delete [] val;
+  } else if(type == HDF_INT32) {
+    hdf_int32* val = new hdf_int32[size];
+    hdf_dataset->ReadFromDisk(val);
+    fprintf(fp, "\n");
+    for (int i = 0, j = 0; i < size; i++) {
+      fprintf(fp, " %i", val[i]);
+      if(++j == NB_INTEGER_IN_ROW) {
+	fprintf(fp, "\n");
+	j = 0;
+      }
+    }
+    delete [] val;
+  }else if(type == HDF_CHAR) {
+    hdf_char* val = new hdf_char[size];
+    hdf_dataset->ReadFromDisk(val);
+    fprintf(fp, "\n");
+    for (int i = 0, j = 0; i < size; i++) {
+      fprintf(fp, " %i", val[i]);
+      if(++j == NB_INTEGER_IN_ROW) {
+	fprintf(fp, "\n");
+	j = 0;
+      }
+    }
+    delete [] val;
+  }
+}

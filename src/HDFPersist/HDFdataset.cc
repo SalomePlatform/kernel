@@ -1,23 +1,23 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 //  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
@@ -59,6 +59,7 @@ HDFdataset::HDFdataset(const char *name, HDFcontainerObject *father,hdf_type typ
       _dim[i] = dim[i];
       _size = _size * _dim[i];
     }
+  _arrayId = -1;
 }
 
 
@@ -74,6 +75,7 @@ HDFdataset::HDFdataset(const char *name,HDFcontainerObject *father)
   _byte_order = H5T_ORDER_ERROR;
   _size = -1;
   _attribute = NULL;
+  _arrayId = -1;
 }
 
 HDFdataset::~HDFdataset()
@@ -83,7 +85,7 @@ HDFdataset::~HDFdataset()
 
 void HDFdataset::CreateOnDisk()
 {
-  if ((_id = HDFdatasetCreate(_fid,_name,_type,_dim,_ndim,_byte_order)) < 0)
+  if ((_id = HDFdatasetCreate(_fid,_name,_type,_dim,_ndim,_byte_order,_arrayId)) < 0)
     throw HDFexception("Can't create dataset");
 }
 
@@ -226,3 +228,6 @@ char* HDFdataset::GetAttributeName(unsigned idx)
   return _attribute;
 }
 
+void HDFdataset::SetArrayId(hdf_idt arrayId) {
+  _arrayId = arrayId;
+}

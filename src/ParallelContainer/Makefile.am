@@ -1,23 +1,23 @@
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 #  File   : Makefile.am
@@ -52,6 +52,7 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/NamingService \
 		 -I$(top_srcdir)/src/Registry \
 		 -I$(top_srcdir)/src/Utils \
+		 -I$(top_srcdir)/src/GenericObj \
 		 -I$(srcdir)/../HDFPersist \
 		 -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/SALOMETraceCollector \
@@ -63,6 +64,9 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = $(top_builddir)/src/Container/libSalomeContainer.la \
+	      $(top_builddir)/src/NamingService/libSalomeNS.la \
+	      $(top_builddir)/src/SALOMELocalTrace/libSALOMELocalTrace.la \
+	      $(top_builddir)/src/Basics/libSALOMEBasics.la \
 	      $(top_builddir)/src/HDFPersist/libSalomeHDFPersist.la \
 	      $(top_builddir)/idl/libSalomeParallelIDLKernel.la \
 	      $(top_builddir)/idl/libSalomeIDLKernel.la \
