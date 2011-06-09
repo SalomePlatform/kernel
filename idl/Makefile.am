@@ -297,7 +297,14 @@ endif
 
 # uninstall-local removes too much, but it works in distcheck
 uninstall-local:
-	rm -rf $(DESTDIR)$(salomepythondir)/*
+	for filen in `find $(DESTDIR)$(salomepythondir) -maxdepth 1` ; do \
+	  case $${filen} in                                               \
+	  $(DESTDIR)$(salomepythondir) )    ;;                            \
+	  $(DESTDIR)$(salomepypkgdir) )     ;;                            \
+	  $(DESTDIR)$(sharedpkgpythondir) ) ;;                            \
+	  * ) rm -rf $${filen} ;;                                         \
+	  esac ;                                                          \
+	done ;
 
 mostlyclean-local:
 	-rm -f *.hh *.cc .depidl Calcium_Ports.idl
