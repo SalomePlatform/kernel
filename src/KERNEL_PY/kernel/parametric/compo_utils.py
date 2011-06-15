@@ -49,7 +49,7 @@ def create_input_dict(deterministic_dict, parametric_input):
     if len(input_point) != len(parametric_input.inputVarList):
         raise Exception("Size mismatch between inputVarList and point to evaluate")
 
-    input_dict = deterministic_dict
+    input_dict = deterministic_dict.copy()
     for i in range(len(input_point)):
         input_dict[parametric_input.inputVarList[i]] = input_point[i][0]
 
