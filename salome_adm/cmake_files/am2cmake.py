@@ -203,6 +203,7 @@ class CMakeFile(object):
             "vtkCommonPythonD",
             "vtkGraphicsPythonD",
             "vtkImagingPythonD",
+            "vtkPythonCore",
             ]
         kernel_list  = [
             "CalciumC",
@@ -1107,9 +1108,9 @@ class CMakeFile(object):
                 pass
             pass
 
-	# --
-	# add commands for generating of user's documentation
-	# --
+        # --
+        # add commands for generating of user's documentation
+        # --
   
         upmod = self.module.upper()
         doc_gui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/%s"%(upmod)
@@ -1157,16 +1158,16 @@ class CMakeFile(object):
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
                 )"""%(str, upmod, tmp, upmod, tmp, tmp, input, upmod, tmp, copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
-      	        newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
+                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''',True); import copytree1; copytree1.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=copytree1.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
                 )"""%(copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
 
-	# --
-	# add commands for generating of developer's documentation
-	# --
+  # --
+  # add commands for generating of developer's documentation
+  # --
   
         upmod = self.module.upper()
         if mod in ['kernel', 'gui', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
@@ -1722,11 +1723,11 @@ class CMakeFile(object):
             ''')
             pass
         newlines.append(r'''
-	SET(var ${var} ${PLATFORM_CPPFLAGS})
-	SET(var ${var} ${PTHREAD_CFLAGS})
-	SET(var ${var} ${${amname}_CPPFLAGS})
-	SET(var ${var} ${${amname}_CXXFLAGS})
-	SET(var ${var} ${${amname}_CFLAGS})
+  SET(var ${var} ${PLATFORM_CPPFLAGS})
+  SET(var ${var} ${PTHREAD_CFLAGS})
+  SET(var ${var} ${${amname}_CPPFLAGS})
+  SET(var ${var} ${${amname}_CXXFLAGS})
+  SET(var ${var} ${${amname}_CFLAGS})
         SET(vars)
         IF(WINDOWS)
         SET(vars ${vars} -include SALOMEconfig.h)
