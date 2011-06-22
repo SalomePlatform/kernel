@@ -32,6 +32,7 @@ elif [ -d $1 ]; then
   echo $1 "directory already exists, nothing done"
 else
   mkdir -p $1
+  mkdir -p $1/USERS
   cp -r $rep/appliskel/* $1
   cp $rep/appliskel/.bashrc $1
   chmod +x $1/*.sh $1/run* $1/envd
