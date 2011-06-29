@@ -172,6 +172,8 @@ ParserResourcesType::PrintAccessProtocolType() const
 {
   if (Protocol == rsh)
     return "rsh";
+  else if (Protocol == srun)
+    return "srun";
   else
     return "ssh";
 }
@@ -181,6 +183,8 @@ ParserResourcesType::PrintClusterInternalProtocol() const
 {
   if (ClusterInternalProtocol == rsh)
     return "rsh";
+  else if (ClusterInternalProtocol == srun)
+    return "srun";
   else
     return "ssh";
 }

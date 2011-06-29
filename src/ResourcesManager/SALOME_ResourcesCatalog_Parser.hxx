@@ -41,7 +41,7 @@
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
-enum AccessProtocolType {rsh, ssh};
+enum AccessProtocolType {rsh, ssh, srun};
 
 enum AccessModeType {interactive, batch};
 

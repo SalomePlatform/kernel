@@ -84,7 +84,9 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   std::string resource_protocol = "ssh";
   if (_resource_definition.ClusterInternalProtocol == rsh)
     resource_protocol = "rsh";
-  
+  else if (_resource_definition.ClusterInternalProtocol == srun)
+    resource_protocol = "srun";
+
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << "CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;

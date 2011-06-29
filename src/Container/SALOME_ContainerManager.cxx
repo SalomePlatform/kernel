@@ -626,6 +626,8 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
       command = "rsh ";
     else if (resInfo.Protocol == ssh)
       command = "ssh ";
+    else if (resInfo.Protocol == srun)
+      command = "srun -n 1 -N 1 --share --nodelist=";
     else
       throw SALOME_Exception("Unknown protocol");
 
@@ -1001,6 +1003,18 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       commandRcp += _TmpFileName;
       status = system(commandRcp.c_str());
     }
+
+  else if (resInfo.Protocol == srun)
+    {
+      command = "srun -n 1 -N 1 --share --nodelist=";
+      std::string commandRcp = "rcp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += resInfo.HostName;
+      commandRcp += ":";
+      commandRcp += _TmpFileName;
+      status = system(commandRcp.c_str());
+    }
   else
     throw SALOME_Exception("Unknown protocol");
 
@@ -1035,6 +1049,8 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
             command = "rsh ";
           else if (resInfo.Protocol == ssh)
             command = "ssh ";
+          else if (resInfo.Protocol == srun)
+            command = "srun -n 1 -N 1 --share --nodelist=";
           else
             throw SALOME_Exception("Unknown protocol");
 
