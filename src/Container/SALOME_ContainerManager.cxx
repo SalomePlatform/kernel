@@ -61,7 +61,7 @@ omni_mutex SALOME_ContainerManager::_numInstanceMutex;
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns):_nbprocUsed(0)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns):_nbprocUsed(1)
 {
   MESSAGE("constructor");
   _NS = ns;
