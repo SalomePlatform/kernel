@@ -314,8 +314,18 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       nbproc = 1;
     else
       nbproc = params.nb_proc;
-    if( getenv("LIBBATCH_NODEFILE") != NULL )
-      machFile = machinesFile(nbproc);
+    try
+    {
+      if( getenv("LIBBATCH_NODEFILE") != NULL )
+        machFile = machinesFile(nbproc);
+    }
+    catch(const SALOME_Exception & ex)
+    {
+      std::string err_msg = ex.what();
+      err_msg += params.container_name;
+      INFOS(err_msg.c_str());
+      return ret;
+    }
     // A mpi parallel container register on zero node in NS
     containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname,machFile).c_str());
   }
@@ -1101,7 +1111,7 @@ std::string SALOME_ContainerManager::machinesFile(const int nbproc)
     if( fpi >> tmp )
       fpo << tmp << std::endl;
     else
-      throw SALOME_Exception("You ask more processes than batch session have allocated!");
+      throw SALOME_Exception("You need more processors than batch session have allocated for you! Unable to launch the mpi container: ");
 
   _nbprocUsed += nbproc;
   fpi.close();
