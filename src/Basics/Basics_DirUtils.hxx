@@ -34,6 +34,9 @@ namespace Kernel_Utils
   // Extracts and returns the base name of the specified file name.
   BASICS_EXPORT std::string GetBaseName( const std::string& file_path );
 
+  // Extracts and returns the dir name of the specified file name.
+  BASICS_EXPORT std::string GetDirName( const std::string& file_path );
+
   // Returns the unique temporary directory, that is defined in tmp_path_env if this variable is set
   // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
   BASICS_EXPORT std::string GetTmpDirByEnv( const std::string& tmp_path_env );
@@ -53,6 +56,9 @@ namespace Kernel_Utils
 
   // Returns True(False) if the path (not)exists
   BASICS_EXPORT bool IsExists( const std::string& path );
+
+  // Returns True(False) if the path is writable
+  BASICS_EXPORT bool IsWritable( const std::string& path );
 
   // Returns directory by path and converts it to native system format
   BASICS_EXPORT std::string GetDirByPath( const std::string& path );

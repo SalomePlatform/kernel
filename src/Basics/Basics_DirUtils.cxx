@@ -50,6 +50,14 @@ namespace Kernel_Utils
     return file_path;
   }
 
+  std::string GetDirName( const std::string& file_path )
+  {
+    int pos = file_path.rfind( _separator_ );
+    if ( pos >= 0 )
+      return pos < (int)file_path.size()-1 ? file_path.substr(0, pos ) : "";
+    return std::string(".");
+  }
+
   std::string GetTmpDirByEnv( const std::string& tmp_path_env )
   {
     char* val = getenv( tmp_path_env.c_str() );
@@ -163,6 +171,26 @@ namespace Kernel_Utils
 #endif
     return true;
   }
+
+  //============================================================================
+  // function : IsWritable
+  // purpose  : Returns True(False) if the path is (not) writable
+  //============================================================================ 
+  bool IsWritable(const std::string& thePath) 
+  {
+#ifdef WIN32 
+    if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+      if (  GetLastError () == FILE_ATTRIBUTE_READONLY ) {
+        return false;
+      }
+    }
+#else 
+    int status = access(thePath.c_str(),W_OK); 
+    if (status != 0) return false;
+#endif
+    return true;
+  }
+
 
   //============================================================================
   // function : GetDirByPath
