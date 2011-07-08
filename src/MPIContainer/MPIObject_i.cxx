@@ -158,7 +158,12 @@ void MPIObject_i::remoteMPI2Connect(std::string service)
     { 
       /* rank 0 try to be a server. If service is already published, try to be a cient */
       MPI_Open_port(MPI_INFO_NULL, port_name); 
-      if ( MPI_Publish_name((char*)service.c_str(), MPI_INFO_NULL, port_name) == MPI_SUCCESS )
+      if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
+        {
+          MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << std::endl);
+          MPI_Close_port( port_name );
+        }
+      else if ( MPI_Publish_name((char*)service.c_str(), MPI_INFO_NULL, port_name) == MPI_SUCCESS )
         {
           _srv[service] = true;
           _port_name[service] = port_name;

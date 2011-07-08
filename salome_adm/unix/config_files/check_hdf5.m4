@@ -65,8 +65,6 @@ else
    fi
 fi
 
-CHECK_MPI
-
 if  test "x$hdf5_ok" = "xno"
 then
   if  test -e "$HDF5HOME/include/hdf5.h" 

@@ -87,7 +87,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
-  _pid_ompiServer = -1;
+  _pid_mpiServer = -1;
   // the urifile name depends on pid of the process
   std::stringstream urifile;
   urifile << getenv("HOME") << "/.urifile_" << getpid();
@@ -108,10 +108,29 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
     std::set<pid_t>::const_iterator it;
     for(it=thepids2.begin();it!=thepids2.end();it++)
       if(thepids1.find(*it) == thepids1.end())
-        _pid_ompiServer = *it;
-    if(_pid_ompiServer < 0)
+        _pid_mpiServer = *it;
+    if(_pid_mpiServer < 0)
       throw SALOME_Exception("Error when getting ompi-server id");
   }
+#elif defined(WITHMPICH)
+  _pid_mpiServer = -1;
+  // get the pid of all hydra_nameserver
+  std::set<pid_t> thepids1 = getpidofprogram("hydra_nameserver");
+  // launch a new hydra_nameserver
+  std::string command;
+  command = "hydra_nameserver &";
+  int status=system(command.c_str());
+  if(status!=0)
+    throw SALOME_Exception("Error when launching hydra_nameserver");
+  // get the pid of all hydra_nameserver
+  std::set<pid_t> thepids2 = getpidofprogram("hydra_nameserver");
+  // my hydra_nameserver is the new one
+  std::set<pid_t>::const_iterator it;
+  for(it=thepids2.begin();it!=thepids2.end();it++)
+    if(thepids1.find(*it) == thepids1.end())
+      _pid_mpiServer = *it;
+  if(_pid_mpiServer < 0)
+    throw SALOME_Exception("Error when getting hydra_nameserver id");
 #endif
 #endif
 
@@ -131,13 +150,17 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
 #ifdef WITHOPENMPI
   if( getenv("OMPI_URI_FILE") != NULL ){
     // kill my ompi-server
-    if( kill(_pid_ompiServer,SIGTERM) != 0 )
+    if( kill(_pid_mpiServer,SIGTERM) != 0 )
       throw SALOME_Exception("Error when killing ompi-server");
     // delete my urifile
     int status=system("rm -f ${OMPI_URI_FILE}");
     if(status!=0)
       throw SALOME_Exception("Error when removing urifile");
   }
+#elif defined(WITHMPICH)
+  // kill my hydra_nameserver
+  if( kill(_pid_mpiServer,SIGTERM) != 0 )
+    throw SALOME_Exception("Error when killing hydra_nameserver");
 #endif
 #endif
 }
@@ -692,6 +715,8 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
         command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
         command += getenv("OMPI_URI_FILE");
       }
+#elif defined(WITHMPICH)
+      command += "-nameserver " + Kernel_Utils::GetHostname();
 #endif        
       command += " SALOME_MPIContainer ";
     }
@@ -747,6 +772,8 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
           o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
           o << getenv("OMPI_URI_FILE");
         }
+#elif defined(WITHMPICH)
+      o << "-nameserver " + Kernel_Utils::GetHostname();
 #endif
 
       if (isPythonContainer(params.container_name))
@@ -954,6 +981,8 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
         tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
         tempOutputFile << getenv("OMPI_URI_FILE");
       }
+#elif defined(WITHMPICH)
+      tempOutputFile << "-nameserver " + Kernel_Utils::GetHostname();
 #endif
     }
 

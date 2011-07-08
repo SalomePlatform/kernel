@@ -44,9 +44,9 @@ if test "$WITHMPICH" = yes; then
     MPI_INCLUDES="-I$MPICH_HOME/include"
     if test "x$MPICH_HOME" = "x/usr"
     then
-      MPI_LIBS=""
+      MPI_LIBS="-lmpichcxx -lmpich -lopa -lmpl -lrt -lpthread"
     else
-      MPI_LIBS="-L$MPICH_HOME/lib"
+      MPI_LIBS="-L$MPICH_HOME/lib -lmpichcxx -lmpich -lopa -lmpl -lrt -lpthread"
     fi
   fi
 
@@ -55,20 +55,24 @@ if test "$WITHMPICH" = yes; then
   AC_CHECK_HEADER(mpi.h,WITHMPICH="yes",WITHMPICH="no")
   CPPFLAGS="$CPPFLAGS_old"
 
-  if test "$WITHMPICH" = "yes";then
-    LDFLAGS_old="$LDFLAGS"
-    LDFLAGS="$MPI_LIBS $LDFLAGS"
-    AC_CHECK_LIB(mpich,MPI_Init,WITHMPICH="yes",WITHMPICH="no")
-    AC_CHECK_LIB(mpich,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
-    LDFLAGS="$LDFLAGS_old"
-  fi
+  LIBS_old="$LIBS"
+  LIBS="$MPI_LIBS $LIBS"
+  AC_CHECK_LIB(mpich,MPI_Init,WITHMPICH="yes",WITHMPICH="no")
+  AC_CHECK_LIB(mpich,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
+  LIBS="$LIBS_old"
 
+  AC_MSG_CHECKING(for mpich)
   if test "$WITHMPICH" = "yes";then
-     WITHMPI="yes"
      mpi_ok=yes
-     MPI_LIBS="$MPI_LIBS -lmpich"
+     mpi2_ok=$WITHMPI2
+     WITHMPI="yes"
+     CPPFLAGS="-DWITHMPICH $CPPFLAGS"
+     AC_MSG_RESULT(yes)
   else
      mpi_ok=no
+     mpi2_ok=no
+     WITHMPI=no
+     AC_MSG_RESULT(no)
   fi
 
 fi

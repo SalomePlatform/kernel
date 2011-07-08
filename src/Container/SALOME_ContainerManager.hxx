@@ -113,7 +113,7 @@ protected:
 
   static omni_mutex _numInstanceMutex ; // lib and instance protection
 
-  pid_t _pid_ompiServer;
+  pid_t _pid_mpiServer;
 
   // Begin of PacO++ Parallel extension
   typedef std::vector<std::string> actual_launch_machine_t;
