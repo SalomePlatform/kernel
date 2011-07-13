@@ -119,9 +119,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   // launch a new hydra_nameserver
   std::string command;
   command = "hydra_nameserver &";
-  int status=system(command.c_str());
-  if(status!=0)
-    throw SALOME_Exception("Error when launching hydra_nameserver");
+  system(command.c_str());
   // get the pid of all hydra_nameserver
   std::set<pid_t> thepids2 = getpidofprogram("hydra_nameserver");
   // my hydra_nameserver is the new one
@@ -129,8 +127,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   for(it=thepids2.begin();it!=thepids2.end();it++)
     if(thepids1.find(*it) == thepids1.end())
       _pid_mpiServer = *it;
-  if(_pid_mpiServer < 0)
-    throw SALOME_Exception("Error when getting hydra_nameserver id");
 #endif
 #endif
 
@@ -159,8 +155,9 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
   }
 #elif defined(WITHMPICH)
   // kill my hydra_nameserver
-  if( kill(_pid_mpiServer,SIGTERM) != 0 )
-    throw SALOME_Exception("Error when killing hydra_nameserver");
+  if(_pid_mpiServer > -1)
+    if( kill(_pid_mpiServer,SIGTERM) != 0 )
+      throw SALOME_Exception("Error when killing hydra_nameserver");
 #endif
 #endif
 }
