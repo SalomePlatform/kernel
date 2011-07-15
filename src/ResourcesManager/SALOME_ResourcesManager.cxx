@@ -218,10 +218,14 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     p_ptr->protocol = "rsh";
   else if( resource.Protocol == ssh )
     p_ptr->protocol = "ssh";
+  else if( resource.Protocol == srun )
+    p_ptr->protocol = "srun";
   if( resource.ClusterInternalProtocol == rsh )
     p_ptr->iprotocol = "rsh";
   else if( resource.ClusterInternalProtocol == ssh )
     p_ptr->iprotocol = "ssh";
+  else if( resource.ClusterInternalProtocol == srun )
+    p_ptr->iprotocol = "srun";
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
   p_ptr->componentList.length(resource.ComponentsList.size());
@@ -345,6 +349,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.Protocol = rsh;
   else if (protocol == "ssh")
     resource.Protocol = ssh;
+  else if (protocol == "srun")
+    resource.Protocol = srun;
   else if (protocol == "")
     resource.Protocol = rsh;
   else {
@@ -359,6 +365,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.ClusterInternalProtocol = rsh;
   else if (iprotocol == "ssh")
     resource.ClusterInternalProtocol = ssh;
+  else if (iprotocol == "srun")
+    resource.ClusterInternalProtocol = srun;
   else if (iprotocol == "")
     resource.ClusterInternalProtocol = rsh;
   else {

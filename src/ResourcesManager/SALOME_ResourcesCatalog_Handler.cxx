@@ -310,7 +310,10 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
         resource.Protocol = rsh;
         break;
       case 's':
-        resource.Protocol = ssh;
+        if (protocol[1] == 's')
+          resource.Protocol = ssh;
+        else
+          resource.Protocol = srun;
         break;
       default:
         std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
@@ -335,7 +338,10 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
         resource.ClusterInternalProtocol = rsh;
         break;
       case 's':
-        resource.ClusterInternalProtocol = ssh;
+        if (iprotocol[1] == 's')
+          resource.ClusterInternalProtocol = ssh;
+        else
+          resource.ClusterInternalProtocol = srun;
         break;
       default:
         std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
@@ -462,7 +468,10 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
         resource.Protocol = rsh;
         break;
       case 's':
-        resource.Protocol = ssh;
+        if (protocol[1] == 's')
+          resource.Protocol = ssh;
+        else
+          resource.Protocol = srun;
         break;
       default:
         // If it'not in all theses cases, the protocol is affected to rsh
@@ -483,7 +492,10 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
         resource.ClusterInternalProtocol = rsh;
         break;
       case 's':
-        resource.ClusterInternalProtocol = ssh;
+        if (iprotocol[1] == 's')
+          resource.ClusterInternalProtocol = ssh;
+        else
+          resource.ClusterInternalProtocol = srun;
         break;
       default:
         // If it'not in all theses cases, the protocol is affected to rsh
@@ -688,6 +700,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       case ssh:
         xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "ssh");
         break;
+      case srun:
+        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "srun");
+        break;
       default:
         xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
     }
@@ -699,6 +714,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
         break;
       case ssh:
         xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "ssh");
+        break;
+      case srun:
+        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "srun");
         break;
       default:
         xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");

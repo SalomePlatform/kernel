@@ -29,7 +29,12 @@
 
 #include <string>
 #include <iostream>
+#ifndef WIN32
 #include <sys/time.h>
+#else
+#include <sys/timeb.h>
+#endif
+
 
 namespace Kernel_Utils
 {

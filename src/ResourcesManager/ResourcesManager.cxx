@@ -84,13 +84,23 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
 
+  bool default_catalog_resource = true;
   if (getenv("USER_CATALOG_RESOURCES_FILE") != 0)
   {
+    default_catalog_resource = false;
     std::string user_file("");
     user_file = getenv("USER_CATALOG_RESOURCES_FILE");
-    _path_resources.push_back(user_file);
+    std::ifstream ifile(user_file.c_str(), std::ifstream::in );
+    if (ifile) {
+      // The file exists, and is open for input
+      _path_resources.push_back(user_file);
+    }
+    else {
+      default_catalog_resource = true;
+      RES_INFOS("Warning: USER_CATALOG_RESOURCES_FILE is set and file cannot be found.")
+    }
   }
-  else
+  if (default_catalog_resource)
   {
     std::string default_file("");
     if (getenv("APPLI") != 0)
