@@ -984,8 +984,11 @@ def foreGround(clt, args):
     port = getPortNumber()
     # --
     server = Server({})
-    server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(os.getpid()), "%s"%(port)]
-    server.run()
+    if sys.platform == "win32":
+      server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(os.getpid()), "%s"%(port)]
+    else:
+      server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(os.getpid()), "%s"%(port)]
+    server.run()   
     # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
     # --
     dt = 1.0

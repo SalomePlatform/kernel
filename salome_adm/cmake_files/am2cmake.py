@@ -817,6 +817,13 @@ class CMakeFile(object):
                 SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SMESH_CANCEL_COMPUTE)
                 ''')
                 pass
+            if self.module == "ghs3dplugin":
+		# TODO: Auto-detect TetGen-GHS3D version automatically
+                newlines.append(r'''
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DGHS3D_VERSION=42)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DGHS3D_VERSION=42)
+                ''')
+                pass              
             if self.module == "hxx2salome":
                 key = "_SRC"
                 if self.the_root[-len(key):] != key:
@@ -1072,6 +1079,10 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
+                        
+            if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == mod.upper():
+              self.files.append("static/header_py.html.in")
+     
         if self.module == "yacs":
             key = "salomegui"
             if self.root[-len(key):] == key:
@@ -1122,7 +1133,7 @@ class CMakeFile(object):
         else:
             copytree_src = "$ENV{KERNEL_ROOT_DIR}/salome_adm/cmake_files"
         str = "import re \nimport sys \noutfile = open(sys.argv[1], 'wb') \nfor line in open(sys.argv[2], 'rb').readlines():"
-        str += "\n    if re.match('class '+sys.argv[3]+'DC', line): \n        continue \n    line = re.sub(r'^\s+\#', '#', line) \n    line = re.sub(r'^\s+def', 'def', line) \n    line = re.sub(sys.argv[3]+'DC', sys.argv[3], line)"
+        str += "\n    if re.match('class '+sys.argv[3]+'DC', line): \n        continue \n    line = re.sub(r'^\\\\s+\#', '#', line) \n    line = re.sub(r'^\\\\s+def', 'def', line) \n    line = re.sub(sys.argv[3]+'DC', sys.argv[3], line)"
         str += "\n    outfile.write(line) \noutfile.close()"
 
         if mod in ['kernel', 'gui'] and self.root[-len('gui'):] == 'gui' or mod == 'med' and operator.contains(self.root, 'doxygen'):
@@ -1665,6 +1676,8 @@ class CMakeFile(object):
         SET(targets ${targets} MEDEngine)
         SET(targets ${targets} SMESHEngine)
         SET(targets ${targets} SMESH)
+        SET(targets ${targets} StdMeshersEngine)
+        SET(targets ${targets} VISUEngineImpl)
         FOREACH(target ${targets})
         IF(name STREQUAL ${target})
         SET(var ${var} -DNOGDI)
