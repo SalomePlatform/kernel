@@ -549,6 +549,7 @@ AC_OUTPUT([ \
   doc/salome/gui/doxyfile \
   doc/salome/gui/static/header.html \
   doc/docutils/Makefile \
+  doc/docutils/conf.py \
   idl/Makefile \
   idl/Calcium_Ports.idl \
   resources/Makefile \
