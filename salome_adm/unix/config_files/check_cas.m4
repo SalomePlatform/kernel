@@ -227,13 +227,14 @@ else
   CAS_KERNEL="$CAS_LDPATH -lTKernel"
   CAS_MATH="$CAS_LDPATH -lTKMath"
 
+  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKernel -lTKCDF -lTKLCAF -lTKPCAF -lTKStdSchema"
+  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF -lTKPLCAF -lTKPShape -lTKStdLSchema -lTKShapeSchema"
+
   if test -f $CASROOT/$casdir/lib/libStdPlugin.so ; then
     # this libraries are only for CASCADE 5.2.3
     CAS_STDPLUGIN="StdPlugin"
+    CAS_OCAFVIS="$CAS_OCAFVIS -lStdPlugin -lStdLPlugin"
   fi
-
-  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKernel -lTKCDF -lTKLCAF -lTKPCAF -lTKStdSchema"
-  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF -lStdPlugin -lStdLPlugin -lTKPLCAF -lTKPShape -lTKStdLSchema -lTKShapeSchema"
   
   CAS_TKV3d="$CAS_LDPATH -lTKV3d"
   CAS_VIEWER="$CAS_TKV3d -lTKService"
