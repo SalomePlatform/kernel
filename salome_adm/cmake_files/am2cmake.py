@@ -376,6 +376,7 @@ class CMakeFile(object):
             "SMESHimpl",
             "SMESHObject",
             "SMESH",
+            "SMESHUtils",
             "StdMeshersEngine",
             "StdMeshersGUI",
             "StdMeshers",
@@ -818,7 +819,7 @@ class CMakeFile(object):
                 ''')
                 pass
             if self.module == "ghs3dplugin":
-		# TODO: Auto-detect TetGen-GHS3D version automatically
+    # TODO: Auto-detect TetGen-GHS3D version automatically
                 newlines.append(r'''
                 SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DGHS3D_VERSION=42)
                 SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DGHS3D_VERSION=42)
