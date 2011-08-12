@@ -1161,14 +1161,14 @@ class CMakeFile(object):
                     input = ''
                 newlines.append(r"""
                 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")
-                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} tempfile ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
+                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} tempfile %s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
                 %sCOMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-                COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
+                COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''%s.py''')"
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''', r'''%s''', ignore=copytree1.ignore_patterns(%s)); shutil.copy(r'''%s''', r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""%(str, upmod, tmp, upmod, tmp, tmp, input, upmod, tmp, copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                )"""%(str, tmp, upmod, tmp, tmp, input, tmp, copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
                 newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
