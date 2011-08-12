@@ -18,21 +18,21 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-#
 
 #  Basics: General purpose C++ 
 #  File   : Makefile.in
 #  Author : Paul RASCLE (EDF)
 #  Module : SALOME
 #  $Header$
-#
+
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 salomeinclude_HEADERS       = \
 	SALOME_Basics.hxx \
 	BasicsGenericDestructor.hxx \
 	Basics_Utils.hxx \
-	Basics_DirUtils.hxx
+	Basics_DirUtils.hxx \
+	Basics_OCCTVersion.hxx
 
 lib_LTLIBRARIES             = libSALOMEBasics.la
 libSALOMEBasics_la_SOURCES  = \
