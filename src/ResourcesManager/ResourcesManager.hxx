@@ -54,11 +54,11 @@ struct resourceParams
   std::string name;
   std::string hostname;
   std::string OS;
-  unsigned int nb_proc;
-  unsigned int nb_node;
-  unsigned int nb_proc_per_node;
-  unsigned int cpu_clock;
-  unsigned int mem_mb;
+  long nb_proc;
+  long nb_node;
+  long nb_proc_per_node;
+  long cpu_clock;
+  long mem_mb;
   std::vector<std::string> componentList;
   std::vector<std::string> resourceList;
 };
