@@ -8,7 +8,7 @@ else
   set debug=""
 endif
 if $status == 0 then
-  setenv OMPI_URI_FILE /home/secher/ARCH_COMPO/mpi2_pub/essai/URI
+  setenv OMPI_URI_FILE ${HOME}/.urifile
   ompi-server -r ${OMPI_URI_FILE}
   sleep 2
   mpirun -np $nbproc1 -ompi-server file:${OMPI_URI_FILE} ${KERNEL_ROOT_DIR}/bin/salome/testMPI2 -vsize $vsize $debug &
@@ -22,3 +22,4 @@ if $res == 0 then
 else
   echo "KO"
 endif
+rm -f  ${OMPI_URI_FILE}
