@@ -661,7 +661,8 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
     else
       throw SALOME_Exception("Unknown protocol");
 
-    if (resInfo.UserName != "")
+    // no need to redefine the user with srun, the job user is taken by default (note: for srun, user id can be specified with " --uid=<user>")
+    if (resInfo.Protocol != srun && resInfo.UserName != "")
     {
       command += "-l ";
       command += resInfo.UserName;
