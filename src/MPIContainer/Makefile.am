@@ -101,12 +101,11 @@ libSalomeMPIContainer_la_LIBADD   = $(COMMON_LIBS)
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_MPIContainer
+bin_PROGRAMS = SALOME_MPIContainer testMPI2
 SALOME_MPIContainer_SOURCES = SALOME_MPIContainer.cxx
 SALOME_MPIContainer_LDADD   = libSalomeMPIContainer.la $(COMMON_LIBS) @PYTHON_LIBS@ @MPI_LIBS@
 SALOME_MPIContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
 
-bin_PROGRAMS = testMPI2
 testMPI2_SOURCES = testMPI2.cxx
 testMPI2_LDADD   = @MPI_LIBS@
 testMPI2_CPPFLAGS = @MPI_INCLUDES@
