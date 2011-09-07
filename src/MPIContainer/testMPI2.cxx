@@ -20,6 +20,11 @@ int main(int argc, char**argv)
   std::string service = "SERVICE";
   bool debug=false;
 
+#ifndef WITHOPENMPI
+  std::cout << "This test work only with openmpi implementation" << std::endl;
+  exit(1);
+#endif
+
   for(i=1;i<argc;i++){
     std::string sargv = argv[i];
     if(sargv.find("-debug")!=std::string::npos)
