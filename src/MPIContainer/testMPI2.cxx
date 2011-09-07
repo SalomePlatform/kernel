@@ -21,7 +21,7 @@ int main(int argc, char**argv)
   bool debug=false;
 
 #ifndef WITHOPENMPI
-  std::cout << "This test work only with openmpi implementation" << std::endl;
+  std::cout << "This test only works with openmpi implementation" << std::endl;
   exit(1);
 #endif
 
