@@ -84,7 +84,7 @@
     <parameter value="255, 255, 0" name="shading_color" />
   </section>
   <section name="SMESH">
-    <parameter name="plugins" value="NETGENPlugin,GHS3DPlugin"/>
+    <parameter name="plugins" value="GHS3DPlugin,GHS3DPRLPlugin,BLSURFPlugin,NETGENPlugin,HexoticPLUGIN"/>
     <!-- Here go SMESH module user preferences -->
   </section>
   <!-- Here go optional sections for other modules -->
