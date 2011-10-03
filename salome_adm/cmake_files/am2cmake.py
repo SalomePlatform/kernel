@@ -1446,6 +1446,25 @@ class CMakeFile(object):
         
         # --
         # --
+        key = "PYUIC_FILES"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(output ${PYUIC_FILES})
+            STRING(REPLACE ".py" ".ui" input ${output})
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${PYUIC_EXECUTABLE} -o ${output} ${input}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${PYUIC_FILES})
+            ADD_CUSTOM_TARGET(BUILD_PY_UI_FILES ALL DEPENDS ${PYUIC_FILES})
+            ''')
+            pass
+        
+        # --
+        # --
         key = "QRC_FILES"
         if self.__thedict__.has_key(key):
             newlines.append('''
@@ -1545,6 +1564,8 @@ class CMakeFile(object):
             "dist_salomescript_SCRIPTS"        :  "bin/salome",
             "dist_salomescript_DATA"           :  "bin/salome",
             "dist_salomescript_PYTHON"         :  "bin/salome",
+            "dist_appliskel_SCRIPTS"           :  "bin/salome/appliskel",
+            "dist_appliskel_PYTHON"            :  "bin/salome/appliskel",
             "nodist_salomescript_DATA"         :  "bin/salome",
             "salomepython_PYTHON"              :  "${salomepythondir}",
             "nodist_salomepython_PYTHON"       :  "${salomepythondir}",
@@ -1552,6 +1573,7 @@ class CMakeFile(object):
             "sharedpkgpython_PYTHON"           :  "${salomepythondir}/shared_modules",
             "salomepypkg_PYTHON"               :  "${salomepypkgdir}",
             "mypkgpython_PYTHON"               :  "${mypkgpythondir}",
+            "nodist_mypkgpython_PYTHON"        :  "${mypkgpythondir}",
             }
         if self.module == "jobmanager":
             d["bin_SCRIPTS"] = "bin"
@@ -2134,7 +2156,9 @@ class CMakeFile(object):
         FIND_FILE(dummy ${f} PATHS ${CMAKE_CURRENT_SOURCE_DIR} NO_DEFAULT_PATH)
         IF(dummy)
         ''')
-        if key in ['dist_salomescript_SCRIPTS']:
+        if key in ['dist_salomescript_SCRIPTS',
+                   'dist_appliskel_SCRIPTS',
+                   'dist_appliskel_PYTHON']:
             newlines.append(r'''
             SET(PERMS)
             SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)

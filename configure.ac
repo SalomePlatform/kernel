@@ -537,6 +537,7 @@ AC_OUTPUT([ \
   salome_adm/unix/config_files/Makefile \
   Makefile \
   bin/Makefile \
+  bin/appliskel/Makefile \
   bin/VERSION \
   doc/Makefile \
   doc/docutils/conf.py \

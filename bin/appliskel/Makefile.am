@@ -21,13 +21,12 @@
 #
 
 # -* Makefile *- 
-# Author : Guillaume Boulant (CSSI)
+# Author : Renaud Barate (EDF R&D)
 # Module : KERNEL
 # $Header$
-#
-include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS = appliskel
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+appliskeldir = $(salomescriptdir)/appliskel
 
 #
 # ===============================================================
@@ -35,53 +34,25 @@ SUBDIRS = appliskel
 # ===============================================================
 #
 
-# These files are data, module or lib files
-dist_salomescript_DATA =	\
-	config_appli.xml	\
-	salome.launch
-
-nodist_salomescript_DATA =	\
-	VERSION
-
 # These files are executable scripts
-dist_salomescript_SCRIPTS =		\
-	appli_clean.sh			\
-	appli_install.sh		\
-	createAppli.sh			\
-	runIDLparser			\
-	runNS.sh			\
-	runSalome			\
-	runSalome.csh			\
-	runSalome.ksh			\
-	runSalome.bat			\
-	waitNS.sh
+dist_appliskel_SCRIPTS = \
+    envd                \
+    searchFreePort.sh   \
+    runRemote.sh        \
+    runAppli            \
+    runConsole          \
+    runSession          \
+    runSalomeScript     \
+    runTests            \
+    .bashrc
 
 # These files are python files
-dist_salomescript_PYTHON =		\
-	addToKillList.py		\
-	appli_gen.py			\
-	envSalome.py			\
-	killSalome.py			\
-	killSalomeWithPort.py		\
-	launchConfigureParser.py	\
-	launchSalome.py			\
-	nameserver.py			\
-	NSparam.py			\
-	orbmodule.py			\
-	runNS.py			\
-	runSalome.py			\
-	salomeConsole.py		\
-	salome_session.py		\
-	salome_utils.py	        	\
-	server.py			\
-	setenv.py			\
-	showNS.py			\
-	shutdownSalome.py		\
-	virtual_salome.py		\
-	waitContainers.py		\
-	waitNS.py
+dist_appliskel_PYTHON = \
+    getAppliPath.py             \
+    update_catalogs.py          \
+    kill_remote_containers.py
 
 install-data-hook:
-	@for f in $(dist_salomescript_PYTHON) ; do \
-          chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
-        done
+	@for f in $(dist_appliskel_PYTHON) ; do \
+        chmod -f a+x $(DESTDIR)$(appliskeldir)/$$f ; \
+    done
