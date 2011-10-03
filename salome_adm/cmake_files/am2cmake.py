@@ -1088,6 +1088,7 @@ class CMakeFile(object):
             key = "salomegui"
             if self.root[-len(key):] == key:
                 self.files.append("resources/YACSCatalog.xml.in")
+                self.files.append("resources/SalomeApp.xml.in")
                 pass
             pass
         for f in self.files:
