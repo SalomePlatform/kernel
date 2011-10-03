@@ -29,20 +29,40 @@
 #include "SALOMEDS.hxx"
 #include <stdlib.h>
 
+SALOMEDS_Driver_i::SALOMEDS_Driver_i(SALOMEDS::Driver_ptr theDriver, CORBA::ORB_ptr theORB) 
+{
+  _driver = SALOMEDS::Driver::_duplicate(theDriver);
+  _orb = CORBA::ORB::_duplicate(theORB);        
+}
+
 SALOMEDS_Driver_i::~SALOMEDS_Driver_i()
 {
 }
 
+std::string SALOMEDS_Driver_i::GetIOR() 
+{
+  std::string ior = "";
+  if ( !CORBA::is_nil(_driver) ) {
+    CORBA::String_var cior = _orb->object_to_string(_driver);
+    ior = cior;
+  }
+  return ior;
+}
+
 SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::Save(const SALOMEDSImpl_SComponent& theComponent,
-                                      const std::string& theURL,
-                                      long& theStreamLength,
-                                      bool isMultiFile)
+					      const std::string& theURL,
+					      long& theStreamLength,
+					      bool isMultiFile)
 {  
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
   CORBA::String_var url = CORBA::string_dup(theURL.c_str());
 
   SALOMEDS::unlock();
-  SALOMEDS::TMPFile_var aStream = _driver->Save(sco.in(), url, isMultiFile);
+  SALOMEDS::TMPFile_var aStream;
+
+  if ( !CORBA::is_nil(_driver) )
+    aStream = _driver->Save(sco.in(), url, isMultiFile);
+
   SALOMEDSImpl_TMPFile* aTMPFile = new SALOMEDS_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
   SALOMEDS::lock();
@@ -59,7 +79,11 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::SaveASCII(const SALOMEDSImpl_SComponent
   CORBA::String_var url = CORBA::string_dup(theURL.c_str());
 
   SALOMEDS::unlock();
-  SALOMEDS::TMPFile_var aStream = _driver->SaveASCII(sco.in(), url, isMultiFile);
+  SALOMEDS::TMPFile_var aStream;
+
+  if ( !CORBA::is_nil(_driver) )
+    aStream = _driver->SaveASCII(sco.in(), url, isMultiFile);
+
   SALOMEDSImpl_TMPFile* aTMPFile = new SALOMEDS_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
   SALOMEDS::lock();
@@ -84,9 +108,12 @@ bool SALOMEDS_Driver_i::Load(const SALOMEDSImpl_SComponent& theComponent,
     aStream = new SALOMEDS::TMPFile(0);
 
   SALOMEDS::unlock();
-  bool isOk = _driver->Load(sco.in(), aStream.in(), url, isMultiFile);
-  SALOMEDS::lock();
+  bool isOk = false;
 
+  if ( !CORBA::is_nil(_driver) )
+    isOk = _driver->Load(sco.in(), aStream.in(), url, isMultiFile);
+
+  SALOMEDS::lock();
   return isOk;
 }
 
@@ -107,9 +134,12 @@ bool SALOMEDS_Driver_i::LoadASCII(const SALOMEDSImpl_SComponent& theComponent,
     aStream = new SALOMEDS::TMPFile(0);
 
   SALOMEDS::unlock();
-  bool isOk = _driver->LoadASCII(sco.in(), aStream.in(), url, isMultiFile);
-  SALOMEDS::lock();
+  bool isOk = false;
 
+  if ( !CORBA::is_nil(_driver) )
+    isOk = _driver->LoadASCII(sco.in(), aStream.in(), url, isMultiFile);
+
+  SALOMEDS::lock();
   return isOk;
 }
 
@@ -118,39 +148,62 @@ void SALOMEDS_Driver_i::Close(const SALOMEDSImpl_SComponent& theComponent)
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
 
   SALOMEDS::unlock();
-  _driver->Close(sco.in());
+  if ( !CORBA::is_nil(_driver) )
+    _driver->Close(sco.in());
   SALOMEDS::lock();
 }
 
-
+std::string SALOMEDS_Driver_i::ComponentDataType() 
+{
+  std::string dtype = "";
+  if ( !CORBA::is_nil(_driver) ) {
+    CORBA::String_var type = _driver->ComponentDataType();
+    dtype = type;
+  }
+  return dtype;
+}
 
 std::string SALOMEDS_Driver_i::IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
-                                                 const std::string& IORString,
-                                                 bool isMultiFile,
-                                                 bool isASCII)
+						      const std::string& IORString,
+						      bool isMultiFile,
+						      bool isASCII)
 {
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theSObject, _orb);
   CORBA::String_var ior = CORBA::string_dup(IORString.c_str());
 
   SALOMEDS::unlock();
-  CORBA::String_var pers_string =_driver->IORToLocalPersistentID(so.in(), ior.in(), isMultiFile, isASCII);
+
+  std::string pstr = "";
+
+  if ( !CORBA::is_nil(_driver) ) {
+    CORBA::String_var pers_string =_driver->IORToLocalPersistentID(so.in(), ior.in(), isMultiFile, isASCII);
+    pstr = pers_string;
+  }
+
   SALOMEDS::lock();
 
-  return std::string(pers_string);
+  return pstr;
 }
 
 
 std::string SALOMEDS_Driver_i::LocalPersistentIDToIOR(const SALOMEDSImpl_SObject& theObject,
-                                                 const std::string& aLocalPersistentID,
-                                                 bool isMultiFile,
-                                                 bool isASCII)
+						      const std::string& aLocalPersistentID,
+						      bool isMultiFile,
+						      bool isASCII)
 {
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theObject, _orb);
   CORBA::String_var pers_string = CORBA::string_dup(aLocalPersistentID.c_str());
   SALOMEDS::unlock();
-  CORBA::String_var IOR = _driver->LocalPersistentIDToIOR(so.in(), pers_string.in(), isMultiFile, isASCII);
+
+  std::string ior = "";
+
+  if ( !CORBA::is_nil(_driver) ) {
+    CORBA::String_var IOR = _driver->LocalPersistentIDToIOR(so.in(), pers_string.in(), isMultiFile, isASCII);
+    ior = IOR;
+  }
+
   SALOMEDS::lock();
-  return std::string(IOR);
+  return ior;
 }
 
 bool SALOMEDS_Driver_i::CanCopy(const SALOMEDSImpl_SObject& theObject)
@@ -158,7 +211,11 @@ bool SALOMEDS_Driver_i::CanCopy(const SALOMEDSImpl_SObject& theObject)
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theObject, _orb);
 
   SALOMEDS::unlock();
-  bool isOk = _driver->CanCopy(so.in());
+  bool isOk = false;
+
+  if ( !CORBA::is_nil(_driver) )
+    isOk = _driver->CanCopy(so.in());
+
   so->UnRegister();
   SALOMEDS::lock();
 
@@ -174,7 +231,11 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::CopyFrom(const SALOMEDSImpl_SObject& th
 
   SALOMEDS::unlock();
   CORBA::Long anObjectID;
-  SALOMEDS::TMPFile_var aStream = _driver->CopyFrom(so.in(), anObjectID);
+  SALOMEDS::TMPFile_var aStream;
+
+  if ( !CORBA::is_nil(_driver) )
+    aStream = _driver->CopyFrom(so.in(), anObjectID);
+
   SALOMEDSImpl_TMPFile* aTMPFile = new SALOMEDS_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
   theObjectID = anObjectID;
@@ -186,15 +247,19 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::CopyFrom(const SALOMEDSImpl_SObject& th
 bool SALOMEDS_Driver_i::CanPaste(const std::string& theComponentName, int theObjectID)
 {
   SALOMEDS::unlock();
-  bool canPaste = _driver->CanPaste(theComponentName.c_str(), theObjectID);
+  bool canPaste = false;
+
+  if ( !CORBA::is_nil(_driver) )
+    canPaste = _driver->CanPaste(theComponentName.c_str(), theObjectID);
+
   SALOMEDS::lock();
   return canPaste;
 }
 
 std::string SALOMEDS_Driver_i::PasteInto(const unsigned char* theStream,
-                                    const long theStreamLength,
-                                    int theObjectID,
-                                    const SALOMEDSImpl_SObject& theObject)
+					 const long theStreamLength,
+					 int theObjectID,
+					 const SALOMEDSImpl_SObject& theObject)
 {
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theObject, _orb);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)theStream;
@@ -206,10 +271,17 @@ std::string SALOMEDS_Driver_i::PasteInto(const unsigned char* theStream,
     aStream = new SALOMEDS::TMPFile(0);
 
   SALOMEDS::unlock();
-  SALOMEDS::SObject_var ret_so = _driver->PasteInto(aStream.in(), theObjectID, so.in());
+
+  std::string entry = "";
+
+  if ( !CORBA::is_nil(_driver) ) {
+    SALOMEDS::SObject_var ret_so = _driver->PasteInto(aStream.in(), theObjectID, so.in());
+    entry = ret_so->GetID();
+  }
+
   SALOMEDS::lock();
 
-  return std::string(ret_so->GetID());
+  return entry;
 }
 
 SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy, 
@@ -236,6 +308,18 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
 //###############################################################################################################
 //                                          SALOMEDS_DriverFactory
 //###############################################################################################################
+
+SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB) 
+{
+  _orb = CORBA::ORB::_duplicate(theORB);
+  _name_service = new SALOME_NamingService(_orb);
+}
+
+
+SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i() 
+{
+  delete _name_service;
+}
 
 SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const std::string& theComponentType)
 {

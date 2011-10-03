@@ -41,19 +41,11 @@ protected:
 
 public:
 
-  SALOMEDS_Driver_i(SALOMEDS::Driver_ptr theDriver, CORBA::ORB_ptr theORB) 
-    {
-      _driver = SALOMEDS::Driver::_duplicate(theDriver);
-      _orb = CORBA::ORB::_duplicate(theORB);        
-    }
+  SALOMEDS_Driver_i(SALOMEDS::Driver_ptr theDriver, CORBA::ORB_ptr theORB);
 
   ~SALOMEDS_Driver_i();
 
-  virtual std::string GetIOR() 
-    {
-      CORBA::String_var ior = _orb->object_to_string(_driver);
-      return std::string(ior);
-    }
+  virtual std::string GetIOR();
 
   virtual SALOMEDSImpl_TMPFile* Save(const SALOMEDSImpl_SComponent& theComponent,
                                      const std::string& theURL,
@@ -79,12 +71,7 @@ public:
 
   virtual void Close(const SALOMEDSImpl_SComponent& theComponent);
  
-  virtual std::string ComponentDataType() 
-    {
-      CORBA::String_var ior = _driver->ComponentDataType();
-      return std::string(ior);
-    }
-
+  virtual std::string ComponentDataType();
 
   virtual std::string IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
                                              const std::string& IORString,
@@ -127,17 +114,9 @@ protected:
 
 public:
   
-  SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB) 
-    {
-      _orb = CORBA::ORB::_duplicate(theORB);
-      _name_service = new SALOME_NamingService(_orb);
-    }
+  SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB);
 
-
-  ~SALOMEDS_DriverFactory_i() 
-  {
-    delete _name_service;
-  }
+  ~SALOMEDS_DriverFactory_i();
    
   virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType);
 
