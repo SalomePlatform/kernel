@@ -1091,6 +1091,12 @@ class CMakeFile(object):
                 self.files.append("resources/SalomeApp.xml.in")
                 pass
             pass
+        if self.module == "jobmanager":
+            key = "salomegui"
+            if self.root[-len(key):] == key:
+                self.files.append("resources/SalomeApp.xml.in")
+                pass
+            pass
         for f in self.files:
             if f[-3:] == ".in":
                 if self.module == 'yacs' and f == "Doxyfile.in":
