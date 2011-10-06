@@ -480,9 +480,8 @@ def startSalome(args, modules_list, modules_root_dir):
       home = os.environ['HOME']
       appli= os.environ.get("APPLI")
       if appli is not None:
-        home='%s/%s'%(home,appli)
-        pass
-      file_name= '%s/%s'%(home, args["ns_port_log_file"])
+        home = os.path.join(home, appli, "USERS")
+      file_name = os.path.join(home, args["ns_port_log_file"])
       f = open(file_name, "w")
       f.write(os.environ['NSPORT'])
       f.close()

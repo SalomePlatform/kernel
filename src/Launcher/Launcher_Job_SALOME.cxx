@@ -64,13 +64,12 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // parameters
   std::string work_directory = params[Batch::WORKDIR].str();
 
-  std::string launch_date_port_file = _launch_date;
   std::string launch_script = "/tmp/runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
    
   // Begin of script
-  launch_script_stream << "#! /bin/bash -f" << std::endl;
+  launch_script_stream << "#!/bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
   launch_script_stream << "export PYTHONPATH=" << work_directory << ":$PYTHONPATH" << std::endl;
   launch_script_stream << "export PATH=" << work_directory << ":$PATH" << std::endl;
@@ -107,20 +106,25 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "fi" << std::endl;
 
+  // Create file for ns-port-log
+  launch_script_stream << "NS_PORT_FILE_PATH=`mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX` &&\n";
+  launch_script_stream << "NS_PORT_FILE_NAME=`basename $NS_PORT_FILE_PATH` &&\n";
+
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << _launch_date << ".log 2>&1" << std::endl;
-  launch_script_stream << "current=0\n"
-		       << "stop=20\n" 
-		       << "while ! test -f " << _resource_definition.AppliPath << "/" << launch_date_port_file << "\n"
-		       << "do\n"
-		       << "  sleep 2\n"
-		       << "  let current=current+1\n"
-		       << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
-		       << "    echo Error Naming Service failed ! >&2\n"
-		       << "    exit\n"
-		       << "  fi\n"
-		       << "done\n"
-		       << "appli_port=`cat " << _resource_definition.AppliPath << "/" << launch_date_port_file << "`\n";
+  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME > logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
+  launch_script_stream << "current=0 &&\n"
+                       << "stop=20 &&\n"
+                       << "while ! test -f $NS_PORT_FILE_PATH\n"
+                       << "do\n"
+                       << "  sleep 2\n"
+                       << "  let current=current+1\n"
+                       << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
+                       << "    echo Error Naming Service failed ! >&2\n"
+                       << "    exit\n"
+                       << "  fi\n"
+                       << "done &&\n"
+                       << "appli_port=`cat $NS_PORT_FILE_PATH` &&\n"
+                       << "rm $NS_PORT_FILE_PATH &&\n";
 
   // Call real job type
   addJobTypeSpecificScript(launch_script_stream);
