@@ -68,7 +68,7 @@ public:
   // Useful methods
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
   std::map<int, Launcher::Job *> getJobs();
-  void checkFactoryForResource(const std::string & resource_name);
+  void createBatchManagerForJob(Launcher::Job * job);
   void addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference);
 
   // Lib methods
@@ -83,7 +83,7 @@ protected:
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
   Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params);
-  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
+  std::map <int, Batch::BatchManager_eClient*> _batchmap;
 #endif
   ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 

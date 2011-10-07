@@ -859,7 +859,6 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
           try
           {
             _l.createJob(new_job);
-
             std::ostringstream job_id;
             job_id << new_job->getNumber();
             notifyObservers("NEW_JOB", job_id.str());
@@ -876,15 +875,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         {
           try
           {
-            // Step 1: Add the resource to the launcher C++ map
-            _l.checkFactoryForResource(resource_choosed_name);
-
-            // Step 2: We add run_part informations
             new_job->setState(job_state);
-
-            // Step 3: We add the job to the launcher
-            ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
-            new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
 
             // Step 4: We check that the BatchManager could resume
@@ -912,17 +903,9 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         {
           try
           {
-            // Step 1: Add the resource to the launcher C++ map
-            _l.checkFactoryForResource(resource_choosed_name);
-
             // Step 2: We add run_part informations
             new_job->setState(job_state);
-
-            // Step 3: We add the job to the launcher
-            ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
-            new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
-
             std::ostringstream job_id;
             job_id << new_job->getNumber();
             notifyObservers("NEW_JOB", job_id.str());
