@@ -76,7 +76,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   if (_env_file != "")
   {
     std::string::size_type last = _env_file.find_last_of("/");
-    launch_script_stream << "source ./" << _env_file.substr(last+1) << std::endl;
+    launch_script_stream << ". " << _env_file.substr(last+1) << std::endl;
   }
   launch_script_stream << "export SALOME_TMP_DIR=" << work_directory << "/logs" << std::endl;
 
