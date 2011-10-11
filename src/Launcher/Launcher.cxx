@@ -271,6 +271,27 @@ Launcher_cpp::removeJob(int job_id)
 }
 
 //=============================================================================
+/*!
+ * stop the job
+ */ 
+//=============================================================================
+void
+Launcher_cpp::stopJob(int job_id)
+{
+  LAUNCHER_MESSAGE("Stop Job");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  it_job->second->stopJob();
+}
+
+//=============================================================================
 /*! 
  *  create a launcher job based on a file
  *  \param xmlExecuteFile     : to define the execution on the batch cluster

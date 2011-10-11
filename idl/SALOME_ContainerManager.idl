@@ -210,6 +210,7 @@ interface SalomeLauncher
   string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
   void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
   boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
+  void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
   void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
   // Useful methods

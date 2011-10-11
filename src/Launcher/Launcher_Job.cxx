@@ -68,6 +68,27 @@ Launcher::Job::~Job()
 }
 
 void
+Launcher::Job::stopJob()
+{
+  LAUNCHER_MESSAGE("Stop resquested for job number: " << _number);
+  setState("FAILED");
+#ifdef WITH_LIBBATCH
+  if (_batch_job_id.getReference() != "undefined")
+  {
+    try 
+    {
+      _batch_job_id.deleteJob();
+    }
+    catch (const Batch::EmulationException &ex)
+    {
+      LAUNCHER_INFOS("WARNING: exception when stopping the job: " << ex.message);
+    }
+  }
+#endif
+}
+
+
+void
 Launcher::Job::removeJob()
 {
   LAUNCHER_MESSAGE("Removing job number: " << _number);
@@ -404,8 +425,8 @@ std::string
 Launcher::Job::updateJobState()
 {
 
-  if (_state != "FINISHED" ||
-      _state != "ERROR"    ||
+  if (_state != "FINISHED" &&
+      _state != "ERROR"    &&
       _state != "FAILED")
   {
 #ifdef WITH_LIBBATCH

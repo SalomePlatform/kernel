@@ -109,6 +109,7 @@ namespace Launcher
       // Xml method
       void addToXmlDocument(xmlNodePtr root_node);
 
+      void stopJob();
       void removeJob();
 
       // Abstract class

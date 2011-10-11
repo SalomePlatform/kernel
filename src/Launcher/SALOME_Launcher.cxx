@@ -276,6 +276,23 @@ SALOME_Launcher::removeJob(CORBA::Long job_id)
   }
 }
 
+void 
+SALOME_Launcher::stopJob(CORBA::Long job_id)
+{
+  try
+  {
+    _l.stopJob(job_id);
+    std::ostringstream job_id_str;
+    job_id_str << job_id;
+    notifyObservers("UPDATE_JOB_STATE", job_id_str.str());
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
 //=============================================================================
 /*! CORBA Method:
  *  Create a job in the launcher with a file

@@ -51,6 +51,7 @@ public:
   char *      getJobState  (CORBA::Long job_id);
   void        getJobResults(CORBA::Long job_id, const char * directory);
   CORBA::Boolean getJobDumpState(CORBA::Long job_id, const char * directory);
+  void        stopJob      (CORBA::Long job_id);
   void        removeJob    (CORBA::Long job_id);
 
   // Useful methods
