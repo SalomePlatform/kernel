@@ -68,7 +68,7 @@ namespace SALOME{
     /*! \brief Obsolete, left for compatibility reasons only. Use UnRegister() instead.*/
     virtual void Destroy();
   };
-};
+}
 
 #endif
 
