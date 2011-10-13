@@ -492,6 +492,13 @@ Launcher_cpp::removeJob(int job_id)
                           "(libBatch was not present at compilation time)");
 }
 
+void
+Launcher_cpp::stopJob(int job_id)
+{
+  throw LauncherException("Method Launcher_cpp::stopJob is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
 long 
 Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string clusterName)
 {
