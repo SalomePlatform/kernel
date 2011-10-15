@@ -779,8 +779,8 @@ class CMakeFile(object):
         SET(VERSION_INFO 0.0.0)
         SET(SOVERSION_INFO 0)
         SET(SUBDIRS)
-        SET(AM_CPPFLAGS)
-        SET(AM_CXXFLAGS)
+        SET(AM_CPPFLAGS -I${CMAKE_BINARY_DIR )
+        SET(AM_CXXFLAGS -I${CMAKE_BINARY_DIR})
         SET(LDADD)
         SET(pythondir lib/python${PYTHON_VERSION}/site-packages)
         SET(salomepythondir ${pythondir}/salome)
@@ -788,7 +788,7 @@ class CMakeFile(object):
         """)
         if self.module == "netgen":
             newlines.append(r'''
-            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DNO_PARALLEL_THREADS -DOCCGEOMETRY -I${CMAKE_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR})
+            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DNO_PARALLEL_THREADS -DOCCGEOMETRY -I${CMAKE_CURRENT_SOURCE_DIR})
             ''')
         elif self.module == "kernel":
             newlines.append(r'''
