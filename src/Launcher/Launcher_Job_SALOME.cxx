@@ -114,10 +114,10 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME > logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"
-                       << "while ! test -f $NS_PORT_FILE_PATH\n"
+                       << "while ! test -s $NS_PORT_FILE_PATH\n"
                        << "do\n"
                        << "  sleep 2\n"
-                       << "  let current=current+1\n"
+                       << "  current=$((current+1))\n"
                        << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
                        << "    echo Error Naming Service failed ! >&2\n"
                        << "    exit\n"
