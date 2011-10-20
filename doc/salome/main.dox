@@ -18,8 +18,12 @@
     See \ref SALOME_Application.
 -# <b>How to use KERNEL services in Python scripts</b>\n
     The %SALOME KERNEL offers a list of services available in Python. See \subpage KERNEL_Services.
+-# <b>How to use KERNEL services from a C++ context</b>\n
+    The %SALOME KERNEL provides you with helper functions to
+    manipulate the %SALOME KERNEL services from a C++ programming
+    context. See \subpage KERNEL_Services_CppHelpers.
 
-\section S3_main Application Integrator
+\Section S3_main Application Integrator
 
     Applications integrators are in charge of configuration and installation of
     specific %SALOME applications over a local network. Application Integrators 

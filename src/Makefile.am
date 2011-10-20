@@ -52,6 +52,7 @@ SUBDIR_CORBA = \
   TOOLSDS \
   SALOMEDSImpl \
   SALOMEDS \
+  KernelHelpers \
   ModuleGenerator \
   Communication \
   Communication_SWIG \

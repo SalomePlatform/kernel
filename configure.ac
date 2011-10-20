@@ -612,4 +612,5 @@ AC_OUTPUT([ \
   src/UnitTests/Makefile \
   src/Utils/Makefile \
   src/Utils/Test/Makefile \
+  src/KernelHelpers/Makefile \
 ])

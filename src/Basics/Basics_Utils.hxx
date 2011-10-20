@@ -62,6 +62,13 @@ namespace Kernel_Utils
 #endif
 }
 
+
+//
+// =============================================================
+// Helper macro for time analysis
+// =============================================================
+//
+
 #define START_TIMING(name) static long name##tcount=0;static long name##cumul;long name##tt0; timeval name##tv; gettimeofday(&name##tv,0); \
                            name##tt0=name##tv.tv_usec+name##tv.tv_sec*1000000; \
                            if(name##tcount==0)std::cerr<<__FILE__<<":"<<__LINE__<<":"<<#name<<std::endl;
@@ -71,5 +78,43 @@ namespace Kernel_Utils
                                 if(name##tcount==NUMBER){ \
                                   std::cerr <<__FILE__<<":"<<__LINE__<<":"<<#name<<" temps CPU(mus): "<< name##cumul<<std::endl; \
                                   name##tcount=0;name##cumul=0;}
+
+
+//
+// =============================================================
+// Macro and template functions for type conversions.
+// =============================================================
+//
+#include <string>
+#include <sstream>
+#include <stdlib.h>
+
+template < class T >
+std::string ToString(const T &arg)
+{
+  std::stringstream out;
+  out << arg;
+  return(out.str());
+}
+
+template < class T >
+double ToDouble(const T &arg) {
+  std::stringstream out;
+  out << arg;
+  double value = atof(out.str().c_str());
+  return value;
+}
+
+//
+// =============================================================
+// Simple Logger macros (no dependency with SALOME)
+// =============================================================
+//
+#define STDLOG(msg) {std::cerr<<std::flush<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<std::endl<<std::flush;}
+#ifdef LOG
+#undef LOG
+#endif
+#define LOG STDLOG
+
 
 #endif //_Basics_UTILS_HXX_
