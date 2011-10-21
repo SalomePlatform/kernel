@@ -27,6 +27,17 @@ mypkgpython_PYTHON = \
 	logger.py \
 	studyedit.py \
 	termcolor.py \
-	logconfig.py
+	logconfig.py \
+	unittester.py  \
+	pyunittester.py  \
+	enumerate.py   \
+	uiexception.py \
+	datamodeler.py \
+	diclookup.py \
+	services.py \
+	testdata.py
+
+bin_SCRIPTS=\
+	kernelpy_autotest.sh
 
 SUBDIRS = parametric

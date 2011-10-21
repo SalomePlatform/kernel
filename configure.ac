@@ -578,6 +578,7 @@ AC_OUTPUT([ \
   src/HDFPersist/Makefile \
   src/KERNEL_PY/Makefile \
   src/KERNEL_PY/kernel/Makefile \
+  src/KERNEL_PY/kernel/kernelpy_autotest.sh \
   src/KERNEL_PY/kernel/logconfig.py \
   src/KERNEL_PY/kernel/parametric/Makefile \
   src/Launcher/Makefile \
