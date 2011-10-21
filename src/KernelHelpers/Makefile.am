@@ -54,6 +54,7 @@ libSalomeKernelHelpers_la_CPPFLAGS = \
 	-I$(top_builddir)/idl
 
 libSalomeKernelHelpers_la_LDFLAGS  = \
+	$(OMNIORB_LIBS) \
 	../NamingService/libSalomeNS.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
