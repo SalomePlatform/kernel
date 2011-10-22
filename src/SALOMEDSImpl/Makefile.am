@@ -109,6 +109,7 @@ COMMON_LIBS =\
 	../HDFPersist/libSalomeHDFPersist.la \
 	../DF/libDF.la \
 	../GenericObj/libSalomeGenericObj.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@HDF5_LIBS@ 
 
 
@@ -234,4 +235,4 @@ bin_PROGRAMS = testDS
 testDS_SOURCES  = testDS.cxx
 testDS_CPPFLAGS = $(COMMON_CPPFLAGS)
 testDS_LDADD    = libSalomeDSImpl.la ../DF/libDF.la \
-	$(HDF5_LIBS) $(CORBA_LIBS)
+	$(COMMON_LIBS) $(CORBA_LIBS)
