@@ -707,6 +707,15 @@ def CreateOptionParser (theAdditionalOptions=[]):
                                 dest="wake_up_session", default=False,
                                 help=help_str)
 
+    # Launch server processes with a specific command. Default: False.
+    help_str = "Launch server processes with a specific command."
+    o_slc = optparse.Option("--server-launch-cmd",
+                            metavar="<server_launch_cmd>",
+                            type="string",
+                            action="store",
+                            dest="server_launch_cmd",
+                            help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -735,6 +744,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_shutdown,
                 o_foreground,
                 o_wake_up,
+                o_slc,   # Server launch command
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -1081,6 +1091,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         args[play_nam] = []
         filename = cmd_opts.play_script_file
         args[play_nam] += re.split( "[:;,]", filename )
+
+    # Server launch command
+    if cmd_opts.server_launch_cmd is not None:
+      args["server_launch_cmd"] = cmd_opts.server_launch_cmd
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)

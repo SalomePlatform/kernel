@@ -29,9 +29,8 @@
 import sys, os, string, glob, time, pickle, re
 import orbmodule
 import setenv
-from server import *
 from launchConfigureParser import verbose
-from server import process_id
+from server import process_id, Server
 
 if sys.platform == "win32":
     SEP = ";"
@@ -415,6 +414,12 @@ def startSalome(args, modules_list, modules_root_dir):
     init_time = os.times()
 
     if verbose(): print "startSalome ", args
+    
+    #
+    # Set server launch command
+    #
+    if args.has_key('server_launch_cmd'):
+        Server.set_server_launch_cmd(args['server_launch_cmd'])
     
     #
     # Wake up session option

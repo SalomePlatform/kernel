@@ -23,6 +23,7 @@
 #
 
 import os, sys, string
+from salome_utils import getHostName
 process_id = {}
 
 # -----------------------------------------------------------------------------
@@ -32,6 +33,8 @@ process_id = {}
 
 class Server:
     """Generic class for CORBA server launch"""
+    
+    server_launch_args = []
 
     def initArgs(self):
         self.PID=None
@@ -47,6 +50,13 @@ class Server:
         self.args=args
         self.initArgs()
 
+    @staticmethod
+    def set_server_launch_cmd(cmd):
+        if cmd == "srun":
+            Server.server_launch_args = ["srun", "-n", "1", "-N", "1"]
+            Server.server_launch_args += ["--share", "--nodelist=%s" % getHostName()]
+        else:
+            print >>sys.stderr, "Unknown server launch command:%s" % cmd
 
     def run(self):
         global process_id
@@ -124,8 +134,9 @@ class Server:
         #I am a daemon
         os.close(0) #close stdin
         os.open("/dev/null", os.O_RDWR)  # redirect standard input (0) to /dev/null
+        all_args = Server.server_launch_args + args
         try:
-          os.execvp(args[0], args)
+          os.execvp(all_args[0], all_args)
         except OSError, e:
           if args[0] != "notifd":
             print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)

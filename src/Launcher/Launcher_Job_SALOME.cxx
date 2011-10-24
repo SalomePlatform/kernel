@@ -111,7 +111,13 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "NS_PORT_FILE_NAME=`basename $NS_PORT_FILE_PATH` &&\n";
 
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME > logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME ";
+  if (_resource_definition.ClusterInternalProtocol != rsh &&
+      _resource_definition.ClusterInternalProtocol != ssh)
+  {
+    launch_script_stream << "--server-launch-cmd=" << resource_protocol << " ";
+  }
+  launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"
                        << "while ! test -s $NS_PORT_FILE_PATH\n"
