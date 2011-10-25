@@ -54,6 +54,7 @@ html/index.html:$(RSTFILES)
 	mkdir -p html doctrees
 	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH} \
 	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH} \
+	OMNIORB_CONFIG= \
 	$(SPHINXBUILD) -c $(top_builddir)/doc/docutils -W -b html $(ALLSPHINXOPTS) html
 	@echo
 	@echo "Build finished. The HTML pages are in html."
