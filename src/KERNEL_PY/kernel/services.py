@@ -126,6 +126,11 @@ def getStudyManager():
     return studyManager
 
 
+# TO BE COMPLETED:
+# With functions to manipulate object, sobject, etc (See
+# GUI_SRC/src/SALOME_SWIG/salome.py). The functions to manipulate the
+# study are implemented in the Study Editor (see studyedit.py)
+
 #
 # ==============================================================================
 # Basic use cases and unit tests
