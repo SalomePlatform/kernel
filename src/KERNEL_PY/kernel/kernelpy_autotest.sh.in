@@ -52,9 +52,9 @@ listfiles="\
 #    logconfig.py"
 
 # This list REQUIRES a running SALOME application
-#listfiles=$listfiles"\
-#    services.py \
-#    studyedit.py"
+listfiles=$listfiles"\
+    services.py \
+    studyedit.py"
 
 # This files are not used yet (but we test them)
 #listfiles=$listfiles"\

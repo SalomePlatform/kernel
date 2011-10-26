@@ -21,21 +21,27 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 mypkgpythondir =$(salomepypkgdir)/kernel
 
+# This first set of modules could be used in any context, you just
+# have to get a python environement.
 mypkgpython_PYTHON = \
-	__init__.py \
-	deprecation.py \
-	logger.py \
-	studyedit.py \
-	termcolor.py \
-	logconfig.py \
-	unittester.py  \
+	__init__.py      \
+	deprecation.py   \
+	logger.py        \
+	termcolor.py     \
+	logconfig.py     \
+	unittester.py    \
 	pyunittester.py  \
-	enumerate.py   \
-	uiexception.py \
-	datamodeler.py \
-	diclookup.py \
-	services.py \
-	testdata.py
+	enumerate.py     \
+	uiexception.py   \
+	datamodeler.py   \
+	testdata.py      \
+	diclookup.py     \
+	threadhelper.py
+
+# This set of modules required a running SALOME application.
+mypkgpython_PYTHON += \
+	studyedit.py     \
+	services.py
 
 bin_SCRIPTS=\
 	kernelpy_autotest.sh
