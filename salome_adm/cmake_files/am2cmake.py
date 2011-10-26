@@ -1457,7 +1457,7 @@ class CMakeFile(object):
         if self.__thedict__.has_key(key):
             newlines.append('''
             FOREACH(output ${PYUIC_FILES})
-            STRING(REPLACE ".py" ".ui" input ${output})
+            STRING(REPLACE "_ui.py" ".ui" input ${output})
             SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
             ADD_CUSTOM_COMMAND(
