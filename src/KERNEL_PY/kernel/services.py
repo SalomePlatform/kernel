@@ -64,7 +64,7 @@ if salome.lcc is None:
 #
 
 #
-# componantName is the name of the component as declared in the XML
+# componentName is the name of the component as declared in the XML
 # SALOME catalog. A loadable library with name lib<componentName>Engine.so
 # is supposed to be reachable. This library is supposed to provide a
 # factory function with the prototype:
@@ -97,7 +97,7 @@ def getComponent(componentName = "SalomeTestComponent",
     print "INF: component %s obtained from CORBA module %s"%(componentName,corbaModule)
     return component
 
-# Not that an alternative (and maybe better) method to get a component
+# Note that an alternative (and maybe better) method to get a component
 # is to use the module catalog. Here, we just use the catalog to get
 # the list of components defined in the current session.
 import SALOME_ModuleCatalog
@@ -112,24 +112,89 @@ def getComponentList():
         raise RuntimeError, "Can't accesss module catalog"
     return catalog.GetComponentList()
 
-import SALOMEDS
 def getStudyManager():
+    """Get a study manager to create and manage SALOME studies"""
+    return salome.myStudyManager
+
+import SALOMEDS
+def __getStudyManager_demo():
     """
     Get a study manager to create and manage SALOME studies. WARN: you
     should use instead the variable salome.myStudyManager. This
     function is given for illustration of usage of the naming service
     """
-    import SALOMEDS
     naming_service = SALOME_NamingServicePy_i( orb )
     obj = naming_service.Resolve( '/myStudyManager' )
     studyManager = obj._narrow( SALOMEDS.StudyManager)
     return studyManager
 
 
+#
+# ==============================================================================
+# Helper functions for manipulating objects, sobjects and entry
+# ==============================================================================
+#
+
 # TO BE COMPLETED:
 # With functions to manipulate object, sobject, etc (See
 # GUI_SRC/src/SALOME_SWIG/salome.py). The functions to manipulate the
 # study are implemented in the Study Editor (see studyedit.py)
+
+# - the SObject is an item in a study (Study Object).
+# - the entry is the identifier of an item.
+# - the ID is the entry
+# - the object (geom object or smesh object) is a CORBA servant
+#   embedded in the SALOME component container and with a reference in
+#   the SALOME study, so that it can be retrieved.
+
+def IDToObject(id, study=None):
+    myObj = None
+    if study is None:
+        myStudy = salome.myStudy
+    else:
+        myStudy = study
+    mySO = myStudy.FindObjectID(id);
+    if mySO is not None:
+        ok, anAttr = mySO.FindAttribute("AttributeIOR")
+        if ok:
+            AtIOR = anAttr._narrow(SALOMEDS.AttributeIOR)
+            if AtIOR.Value() != "":
+                myObj = salome.orb.string_to_object(AtIOR.Value())
+    return myObj
+
+def ObjectToSObject(obj, study=None):
+    mySO = None
+
+    if study is None:
+        myStudy = salome.myStudy
+    else:
+        myStudy = study
+
+    if obj is not None:
+        ior =  salome.orb.object_to_string(obj)
+        if ior != "":
+            mySO = myStudy.FindObjectIOR(ior)
+    return mySO
+
+def ObjectToID(obj, study=None):
+    mySO = ObjectToSObject(obj,study)
+    if mySO:
+        return mySO.GetID()
+    return ""
+
+def IDToSObject(id, study=None):
+    if study is None:
+        myStudy = salome.myStudy
+    else:
+        myStudy = study
+
+    mySO = myStudy.FindObjectID(id);
+    return mySO
+
+def SObjectToID(sobject):
+    if sobject is None: return None
+    return sobject.GetID()
+
 
 #
 # ==============================================================================
@@ -152,7 +217,35 @@ def TEST_getComponentList():
         return False
     return True
 
+def TEST_createObject():
+    """
+    WARNING: for this test, we need GEOM (used to create an object 
+    """
+    import geompy
+    geompy.init_geom(salome.myStudy)
+    box = geompy.MakeBoxDXDYDZ(200, 200, 200)
+    id = geompy.addToStudy( box, 'box' )
+    return id
+
+def TEST_objectsManipulation():
+    myEntry = TEST_createObject()
+
+    mySObject = IDToSObject(myEntry)
+    entry     = SObjectToID(mySObject)
+
+    if str(entry) != str(myEntry):
+        return False
+
+
+    myObject = IDToObject(myEntry)
+    print myObject
+    if myObject is None:
+        return False
+
+    return True
+
 if __name__ == "__main__":
     import unittester
     unittester.run("services","TEST_getComponent")
     unittester.run("services","TEST_getComponentList")
+    unittester.run("services","TEST_objectsManipulation")
