@@ -688,9 +688,9 @@ class CMakeFile(object):
                 pass
             elif self.module == "medfile":
                 newlines.append("""
-                SET(MED_NUM_MAJEUR 2)
-                SET(MED_NUM_MINEUR 3)
-                SET(MED_NUM_RELEASE 5)
+                SET(MED_NUM_MAJEUR 3)
+                SET(MED_NUM_MINEUR 0)
+                SET(MED_NUM_RELEASE 3)
                 SET(LONG_OR_INT int)
                 IF(NOT WINDOWS)
                 SET(FLIBS -lgfortranbegin -lgfortran)
@@ -864,7 +864,21 @@ class CMakeFile(object):
         # If the line begins with 'include ', just comment it
         # --
         if line.find("include ") == 0:
-            newlines.append("# " + line)
+            if line.find("include $(top_srcdir)/config/automake.common") == 0:
+                for l in [
+                    "MAINTAINERCLEANFILES = Makefile.in",
+                    "AM_CPPFLAGS=-I$(top_srcdir)/include -I$(top_builddir)/include",
+                    "AM_FFLAGS=-I$(top_srcdir)/include  -I$(top_builddir)/include",
+                    "AM_FCFLAGS=-I$(top_srcdir)/include  -I$(top_builddir)/include",
+                    "AM_CPPFLAGS+=@HDF5_CPPFLAGS@",
+                    "AM_LDFLAGS=@HDF5_LDFLAGS@",
+                    ]:
+                    self.treatLine(l, newlines, opened_ifs)
+                    pass
+                pass
+            else:
+                newlines.append("# " + line)
+                pass
             return
         
         # --
