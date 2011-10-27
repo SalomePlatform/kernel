@@ -43,7 +43,7 @@ class SALOMELAUNCHER_EXPORT SALOME_Launcher:
 
 public:
   SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa);
-  ~SALOME_Launcher();
+  virtual ~SALOME_Launcher();
 
   // Main methods
   CORBA::Long createJob    (const Engines::JobParameters & job_parameters);

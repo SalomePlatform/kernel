@@ -55,7 +55,7 @@ class LAUNCHER_EXPORT Launcher_cpp
 
 public:
   Launcher_cpp();
-  ~Launcher_cpp();
+  virtual ~Launcher_cpp();
 
   // Main interface
   void         createJob(Launcher::Job * new_job);

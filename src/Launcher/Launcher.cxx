@@ -628,8 +628,8 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
 {
   // Step 0: Calculated job_id
   pthread_mutex_lock(_job_cpt_mutex);
-  _job_cpt++;
   int job_id = _job_cpt;
+  _job_cpt++;
   new_job->setNumber(job_id);
   pthread_mutex_unlock(_job_cpt_mutex);
 
