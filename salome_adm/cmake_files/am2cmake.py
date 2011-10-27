@@ -1511,6 +1511,53 @@ class CMakeFile(object):
             pass
 
         # --
+        # For GUI/tools/dlgfactory
+        # --
+        key = "UIC_FILES_QDIALOG"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(output ${UIC_FILES_QDIALOG} ${UIC_FILES_GDIALOG})
+            STRING(REPLACE "ui_" "" input ${output})
+            STRING(REPLACE ".hxx" ".ui" input ${input})
+            SET(input_path ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            IF (NOT EXISTS ${input_path})
+              SET(input_path ${CMAKE_CURRENT_BINARY_DIR}/${input})
+            ENDIF (NOT EXISTS input_path)
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${QT_UIC_EXECUTABLE} -o ${output} ${input_path}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${UIC_FILES})
+
+            FOREACH(output ${MOC_FILES_QDIALOG} ${MOC_FILES_GDIALOG})
+            STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
+            SET(input_path ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            IF (NOT EXISTS ${input_path})
+              SET(input_path ${CMAKE_CURRENT_BINARY_DIR}/${input})
+            ENDIF (NOT EXISTS input_path)
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${QT_MOC_EXECUTABLE} ${MOC_FLAGS} ${input_path} -o ${output}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${MOC_FILES})
+            
+            ADD_CUSTOM_COMMAND(
+            OUTPUT QDialogTest.ui QDialogTest.hxx QDialogTest.cxx
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.sh -n QDialogTest -t qdialog
+            DEPENDS __QDIALOG__.ui __QDIALOG__.hxx __QDIALOG__.cxx dlgfactory.sh
+            )
+            
+            ADD_CUSTOM_COMMAND(
+            OUTPUT GDialogTest.ui GDialogTest.hxx GDialogTest.cxx
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.sh -n GDialogTest -t gdialog
+            DEPENDS __GDIALOG__.ui __GDIALOG__.hxx __GDIALOG__.cxx dlgfactory.sh
+            )
+            ''')
+            pass
+
+        # --
         # For make check
         # --
         for key in ["TESTS"]:
