@@ -205,9 +205,6 @@ Launcher::Job::setJobFile(const std::string & job_file)
   std::string::size_type p2 = _job_file.find_last_of(".");
   _job_file_name_complete = _job_file.substr(p1+1);
   _job_file_name = _job_file.substr(p1+1,p2-p1-1);
-
-  if (_job_file != "")
-    add_in_file(_job_file);
 }
 
 std::string
@@ -219,8 +216,6 @@ void
 Launcher::Job::setEnvFile(const std::string & env_file)
 {
   _env_file = env_file;
-  if (_env_file != "")
-    add_in_file(_env_file);
 }
 
 std::string
@@ -491,7 +486,11 @@ Launcher::Job::common_job_params()
     _result_directory = getenv("HOME");
 
   // _in_files
-  for(std::list<std::string>::iterator it = _in_files.begin(); it != _in_files.end(); it++)
+  std::list<std::string> in_files(_in_files);
+  in_files.push_back(_job_file);
+  if (_env_file != "")
+	  in_files.push_back(_env_file);
+  for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
   {
     std::string file = *it;
 
@@ -502,7 +501,7 @@ Launcher::Job::common_job_params()
     else
       local_file = _local_directory + "/" + file;
     
-    // remote file -> get only file name from _in_files
+    // remote file -> get only file name from in_files
     size_t found = file.find_last_of("/");
     std::string remote_file = _work_directory + "/" + file.substr(found+1);
 
