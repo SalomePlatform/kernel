@@ -18,12 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 //  File   : SALOMEDS_UseCaseBuilder_i.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #ifndef __SALOMEDS_USECaseBuilder_I_H__
 #define __SALOMEDS_USECaseBuilder_I_H__
 
@@ -73,7 +72,11 @@ public:
 
   virtual CORBA::Boolean  HasChildren(SALOMEDS::SObject_ptr theObject);
 
+  virtual SALOMEDS::SObject_ptr GetFather(SALOMEDS::SObject_ptr theObject);
+
   virtual CORBA::Boolean  IsUseCase(SALOMEDS::SObject_ptr theObject);
+
+  virtual CORBA::Boolean  IsUseCaseNode(SALOMEDS::SObject_ptr theObject);
 
   virtual CORBA::Boolean SetName(const char* theName);
 

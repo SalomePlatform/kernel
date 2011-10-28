@@ -329,6 +329,7 @@ during each working session.
     \return    An object
 */
     Object ConvertIORToObject(in string theIOR);
+
 /*!  \brief Get a new %UseCaseBuilder.
 */
     UseCaseBuilder  GetUseCaseBuilder();
@@ -1319,6 +1320,10 @@ Activates the %UseCaseIterator.
 */
     boolean HasChildren(in SObject theObject);
 /*!
+   Gets father object of the given object <VAR>theObject</VAR> in the use cases tree.
+*/
+    SObject GetFather(in SObject theObject);
+/*!
    Sets the name of the use case.
 */
     boolean SetName(in string theName);
@@ -1330,6 +1335,10 @@ Activates the %UseCaseIterator.
    Returns True if the given object <VAR>theObject</VAR> represents a use case.
 */
     boolean IsUseCase(in SObject theObject);
+/*!
+   Returns True if the given object <VAR>theObject</VAR> is included in the use cases tree on any level.
+*/
+    boolean IsUseCaseNode(in SObject theObject);
 /*!
     Gets the current object of the use case.
 */

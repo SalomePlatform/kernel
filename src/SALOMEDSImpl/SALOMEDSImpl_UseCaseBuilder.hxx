@@ -65,7 +65,11 @@ public:
 
   virtual bool  HasChildren(const SALOMEDSImpl_SObject& theObject);
 
+  virtual SALOMEDSImpl_SObject GetFather(const SALOMEDSImpl_SObject& theObject);
+
   virtual bool  IsUseCase(const SALOMEDSImpl_SObject& theObject);
+
+  virtual bool  IsUseCaseNode(const SALOMEDSImpl_SObject& theObject);
 
   virtual bool SetName(const std::string& theName);
 

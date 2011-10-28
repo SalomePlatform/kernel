@@ -18,12 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 //  File   : SALOMEDS_UseCaseBuilder.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #include "SALOMEDS_UseCaseBuilder.hxx"
 
 #include "SALOMEDS.hxx"
@@ -139,6 +138,18 @@ bool SALOMEDS_UseCaseBuilder::HasChildren(const _PTR(SObject)& theObject)
   return ret;
 }
 
+_PTR(SObject) SALOMEDS_UseCaseBuilder::GetFather(const _PTR(SObject)& theObject)
+{
+  SALOMEDS_SObject* father = NULL;
+  SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    father = new SALOMEDS_SObject(_local_impl->GetFather(*(obj->GetLocalImpl())));
+  }
+  else father = new SALOMEDS_SObject(_corba_impl->GetFather(obj->GetCORBAImpl()));
+  return _PTR(SObject)(father);
+}
+
 bool SALOMEDS_UseCaseBuilder::IsUseCase(const _PTR(SObject)& theObject)
 {
   bool ret;
@@ -148,6 +159,18 @@ bool SALOMEDS_UseCaseBuilder::IsUseCase(const _PTR(SObject)& theObject)
     ret = _local_impl->IsUseCase(*(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->IsUseCase(obj->GetCORBAImpl());
+  return ret;
+}
+
+bool SALOMEDS_UseCaseBuilder::IsUseCaseNode(const _PTR(SObject)& theObject)
+{
+  bool ret;
+  SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    ret = _local_impl->IsUseCaseNode(*(obj->GetLocalImpl()));
+  }
+  else ret = _corba_impl->IsUseCaseNode(obj->GetCORBAImpl());
   return ret;
 }
 

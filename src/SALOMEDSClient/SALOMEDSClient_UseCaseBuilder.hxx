@@ -18,12 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 //  File   : SALOMEDSClient_UseCaseBuilder.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #ifndef __SALOMEDSClient_USECaseBuilder_H__
 #define __SALOMEDSClient_USECaseBuilder_H__
 
@@ -44,7 +43,9 @@ public:
   virtual bool SetCurrentObject(const _PTR(SObject)& theObject) = 0;
   virtual bool SetRootCurrent() = 0;
   virtual bool HasChildren(const _PTR(SObject)& theObject) = 0;
+  virtual _PTR(SObject) GetFather(const _PTR(SObject)& theObject) = 0;
   virtual bool IsUseCase(const _PTR(SObject)& theObject) = 0;
+  virtual bool IsUseCaseNode(const _PTR(SObject)& theObject) = 0;
   virtual bool SetName(const std::string& theName) = 0;
   virtual _PTR(SObject) GetCurrentObject() = 0;
   virtual std::string GetName() = 0;

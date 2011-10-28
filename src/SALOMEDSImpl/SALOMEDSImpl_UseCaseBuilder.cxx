@@ -18,12 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 //  File   : SALOMEDSImpl_UseCaseBuilder.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -99,6 +98,9 @@ bool SALOMEDSImpl_UseCaseBuilder::Append(const SALOMEDSImpl_SObject& theObject)
 
   aCurrentNode->Append(aNode);
 
+  // Mantis issue 0020136: Drag&Drop in OB
+  theObject.GetStudy()->addSO_Notification(theObject);
+
   return true;
 }
 
@@ -169,7 +171,12 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
 
   aNode->Remove();
 
-  return aFather->Append(aNode);
+  bool ret = aFather->Append(aNode);
+
+  // Mantis issue 0020136: Drag&Drop in OB
+  theObject.GetStudy()->addSO_Notification(theObject);
+
+  return ret;
 }
 
 //============================================================================
@@ -200,7 +207,12 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFi
 
   aFirstNode->Remove();
 
-  return aNode->InsertBefore(aFirstNode);
+  bool ret = aNode->InsertBefore(aFirstNode);
+
+  // Mantis issue 0020136: Drag&Drop in OB
+  theFirst.GetStudy()->addSO_Notification(theFirst);
+
+  return ret;
 }
 
 
@@ -264,6 +276,28 @@ bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const SALOMEDSImpl_SObject& theObj
   if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false; 
   
   return (aNode->GetFirst());
+}
+
+//============================================================================
+/*! Function : GetFather
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetFather(const SALOMEDSImpl_SObject& theObject)
+{
+  SALOMEDSImpl_SObject so;
+  if (!_root || !theObject) return so;
+
+  DF_Label aLabel = theObject.GetLabel(); 
+  if (aLabel.IsNull()) return so;
+
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if (!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return so; 
+
+  SALOMEDSImpl_AttributeTreeNode* aFatherNode = aNode->GetFather();
+  if (!aFatherNode) return so;
+
+  return aFatherNode->GetSObject();
 }
 
 //============================================================================
@@ -333,6 +367,27 @@ bool SALOMEDSImpl_UseCaseBuilder::IsUseCase(const SALOMEDSImpl_SObject& theObjec
   aFather = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG);
   if(aLabel.Father() == aFather) return true;
   return false;
+}
+
+//============================================================================ 
+/*! Function :  IsUseCaseNode
+ *  Purpose  :  
+ */ 
+//============================================================================ 
+bool SALOMEDSImpl_UseCaseBuilder::IsUseCaseNode(const SALOMEDSImpl_SObject& theObject)
+{
+  if(!_root) return false;
+
+  DF_Label aLabel;
+  if (!theObject) aLabel = _root->Label();
+  else 
+    aLabel = theObject.GetLabel(); 
+  if(aLabel.IsNull()) return false;
+
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false; 
+  
+  return true;
 }
 
 //============================================================================ 

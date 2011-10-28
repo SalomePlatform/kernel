@@ -18,12 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 //  File   : SALOMEDS_UseCaseBuilder_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"  
@@ -142,6 +141,21 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::HasChildren(SALOMEDS::SObject_ptr theO
 }
 
 //============================================================================
+/*! Function : GetFather
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetFather(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock; 
+
+  if(!_impl) return NULL;
+  SALOMEDSImpl_SObject aSO = _impl->GetFather(_impl->GetSObject(theObject->GetID()));
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
+  return so._retn();
+}
+
+//============================================================================
 /*! Function : SetName
  *  Purpose  :
  */
@@ -191,6 +205,19 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCase(SALOMEDS::SObject_ptr theObj
   
   if(!_impl || theObject->_is_nil()) return false;
   return _impl->IsUseCase(_impl->GetSObject(theObject->GetID()));
+}
+
+//============================================================================ 
+/*! Function :  IsUseCaseNode
+ *  Purpose  :  
+ */ 
+//============================================================================ 
+CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCaseNode(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock;
+  
+  if(!_impl || theObject->_is_nil()) return false;
+  return _impl->IsUseCaseNode(_impl->GetSObject(theObject->GetID()));
 }
 
 //============================================================================ 
