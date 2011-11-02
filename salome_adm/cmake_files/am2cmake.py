@@ -1536,7 +1536,7 @@ class CMakeFile(object):
             SET(input_path ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             IF (NOT EXISTS ${input_path})
               SET(input_path ${CMAKE_CURRENT_BINARY_DIR}/${input})
-            ENDIF (NOT EXISTS input_path)
+            ENDIF (NOT EXISTS ${input_path})
             ADD_CUSTOM_COMMAND(
             OUTPUT ${output}
             COMMAND ${QT_UIC_EXECUTABLE} -o ${output} ${input_path}
@@ -1549,7 +1549,7 @@ class CMakeFile(object):
             SET(input_path ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             IF (NOT EXISTS ${input_path})
               SET(input_path ${CMAKE_CURRENT_BINARY_DIR}/${input})
-            ENDIF (NOT EXISTS input_path)
+            ENDIF (NOT EXISTS ${input_path})
             ADD_CUSTOM_COMMAND(
             OUTPUT ${output}
             COMMAND ${QT_MOC_EXECUTABLE} ${MOC_FLAGS} ${input_path} -o ${output}
