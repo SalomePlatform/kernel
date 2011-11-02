@@ -779,7 +779,7 @@ class CMakeFile(object):
         SET(VERSION_INFO 0.0.0)
         SET(SOVERSION_INFO 0)
         SET(SUBDIRS)
-        SET(AM_CPPFLAGS -I${CMAKE_BINARY_DIR )
+        SET(AM_CPPFLAGS -I${CMAKE_BINARY_DIR} )
         SET(AM_CXXFLAGS -I${CMAKE_BINARY_DIR})
         SET(LDADD)
         SET(pythondir lib/python${PYTHON_VERSION}/site-packages)
