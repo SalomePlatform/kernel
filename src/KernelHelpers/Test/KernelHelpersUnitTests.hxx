@@ -1,5 +1,8 @@
 // Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
@@ -16,33 +19,30 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author: Guillaume Boulant (EDF/R&D) 
 
-#include "SALOME_KernelServices.hxx"
-#include "Basics_Utils.hxx"
+#ifndef _SalomeAppTEST_HXX_
+#define _SalomeAppTEST_HXX_
 
-#include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_TestComponent)
+#include <cppunit/extensions/HelperMacros.h>
 
-void TEST_corba() {
-  CORBA::ORB_var orb = KERNEL::getORB();
-  SALOME_NamingService *  ns  = KERNEL::getNamingService();
-  SALOME_LifeCycleCORBA * lcc = KERNEL::getLifeCycleCORBA();
-}
+class KernelHelpersUnitTests : public CppUnit::TestFixture
+{
+  CPPUNIT_TEST_SUITE( KernelHelpersUnitTests );
+  CPPUNIT_TEST( TEST_corba );
+  CPPUNIT_TEST( TEST_getLifeCycleCORBA );
+  CPPUNIT_TEST( TEST_getStudyManager );
+  CPPUNIT_TEST( TEST_getSalomeLauncher );
+  CPPUNIT_TEST_SUITE_END();
 
-void TEST_getLifeCycleCORBA() {
-  Engines::EngineComponent_var component =
-    KERNEL::getLifeCycleCORBA()->FindOrLoad_Component( "FactoryServer","SalomeTestComponent" );
-  
-  Engines::TestComponent_var engine = Engines::TestComponent::_narrow(component);
-  STDLOG(engine->Coucou(123.));
-}
+public:
 
-// TODO:
-// - complete the coverture of the KernelService interface
-// - provide use case for the StudyEditor
+  void setUp();
+  void tearDown();
 
-int main (int argc, char * argv[]) {
-  TEST_getLifeCycleCORBA();
-  return 0;
-}
+  void TEST_corba();
+  void TEST_getLifeCycleCORBA();
+  void TEST_getStudyManager();
+  void TEST_getSalomeLauncher();
+};
+
+#endif
