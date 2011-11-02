@@ -135,17 +135,19 @@ def __getStudyManager_demo():
 # ==============================================================================
 #
 
-# TO BE COMPLETED:
-# With functions to manipulate object, sobject, etc (See
-# GUI_SRC/src/SALOME_SWIG/salome.py). The functions to manipulate the
-# study are implemented in the Study Editor (see studyedit.py)
-
 # - the SObject is an item in a study (Study Object).
 # - the entry is the identifier of an item.
 # - the ID is the entry
 # - the object (geom object or smesh object) is a CORBA servant
 #   embedded in the SALOME component container and with a reference in
 #   the SALOME study, so that it can be retrieved.
+
+# __GBO__ WARN: theses functions are already defined in
+# salome_study.py, but without the possibility to specify the
+# underlying study (in salome_study.py, the study is the default study
+# binded to the salome.myStudy attribute). TODO: see if it can be
+# extends to the prototype (with the study as an argument) below and
+# resorb the functions below.
 
 def IDToObject(id, study=None):
     myObj = None

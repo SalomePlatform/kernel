@@ -40,10 +40,12 @@ def getActiveStudyId():
     ``salome.myStudyId`` variable.
     """
     salome.salome_init()
-    if salome.hasDesktop():
-        return salome.sg.getActiveStudyId()
-    else:
-        return salome.myStudyId
+    # _GBO_WARN: note that salome.getActiveStudy() returns an id. It
+    # should return the study or be renammed in getActiveStudyId.
+    return salome.getActiveStudy()
+
+def getActiveStudy():
+    return salome.myStudyManager.GetStudyByID(getActiveStudyId())
 
 def getStudyEditor(studyId = None):
     """
