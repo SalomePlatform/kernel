@@ -245,6 +245,7 @@ class CMakeFile(object):
             "TOOLSDS",
             "UtilsTest",
             "with_loggerTraceCollector",
+            "SalomeKernelHelpers",
             ]
         gui_list = [
             "caf",
@@ -1425,7 +1426,11 @@ class CMakeFile(object):
             newlines.append('''
             FOREACH(output ${MOC_FILES})
             ''')
-            if self.module in ["jobmanager", "yacs"]:
+            if self.module in ["jobmanager", "yacs"] or \
+               (self.module == "gui" and \
+                (self.root[-len('GuiHelpers'):] == 'GuiHelpers' or \
+                 self.root[-len('TreeData'):] == 'TreeData' or \
+                 self.root[-len('TreeData/Test'):] == 'TreeData/Test')):
                 newlines.append('''
                 STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
                 ''')

@@ -61,3 +61,4 @@ FIND_LIBRARY(SALOMETraceCollectorTest SALOMETraceCollectorTest ${KERNEL_ROOT_DIR
 FIND_LIBRARY(TOOLSDS TOOLSDS ${KERNEL_ROOT_DIR}/lib/salome)
 FIND_LIBRARY(UtilsTest UtilsTest ${KERNEL_ROOT_DIR}/lib/salome)
 FIND_LIBRARY(with_loggerTraceCollector with_loggerTraceCollector ${KERNEL_ROOT_DIR}/lib/salome)
+FIND_LIBRARY(SalomeKernelHelpers SalomeKernelHelpers ${KERNEL_ROOT_DIR}/lib/salome)
