@@ -72,7 +72,7 @@ void KernelHelpersUnitTests::TEST_getLifeCycleCORBA() {
   
   Engines::TestComponent_var engine = Engines::TestComponent::_narrow(component);
   char * coucou_res = engine->Coucou(123.);
-  char * coucou_ref = "TestComponent_i : L = 123";
+  const char * coucou_ref = "TestComponent_i : L = 123";
   LOG(coucou_res);
   CPPUNIT_ASSERT( strcmp(coucou_res, coucou_ref) == 0 );
 }
