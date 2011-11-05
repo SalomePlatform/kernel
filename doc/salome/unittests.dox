@@ -15,10 +15,6 @@ the unit tests.
 - KERNEL_SRC :\n
    Some README files and configuration tools for build
 
-- KERNEL_SRC/adm_local :\n
-   Part of the configuration files, other modules have a directory with the
-   same name. Not used in KERNEL.
-
 - KERNEL_SRC/bin :\n
    Python and shell scripts used at run time.
    Kit to install a %SALOME Application.
