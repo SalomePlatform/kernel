@@ -56,3 +56,12 @@ install-data-hook:
 	@for f in $(dist_appliskel_PYTHON) ; do \
         chmod -f a+x $(DESTDIR)$(appliskeldir)/$$f ; \
     done
+
+OBSOLETE_FILES = \
+    env.d \
+    CatalogResources.xml \
+    SalomeApp.xml \
+    killCurrentPort \
+    runParam
+
+EXTRA_DIST = $(OBSOLETE_FILES)

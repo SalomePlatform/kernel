@@ -35,13 +35,21 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 if WITHONLYLAUNCHER
   dist_salomeres_DATA=\
-	CatalogResources.xml \
 	CatalogModulePersonnel.xml_skel
+
+  # VSR: little trick to avoid putting if generated files to the distribution archive
+  nodist_salomeres_DATA=\
+	CatalogResources.xml
 else
   dist_salomeres_DATA=\
-	CatalogResources.xml \
 	CatalogModulePersonnel.xml_skel \
 	channel.cfg \
-	KERNELCatalog.xml \
 	SALOMEDS_Resources 
+
+  # VSR: little trick to avoid putting if generated files to the distribution archive
+  nodist_salomeres_DATA=\
+	CatalogResources.xml \
+	KERNELCatalog.xml
 endif
+
+EXTRA_DIST = CatalogDataType.xml

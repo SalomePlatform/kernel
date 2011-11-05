@@ -42,4 +42,5 @@ dev_docs:
 EXTRA_DIST= main.dox install.dox \
 	    kernel_resources.dox kernel_services.dox kernel_services_cpphelpers.dox \
 	    salome_application.dox unittests.dox \
-	    salome_file.dox kernel_salome.dox
+	    salome_file.dox kernel_salome.dox \
+	    examples
