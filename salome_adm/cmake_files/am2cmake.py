@@ -1426,11 +1426,7 @@ class CMakeFile(object):
             newlines.append('''
             FOREACH(output ${MOC_FILES})
             ''')
-            if self.module in ["jobmanager", "yacs"] or \
-               (self.module == "gui" and \
-                (self.root[-len('GuiHelpers'):] == 'GuiHelpers' or \
-                 self.root[-len('TreeData'):] == 'TreeData' or \
-                 self.root[-len('TreeData/Test'):] == 'TreeData/Test')):
+            if self.module in ["jobmanager", "yacs"]:
                 newlines.append('''
                 STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
                 ''')
@@ -1448,6 +1444,28 @@ class CMakeFile(object):
             MAIN_DEPENDENCY ${input}
             )
             ENDFOREACH(output ${MOC_FILES})
+            ''')
+            pass
+        
+        # --
+        # --
+        key = "MOC_FILES_HXX"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(output ${MOC_FILES_HXX})
+            ''')
+            newlines.append('''
+            STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
+            ''')
+            newlines.append('''
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${QT_MOC_EXECUTABLE} ${MOC_FLAGS} ${input} -o ${output}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${MOC_FILES_HXX})
             ''')
             pass
         
