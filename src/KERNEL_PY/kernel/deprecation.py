@@ -21,6 +21,16 @@
 """
 This module provides several functions to indicate the deprecation of a
 module, a method or a function.
+
+Example::
+
+    from salome.kernel.deprecation import deprecated
+
+    @deprecated("Deprecated since version 6.3.0. Consider replacement with "
+                "newFunction()")
+    def oldFunction():
+      ...
+
 """
 
 import sys
@@ -112,4 +122,8 @@ def __show_colored_warning(message, category, filename,
     else:
         file.write(str)
 
+# Enable warnings for deprecated functions and modules (in Python 2.7, they
+# are disabled by default)
+warnings.filterwarnings("always", "Call to *", DeprecationWarning)
+warnings.filterwarnings("always", "Importation of *", DeprecationWarning)
 warnings.showwarning = __show_colored_warning
