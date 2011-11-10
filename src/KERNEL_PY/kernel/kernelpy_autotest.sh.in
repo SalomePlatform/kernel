@@ -41,7 +41,8 @@ listfiles="\
     datamodeler.py \
     testdata.py \
     diclookup.py \
-    pyunittester.py  \
+    syshelper.py \
+    pyunittester.py \
     __init__.py"
 
 # This files should be add to the list

@@ -35,7 +35,8 @@ mypkgpython_PYTHON = \
 	datamodeler.py   \
 	testdata.py      \
 	diclookup.py     \
-	threadhelper.py
+	threadhelper.py  \
+	syshelper.py
 
 nodist_mypkgpython_PYTHON = \
 	logconfig.py
