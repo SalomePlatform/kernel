@@ -21,13 +21,15 @@
 #ifndef __STUDY_EDITOR_HXX__
 #define __STUDY_EDITOR_HXX__
 
+#include "KernelHelpers.hxx"
+
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOME_Component)
 
 #include <vector>
 
-class SALOME_StudyEditor {
+class KERNELHELPERS_EXPORT SALOME_StudyEditor {
 
 public:
   SALOME_StudyEditor(int studyId);

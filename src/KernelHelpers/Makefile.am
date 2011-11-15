@@ -27,7 +27,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS =                \
 	SALOME_KernelServices.hxx      \
 	SALOME_StudyEditor.hxx         \
-	SALOMEDS_DriverDefaultImpl.hxx
+	SALOMEDS_DriverDefaultImpl.hxx \
+	KernelHelpers.hxx
 
 # Libraries targets
 lib_LTLIBRARIES = libSalomeKernelHelpers.la

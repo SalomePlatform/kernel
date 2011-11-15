@@ -96,8 +96,11 @@ bool TEST_getSalomeLauncher() {
     catch (const std::exception& ex) {
       LOG("Receive undefined exception : "<<ex.what());
     }
-
-    sleep(2);
+#ifndef WIN32
+      sleep(2);
+#else
+      Sleep(2000);
+#endif
   }
   return true;
 }

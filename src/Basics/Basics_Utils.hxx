@@ -26,13 +26,14 @@
 #define _Basics_UTILS_HXX_
 
 #include "SALOME_Basics.hxx"
-
 #include <string>
 #include <iostream>
+
 #ifndef WIN32
 #include <sys/time.h>
 #else
-#include <sys/timeb.h>
+#include <winsock2.h>
+#include <windows.h>
 #endif
 
 
@@ -68,7 +69,7 @@ namespace Kernel_Utils
 // Helper macro for time analysis
 // =============================================================
 //
-
+#ifndef WIN32
 #define START_TIMING(name) static long name##tcount=0;static long name##cumul;long name##tt0; timeval name##tv; gettimeofday(&name##tv,0); \
                            name##tt0=name##tv.tv_usec+name##tv.tv_sec*1000000; \
                            if(name##tcount==0)std::cerr<<__FILE__<<":"<<__LINE__<<":"<<#name<<std::endl;
@@ -78,6 +79,19 @@ namespace Kernel_Utils
                                 if(name##tcount==NUMBER){ \
                                   std::cerr <<__FILE__<<":"<<__LINE__<<":"<<#name<<" temps CPU(mus): "<< name##cumul<<std::endl; \
                                   name##tcount=0;name##cumul=0;}
+#else
+
+#define START_TIMING(name) static long name##tcount=0;static long name##cumul;long name##tt0; SYSTEMTIME name##tv; GetSystemTime(&name##tv); \
+                           name##tt0=name##tv.wMilliseconds + name##tv.wSecond*1000; \
+                           if(name##tcount==0)std::cerr<<__FILE__<<":"<<__LINE__<<":"<<#name<<std::endl;
+
+#define END_TIMING(name,NUMBER) name##tcount=name##tcount+1;GetSystemTime(&name##tv); \
+                                name##cumul=name##cumul+name##tv.wMilliseconds + name##tv.wSecond*1000 - name##tt0; \
+                                if(name##tcount==NUMBER){ \
+                                  std::cerr <<__FILE__<<":"<<__LINE__<<":"<<#name<<" temps CPU(mus): "<< name##cumul<<std::endl; \
+                                  name##tcount=0;name##cumul=0;}
+#endif
+
 
 
 //

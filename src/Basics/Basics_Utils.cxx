@@ -21,6 +21,7 @@
 //  Autor  : Alexander A. BORODIN
 //  Module : SALOME
 //
+
 #include "Basics_Utils.hxx"
 #include <string.h>
 #include <stdlib.h>
@@ -29,9 +30,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <execinfo.h>
-#else
-#include <winsock2.h>
 #endif
+
 
 namespace Kernel_Utils
 {
