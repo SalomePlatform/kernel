@@ -33,7 +33,7 @@
 #  define KERNELHELPERS_EXPORT __declspec( dllimport )
 # endif
 #else
-# define KERNELHELPERS
+# define KERNELHELPERS_EXPORT
 #endif
 
 #endif //_SALOME_KERNEL_HELPERS_HXX_
