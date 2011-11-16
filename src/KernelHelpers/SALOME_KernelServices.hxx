@@ -82,7 +82,7 @@ namespace KERNEL {
 
   // ---------------------------------------------
   // To create a standard SALOME exception embedding a simple text
-  SALOME::SALOME_Exception createSalomeException(const char * text);
+  KERNELHELPERS_EXPORT SALOME::SALOME_Exception createSalomeException(const char * text);
 }
 
 

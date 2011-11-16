@@ -787,6 +787,12 @@ class CMakeFile(object):
         SET(salomepythondir ${pythondir}/salome)
         SET(salomepypkgdir ${salomepythondir}/salome)
         """)
+        
+        if self.module == "smesh" and self.root[-len('SMESH_PY'):] == 'SMESH_PY':
+           newlines.append("""
+           SET(smeshpypkgdir ${salomepythondir}/salome/smesh)
+           """)
+           pass
         if self.module == "netgen":
             newlines.append(r'''
             SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DNO_PARALLEL_THREADS -DOCCGEOMETRY -I${CMAKE_CURRENT_SOURCE_DIR})
@@ -1015,6 +1021,14 @@ class CMakeFile(object):
         
         # --
         fields = value.split()
+
+        #rnv: Temporary solution for windows platform:
+        #rnv: To remove GUI_SRC/tools directory, because it contains shell scripts
+        #rnv: Will be fixed in the future
+        from sys import platform
+        if platform == "win32" and self.module == 'gui' and self.root[-len('GUI_SRC'):] == 'GUI_SRC' and key.endswith("SUBDIRS"): 
+          fields.remove("tools")
+        
         for i in range(len(fields)):
             newlines.append("%s    %s"%(spaces, fields[i]))
             pass
@@ -1790,6 +1804,8 @@ class CMakeFile(object):
         SET(targets ${targets} MEDEngine)
         SET(targets ${targets} SMESHEngine)
         SET(targets ${targets} SMESH)
+        SET(targets ${targets} SalomeIDLSPADDER)
+        SET(targets ${targets} MeshJobManagerEngine)
         SET(targets ${targets} StdMeshersEngine)
         SET(targets ${targets} VISUEngineImpl)
         FOREACH(target ${targets})
@@ -2395,7 +2411,6 @@ if __name__ == "__main__":
                 pass
             pass
         # --
-        from sys import stdout
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
                 convertAmFile(the_root, root, dirs, files, f, module)
@@ -2404,6 +2419,7 @@ if __name__ == "__main__":
             pass
         pass
     #
+    from sys import stdout
     if nok:
         if nok == 1:
             msg = "%s file has been converted to cmake"%(nok)
