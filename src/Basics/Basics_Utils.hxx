@@ -34,6 +34,7 @@
 #else
 #include <winsock2.h>
 #include <windows.h>
+#pragma comment(lib,"winmm.lib")
 #endif
 
 
@@ -81,12 +82,11 @@ namespace Kernel_Utils
                                   name##tcount=0;name##cumul=0;}
 #else
 
-#define START_TIMING(name) static long name##tcount=0;static long name##cumul;long name##tt0; SYSTEMTIME name##tv; GetSystemTime(&name##tv); \
-                           name##tt0=name##tv.wMilliseconds + name##tv.wSecond*1000; \
+#define START_TIMING(name) static long name##tcount=0;static DWORD name##cumul;DWORD  name##tv;DWORD  name##tt0 = timeGetTime(); \
                            if(name##tcount==0)std::cerr<<__FILE__<<":"<<__LINE__<<":"<<#name<<std::endl;
 
-#define END_TIMING(name,NUMBER) name##tcount=name##tcount+1;GetSystemTime(&name##tv); \
-                                name##cumul=name##cumul+name##tv.wMilliseconds + name##tv.wSecond*1000 - name##tt0; \
+#define END_TIMING(name,NUMBER) name##tcount=name##tcount+1; name##tv = timeGetTime(); \
+                                name##cumul=name##cumul+name##tv - name##tt0; \
                                 if(name##tcount==NUMBER){ \
                                   std::cerr <<__FILE__<<":"<<__LINE__<<":"<<#name<<" temps CPU(mus): "<< name##cumul<<std::endl; \
                                   name##tcount=0;name##cumul=0;}
