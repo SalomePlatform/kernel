@@ -56,6 +56,10 @@ int SIGUSR1 = 1000;
 #include "SALOME_NamingService.hxx"
 #include "Basics_Utils.hxx"
 
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif
+
 #include <Python.h>
 #include "Container_init_python.hxx"
 
