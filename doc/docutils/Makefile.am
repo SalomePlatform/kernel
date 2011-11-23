@@ -41,10 +41,13 @@ SPHINXBUILD     = sphinx-build
 PAPEROPT_a4     = -D latex_paper_size=a4
 ALLSPHINXOPTS   = -d doctrees $(PAPEROPT_a4) $(SPHINXOPTS) $(SOURCEDIR)
 
+if WITH_PACO_PARALLEL
+SPHINX_PYTHONPATH = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(prefix)/lib64/python$(PYTHON_VERSION)/site-packages/salome:$(prefix)/bin/salome:$(OMNIORB_ROOT)/lib/python$(PYTHON_VERSION)/site-packages:$(OMNIORB_ROOT)/lib64/python$(PYTHON_VERSION)/site-packages:$(PACOPATH)/lib/python$(PYTHON_VERSION):$(PACOPATH)/lib/python
+else
 SPHINX_PYTHONPATH = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(prefix)/lib64/python$(PYTHON_VERSION)/site-packages/salome:$(prefix)/bin/salome:$(OMNIORB_ROOT)/lib/python$(PYTHON_VERSION)/site-packages:$(OMNIORB_ROOT)/lib64/python$(PYTHON_VERSION)/site-packages
+endif
 
 SPHINX_LD_LIBRARY_PATH = $(OMNIORB_ROOT)/lib
-
 
 .PHONY: latex
 
