@@ -814,8 +814,8 @@ class CMakeFile(object):
             if self.module == "gui":
                 newlines.append(r'''
                 IF(KERNEL_ROOT_DIR)
-                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SALOMEDS_OBSERVER)
-                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SALOMEDS_OBSERVER)
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SALOMEDS_OBSERVER -DSUIT_ENABLE_PYTHON)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SALOMEDS_OBSERVER -DSUIT_ENABLE_PYTHON)
                 ENDIF(KERNEL_ROOT_DIR)
                 ''')
                 pass
