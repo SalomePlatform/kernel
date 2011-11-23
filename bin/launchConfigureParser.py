@@ -26,7 +26,7 @@ import xml.sax
 import optparse
 import types
 
-from salome_utils import verbose, setVerbose, getPortNumber
+from salome_utils import verbose, setVerbose, getPortNumber, getHomeDir
 
 # names of tags in XML configuration file
 doc_tag = "document"
@@ -74,6 +74,7 @@ plugins_nam    = "plugins"
 # values passed as arguments, NOT read from XML config file, but set from within this script
 appname_nam    = "appname"
 port_nam       = "port"
+salomecfgname  = "salome"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
 
@@ -115,20 +116,20 @@ def version():
 # Calculate and return configuration file unique ID
 # For example: for SALOME version 3.1.0a1 the id is 300999701
 ###
-def version_id( fname ):
+def version_id(fname):
+    major = minor = release = dev1 = dev2 = 0
     vers = fname.split(".")
-    major   = int(vers[0])
-    minor   = int(vers[1])
-    mr = re.search(r'^([0-9]+)([A-Za-z]?)([0-9]*)',vers[2])
-    release = dev = 0
-    if mr:
-        release = int(mr.group(1))
-        dev1 = dev2 = 0
-        if len(mr.group(2)): dev1 = ord(mr.group(2))
-        if len(mr.group(3)): dev2 = int(mr.group(3))
-        dev = dev1 * 100 + dev2
-    else:
-        return None
+    if len(vers) > 0: major = int(vers[0])
+    if len(vers) > 1: minor = int(vers[1])
+    if len(vers) > 2:
+        mr = re.search(r'^([0-9]+)([A-Za-z]?)([0-9]*)',vers[2])
+        if mr:
+            release = int(mr.group(1))
+            if mr.group(2).strip(): dev1 = ord(mr.group(2).strip())
+            if mr.group(3).strip(): dev2 = int(mr.group(3).strip())
+            pass
+        pass
+    dev = dev1 * 100 + dev2
     ver = major
     ver = ver * 100 + minor
     ver = ver * 100 + release
@@ -137,37 +138,75 @@ def version_id( fname ):
     return ver
 
 ###
+# Get default user configuration file name
+# For SALOME, it is:
+# - on Linux:   ~/.config/salome/.SalomeApprc.[version]
+# - on Windows: ~/SalomeApp.xml.[version]
+# where [version] is a version number
+###
+def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
+    v = version()
+    if v: v = ".%s" % v
+    if sys.platform == "win32":
+      filename = os.path.join(getHomeDir(), "%s.xml%s" % (appname, v))
+    else:
+        if cfgname:
+            filename = os.path.join(getHomeDir(), ".config", cfgname, ".%src%s" % (appname, v))
+            pass
+        else:
+            filename = os.path.join(getHomeDir(), ".%src%s" % (appname, v))
+            pass
+        pass
+    return filename
+
+###
 # Get user configuration file name
 ###
-def userFile(appname):
+def userFile(appname, cfgname):
+    # get app version
     v = version()
-    if not v:
-        return ""        # not unknown version
+    if not v: return None                        # unknown version
+    
+    # get default user file name
+    filename = defaultUserFile(appname, cfgname)
+    if not filename: return None                 # default user file name is bad
+    
+    # check that default user file exists
+    if os.path.exists(filename): return filename # user file is found
+
+    # otherwise try to detect any appropriate user file
+
+    # ... calculate default version id
+    id0 = version_id(v)
+    if not id0: return None                      # bad version id -> can't detect appropriate file
+    
+    # ... get all existing user preferences files
     if sys.platform == "win32":
-      filename = "%s\%s.xml.%s" % (os.environ['HOME'], appname, v)
+        files = glob.glob(os.path.join(getHomeDir(), "%s.xml.*" % appname))
     else:
-      filename = "%s/.%src.%s" % (os.environ['HOME'], appname, v)
-    if os.path.exists(filename):
-        return filename  # user preferences file for the current version exists
-    # initial id
-    id0 = version_id( v )
-    # get all existing user preferences files
-    if sys.platform == "win32":
-      files = glob.glob( os.environ['HOME'] + "\." + appname + ".xml.*" )
-    else:
-      files = glob.glob( os.environ['HOME'] + "/." + appname + "rc.*" )
-    f2v = {}
-    for file in files:
-        match = re.search( r'\.%src\.([a-zA-Z0-9.]+)$'%appname, file )
-        if match: f2v[file] = match.group(1)
-    last_file = ""
-    last_version = 0
-    for file in f2v:
-        ver = version_id( f2v[file] )
-        if ver and abs(last_version-id0) > abs(ver-id0):
-            last_version = ver
-            last_file = file
-    return last_file
+        files = []
+        if cfgname: files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".%src.*" % appname))
+        files             += glob.glob(os.path.join(getHomeDir(), ".%src.*" % appname))
+        pass
+
+    # ... loop through all files and find most appopriate file (with closest id)
+    appr_id   = -1
+    appr_file = ""
+    for f in files:
+        if sys.platform == "win32":
+            match = re.search( r'%s\.xml\.([a-zA-Z0-9.]+)$'%appname, f )
+        else:
+            match = re.search( r'\.%src\.([a-zA-Z0-9.]+)$'%appname, f )
+        if match:
+            ver = version_id(match.group(1))
+            if not ver: continue                 # bad version id -> skip file
+            if appr_id < 0 or abs(appr_id-id0) > abs(ver-id0):
+                appr_id   = ver
+                appr_file = f
+                pass
+            pass
+        pass
+    return appr_file
 
 # --
 
@@ -323,12 +362,12 @@ class xml_parser:
             if os.path.exists(absfname + ext) :
                 absfname += ext
                 if absfname in self.importHistory :
-                    if verbose(): print "Configure parser: file %s is already imported" % absfname
+                    if verbose(): print "Configure parser: Warning : file %s is already imported" % absfname
                     return # already imported
                 break
             pass
         else:
-            if verbose(): print "Configure parser: Error : file %s does NOT exists" % absfname
+            if verbose(): print "Configure parser: Error : file %s does not exist" % absfname
             return
          
         # importing file
@@ -494,9 +533,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           dest="py_scripts",
                           help=help_str)
 
-    # Configuration XML file. Default: $(HOME)/.SalomeApprc.$(version).
+    # Configuration XML file. Default: see defaultUserFile() function
     help_str  = "Parse application settings from the <file> "
-    help_str += "instead of default $(HOME)/.SalomeApprc.$(version)"
+    help_str += "instead of default %s" % defaultUserFile()
     o_r = optparse.Option("-r",
                           "--resources",
                           metavar="<file>",
@@ -770,7 +809,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
 args = {}
 #def get_env():
 #args = []
-def get_env(theAdditionalOptions=[], appname="SalomeApp"):
+def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgname):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -786,8 +825,9 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     #   has higher priority: it means that if some configuration options
     #   is found in the next analyzed cofiguration file - it will be replaced
     # - The last configuration file which is parsed is user configuration file
-    #   situated in the home directory: "~/.<appname>rc[.<version>]" (~/SalomeApprc.3.2.0)
-    #   (if it exists)
+    #   situated in the home directory (if it exists):
+    #   * ~/.config/salome/.<appname>rc[.<version>]" for Linux (e.g. ~/.config/salome/.SalomeApprc.6.4.0)
+    #   * ~/<appname>.xml[.<version>] for Windows (e.g. ~/SalomeApp.xml.6.4.0)
     # - Command line options have the highest priority and replace options
     #   specified in configuration file(s)
     ###
@@ -854,33 +894,33 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
 
     # parse SalomeApp.xml files in directories specified by SalomeAppConfig env variable
     for dir in dirs:
-        #filename = dir+'/'+appname+'.xml'
-        filename = dir+'/'+salomeappname+'.xml'
+        filename = os.path.join(dir, appname+'.xml')
         if not os.path.exists(filename):
-            print "Configure parser: Warning : could not find configuration file %s" % filename
+            if verbose(): print "Configure parser: Warning : can not find configuration file %s" % filename
         else:
             try:
                 p = xml_parser(filename, _opts)
                 _opts = p.opts
             except:
-                print "Configure parser: Error : can not read configuration file %s" % filename
+                if verbose(): print "Configure parser: Error : can not read configuration file %s" % filename
             pass
 
     # parse user configuration file
     # It can be set via --resources=<file> command line option
-    # or is given by default from ${HOME}/.<appname>rc.<version>
+    # or is given from default location (see defaultUserFile() function)
     # If user file for the current version is not found the nearest to it is used
     user_config = cmd_opts.resources
     if not user_config:
-        user_config = userFile(appname)
+        user_config = userFile(appname, cfgname)
+        if verbose(): print "Configure parser: user configuration file is", user_config
     if not user_config or not os.path.exists(user_config):
-        print "Configure parser: Warning : could not find user configuration file"
+        if verbose(): print "Configure parser: Warning : can not find user configuration file"
     else:
         try:
             p = xml_parser(user_config, _opts)
             _opts = p.opts
         except:
-            print 'Configure parser: Error : can not read user configuration file'
+            if verbose(): print 'Configure parser: Error : can not read user configuration file'
             user_config = ""
 
     args = _opts

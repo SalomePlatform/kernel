@@ -40,6 +40,7 @@ __all__ = [
     'getAppName',
     'getPortNumber',
     'getTmpDir',
+    'getHomeDir',
     'generateFileName',
     'makeTmpDir',
     'uniteFiles',
@@ -198,6 +199,30 @@ def getPortNumber(use_default=True):
     if use_default: return 2809 # '2809' is default port number
     return None
 
+# ---
+
+def getHomeDir():
+    """
+    Get home directory.
+    """
+    import os, sys
+    if sys.platform == "win32":
+        # for Windows the home directory is detected in the following way:
+        # 1. try USERPROFILE env variable
+        # 2. try combination of HOMEDRIVE and HOMEPATH env variables
+        # 3. try HOME env variable
+        # TODO: on Windows, also GetUserProfileDirectoryW() system function might be used
+        dir = os.getenv("USERPROFILE")
+        if not dir and os.getenv("HOMEDRIVE") and os.getenv("HOMEPATH"):
+            dir = os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"))
+        if not dir:
+            dir = os.getenv("HOME")
+        pass
+    else:
+        # for Linux: use HOME variable
+        dir = os.getenv("HOME")
+        pass
+    return dir
 # ---
 
 def getTmpDir():
