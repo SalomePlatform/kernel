@@ -22,24 +22,22 @@ See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 =======================================
 Set of scripts for a SALOME application
 =======================================
-*html version of this document is produced with docutils*::
 
-  rest2html < doc.txt > doc.html
-
-This document corresponds to SALOME2 3.1. (alpha version)
-
-+-------------------------------------------+
-| **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
-+-------------------------------------------+
+This document corresponds to SALOME 6.4.0
 
 SALOME Application concept
 --------------------------
 
-See SALOME_Application_ to define your own configuration of SALOME and run it
-on one or several computers. This is the recommended way of configuration.
+See the documentation of KERNEL module for more information on SALOME
+Application concept and to learn how to define your own configuration of
+SALOME and run it on one or several computers. The recommended way to create
+a new application is with the script appli_gen.py that can be found in KERNEL
+installation. An application has probably already been generated for you if
+you downloaded a binary version of SALOME.
 
-.. _SALOME_Application: ../../doc/SALOME_Application.html
-
+To find all the files described below, please refer to a generated
+application as some of them are generated automatically and thus are not
+present in this appliskel directory.
 
 User run scripts
 ----------------
@@ -67,11 +65,6 @@ runTests
    with a running SALOME session. runSession tries to use an already existing
    naming service definition from a running session (hostname & port number).
 
-killCurrentPort
-   Kills the last SALOME session corresponding to this application, and 
-   intially launched from this computer.
-   Cleans associated config files.
-
 SALOME internal run scripts
 ---------------------------
 
@@ -92,7 +85,7 @@ runRemote.sh
    arguments define the command to execute.
 
 
-The following files must be adapted to your environment and SALOME Application
+The following files can be adapted to your environment and SALOME Application
 ------------------------------------------------------------------------------
 
 - CatalogResources.xml
@@ -101,10 +94,9 @@ The following files must be adapted to your environment and SALOME Application
 - env.d/envProducts.sh
 - env.d/envSalome.sh
 
-CatalogRessources.xml
-   This files describes all the computer the application can use. The given
-   example is minimal and suppose ${APPLI} is the same relative path
-   to ${HOME}, on all the computers. A different directory can be set on a
+CatalogResources.xml
+   This files describes all the computers the application can use. The default
+   file is minimal. A specific application directory can be set on a
    particular computer with a line::
 
        appliPath="my/specific/path/on/this/computer"
@@ -116,23 +108,21 @@ SalomeApp.xml
 
 Proposal for env.d scripts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Each user **must define** his own configuration for these scripts, following
-the above rules. **The following is only an example not working as it is**.
-
-atFirst.sh
-    Sets the computer configuration not directly related to SALOME,
-    like useful tools, default PATH.
+Each user can define his own configuration for these scripts, following
+the above rules. The generated files are good examples to start with.
 
 envProducts.sh
     Sets the SALOME prerequisites.
 
-envSALOME.sh
+configSalome.sh
     Sets all the MODULE_ROOT_DIR that can be used in the SALOME application.
 
-    SalomeAppConfig is also defined by::
+configGUI.sh
+    Sets variables necessary for SALOME GUI.
+    SalomeAppConfig is defined by::
 
       export SalomeAppConfig=${HOME}/${APPLI}
 
     where SalomeAppConfig designates the directory containing SalomeApp.xml. 
     Note that ${APPLI} is already defined by the calling scripts when 
-    env.d/envSalome.sh is sourced.
+    env.d/configGUI.sh is sourced.
