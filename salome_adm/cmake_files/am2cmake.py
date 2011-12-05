@@ -245,6 +245,7 @@ class CMakeFile(object):
             "TOOLSDS",
             "UtilsTest",
             "with_loggerTraceCollector",
+            "SalomeKernelHelpers",
             ]
         gui_list = [
             "caf",
@@ -770,8 +771,8 @@ class CMakeFile(object):
                 pass
             # --
             newlines.append("""
-            set(VERSION 6.3.1)
-            set(XVERSION 0x060301)
+            set(VERSION 6.4.0)
+            set(XVERSION 0x060400)
             """)
             pass
         # --
@@ -779,13 +780,19 @@ class CMakeFile(object):
         SET(VERSION_INFO 0.0.0)
         SET(SOVERSION_INFO 0)
         SET(SUBDIRS)
-        SET(AM_CPPFLAGS -I${CMAKE_BINARY_DIR )
+        SET(AM_CPPFLAGS -I${CMAKE_BINARY_DIR} )
         SET(AM_CXXFLAGS -I${CMAKE_BINARY_DIR})
         SET(LDADD)
         SET(pythondir lib/python${PYTHON_VERSION}/site-packages)
         SET(salomepythondir ${pythondir}/salome)
         SET(salomepypkgdir ${salomepythondir}/salome)
         """)
+        
+        if self.module == "smesh" and self.root[-len('SMESH_PY'):] == 'SMESH_PY':
+           newlines.append("""
+           SET(smeshpypkgdir ${salomepythondir}/salome/smesh)
+           """)
+           pass
         if self.module == "netgen":
             newlines.append(r'''
             SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DNO_PARALLEL_THREADS -DOCCGEOMETRY -I${CMAKE_CURRENT_SOURCE_DIR})
@@ -807,8 +814,8 @@ class CMakeFile(object):
             if self.module == "gui":
                 newlines.append(r'''
                 IF(KERNEL_ROOT_DIR)
-                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SALOMEDS_OBSERVER)
-                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SALOMEDS_OBSERVER)
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SALOMEDS_OBSERVER -DSUIT_ENABLE_PYTHON)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SALOMEDS_OBSERVER -DSUIT_ENABLE_PYTHON)
                 ENDIF(KERNEL_ROOT_DIR)
                 ''')
                 pass
@@ -1014,6 +1021,14 @@ class CMakeFile(object):
         
         # --
         fields = value.split()
+
+        #rnv: Temporary solution for windows platform:
+        #rnv: To remove GUI_SRC/tools directory, because it contains shell scripts
+        #rnv: Will be fixed in the future
+        from sys import platform
+        if platform == "win32" and self.module == 'gui' and self.root[-len('GUI_SRC'):] == 'GUI_SRC' and key.endswith("SUBDIRS"): 
+          fields.remove("tools")
+        
         for i in range(len(fields)):
             newlines.append("%s    %s"%(spaces, fields[i]))
             pass
@@ -1448,6 +1463,28 @@ class CMakeFile(object):
         
         # --
         # --
+        key = "MOC_FILES_HXX"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(output ${MOC_FILES_HXX})
+            ''')
+            newlines.append('''
+            STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
+            ''')
+            newlines.append('''
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${QT_MOC_EXECUTABLE} ${MOC_FLAGS} ${input} -o ${output}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${MOC_FILES_HXX})
+            ''')
+            pass
+        
+        # --
+        # --
         key = "UIC_FILES"
         if self.__thedict__.has_key(key):
             newlines.append('''
@@ -1536,7 +1573,7 @@ class CMakeFile(object):
             SET(input_path ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             IF (NOT EXISTS ${input_path})
               SET(input_path ${CMAKE_CURRENT_BINARY_DIR}/${input})
-            ENDIF (NOT EXISTS input_path)
+            ENDIF (NOT EXISTS ${input_path})
             ADD_CUSTOM_COMMAND(
             OUTPUT ${output}
             COMMAND ${QT_UIC_EXECUTABLE} -o ${output} ${input_path}
@@ -1549,7 +1586,7 @@ class CMakeFile(object):
             SET(input_path ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             IF (NOT EXISTS ${input_path})
               SET(input_path ${CMAKE_CURRENT_BINARY_DIR}/${input})
-            ENDIF (NOT EXISTS input_path)
+            ENDIF (NOT EXISTS ${input_path})
             ADD_CUSTOM_COMMAND(
             OUTPUT ${output}
             COMMAND ${QT_MOC_EXECUTABLE} ${MOC_FLAGS} ${input_path} -o ${output}
@@ -1689,6 +1726,14 @@ class CMakeFile(object):
         SET(libadd ${libadd} ${dir}/LIBI77.lib)
         ENDIF(name STREQUAL ${target})
         ENDFOREACH(target ${targets})
+        ELSE(WINDOWS)
+        SET(targets)
+        SET(targets ${targets} MEFISTO2D)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
+        SET(libadd ${libadd} -lf2c)
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
         ENDIF(WINDOWS)
         ''')
         # --
@@ -1767,6 +1812,8 @@ class CMakeFile(object):
         SET(targets ${targets} MEDEngine)
         SET(targets ${targets} SMESHEngine)
         SET(targets ${targets} SMESH)
+        SET(targets ${targets} SalomeIDLSPADDER)
+        SET(targets ${targets} MeshJobManagerEngine)
         SET(targets ${targets} StdMeshersEngine)
         SET(targets ${targets} VISUEngineImpl)
         FOREACH(target ${targets})
@@ -2372,7 +2419,6 @@ if __name__ == "__main__":
                 pass
             pass
         # --
-        from sys import stdout
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
                 convertAmFile(the_root, root, dirs, files, f, module)
@@ -2381,6 +2427,7 @@ if __name__ == "__main__":
             pass
         pass
     #
+    from sys import stdout
     if nok:
         if nok == 1:
             msg = "%s file has been converted to cmake"%(nok)

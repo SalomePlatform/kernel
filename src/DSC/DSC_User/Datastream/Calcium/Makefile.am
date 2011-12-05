@@ -124,7 +124,7 @@ libSalomeCalcium_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
 AM_CFLAGS         = -fexceptions
 lib_LTLIBRARIES = libCalciumC.la
-libCalciumC_la_SOURCES = Calcium.c Calcium.cxx calciumf.c
+libCalciumC_la_SOURCES = CalciumC.c Calcium.cxx calciumf.c
 libCalciumC_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 #

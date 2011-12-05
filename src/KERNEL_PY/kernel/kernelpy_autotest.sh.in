@@ -41,7 +41,8 @@ listfiles="\
     datamodeler.py \
     testdata.py \
     diclookup.py \
-    pyunittester.py  \
+    syshelper.py \
+    pyunittester.py \
     __init__.py"
 
 # This files should be add to the list
@@ -71,7 +72,7 @@ cd $MODULE_PYTHON_DIR
 for file in $listfiles; do
     # Uncomment this line (and comment the next one) to display
     # the start line of a test and not only the result:
-    #python $file | grep '^\[TEST'
+    #python $package_path/$file | grep '^\[TEST'
     python $package_path/$file | grep '^\[TEST' | grep -v 'test in progress'
 done
 cd $here

@@ -46,4 +46,4 @@ install-data-local:
 	fi;
 
 uninstall-local:
-	rm -rf $(DESTDIR)$(docdir)/tui/KERNEL
+	-test -d $(DESTDIR)$(docdir)/tui/KERNEL && chmod -R +w $(DESTDIR)$(docdir)/tui/KERNEL && rm -rf $(DESTDIR)$(docdir)/tui/KERNEL

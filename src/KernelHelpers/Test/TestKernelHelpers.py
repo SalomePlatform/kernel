@@ -1,4 +1,4 @@
-#!/bin/bash
+#  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -21,37 +21,31 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
+import sys, os,signal,string,commands
+import runSalome
+import orbmodule
+import TestKiller
 
-APPLI_HOME=`dirname $0`
-export APPLI=`${APPLI_HOME}/getAppliPath.py`
+# get SALOME environment :
 
-# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+args, modules_list, modules_root_dir = runSalome.get_config()
+runSalome.set_env(args, modules_list, modules_root_dir)
 
-. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+# launch CORBA naming server
 
-# --- find omniORB configuration relative to current session if any
+clt=orbmodule.client()
 
-fileOmniConfig=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+# launch CORBA logger server
 
-if [ -f $fileOmniConfig ]; then
-  OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
-  export OMNIORB_CONFIG
-fi
+myServer=runSalome.LoggerServer(args)
+myServer.run()
+clt.waitLogger("Logger")
 
-currentPort=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
-echo $currentPort
+# execute Unit Test
 
-# --- kill current salome session
-${KERNEL_ROOT_DIR}/bin/salome/shutdownSalome.py
-${KERNEL_ROOT_DIR}/bin/salome/killSalomeWithPort.py $currentPort
+command = ['TestKernelHelpers']
+ret = os.spawnvp(os.P_WAIT, command[0], command)
 
-# --- delete config files
+# kill Test process 
 
-if [ -s $fileOmniConfig ]; then
-  refConfig=`ls -l $fileOmniConfig | awk '{print \$NF}'`
-  if [ -f $refConfig ]; then
-    rm $refConfig
-  fi
-  rm $fileOmniConfig
-fi
+TestKiller.killProcess(runSalome.process_id)

@@ -36,7 +36,7 @@ import salome
 if salome.lcc is None:
     try:
         salome.salome_init()
-    except RuntimeError, e:
+    except Exception, e:
         print e
 
 # Note that the salome module provides you with standard SALOME

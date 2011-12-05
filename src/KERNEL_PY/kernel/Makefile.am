@@ -28,7 +28,6 @@ mypkgpython_PYTHON = \
 	deprecation.py   \
 	logger.py        \
 	termcolor.py     \
-	logconfig.py     \
 	unittester.py    \
 	pyunittester.py  \
 	enumerate.py     \
@@ -36,7 +35,11 @@ mypkgpython_PYTHON = \
 	datamodeler.py   \
 	testdata.py      \
 	diclookup.py     \
-	threadhelper.py
+	threadhelper.py  \
+	syshelper.py
+
+nodist_mypkgpython_PYTHON = \
+	logconfig.py
 
 # This set of modules required a running SALOME application.
 mypkgpython_PYTHON += \

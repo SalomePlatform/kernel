@@ -21,6 +21,8 @@
 #ifndef __KERNEL_SERVICES_H__
 #define __KERNEL_SERVICES_H__
 
+#include "KernelHelpers.hxx"
+
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
@@ -35,22 +37,22 @@ namespace KERNEL {
 
   // ---------------------------------------------
   // SALOME KERNEL main services
-  CORBA::ORB_ptr                getORB();
-  SALOME_NamingService *        getNamingService();
-  SALOME_LifeCycleCORBA *       getLifeCycleCORBA();
-  SALOME::Session_ptr           getSalomeSession();
-  SALOMEDS::StudyManager_ptr    getStudyManager();
-  Engines::SalomeLauncher_ptr   getSalomeLauncher();
-  Engines::ResourcesManager_ptr getResourcesManager();
+  KERNELHELPERS_EXPORT CORBA::ORB_ptr                getORB();
+  KERNELHELPERS_EXPORT SALOME_NamingService *        getNamingService();
+  KERNELHELPERS_EXPORT SALOME_LifeCycleCORBA *       getLifeCycleCORBA();
+  KERNELHELPERS_EXPORT SALOME::Session_ptr           getSalomeSession();
+  KERNELHELPERS_EXPORT SALOMEDS::StudyManager_ptr    getStudyManager();
+  KERNELHELPERS_EXPORT Engines::SalomeLauncher_ptr   getSalomeLauncher();
+  KERNELHELPERS_EXPORT Engines::ResourcesManager_ptr getResourcesManager();
 
   // ---------------------------------------------
   // SALOME KERNEL services to deal with a SALOME study, SObject and
   // SComponent.
   //
-  SALOMEDS::Study_ptr getStudyById(int aStudyId);
-  int                 getStudyId(SALOMEDS::Study_ptr study);
-  CORBA::Object_ptr   IORToObject(char * IOR);
-  CORBA::Object_ptr   SObjectToObject(SALOMEDS::SObject_ptr);
+  KERNELHELPERS_EXPORT SALOMEDS::Study_ptr getStudyById(int aStudyId);
+  KERNELHELPERS_EXPORT int                 getStudyId(SALOMEDS::Study_ptr study);
+  KERNELHELPERS_EXPORT CORBA::Object_ptr   IORToObject(char * IOR);
+  KERNELHELPERS_EXPORT CORBA::Object_ptr   SObjectToObject(SALOMEDS::SObject_ptr);
   
 
 
@@ -80,7 +82,7 @@ namespace KERNEL {
 
   // ---------------------------------------------
   // To create a standard SALOME exception embedding a simple text
-  SALOME::SALOME_Exception createSalomeException(const char * text);
+  KERNELHELPERS_EXPORT SALOME::SALOME_Exception createSalomeException(const char * text);
 }
 
 

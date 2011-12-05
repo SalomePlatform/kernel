@@ -166,6 +166,7 @@ SALOME_LauncherServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
 
 SALOME_LauncherServer_LDADD =\
+	libLauncher.la \
 	libSalomeLauncher.la \
 	../Basics/libSALOMEBasics.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \

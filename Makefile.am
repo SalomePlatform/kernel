@@ -46,6 +46,8 @@ DISTCLEANFILES = a.out local-install.sh hack_libtool aclocal.m4 configure salome
 salomeinclude_DATA = KERNEL_version.h
 
 EXTRA_DIST = \
+	build_cmake \
+	build_cmake.bat \
 	build_configure \
 	clean_configure \
 	LICENCE \

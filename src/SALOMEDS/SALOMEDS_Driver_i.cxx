@@ -292,14 +292,20 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
 {
   SALOMEDS_Study_i *  st_servant = SALOMEDS_Study_i::GetStudyServant(theStudy, _orb);//new SALOMEDS_Study_i (theStudy, _orb);
   SALOMEDS::Study_var st  = SALOMEDS::Study::_narrow(st_servant->_this());
-  Engines::EngineComponent_ptr aComponent = Engines::EngineComponent::_narrow(_driver);
 
   SALOMEDS::unlock();
-  CORBA::Boolean aValidScript, aPublished = isPublished;
-  Engines::TMPFile_var aStream = aComponent->DumpPython(st.in(), aPublished, isMultiFile, aValidScript);
+
+  Engines::TMPFile_var aStream;
+  CORBA::Boolean aValidScript = true; // VSR: maybe should be false by default ???
+
+  Engines::EngineComponent_ptr aComponent = Engines::EngineComponent::_narrow(_driver);
+  if ( !CORBA::is_nil( aComponent ) )
+    aStream = aComponent->DumpPython(st.in(), isPublished, isMultiFile, aValidScript);
+
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
   isValidScript = aValidScript;
+
   SALOMEDS::lock();
 
   return aTMPFile;

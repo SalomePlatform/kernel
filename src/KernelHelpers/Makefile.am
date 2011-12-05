@@ -27,7 +27,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS =                \
 	SALOME_KernelServices.hxx      \
 	SALOME_StudyEditor.hxx         \
-	SALOMEDS_DriverDefaultImpl.hxx
+	SALOMEDS_DriverDefaultImpl.hxx \
+	KernelHelpers.hxx
 
 # Libraries targets
 lib_LTLIBRARIES = libSalomeKernelHelpers.la
@@ -41,28 +42,28 @@ dist_libSalomeKernelHelpers_la_SOURCES =    \
 OMNIORB_CXXFLAGS=@OMNIORB_CXXFLAGS@ @OMNIORB_INCLUDES@
 OMNIORB_LIBS=@OMNIORB_LIBS@
 
-libSalomeKernelHelpers_la_CPPFLAGS = \
-	$(OMNIORB_CXXFLAGS) \
-	-I$(srcdir)/../NamingService \
+libSalomeKernelHelpers_la_CPPFLAGS =    \
+	$(OMNIORB_CXXFLAGS)             \
+	-I$(srcdir)/../NamingService    \
 	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../Utils \
-	-I$(srcdir)/../LifeCycleCORBA \
-	-I$(srcdir)/../Container \
-	-I$(srcdir)/../Notification \
-	-I$(srcdir)/../GenericObj \
+	-I$(srcdir)/../Basics           \
+	-I$(srcdir)/../Utils            \
+	-I$(srcdir)/../LifeCycleCORBA   \
+	-I$(srcdir)/../Container        \
+	-I$(srcdir)/../Notification     \
+	-I$(srcdir)/../GenericObj       \
 	-I$(top_builddir)/idl
 
-libSalomeKernelHelpers_la_LDFLAGS  = \
-	$(OMNIORB_LIBS) \
-	../NamingService/libSalomeNS.la \
-	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	../Basics/libSALOMEBasics.la \
-	../Utils/libOpUtil.la \
+libSalomeKernelHelpers_la_LDFLAGS  =                 \
+	$(OMNIORB_LIBS)                              \
+	../NamingService/libSalomeNS.la              \
+	../SALOMELocalTrace/libSALOMELocalTrace.la   \
+	../Basics/libSALOMEBasics.la                 \
+	../Utils/libOpUtil.la                        \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
-	../Container/libSalomeContainer.la \
-	../Notification/libSalomeNotification.la \
-	../GenericObj/libSalomeGenericObj.la \
+	../Container/libSalomeContainer.la           \
+	../Notification/libSalomeNotification.la     \
+	../GenericObj/libSalomeGenericObj.la         \
 	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #
@@ -70,11 +71,11 @@ libSalomeKernelHelpers_la_LDFLAGS  = \
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = TestKernelHelpers
-TestKernelHelpers_SOURCES  = TestKernelHelpers.cxx
-TestKernelHelpers_CPPFLAGS =\
+bin_PROGRAMS = KernelHelpersUseCases
+KernelHelpersUseCases_SOURCES  = KernelHelpersUseCases.cxx
+KernelHelpersUseCases_CPPFLAGS =\
 	$(libSalomeKernelHelpers_la_CPPFLAGS)
 
-TestKernelHelpers_LDADD    = \
+KernelHelpersUseCases_LDADD    = \
 	libSalomeKernelHelpers.la \
 	$(libSalomeKernelHelpers_la_LDFLAGS)

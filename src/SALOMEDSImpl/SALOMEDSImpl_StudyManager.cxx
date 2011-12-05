@@ -30,6 +30,11 @@
 #include "HDFexplorer.hxx"
 #include "Basics_Utils.hxx"
 
+//Warning undef of Ascii Winwows define
+#ifdef WIN32
+# undef GetUserName
+#endif
+
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -41,15 +46,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef WIN32
-#include <Windows.h>
-#endif
-
-//Warning undef of Ascii Winwows define
-#ifdef WIN32
-# undef GetUserName
-#endif
 
 #define USE_CASE_LABEL_ID                       "0:2"
 
