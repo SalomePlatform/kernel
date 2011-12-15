@@ -628,6 +628,7 @@ class CMakeFile(object):
                             newlines.append("""
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindSPHINX.cmake)
                             """)
                             pass
                         if self.module == "hxx2salome":
@@ -772,6 +773,7 @@ class CMakeFile(object):
             # --
             newlines.append("""
             set(VERSION 6.4.0)
+            set(SHORT_VERSION 6.4)
             set(XVERSION 0x060400)
             """)
             pass
@@ -1120,6 +1122,14 @@ class CMakeFile(object):
                 self.files.append("resources/SalomeApp.xml.in")
                 pass
             pass
+            from os import path
+            if operator.contains(self.root, 'YACS_SRC'+path.sep+'doc'):
+                newlines.append(r'''
+                SET(srcdir 
+                  ${CMAKE_CURRENT_SOURCE_DIR}
+                )
+                ''')
+            
         if self.module == "jobmanager":
             key = "salomegui"
             if self.root[-len(key):] == key:
@@ -1185,7 +1195,7 @@ class CMakeFile(object):
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )"""%(input, copytree_src, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
-                
+        from os import path
         if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
             ign = r"""'tempfile', '*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
@@ -1212,6 +1222,16 @@ class CMakeFile(object):
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
                 )"""%(copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+        elif mod == 'yacs' and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
+            from sys import platform
+            params = '';
+            if platform == "win32":
+                params = '-Q';
+            newlines.append(r"""
+            ADD_CUSTOM_TARGET(html_docs ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc -b html ${ALLSPHINXOPTS} html
+            COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''%s''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''%s''')\"
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(params, doc_gui_destination, doc_gui_destination))
+
 
   # --
   # add commands for generating of developer's documentation
