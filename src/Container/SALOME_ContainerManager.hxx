@@ -69,8 +69,7 @@ protected:
                                                   const Engines::ContainerParameters& params, 
                                                   const std::string& container_exe="SALOME_Container");
 
-  std::string BuildCommandToLaunchLocalContainer(const std::string & resource_name,
-                                                 const Engines::ContainerParameters& params,
+  std::string BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params,
                                                  const std::string& machinesFile,
                                                  const std::string& container_exe="SALOME_Container");
 
@@ -93,9 +92,9 @@ protected:
 
   std::set<pid_t> getpidofprogram(const std::string program);
 
-  std::string getCommandToRunProcess(AccessProtocolType protocol,
-                                     const std::string & hostname = "localhost",
-                                     const std::string & username = "");
+  std::string getCommandToRunRemoteProcess(AccessProtocolType protocol,
+                                           const std::string & hostname,
+                                           const std::string & username);
 
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;

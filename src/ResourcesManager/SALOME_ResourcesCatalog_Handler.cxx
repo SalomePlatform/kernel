@@ -28,6 +28,7 @@
 //
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "Basics_Utils.hxx"
+#include "Utils_SALOME_Exception.hxx"
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -304,21 +305,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   if (xmlHasProp(member_descr, (const xmlChar*)test_protocol))
   {
     xmlChar* protocol= xmlGetProp(member_descr, (const xmlChar*)test_protocol);
-    switch (protocol[0])
+    try
     {
-      case 'r':
-        resource.Protocol = rsh;
-        break;
-      case 's':
-        if (protocol[1] == 's')
-          resource.Protocol = ssh;
-        else
-          resource.Protocol = srun;
-        break;
-      default:
-        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
-        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
-        return false;
+      resource.Protocol = ParserResourcesType::stringToProtocol((const char *)protocol);
+    }
+    catch (SALOME_Exception e)
+    {
+      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
+      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+      return false;
     }
     xmlFree(protocol);
   }
@@ -332,21 +327,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   if (xmlHasProp(member_descr, (const xmlChar*)test_cluster_internal_protocol))
   {
     xmlChar* iprotocol= xmlGetProp(member_descr, (const xmlChar*)test_cluster_internal_protocol);
-    switch (iprotocol[0])
+    try
     {
-      case 'r':
-        resource.ClusterInternalProtocol = rsh;
-        break;
-      case 's':
-        if (iprotocol[1] == 's')
-          resource.ClusterInternalProtocol = ssh;
-        else
-          resource.ClusterInternalProtocol = srun;
-        break;
-      default:
-        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
-        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
-        return false;
+      resource.ClusterInternalProtocol = ParserResourcesType::stringToProtocol((const char *)iprotocol);
+    }
+    catch (SALOME_Exception e)
+    {
+      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
+      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+      return false;
     }
     xmlFree(iprotocol);
   }
@@ -462,21 +451,14 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   if (xmlHasProp(machine_descr, (const xmlChar*)test_protocol))
   {
     xmlChar* protocol= xmlGetProp(machine_descr, (const xmlChar*)test_protocol);
-    switch ( protocol[0])
+    try
     {
-      case 'r':
-        resource.Protocol = rsh;
-        break;
-      case 's':
-        if (protocol[1] == 's')
-          resource.Protocol = ssh;
-        else
-          resource.Protocol = srun;
-        break;
-      default:
-        // If it'not in all theses cases, the protocol is affected to rsh
-        resource.Protocol = rsh;
-        break;
+      resource.Protocol = ParserResourcesType::stringToProtocol((const char *)protocol);
+    }
+    catch (SALOME_Exception e)
+    {
+      // If it'not in all theses cases, the protocol is affected to rsh
+      resource.Protocol = rsh;
     }
     xmlFree(protocol);
   }
@@ -486,21 +468,14 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   if (xmlHasProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol))
   {
     xmlChar* iprotocol= xmlGetProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol);
-    switch ( iprotocol[0])
+    try
     {
-      case 'r':
-        resource.ClusterInternalProtocol = rsh;
-        break;
-      case 's':
-        if (iprotocol[1] == 's')
-          resource.ClusterInternalProtocol = ssh;
-        else
-          resource.ClusterInternalProtocol = srun;
-        break;
-      default:
-        // If it'not in all theses cases, the protocol is affected to rsh
-        resource.ClusterInternalProtocol = rsh;
-        break;
+      resource.ClusterInternalProtocol = ParserResourcesType::stringToProtocol((const char *)iprotocol);
+    }
+    catch (SALOME_Exception e)
+    {
+      // If it'not in all theses cases, the protocol is affected to rsh
+      resource.ClusterInternalProtocol = rsh;
     }
     xmlFree(iprotocol);
   }
@@ -691,36 +666,12 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
     xmlNewProp(node, BAD_CAST test_appli_path, BAD_CAST (*iter).second.AppliPath.c_str());
     xmlNewProp(node, BAD_CAST test_batch_queue, BAD_CAST (*iter).second.batchQueue.c_str());
     xmlNewProp(node, BAD_CAST test_user_commands, BAD_CAST (*iter).second.userCommands.c_str());
-
-    switch ((*iter).second.Protocol)
-    {
-      case rsh:
-        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
-        break;
-      case ssh:
-        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "ssh");
-        break;
-      case srun:
-        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "srun");
-        break;
-      default:
-        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
-    }
-
-    switch ((*iter).second.ClusterInternalProtocol)
-    {
-      case rsh:
-        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");
-        break;
-      case ssh:
-        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "ssh");
-        break;
-      case srun:
-        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "srun");
-        break;
-      default:
-        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");
-    }
+    xmlNewProp(node,
+               BAD_CAST test_protocol,
+               BAD_CAST ParserResourcesType::protocolToString((*iter).second.Protocol).c_str());
+    xmlNewProp(node,
+               BAD_CAST test_cluster_internal_protocol,
+               BAD_CAST ParserResourcesType::protocolToString((*iter).second.ClusterInternalProtocol).c_str());
 
     switch ((*iter).second.Mode)
     {

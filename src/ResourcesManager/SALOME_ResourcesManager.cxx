@@ -214,18 +214,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 
   p_ptr->name = CORBA::string_dup(resource.Name.c_str());
   p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
-  if( resource.Protocol == rsh )
-    p_ptr->protocol = "rsh";
-  else if( resource.Protocol == ssh )
-    p_ptr->protocol = "ssh";
-  else if( resource.Protocol == srun )
-    p_ptr->protocol = "srun";
-  if( resource.ClusterInternalProtocol == rsh )
-    p_ptr->iprotocol = "rsh";
-  else if( resource.ClusterInternalProtocol == ssh )
-    p_ptr->iprotocol = "ssh";
-  else if( resource.ClusterInternalProtocol == srun )
-    p_ptr->iprotocol = "srun";
+  p_ptr->protocol = ParserResourcesType::protocolToString(resource.Protocol).c_str();
+  p_ptr->iprotocol = ParserResourcesType::protocolToString(resource.ClusterInternalProtocol).c_str();
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
   p_ptr->componentList.length(resource.ComponentsList.size());
@@ -345,15 +335,12 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   }
   
   std::string protocol = new_resource.protocol.in();
-  if (protocol == "rsh")
-    resource.Protocol = rsh;
-  else if (protocol == "ssh")
-    resource.Protocol = ssh;
-  else if (protocol == "srun")
-    resource.Protocol = srun;
-  else if (protocol == "")
-    resource.Protocol = rsh;
-  else {
+  try
+  {
+    resource.Protocol = ParserResourcesType::stringToProtocol(protocol);
+  }
+  catch (SALOME_Exception e)
+  {
     INFOS("Bad protocol definition in AddResource: " << protocol);
     std::string message("Bad protocol definition in AddResource: ");
     message += protocol;
@@ -361,15 +348,12 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   }
 
   std::string iprotocol = new_resource.iprotocol.in();
-  if (iprotocol == "rsh")
-    resource.ClusterInternalProtocol = rsh;
-  else if (iprotocol == "ssh")
-    resource.ClusterInternalProtocol = ssh;
-  else if (iprotocol == "srun")
-    resource.ClusterInternalProtocol = srun;
-  else if (iprotocol == "")
-    resource.ClusterInternalProtocol = rsh;
-  else {
+  try
+  {
+    resource.ClusterInternalProtocol = ParserResourcesType::stringToProtocol(iprotocol);
+  }
+  catch (SALOME_Exception e)
+  {
     INFOS("Bad iprotocol definition in AddResource: " << iprotocol);
     std::string message("Bad iprotocol definition in AddResource: ");
     message += iprotocol;

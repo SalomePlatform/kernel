@@ -41,7 +41,7 @@
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
-enum AccessProtocolType {rsh, ssh, srun};
+enum AccessProtocolType {rsh, ssh, srun, pbsdsh, blaunch};
 
 enum AccessModeType {interactive, batch};
 
@@ -111,6 +111,9 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
 
   void Print();
   void Clear();
+
+  static std::string protocolToString(AccessProtocolType protocol);
+  static AccessProtocolType stringToProtocol(const std::string & protocolStr);
 
   std::string PrintAccessProtocolType() const;
   std::string PrintAccessModeType() const;

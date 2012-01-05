@@ -21,6 +21,7 @@
 //
 
 #include "SALOME_ResourcesCatalog_Parser.hxx"
+#include "Utils_SALOME_Exception.hxx"
 #include <iostream>
 #include <sstream>
 
@@ -128,6 +129,42 @@ void ResourceDataToSort::Print() const
     std::cout << _memInMB << std::endl;
   }
 
+
+std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
+{
+  switch (protocol)
+  {
+  case rsh:
+    return "rsh";
+  case ssh:
+    return "ssh";
+  case srun:
+    return "srun";
+  case pbsdsh:
+    return "pbsdsh";
+  case blaunch:
+    return "blaunch";
+  default:
+    throw SALOME_Exception("Unknown protocol");
+  }
+}
+
+AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & protocolStr)
+{
+  if (protocolStr == "rsh")
+    return rsh;
+  else if (protocolStr == "ssh")
+    return ssh;
+  else if (protocolStr == "srun")
+    return srun;
+  else if (protocolStr == "pbsdsh")
+    return pbsdsh;
+  else if (protocolStr == "blaunch")
+    return blaunch;
+  else
+    throw SALOME_Exception("Unknown protocol");
+}
+
 void ParserResourcesType::Print()
 {
   std::ostringstream oss;
@@ -138,8 +175,8 @@ void ParserResourcesType::Print()
     "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << std::endl <<
     "CPUFreqMHz : " << DataForSort._CPUFreqMHz << std::endl <<
     "MemInMB : " << DataForSort._memInMB << std::endl <<
-    "Protocol : " << Protocol << std::endl <<
-    "ClusterInternalProtocol : " << ClusterInternalProtocol << std::endl <<
+    "Protocol : " << protocolToString(Protocol) << std::endl <<
+    "ClusterInternalProtocol : " << protocolToString(ClusterInternalProtocol) << std::endl <<
     "Mode : " << Mode << std::endl <<
     "Batch : " << Batch << std::endl <<
     "mpi : " << mpi << std::endl <<
@@ -170,23 +207,13 @@ void ParserResourcesType::Print()
 std::string
 ParserResourcesType::PrintAccessProtocolType() const
 {
-  if (Protocol == rsh)
-    return "rsh";
-  else if (Protocol == srun)
-    return "srun";
-  else
-    return "ssh";
+  return protocolToString(Protocol);
 }
 
 std::string
 ParserResourcesType::PrintClusterInternalProtocol() const
 {
-  if (ClusterInternalProtocol == rsh)
-    return "rsh";
-  else if (ClusterInternalProtocol == srun)
-    return "srun";
-  else
-    return "ssh";
+  return protocolToString(ClusterInternalProtocol);
 }
 
 std::string 

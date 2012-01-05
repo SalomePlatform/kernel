@@ -746,13 +746,14 @@ def CreateOptionParser (theAdditionalOptions=[]):
                                 dest="wake_up_session", default=False,
                                 help=help_str)
 
-    # Launch server processes with a specific command. Default: False.
-    help_str = "Launch server processes with a specific command."
-    o_slc = optparse.Option("--server-launch-cmd",
-                            metavar="<server_launch_cmd>",
-                            type="string",
+    # server launch mode
+    help_str = "Mode used to launch server processes (daemon or fork)."
+    o_slm = optparse.Option("--server-launch-mode",
+                            metavar="<server_launch_mode>",
+                            type="choice",
+                            choices=["daemon","fork"],
                             action="store",
-                            dest="server_launch_cmd",
+                            dest="server_launch_mode",
                             help=help_str)
 
     # All options
@@ -783,7 +784,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_shutdown,
                 o_foreground,
                 o_wake_up,
-                o_slc,   # Server launch command
+                o_slm,   # Server launch mode
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -1133,8 +1134,8 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
         args[play_nam] += re.split( "[:;,]", filename )
 
     # Server launch command
-    if cmd_opts.server_launch_cmd is not None:
-      args["server_launch_cmd"] = cmd_opts.server_launch_cmd
+    if cmd_opts.server_launch_mode is not None:
+      args["server_launch_mode"] = cmd_opts.server_launch_mode
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)

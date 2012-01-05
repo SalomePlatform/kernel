@@ -81,12 +81,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "export SALOME_TMP_DIR=" << work_directory << "/logs" << std::endl;
 
   // -- Generates Catalog Resources
-  std::string resource_protocol = "ssh";
-  if (_resource_definition.ClusterInternalProtocol == rsh)
-    resource_protocol = "rsh";
-  else if (_resource_definition.ClusterInternalProtocol == srun)
-    resource_protocol = "srun";
-
+  std::string resource_protocol = ParserResourcesType::protocolToString(_resource_definition.ClusterInternalProtocol);
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << "CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
@@ -111,12 +106,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "NS_PORT_FILE_NAME=`basename $NS_PORT_FILE_PATH` &&\n";
 
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME ";
-  if (_resource_definition.ClusterInternalProtocol != rsh &&
-      _resource_definition.ClusterInternalProtocol != ssh)
-  {
-    launch_script_stream << "--server-launch-cmd=" << resource_protocol << " ";
-  }
+  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME --server-launch-mode=fork ";
   launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"

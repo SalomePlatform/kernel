@@ -34,7 +34,7 @@ process_id = {}
 class Server:
     """Generic class for CORBA server launch"""
     
-    server_launch_args = []
+    server_launch_mode = "daemon"
 
     def initArgs(self):
         self.PID=None
@@ -51,12 +51,11 @@ class Server:
         self.initArgs()
 
     @staticmethod
-    def set_server_launch_cmd(cmd):
-        if cmd == "srun":
-            Server.server_launch_args = ["srun", "-n", "1", "-N", "1"]
-            Server.server_launch_args += ["--share", "--nodelist=%s" % getHostName()]
-        else:
-            print >>sys.stderr, "Unknown server launch command:%s" % cmd
+    def set_server_launch_mode(mode):
+      if mode == "daemon" or mode == "fork":
+        Server.server_launch_mode = mode
+      else:
+        raise Exception("Unsupported server launch mode: %s" % mode)
 
     def run(self):
         global process_id
@@ -76,8 +75,9 @@ class Server:
           #pid = win32pm.spawnpid( cmd_str )
           pid = win32pm.spawnpid( string.join(command, " "), '-nc' )
           #pid = win32pm.spawnpid( string.join(command, " ") )
-        else:
-          #pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        elif Server.server_launch_mode == "fork":
+          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        else: # Server launch mode is daemon
           pid=self.daemonize(command)
         if pid is not None:
           #store process pid if it really exists
@@ -134,9 +134,8 @@ class Server:
         #I am a daemon
         os.close(0) #close stdin
         os.open("/dev/null", os.O_RDWR)  # redirect standard input (0) to /dev/null
-        all_args = Server.server_launch_args + args
         try:
-          os.execvp(all_args[0], all_args)
+          os.execvp(args[0], args)
         except OSError, e:
           if args[0] != "notifd":
             print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)

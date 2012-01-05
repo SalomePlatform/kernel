@@ -418,8 +418,8 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     # Set server launch command
     #
-    if args.has_key('server_launch_cmd'):
-        Server.set_server_launch_cmd(args['server_launch_cmd'])
+    if args.has_key('server_launch_mode'):
+        Server.set_server_launch_mode(args['server_launch_mode'])
     
     #
     # Wake up session option

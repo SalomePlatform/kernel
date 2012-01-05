@@ -184,4 +184,9 @@ if WITH_LIBBATCH
   TestLauncher_CPPFLAGS += -DWITH_LIBBATCH
 endif
 
-TestLauncher_LDADD = @LIBXML_LIBS@ ../ResourcesManager/libResourcesManager.la libLauncher.la @LIBBATCH_LIBS@
+TestLauncher_LDADD = \
+  @LIBXML_LIBS@ \
+  ../ResourcesManager/libResourcesManager.la \
+  libLauncher.la \
+  ../Utils/libOpUtil.la \
+  @LIBBATCH_LIBS@

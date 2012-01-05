@@ -444,10 +444,10 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   std::string command;
   // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
   if( getenv("LIBBATCH_NODEFILE") != NULL && params.isMPI )
-    command = BuildCommandToLaunchLocalContainer(resource_selected, params, machFile, container_exe);
+    command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe);
   // if a container is launched on localhost, command is "SALOME_Container" or "mpirun -np nbproc SALOME_MPIContainer"
   else if(hostname == Kernel_Utils::GetHostname())
-    command = BuildCommandToLaunchLocalContainer(resource_selected, params, machFile, container_exe);
+    command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe);
   // if a container is launched in remote mode, command is "ssh resource_selected SALOME_Container" or "ssh resource_selected mpirun -np nbproc SALOME_MPIContainer"
   else
     command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
@@ -652,7 +652,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 
     // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
     //  SALOME_Container containerName &"
-    command = getCommandToRunProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
+    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
 
     if (resInfo.AppliPath != "")
       command += resInfo.AppliPath; // path relative to user@machine $HOME
@@ -722,7 +722,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 //=============================================================================
 std::string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
-(const std::string & resource_name, const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe)
+(const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe)
 {
   _TmpFileName = BuildTemporaryFileName();
   std::string command;
@@ -792,9 +792,6 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 #endif
             }
         }
-
-      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
-      o << getCommandToRunProcess(resInfo.Protocol);
 
       if (isPythonContainer(params.container_name))
         o << "SALOME_ContainerPy.py ";
@@ -1167,48 +1164,39 @@ std::set<pid_t> SALOME_ContainerManager::getpidofprogram(const std::string progr
   return thepids;
 }
 
-std::string SALOME_ContainerManager::getCommandToRunProcess(AccessProtocolType protocol,
-                                                            const std::string & hostname,
-                                                            const std::string & username)
+std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocolType protocol,
+                                                                  const std::string & hostname,
+                                                                  const std::string & username)
 {
-  std::string hostRealName = hostname;
-  std::string localHostRealName = Kernel_Utils::GetHostname();
-  bool isLocal = false;
-  if (hostname == "localhost" || hostname == localHostRealName)
-  {
-    isLocal = true;
-    hostRealName = localHostRealName;
-  }
-
   std::ostringstream command;
   switch (protocol)
   {
   case rsh:
-    if (!isLocal)
+    command << "rsh ";
+    if (username != "")
     {
-      command << "rsh ";
-      if (username != "")
-      {
-        command << "-l " << username << " ";
-      }
-      command << hostRealName << " ";
+      command << "-l " << username << " ";
     }
+    command << hostname << " ";
     break;
   case ssh:
-    if (!isLocal)
+    command << "ssh ";
+    if (username != "")
     {
-      command << "ssh ";
-      if (username != "")
-      {
-        command << "-l " << username << " ";
-      }
-      command << hostRealName << " ";
+      command << "-l " << username << " ";
     }
+    command << hostname << " ";
     break;
   case srun:
     // no need to redefine the user with srun, the job user is taken by default
     // (note: for srun, user id can be specified with " --uid=<user>")
-    command << "srun -n 1 -N 1 --share --nodelist=" << hostRealName << " ";
+    command << "srun -n 1 -N 1 --share --nodelist=" << hostname << " ";
+    break;
+  case pbsdsh:
+    command << "pbsdsh -o -h " << hostname << " ";
+    break;
+  case blaunch:
+    command << "blaunch " << hostname << " ";
     break;
   default:
     throw SALOME_Exception("Unknown protocol");
