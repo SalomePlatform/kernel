@@ -33,7 +33,8 @@
 # SALOME development).
 
 import salome
-if salome.lcc is None:
+from deprecation import is_called_by_sphinx
+if not is_called_by_sphinx() and salome.lcc is None:
     try:
         salome.salome_init()
     except Exception, e:
