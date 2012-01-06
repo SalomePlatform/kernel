@@ -24,6 +24,7 @@ computation code. These Exchange Variables can be stored in a SObject in
 Salome study.
 """
 
+from xml.dom.minidom import getDOMImplementation, parse
 from salome.kernel.studyedit import getStudyEditor
 
 DEFAULT_NAME = "Variables"
@@ -79,6 +80,32 @@ class ExchangeVariables:
         self.outputVarList = outputVarList
         self.refEntry = refEntry
 
+    def saveToXmlFile(self, filepath):
+        """
+        Save this object to an XML file.
+    
+        :type  filepath: string
+        :param filepath: path of the XML file.
+    
+        """
+        doc = getDOMImplementation().createDocument(None, "variables", None)
+        top_el = doc.documentElement
+        top_el.setAttribute("version", "6.4")
+        input_variables_el = doc.createElement("input_variables")
+        top_el.appendChild(input_variables_el)
+        output_variables_el = doc.createElement("output_variables")
+        top_el.appendChild(output_variables_el)
+        for input_var in self.inputVarList:
+            input_var_el = doc.createElement("variable")
+            input_var_el.setAttribute("name", input_var.name)
+            input_variables_el.appendChild(input_var_el)
+        for output_var in self.outputVarList:
+            output_var_el = doc.createElement("variable")
+            output_var_el.setAttribute("name", output_var.name)
+            output_variables_el.appendChild(output_var_el)
+        f = open(filepath, "w")
+        f.write(doc.toprettyxml(indent = "  "))
+        f.close()
 
 def createSObjectForExchangeVariables(fatherSobj, exchangeVariables,
                                       name = DEFAULT_NAME,
@@ -162,3 +189,29 @@ def getExchangeVariablesFromSObject(sobj):
             [Variable(name) for name in attr.GetStrArray(INPUT_VAR_NAMES)],
             [Variable(name) for name in attr.GetStrArray(OUTPUT_VAR_NAMES)],
             refEntry)
+
+def loadExchangeVariablesFromXmlFile(filepath):
+    """
+    Load an :class:`ExchangeVariables` instance from an XML file.
+
+    :type  filepath: string
+    :param filepath: path of the XML file to load.
+
+    :return: the newly created :class:`ExchangeVariables` instance.
+
+    """
+    doc = parse(filepath)
+    top_el = doc.documentElement
+    # Check version
+    version = top_el.getAttribute("version")
+    if version != "6.4":
+        raise Exception(self.tr("Unsupported version: %s" % version))
+    input_variables_el = top_el.getElementsByTagName("input_variables")[0]
+    input_var_list = [Variable(input_var_el.getAttribute("name"))
+                      for input_var_el
+                      in input_variables_el.getElementsByTagName("variable")]
+    output_variables_el = top_el.getElementsByTagName("output_variables")[0]
+    output_var_list = [Variable(output_var_el.getAttribute("name"))
+                       for output_var_el
+                       in output_variables_el.getElementsByTagName("variable")]
+    return ExchangeVariables(input_var_list, output_var_list)
