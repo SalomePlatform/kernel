@@ -286,6 +286,7 @@ class CMakeFile(object):
             "ToolsGUI",
             "ViewerTools",
             "VTKViewer",
+            "vtkEDFOverloads"
             ]
         geom_list = [
             "AdvancedGUI",
@@ -394,6 +395,7 @@ class CMakeFile(object):
         # --
         for key in full_list:
             content = content.replace("-l%s"%(key), "${%s}"%(key))
+         
             pass
         
         # --
@@ -1025,11 +1027,11 @@ class CMakeFile(object):
         fields = value.split()
 
         #rnv: Temporary solution for windows platform:
-        #rnv: To remove GUI_SRC/tools directory, because it contains shell scripts
+        #rnv: To remove GUI_SRC/tools/dlgfactory directory, because it contains shell scripts
         #rnv: Will be fixed in the future
         from sys import platform
-        if platform == "win32" and self.module == 'gui' and self.root[-len('GUI_SRC'):] == 'GUI_SRC' and key.endswith("SUBDIRS"): 
-          fields.remove("tools")
+	if platform == "win32" and self.module == 'gui' and self.root[-len('GUI_SRC\\tools'):] == 'GUI_SRC\\tools':
+          fields.remove("dlgfactory")
         
         for i in range(len(fields)):
             newlines.append("%s    %s"%(spaces, fields[i]))
@@ -1288,7 +1290,7 @@ class CMakeFile(object):
         
         # --
         # --
-        for key in ["lib_LTLIBRARIES", "noinst_LTLIBRARIES", "salomepyexec_LTLIBRARIES"]:
+        for key in ["lib_LTLIBRARIES", "noinst_LTLIBRARIES", "salomepyexec_LTLIBRARIES", "libparaview_LTLIBRARIES"] :
             if self.__thedict__.has_key(key):
                 self.addLibTarget(key, newlines)
                 pass
@@ -2112,6 +2114,10 @@ class CMakeFile(object):
                 newlines.append(r'''
                 SET(DEST lib)
                 ''')
+            elif key == "libparaview_LTLIBRARIES":
+                newlines.append(r'''
+                SET(DEST lib/paraview)
+                ''')                
             else:
                 newlines.append(r'''
                 SET(DEST lib/salome)
