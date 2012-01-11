@@ -1025,13 +1025,6 @@ class CMakeFile(object):
         
         # --
         fields = value.split()
-
-        #rnv: Temporary solution for windows platform:
-        #rnv: To remove GUI_SRC/tools/dlgfactory directory, because it contains shell scripts
-        #rnv: Will be fixed in the future
-        from sys import platform
-	if platform == "win32" and self.module == 'gui' and self.root[-len('GUI_SRC\\tools'):] == 'GUI_SRC\\tools':
-          fields.remove("dlgfactory")
         
         for i in range(len(fields)):
             newlines.append("%s    %s"%(spaces, fields[i]))
@@ -1618,14 +1611,14 @@ class CMakeFile(object):
             
             ADD_CUSTOM_COMMAND(
             OUTPUT QDialogTest.ui QDialogTest.hxx QDialogTest.cxx
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.sh -n QDialogTest -t qdialog
-            DEPENDS __QDIALOG__.ui __QDIALOG__.hxx __QDIALOG__.cxx dlgfactory.sh
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.py -n QDialogTest -t qdialog
+            DEPENDS __QDIALOG__.ui __QDIALOG__.hxx __QDIALOG__.cxx dlgfactory.py
             )
             
             ADD_CUSTOM_COMMAND(
             OUTPUT GDialogTest.ui GDialogTest.hxx GDialogTest.cxx
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.sh -n GDialogTest -t gdialog
-            DEPENDS __GDIALOG__.ui __GDIALOG__.hxx __GDIALOG__.cxx dlgfactory.sh
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.py -n GDialogTest -t gdialog
+            DEPENDS __GDIALOG__.ui __GDIALOG__.hxx __GDIALOG__.cxx dlgfactory.py
             )
             ''')
             pass
