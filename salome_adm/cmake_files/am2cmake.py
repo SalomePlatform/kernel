@@ -286,7 +286,8 @@ class CMakeFile(object):
             "ToolsGUI",
             "ViewerTools",
             "VTKViewer",
-            "vtkEDFOverloads"
+            "vtkEDFOverloads",
+            "vtkTools"
             ]
         geom_list = [
             "AdvancedGUI",
