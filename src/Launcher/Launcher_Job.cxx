@@ -339,6 +339,9 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
   std::size_t pos = edt_value.find(":");
 
   if (edt_value != "") {
+    if (pos == edt_value.npos) {
+      throw LauncherException("[Launcher::Job::checkMaximumDuration] Error on definition: " + edt_value);
+    }
     std::string begin_edt_value = edt_value.substr(0, pos);
     std::string mid_edt_value = edt_value.substr(pos, 1);
     std::string end_edt_value = edt_value.substr(pos + 1, edt_value.npos);
