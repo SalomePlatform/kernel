@@ -171,11 +171,11 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 std::string SALOMEDSImpl_Tool::GetNameFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
   int pos = thePath.rfind('/');
-  if(pos > 0) return thePath.substr(pos+1, thePath.size());
+  if(pos >= 0) return thePath.substr(pos+1, thePath.size());
   pos = thePath.rfind('\\'); 
-  if(pos > 0) return thePath.substr(pos+1, thePath.size()); 
+  if(pos >= 0) return thePath.substr(pos+1, thePath.size()); 
   pos = thePath.rfind('|');
-  if(pos > 0) return thePath.substr(pos+1, thePath.size()); 
+  if(pos >= 0) return thePath.substr(pos+1, thePath.size()); 
   return thePath;
 }
 
@@ -196,7 +196,7 @@ std::string SALOMEDSImpl_Tool::GetDirFromPath(const std::string& thePath) {
     if (pos < 0) pos = thePath.rfind('\\');
     if (pos < 0) pos = thePath.rfind('|');
     
-    if (pos > 0)
+    if (pos >= 0)
       path = thePath.substr(0, pos+1);
     else
       path = std::string(".") + separator;
