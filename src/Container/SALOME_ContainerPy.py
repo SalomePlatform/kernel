@@ -168,17 +168,24 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )
-        ret=0
+        reason = ""
         try:
-            if verbose(): print "try import ",componentName
+            if verbose(): print "try import %s" % componentName
+            # try import component
             module=__import__(componentName)
-            if verbose(): print "import ",componentName," successful"
-            ret=1
+            if verbose(): print "import %s is done successfully" % componentName
+            # if import successfully, check that component is loadable
+            if not hasattr(module, componentName):
+                reason = "module %s is not loadable" % componentName
+                print reason
+                pass
+            pass
         except:
             import traceback
+            print "cannot import %s" % componentName
             traceback.print_exc()
-            print "import ",componentName," not possible"
-        return ret
+            reason = "cannot import %s" % componentName
+        return reason
 
     #-------------------------------------------------------------------------
 
@@ -187,7 +194,8 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret = 0
         instanceName = componentName + "_inst_" + `self._numInstance`
         interfaceName = componentName
-        return self.import_component(componentName), ""
+        reason = self.import_component(componentName)
+        return reason == "", reason
     
     #-------------------------------------------------------------------------
 
