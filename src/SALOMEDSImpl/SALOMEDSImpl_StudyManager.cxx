@@ -568,8 +568,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
           }
         }
 
-      std::string anOldName = aStudy->Name();
-      aStudy->URL(aStudyUrl);
+      //std::string anOldName = aStudy->Name();
 
       // To change for Save
       // Do not have to do a new file but just a Open??? Rewrite all informations after erasing evrything??
@@ -766,7 +765,6 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
       hdf_group_study_structure->CloseOnDisk();
       hdf_file->CloseOnDisk();
 
-      aStudy->IsSaved(true);
       hdf_group_study_structure =0; // will be deleted by hdf_file destructor
       delete hdf_file; // recursively deletes all hdf objects...
     }
@@ -808,7 +806,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   FILE* fp = fopen(aTmpFile.c_str(), "rb");
   if(!fp) return false;
   char* buffer = new char[2047];
-  while(!feof(fp)) {
+  int errors = 0;
+  while(!feof(fp) && !errors) {
     if((fgets(buffer, 2046, fp)) == NULL) break;
     size_t aLen = strlen(buffer);
     if(buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
@@ -817,7 +816,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
 #else 
     aCmd = "mv -f \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
 #endif
-    system(aCmd.c_str());    
+    errors = system(aCmd.c_str());
   }
 
   delete []buffer;
@@ -838,7 +837,13 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   rmdir(aStudyTmpDir.c_str());
 #endif
 
-  return true;
+  if ( !errors ) {
+    // and finally, if all is done without errors, store new URL and mark study as Saved
+    aStudy->URL(aStudyUrl);
+    aStudy->IsSaved(true);
+  }
+
+  return !errors;
 }
 
 //============================================================================
