@@ -1612,13 +1612,13 @@ class CMakeFile(object):
             
             ADD_CUSTOM_COMMAND(
             OUTPUT QDialogTest.ui QDialogTest.hxx QDialogTest.cxx
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.py -n QDialogTest -t qdialog
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.py -n QDialogTest -t qdialog
             DEPENDS __QDIALOG__.ui __QDIALOG__.hxx __QDIALOG__.cxx dlgfactory.py
             )
             
             ADD_CUSTOM_COMMAND(
             OUTPUT GDialogTest.ui GDialogTest.hxx GDialogTest.cxx
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.py -n GDialogTest -t gdialog
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/dlgfactory.py -n GDialogTest -t gdialog
             DEPENDS __GDIALOG__.ui __GDIALOG__.hxx __GDIALOG__.cxx dlgfactory.py
             )
             ''')
