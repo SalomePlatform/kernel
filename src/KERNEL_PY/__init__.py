@@ -105,7 +105,9 @@ ROOT_PYTHONPACKAGE_NAME="salome"
 #
 import os, sys
 from salome_utils import verbose
-MATCH_ENDING_PATTERN="site-packages/salome"
+
+MATCH_ENDING_PATTERN="site-packages" + os.path.sep + "salome"
+
 def extend_path(pname):
     for dir in sys.path:
         if not isinstance(dir, basestring) or not os.path.isdir(dir) or not dir.endswith(MATCH_ENDING_PATTERN):
