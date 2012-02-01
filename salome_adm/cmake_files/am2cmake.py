@@ -318,6 +318,7 @@ class CMakeFile(object):
             "IGESExport",
             "IGESImport",
             "MeasureGUI",
+	    "Material",
             "NMTDS",
             "NMTTools",
             "OCC2VTK",
@@ -496,6 +497,7 @@ class CMakeFile(object):
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                     """)
                     pass
                 else:
@@ -576,8 +578,15 @@ class CMakeFile(object):
                             INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
+                        if self.module == "geom":
+                            newlines.append("""
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+                            """)
+                            pass
+
                         if self.module == "netgenplugin":
                             newlines.append("""
                             SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
@@ -631,7 +640,7 @@ class CMakeFile(object):
                             newlines.append("""
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
-                            INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindSPHINX.cmake)
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
                         if self.module == "hxx2salome":
@@ -1226,7 +1235,33 @@ class CMakeFile(object):
             newlines.append(r"""
             ADD_CUSTOM_TARGET(html_docs ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc -b html ${ALLSPHINXOPTS} html
             COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''%s''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''%s''')\"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(params, doc_gui_destination, doc_gui_destination))
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(params, doc_gui_destination, doc_gui_destination))		
+      	elif mod in ['kernel', 'smesh', 'geom'] and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'+path.sep+'docutils'):
+            from sys import platform
+            params = ""
+            ext = ""
+            prf = ""
+            if platform == "win32":
+                params = '-Q';
+                ext = "bat"
+                prf = "call"
+            else:
+                ext = "sh"
+                prf = ". "
+            doc_gui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/%s/docutils"%(upmod)
+            scr = self.writeEnvScript(upmod)            	
+            newlines.append(r"""
+            IF(WINDOWS)
+               STRING(REPLACE "/" "\\" SCR "%s")
+            ELSE(WINDOWS)
+               SET(SCR "%s")
+            ENDIF(WINDOWS)
+            FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s "${SCR}")
+            ADD_CUSTOM_TARGET(html_docs %s ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s && ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc/docutils -W -b html ${ALLSPHINXOPTS} html
+            COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''%s''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''%s''')\"
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(scr,scr,ext,prf,ext,params, doc_gui_destination, doc_gui_destination))
+
+
 
 
   # --
@@ -2385,7 +2420,72 @@ class CMakeFile(object):
         f.write(self.content)
         f.close()
         return
-    
+
+    def writeEnvScript(self, upmod):
+        from sys import platform, version_info
+        p_version = """%s.%s"""%(version_info[0],version_info[1])
+        python_path ="PYTHONPATH"
+        path = ""
+        begin = ""
+        end = ""
+        delim = ""
+        cmd = ""
+        pdir = ""
+        omni = ""
+	omni_py = ""
+        if platform == "win32" :		
+            path = "PATH"
+            begin = "%"
+            end = "%"
+            delim = ";"
+            cmd = "@SET "
+            omni = "/x86_win32"
+            omni_py = "/python"
+            pdir = "PDIR"
+        else:
+            path = "LD_LIBRARY_PATH"
+            begin = "\${"
+            end = "}"
+            delim = ":"
+            cmd = "export "
+            omni_py = "/python" + p_version + "/" + "site-packages"
+            pdir = "INST_ROOT"
+
+            
+        path_ = begin + path + end
+        root_dir_ = begin + upmod + "_ROOT_DIR" + end  
+        python_path_ = begin + python_path + end
+        _python_path_ = delim + python_path_+ "\n"
+        _path_ = delim + path_+ "\n" 
+        _pdir = begin + pdir + end 
+           
+        
+        script = cmd + " " + python_path + "=" + root_dir_+"/lib/python" + p_version \
+        + "/site-packages/salome" + _python_path_ 
+        
+        script = script + cmd + " " + python_path + "=" + root_dir_+"/bin/salome" + \
+        _python_path_
+
+        script = script + cmd + " "+ path + "=" + root_dir_+"/lib/salome"+ _path_
+
+	if upmod == "KERNEL" :
+            script = script + cmd + " " +  python_path + "=" + _pdir + \
+            "/omniORB-4.1.5/lib" + omni + _python_path_
+        
+            script = script + cmd + " " + python_path + "=" + _pdir + \
+            "/omniORB-4.1.5/lib" + omni_py + _python_path_
+        
+            script = script + cmd + " "+ path + "=" + _pdir+ "/omniORB-4.1.5/lib" + \
+            omni + _path_
+
+        if upmod == "GEOM" :
+            script = self.writeEnvScript("KERNEL") + script
+            script = self.writeEnvScript("GUI") + script
+
+        if upmod == "SMESH" :
+            script = self.writeEnvScript("GEOM") + script
+
+        return script    
     pass
 
 def convertAmFile(the_root, root, dirs, files, f, module):
