@@ -1209,6 +1209,8 @@ class CMakeFile(object):
                 newlines.append(r"""
                 IF(WINDOWS)
                   STRING(REPLACE "/" "\\" f "%s")
+		ELSE(WINDOWS)
+		  SET(f "%s")			    
                 ENDIF(WINDOWS)
                 ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} ${f} %s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
                 %sCOMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
@@ -1217,7 +1219,7 @@ class CMakeFile(object):
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''', r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''', r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""%(prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
                 newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
@@ -1251,7 +1253,7 @@ class CMakeFile(object):
             newlines.append(r"""
             IF(WINDOWS)
                STRING(REPLACE "/" "\\" SCR "%s")
-            ELSE(WINDOWS)
+	    ELSE(WINDOWS)
                SET(SCR "%s")
             ENDIF(WINDOWS)
             FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s "${SCR}")
@@ -1295,14 +1297,16 @@ class CMakeFile(object):
             newlines.append(r"""
             IF(WINDOWS)
               STRING(REPLACE "/" "\\" f "%s")
-            ENDIF(WINDOWS)
+            ELSE(WINDOWS)
+              SET(f "%s")
+	    ENDIF(WINDOWS)
             ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} ${f} ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
             COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
             COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
             COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/geomscreen.png''', r'''%s''')"
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-            )"""%(prepare_generating_doc_src, upmod, tmp, upmod, tmp, tmp, upmod, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
+            )"""%(prepare_generating_doc_src, prepare_generating_doc_src, upmod, tmp, upmod, tmp, tmp, upmod, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
 
         # --
         # convert the SUBDIRS in cmake grammar
