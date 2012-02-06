@@ -41,3 +41,5 @@ FindSWIG.cmake \
 FindSPHINX.cmake \
 install_python_from_idl.cmake \
 install_and_compile_python_file.cmake
+
+bin_SCRIPTS = prepare_generating_doc.py
