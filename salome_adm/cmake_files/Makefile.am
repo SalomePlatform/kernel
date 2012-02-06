@@ -24,7 +24,6 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 dist_salome_cmake_DATA = \
 am2cmake.py \
-copytree1.py \
 FindBOOST.cmake \
 FindCPPUNIT.cmake \
 FindDOXYGEN.cmake \
@@ -42,4 +41,4 @@ FindSPHINX.cmake \
 install_python_from_idl.cmake \
 install_and_compile_python_file.cmake
 
-bin_SCRIPTS = prepare_generating_doc.py
+dist_salomescript_DATA = prepare_generating_doc.py

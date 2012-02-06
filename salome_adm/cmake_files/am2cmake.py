@@ -1181,13 +1181,9 @@ class CMakeFile(object):
         doc_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome"
         head_source = "${CMAKE_CURRENT_SOURCE_DIR}/images/head.png"
         if mod == 'kernel':
-            copytree_src = "${CMAKE_SOURCE_DIR}/salome_adm/cmake_files"
+            prepare_generating_doc_src = "${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/prepare_generating_doc.py"
         else:
-            copytree_src = "$ENV{KERNEL_ROOT_DIR}/salome_adm/cmake_files"
-        str = "import re \nimport sys \noutfile = open(sys.argv[1], 'wb') \nfor line in open(sys.argv[2], 'rb').readlines():"
-        str += "\n    if re.match('class '+sys.argv[3]+'DC', line): \n        continue \n    line = re.sub(r'^\\\\s+\#', '#', line) \n    line = re.sub(r'^\\\\s+def', 'def', line) \n    line = re.sub(sys.argv[3]+'DC', sys.argv[3], line)"
-        str += "\n    outfile.write(line) \noutfile.close()"
-
+            prepare_generating_doc_src = "$ENV{KERNEL_ROOT_DIR}/bin/salome/prepare_generating_doc.py"
         if mod in ['kernel', 'gui'] and self.root[-len('gui'):] == 'gui' or mod == 'med' and operator.contains(self.root, 'doxygen'):
             if mod == 'med':
                 doc_source = "${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html"
@@ -1196,13 +1192,13 @@ class CMakeFile(object):
                 doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
                 input = ""
             newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} %s
-            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')"
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')"
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-            )"""%(input, copytree_src, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
+            )"""%(input, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
         from os import path
         if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
-            ign = r"""'tempfile', '*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
+            ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
                     tmp = 'geompy'
@@ -1211,22 +1207,24 @@ class CMakeFile(object):
                     tmp =  'smesh' 
                     input = ''
                 newlines.append(r"""
-                FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")
-                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} tempfile %s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
+                IF(WINDOWS)
+                  STRING(REPLACE "/" "\\" f "%s")
+                ENDIF(WINDOWS)
+                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} ${f} %s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
                 %sCOMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
                 COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''%s.py''')"
-                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''', r'''%s''', ignore=copytree1.ignore_patterns(%s)); shutil.copy(r'''%s''', r'''%s''')"
+                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''', r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''', r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""%(str, tmp, upmod, tmp, tmp, input, tmp, copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                )"""%(prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
                 newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''',True); import copytree1; copytree1.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=copytree1.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
+                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""%(copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                )"""%(doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
         elif mod == 'yacs' and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
             from sys import platform
             params = '';
@@ -1287,7 +1285,7 @@ class CMakeFile(object):
                     tmp1=""
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
             newlines.append(tmp + """
-            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')" """%(copytree_src, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination) + tmp1 + """
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')" """%(doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination) + tmp1 + """
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )""")
@@ -1295,14 +1293,16 @@ class CMakeFile(object):
             tmp = 'geompy'
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
             newlines.append(r"""
-            FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")
-            ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} tempfile ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
+            IF(WINDOWS)
+              STRING(REPLACE "/" "\\" f "%s")
+            ENDIF(WINDOWS)
+            ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} ${f} ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
             COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
             COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
-            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/geomscreen.png''', r'''%s''')"
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/geomscreen.png''', r'''%s''')"
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-            )"""%(str, upmod, tmp, upmod, tmp, tmp, upmod, tmp, copytree_src, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
+            )"""%(prepare_generating_doc_src, upmod, tmp, upmod, tmp, tmp, upmod, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
 
         # --
         # convert the SUBDIRS in cmake grammar
@@ -2396,10 +2396,7 @@ class CMakeFile(object):
             ELSE(f STREQUAL SALOME_ContainerPy.py)
             IF(f STREQUAL am2cmake.py)
             ELSE(f STREQUAL am2cmake.py)
-            IF(f STREQUAL copytree1.py)
-            ELSE(f STREQUAL copytree1.py)
             INSTALL(SCRIPT ${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/install_and_compile_python_file.cmake)
-            ENDIF(f STREQUAL copytree1.py)
             ENDIF(f STREQUAL am2cmake.py)
             ENDIF(f STREQUAL SALOME_ContainerPy.py)
             ''')
