@@ -41,4 +41,4 @@ FindSPHINX.cmake \
 install_python_from_idl.cmake \
 install_and_compile_python_file.cmake
 
-dist_salomescript_DATA = prepare_generating_doc.py
+dist_salomescript_SCRIPTS = prepare_generating_doc.py
