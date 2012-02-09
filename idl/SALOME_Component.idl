@@ -276,6 +276,18 @@ module Engines
     */
     FieldsDict getProperties();
 
+    //! Set an option value
+    /*!
+      This method is to set an option specific to a certain EngineComponent.
+    */
+    void SetOption(in string optionName, in string value);
+
+    //! Return an option value
+    /*!
+      This method is to get value of an option specific to a certain EngineComponent.
+    */
+    string GetOption(in string optionName);
+
     //! Set name of a node in a graph (for %SUPERVISOR use)
     /*!
       This method is used by the %SUPERVISOR component. It sets the names of
