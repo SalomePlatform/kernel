@@ -336,6 +336,29 @@ Engines::FieldsDict* Engines_Component_i::getProperties()
 
 //=============================================================================
 /*! 
+ *  CORBA method: 
+ *  This method is to set an option specific to a certain EngineComponent.
+ */
+//=============================================================================
+
+void Engines_Component_i::SetOption(const char*, const char*)
+{
+}
+
+//=============================================================================
+/*! 
+ *  CORBA method: 
+ *  This method is to get value of an option specific to a certain EngineComponent.
+ */
+//=============================================================================
+
+char* Engines_Component_i::GetOption(const char*)
+{
+  return CORBA::string_dup("") ;
+}
+
+//=============================================================================
+/*! 
  *  CORBA method: used by Supervision to give names to this instance
  */
 //=============================================================================

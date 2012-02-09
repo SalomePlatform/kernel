@@ -87,7 +87,10 @@ public:
   void setProperties(const Engines::FieldsDict& dico);
   Engines::FieldsDict* getProperties();
 
-  void Names( const char * graphName , const char * nodeName ) ;
+  virtual void  SetOption(const char*, const char*);
+  virtual char* GetOption(const char*);
+
+        void Names( const char * graphName , const char * nodeName ) ;
   bool Kill_impl();
   bool Stop_impl();
   bool Suspend_impl();
