@@ -49,7 +49,16 @@ def getActiveStudyId():
         return salome.myStudyId
 
 def getActiveStudy():
-    return salome.myStudyManager.GetStudyByID(getActiveStudyId())
+    return getStudyFromStudyId(getActiveStudyId())
+
+def getStudyFromStudyId(studyId):
+    salome.salome_init()
+    study = salome.myStudyManager.GetStudyByID(studyId)
+    return study
+
+def getStudyIdFromStudy(study):
+    studyId = study._get_StudyId()
+    return studyId
 
 def getStudyEditor(studyId = None):
     """
@@ -62,7 +71,6 @@ def getStudyEditor(studyId = None):
     if not _editors.has_key(studyId):
         _editors[studyId] = StudyEditor(studyId)
     return _editors[studyId]
-
 
 class StudyEditor:
     """
