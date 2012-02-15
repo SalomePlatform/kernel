@@ -76,13 +76,18 @@ class IParameters:
 
     Note:   
           Methods not mentioned above are private and is not supposed to be used
-          by module's developers.   
+          by module's developers.
        
     """
-    def __init__(self, attributeParameter):
-        """Initializes the instance"""
+    def __init__(self, attributeParameter, clr=False):
+        """Initializes the instance. If clr parameter is True, all IAPP attribute values are cleared."""
         self._ap = attributeParameter
+        if ( clr ): self.clear()
         pass
+	
+    def clear(self):
+        """Clear parameters"""
+	self._ap.Clear()
 
     def append(self, listName, value):
         """Appends a value to the named list"""

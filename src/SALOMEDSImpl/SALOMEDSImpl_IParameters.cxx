@@ -293,7 +293,7 @@ std::string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, 
   std::string dump("");
 
   dump += "import iparameters\n";
-  dump += "ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters(\""+anID+"\", 1))\n\n";
+  dump += "ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters(\""+anID+"\", 1), True)\n\n";
   
   
   std::vector<std::string> v = ip.getProperties();
