@@ -71,7 +71,7 @@ class client:
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
-      while(ncount < 10):
+      while(ncount < 100):
           ncount += 1
           try:
               obj = self.orb.resolve_initial_references("NameService")
