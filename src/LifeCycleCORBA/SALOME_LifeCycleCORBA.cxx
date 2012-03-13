@@ -550,7 +550,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
     if (!CORBA::is_nil(session))
     {
       pid = session->getPID();
-      session->ping();
+      session->Shutdown();
     }
   }
 
