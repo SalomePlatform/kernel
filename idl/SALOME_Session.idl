@@ -34,8 +34,9 @@ module SALOME
    This enumeration contains values defining the state of the session
 
 */
-  enum SessionState {asleep, /*!< Session is inactive */
-                     running /*!< Session is running */
+  enum SessionState {asleep,   /*!< Session is inactive */
+                     running,  /*!< Session is running */
+                     shutdown  /*!< Session is shutting down */
   } ;
 
 /*! \brief %Session State and Statistics
@@ -82,6 +83,9 @@ module SALOME
 
 //!  Gets Session State
     StatSession GetStatSession() ;
+
+//!  Shutdowns Session server
+    void Shutdown();
 
 //!  Determines whether the server has already been loaded or not.
     void ping();
