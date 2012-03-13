@@ -44,6 +44,7 @@
 #include <sys/types.h>
 #include <omnithread.h>
 #include <map>
+#include <list>
 #include <string>
 
 class SALOME_NamingService;
@@ -129,6 +130,10 @@ public:
   int getArgc() { return _argc; }
   char **getArgv() { return _argv; }
 
+  void registerTemporaryFile( const std::string& fileName );
+  void unregisterTemporaryFile( const std::string& fileName );
+  void clearTemporaryFiles();
+
 protected:
 
   static std::map<std::string, int> _cntInstances_map;
@@ -149,6 +154,7 @@ protected:
   std::map<std::string,Engines::EngineComponent_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
   std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
+  std::list<std::string> _tmp_files;
   Engines::fileTransfer_var _fileTransfer;
 
   int    _argc ;

@@ -335,6 +335,9 @@ void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
 
+  // Clear registered temporary files
+  clearTemporaryFiles();
+
   /* For each component contained in this container
   * tell it to self-destroy
   */
@@ -1732,4 +1735,30 @@ int findpathof(const std::string& path, std::string& pth, const std::string& fil
     offset = pos+1;
   }
   return found;
+}
+
+void Engines_Container_i::registerTemporaryFile( const std::string& fileName )
+{
+  _tmp_files.remove( fileName );
+  _tmp_files.push_back( fileName );
+}
+
+void Engines_Container_i::unregisterTemporaryFile( const std::string& fileName )
+{
+  _tmp_files.remove( fileName );
+}
+
+void Engines_Container_i::clearTemporaryFiles()
+{
+  std::list<std::string>::const_iterator it;
+  for ( it = _tmp_files.begin(); it != _tmp_files.end(); ++it ) {
+#ifdef WIN32
+    std::string command = "del /F ";
+#else
+    std::string command = "rm -f ";
+#endif
+    command += *it;
+    system( command.c_str() );
+  }
+  _tmp_files.clear();
 }
