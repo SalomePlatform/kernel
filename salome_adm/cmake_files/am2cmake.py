@@ -564,7 +564,12 @@ class CMakeFile(object):
                         ENDIF(GUI_ROOT_DIR)
                         """)
                         if self.module == "med":
+                            #METIS must be after PARMETIS to prevent to activate METIS if PARMETIS already exists
                             newlines.append("""
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindPARMETIS.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMETIS.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSCOTCH.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSPLITTER.cmake)
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
                             IF(WINDOWS)
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
