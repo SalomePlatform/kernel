@@ -143,7 +143,30 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
-    from salome_utils import getShortHostName, getHostName
+    from salome_utils import getShortHostName, getHostName, generateFileName
+
+    # set OMNIORB_CONFIG variable to the proper file
+    home  = os.getenv("HOME")
+    appli = os.getenv("APPLI")
+    kwargs = {}
+    if appli is not None: 
+        home = os.path.join(home, appli,"USERS")
+        kwargs["with_username"]=True
+        pass
+    omniorb_config = generateFileName(home, prefix="omniORB",
+                                      extension="cfg",
+                                      hidden=True,
+                                      with_hostname=True,
+                                      with_port=port,
+                                      **kwargs)
+    os.environ['OMNIORB_CONFIG'] = omniorb_config
+
+    # give the chance to the servers to shutdown properly
+    try:
+        import shutdownSalome
+    except:
+        pass
+
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
