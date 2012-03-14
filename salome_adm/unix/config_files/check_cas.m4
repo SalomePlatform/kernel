@@ -18,7 +18,6 @@ dnl License along with this library; if not, write to the Free Software
 dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl
 dnl See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-dnl
 
 AC_DEFUN([CHECK_CAS],[
 AC_REQUIRE([AC_PROG_CXX])dnl
@@ -44,6 +43,7 @@ AC_SUBST(CAS_LDPATH)
 AC_SUBST(CAS_STDPLUGIN)
 AC_SUBST(CAS_LIBDIR)
 AC_SUBST(CAS_DATADIR)
+AC_SUBST(OCC_VERSION_DEVELOPMENT)
 AC_SUBST(CASROOT)
 
 CAS_CPPFLAGS=""
@@ -112,6 +112,7 @@ else
   OCC_VERSION_MAJOR=0
   OCC_VERSION_MINOR=0
   OCC_VERSION_MAINTENANCE=0
+  OCC_VERSION_DEVELOPMENT=0
   if test -f $CASROOT/inc/Standard_Version.hxx; then
     ff=$CASROOT/inc/Standard_Version.hxx
   else
@@ -129,6 +130,14 @@ else
     grep "define OCC_VERSION_MAINTENANCE" $ff > /dev/null
     if test $? = 0 ; then
       OCC_VERSION_MAINTENANCE=`grep "define OCC_VERSION_MAINTENANCE" $ff | awk '{i=3 ; print $i}'`
+    fi
+    grep "define OCC_VERSION_DEVELOPMENT" $ff > /dev/null
+    if test $? = 0 ; then
+      OCC_VERSION_DEVELOPMENT_STR=`grep "define OCC_VERSION_DEVELOPMENT" $ff | awk '{i=1 ; print $i}'`
+      if test "${OCC_VERSION_DEVELOPMENT_STR}" = "#define" ; then
+        OCC_VERSION_DEVELOPMENT=1
+      fi
+      dnl OCC_VERSION_DEVELOPMENT=1
     fi
     AC_MSG_CHECKING(for OpenCascade data files)
     if test -f ${CASROOT}/src/UnitsAPI/Lexi_Expr.dat; then
@@ -259,5 +268,3 @@ fi
 AC_LANG_RESTORE
 
 ])dnl
-
-
