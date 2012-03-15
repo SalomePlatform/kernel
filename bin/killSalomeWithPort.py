@@ -32,9 +32,8 @@
 #
 
 import os, sys, pickle, signal, commands,glob
-from launchConfigureParser import verbose
+from salome_utils import verbose
 import Utils_Identity
-import salome_utils
 
 def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
@@ -86,7 +85,7 @@ def appliCleanOmniOrbConfig(port):
     - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
     """
-    from salome_utils import generateFileName
+    from salome_utils import generateFileName, getUserName
     home  = os.getenv("HOME")
     appli = os.getenv("APPLI")
     if appli is None:
@@ -121,7 +120,7 @@ def appliCleanOmniOrbConfig(port):
 
         #try to relink last.cfg to an existing config file if any
         files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
-                                       "USERS",".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
+                                       "USERS",".omniORB_"+getUserName()+"_*.cfg"))
         current_config=None
         current=0
         for f in files:
@@ -137,13 +136,13 @@ def appliCleanOmniOrbConfig(port):
 
 ########## kills all salome processes with the given port ##########
 
-def killMyPort(port):
+def shutdownMyPort(port):
     """
-    Kill SALOME session running on the specified port.
+    Shutdown SALOME session running on the specified port.
     Parameters:
     - port - port number
     """
-    from salome_utils import getShortHostName, getHostName, generateFileName
+    from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
     home  = os.getenv("HOME")
@@ -163,10 +162,32 @@ def killMyPort(port):
 
     # give the chance to the servers to shutdown properly
     try:
-        import shutdownSalome
+        import time
+        import salome_kernel
+        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        # shutdown all
+        lcc.shutdownServers()
+        # give some time to shutdown to complete
+        time.sleep(1)
+        # shutdown omniNames and notifd
+        salome_kernel.LifeCycleCORBA.killOmniNames()
     except:
         pass
-
+    pass
+    
+def killMyPort(port):
+    """
+    Kill SALOME session running on the specified port.
+    Parameters:
+    - port - port number
+    """
+    from salome_utils import getShortHostName, getHostName
+    
+    # try to shutdown session nomally
+    import threading, time
+    threading.Thread(target=shutdownMyPort, args=(port,)).start()
+    time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
+    
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
