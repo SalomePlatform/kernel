@@ -1755,7 +1755,7 @@ void Engines_Container_i::clearTemporaryFiles()
 #ifdef WIN32
     std::string command = "del /F ";
 #else
-    std::string command = "rm -f ";
+    std::string command = "rm -rf ";
 #endif
     command += *it;
     system( command.c_str() );
