@@ -96,8 +96,26 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
       _path_resources.push_back(user_file);
     }
     else {
-      default_catalog_resource = true;
+      default_catalog_resource = false;
       RES_INFOS("Warning: USER_CATALOG_RESOURCES_FILE is set and file cannot be found.")
+      RES_INFOS("Warning: That's why we try to create a new one.")
+      std::ofstream user_catalog_file;
+      user_catalog_file.open(user_file.c_str());
+      if (user_catalog_file.fail())
+      {
+        RES_INFOS("Error: cannot write in the user catalog resouces files");
+        RES_INFOS("Error: using default CatalogResources.xml file");
+        default_catalog_resource = true;
+      }
+      else
+      {
+        user_catalog_file << "<!-- File created by SALOME -->" << std::endl;
+        user_catalog_file << "<!DOCTYPE ResourcesCatalog>" << std::endl;
+        user_catalog_file << "<resources>" << std::endl;
+        user_catalog_file << "   <machine name=\"localhost\" hostname=\"localhost\" />" << std::endl;
+        user_catalog_file << "</resources>" << std::endl;
+        user_catalog_file.close();
+      }
     }
   }
   if (default_catalog_resource)
