@@ -226,6 +226,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
   p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
   p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
   p_ptr->nb_node = resource.DataForSort._nbOfNodes;
+  p_ptr->is_cluster_head = resource.is_cluster_head;
+  p_ptr->working_directory = CORBA::string_dup(resource.working_directory.c_str());
 
   if( resource.mpi == lam )
     p_ptr->mpiImpl = "lam";
@@ -273,6 +275,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   resource.DataForSort._nbOfNodes = new_resource.nb_node;
   resource.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
   resource.UserName = new_resource.username.in();
+  resource.is_cluster_head = new_resource.is_cluster_head;
+  resource.working_directory = new_resource.working_directory.in();
 
   std::string aBatch = new_resource.batch.in();
   if (aBatch == "pbs")
@@ -372,10 +376,10 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   }
 }
 
-void 
+void
 SALOME_ResourcesManager::RemoveResource(const char * resource_name,
-					CORBA::Boolean write,
-					const char * xml_file)
+                                        CORBA::Boolean write,
+                                        const char * xml_file)
 {
   _rm.DeleteResourceInCatalog(resource_name);
   if (write)
@@ -431,7 +435,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
 
       // Creating machine file
       machine_file_name = tmpnam(NULL);
-	  std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
+      std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
       CORBA::Long machine_number = 0;
       std::list<std::string>::iterator it = list_of_machines.begin();
@@ -493,20 +497,20 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
       }
       else if (resource.mpi == openmpi)
       {
-	// Creating machine file
-	machine_file_name = tmpnam(NULL);
-	std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
+        // Creating machine file
+        machine_file_name = tmpnam(NULL);
+        std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
-	// We add all cluster machines to the file
-	std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
-	  resource.ClusterMembersList.begin();
-	while (cluster_it != resource.ClusterMembersList.end())
-	{
-	  unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
-	    (*cluster_it).DataForSort._nbOfProcPerNode;
-	  machine_file << (*cluster_it).HostName << " slots=" << number_of_proc << std::endl;
-	  cluster_it++;
-	}
+        // We add all cluster machines to the file
+        std::list<ParserResourcesClusterMembersType>::iterator cluster_it =
+          resource.ClusterMembersList.begin();
+        while (cluster_it != resource.ClusterMembersList.end())
+        {
+          unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes *
+            (*cluster_it).DataForSort._nbOfProcPerNode;
+          machine_file << (*cluster_it).HostName << " slots=" << number_of_proc << std::endl;
+          cluster_it++;
+        }
       }
       else if (resource.mpi == nompi)
       {

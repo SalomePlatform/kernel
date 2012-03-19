@@ -89,6 +89,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     const char *test_user_commands;
     const char *test_use;
     const char *test_members;
+    const char *test_is_cluster_head;
+    const char *test_working_directory;
 
   };
 

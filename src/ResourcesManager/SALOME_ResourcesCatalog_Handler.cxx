@@ -69,6 +69,8 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list): _reso
   test_user_commands = "userCommands";
   test_use = "use";
   test_members = "members";
+  test_is_cluster_head = "isClusterHead";
+  test_working_directory = "workingDirectory";
 }
 
 //=============================================================================
@@ -596,6 +598,36 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     xmlFree(nb_of_proc_per_node);
   }
 
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_is_cluster_head))
+  {
+    xmlChar* is_cluster_head = xmlGetProp(machine_descr, (const xmlChar*)test_is_cluster_head);
+    std::string str_ich = (const char*)is_cluster_head;
+    if (str_ich == "true")
+    {
+      resource.is_cluster_head = true;
+    }
+    else
+    {
+      resource.is_cluster_head = false;
+    }
+    xmlFree(is_cluster_head);
+  }
+  else
+  {
+    resource.is_cluster_head = false;
+  }
+
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_working_directory))
+  {
+    xmlChar* working_directory = xmlGetProp(machine_descr, (const xmlChar*)test_working_directory);
+    resource.working_directory = (const char*)working_directory;
+    xmlFree(working_directory);
+  }
+  else
+  {
+    resource.working_directory = "";
+  }
+
   // Process children nodes
   xmlNodePtr aCurSubNode = machine_descr->xmlChildrenNode;
   while(aCurSubNode != NULL)
@@ -672,6 +704,11 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
     xmlNewProp(node,
                BAD_CAST test_cluster_internal_protocol,
                BAD_CAST ParserResourcesType::protocolToString((*iter).second.ClusterInternalProtocol).c_str());
+    xmlNewProp(node, BAD_CAST test_working_directory, BAD_CAST (*iter).second.working_directory.c_str());
+    if ((*iter).second.is_cluster_head)
+      xmlNewProp(node, BAD_CAST test_is_cluster_head, BAD_CAST "true");
+    else
+      xmlNewProp(node, BAD_CAST test_is_cluster_head, BAD_CAST "false");
 
     switch ((*iter).second.Mode)
     {

@@ -188,7 +188,9 @@ void ParserResourcesType::Print()
     "use : " << use << std::endl <<
     "NbOfProc : " << nbOfProc << std::endl <<
     "Modules : " << std::endl <<
-    "Components : " << std::endl;
+    "Components : " << std::endl <<
+    "Is Cluster Head: " << is_cluster_head << std::endl <<
+    "Working Directory: " << working_directory << std::endl;
 
   for(unsigned int i=0;i<ComponentsList.size();i++)
     oss << "Component " << i+1 << " called : " << ComponentsList[i] << std::endl;
@@ -283,6 +285,8 @@ void ParserResourcesType::Clear()
   use = "";
   ClusterMembersList.clear();
   nbOfProc = 1;
+  is_cluster_head = false;
+  working_directory = "";
 
   DataForSort._Name = "";
   DataForSort._nbOfNodes = 1;

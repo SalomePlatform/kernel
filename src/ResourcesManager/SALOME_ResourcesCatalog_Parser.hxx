@@ -108,6 +108,8 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
   std::string use;
   std::list<ParserResourcesClusterMembersType> ClusterMembersList;
   unsigned int nbOfProc;
+  bool is_cluster_head;
+  std::string working_directory;
 
   void Print();
   void Clear();

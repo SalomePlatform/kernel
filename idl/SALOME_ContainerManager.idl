@@ -146,6 +146,12 @@ struct ResourceDefinition
   //! if the resource is a cluster:
   //! internal protocol to use to start a remote container (ssh or rsh) on the cluster
   string iprotocol;
+
+  //! Specify if the resource is a cluster head;
+  boolean is_cluster_head;
+
+  //! Predefined working directory on the resource
+  string working_directory;
 };
 
 //! exception thrown if a computer is not found in the catalog
