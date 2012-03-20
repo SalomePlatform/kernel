@@ -302,6 +302,7 @@ class CMakeFile(object):
             "EntityGUI",
             "GenerationGUI",
             "GEOMAlgo",
+            "GEOMAlgo_NEW",
             "GEOMArchimede",
             "GEOMBase",
             "GEOMbasic",
@@ -320,7 +321,9 @@ class CMakeFile(object):
             "MeasureGUI",
 	    "Material",
             "NMTDS",
+            "NMTDS_NEW",
             "NMTTools",
+            "NMTTools_NEW",
             "OCC2VTK",
             "OperationGUI",
             "PrimitiveGUI",
@@ -592,6 +595,17 @@ class CMakeFile(object):
                             pass
                         if self.module == "geom":
                             newlines.append("""
+			    IF(OCC_VERSION_DEVELOPMENT)
+				SET(NMTDS_VAR NMTDS_NEW)
+				SET(NMTTools_VAR NMTTools_NEW)
+				SET(GEOMAlgo_VAR GEOMAlgo_NEW)
+			    ELSE(OCC_VERSION_DEVELOPMENT)
+				SET(NMTDS_VAR NMTDS)
+				SET(NMTTools_VAR NMTTools)
+				SET(GEOMAlgo_VAR GEOMAlgo)
+
+			    ENDIF(OCC_VERSION_DEVELOPMENT)
+
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
