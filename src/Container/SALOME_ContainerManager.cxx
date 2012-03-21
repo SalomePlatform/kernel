@@ -34,6 +34,7 @@
 #include <vector>
 #include "Utils_CorbaException.hxx"
 #include <sstream>
+#include <string>
 
 #ifdef WNT
 #include <process.h>
@@ -44,7 +45,7 @@
 #include "PaCOPP.hxx"
 #endif
 
-#define TIME_OUT_TO_LAUNCH_CONT 61
+#define TIME_OUT_TO_LAUNCH_CONT 60
 
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
@@ -583,6 +584,18 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
   {
     // Step 4: Wait for the container
     int count = TIME_OUT_TO_LAUNCH_CONT;
+    if (getenv("TIMEOUT_TO_LAUNCH_CONTAINER") != 0)
+    {
+      std::string new_count_str = getenv("TIMEOUT_TO_LAUNCH_CONTAINER");
+      int new_count;
+      std::istringstream ss(new_count_str);
+      if (!(ss >> new_count))
+      {
+        INFOS("[LaunchContainer] TIMEOUT_TO_LAUNCH_CONTAINER should be an int");
+      }
+      else
+        count = new_count;
+    }
     INFOS("[GiveContainer] waiting " << count << " second steps container " << containerNameInNS);
     while (CORBA::is_nil(ret) && count)
     {
