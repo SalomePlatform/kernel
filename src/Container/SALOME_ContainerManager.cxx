@@ -312,79 +312,125 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       local_resources.push_back(std::string(possibleResources[i]));
 
   // Step 4: select the resource where to get/start the container
+  bool resource_available = true;
   std::string resource_selected;
-  try
+  std::vector<std::string> resources = local_resources;
+  while (resource_available)
   {
-    resource_selected = _ResManager->GetImpl()->Find(params.resource_params.policy.in(), local_resources);
-  }
-  catch(const SALOME_Exception &ex)
-  {
-    MESSAGE("[GiveContainer] Exception in ResourceManager find !: " << ex.what());
-    return ret;
-  }
-  MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
-
-  // Step 5: get container in the naming service
-  Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
-  std::string hostname(resource_definition->hostname.in());
-  std::string containerNameInNS;
-  if(params.isMPI){
-    int nbproc;
-    if ( params.nb_proc <= 0 )
-      nbproc = 1;
+    if (resources.size() == 0)
+      resource_available = false;
     else
-      nbproc = params.nb_proc;
-    try
     {
-      if( getenv("LIBBATCH_NODEFILE") != NULL )
-        machFile = machinesFile(nbproc);
-    }
-    catch(const SALOME_Exception & ex)
-    {
-      std::string err_msg = ex.what();
-      err_msg += params.container_name;
-      INFOS(err_msg.c_str());
-      return ret;
-    }
-    // A mpi parallel container register on zero node in NS
-    containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname,machFile).c_str());
-  }
-  else
-    containerNameInNS = _NS->BuildContainerNameForNS(params, hostname.c_str());
-  MESSAGE("[GiveContainer] Container name in the naming service: " << containerNameInNS);
-
-  // Step 6: check if the name exists in naming service
-  //if params.mode == "getorstart" or "get" use the existing container
-  //if params.mode == "start" shutdown the existing container before launching a new one with that name
-  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
-  if (!CORBA::is_nil(obj))
-  {
-    try
-    {
-      Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!cont->_non_existent())
+      try
       {
-        if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
-          return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
-        }
+        resource_selected = _ResManager->GetImpl()->Find(params.resource_params.policy.in(), resources);
+        // Remove resource_selected from vector
+        std::vector<std::string>::iterator it;
+        for (it=resources.begin() ; it < resources.end(); it++ )
+          if (*it == resource_selected)
+          {
+            resources.erase(it);
+            break;
+          }
+      }
+      catch(const SALOME_Exception &ex)
+      {
+        MESSAGE("[GiveContainer] Exception in ResourceManager find !: " << ex.what());
+        return ret;
+      }
+      MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
+
+      // Step 5: Create container name
+      Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
+      std::string hostname(resource_definition->hostname.in());
+      std::string containerNameInNS;
+      if(params.isMPI){
+        int nbproc;
+        if ( params.nb_proc <= 0 )
+          nbproc = 1;
         else
+          nbproc = params.nb_proc;
+        try
         {
-          INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
-          cont->Shutdown(); // shutdown the registered container if it exists
+          if( getenv("LIBBATCH_NODEFILE") != NULL )
+            machFile = machinesFile(nbproc);
+        }
+        catch(const SALOME_Exception & ex)
+        {
+          std::string err_msg = ex.what();
+          err_msg += params.container_name;
+          INFOS(err_msg.c_str());
+          return ret;
+        }
+        // A mpi parallel container register on zero node in NS
+        containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname,machFile).c_str());
+      }
+      else
+        containerNameInNS = _NS->BuildContainerNameForNS(params, hostname.c_str());
+      MESSAGE("[GiveContainer] Container name in the naming service: " << containerNameInNS);
+
+      // Step 6: check if the name exists in naming service
+      //if params.mode == "getorstart" or "get" use the existing container
+      //if params.mode == "start" shutdown the existing container before launching a new one with that name
+      CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+      if (!CORBA::is_nil(obj))
+      {
+        try
+        {
+          Engines::Container_var cont=Engines::Container::_narrow(obj);
+          if(!cont->_non_existent())
+          {
+            if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
+              return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
+            }
+            else
+            {
+              INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
+              cont->Shutdown(); // shutdown the registered container if it exists
+            }
+          }
+        }
+        catch(CORBA::Exception&)
+        {
+          INFOS("[GiveContainer] CORBA::Exception ignored when trying to get the container - we start a new one");
         }
       }
-    }
-    catch(CORBA::Exception&)
-    {
-      INFOS("[GiveContainer] CORBA::Exception ignored when trying to get the container - we start a new one");
+      Engines::Container_var cont = LaunchContainer(params, resource_selected, hostname, machFile, containerNameInNS);
+      if (!CORBA::is_nil(cont))
+      {
+        INFOS("[GiveContainer] container " << containerNameInNS << " launched");
+        return cont._retn();
+      }
+      else
+      {
+        INFOS("[GiveContainer] Failed to launch container on resource " << resource_selected);
+      }
     }
   }
 
-  // Step 7: type of container: PaCO, Exe, Mpi or Classic
+  // We were not able to launch the container
+  INFOS("[GiveContainer] Cannot launch the container on the following selected resources:")
+  std::vector<std::string>::iterator it;
+  for (it=local_resources.begin() ; it < local_resources.end(); it++ )
+    INFOS("[GiveContainer] " << *it)
+  return ret;
+}
+
+Engines::Container_ptr
+SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& params,
+                                         const std::string & resource_selected,
+                                         const std::string & hostname,
+                                         const std::string & machFile,
+                                         const std::string & containerNameInNS)
+{
+
+  // Step 1: type of container: PaCO, Exe, Mpi or Classic
   // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
   // TODO -> separates Mpi from Classic/Exe
   // Classic or Exe ?
   std::string container_exe = "SALOME_Container"; // Classic container
+  Engines::ContainerParameters local_params(params);
+  Engines::Container_ptr ret = Engines::Container::_nil();
   int found=0;
   try
   {
@@ -431,7 +477,42 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     return ret;
   }
 
-  // Step 8: start a new container
+  // Step 2: test resource
+  // Only if an application directory is set
+  if(hostname != Kernel_Utils::GetHostname() && _isAppliSalomeDefined)
+  {
+    // Preparing remote command
+    std::string command = "";
+    const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_selected);
+    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
+    if (resInfo.AppliPath != "")
+      command += resInfo.AppliPath;
+    else
+    {
+      ASSERT(getenv("APPLI"));
+      command += getenv("APPLI");
+    }
+    command += "/runRemote.sh ";
+    ASSERT(getenv("NSHOST")); 
+    command += getenv("NSHOST"); // hostname of CORBA name server
+    command += " ";
+    ASSERT(getenv("NSPORT"));
+    command += getenv("NSPORT"); // port of CORBA name server
+    command += " ls /tmp";
+
+    // Launch remote command
+    int status = system(command.c_str());
+    if (status != 0)
+    {
+      // Error on resource - cannot launch commands
+      INFOS("[LaunchContainer] Cannot launch commands on machine " << hostname);
+      INFOS("[LaunchContainer] Command was " << command);
+      INFOS("[LaunchContainer] Command status is " << WEXITSTATUS(status));
+      return Engines::Container::_nil();
+    }
+  }
+
+  // Step 3: start a new container
   // Check if a PaCO container
   // PaCO++
   if (std::string(local_params.parallelLib.in()) != "")
@@ -487,21 +568,22 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   int status=system(command.c_str());
 
   if (status == -1){
-    MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status -1)");
+    INFOS("[LaunchContainer] command failed (system command status -1): " << command);
     RmTmpFile(_TmpFileName); // command file can be removed here
     _TmpFileName="";
     return Engines::Container::_nil();
   }
   else if (status == 217){
-    MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status 217)");
+    INFOS("[LaunchContainer] command failed (system command status 217): " << command);
     RmTmpFile(_TmpFileName); // command file can be removed here
     _TmpFileName="";
     return Engines::Container::_nil();
   }
   else
   {
+    // Step 4: Wait for the container
     int count = TIME_OUT_TO_LAUNCH_CONT;
-    MESSAGE("[GiveContainer] waiting " << count << " second steps");
+    INFOS("[GiveContainer] waiting " << count << " second steps container " << containerNameInNS);
     while (CORBA::is_nil(ret) && count)
     {
 #ifndef WIN32
@@ -631,7 +713,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 (const std::string& resource_name,
  const Engines::ContainerParameters& params, const std::string& container_exe)
 {
-          
+
   std::string command;
   if (!_isAppliSalomeDefined)
     command = BuildTempFileToLaunchRemoteContainer(resource_name, params);

@@ -74,12 +74,12 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     char* Find(const char *policy, const Engines::ResourceList& listOfResources);
     Engines::ResourceDefinition * GetResourceDefinition(const char * name);
     void AddResource(const Engines::ResourceDefinition& new_resource,
-		     CORBA::Boolean write,
-		     const char * xml_file);
+                     CORBA::Boolean write,
+                     const char * xml_file);
 
     void RemoveResource(const char * resource_name,
-			CORBA::Boolean write,
-			const char * xml_file);
+                        CORBA::Boolean write,
+                        const char * xml_file);
 
     // Cpp Methods
     void Shutdown();
@@ -91,7 +91,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     static const char *_ResourcesManagerNameInNS;
   protected:
-    
+
     SALOME_NamingService *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;

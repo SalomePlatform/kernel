@@ -86,7 +86,7 @@ std::string LoadRateManagerAltCycl::Find(const std::vector<std::string>& hosts,
     }
 
   _numberOfUses[selected]=_numberOfUses[selected]+1;
-  std::cerr << "selected: " << selected << " " << _numberOfUses[selected] << std::endl;
+  //std::cerr << "selected: " << selected << " " << _numberOfUses[selected] << std::endl;
   return selected;
 }
 

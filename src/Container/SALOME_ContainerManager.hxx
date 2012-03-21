@@ -96,6 +96,13 @@ protected:
                                            const std::string & hostname,
                                            const std::string & username);
 
+  Engines::Container_ptr
+  LaunchContainer(const Engines::ContainerParameters& params,
+                  const std::string & resource_selected,
+                  const std::string & hostname,
+                  const std::string & machFile,
+                  const std::string & containerNameInNS);
+
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 
