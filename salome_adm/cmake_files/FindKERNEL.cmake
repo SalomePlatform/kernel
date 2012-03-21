@@ -20,7 +20,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(KERNEL_CXXFLAGS -I${KERNEL_ROOT_DIR}/include/salome)
+SET(KERNEL_CXXFLAGS -I${KERNEL_ROOT_DIR}/include/salome) # to be removed
+SET(KERNEL_INCLUDES_DIR ${KERNEL_ROOT_DIR}/include/salome)
 
 FIND_LIBRARY(CalciumC CalciumC ${KERNEL_ROOT_DIR}/lib/salome)
 FIND_LIBRARY(DF DF ${KERNEL_ROOT_DIR}/lib/salome)
