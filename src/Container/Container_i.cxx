@@ -846,6 +846,19 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
   else
   {
     int count=20;
+    if (getenv("TIMEOUT_TO_WAIT_EXE_COMPONENT") != 0)
+    {
+      std::string new_count_str = getenv("TIMEOUT_TO_WAIT_EXE_COMPONENT");
+      int new_count;
+      std::istringstream ss(new_count_str);
+      if (!(ss >> new_count))
+      {
+        INFOS("[Container] TIMEOUT_TO_WAIT_EXE_COMPONENT should be an int");
+      }
+      else
+        count = new_count;
+    }
+    INFOS("[Container] waiting " << count << " second steps exe component ");
     CORBA::Object_var obj = CORBA::Object::_nil() ;
     while ( CORBA::is_nil(obj) && count )
     {
