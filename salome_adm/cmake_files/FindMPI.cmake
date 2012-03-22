@@ -136,7 +136,7 @@ IF(MPI_STATUS)
   IF(MPI2_IS_OK)
     MESSAGE(STATUS "Your mpi implemtentation is compatible with mpi2 ... adding -DHAVE_MPI2")
     SET(MPI_INCLUDES ${MPI_INCLUDES} -DHAVE_MPI2)# to remove
-    SET(MPI_FLAGS ${MPI_FLAGS} -DHAVE_MPI2)
+    SET(MPI_FLAGS "${MPI_FLAGS} -DHAVE_MPI2")
   ENDIF(MPI2_IS_OK)
 ENDIF(MPI_STATUS)
 
