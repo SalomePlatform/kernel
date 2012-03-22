@@ -508,7 +508,9 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
       // Error on resource - cannot launch commands
       INFOS("[LaunchContainer] Cannot launch commands on machine " << hostname);
       INFOS("[LaunchContainer] Command was " << command);
+#ifndef WIN32
       INFOS("[LaunchContainer] Command status is " << WEXITSTATUS(status));
+#endif
       return Engines::Container::_nil();
     }
   }
