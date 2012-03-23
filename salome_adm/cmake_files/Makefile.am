@@ -33,6 +33,7 @@ FindLIBBATCH.cmake \
 FindLIBXML2.cmake \
 FindMPI.cmake \
 FindOMNIORB.cmake \
+UseOMNIORB.cmake \
 FindPLATFORM.cmake \
 FindPTHREADS.cmake \
 FindPYTHON.cmake \
