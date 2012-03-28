@@ -524,6 +524,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.Batch = slurm;
     else if  (aBatch == "ll")
       resource.Batch = ll;
+    else if  (aBatch == "vishnu")
+      resource.Batch = vishnu;
     else
       resource.Batch = none;
   }
@@ -744,6 +746,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
         break;
       case ll:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ll");
+        break;
+      case vishnu:
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "vishnu");
         break;
       default:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");

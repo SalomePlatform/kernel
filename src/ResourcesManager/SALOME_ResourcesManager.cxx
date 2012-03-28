@@ -256,6 +256,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     p_ptr->batch = "ssh";
   else if( resource.Batch == ll )
     p_ptr->batch = "ll";
+  else if( resource.Batch == vishnu )
+    p_ptr->batch = "vishnu";
 
   return p_ptr;
 }
@@ -293,6 +295,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.Batch = ssh_batch;
   else if  (aBatch == "ll")
     resource.Batch = ll;
+  else if  (aBatch == "vishnu")
+    resource.Batch = vishnu;
   else if (aBatch == "")
     resource.Batch = none;
   else {

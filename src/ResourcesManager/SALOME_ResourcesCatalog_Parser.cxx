@@ -244,6 +244,8 @@ ParserResourcesType::PrintBatchType() const
     return "slurm";
   else if (Batch == ll)
     return "ll";
+  else if (Batch == vishnu)
+    return "vishnu";
   else 
     return "ssh";
 }

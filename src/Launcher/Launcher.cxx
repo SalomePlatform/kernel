@@ -422,6 +422,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case ll:
       bmType = "eLL";
       break;
+    case vishnu:
+      bmType = "eVISHNU";
+      break;
     default:
       LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.Batch);
       throw LauncherException("No batchmanager for that cluster - Bad batch description of the resource");
