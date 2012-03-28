@@ -1093,6 +1093,11 @@ class CMakeFile(object):
         # --
         # Convert the .in files in build dir
         # --
+        upmod = ""
+        if self.module == "hexoticplugin" :
+          upmod = "HexoticPLUGIN"
+        else :
+          upmod = self.module.upper()
 
         import operator
         mod = self.module
@@ -1118,7 +1123,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-        elif self.root[-len(mod):] == mod.upper() and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
+        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
             newlines.append(r'''
             SET(top_builddir
                 ${CMAKE_BINARY_DIR}
@@ -1140,8 +1145,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-                        
-            if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == mod.upper():
+            if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
         if self.module == "yacs":
@@ -1198,8 +1202,6 @@ class CMakeFile(object):
         # --
         # add commands for generating of user's documentation
         # --
-  
-        upmod = self.module.upper()
         doc_gui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/%s"%(upmod)
         doc_tui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/%s"%(upmod)
         doc_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome"
@@ -1221,7 +1223,7 @@ class CMakeFile(object):
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )"""%(input, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
         from os import path
-        if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
+        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
             ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
@@ -1245,12 +1247,17 @@ class CMakeFile(object):
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
                 )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
-                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
+                config_f = ""
+		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] :
+                    config_f = "doxyfile_py"
+                else:
+                    config_f = "doxyfile_idl"
+                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} %s
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
                 VERBATIM 
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""%(doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                )"""%(config_f, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
         elif mod == 'yacs' and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
             from sys import platform
             params = '';
