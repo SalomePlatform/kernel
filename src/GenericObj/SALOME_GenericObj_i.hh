@@ -20,11 +20,9 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME_GenericObj_i_HH
 //  File   : SALOME_GenericObj_i.hh
-//  Author : Alexey PETROV
-//  Module : SALOME
-//
+//  Author : Alexey PETROV, Open CASCADE S.A.S. (alexey.petrov@opencascade.com)
+
 #ifndef SALOME_GenericObj_i_HH
 #define SALOME_GenericObj_i_HH
 
@@ -47,7 +45,8 @@
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
-namespace SALOME{
+namespace SALOME
+{
   class GENERICOBJ_EXPORT GenericObj_i : 
     public virtual POA_SALOME::GenericObj,
     public virtual PortableServer::ServantBase
@@ -55,20 +54,17 @@ namespace SALOME{
   protected:
     PortableServer::POA_var myPOA;
     int myRefCounter;
+
   public:
-    // In the constructor you can provide default POA for the servant
     GenericObj_i(PortableServer::POA_ptr thePOA = PortableServer::POA::_nil());
-    // The function is used implicetly in "_this" function
+
     virtual PortableServer::POA_ptr _default_POA();
-  public: // Follow functions is IDL defined
-    /*! Increase the reference count (mark as used by another object).*/
+
+  public:
     virtual void Register();
-    /*! Decrease the reference count (release by another object).*/
     virtual void UnRegister();
-    /*! \brief Obsolete, left for compatibility reasons only. Use UnRegister() instead.*/
     virtual void Destroy();
   };
 }
 
 #endif
-
