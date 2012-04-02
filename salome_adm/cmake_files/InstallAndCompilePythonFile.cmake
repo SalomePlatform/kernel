@@ -20,27 +20,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-include $(top_srcdir)/salome_adm/unix/make_common_starter.am
-
-dist_salome_cmake_DATA = \
-am2cmake.py \
-FindBOOST.cmake \
-FindCPPUNIT.cmake \
-FindDOXYGEN.cmake \
-FindHDF5.cmake \
-FindKERNEL.cmake \
-FindLIBBATCH.cmake \
-FindLIBXML2.cmake \
-FindMPI.cmake \
-FindOMNIORB.cmake \
-UseOMNIORB.cmake \
-FindPLATFORM.cmake \
-FindPTHREADS.cmake \
-FindPYTHON.cmake \
-FindSWIG.cmake \
-FindSPHINX.cmake \
-install_python_from_idl.cmake \
-install_and_compile_python_file.cmake \
-InstallAndCompilePythonFile.cmake
-
-dist_salomescript_SCRIPTS = prepare_generating_doc.py
+MACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
+  INSTALL(CODE "SET(PYTHON_FILE ${f})")
+  FOREACH(input ${PYFILE2COMPINST})
+    GET_FILENAME_COMPONENT(inputname ${input} NAME)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${inputname} DESTINATION ${PYFILELOC})
+    INSTALL(CODE "MESSAGE(STATUS \"py compiling ${CMAKE_INSTALL_PREFIX}/${PYFILELOC}/${inputname}\")")
+    INSTALL(CODE "SET(CMD \"import py_compile ; py_compile.compile('${CMAKE_INSTALL_PREFIX}/${PYFILELOC}/${inputname}')\")")
+    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c \"\${CMD}\")")
+    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -O -c \"\${CMD}\")")
+  ENDFOREACH(input ${PYFILE2COMPINST})
+ENDMACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
