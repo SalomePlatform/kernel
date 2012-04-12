@@ -25,7 +25,7 @@
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [6.4.0], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [6.5.0], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -37,7 +37,7 @@ AM_INIT_AUTOMAKE([tar-pax -Wno-portability])
 
 XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
 AC_SUBST(XVERSION)
-VERSION_DEV=1
+VERSION_DEV=0
 AC_SUBST(VERSION_DEV)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
