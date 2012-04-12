@@ -1,4 +1,4 @@
-dnl Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
 dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -18,6 +18,7 @@ dnl License along with this library; if not, write to the Free Software
 dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl
 dnl See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+dnl
 
 AC_DEFUN([CHECK_CAS],[
 AC_REQUIRE([AC_PROG_CXX])dnl
