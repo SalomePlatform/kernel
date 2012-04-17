@@ -34,6 +34,7 @@
 import os, sys, pickle, signal, commands,glob
 from salome_utils import verbose
 import Utils_Identity
+import salome_utils
 
 def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
