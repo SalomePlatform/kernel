@@ -1,10 +1,11 @@
-/*! \mainpage  SALOME KERNEL Reference Documentation
-    \image html icon_about.png
+/*!
 
-    Welcome to the %SALOME KERNEL documentation !
+\mainpage  SALOME KERNEL Reference Documentation
+\image html icon_about.png
 
-    Following your kind of usage of %SALOME, you will find some specific 
-    introductory documentation, listed below.
+Welcome to the %SALOME KERNEL documentation !
+Following your kind of usage of %SALOME, you will find some specific 
+introductory documentation, listed below.
 
 \section S2_main End user
 
