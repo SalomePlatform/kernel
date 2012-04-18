@@ -23,7 +23,7 @@
     manipulate the %SALOME KERNEL services from a C++ programming
     context. See \subpage KERNEL_Services_CppHelpers.
 
-\Section S3_main Application Integrator
+\section S3_main Application Integrator
 
     Applications integrators are in charge of configuration and installation of
     specific %SALOME applications over a local network. Application Integrators 
