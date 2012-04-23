@@ -143,6 +143,8 @@ def shutdownMyPort(port):
     Parameters:
     - port - port number
     """
+    if not port: return
+    
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
