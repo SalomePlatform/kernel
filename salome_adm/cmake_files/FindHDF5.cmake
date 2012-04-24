@@ -161,13 +161,13 @@ ENDIF(HDF5_STATUS)
 IF(HDF5_STATUS)
   FILE(TO_NATIVE_PATH "${HDF5_INCLUDE_DIR}/H5public.h" HDF5_H5PUBLIC_FILE)
   EXECUTE_PROCESS(
-    COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\s]*include[\s]*\\\"(?P<nm>[A-Za-z0-9\-]+\.h)\\\"',re.M) ; sys.stdout.write(c.search(s).group('nm'))"
+    COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\\s]*include[\\s]*\\\"(?P<nm>[A-Za-z0-9\\-]+\\.h)\\\"',re.M) ; sys.stdout.write(c.search(s).group('nm'))"
             ${HDF5_H5PUBLIC_FILE}
     OUTPUT_VARIABLE HDF5_H5PUBLIC_DEFS_FILE
     )
   FILE(TO_NATIVE_PATH "${HDF5_INCLUDE_DIR}/${HDF5_H5PUBLIC_DEFS_FILE}" HDF5_H5PUBLIC_DEFS_FILE)
   EXECUTE_PROCESS(
-    COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\s]*define[\s]+H5_HAVE_PARALLEL[\s]+(?P<nm>[\d]+)',re.M) ; m=c.search(s); exec('if m: sys.stdout.write(m.group(\'nm\'))') ; exec('if not m:\n  sys.stdout.write(\'0\');')"
+    COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\\s]*define[\\s]+H5_HAVE_PARALLEL[\\s]+(?P<nm>[\\d]+)',re.M) ; m=c.search(s); exec('if m: sys.stdout.write(m.group(\\'nm\\'))') ; exec('if not m: sys.stdout.write(\\'0\\')')"
             ${HDF5_H5PUBLIC_DEFS_FILE}
     OUTPUT_VARIABLE HD5_HAVE_PARALLEL
     )
