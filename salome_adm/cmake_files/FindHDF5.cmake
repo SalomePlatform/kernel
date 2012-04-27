@@ -169,15 +169,15 @@ IF(HDF5_STATUS)
   EXECUTE_PROCESS(
     COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\\s]*define[\\s]+H5_HAVE_PARALLEL[\\s]+(?P<nm>[\\d]+)',re.M) ; m=c.search(s); exec('if m: sys.stdout.write(m.group(\\'nm\\'))') ; exec('if not m: sys.stdout.write(\\'0\\')')"
             ${HDF5_H5PUBLIC_DEFS_FILE}
-    OUTPUT_VARIABLE HD5_HAVE_PARALLEL
+    OUTPUT_VARIABLE HDF5_HAVE_PARALLEL
     )
-  IF(HD5_HAVE_PARALLEL)
+  IF(HDF5_HAVE_PARALLEL)
     MESSAGE(STATUS "hdf5 is parallel")
     SET(HDF5_INCLUDES ${HDF5_INCLUDES} -I${MPI_INCLUDES_DIR})       # to remove after "cmakeization"
     SET(HDF5_INCLUDES_DIR ${HDF5_INCLUDES_DIR} ${MPI_INCLUDES_DIR})
     SET(HDF5_FLAGS "${HDF5_FLAGS} ${MPI_FLAGS}")
     SET(HDF5_LIBS ${HDF5_LIBS} ${MPI_LIBS})
-  ENDIF(HD5_HAVE_PARALLEL)
+  ENDIF(HDF5_HAVE_PARALLEL)
 ENDIF(HDF5_STATUS)
 
 # ----
