@@ -1134,7 +1134,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-            if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] and self.root[-len(mod):] == upmod:
+            if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin',"ghs3dprlplugin"] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
         if self.module == "yacs":
@@ -1212,7 +1212,7 @@ class CMakeFile(object):
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )"""%(input, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
         from os import path
-        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
+        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
             ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
@@ -1237,7 +1237,7 @@ class CMakeFile(object):
                 )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
                 config_f = ""
-		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] :
+		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin', "ghs3dprlplugin"] :
                     config_f = "doxyfile_py"
                 else:
                     config_f = "doxyfile_idl"
