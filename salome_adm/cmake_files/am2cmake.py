@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -495,13 +495,13 @@ class CMakeFile(object):
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                     """)
@@ -515,13 +515,13 @@ class CMakeFile(object):
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                         ELSE(KERNEL_ROOT_DIR)
@@ -536,13 +536,13 @@ class CMakeFile(object):
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                         """)
@@ -595,17 +595,6 @@ class CMakeFile(object):
                             pass
                         if self.module == "geom":
                             newlines.append("""
-			    IF(OCC_VERSION_DEVELOPMENT)
-				SET(NMTDS_VAR NMTDS_NEW)
-				SET(NMTTools_VAR NMTTools_NEW)
-				SET(GEOMAlgo_VAR GEOMAlgo_NEW)
-			    ELSE(OCC_VERSION_DEVELOPMENT)
-				SET(NMTDS_VAR NMTDS)
-				SET(NMTTools_VAR NMTTools)
-				SET(GEOMAlgo_VAR GEOMAlgo)
-
-			    ENDIF(OCC_VERSION_DEVELOPMENT)
-
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
@@ -807,9 +796,9 @@ class CMakeFile(object):
                 pass
             # --
             newlines.append("""
-            set(VERSION 6.4.0)
-            set(SHORT_VERSION 6.4)
-            set(XVERSION 0x060400)
+            set(VERSION 6.5.0)
+            set(SHORT_VERSION 6.5)
+            set(XVERSION 0x060500)
             """)
             pass
         # --
@@ -1145,7 +1134,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-            if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] and self.root[-len(mod):] == upmod:
+            if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin',"ghs3dprlplugin"] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
         if self.module == "yacs":
@@ -1223,7 +1212,7 @@ class CMakeFile(object):
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )"""%(input, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
         from os import path
-        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
+        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
             ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
@@ -1248,7 +1237,7 @@ class CMakeFile(object):
                 )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
                 config_f = ""
-		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin'] :
+		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin', "ghs3dprlplugin"] :
                     config_f = "doxyfile_py"
                 else:
                     config_f = "doxyfile_idl"

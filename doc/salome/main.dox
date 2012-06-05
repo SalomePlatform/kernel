@@ -1,10 +1,11 @@
-/*! \mainpage  SALOME KERNEL Reference Documentation
-    \image html icon_about.png
+/*!
 
-    Welcome to the %SALOME KERNEL documentation !
+\mainpage  SALOME KERNEL Reference Documentation
+\image html icon_about.png
 
-    Following your kind of usage of %SALOME, you will find some specific 
-    introductory documentation, listed below.
+Welcome to the %SALOME KERNEL documentation !
+Following your kind of usage of %SALOME, you will find some specific 
+introductory documentation, listed below.
 
 \section S2_main End user
 
@@ -23,7 +24,7 @@
     manipulate the %SALOME KERNEL services from a C++ programming
     context. See \subpage KERNEL_Services_CppHelpers.
 
-\Section S3_main Application Integrator
+\section S3_main Application Integrator
 
     Applications integrators are in charge of configuration and installation of
     specific %SALOME applications over a local network. Application Integrators 

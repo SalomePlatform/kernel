@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -34,6 +34,7 @@
 import os, sys, pickle, signal, commands,glob
 from salome_utils import verbose
 import Utils_Identity
+import salome_utils
 
 def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
@@ -142,6 +143,8 @@ def shutdownMyPort(port):
     Parameters:
     - port - port number
     """
+    if not port: return
+    
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file

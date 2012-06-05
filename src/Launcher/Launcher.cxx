@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -170,7 +170,22 @@ Launcher_cpp::getJobState(int job_id)
   }
 
   Launcher::Job * job = it_job->second;
-  std::string state = job->updateJobState();
+
+  std::string state;
+  try
+  {
+    state = job->updateJobState();
+  }
+  catch(const Batch::EmulationException &ex)
+  {
+    LAUNCHER_INFOS("getJobState failed, exception: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+  catch(const Batch::RunTimeException &ex)
+  {
+    LAUNCHER_INFOS("getJobState failed, exception: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
 
   return state.c_str();
 }

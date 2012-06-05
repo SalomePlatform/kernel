@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -156,6 +156,28 @@ IF(HDF5_STATUS)
       MESSAGE(STATUS "hdf5 lib not found on system, try to use WITH_HDF5 option or HDF5_ROOT (or HDF5HOME) environment variable.")
     ENDIF(HDF5_ROOT_USER)
   ENDIF(HDF5_LIB)
+ENDIF(HDF5_STATUS)
+
+IF(HDF5_STATUS)
+  FILE(TO_NATIVE_PATH "${HDF5_INCLUDE_DIR}/H5public.h" HDF5_H5PUBLIC_FILE)
+  EXECUTE_PROCESS(
+    COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\\s]*include[\\s]*\\\"(?P<nm>[A-Za-z0-9\\-]+\\.h)\\\"',re.M) ; sys.stdout.write(c.search(s).group('nm'))"
+            ${HDF5_H5PUBLIC_FILE}
+    OUTPUT_VARIABLE HDF5_H5PUBLIC_DEFS_FILE
+    )
+  FILE(TO_NATIVE_PATH "${HDF5_INCLUDE_DIR}/${HDF5_H5PUBLIC_DEFS_FILE}" HDF5_H5PUBLIC_DEFS_FILE)
+  EXECUTE_PROCESS(
+    COMMAND ${PYTHON_EXECUTABLE} -c "import re,sys ; f=file(sys.argv[1]) ; s=f.read() ; c=re.compile('^#[\\s]*define[\\s]+H5_HAVE_PARALLEL[\\s]+(?P<nm>[\\d]+)',re.M) ; m=c.search(s); exec('if m: sys.stdout.write(m.group(\\'nm\\'))') ; exec('if not m: sys.stdout.write(\\'0\\')')"
+            ${HDF5_H5PUBLIC_DEFS_FILE}
+    OUTPUT_VARIABLE HDF5_HAVE_PARALLEL
+    )
+  IF(HDF5_HAVE_PARALLEL)
+    MESSAGE(STATUS "hdf5 is parallel")
+    SET(HDF5_INCLUDES ${HDF5_INCLUDES} -I${MPI_INCLUDES_DIR})       # to remove after "cmakeization"
+    SET(HDF5_INCLUDES_DIR ${HDF5_INCLUDES_DIR} ${MPI_INCLUDES_DIR})
+    SET(HDF5_FLAGS "${HDF5_FLAGS} ${MPI_FLAGS}")
+    SET(HDF5_LIBS ${HDF5_LIBS} ${MPI_LIBS})
+  ENDIF(HDF5_HAVE_PARALLEL)
 ENDIF(HDF5_STATUS)
 
 # ----

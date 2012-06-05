@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -528,6 +528,9 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
     return false;
   }
 
+  // Store previous URL
+  std::string anOldName = aStudy->Name();
+
   //Create a temporary url to which the study is saved 
   std::string aUrl = SALOMEDSImpl_Tool::GetTmpDir() + SALOMEDSImpl_Tool::GetNameFromPath(aStudyUrl);
 
@@ -568,7 +571,9 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
           }
         }
 
-      //std::string anOldName = aStudy->Name();
+      // VSR: set URL to new file name
+      // VSR: remember to set previous name if save operation fails
+      aStudy->URL(aStudyUrl);
 
       // To change for Save
       // Do not have to do a new file but just a Open??? Rewrite all informations after erasing evrything??
@@ -771,16 +776,19 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   catch (HDFexception)
     {
       _errorCode = "HDFexception ! ";
+      aStudy->URL( anOldName ); // VSR: restore previous url if operation is failed
       return false;
     }
   catch(std::exception& exc)
     {
       _errorCode = const_cast<char*>(exc.what());
+      aStudy->URL( anOldName ); // VSR: restore previous url if operation is failed
       return false;
     }
   catch(...)
     {
       _errorCode = "Unknown exception ! ";
+      aStudy->URL( anOldName ); // VSR: restore previous url if operation is failed
       return false;
     }
   if (theASCII) { // save file in ASCII format
@@ -804,7 +812,10 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
 
   //       Iterate and move files in the temporary directory
   FILE* fp = fopen(aTmpFile.c_str(), "rb");
-  if(!fp) return false;
+  if(!fp) {
+    aStudy->URL( anOldName ); // VSR: restore previous url if operation is failed
+    return false;
+  }
   char* buffer = new char[2047];
   int errors = 0;
   while(!feof(fp) && !errors) {
@@ -838,8 +849,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
 #endif
 
   if ( !errors ) {
-    // and finally, if all is done without errors, store new URL and mark study as Saved
-    aStudy->URL(aStudyUrl);
+    // VSR: finally, if all is done without errors, mark study as Saved
     aStudy->IsSaved(true);
   }
 
