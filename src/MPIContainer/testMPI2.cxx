@@ -5,6 +5,10 @@
 #define TIMEOUT 20
 #define EPSILON 0.00000001
 
+#ifndef WIN32
+# include <unistd.h>
+#endif
+
 int main(int argc, char**argv)
 {
   int *indg;

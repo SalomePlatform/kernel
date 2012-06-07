@@ -30,6 +30,10 @@
 
 #define TIMEOUT 5
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 MPIObject_i::MPIObject_i()
 {
   MPI_Comm_size( MPI_COMM_WORLD, &_nbproc );

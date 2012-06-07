@@ -29,6 +29,7 @@
 #ifndef WIN32
 # include <sys/stat.h>
 # include <dirent.h>
+# include <unistd.h>
 #else
 # include <windows.h>
 # include <time.h>

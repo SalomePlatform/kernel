@@ -29,6 +29,8 @@
 
 #ifdef WIN32
 # include <process.h>
+#else
+# include <unistd.h>
 #endif
 
 ConnectionManager_i::ConnectionManager_i(CORBA::ORB_ptr orb) {

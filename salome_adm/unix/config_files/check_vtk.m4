@@ -193,7 +193,7 @@ if test "x$PVHOME" != "x" ; then
   AC_CHECKING(for VTK from ParaView)
 
   PV_LOCAL_INCLUDES="-I$PVHOME/include/paraview$PVVERSION $LOCAL_INCLUDES"
-  PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkzlib -lvtkpng -lvtkjpeg -lvtktiff -lvtkexpat -lvtksqlite -lvtkmetaio -lvtkverdict -lvtkNetCDF -lvtkDICOMParser -lvtkfreetype -lvtkftgl -lvtkexoIIc $LOCAL_LIBS"
+  PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkmetaio -lvtkverdict -lvtkNetCDF -lvtkDICOMParser -lvtkftgl -lvtkexoIIc $LOCAL_LIBS"
   PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys $TRY_LINK_LIBS"
 
   dnl vtk headers
