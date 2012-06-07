@@ -431,7 +431,7 @@ def startSalome(args, modules_list, modules_root_dir):
             appli = os.getenv("APPLI")
             kwargs={}
             if appli is not None: 
-                home = os.path.join(home, appli,"USERS")
+                home = os.path.join(os.path.realpath(home), appli,"USERS")
                 kwargs["with_username"] = True
                 pass
             last_running_config = generateFileName(home, prefix="omniORB",
@@ -485,7 +485,7 @@ def startSalome(args, modules_list, modules_root_dir):
       home = os.environ['HOME']
       appli= os.environ.get("APPLI")
       if appli is not None:
-        home = os.path.join(home, appli, "USERS")
+        home = os.path.join(os.path.realpath(home), appli, "USERS")
       file_name = os.path.join(home, args["ns_port_log_file"])
       f = open(file_name, "w")
       f.write(os.environ['NSPORT'])
@@ -851,7 +851,7 @@ def searchFreePort(args, save_config=1):
             appli = os.getenv("APPLI")
             kwargs={}
             if appli is not None: 
-              home = os.path.join(home, appli,"USERS")
+              home = os.path.join(os.path.realpath(home), appli,"USERS")
               kwargs["with_username"]=True
             #
             omniorb_config = generateFileName(home, prefix="omniORB",
