@@ -348,14 +348,32 @@ module Engines {
   interface Superv_Component : Engines::DSC {
     
     //! Operation to create the service ports before it is executed
-    /*! 
-      The SUPERV module call this method before starting the service. Thus the service 
+    /*!
+      YACS module call this method before starting the service. Thus the service 
       can add its dynamics ports before it is started.
 
       \param service_name service's name.
       \return true if the service is correctly initialised.
      */
     boolean init_service(in string service_name);
+
+    struct multiple_param {
+      string name;
+      long number;
+    };
+
+    typedef sequence<multiple_param> seq_multiple_param;
+
+    /*!
+      YACS module call this method before starting the service. Thus the service 
+      can add its dynamics ports before it is started.
+      This method is also used by YACS to specify for each datastream port (name in multiple_param)
+      how many the service should create a datastream port.
+
+      For a defined port named: in_data_port, the service should create ports with the names:
+      in_data_port_0, in_data_port_1, ...
+    */
+    boolean init_service_with_multiple(in string service_name, in seq_multiple_param params);
   };
 };
 

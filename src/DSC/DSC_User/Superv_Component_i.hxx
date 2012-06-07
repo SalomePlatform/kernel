@@ -263,7 +263,16 @@ public:
   static void setTimeOut();
   void beginService(const char *serviceName);
 
-private:   
+
+  // This method is implemented by default since it is a very specific usage.
+  // It also permits to not break compatibility with older components.
+  virtual CORBA::Boolean init_service_with_multiple(const char* service_name,
+                                                    const Engines::Superv_Component::seq_multiple_param & params)
+  {
+    return true;
+  }
+
+private:
   // Factory map
   typedef std::map<std::string, port_factory*> factory_map_t;
   static factory_map_t _factory_map;

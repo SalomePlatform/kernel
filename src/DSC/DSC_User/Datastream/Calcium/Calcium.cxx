@@ -24,6 +24,7 @@
 #include <sstream>
 #include <string>
 #include <exception>
+#include <cstring>
 
 PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               PortableServer::POA_ptr poa,
@@ -146,6 +147,33 @@ extern "C"
         //Unknown mode
         std::cerr << "create_calcium_port:Unknown mode: " << mode << std::endl;
       }
+  }
+
+  char** create_multiple_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend, int number)
+  {
+    if (number <= 0)
+    {
+      std::cerr << "Cannot create a multiple calcium port with number <= 0, value is " << number << std::endl;
+      return NULL;
+    }
+    char** names = new char*[number];
+    for (int i = 0; i < number; i++)
+    {
+      std::ostringstream new_name;
+      new_name << name << "_" << i;
+      std::string cpp_name = new_name.str();
+      char * c_name = new char [cpp_name.size()+1];
+      strcpy(c_name, cpp_name.c_str());
+      names[i] = c_name;
+    }
+
+    // Create ports
+    for (int i = 0; i < number; i++)
+    {
+      create_calcium_port(compo, (char*)std::string(names[i]).c_str(), type, mode, depend);
+    }
+
+    return names;
   }
 
 }

@@ -30,7 +30,15 @@ class PySupervCompo:public Superv_Component_i
          bool notif = false);
     virtual ~PySupervCompo();
     CORBA::Boolean init_service(const char * service_name){return true;};
+    CORBA::Boolean init_service_with_multiple(const char* service_name,
+                                              const Engines::Superv_Component::seq_multiple_param & params)
+    {
+      return true;
+    }
 };
 
 
 extern "C" void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend);
+
+// This method permits to help a service developer to create multiple calcium ports
+extern "C" char** create_multiple_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend, int number);
