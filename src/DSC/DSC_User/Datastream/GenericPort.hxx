@@ -283,7 +283,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       // rem : Utilisation de l'évaluation gauche droite du logical C or
       if ( waitingForAnyDataId || 
            ( waitingForConvenientDataId && 
-             isDataIdConveniant(storedDatas, expectedDataId, dummy1, dummy2, dummy3) ) 
+             this->isDataIdConveniant(storedDatas, expectedDataId, dummy1, dummy2, dummy3) ) 
            ) {
 #ifdef MYDEBUG
         std::cout << "-------- Put : MARK 10 ------------------" << std::endl;
@@ -394,7 +394,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
       // que la politique  gére ce cas de figure 
       //   - l'itérateur wDataIt1 est tel que wDataIt1->first < wdataId < (wDataIt1+1)->first
       // Méthode provenant de la COUPLING_POLICY
-      isDataIdConveniant(storedDatas,expectedDataId,isEqual,isBounded,wDataIt1);
+      this->isDataIdConveniant(storedDatas,expectedDataId,isEqual,isBounded,wDataIt1);
 #ifdef MYDEBUG
       std::cout << "-------- Get : MARK 3 ------------------" << std::endl;
 #endif
@@ -651,8 +651,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
     std::cout << "-------- Next : MARK 6 ------------------" << std::endl;
 #endif
 
-    t   = getTime( (*wDataIt1).first );
-    tag = getTag ( (*wDataIt1).first );
+    t   = this->getTime( (*wDataIt1).first );
+    tag = this->getTag ( (*wDataIt1).first );
     dataToTransmit = (*wDataIt1).second;
  
 #ifdef MYDEBUG
