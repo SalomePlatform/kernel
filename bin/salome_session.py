@@ -69,7 +69,7 @@ def searchFreePort():
             appli = os.getenv("APPLI")
             kwargs={}
             if appli is not None: 
-              home = os.path.join(home, appli,"USERS")
+              home = os.path.join(os.path.realpath(home), appli,"USERS")
               kwargs["with_username"]=True
             omniorb_config = generateFileName(home, prefix="omniORB",
                                               extension="cfg",

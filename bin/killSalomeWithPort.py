@@ -93,7 +93,7 @@ def appliCleanOmniOrbConfig(port):
         #Run outside application context
         pass
     else:
-        dir = os.path.join(home, appli,"USERS")
+        dir = os.path.join(os.path.realpath(home), appli,"USERS")
         omniorb_config      = generateFileName(dir, prefix="omniORB",
                                                extension="cfg",
                                                hidden=True,
@@ -152,7 +152,7 @@ def shutdownMyPort(port):
     appli = os.getenv("APPLI")
     kwargs = {}
     if appli is not None: 
-        home = os.path.join(home, appli,"USERS")
+        home = os.path.join(os.path.realpath(home), appli,"USERS")
         kwargs["with_username"]=True
         pass
     omniorb_config = generateFileName(home, prefix="omniORB",
