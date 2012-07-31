@@ -502,7 +502,11 @@ Launcher::Job::common_job_params()
     if (file.substr(0, 1) == std::string("/"))
       local_file = file;
     else
+#ifndef WIN32
       local_file = _local_directory + "/" + file;
+#else
+	  local_file = file;
+#endif
     
     // remote file -> get only file name from in_files
     size_t found = file.find_last_of("/");

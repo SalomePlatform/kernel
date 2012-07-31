@@ -66,7 +66,12 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 
   std::string launch_script = "/tmp/runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
   std::ofstream launch_script_stream;
-  launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
+  launch_script_stream.open(launch_script.c_str(), 
+                            std::ofstream::out
+#ifdef WIN32		
+ | std::ofstream::binary   //rnv: to avoid CL+RF end of line on windows
+#endif
+                           );
    
   // Begin of script
   launch_script_stream << "#!/bin/sh -f" << std::endl;
