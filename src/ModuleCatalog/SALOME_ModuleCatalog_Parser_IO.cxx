@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Parser_IO.cxx
 //  Author : Estelle Deville
@@ -30,8 +31,6 @@
 #include <iostream>
 #include "utilities.h"
 
-using namespace std;
-
 std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 {
   f << "          name :       " << P.name << std::endl;
@@ -40,7 +39,7 @@ std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserDataStreamParameter & P)
+                           const ParserDataStreamParameter & P)
 {
   f << "          name :       " << P.name << std::endl;
   f << "          type :       " << P.type << std::endl;
@@ -49,7 +48,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserService & S)
+                           const ParserService & S)
 {
   int i, n;
   f << "      name :       " << S.name << std::endl;
@@ -84,7 +83,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserInterface & I)
+                           const ParserInterface & I)
 {
   int j, n;
   f << "    name :       " << I.name << std::endl;
@@ -100,7 +99,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const  ParserComponentType & T)
+                           const  ParserComponentType & T)
 {
   std::string s;
   switch (T) {
@@ -118,7 +117,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserComponent & C)
+                           const ParserComponent & C)
 {
   int j, n;
   f << std::endl

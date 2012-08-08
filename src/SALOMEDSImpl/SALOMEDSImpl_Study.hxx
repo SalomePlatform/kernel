@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_Study.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -69,6 +70,7 @@ private:
   SALOMEDSImpl_Callback*   _cb;
   SALOMEDSImpl_StudyBuilder*   _builder;
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
+  SALOMEDSImpl_AbstractCallback*   _notifier;
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
@@ -196,6 +198,7 @@ public:
 
   virtual void  StudyId(int id);
   
+  virtual void DeleteIORLabelMapItem(const std::string& anIOR);
   virtual void UpdateIORLabelMap(const std::string& anIOR, const std::string& aLabel);
   
   virtual std::vector<SALOMEDSImpl_SObject> FindDependances(const SALOMEDSImpl_SObject& anObject);
@@ -220,14 +223,15 @@ public:
   virtual SALOMEDSImpl_SObject GetSObject(const std::string& theEntry);
   virtual SALOMEDSImpl_SObject GetSObject(const DF_Label& theEntryLabel);
   virtual DF_Attribute* GetAttribute(const std::string& theEntry, 
-					             const std::string& theType);
+                                                     const std::string& theType);
 
   virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   virtual bool DumpStudy(const std::string& thePath, 
-					 const std::string& theBaseName, 
-					 bool isPublished,
-					 SALOMEDSImpl_DriverFactory* theFactory);
+                         const std::string& theBaseName, 
+                         bool isPublished,
+                         bool isMultiFile,
+                         SALOMEDSImpl_DriverFactory* theFactory);
 
   static std::string GetDumpStudyComment(const char* theComponentName = 0);
   
@@ -242,8 +246,8 @@ public:
   SALOMEDSImpl_AttributeParameter* GetCommonParameters(const char* theID, int theSavePoint);
 
   SALOMEDSImpl_AttributeParameter* GetModuleParameters(const char* theID, 
-									      const char* theModuleName,
-									      int theSavePoint);
+                                                                              const char* theModuleName,
+                                                                              int theSavePoint);
 
   //Locks the study, theLockerID is identificator of the of the one who locked the study for ex. IOR
   void SetStudyLock(const char* theLockerID);
@@ -262,7 +266,17 @@ public:
                    const double theValue, 
                    const SALOMEDSImpl_GenericVariable::VariableTypes);
 
+  void SetStringVariable(const std::string& theVarName,
+                         const std::string& theValue, 
+                         const SALOMEDSImpl_GenericVariable::VariableTypes);
+
+  void SetStringVariableAsDouble(const std::string& theVarName,
+                                 const double theValue, 
+                                 const SALOMEDSImpl_GenericVariable::VariableTypes);
+  
   double GetVariableValue(const std::string& theVarName);
+
+  std::string GetStringVariableValue(const std::string& theVarName);
 
   bool IsTypeOf(const std::string& theVarName,
                 SALOMEDSImpl_GenericVariable::VariableTypes theType) const;
@@ -283,14 +297,14 @@ public:
   bool IsVariableUsed(const std::string& theVarName);
 
   bool FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-			     SALOMEDSImpl_SObject theSObject,
-			     const std::string& theName);
+                             SALOMEDSImpl_SObject theSObject,
+                             const std::string& theName);
   bool FindVariableAttribute(const std::string& theName);
 
   void ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-				SALOMEDSImpl_SObject theSObject,
-				const std::string& theSource,
-				const std::string& theDest);
+                                SALOMEDSImpl_SObject theSObject,
+                                const std::string& theSource,
+                                const std::string& theDest);
   void ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest);
 
   std::vector< std::vector<std::string> > ParseVariables(const std::string& theVariables) const;
@@ -300,6 +314,13 @@ public:
 
   //Returns a list of IOR's stored in the study
   std::vector<std::string> GetIORs();
+
+  // Notification mechanism
+  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject);
+  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject);
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason);
+  virtual void setNotifier(SALOMEDSImpl_AbstractCallback* notifier);
+
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;

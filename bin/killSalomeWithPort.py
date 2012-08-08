@@ -1,31 +1,42 @@
-#!/usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#! /usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+## \file killSalomeWithPort.py
+#  Stop all %SALOME servers from given sessions by killing them
+#
+#  The sessions are indicated by their ports on the command line as in :
+#  \code
+#  killSalomeWithPort.py 2811 2815
+#  \endcode
+#
+
 import os, sys, pickle, signal, commands,glob
-from launchConfigureParser import verbose
+from salome_utils import verbose
 import Utils_Identity
 import salome_utils
 
-def getPiDict(port,appname='salome',full=True,hidden=True):
+def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
     Get file with list of SALOME processes.
     This file is located in the user's home directory
@@ -44,6 +55,10 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
     """
     from salome_utils import generateFileName, getTmpDir
     dir = ""
+    if not hostname:
+        hostname = os.getenv("NSHOST")
+        if hostname: hostname = hostname.split(".")[0]
+        pass
     if full:
         # full path to the pidict file is requested
         if hidden:
@@ -60,7 +75,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
                             suffix="pidict",
                             hidden=hidden,
                             with_username=True,
-                            with_hostname=True,
+                            with_hostname=hostname or True,
                             with_port=port,
                             with_app=appname.upper())
 
@@ -71,14 +86,14 @@ def appliCleanOmniOrbConfig(port):
     - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
     """
-    from salome_utils import generateFileName
+    from salome_utils import generateFileName, getUserName
     home  = os.getenv("HOME")
     appli = os.getenv("APPLI")
     if appli is None:
         #Run outside application context
         pass
     else:
-        dir = os.path.join(home, appli,"USERS")
+        dir = os.path.join(os.path.realpath(home), appli,"USERS")
         omniorb_config      = generateFileName(dir, prefix="omniORB",
                                                extension="cfg",
                                                hidden=True,
@@ -102,9 +117,11 @@ def appliCleanOmniOrbConfig(port):
             os.remove(omniorb_config)
             pass
 
+        if os.path.lexists(last_running_config):return 
+
         #try to relink last.cfg to an existing config file if any
         files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
-                                       "USERS",".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
+                                       "USERS",".omniORB_"+getUserName()+"_*.cfg"))
         current_config=None
         current=0
         for f in files:
@@ -120,22 +137,83 @@ def appliCleanOmniOrbConfig(port):
 
 ########## kills all salome processes with the given port ##########
 
+def shutdownMyPort(port):
+    """
+    Shutdown SALOME session running on the specified port.
+    Parameters:
+    - port - port number
+    """
+    if not port: return
+    
+    from salome_utils import generateFileName
+
+    # set OMNIORB_CONFIG variable to the proper file
+    home  = os.getenv("HOME")
+    appli = os.getenv("APPLI")
+    kwargs = {}
+    if appli is not None: 
+        home = os.path.join(os.path.realpath(home), appli,"USERS")
+        kwargs["with_username"]=True
+        pass
+    omniorb_config = generateFileName(home, prefix="omniORB",
+                                      extension="cfg",
+                                      hidden=True,
+                                      with_hostname=True,
+                                      with_port=port,
+                                      **kwargs)
+    os.environ['OMNIORB_CONFIG'] = omniorb_config
+
+    # give the chance to the servers to shutdown properly
+    try:
+        import time
+        import salome_kernel
+        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        # shutdown all
+        lcc.shutdownServers()
+        # give some time to shutdown to complete
+        time.sleep(1)
+        # shutdown omniNames and notifd
+        salome_kernel.LifeCycleCORBA.killOmniNames()
+    except:
+        pass
+    pass
+    
 def killMyPort(port):
     """
     Kill SALOME session running on the specified port.
     Parameters:
     - port - port number
     """
+    from salome_utils import getShortHostName, getHostName
+    
+    # try to shutdown session nomally
+    import threading, time
+    threading.Thread(target=shutdownMyPort, args=(port,)).start()
+    time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
+    
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
+    # provide compatibility with old-style pidict file (short hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getShortHostName())
+    # provide compatibility with old-style pidict file (not dot-prefixed, short hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getShortHostName())
+    # provide compatibility with old-style pidict file (long hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getHostName())
+    # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getHostName())
     #
     try:
         fpid = open(filedict, 'r')
         #
         from salome_utils import generateFileName
-        fpidomniNames = generateFileName(os.path.join('/tmp/logs', os.getenv('USER')),
+        if sys.platform == "win32":
+            username = os.getenv( "USERNAME" )
+        else:
+            username = os.getenv('USER')
+        path = os.path.join('/tmp/logs', username)
+        fpidomniNames = generateFileName(path,
                                          prefix="",
                                          suffix="Pid_omniNames",
                                          extension="log",
@@ -177,7 +255,7 @@ def killMyPort(port):
                     try:
                         if sys.platform == "win32":
                             import win32pm
-                            win32pm.killpid(int(pid),0)
+                            win32pm.killpid(int(pid),0)                            
                         else:
                             os.kill(int(pid),signal.SIGKILL)
                             pass
@@ -230,8 +308,59 @@ def killNotifdAndClean(port):
       pass
 
     appliCleanOmniOrbConfig(port)
-    
+
+def killMyPortSpy(pid, port):
+    dt = 1.0
+    while 1:
+        if sys.platform == "win32":
+            from win32pm import killpid
+            if killpid(int(pid), 0) != 0:
+                return
+        else:
+            from os import kill
+            try:
+                kill(int(pid), 0)
+            except OSError, e:
+                if e.errno != 3:
+                    return
+                break
+            pass
+        from time import sleep
+        sleep(dt)
+        pass
+    filedict = getPiDict(port, hidden=True)
+    if not os.path.exists(filedict):
+        return
+    try:
+        import omniORB
+        orb = omniORB.CORBA.ORB_init(sys.argv, omniORB.CORBA.ORB_ID)
+        import SALOME_NamingServicePy
+        ns = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb)
+        import SALOME
+        session = ns.Resolve("/Kernel/Session")
+        assert session
+    except:
+        return
+    try:
+        status = session.GetStatSession()
+    except:
+        # -- session is in naming service but has crash
+        status = None
+        pass
+    if status:
+        if not status.activeGUI:
+            return
+        pass
+    killMyPort(port)
+    return
+
 if __name__ == "__main__":
+    if sys.argv[1] == "--spy":
+        pid = sys.argv[2]
+        port = sys.argv[3]
+        killMyPortSpy(pid, port)
+        sys.exit(0)
+        pass
     for port in sys.argv[1:]:
         killMyPort(port)
         pass

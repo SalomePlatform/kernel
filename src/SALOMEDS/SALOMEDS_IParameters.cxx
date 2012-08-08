@@ -1,28 +1,27 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOMEDS_IParameters.hxx"
 #include <utilities.h>
-
-using namespace std;
 
 #define PT_INTEGER   0
 #define PT_REAL      1
@@ -36,6 +35,9 @@ using namespace std;
 #define _AP_ENTRIES_LIST_ "AP_ENTRIES_LIST"
 #define _AP_PROPERTIES_LIST_ "AP_PROPERTIES_LIST"
 #define _AP_DUMP_PYTHON_ "AP_DUMP_PYTHON"
+
+#define _PT_ID_ "_PT_OBJECT_ID_"
+
 
 /*!
   Constructor
@@ -53,10 +55,10 @@ SALOMEDS_IParameters::~SALOMEDS_IParameters()
   _compNames.clear();
 }
 
-int SALOMEDS_IParameters::append(const string& listName, const string& value)
+int SALOMEDS_IParameters::append(const std::string& listName, const std::string& value)
 {
   if(!_ap) return -1;
-  vector<string> v;
+  std::vector<std::string> v;
   if(!_ap->IsSet(listName, PT_STRARRAY)) {
     if(!_ap->IsSet(_AP_LISTS_LIST_, PT_STRARRAY)) _ap->SetStrArray(_AP_LISTS_LIST_, v);
     if(listName != _AP_ENTRIES_LIST_ && 
@@ -71,43 +73,43 @@ int SALOMEDS_IParameters::append(const string& listName, const string& value)
   return (v.size()-1);
 }
 
-int SALOMEDS_IParameters::nbValues(const string& listName)
+int SALOMEDS_IParameters::nbValues(const std::string& listName)
 {
   if(!_ap) return -1;
   if(!_ap->IsSet(listName, PT_STRARRAY)) return 0;
-  vector<string> v = _ap->GetStrArray(listName);
+  std::vector<std::string> v = _ap->GetStrArray(listName);
   return v.size();
 }
 
-vector<string> SALOMEDS_IParameters::getValues(const string& listName)
+std::vector<std::string> SALOMEDS_IParameters::getValues(const std::string& listName)
 {
-  vector<string> v;
+  std::vector<std::string> v;
   if(!_ap) return v;
   if(!_ap->IsSet(listName, PT_STRARRAY)) return v;
   return _ap->GetStrArray(listName);
 }
 
 
-string SALOMEDS_IParameters::getValue(const string& listName, int index)
+std::string SALOMEDS_IParameters::getValue(const std::string& listName, int index)
 {
   if(!_ap) return "";
   if(!_ap->IsSet(listName, PT_STRARRAY)) return "";
-  vector<string> v = _ap->GetStrArray(listName);
+  std::vector<std::string> v = _ap->GetStrArray(listName);
   if(index >= v.size()) return ""; 
   return v[index];
 }
 
-vector<string> SALOMEDS_IParameters::getLists()
+std::vector<std::string> SALOMEDS_IParameters::getLists()
 {
-  vector<string> v;
+  std::vector<std::string> v;
   if(!_ap->IsSet(_AP_LISTS_LIST_, PT_STRARRAY)) return v;
   return _ap->GetStrArray(_AP_LISTS_LIST_);
 }
 
-void SALOMEDS_IParameters::setParameter(const string& entry, const string& parameterName, const string& value)
+void SALOMEDS_IParameters::setParameter(const std::string& entry, const std::string& parameterName, const std::string& value)
 {
   if(!_ap) return;
-  vector<string> v;
+  std::vector<std::string> v;
   if(!_ap->IsSet(entry, PT_STRARRAY)) {
     append(_AP_ENTRIES_LIST_, entry); //Add the entry to the internal list of entries
     _ap->SetStrArray(entry, v);
@@ -119,11 +121,11 @@ void SALOMEDS_IParameters::setParameter(const string& entry, const string& param
 }
 
 
-string SALOMEDS_IParameters::getParameter(const string& entry, const string& parameterName)
+std::string SALOMEDS_IParameters::getParameter(const std::string& entry, const std::string& parameterName)
 {
   if(!_ap) return "";
   if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
-  vector<string> v = _ap->GetStrArray(entry);
+  std::vector<std::string> v = _ap->GetStrArray(entry);
   int length = v.size();
   for(int i = 0; i<length; i+=1) {
     if(v[i] == parameterName) return v[i+1];
@@ -132,9 +134,9 @@ string SALOMEDS_IParameters::getParameter(const string& entry, const string& par
 }
 
 
-vector<string> SALOMEDS_IParameters::getAllParameterNames(const string& entry)
+std::vector<std::string> SALOMEDS_IParameters::getAllParameterNames(const std::string& entry)
 {
-  vector<string> v, names;
+  std::vector<std::string> v, names;
   if(!_ap) return v; 
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
@@ -145,9 +147,36 @@ vector<string> SALOMEDS_IParameters::getAllParameterNames(const string& entry)
   return names;
 }
 
-vector<string> SALOMEDS_IParameters::getAllParameterValues(const string& entry)
+
+std::string SALOMEDS_IParameters::getIdParameter(const std::string& entry)
 {
-  vector<string> v, values;
+  if(!_ap) return "";
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
+  std::vector<std::string> v = _ap->GetStrArray(entry);
+  int length = v.size();
+  for(int i = 0; i<length; i+=1) {
+    if(v[i] == _PT_ID_) return v[i+1];
+  }
+  return "";
+}
+
+void SALOMEDS_IParameters::setIdParameter(const std::string& entry, const std::string& value)
+{
+  if(!_ap) return;
+  std::vector<std::string> v;
+  if(!_ap->IsSet(entry, PT_STRARRAY)) {
+    append(_AP_ENTRIES_LIST_, entry); //Add the entry to the internal list of entries
+    _ap->SetStrArray(entry, v);
+  }
+  v = _ap->GetStrArray(entry);
+  v.push_back(_PT_ID_);
+  v.push_back(value);
+  _ap->SetStrArray(entry, v);
+}
+
+std::vector<std::string> SALOMEDS_IParameters::getAllParameterValues(const std::string& entry)
+{
+  std::vector<std::string> v, values;
   if(!_ap) return v; 
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
@@ -158,22 +187,22 @@ vector<string> SALOMEDS_IParameters::getAllParameterValues(const string& entry)
   return values; 
 }
 
-int SALOMEDS_IParameters::getNbParameters(const string& entry)
+int SALOMEDS_IParameters::getNbParameters(const std::string& entry)
 {
   if(!_ap) return -1;
   if(!_ap->IsSet(entry, PT_STRARRAY)) return -1;
   return  _ap->GetStrArray(entry).size()/2;
 }
 
-vector<string> SALOMEDS_IParameters::getEntries()
+std::vector<std::string> SALOMEDS_IParameters::getEntries()
 {
-  vector<string> v;
+  std::vector<std::string> v;
   if(!_ap) return v;
   if(!_ap->IsSet(_AP_ENTRIES_LIST_, PT_STRARRAY)) return v;
   return _ap->GetStrArray(_AP_ENTRIES_LIST_);
 }
 
-void SALOMEDS_IParameters::setProperty(const string& name, const std::string& value)
+void SALOMEDS_IParameters::setProperty(const std::string& name, const std::string& value)
 {
   if(!_ap) return;
   if(!_ap->IsSet(name, PT_STRING)) {
@@ -182,26 +211,26 @@ void SALOMEDS_IParameters::setProperty(const string& name, const std::string& va
   _ap->SetString(name, value);
 }
 
-string SALOMEDS_IParameters::getProperty(const string& name)
+std::string SALOMEDS_IParameters::getProperty(const std::string& name)
 {
   if(!_ap) return "";
   if(!_ap->IsSet(name, PT_STRING)) return "";
   return _ap->GetString(name);
 }
 
-vector<string> SALOMEDS_IParameters::getProperties()
+std::vector<std::string> SALOMEDS_IParameters::getProperties()
 {
-  vector<string> v;
+  std::vector<std::string> v;
   if(!_ap) return v;
   if(!_ap->IsSet(_AP_PROPERTIES_LIST_, PT_STRARRAY)) return v;
   return _ap->GetStrArray(_AP_PROPERTIES_LIST_);
 }
 
 
-vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char separator, bool fromEnd)
+std::vector<std::string> SALOMEDS_IParameters::parseValue(const std::string& value, const char separator, bool fromEnd)
 {
-  string val(value);
-  vector<string> v;
+  std::string val(value);
+  std::vector<std::string> v;
   int pos;
   if(fromEnd) pos = val.rfind(separator);
   else pos = val.find(separator);
@@ -211,7 +240,7 @@ vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char 
     return v;
   }
 
-  string part1, part2;
+  std::string part1, part2;
   part1 = val.substr(0, pos);
   part2 = val.substr(pos+1, val.size());
   v.push_back(part1);
@@ -219,21 +248,21 @@ vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char 
   return v;
 }
 
-string SALOMEDS_IParameters::encodeEntry(const string& entry, const string& compName)
+std::string SALOMEDS_IParameters::encodeEntry(const std::string& entry, const std::string& compName)
 {
-  string tail(entry, 6, entry.length()-1);
-  string newEntry(compName);
+  std::string tail(entry, 6, entry.length()-1);
+  std::string newEntry(compName);
   newEntry+=("_"+tail);
   return newEntry;
 }
 
-string SALOMEDS_IParameters::decodeEntry(const string& entry)
+std::string SALOMEDS_IParameters::decodeEntry(const std::string& entry)
 {
   if(!_study) return entry;
   int pos = entry.rfind("_");
   if(pos < 0 || pos >= entry.length()) return entry;
 
-  string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
+  std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   
   if(_compNames.find(compName) == _compNames.end()) {
     _PTR(SObject) so = _study->FindComponent(compName);
@@ -243,15 +272,15 @@ string SALOMEDS_IParameters::decodeEntry(const string& entry)
   }
   else compID = _compNames[compName];
  
-  string newEntry(compID);
+  std::string newEntry(compID);
   newEntry += (":"+tail);
   
   return newEntry;
 }
 
-void SALOMEDS_IParameters::setDumpPython(_PTR(Study) study, const string& theID)
+void SALOMEDS_IParameters::setDumpPython(_PTR(Study) study, const std::string& theID)
 {
-  string anID;
+  std::string anID;
   if(theID == "") anID = getDefaultVisualComponent();
   else anID = theID;
 
@@ -259,9 +288,9 @@ void SALOMEDS_IParameters::setDumpPython(_PTR(Study) study, const string& theID)
   ap->SetBool(_AP_DUMP_PYTHON_, !isDumpPython(study, theID));
 }
 
-bool SALOMEDS_IParameters::isDumpPython(_PTR(Study) study, const string& theID)
+bool SALOMEDS_IParameters::isDumpPython(_PTR(Study) study, const std::string& theID)
 {
-  string anID;
+  std::string anID;
   if(theID == "") anID = getDefaultVisualComponent();
   else anID = theID;
 
@@ -271,7 +300,7 @@ bool SALOMEDS_IParameters::isDumpPython(_PTR(Study) study, const string& theID)
   return (bool)ap->GetBool(_AP_DUMP_PYTHON_);
 }
 
-string SALOMEDS_IParameters::getDefaultVisualComponent()
+std::string SALOMEDS_IParameters::getDefaultVisualComponent()
 {
   return "Interface Applicative";
 }

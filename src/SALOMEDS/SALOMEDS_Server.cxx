@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
 //  File   : SALOMEDS_Server.cxx
 //  Author : Yves FRICAUD
@@ -37,7 +38,6 @@
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
 #endif
-using namespace std;
 
 // extern "C"
 // { // for ccmalloc memory debug
@@ -78,78 +78,78 @@ int main(int argc, char** argv)
       const char * Env = getenv("USE_LOGGER");
       int EnvL =0;
       if ((Env!=NULL) && (strlen(Env)))
-	EnvL=1;
+        EnvL=1;
       CosNaming::Name name;
       name.length(1);
       name[0].id=CORBA::string_dup("Logger");    
       PortableServer::POAManager_var pman; 
       for (int i = 1; i<=NumberOfTries; i++)
-	{
-	  if (i!=1) 
+        {
+          if (i!=1) 
 #ifndef WIN32
-	    a=nanosleep(&ts_req,&ts_rem);
+            a=nanosleep(&ts_req,&ts_rem);
 #else
-		Sleep(TIMESleep/1000000);
+                Sleep(TIMESleep/1000000);
 #endif
-	  try
-	    { 
-	      obj = orb->resolve_initial_references("RootPOA");
-	      if(!CORBA::is_nil(obj))
-		poa = PortableServer::POA::_narrow(obj);
-	      if(!CORBA::is_nil(poa))
-		pman = poa->the_POAManager();
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService"); 
-	      if (!CORBA::is_nil(theObj)){
-		inc = CosNaming::NamingContext::_narrow(theObj);
-		if(!CORBA::is_nil(inc))
-		  {
-		    MESSAGE( "SalomeDS Server: Naming Service was found" );
-		    if(EnvL==1)
-		      {
-			CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
-			SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
-			NS.init_orb( orb1 ) ;
-			for(int j=1; j<=NumberOfTries; j++)
-			  {
-			    if (j!=1) 
+          try
+            { 
+              obj = orb->resolve_initial_references("RootPOA");
+              if(!CORBA::is_nil(obj))
+                poa = PortableServer::POA::_narrow(obj);
+              if(!CORBA::is_nil(poa))
+                pman = poa->the_POAManager();
+              if(!CORBA::is_nil(orb)) 
+                theObj = orb->resolve_initial_references("NameService"); 
+              if (!CORBA::is_nil(theObj)){
+                inc = CosNaming::NamingContext::_narrow(theObj);
+                if(!CORBA::is_nil(inc))
+                  {
+                    MESSAGE( "SalomeDS Server: Naming Service was found" );
+                    if(EnvL==1)
+                      {
+                        CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
+                        SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
+                        NS.init_orb( orb1 ) ;
+                        for(int j=1; j<=NumberOfTries; j++)
+                          {
+                            if (j!=1) 
 #ifndef WIN32
-			      a=nanosleep(&ts_req, &ts_rem);
+                              a=nanosleep(&ts_req, &ts_rem);
 #else
-			      Sleep(TIMESleep/1000000);
+                              Sleep(TIMESleep/1000000);
 #endif
-			    try
-			      {
-				object = inc->resolve(name);
-			      }
-			    catch(CosNaming::NamingContext::NotFound)
-			      { 
-				MESSAGE( "SalomeDS Server: Logger Server wasn't found" ); }
+                            try
+                              {
+                                object = inc->resolve(name);
+                              }
+                            catch(CosNaming::NamingContext::NotFound)
+                              { 
+                                MESSAGE( "SalomeDS Server: Logger Server wasn't found" ); }
 
-			    catch(...)
-			      {
-				MESSAGE( "SalomeDS Server: Unknown exception" );
-			      }
-			    if (!CORBA::is_nil(object))
-			      {
-				MESSAGE( "SalomeDS Server: Logger Server was found" );
-				SALOMEDS=1;
-				break;
-			      }
-			  }
-		      }
-		  }
-	      }
-	
-	    }
-	  catch( const SALOME_Exception &ex )
-	    {
-	      MESSAGE( "Communication Error : " << ex.what() );
-	      return EXIT_FAILURE ;
-	    }
-	  if ((SALOMEDS==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-	    break;
-	}
+                            catch(...)
+                              {
+                                MESSAGE( "SalomeDS Server: Unknown exception" );
+                              }
+                            if (!CORBA::is_nil(object))
+                              {
+                                MESSAGE( "SalomeDS Server: Logger Server was found" );
+                                SALOMEDS=1;
+                                break;
+                              }
+                          }
+                      }
+                  }
+              }
+        
+            }
+          catch( const SALOME_Exception &ex )
+            {
+              MESSAGE( "Communication Error : " << ex.what() );
+              return EXIT_FAILURE ;
+            }
+          if ((SALOMEDS==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
+            break;
+        }
     
       // We allocate the objects on the heap.  Since these are reference
       // counted objects, they will be deleted by the POA when they are no
@@ -175,6 +175,7 @@ int main(int argc, char** argv)
       timer.ShowAbsolute();
 #endif
       orb->run();
+      MESSAGE( "end of SALOME_DS server" );
       orb->destroy();
     }
   catch(CORBA::SystemException&)

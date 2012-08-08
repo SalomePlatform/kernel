@@ -1,0 +1,55 @@
+/*!
+  \page KERNEL_Services_CppHelpers KERNEL Services helper functions for C++ programmers
+
+You'l find here a documentation for using the KernelHelper package of
+the KERNEL module. This package provides the programmer with helper
+functions to deal with the KERNEL services and the study.
+
+-# \ref S1_KSH
+-# \ref S2_KSH
+-# \ref S3_KSH
+
+\section S1_KSH Quick Overview
+
+When developing a SALOME application, programmers often have to deal
+with fundamentals objects as the %NamingService, the %LifeCycleCorba,
+the %ResourcesManager and the %SalomeLauncher and have to manage the
+data in a %Study object.
+
+This documentation illustrates how to use these objects in standard
+C++ use cases and with the helper functions of the KernelHelper
+package of the KERNEL module. The KernelHelper package should be used
+by end user programmers, i.e. programmers that don't need the
+complexity of the complete KERNEL API, typically when developing a
+SALOME module for a domain specific application.
+
+For illustration of this short introduction, the code below creates an
+executable binary program that calls the SalomeTestComponent using the
+LifeCycleCorba and requests the Coucou service of this component (the
+test component is included in the KERNEL module):
+
+\code
+#include "SALOME_KernelServices.hxx"
+#include "Basics_Utils.hxx"
+
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_TestComponent)
+
+void main (int argc, char * argv[]) {
+  Engines::EngineComponent_var component =
+    KERNEL::getLifeCycleCORBA()->FindOrLoad_Component( "FactoryServer","SalomeTestComponent" );
+  
+  Engines::TestComponent_var engine = Engines::TestComponent::_narrow(component);
+  STDLOG(engine->Coucou(123.));
+}
+\endcode
+
+\section S2_KSH Usage of the SALOME_KernelServices
+
+TO WRITE
+
+\section S3_KSH Usage of the SALOME_StudyEditor
+
+TO WRITE
+
+*/

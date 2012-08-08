@@ -1,49 +1,48 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 #include <string.h>
 #include <stdlib.h>
-#include <fortoc.h>
-#include <calcium.h>
+#include "fortoc.h"
+#include "calcium.h"
+#include "calciumf.h"
+#include "CalciumFortranInt.h"
 #include <stdio.h>
-
-static void* COMPO=0;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static void fstrtocstr(char *cstr, char *fstr,int fstr_len) 
+
+static void fstrtocstr(char *cstr, char *fstr,cal_int fstr_len)
 {
-  int i,iend;
-  for (iend = fstr_len-1; iend >= 0; iend--) 
+  cal_int i,iend;
+  for (iend = fstr_len-1; iend >= 0; iend--)
     if (fstr[iend] != ' ') break;
   for (i = 0; i <= iend; i++)
     cstr[i] = fstr[i];
   cstr[i] = '\0';
 }
 
-static void cstrtofstr(char *cstr, char *fstr,int fstr_len) 
+static void cstrtofstr(char *cstr, char *fstr,cal_int fstr_len)
 {
-  int i, len;
+  cal_int i, len;
   len = strlen(cstr);
   if (len > fstr_len) len = fstr_len;
   for (i = 0; i < len; i++)
@@ -52,19 +51,44 @@ static void cstrtofstr(char *cstr, char *fstr,int fstr_len)
     fstr[i++] = ' ';
 }
 
-static char * fstr1(char *nom,int nnom)
+static char * fstr1(char *nom,cal_int nnom)
 {
   char * cnom=(char*)malloc((nnom+1)*sizeof(char));
   fstrtocstr(cnom,nom,nnom);
   return cnom;
 }
 
-static char * free_str1(char *nom)
+static void free_str1(char *nom)
 {
   free(nom);
 }
 
-void F_FUNC(cpcd,CPCD)(long *compo,STR_PSTR(nom),int *info STR_PLEN(nom))
+#define FLOAT_OK              0
+#define POS_INFINITY          1
+#define NEG_INFINITY          2
+#define QUIET_NAN             3
+#define SIGNALING_NAN         4
+
+int CheckFloat(float* value)
+{
+   unsigned long L1 = *(unsigned long*)value;
+   unsigned long L2 = L1 & 0x7fffffff;
+   if (L2 < 0x7f800000) return (FLOAT_OK); // Short circuit for most values
+   if (L1 == 0x7f800000) return (POS_INFINITY);
+   else if (L1 == 0xff800000) return (NEG_INFINITY);
+   else if (L2 >= 0x7fc00000) return (QUIET_NAN);
+   else if ((L2 >= 0x7f800001) && (L2 <= 0x7fbfffff)) return (SIGNALING_NAN);
+   else return (FLOAT_OK);
+}
+
+/**********************************************/
+/*  INTERFACES DE DÉBUT ET DE FIN DE COUPLAGE */
+/**********************************************/
+
+void F_FUNC(cpcd,CPCD)(long *compo,STR_PSTR(nom),cal_int *info STR_PLEN(nom));
+void F_FUNC(cpfin,CPFIN)(long *compo,cal_int *dep,cal_int *err);
+
+void F_FUNC(cpcd,CPCD)(long *compo,STR_PSTR(nom),cal_int *info STR_PLEN(nom))
 {
   /* nom is OUT argument */
   cp_cd((void *)*compo,STR_PTR(nom));
@@ -72,165 +96,334 @@ void F_FUNC(cpcd,CPCD)(long *compo,STR_PSTR(nom),int *info STR_PLEN(nom))
   cstrtofstr(STR_PTR(nom),STR_PTR(nom),STR_LEN(nom));
 }
 
-void F_FUNC(cplen,CPLEN)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
-            int *max,int *n, int *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpfin,CPFIN)(long *compo,cal_int *dep,cal_int *err)
+{
+  *err=cp_fin((void *)*compo,(int)*dep);
+}
+
+/**************************************/
+/* ERASE INTERFACE                    */
+/**************************************/
+void F_FUNC(cpfini,CPFINI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom));
+void F_FUNC(cpfint,CPFINT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom));
+void F_FUNC(cpeffi,CPEFFI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom));
+void F_FUNC(cpefft,CPEFFT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom));
+
+void F_FUNC(cpfini,CPFINI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPLEN: %s %f %f\n",cnom,*ti,*tf);
-  *err=cp_len((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
-  fprintf(stderr,"End of CPLEN: %s \n",cnom);
+  *err=cp_fini((void *)*compo,cnom,*i);
   free_str1(cnom);
 }
 
-void F_FUNC(cpllo,CPLLO)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
-            int *max,int *n, int *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpfint,CPFINT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPLLO: %s %f %f\n",cnom,*ti,*tf);
-  *err=cp_llo((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
-  fprintf(stderr,"End of CPLLO: %s \n",cnom);
+  *err=cp_fint((void *)*compo,cnom,*t);
   free_str1(cnom);
 }
 
-void F_FUNC(cpldb,CPLDB)(long *compo,int *dep,double *ti,double *tf,int *iter,STR_PSTR(nom),
-            int *max,int *n, double *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpeffi,CPEFFI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPLDB: %s %f %f \n",cnom, *ti,*tf);
-  *err=cp_ldb((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
-  fprintf(stderr,"End of CPLDB: %s %f %f \n",cnom,*ti,*tf);
+  *err=cp_effi((void *)*compo,cnom,*i);
   free_str1(cnom);
 }
 
-void F_FUNC(cplre,CPLRE)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
-            int *max,int *n, float *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpefft,CPEFFT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPLRE: %s %f %f \n",cnom, *ti,*tf);
-  *err=cp_lre((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
-  fprintf(stderr,"End of CPLRE: %s %f %f \n",cnom,*ti,*tf);
+  *err=cp_efft((void *)*compo,cnom,*t);
   free_str1(cnom);
 }
 
-void F_FUNC(cplcp,CPLCP)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
-            int *max,int *n, float *tab,int *err STR_PLEN(nom))
+/**************************************/
+/* INTERFACES DE LECTURE              */
+/**************************************/
+
+void F_FUNC(cplin,CPLIN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+                         cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpllg,CPLLG)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cplln,CPLLN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cplen,CPLEN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, cal_int *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpllo,CPLLO)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpldb,CPLDB)(long *compo,cal_int *dep,double *ti,double *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cplre,CPLRE)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cplcp,CPLCP)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cplch,CPLCH)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, char *tab,cal_int *err STR_PLEN(nom) STR_PLEN(tab) );
+
+
+void F_FUNC(cplin,CPLIN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+                         cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPLCP: %s %f %f \n",cnom, *ti,*tf);
-  *err=cp_lcp((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
-  fprintf(stderr,"End of CPLCP: %s %f %f \n",cnom,*ti,*tf);
+
+#if   !SIZEOF_INT
+#error "The macro SIZEOF_INT must be defined."
+#elif SIZEOF_INT == 4
+  *err=cp_lin_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+#else
+  fprintf(stderr,"End of CPLIN: %s : Can't use fortran INTEGER*4 because int C is not 32bits long on this machine.\n",
+          cnom);
+#endif
   free_str1(cnom);
 }
 
-void F_FUNC(cplch,CPLCH)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
-            int *max,int *n, char *tab,int *err STR_PLEN(nom) STR_PLEN(tab) )
+void F_FUNC(cpllg,CPLLG)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom))
 {
-  char **tabChaine=NULL;
-  int    index=0;
-  char*  cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPLCH: %s %f %f \n",cnom, *ti,*tf);
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+#if   !SIZEOF_LONG
+#error "The macro SIZEOF_LONG must be defined."
+#elif SIZEOF_LONG == 8
+  *err=cp_llg_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+#else
+  fprintf(stderr,"End of CPLLG: %s : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
+          cnom);
+#endif
+  free_str1(cnom);
+}
+
+void F_FUNC(cplln,CPLLN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+                                    cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom))
+{
+ char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+#if   !SIZEOF_LONG
+#error "The macro SIZEOF_LONG must be defined."
+#elif SIZEOF_LONG == 8
+  *err=cp_lln_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+#else
+  fprintf(stderr,"End of CPLLN: %s : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
+          cnom);
+#endif
+  free_str1(cnom);
+}
+
+
+void F_FUNC(cplen,CPLEN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, cal_int *tab,cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_len_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  free_str1(cnom);
+}
+
+
+void F_FUNC(cpllo,CPLLO)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_llo_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  free_str1(cnom);
+}
+
+void F_FUNC(cpldb,CPLDB)(long *compo,cal_int *dep,double *ti,double *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, double *tab,cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_ldb_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  free_str1(cnom);
+}
+
+void F_FUNC(cplre,CPLRE)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_lre_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  free_str1(cnom);
+}
+
+void F_FUNC(cplcp,CPLCP)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_lcp_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  free_str1(cnom);
+}
+
+void F_FUNC(cplch,CPLCH)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, char *tab,cal_int *err STR_PLEN(nom) STR_PLEN(tab) )
+{
+  char **tabChaine = NULL;
+  cal_int    index = 0;
+  char*      cnom = fstr1(STR_PTR(nom),STR_LEN(nom));
 
   tabChaine = (char **) malloc(sizeof(char *) * (*max));
   for (index = 0; index < *max; index++)
     tabChaine[index] = (char *) malloc(sizeof(char) * (STR_LEN(tab)+1));
 
-  *err=cp_lch((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tabChaine,STR_LEN(tab));
+  *err=cp_lch_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tabChaine,STR_LEN(tab));
 
-  for (index = 0; index < *n; index++)
-    strncpy(&tab[index * STR_LEN(tab)], tabChaine[index], strlen(tabChaine[index]));
+  if (*err == CPOK )
+    {
+      for (index = 0; index < *n; index++)
+        {
+          strncpy(&tab[index * STR_LEN(tab)], tabChaine[index], strlen(tabChaine[index]));
+          if(STR_LEN(tab) > strlen(tabChaine[index]))
+            memset(&tab[index * STR_LEN(tab)+strlen(tabChaine[index])],' ',STR_LEN(tab)-strlen(tabChaine[index]));
+        }
+    }
 
-  fprintf(stderr,"End of CPLCH: %s %f %f \n",cnom,*ti,*tf);
-  if (tabChaine != (char **) NULL)  {
-    for (index = 0; index < *n; index++)
-      free(tabChaine[index]);
-    free(tabChaine);
-  }
+  if (tabChaine != (char **) NULL)
+    {
+      for (index = 0; index < *max; index++)
+        free(tabChaine[index]);
+      free(tabChaine);
+    }
   free_str1(cnom);
 }
 
-void F_FUNC(cpech,CPECH)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, char *tab,int *err 
-			 STR_PLEN(nom) STR_PLEN(tab))
+
+/***************************/
+/*  INTERFACES D'ECRITURE  */
+/***************************/
+void F_FUNC(cpech,CPECH)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, char *tab,cal_int *err
+                         STR_PLEN(nom) STR_PLEN(tab));
+void F_FUNC(cpedb,CPEDB)(long *compo,cal_int *dep,double *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpere,CPERE)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpecp,CPECP)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpein,CPEIN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpelg,CPELG)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, long *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpeln,CPELN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, long *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpeen,CPEEN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, cal_int *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cpelo,CPELO)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
+
+void F_FUNC(cpech,CPECH)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, char *tab,cal_int *err
+                         STR_PLEN(nom) STR_PLEN(tab))
 {
   char ** tabChaine=NULL;
-  int     index=0,index2=0;
+  cal_int     index=0,index2=0;
   char*   cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPECH: %s %f \n",cnom, *ti);
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
 
   tabChaine = (char **) malloc(sizeof(char *) * *n);
-  for (index = 0; index < *n; index++) {
-    
-    tabChaine[index] = (char *) malloc(sizeof(char) * (STR_LEN(tab) + 1));
-    strncpy(tabChaine[index],&tab[STR_LEN(tab) * index],STR_LEN(tab));
-    tabChaine[index][STR_LEN(tab)]='\0';
-    for (index2 = STR_LEN(tab) - 1; index2 >= 0; index2--) {
-      if ( tabChaine[index][index2] == ' '  ||
-	   tabChaine[index][index2] == '\0'   )
-	tabChaine[index][index2]='\0';
+  for (index = 0; index < *n; index++)
+    {
+      tabChaine[index] = (char *) malloc(sizeof(char) * (STR_LEN(tab) + 1));
+      strncpy(tabChaine[index],&tab[STR_LEN(tab) * index],STR_LEN(tab));
+      tabChaine[index][STR_LEN(tab)]='\0';
+      for (index2 = STR_LEN(tab) - 1; index2 >= 0; index2--)
+        {
+          if ( tabChaine[index][index2] == ' ' || tabChaine[index][index2] == '\0' )
+            tabChaine[index][index2]='\0';
+        }
     }
-  }
 
-  *err=cp_ech((void *)*compo,*dep,*ti,*iter,cnom,*n,tabChaine,STR_LEN(tab) );
+  *err=cp_ech_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tabChaine,STR_LEN(tab) );
 
-  fprintf(stderr,"End of CPECH: %s %f \n",cnom, *ti);
-  if (tabChaine != (char **) NULL) {
-    for (index = 0; index < *n; index++)
-      free(tabChaine[index]);
-
-    free(tabChaine);
-  }
+  if (tabChaine != (char **) NULL)
+    {
+      for (index = 0; index < *n; index++)
+        free(tabChaine[index]);
+      free(tabChaine);
+    }
   free_str1(cnom);
 }
 
-void F_FUNC(cpedb,CPEDB)(long *compo,int *dep,double *ti,int *iter,STR_PSTR(nom),int *n, double *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpedb,CPEDB)(long *compo,cal_int *dep,double *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, double *tab,cal_int *err STR_PLEN(nom))
 {
+  double tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPEDB: %s %f \n",cnom, *ti);
-  *err=cp_edb((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
-  fprintf(stderr,"End of CPEDB: %s %f \n",cnom, *ti);
+  *err=cp_edb_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
   free_str1(cnom);
 }
 
-void F_FUNC(cpere,CPERE)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, float *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpere,CPERE)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom))
 {
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPERE: %s %f \n",cnom, *ti);
-  *err=cp_ere((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
-  fprintf(stderr,"End of CPERE: %s %f \n",cnom, *ti);
+  *err=cp_ere_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
   free_str1(cnom);
 }
 
-void F_FUNC(cpecp,CPECP)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, float *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpecp,CPECP)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom))
 {
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPECP: %s %f \n",cnom, *ti);
-  *err=cp_ecp((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
-  fprintf(stderr,"End of CPECP: %s %f \n",cnom, *ti);
+  *err=cp_ecp_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
   free_str1(cnom);
 }
 
-void F_FUNC(cpeen,CPEEN)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, int *tab,int *err STR_PLEN(nom))
+
+void F_FUNC(cpein,CPEIN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, int *tab,cal_int *err STR_PLEN(nom))
 {
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPEEN: %s %f %d\n",cnom, *ti,*iter);
-  *err=cp_een((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
-  fprintf(stderr,"End of CPEEN: %s %f \n",cnom,*ti);
+#if   !SIZEOF_INT
+#error "The macro SIZEOF_INT must be defined."
+#elif SIZEOF_INT == 4
+  *err=cp_ein_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+#else
+  fprintf(stderr,"CPEIN: %s %f %d : Can't use fortran INTEGER*4 because int C is not 32bits long on this machine.\n",
+          cnom, *ti,*iter);
+#endif
   free_str1(cnom);
 }
 
-void F_FUNC(cpelo,CPELO)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, int *tab,int *err STR_PLEN(nom))
+void F_FUNC(cpelg,CPELG)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, long *tab,cal_int *err STR_PLEN(nom))
 {
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  fprintf(stderr,"CPELO: %s %f %d\n",cnom, *ti,*iter);
-  *err=cp_elo((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
-  fprintf(stderr,"End of CPELO: %s %f \n",cnom,*ti);
+#if   !SIZEOF_LONG
+#error "The macro SIZEOF_LONG must be defined."
+#elif SIZEOF_LONG == 8
+  *err=cp_elg_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+#else
+  fprintf(stderr,"CPELG: %s %f %d : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
+          cnom, *ti,*iter);
+#endif
   free_str1(cnom);
 }
 
-void F_FUNC(cpfin,CPFIN)(long *compo,int *dep,int *err)
+void F_FUNC(cpeln,CPELN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, long *tab,cal_int *err STR_PLEN(nom))
 {
-  fprintf(stderr,"CPFIN: \n");
-  *err=cp_fin((void *)*compo,*dep);
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+#if   !SIZEOF_LONG
+#error "The macro SIZEOF_LONG must be defined."
+#elif SIZEOF_LONG == 8
+  *err=cp_eln_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+#else
+  fprintf(stderr,"CPELN: %s %f %d : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
+          cnom, *ti,*iter);
+#endif
+  free_str1(cnom);
 }
+
+
+void F_FUNC(cpeen,CPEEN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, cal_int *tab,cal_int *err STR_PLEN(nom))
+{
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_een_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+  free_str1(cnom);
+}
+
+void F_FUNC(cpelo,CPELO)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, int *tab,cal_int *err STR_PLEN(nom))
+{
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_elo_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+  free_str1(cnom);
+}
+
 
 #ifdef __cplusplus
 }

@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : LocalTraceCollector.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -28,8 +29,6 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-
-using namespace std;
 
 #include "LocalTraceCollector.hxx"
 
@@ -51,16 +50,16 @@ BaseTraceCollector* LocalTraceCollector::instance()
       int ret;
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
-	{                                      // the lock after the first test
-	  BaseTraceCollector* myInstance = new LocalTraceCollector();
+        {                                      // the lock after the first test
+          BaseTraceCollector* myInstance = new LocalTraceCollector();
 
-	  sem_init(&_sem,0,0); // to wait until run thread is initialized
-	  pthread_t traceThread;
-	  pthread_create(&traceThread, NULL,
-				   LocalTraceCollector::run, NULL);
-	  sem_wait(&_sem);
-	  _singleton = myInstance; // _singleton known only when init done
-	}
+          sem_init(&_sem,0,0); // to wait until run thread is initialized
+          pthread_t traceThread;
+          pthread_create(&traceThread, NULL,
+                                   LocalTraceCollector::run, NULL);
+          sem_wait(&_sem);
+          _singleton = myInstance; // _singleton known only when init done
+        }
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
@@ -92,36 +91,36 @@ void* LocalTraceCollector::run(void *bid)
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
-	{
-	  DEVTRACE("FileTraceCollector _threadToClose");
-	  //break;
-	}
+        {
+          DEVTRACE("FileTraceCollector _threadToClose");
+          //break;
+        }
 
       myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)
-	{
-	  cout << flush ;
+        {
+          std::cout << std::flush ;
 #ifndef WIN32
-	  cerr << "INTERRUPTION from thread " << myTrace.threadId
-	       << " : " <<  myTrace.trace;
+          std::cerr << "INTERRUPTION from thread " << myTrace.threadId
+               << " : " <<  myTrace.trace;
 #else
-	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-	       << " : " <<  myTrace.trace;
+          std::cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+               << " : " <<  myTrace.trace;
 #endif
-	  cerr << flush ; 
-	  exit(1);     
-	}
+          std::cerr << std::flush ; 
+          exit(1);     
+        }
       else
-	{
-	  cout << flush ;
+        {
+          std::cout << std::flush ;
 #ifndef WIN32
-	  cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
+          std::cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-	  cerr << "th. " << (void*)(&myTrace.threadId)
-	       << " " << myTrace.trace;
+          std::cerr << "th. " << (void*)(&myTrace.threadId)
+               << " " << myTrace.trace;
 #endif
-	  cerr << flush ; 
-	}
+          std::cerr << std::flush ; 
+        }
     }
   pthread_exit(NULL);
   return NULL;
@@ -144,14 +143,14 @@ LocalTraceCollector:: ~LocalTraceCollector()
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
       if (_threadId)
-	{
-	  int ret = pthread_join(*_threadId, NULL);
-	  if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
-	  else DEVTRACE("LocalTraceCollector destruction OK");
+        {
+          int ret = pthread_join(*_threadId, NULL);
+          if (ret) std::cerr << "error close LocalTraceCollector : "<< ret << std::endl;
+          else DEVTRACE("LocalTraceCollector destruction OK");
           delete _threadId;
-	  _threadId = 0;
-	  _threadToClose = 0;
-	}
+          _threadId = 0;
+          _threadToClose = 0;
+        }
       _singleton = 0;
     }
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock

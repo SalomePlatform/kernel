@@ -1,37 +1,41 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+
+## @package dsccalcium
+# \brief Module that provides the base class for DSC components implemented in python
 #
+
 import calcium
 import SALOME_ComponentPy
 import SALOME_DriverPy
 import Engines
 
+## The SALOME base class for all DSC components implemented in python (interface Engines::Superv_Component).
+#
+#
 class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
                      SALOME_DriverPy.SALOME_DriverPy_i):
   """
-     A Python SALOME component is implemented by a Python class that has
+     A Python DSC component is implemented by a Python class that has
      the name of the component and is located in a python module that has the
      name of the component.
-
-     This class is a base class for Python DSC components.
 
      You must derive it and implement init_service and those methods
      that are services of the component.
@@ -89,4 +93,8 @@ class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
 
   def checkOutputFilesToService(self,service_name):
     return self.proxy.checkOutputFilesToService(service_name)
+
+  def beginService(self,service_name):
+    SALOME_ComponentPy.SALOME_ComponentPy_i.beginService(self,service_name)
+    self.proxy.setTimeOut()
 

@@ -1,41 +1,44 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # ================================================================
 # Process this file with autoconf to produce a configure script
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [5.1.0], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [6.5.0], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE([tar-pax])
+AM_INIT_AUTOMAKE([tar-pax -Wno-portability])
 #AC_CONFIG_HEADER([config.h])
 
 XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
 AC_SUBST(XVERSION)
+VERSION_DEV=1
+AC_SUBST(VERSION_DEV)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
 MODULE_NAME=kernel
@@ -86,11 +89,15 @@ AC_ARG_ENABLE(corba_gen,
   esac],[corba_gen=true])
 AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 
-# ---- option to build only launcher, resources manager and batch classes
+# ---- option to build only launcher and resources manager
 AC_ARG_WITH(onlylauncher,
-	    --with-onlylauncher,
-	    WITHONLYLAUNCHER="yes",WITHONLYLAUNCHER="no")
-AM_CONDITIONAL(WITHONLYLAUNCHER, test x$WITHONLYLAUNCHER = xyes)
+	[AC_HELP_STRING([--with-onlylauncher],[Build only launcher and resources manager [default=no]])],
+	[],
+	[with_onlylauncher="no"])
+AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
+if test "$with_onlylauncher" != "yes"; then
+  AC_DEFINE([HAVE_SALOME_CONFIG], [], [True if SALOMEconfig.h file is used])
+fi
 
 # ----------------------------------------------------------------------------
 
@@ -117,6 +124,7 @@ echo ---------------------------------------------
 echo
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+AC_LOCAL_INSTALL
 
 echo
 echo ---------------------------------------------
@@ -126,6 +134,15 @@ echo
 # production.m4
 AC_ENABLE_DEBUG(no)
 AC_ENABLE_PRODUCTION(no)
+AC_ENABLE_MPI_SEQ_CONTAINER(no)
+
+# _GBO_SALOME_PYTHON_PACKAGING_
+if test "X$enable_debug" = "Xyes"; then
+  PYLOGLEVEL=DEBUG
+else
+  PYLOGLEVEL=WARNING
+fi
+AC_SUBST(PYLOGLEVEL)
 
 echo
 echo ---------------------------------------------
@@ -148,6 +165,7 @@ echo
 cc_ok=no
 AC_PROG_CC
 AC_PROG_CXX
+AC_LANG(C++)
 AC_CXX_WARNINGS
 AC_CXX_TEMPLATE_OPTIONS
 AC_DEPEND_FLAG
@@ -163,14 +181,20 @@ AC_CHECK_LIB(rt,nanosleep)
 dnl add library libm :
 AC_CHECK_LIB(m,ceil)
 
-# _CS_gbo We should add all dependent libraries
-
 AC_CXX_USE_STD_IOSTREAM
 
 AC_CXX_HAVE_SSTREAM
 
 # Testing linker
 AC_LINKER_OPTIONS
+
+echo
+echo ---------------------------------------------
+echo testing Fortran INTEGER size for CALCIUM 
+echo ---------------------------------------------
+echo
+
+CHECK_CALCIUM
 
 echo
 echo ---------------------------------------------
@@ -194,8 +218,9 @@ echo testing swig
 echo ---------------------------------------------
 echo
 
-dnl _CS_gbo We should use here a variable given from the CHECK_PYTHON
-AM_PATH_PYTHON(2.3)
+# _GBO_ This definition is required. Without this definition, the pythondir
+# would not be defined. The version doesn't matter.
+AM_PATH_PYTHON(2.4)
 CHECK_SWIG
 
 echo
@@ -206,7 +231,15 @@ echo
 
 CHECK_LIBXML
 
-if test x$WITHONLYLAUNCHER = xno; then
+echo
+echo ---------------------------------------------
+echo checking if MPI is requested by user
+echo ---------------------------------------------
+echo
+
+CHECK_MPI
+
+if test x$with_onlylauncher = xno; then
 echo
 echo ---------------------------------------------
 echo testing HDF5
@@ -287,14 +320,6 @@ echo
 
 echo
 echo ---------------------------------------------
-echo checking if MPI is requested by user
-echo ---------------------------------------------
-echo
-
-CHECK_MPI
-
-echo
-echo ---------------------------------------------
 echo checking if PaCO++ is requested by user
 echo ---------------------------------------------
 echo
@@ -336,58 +361,20 @@ echo ============================================================
 echo
 
 echo
-echo ---------------------------------------------
-echo Testing Batch
-echo ---------------------------------------------
-echo
-
-dnl Several batch systems (OpenPBS, LSF, ...) can be operated using
-dnl the Batch classes library integrated in the KERNEL module. The
-dnl checking process tests here the presence of underlying batch
-dnl softwares. If none is detected, the KERNEL is declared to be
-dnl "without batch". 
-
-echo testing OpenPBS
-echo ---------------
-openpbs_ok=no
-CHECK_OPENPBS
-dnl openpbs_ok is set to yes by CHECK_OPENPBS
-
-echo testing LSF
-echo -----------
-lsf_ok=no
-CHECK_LSF
-dnl lsf_ok is set to yes by CHECK_LSF
-echo lsf = $lsf_ok
-
-echo testing Local batch system
-echo --------------------------
-localbatch_ok=no
-CHECK_LOCAL
-dnl localbatch_ok is set to yes by CHECK_LOCAL
-
-WITH_BATCH=no
-test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes
-
-AC_ARG_ENABLE(batch,
-  [AC_HELP_STRING([--enable-batch],[Batch [default=yes]])],
-  [case "${enableval}" in
-     yes) test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes;;
-     no)  WITH_BATCH=no ;;
-     *) AC_MSG_ERROR(bad value ${enableval} for --enable-batch) ;;
-  esac],[test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes])
-
-echo Batch mode = $WITH_BATCH
-
-AC_SUBST(WITH_BATCH)
-AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
-
-echo
 echo ----------------------------------------------
 echo testing CPPUNIT only required for unit testing
 echo ----------------------------------------------
 echo
 CHECK_CPPUNIT
+
+echo
+echo --------------------------------------------------------------
+echo Testing libBatch only required for batch functions in Launcher
+echo --------------------------------------------------------------
+echo
+
+CHECK_LIBBATCH
+AM_CONDITIONAL(WITH_LIBBATCH, [test x"$libbatch_ok" = xyes])
 
 echo
 echo ============================================================
@@ -402,6 +389,16 @@ echo ---------------------------------------------
 echo
 
 CHECK_HTML_GENERATORS
+
+# Additional conditional to avoid compilation of non-portable code
+AM_CONDITIONAL(WINDOWS, [ test ])
+
+echo
+echo ---------------------------------------------
+echo testing sphinx
+echo ---------------------------------------------
+echo
+CHECK_SPHINX
 
 echo
 echo ============================================================
@@ -439,7 +436,7 @@ function check_fatal_error {
 
 # --------------------------------------
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
   if test x$corba_gen = xtrue; then
     basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok"
   else
@@ -454,7 +451,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
   corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok"
   if test x$corba_gen = xtrue; then
     echo --- CORBA mandatory products - default configuration:
@@ -462,13 +459,6 @@ if test x$WITHONLYLAUNCHER = xno; then
     check_fatal_error $corba_mandatory_products
   else
     echo --- CORBA products not required - option --disable-corba-gen
-    if test x"$WITH_BATCH" = xyes; then
-      echo --- BATCH mode mandatory products - default configuration:
-      summary "python_ok"
-      check_fatal_error "python_ok"
-    else 
-    echo --- Python not required - option --enable-batch=no
-    fi
   fi
 fi
 echo
@@ -478,20 +468,25 @@ echo --- Kernel parallel extensions:
 summary $parallel_products
 echo
 
-optional_products="cppunit_ok openpbs_ok lsf_ok numpy_ok"
+optional_products="cppunit_ok numpy_ok libbatch_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]
 summary $optional_products
 echo
+if test x$libbatch_ok = xno; then
+  echo ["    Warning: Batch functions will not be available in"]
+  echo ["    Salome Launcher because they require libBatch."]
+  echo
+fi
 
-htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
+htmldoc_products="doxygen_ok graphviz_ok rst2html_ok sphinx_ok"
 
 echo --- Html documentation products: only required for doc production
 summary $htmldoc_products
 echo
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
 echo
 echo "Default ORB   : $DEFAULT_ORB"
 echo
@@ -520,83 +515,106 @@ echo generating Makefiles and configure files
 echo ---------------------------------------------
 echo
 
+AC_HACK_LIBTOOL
+AC_CONFIG_COMMANDS([hack_libtool],[
+sed -i "s%^CC=\"\(.*\)\"%hack_libtool (){ \n\
+  $(pwd)/hack_libtool \1 \"\$[@]\" \n\
+}\n\
+CC=\"hack_libtool\"%g" libtool
+sed -i "s%\(\s*\)for searchdir in \$newlib_search_path \$lib_search_path \$sys_lib_search_path \$shlib_search_path; do%\1searchdirs=\"\$newlib_search_path \$lib_search_path \$sys_lib_search_path \$shlib_search_path\"\n\1for searchdir in \$searchdirs; do%g" libtool
+sed -i "s%\(\s*\)searchdirs=\"\$newlib_search_path \$lib_search_path \(.*\)\"%\1searchdirs=\"\$newlib_search_path \$lib_search_path\"\n\1sss_beg=\"\"\n\1sss_end=\"\2\"%g" libtool
+sed -i "s%\(\s*\)\(for searchdir in \$searchdirs; do\)%\1for sss in \$searchdirs; do\n\1  if ! test -d \$sss; then continue; fi\n\1  ssss=\$(cd \$sss; pwd)\n\1  if test \"\$ssss\" != \"\" \&\& test -d \$ssss; then\n\1    case \$ssss in\n\1      /usr/lib | /usr/lib64 ) ;;\n\1      * ) sss_beg=\"\$sss_beg \$ssss\" ;;\n\1    esac\n\1  fi\n\1done\n\1searchdirs=\"\$sss_beg \$sss_end\"\n\1\2%g" libtool
+],[])
+
 # This list is initiated using autoscan and must be updated manually
 # when adding a new file <filename>.in to manage. When you execute
 # autoscan, the Makefile list is generated in the output file configure.scan.
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
-	./KERNEL_version.h \
-	./salome_adm/unix/SALOMEconfig.ref \
-	./salome_adm/Makefile \
-	./salome_adm/cmake_files/Makefile \
-	./salome_adm/unix/Makefile \
-	./salome_adm/unix/config_files/Makefile \
-	Makefile \
-	./bin/Makefile \
-	./bin/VERSION \
-	./doc/Makefile \
-	./doc/salome/Makefile \
-	./doc/salome/tui/Makefile \
-	./doc/salome/tui/INPUT/doxyuser:./doc/salome/tui/KERNEL/doxyuser.in \
-	./doc/salome/tui/INPUT/doxydev:./doc/salome/tui/KERNEL/doxydev.in \
-	./doc/salome/tui/INPUT/sources/static/tree.js:./doc/salome/tui/KERNEL/sources/static/tree.js.in \
-	./idl/Makefile \
-	./resources/Makefile \
-	./resources/KERNELCatalog.xml \
-	./resources/CatalogResources.xml \
-	./src/Makefile \
-	./src/Basics/Makefile \
-	./src/Basics/Test/Makefile \
-	./src/Batch/Makefile \
-	./src/Batch_SWIG/Makefile \
-	./src/Communication/Makefile \
-	./src/Communication_SWIG/Makefile \
-	./src/Container/Makefile \
-	./src/ParallelContainer/Makefile \
-	./src/DF/Makefile \
-	./src/DSC/Makefile \
-	./src/DSC/DSC_Basic/Makefile \
-	./src/DSC/DSC_User/Makefile \
-	./src/DSC/DSC_User/Basic/Makefile \
-	./src/DSC/DSC_User/Datastream/Makefile \
-	./src/DSC/DSC_User/Datastream/Palm/Makefile \
-	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
-	./src/DSC/ParallelDSC/Makefile \
-	./src/DSC/DSC_Python/Makefile \
-	./src/GenericObj/Makefile \
-	./src/HDFPersist/Makefile \
-	./src/KERNEL_PY/Makefile \
-	./src/Launcher/Makefile \
-	./src/LifeCycleCORBA/Makefile \
-	./src/LifeCycleCORBA/Test/Makefile \
-	./src/LifeCycleCORBA_SWIG/Makefile \
-	./src/LifeCycleCORBA_SWIG/Test/Makefile \
-	./src/Logger/Makefile \
-	./src/Logger/Test/Makefile \
-	./src/ModuleCatalog/Makefile \
-	./src/ModuleGenerator/Makefile \
-	./src/ModuleGenerator/testIDLparser \
-	./src/MPIContainer/Makefile \
-	./src/NamingService/Makefile \
-	./src/NamingService/Test/Makefile \
-	./src/Notification/Makefile \
-	./src/NOTIFICATION_SWIG/Makefile \
-	./src/Registry/Makefile \
-	./src/ResourcesManager/Makefile \
-	./src/SALOMEDS/Makefile \
-	./src/SALOMEDS/Test/Makefile \
-	./src/SALOMEDSClient/Makefile \
-	./src/SALOMEDSImpl/Makefile \
-	./src/SALOMEDSImpl/Test/Makefile \
-	./src/SALOMELocalTrace/Makefile \
-	./src/SALOMELocalTrace/Test/Makefile \
-	./src/SALOMETraceCollector/Makefile \
-	./src/SALOMETraceCollector/Test/Makefile \
-	./src/TestContainer/Makefile \
-	./src/TestMPIContainer/Makefile \
-	./src/TOOLSDS/Makefile \
-	./src/UnitTests/Makefile \
-	./src/Utils/Makefile \
-	./src/Utils/Test/Makefile \
+  KERNEL_version.h \
+  salome_adm/unix/SALOMEconfig.ref \
+  salome_adm/Makefile \
+  salome_adm/cmake_files/Makefile \
+  salome_adm/unix/Makefile \
+  salome_adm/unix/config_files/Makefile \
+  Makefile \
+  bin/Makefile \
+  bin/appliskel/Makefile \
+  bin/VERSION \
+  doc/Makefile \
+  doc/docutils/conf.py \
+  doc/salome/Makefile \
+  doc/salome/tui/Makefile \
+  doc/salome/tui/doxyfile \
+  doc/salome/tui/static/header.html \
+  doc/salome/gui/Makefile \
+  doc/salome/gui/doxyfile \
+  doc/salome/gui/static/header.html \
+  doc/docutils/Makefile \
+  idl/Makefile \
+  idl/Calcium_Ports.idl \
+  resources/Makefile \
+  resources/KERNELCatalog.xml \
+  resources/CatalogResources.xml \
+  src/Makefile \
+  src/Basics/Makefile \
+  src/Basics/Test/Makefile \
+  src/Communication/Makefile \
+  src/Communication_SWIG/Makefile \
+  src/Container/Makefile \
+  src/ParallelContainer/Makefile \
+  src/DF/Makefile \
+  src/DSC/Makefile \
+  src/DSC/DSC_Basic/Makefile \
+  src/DSC/DSC_User/Makefile \
+  src/DSC/DSC_User/Basic/Makefile \
+  src/DSC/DSC_User/Datastream/Makefile \
+  src/DSC/DSC_User/Datastream/Palm/Makefile \
+  src/DSC/DSC_User/Datastream/Calcium/Makefile \
+  src/DSC/DSC_User/Datastream/Calcium/calcium_integer_port_uses.hxx \
+  src/DSC/DSC_User/Datastream/Calcium/CalciumProvidesPort.hxx \
+  src/DSC/DSC_User/Datastream/Calcium/CalciumFortranInt.h \
+  src/DSC/ParallelDSC/Makefile \
+  src/DSC/DSC_Python/Makefile \
+  src/GenericObj/Makefile \
+  src/HDFPersist/Makefile \
+  src/KERNEL_PY/Makefile \
+  src/KERNEL_PY/kernel/Makefile \
+  src/KERNEL_PY/kernel/kernelpy_autotest.sh \
+  src/KERNEL_PY/kernel/logconfig.py \
+  src/KERNEL_PY/kernel/parametric/Makefile \
+  src/Launcher/Makefile \
+  src/LifeCycleCORBA/Makefile \
+  src/LifeCycleCORBA/Test/Makefile \
+  src/LifeCycleCORBA_SWIG/Makefile \
+  src/LifeCycleCORBA_SWIG/Test/Makefile \
+  src/Logger/Makefile \
+  src/Logger/Test/Makefile \
+  src/ModuleCatalog/Makefile \
+  src/ModuleGenerator/Makefile \
+  src/ModuleGenerator/testIDLparser \
+  src/MPIContainer/Makefile \
+  src/NamingService/Makefile \
+  src/NamingService/Test/Makefile \
+  src/Notification/Makefile \
+  src/NOTIFICATION_SWIG/Makefile \
+  src/Registry/Makefile \
+  src/ResourcesManager/Makefile \
+  src/SALOMEDS/Makefile \
+  src/SALOMEDS/Test/Makefile \
+  src/SALOMEDSClient/Makefile \
+  src/SALOMEDSImpl/Makefile \
+  src/SALOMEDSImpl/Test/Makefile \
+  src/SALOMELocalTrace/Makefile \
+  src/SALOMELocalTrace/Test/Makefile \
+  src/SALOMETraceCollector/Makefile \
+  src/SALOMETraceCollector/Test/Makefile \
+  src/TestContainer/Makefile \
+  src/TestMPIContainer/Makefile \
+  src/TOOLSDS/Makefile \
+  src/UnitTests/Makefile \
+  src/Utils/Makefile \
+  src/Utils/Test/Makefile \
+  src/KernelHelpers/Makefile \
+  src/KernelHelpers/Test/Makefile \
 ])
-

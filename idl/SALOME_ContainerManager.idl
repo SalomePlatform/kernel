@@ -1,162 +1,340 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef _SALOME_CONTAINERMANAGER_IDL_
 #define _SALOME_CONTAINERMANAGER_IDL_
 
 #include "SALOME_Exception.idl"
 #include "SALOME_Component.idl"
 
+/*! \file SALOME_ContainerManager.idl \brief interfaces for %SALOME launcher and container manager
+*/
+
 module Engines
 {
 
-/*!
-    Type to transmit list of machines.
-*/
-  typedef sequence<string> MachineList;
-  typedef sequence<string> CompoList;
-  typedef sequence<string> FilesList;
-  typedef sequence<string> ModulesList;
+//!  Type to transmit list of resources.
+typedef sequence<string> ResourceList;
+//! components list
+typedef sequence<string> CompoList;
+//! files list
+typedef sequence<string> FilesList;
+//! modules list
+typedef sequence<string> ModulesList;
 
-/*!
-    Type to describe properties of resource.
-*/
-struct MachineParameters
+//! A generic parameter
+struct Parameter
 {
-  string container_name;
-  string hostname;
-  string alias;
-  string protocol;
-  string username;
-  string applipath;
-  ModulesList modList;
-  string OS;
-  long mem_mb;
-  long cpu_clock;
-  long nb_proc_per_node;
-  long nb_node;
-  boolean isMPI;
-  string mpiImpl;
-  string batch;
-  string workingdir;
+  string name;
+  string value;
+};
+//! Generic parameter list
+typedef sequence<Engines::Parameter> ParameterList;
 
-  // PaCO specific informations
-  string parallelLib;
-  long nb_component_nodes;
+//! Type to describe required properties of a resource
+struct ResourceParameters
+{
+  //! resource name - manual selection
+  string name;
+  //! host name
+  string hostname;
+  //! if given required operating system 
+  string OS;
+  //! if given list of components that could be loaded on a container
+  //! Optional if no resource are found with this constraint
+  CompoList componentList;
+
+  // Permits to order resources
+  //! required number of proc
+  long nb_proc;
+  //! required memory size
+  long mem_mb;
+  //! required frequency
+  long cpu_clock;
+  //! required number of node
+  long nb_node;
+  //! required number of proc per node
+  long nb_proc_per_node;
+
+  // Permits to configure SALOME resource management
+  //! resource management policy : first, cycl, altcycl or best (can be extended)
+  string policy;
+  //! restricted list of resources to search in
+  ResourceList resList;
 };
 
-/*!
-    exception thrown if a computer is not found in the catalog
-*/
-  exception NotFound {};
-
-  enum policy {P_FIRST,P_CYCL,P_BEST};
-  typedef policy ResPolicy;
-
-/*!
-  Structure used for Salome Batch Job parameters
-*/
-struct BatchParameters
+//! Type to describe required properties of a container
+struct ContainerParameters
 {
-  string batch_directory; // Where batch command will be launched
-			  // and log files will be created
-  string expected_during_time; // Time for the batch
-			       // has to be like this : hh:mm
-  string mem; // Minimum of memory needed
-	      // has to be like : 32gb or 512mb
-  long nb_proc; // Number of processors requested
+  //! container name if given else automatic
+  string container_name;
+
+  //! creation mode for GiveContainer if given else automatic 
+  /*!start creates a new container
+   * get  try to find an existing container
+   * getorstart   use an existing container if it exists or creates a new one
+   */
+  string mode;
+
+  //! container working directory if given else automatic
+  string workingdir;
+
+  // Parallel part
+  //! Number of proc of a parallel container
+  long nb_proc;
+  //! if true start a MPI container
+  boolean isMPI;
+  //! PaCO specific informations
+  string parallelLib;
+
+  //! Parameters to choose a resource
+  ResourceParameters resource_params;
+};
+
+//!  Type to describe a resource
+struct ResourceDefinition
+{
+  //! name 
+  string name;
+  //! hostname 
+  string hostname;
+  //! protocol to connect to the resource
+  //! protocol used to start a remote container (ssh or rsh)
+  string protocol;
+  //! login name to use to start a remote container
+  string username;
+  //! salome application to use to start a remote container
+  string applipath;
+  //! list of available components 
+  CompoList componentList;
+  //! Type of resource: interactive or batch
+  string mode;
+
+  //! operating system 
+  string OS;
+  //! memory size per node
+  long mem_mb;
+  //! frequency
+  long cpu_clock;
+  //! number of node
+  long nb_node;
+  //! number of proc per node
+  long nb_proc_per_node;
+  //! batch system
+  string batch;
+  //! MPI implementation
+  string mpiImpl;
+  //! if the resource is a cluster:
+  //! internal protocol to use to start a remote container (ssh or rsh) on the cluster
+  string iprotocol;
+
+  //! Specify if the resource is a cluster head;
+  boolean is_cluster_head;
+
+  //! Predefined working directory on the resource
+  string working_directory;
+};
+
+//! exception thrown if a computer is not found in the catalog
+exception NotFound {};
+
+struct JobParameters
+{
+  string job_name;
+  //! Job Type - Could be equal to "command" or "yacs_file" or "python_salome"
+  string job_type;
+
+  // Common values
+  string job_file;
+  string env_file; 
+  FilesList in_files;
+  FilesList out_files;
+  string work_directory;
+  string local_directory;
+  string result_directory;
+
+  /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
+       this case, default value of the selected resource will be used.
+  */
+  string maximum_duration; 
+
+  // Memory is expressed in megabytes -> mem_mb
+  // Number of Processors -> nb_proc
+  ResourceParameters resource_required;
+
+  /*!
+    Name of the batch queue choosed - optional
+  */
+  string queue;
+
+  /*!
+    Specific parameters for each type of job - optional
+  */
+  Engines::ParameterList specific_parameters;
+};
+
+struct JobDescription
+{
+  long job_id;
+  Engines::JobParameters job_parameters;
+};
+typedef sequence<Engines::JobDescription> JobsList;
+
+interface SalomeLauncherObserver
+{
+  void notify(in string event_name, in string event_data);
 };
 
 /*! \brief Interface of the %salomelauncher
     This interface is used for interaction with the unique instance
     of SalomeLauncher
 */
-  interface SalomeLauncher
-  {
-    long submitJob( in string xmlExecuteFile,
-                    in string clusterName ) raises (SALOME::SALOME_Exception);
-    long submitSalomeJob( in string fileToExecute,
-			  in FilesList filesToExport,
-			  in FilesList filesToImport,
-			  in BatchParameters batch_params,
-			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    string queryJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void deleteJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void getResultsJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+interface SalomeLauncher
+{
+  // Main methods
+  long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+  void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+  string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+  boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
+  void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
-    boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
+  // Useful methods
+  long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
+  boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
 
-    void Shutdown();
+  // SALOME kernel service methods
+  void Shutdown();
+  long getPID();
 
-    long getPID();
+  // Observer and introspection methods
+  void addObserver(in Engines::SalomeLauncherObserver observer);
+  void removeObserver(in Engines::SalomeLauncherObserver observer);
+  Engines::JobsList getJobsList();
+  Engines::JobParameters getJobParameters(in long job_id) raises (SALOME::SALOME_Exception);
 
-  } ;
+  // Save and load methods
+  void loadJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+  void saveJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+
+};
   
 /*! \brief Interface of the %containerManager
     This interface is used for interaction with the unique instance
     of ContainerManager
 */
-  interface ContainerManager
-  {
-    Container FindOrStartContainer( in MachineParameters params,
-				    in MachineList possibleComputers);
+interface ContainerManager
+{
+  //! GiveContainer - use mode parameter of ContainerParameters to configure
+  //! how this method works
+  //! Currently: get, start, getorstart, findorstart, find
+  Container GiveContainer(in ContainerParameters params) raises (SALOME::SALOME_Exception);
 
-    /*!
-      This operation launches a PaCO++ container.
-
-      \param Description of the container resquested.
-      \param List of computers ressources.
-
-      \return Container's CORBA reference.
-    */
-    Container FindOrStartParallelContainer( in MachineParameters params,
-					    in MachineList possibleComputers);
-
-    Container StartContainer( in MachineParameters params,
-			      in ResPolicy policy,
-			      in CompoList componentList );
-
-    Container GiveContainer( in MachineParameters params,
-		             in ResPolicy policy,
-		             in CompoList componentList );
-
-    void ShutdownContainers();
-
-  } ;
+  //!  Shutdown all containers that have been launched by the container manager
+  void ShutdownContainers();
+} ;
   
 /*! \brief Interface of the %resourcesManager
     This interface is used for interaction with the unique instance
     of ResourcesManager
 */
-  interface ResourcesManager
-  {
-    string FindFirst(in MachineList possibleComputers);
+interface ResourcesManager
+{
+  //!  Find first available resource in a resources list
+  string FindFirst(in ResourceList possibleResources);
 
-    MachineList GetFittingResources( in MachineParameters params,
-				     in CompoList componentList )
-      raises (SALOME::SALOME_Exception);
+  //!  Find best available computer according to policy in a computers list
+  string Find(in string policy, in ResourceList possibleResources);
 
-    MachineParameters GetMachineParameters( in string hostname );
+  //!  Get a list of resources that are best suited to launch a container given constraints 
+  /*! 
+       The constraints are resource constraints (params) and components constraints (componentList)
+  */
+  ResourceList GetFittingResources(in ResourceParameters params) raises (SALOME::SALOME_Exception);
 
-  } ;
+  //!  Get definition of a resource
+  ResourceDefinition GetResourceDefinition(in string name);
+
+  //! Add a new resource to the resource_manager
+  /*!
+      write -> true, resource manager will add it into a xml_file
+      xml_file -> could be empty, in this case if write is true, resource manager will write
+      the resource in its first ResourceCatalog file
+    */
+  void AddResource(in ResourceDefinition new_resource, in boolean write, in string xml_file) 
+    raises (SALOME::SALOME_Exception);
+
+  //! Remove a new resource to the resource_manager
+  /*!
+      write -> true, resource manager will write a new xml_file
+      xml_file -> could be empty, in this case if write is true, resource manager will write
+      the resource in its first ResourceCatalog file
+    */
+  void RemoveResource(in string resource_name, in boolean write, in string xml_file) 
+    raises (SALOME::SALOME_Exception);
+};
+
+
+// For compatibility - will be erased on SALOME 6
+typedef sequence<string> MachineList;
+//!  Type to describe required properties of a container.
+struct MachineParameters
+{
+  //! container name if given else automatic
+  string container_name;
+  //! host name if given else automatic
+  string hostname;
+  //! if given list of components that could be loaded on the container
+  CompoList componentList;
+  //! if given restricted list of machines to search in
+  MachineList computerList;
+  //! required operating system 
+  string OS;
+  //! required memory size
+  long mem_mb;
+  //! required frequency
+  long cpu_clock;
+  //! required number of proc per node
+  long nb_proc_per_node;
+  //! required number of node
+  long nb_node;
+  //! if true start a MPI container
+  boolean isMPI;
+  //! container working directory 
+  string workingdir;
+  //! creation mode for GiveContainer. 
+  /*!start creates a new container
+   * get  try to find an existing container
+   * getorstart   use an existing container if it exists or creates a new one
+   */
+  string mode;
+  //! resource management policy : first, cycl, altcycl or best (can be extended)
+  string policy;
+
+  //! PaCO specific informations
+  string parallelLib;
+  long nb_component_nodes;
+};
 };
   
 #endif

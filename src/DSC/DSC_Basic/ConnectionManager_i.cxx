@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : ConnectionManager_i.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
@@ -28,6 +29,8 @@
 
 #ifdef WIN32
 # include <process.h>
+#else
+# include <unistd.h>
 #endif
 
 ConnectionManager_i::ConnectionManager_i(CORBA::ORB_ptr orb) {
@@ -47,9 +50,9 @@ ConnectionManager_i::~ConnectionManager_i() {}
 
 Engines::ConnectionManager::connectionId
 ConnectionManager_i::connect(Engines::DSC_ptr uses_component, 
-			     const char* uses_port_name, 
-			     Engines::DSC_ptr provides_component, 
-			     const char* provides_port_name) 
+                             const char* uses_port_name, 
+                             Engines::DSC_ptr provides_component, 
+                             const char* provides_port_name) 
 {
 
   Ports::Port_var p_port = provides_component->get_provides_port(provides_port_name, false);
@@ -79,7 +82,7 @@ ConnectionManager_i::connect(Engines::DSC_ptr uses_component,
 
 void
 ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
-				Engines::DSC::Message message)
+                                Engines::DSC::Message message)
 {
   int err=0;
   // Connection id exist ?
@@ -92,8 +95,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   connection_infos * infos = ids[id];
   try
     {
-      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(),
-						      message);
+      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(), message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -103,8 +105,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   try
     {
       infos->uses_component->disconnect_uses_port(infos->uses_port_name.c_str(),
-					      infos->provides_port,
-					      message);
+                                                  infos->provides_port, message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -121,10 +122,16 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
 void
 ConnectionManager_i::ShutdownWithExit()
 {
+  ids_it = ids.begin();
+  while(ids_it != ids.end())
+    {
+      disconnect(ids_it->first, Engines::DSC::RemovingConnection);
+      ids_it = ids.begin();
+    }
+
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
 
-  //exit( EXIT_SUCCESS );
 }
 
 CORBA::Long

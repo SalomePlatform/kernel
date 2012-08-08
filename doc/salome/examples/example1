@@ -1,0 +1,45 @@
+
+#       create AttributeReal      
+#=================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeReal")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeReal attribute"
+A = A._narrow(SALOMEDS.AttributeReal)
+A.SetValue(0.0001)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"
+
+#      save / restore study      
+#=================================
+
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+#file = "/tmp/ggg.hdf"
+
+print " -------  We will save to", file, "-----------"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy=batchmode_geompy.myStudyManager.Open(file)
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find AttributeReal
+#=================================
+
+res,A=father.FindAttribute("AttributeReal")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeReal"
+
+A = A._narrow(SALOMEDS.AttributeReal)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"

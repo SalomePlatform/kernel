@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __SALOME_RESOURCESMANAGER_HXX__
 #define __SALOME_RESOURCESMANAGER_HXX__
 
@@ -36,13 +37,17 @@
 
 
 #ifdef WIN32
-# ifdef SALOMERESOURCESMANAGER_EXPORTS
+# if defined SALOMERESOURCESMANAGER_EXPORTS || defined SalomeResourcesManager_EXPORTS
 #  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllexport )
 # else
 #  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllimport )
 # endif
 #else
 # define SALOMERESOURCESMANAGER_EXPORT
+#endif
+
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
 #endif
 
 // --- WARNING ---
@@ -63,22 +68,30 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     ~SALOME_ResourcesManager();
 
-    Engines::MachineList *
-    GetFittingResources(const Engines::MachineParameters& params,
-                        const Engines::CompoList& componentList);
+    // CORBA Methods
+    Engines::ResourceList * GetFittingResources(const Engines::ResourceParameters& params);
+    char* FindFirst(const Engines::ResourceList& listOfResources);
+    char* Find(const char *policy, const Engines::ResourceList& listOfResources);
+    Engines::ResourceDefinition * GetResourceDefinition(const char * name);
+    void AddResource(const Engines::ResourceDefinition& new_resource,
+                     CORBA::Boolean write,
+                     const char * xml_file);
 
-    char* FindFirst(const Engines::MachineList& listOfMachines);
+    void RemoveResource(const char * resource_name,
+                        CORBA::Boolean write,
+                        const char * xml_file);
 
-    Engines::MachineParameters* GetMachineParameters(const char *hostname);
-
+    // Cpp Methods
     void Shutdown();
+    ResourcesManager_cpp *GetImpl() { return &_rm; }
+    std::string getMachineFile(std::string resource_name, 
+                               CORBA::Long nb_procs,
+                               std::string parallelLib);
+
 
     static const char *_ResourcesManagerNameInNS;
-
-    ResourcesManager_cpp *GetImpl() { return &_rm; }
-
   protected:
-    
+
     SALOME_NamingService *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
@@ -88,7 +101,6 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     MapOfParserResourcesType _resourcesBatchList;
 
     ResourcesManager_cpp _rm;
-
   };
 
 #endif // RESSOURCESCATALOG_IMPL_H

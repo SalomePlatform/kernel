@@ -1,35 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 #include "DF_definitions.hxx"
 #include "DF_Document.hxx"
 #include "DF_Label.hxx"
 #include "DF_ChildIterator.hxx"
 
-using namespace std;
-
 //Class DF_Document is container for user's data stored as a tree of Labels
 //with assigned Attributes
 
-DF_Document::DF_Document(const string& theDocumentType)
+DF_Document::DF_Document(const std::string& theDocumentType)
 {
   _id = -1;
   _type = theDocumentType;
@@ -82,7 +78,7 @@ int DF_Document::GetDocumentID() const
 }
 
 //Returns a type of the Document
-string DF_Document::GetDocumentType()
+std::string DF_Document::GetDocumentType()
 {
   return _type;
 }
@@ -92,7 +88,7 @@ void DF_Document::Clear()
 {
   if(_root.IsNull()) return;
 
-  vector<DF_LabelNode*> vn;
+  std::vector<DF_LabelNode*> vn;
   DF_ChildIterator CI(_root, true);
   for(; CI.More(); CI.Next()) {
     DF_LabelNode* node =  CI.Value()._node; 
@@ -103,6 +99,7 @@ void DF_Document::Clear()
     delete vn[i];
 
   _root._node->Reset();
+  _root.Nullify();
 }
 
 //Returns true if this document is empty
@@ -139,7 +136,7 @@ void DF_Document::Load(const std::string& theData)
 }
 
 //Converts a content of the Document into the std::string
-string DF_Document::Save()
+std::string DF_Document::Save()
 {
    //Not implemented
    return "";

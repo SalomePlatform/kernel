@@ -1,33 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeStudyProperties.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include <string.h>
-
-using namespace std;
-
 
 const std::string& SALOMEDSImpl_AttributeStudyProperties::GetID()
 {
@@ -87,12 +85,12 @@ void SALOMEDSImpl_AttributeStudyProperties::SetModification(const std::string& t
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::GetModifications
-                  (vector<string>& theUserNames,
-                   vector<int>&    theMinutes,
-                   vector<int>&    theHours,
-                   vector<int>&    theDays,
-                   vector<int>&    theMonths,
-                   vector<int>&    theYears) const
+                  (std::vector<std::string>& theUserNames,
+                   std::vector<int>&    theMinutes,
+                   std::vector<int>&    theHours,
+                   std::vector<int>&    theDays,
+                   std::vector<int>&    theMonths,
+                   std::vector<int>&    theYears) const
 {
   theUserNames = myUserName;
   theMinutes = myMinute;
@@ -194,8 +192,8 @@ void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
     dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(with);
 
   Init();
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
   for (int i = 0, len = aNames.size(); i < len; i++) {
     myUserName.push_back(aNames[i]);
@@ -234,17 +232,23 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
 }
 
 
-string SALOMEDSImpl_AttributeStudyProperties::Save()
+std::string SALOMEDSImpl_AttributeStudyProperties::Save()
 {
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  int aLength, anIndex;
+  int aLength, anIndex, unitsSize = 0, commentSize = 0;;
   for (aLength = 0, anIndex = aNames.size()-1; anIndex >= 0; anIndex--)
     aLength += aNames[anIndex].size() + 1;
 
-  char* aProperty = new char[3 + aLength + 12 * aNames.size()];
+  std::string units = GetUnits();
+  std::string comment = GetComment();
+  
+  unitsSize = units.size();
+  commentSize = comment.size();
+
+  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize];
 
   char crMode = (char)GetCreationMode();
 
@@ -254,23 +258,63 @@ string SALOMEDSImpl_AttributeStudyProperties::Save()
   int a = 2;
   for (anIndex = 0; anIndex  < aLength; anIndex++) {
     sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
-	    (int)(aMinutes[anIndex]),
-	    (int)(aHours[anIndex]),
-	    (int)(aDays[anIndex]),
-	    (int)(aMonths[anIndex]),
-	    (int)(aYears[anIndex]),
-	    (char*)(aNames[anIndex].c_str()));
+            (int)(aMinutes[anIndex]),
+            (int)(aHours[anIndex]),
+            (int)(aDays[anIndex]),
+            (int)(aMonths[anIndex]),
+            (int)(aYears[anIndex]),
+            (char*)(aNames[anIndex].c_str()));
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
+
+  //Write delimeter of the section to define end of the modifications section
+  aProperty[a++] = 30;
+
+  //Write units if need
+  if(units.size() > 0) {
+    sprintf(&(aProperty[a]),"%s",units.c_str());
+    a = strlen(aProperty);
+  }
+
+  aProperty[a++] = 1; //delimeter of the units and comments
+
+  //Write comments if need
+  if(comment.size() > 0) {
+    sprintf(&(aProperty[a]),"%s",comment.c_str());
+    a = strlen(aProperty);
+    a++;
+  }
+  
   aProperty[a] = 0;
-  string prop(aProperty);
+  std::string prop(aProperty);
   delete aProperty;
 
   return prop;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::Load(const string& value)
+void SALOMEDSImpl_AttributeStudyProperties::SetUnits(const std::string& theUnits) {
+  if(myUnits == theUnits)
+    return;
+  myUnits = theUnits;
+}
+
+std::string SALOMEDSImpl_AttributeStudyProperties::GetUnits() {
+  return myUnits;
+}
+
+void SALOMEDSImpl_AttributeStudyProperties::SetComment(const std::string& theComment) {
+  if(myComment == theComment)
+    return;
+  myComment = theComment;
+}
+
+std::string SALOMEDSImpl_AttributeStudyProperties::GetComment() {
+  return myComment;
+}
+
+
+void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
 {
   char* aCopy = (char*)value.c_str();
 
@@ -307,11 +351,44 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const string& value)
     strncpy(aName, &(aCopy[anIndex]), aNameSize);
     aName[aNameSize] = 0;
     SetModification(aName,aMinute,aHour,aDay,aMonth,aYear);
-    delete(aName);
+    delete [] (aName);
     anIndex += aNameSize + 1;
+    
+    //Check end of the modifications section
+    if(anIndex < value.size() && aCopy[anIndex] == 30)
+      break;
   }
+  
+  //Case then study contains units and comment properties
+  if( anIndex < value.size() ) {
+    anIndex++; //skip the delimeter of the sections: char(30)
+    int unitsSize;
+    for(unitsSize = 0; aCopy[anIndex+unitsSize] != 1; unitsSize++);
+
+    if(unitsSize > 0) {
+      char *anUnits = new char[unitsSize+1];
+      strncpy(anUnits, &(aCopy[anIndex]), unitsSize);
+      anUnits[unitsSize] = 0;
+      SetUnits(anUnits);
+      delete [] (anUnits);
+    }
+    anIndex += unitsSize + 1;
+
+    int commentSize;
+    for(commentSize = 0; aCopy[anIndex+commentSize] != 0; commentSize++);
+
+    if(commentSize > 0) {
+      char *aComment = new char[commentSize+1];
+      strncpy(aComment, &(aCopy[anIndex]), commentSize);
+      aComment[commentSize] = 0;
+      SetComment(aComment);
+      delete [] (aComment);
+    }
+    anIndex += commentSize;
+  }
+  
   if (aCopy[1] == 'l') {
     SetLocked(true);
   }
-  SetModified(0);
+  SetModified(0);  
 }

@@ -1,28 +1,29 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_UseCaseBuilder_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"  
@@ -30,15 +31,13 @@
 
 #include "utilities.h"
 
-using namespace std;
-
 //============================================================================
 /*! Function : constructor
  *  Purpose  :
  */
 //============================================================================
 SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(SALOMEDSImpl_UseCaseBuilder* theImpl,
-						     CORBA::ORB_ptr orb)
+                                                     CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
@@ -85,7 +84,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Remove(SALOMEDS::SObject_ptr theObject
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFather, 
-						   SALOMEDS::SObject_ptr theObject)
+                                                   SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
   if(!_impl || theFather->_is_nil() || theObject->_is_nil()) return 0;
@@ -98,7 +97,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFath
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::InsertBefore(SALOMEDS::SObject_ptr theFirst, 
-						       SALOMEDS::SObject_ptr theNext)
+                                                       SALOMEDS::SObject_ptr theNext)
 {
   SALOMEDS::Locker lock;
   if(!_impl || theFirst->_is_nil() || theNext->_is_nil()) return 0;
@@ -140,6 +139,21 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::HasChildren(SALOMEDS::SObject_ptr theO
   SALOMEDS::Locker lock;
   if(!_impl) return 0;
   return _impl->HasChildren(_impl->GetSObject(theObject->GetID()));
+}
+
+//============================================================================
+/*! Function : GetFather
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetFather(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock; 
+
+  if(!_impl) return NULL;
+  SALOMEDSImpl_SObject aSO = _impl->GetFather(_impl->GetSObject(theObject->GetID()));
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
+  return so._retn();
 }
 
 //============================================================================
@@ -192,6 +206,19 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCase(SALOMEDS::SObject_ptr theObj
   
   if(!_impl || theObject->_is_nil()) return false;
   return _impl->IsUseCase(_impl->GetSObject(theObject->GetID()));
+}
+
+//============================================================================ 
+/*! Function :  IsUseCaseNode
+ *  Purpose  :  
+ */ 
+//============================================================================ 
+CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCaseNode(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock;
+  
+  if(!_impl || theObject->_is_nil()) return false;
+  return _impl->IsUseCaseNode(_impl->GetSObject(theObject->GetID()));
 }
 
 //============================================================================ 

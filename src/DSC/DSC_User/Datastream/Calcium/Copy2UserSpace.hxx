@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : Copy2UserSpace.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -34,6 +35,8 @@
 #include "CalciumPortTraits.hxx"
 
 #include <cstdio>
+
+//#define MYDEBUG
 
 //Les demandes de copies vers l'espace utilisateur
 //proviennent d'une procédure de lecture  
@@ -69,11 +72,11 @@ struct Copy2UserSpace{
      // Le PORT doit être capable de répondre aux demandes de lecture
      // multiples d'une donnée pour une même estampille et doit donc garder un pointeur valide
      // sur le buffer. Il se pose cependant un problème s'il décide
-     // de supprimer la donnée alors que des client utilise le buffer (historique) !
+     // de supprimer la donnée alors que des client utilise le buffer (historique calcium) !
      // La seule façon de gérer proprement cette situation est d'utiliser un shared_pointer (TODO).
      // Pour l'instant l'utilisateur du mode zero copie doit s'assurer que le niveau d'historique
      // utilisé par le port est compatible avec son utilisation des buffers. Il doit
-     // être également conscient que s'il modifie le buffer, il est modifier pour tous les
+     // être également conscient que s'il modifie le buffer, il est modifié pour tous les
      // utilisateurs actuels et futurs.
     
      //REF:    InnerType * dataPtr  = DataManipulator::getPointer(corbaData,true);
@@ -84,7 +87,7 @@ struct Copy2UserSpace{
     // Cette ligne poserait uun problème dans la méthode appelante, si elle
     // ne testait pas que les types utilisateurs et CORBA sont identiques :
     // ex :  InnerType == Corba::Long et d'un T == int
-    // C'est l'objet de la procédure suivante
+    // C'est l'objet de la spécialisation ci-dessous.
     data = dataPtr; 
 
     // En zero copie l'utilisateur doit appeler ecp_free ( cas ou un buffer intermédiaire
@@ -106,7 +109,7 @@ struct Copy2UserSpace<false, DataManipulator> {
     typedef typename DataManipulator::InnerType        InnerType;
     
   
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     InnerType * dataPtr = NULL;
     // Affiche la valeur du pointeur de la structure corba
     //  et les pointeurs contenus le cas échéant
@@ -139,7 +142,7 @@ struct Copy2UserSpace<false, DataManipulator> {
     //std::copy(dataPtr,dataPtr+nRead,data);
     DataManipulator::copy(corbaData,data,nRead);
       
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     tmpData = data;
     std::cerr << "-------- Copy2UserSpace<false> MARK 1c --data("<<tmpData<<")[0.."<<
       DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;

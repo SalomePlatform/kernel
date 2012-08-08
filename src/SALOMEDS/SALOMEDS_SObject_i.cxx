@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_SObject_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -44,14 +45,11 @@
 #include <unistd.h>
 #endif
 
-using namespace std;
-
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SObject_i* so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
-  SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this());
 
-  return so._retn();
+  return so_servant->_this();
 }
 
 
@@ -62,10 +60,11 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImp
 //============================================================================
 SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::ORB_ptr orb)
 {
+  _impl = 0;
   if(!impl.IsNull()) {
      if(impl.IsComponent()) {
          SALOMEDSImpl_SComponent sco = impl;
-	 _impl = sco.GetPersistentCopy();       
+         _impl = sco.GetPersistentCopy();       
      }
      else {
          _impl = impl.GetPersistentCopy();
@@ -86,6 +85,17 @@ SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
    if(_impl) delete _impl;    
 }
 
+//================================================================================
+/*!
+ * \brief Returns true if the %SObject does not belong to any %Study
+ */
+//================================================================================
+
+CORBA::Boolean SALOMEDS_SObject_i::IsNull()
+{
+  SALOMEDS::Locker lock;
+  return !_impl || _impl->IsNull();
+}
 
 //============================================================================
 /*! Function :GetID
@@ -136,7 +146,7 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
     return SALOMEDS::Study::_nil();
   }
 
-  string IOR = aStudy->GetTransientReference();
+  std::string IOR = aStudy->GetTransientReference();
   CORBA::Object_var obj = _orb->string_to_object(IOR.c_str());
   SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(obj) ;
   ASSERT(!CORBA::is_nil(Study));
@@ -149,12 +159,12 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out anAttribute,
-						  const char* aTypeOfAttribute)
+                                                  const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
   DF_Attribute* anAttr = NULL;
   if(_impl->FindAttribute(anAttr, (char*)aTypeOfAttribute)) {
-    anAttribute = SALOMEDS::GenericAttribute::_duplicate(SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb));
+    anAttribute = SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb);
     return true;
   }
 
@@ -170,7 +180,7 @@ CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out
 SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
 {
   SALOMEDS::Locker lock;
-  vector<DF_Attribute*> aSeq = _impl->GetAllAttributes();
+  std::vector<DF_Attribute*> aSeq = _impl->GetAllAttributes();
   SALOMEDS::ListOfAttributes_var SeqOfAttr = new SALOMEDS::ListOfAttributes;
   int length = aSeq.size();
 
@@ -180,9 +190,9 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
     for(int i = 0; i < length; i++) {
       SALOMEDSImpl_GenericAttribute* anAttr = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i]);
       SALOMEDS::GenericAttribute_var anAttribute;
-      anAttribute = SALOMEDS::GenericAttribute::_duplicate(SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb));
+      anAttribute = SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb);
       if (!CORBA::is_nil(anAttribute)) {
-	SeqOfAttr[i] = anAttribute;
+        SeqOfAttr[i] = anAttribute;
       }
     }
   }
@@ -240,7 +250,7 @@ char* SALOMEDS_SObject_i::Name()
 void  SALOMEDS_SObject_i::Name(const char* name)
 {
   SALOMEDS::Locker lock;
-  string aName((char*)name);
+  std::string aName((char*)name);
   _impl->Name(aName);
 }
 
@@ -276,7 +286,7 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
   SALOMEDS::Locker lock;
   CORBA::Object_ptr obj = CORBA::Object::_nil();
   try {
-    string IOR = _impl->GetIOR();
+    std::string IOR = _impl->GetIOR();
     char* c_ior = CORBA::string_dup(IOR.c_str());
     obj = _orb->string_to_object(c_ior);
     CORBA::string_free(c_ior);
@@ -318,6 +328,17 @@ char* SALOMEDS_SObject_i::GetIOR()
   SALOMEDS::Locker lock;
   CORBA::String_var aStr = CORBA::string_dup(_impl->GetIOR().c_str());
   return aStr._retn();
+}
+
+//============================================================================
+/*! Function : SetAttrString
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDS_SObject_i::SetAttrString(const char* name, const char* value)
+{
+  SALOMEDS::Locker lock;
+  _impl->SetAttrString(name,value);
 }
 
 //===========================================================================

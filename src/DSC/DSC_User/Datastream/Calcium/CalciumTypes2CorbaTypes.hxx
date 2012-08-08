@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // Modified by : $LastChangedBy$
 // Date        : $LastChangedDate: 2007-03-01 13:40:26 +0100 (Thu, 01 Mar 2007) $
 // Id          : $Id$
@@ -34,7 +35,7 @@
 
 
 class CORBA_DATE_CAL_SCHEM : public std::map<CalciumTypes::DateCalSchem,
-					     Ports::Calcium_Ports::DateCalSchem > 
+                                             Ports::Calcium_Ports::DateCalSchem > 
 {
 public :
 
@@ -46,7 +47,7 @@ public :
 extern const CORBA_DATE_CAL_SCHEM corbaDateCalSchem ;
 
 class CORBA_DEPENDENCY_TYPE : public std::map<CalciumTypes::DependencyType,
-					      Ports::Calcium_Ports::DependencyType>
+                                              Ports::Calcium_Ports::DependencyType>
 {
 public :
 
@@ -57,7 +58,7 @@ public :
 extern const CORBA_DEPENDENCY_TYPE corbaDependencyType ;
 
 class CORBA_INTERPOLATION_SCHEM : public std::map<CalciumTypes::InterpolationSchem,
-						  Ports::Calcium_Ports::InterpolationSchem>
+                                                  Ports::Calcium_Ports::InterpolationSchem>
 {
 public :
 
@@ -68,7 +69,7 @@ public :
 extern const CORBA_INTERPOLATION_SCHEM corbaInterpolationSchem ;
 
 class CORBA_EXTRAPOLATION_SCHEM : public std::map<CalciumTypes::ExtrapolationSchem,
-						  Ports::Calcium_Ports::ExtrapolationSchem>
+                                                  Ports::Calcium_Ports::ExtrapolationSchem>
 {
 public :
 

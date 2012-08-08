@@ -1,23 +1,20 @@
 /*!
   \page INSTALL Installation instructions
 
-<b>NOT UP TO DATE %SALOME 4</b>
-<b>WORK in PROGRESS, INCOMPLETE DOCUMENT</b>
+<b>NOT UP TO DATE AND INCOMPLETE DOCUMENT BUT CAN BE HELPFUL</b>
 
-You'll find here generic instructions for installing the SALOME2 platform.
+You'll find here generic instructions for installing the SALOME platform.
 
 \section Summary
 
-<ol>
-<li> \ref S1_install </li>
-<li> \ref S2_install </li>
-<li> \ref S3_install </li>
-<li> \ref S4_install </li>
-<li> \ref S5_install </li>
-<li> \ref S6_install </li>
-<li> \ref S7_install </li>
-<li> \ref S8_install </li>
-</ol>
+-# \ref S1_install
+-# \ref S2_install
+-# \ref S3_install
+-# \ref S4_install
+-# \ref S5_install
+-# \ref S6_install
+-# \ref S7_install
+-# \ref S8_install
 
 \section S1_install Quick Overview
 
@@ -25,16 +22,16 @@ First of all, you have to check (or install if needed) the dependant
 software programs on your system. These programs are:
 
 - common development tools as gcc, automake, autoconf and libtools.
-- third party softwares used in SALOME building or runtime process
+- third party softwares used in %SALOME building or runtime process
   (python, OCC, VTK, ...)
 
-Further details can be found in sections [2] and [3].
+Further details can be found in sections \ref S2_install and \ref S3_install.
 
 If the dependencies are installed on your system, then you have to set
 your shell environment to get access to the software components
-(cf. [4]. "Preparing the shell environment").
+(cf. \ref S4_install).
 
-The next step is to install the KERNEL (cf. [5] "Installing KERNEL"):
+The next step is to install the KERNEL (cf. \ref S5_install):
 
 \code
 $ mkdir <kernel_build>
@@ -48,10 +45,10 @@ $ make install
 \endcode
 
 Then, the %SALOME components GEOM, MED, VISU, ... can be installed
-with a similar procedure (cf. [6]).
+with a similar procedure (cf. \ref S6_install).
 
-Eventually, the platform ccodean be run by executing the shell script
-runSalome (cf. [7]). Here, somme additionnal variables have to be set
+Eventually, the platform can be run by executing the shell script
+%runSalome (cf. \ref S7_install). Here, somme additionnal variables have to be set
 to describe the %SALOME runtime configuration (<COMPONENT>_ROOT_DIR,
 OMNIORB_CONFIG)
 
@@ -122,7 +119,7 @@ Additionnal software may be installed for optional features:
 
 In the following, we assume that all the third-party softwares are
 installed in the same root directory, named <salomeroot>/prerequis.
-Then, your file system should probably look like::
+Then, your file system should probably look like:
 
 \code
 <salomeroot>/prerequis/Python-2.2.2
@@ -133,7 +130,7 @@ Then, your file system should probably look like::
 
 \section S4_install Preparing the shell environment
 
-Some variables have to be set to get acces to third-party software
+Some variables have to be set to get access to third-party software
 components (include files, executable, library, ...) during building
 process and runtime.
 
@@ -157,7 +154,7 @@ $ source prerequis.sh
 
 We use here the notation <kernel_src> to specify the source directory
 of the KERNEL component. The shell environment is supposed to have
-been set (cf. 4).
+been set (cf. \ref S4_install).
 
 Installing the KERNEL from a source package needs three directories:
 
@@ -193,11 +190,11 @@ $ ./build_configure
   \endcode
 
   If it doesn't work, check your system automake tools as specified in
-  section [2].
+  section \ref S2_install.
 
 <b>STEP 3:</b>
   configure the building process
-  go to the build directory and execute the configuration process::
+  go to the build directory and execute the configuration process:
 
   \code
 $ cd <kernel_build>
@@ -207,7 +204,7 @@ $ <kernel_src>/configure --prefix=<kernel_install>
   Note that <kernel_install> must be an absolute path.
 
   When the configure process is complete, check the status of
-  third-party softwares detection. You should have a status like::
+  third-party softwares detection. You should have a status like:
 
   \code
     ---------------------------------------------
@@ -250,7 +247,7 @@ installed (optional for most usages).
 <b>STEP 4 :</b>
   Building the binary files
 
-  Execute make in the <kernel_build> directory::
+  Execute make in the <kernel_build> directory:
 
   \code
 $ make
@@ -259,7 +256,7 @@ $ make
 <b>STEP 5:</b>
   Installing binary files, scripts and documentation
 
-  Execute install target in the <kernel_build> directory::
+  Execute install target in the <kernel_build> directory:
 
   \code
 $ make install
@@ -267,7 +264,7 @@ $ make install
 
 \section S6_install Installing the SALOME components
 
-TInstalling a component <COMPONENT> is done by following the same
+Installing a component <COMPONENT> is done by following the same
 instructions as given for the KERNEL, replacing KERNEL by
 <COMPONENT> (build_configure, configure, make, make install).
 
@@ -277,7 +274,7 @@ You just have to be aware of the dependencies between components:
 - GEOM   depends on KERNEL
 - SMESH  depends on KERNEL, MED, GEOM
 - VISU   depends on KERNEL, MED
-- SUPERV depends on KERNEL
+- YACS depends on KERNEL
 
 For example, installing the component SMESH needs the previous
 installation of the KERNEL component, and then the GEOM and MED components.
@@ -294,23 +291,21 @@ building process of the SMESH component (STEP 3).
 
 \section S7_install Runtime
 
-See SALOME_Application to define your own configuration of %SALOME and run it
+See \ref SALOME_Application to define your own configuration of %SALOME and run it
 on one or several computers. This is the recommended way of configuration.
 
 The following explains the general principles.
 
 To run the %SALOME platform, the procedure is:
 
-- set the shell environment to get acces to third-party softwares:
-
-\code
+- set the shell environment to get access to third-party softwares:
+  \code
 $ source prerequis.sh
-\endcode
+  \endcode
 
 - define the %SALOME configuration by setting the whole set of
   variables <COMPONENT>_ROOT_DIR. Here, you just have to set the
-  kernel and the components you need::
-
+  kernel and the components you need:
   \code
 $ export KERNEL_ROOT_DIR=<kernel_install>
 $ export MED_ROOT_DIR=<med_install>
@@ -320,14 +315,12 @@ $ ...
 - define the CORBA configuration file by setting the variable
   OMNIORB_CONFIG. This variable must be set to a writable file
   path. The file may be arbitrary chosen and doesn't need to exist
-  before running. We suggest::
-
+  before running. We suggest:
   \code
 $ export OMNIORB_CONFIG=$HOME/.omniORB.cfg
   \endcode
 
-- run the %SALOME platform by executing the script runSalome:
-
+- run the %SALOME platform by executing the script %runSalome:
   \code
 $KERNEL_ROOT_DIR/bin/salome/runSalome
   \endcode
@@ -336,43 +329,39 @@ $KERNEL_ROOT_DIR/bin/salome/runSalome
 
 For convenience or customization, we suggest the following organisation:
 
-- chose and create a root directory for the %SALOME platform, say
+- choose and create a root directory for the %SALOME platform, say
   <salomeroot>.
 
 - install the third-party softwares in a sub-directory "prerequis"
 
 - install the %SALOME components in a sub-directory "SALOME2"
 
-- make personnal copies of the files prerequis.sh and runSalome in
+- make personnal copies of the files prerequis.sh and %runSalome in
   <salomeroot>:
-
   \code
 $ cp <kernel_src>/prerequis.sh <rundir>/.
 $ cp <kernel_install>/bin/salome/runSalome <rundir>/.
   \endcode
-
   Edit the file prerequis.sh and adjust it to your own configuration.
 
-- define the SALOME2 configuration
-
+- define the SALOME2 configuration\n
   This step consists in setting the KERNEL_ROOT_DIR, the whole set of
   variables <COMPONENT>_ROOT_DIR you need, and the OMNIORB_CONFIG
   variable.
-
+  \n
   We suggest to create a shell file envSalome.sh containing those
   settings. Then the configuration consists in loading envSalome.sh in
   the runtime shell:
-
-\code
+  \code
 $ source envSalome.sh
-\endcode
+  \endcode
 
 - When installed with this file organisation, running %SALOME is done
-  with the following shell commands::
-
+  with the following shell commands:
   \code
     $ source <salomeroot>/prerequis.sh
     $ source <salomeroot>/envSalome.sh
     $ ./runSalome
   \endcode
+
 */

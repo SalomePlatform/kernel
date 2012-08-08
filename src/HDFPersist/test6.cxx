@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 //  File   : test6.cxx
 //  Module : SALOME
@@ -26,7 +27,6 @@
 #include <iostream.h>
 #include "HDFOI.hxx"
 #include <stdlib.h>
-using namespace std;
 
 int main()
 {
@@ -60,10 +60,10 @@ int main()
       MESSAGE( "--> There are " << m << " objects in the group" );
       
       for (i=0;i<m;i++) 
-	{
-	  geom->InternalObjectIndentify(i,name);
-	  MESSAGE( "--> First Level Internal Object Name : " << name );
-	}        
+        {
+          geom->InternalObjectIndentify(i,name);
+          MESSAGE( "--> First Level Internal Object Name : " << name );
+        }        
 
       geom1 = new HDFgroup("GEOM_1",geom);
       MESSAGE( ">> The HDF group object is created for 'GEOM_1' with 'GEOM' as father" );
@@ -116,7 +116,7 @@ int main()
       MESSAGE( ">> The same operations have been done for the file 'mesh.hdf'" )
       MESSAGE( "   and the groups MESH_1 and MESH_2" )
       MESSAGE( "--> This file has been mounted on the group 'MESH' of the file 'study.hdf' ")
-	      
+              
       study->CloseOnDisk();
       MESSAGE( ">> The study.hdf file is closed" );
 

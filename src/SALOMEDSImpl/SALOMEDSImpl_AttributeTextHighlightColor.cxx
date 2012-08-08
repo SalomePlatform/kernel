@@ -1,31 +1,30 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeTextHighlightColor.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeTextHighlightColor.hxx"
-
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -66,8 +65,8 @@ const std::string& SALOMEDSImpl_AttributeTextHighlightColor::ID () const { retur
 //purpose  :
 //=======================================================================
 void SALOMEDSImpl_AttributeTextHighlightColor::SetTextHighlightColor(const double& R, 
-							             const double& G, 
-							             const double& B)
+                                                                     const double& G, 
+                                                                     const double& B)
 {
    CheckLocked();
    Backup(); 
@@ -78,12 +77,12 @@ void SALOMEDSImpl_AttributeTextHighlightColor::SetTextHighlightColor(const doubl
    
    SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
-	    
+            
 //=======================================================================
 //function : TextHighlightColor
 //purpose  :
 //=======================================================================
-vector<double> SALOMEDSImpl_AttributeTextHighlightColor::TextHighlightColor()
+std::vector<double> SALOMEDSImpl_AttributeTextHighlightColor::TextHighlightColor()
 {
    return myValue;
 }      
@@ -92,7 +91,7 @@ vector<double> SALOMEDSImpl_AttributeTextHighlightColor::TextHighlightColor()
 //function : ChangeArray
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTextHighlightColor::ChangeArray(const vector<double>& newArray)
+void SALOMEDSImpl_AttributeTextHighlightColor::ChangeArray(const std::vector<double>& newArray)
 {
   Backup();
 
@@ -133,18 +132,18 @@ void SALOMEDSImpl_AttributeTextHighlightColor::Paste (DF_Attribute* into)
   dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(into)->ChangeArray (myValue);
 }
 
-string SALOMEDSImpl_AttributeTextHighlightColor::Save() 
+std::string SALOMEDSImpl_AttributeTextHighlightColor::Save() 
 {
   char *Val = new char[75];
   sprintf(Val, "%f %f %f", (float)myValue[0], 
                            (float)myValue[1], 
-			   (float)myValue[2]);
-  string ret(Val);
+                           (float)myValue[2]);
+  std::string ret(Val);
   delete Val;
   return ret;
 }
 
-void SALOMEDSImpl_AttributeTextHighlightColor::Load(const string& value) 
+void SALOMEDSImpl_AttributeTextHighlightColor::Load(const std::string& value) 
 {
   float r, g, b;
   sscanf(value.c_str(), "%f %f %f", &r, &g, &b);

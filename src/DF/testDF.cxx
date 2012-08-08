@@ -1,24 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 //File:    testDF.cxx
 //Author:  Sergey RUIN
 //
@@ -43,15 +41,14 @@
 #include <pwd.h>
 #else
 #include <time.h>
-#include <lmcons.h>
 #include <windows.h>
+#include <lmcons.h>
 #endif
 
-using namespace std;
 
-void printStr(const string& theValue)
+void printStr(const std::string& theValue)
 {
-  cout << "printStr: " << theValue   << endl;
+  std::cout << "printStr: " << theValue   << std::endl;
 }
 
 void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
@@ -85,25 +82,25 @@ void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, in
 #endif
 }
 
-string GetUserName()
+std::string GetUserName()
 {
 #ifdef WIN32
   char*  pBuff = new char[UNLEN + 1];
   DWORD  dwSize = UNLEN + 1;
-  string retVal;
+  std::string retVal;
   GetUserName ( pBuff, &dwSize );
-  string theTmpUserName(pBuff,(int)dwSize -1 );
+  std::string theTmpUserName(pBuff,(int)dwSize -1 );
   retVal = theTmpUserName;
   delete [] pBuff;
   return retVal;
 #else
  struct passwd *infos;
  infos = getpwuid(getuid()); 
- return string(infos->pw_name);
+ return std::string(infos->pw_name);
 #endif
 }
 
-string GetNameFromPath(const string& thePath) {
+std::string GetNameFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
   int pos1 = thePath.rfind('/');
   int pos2 = thePath.rfind('\\');
@@ -112,11 +109,11 @@ string GetNameFromPath(const string& thePath) {
   return thePath;
 }
 
-string GetDirFromPath(const string& thePath) {
+std::string GetDirFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
 
   int pos = thePath.rfind('/');
-  string path;
+  std::string path;
   if(pos > 0) {
     path = thePath.substr(0, pos+1);
   }
@@ -142,7 +139,7 @@ string GetDirFromPath(const string& thePath) {
 }
 
 
-bool Exists(const string thePath) 
+bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
@@ -158,14 +155,14 @@ bool Exists(const string thePath)
 }
 
 
-string divideString(const string& theValue, int nbChars)
+std::string divideString(const std::string& theValue, int nbChars)
 {
   return theValue.substr(nbChars, theValue.size());
 }
 
-vector<string> splitString(const string& theValue, char separator)
+std::vector<std::string> splitString(const std::string& theValue, char separator)
 {
-  vector<string> vs;
+  std::vector<std::string> vs;
   if(theValue[0] == separator && theValue.size() == 1) return vs;
   int pos = theValue.find(separator);
   if(pos < 0) {
@@ -173,13 +170,13 @@ vector<string> splitString(const string& theValue, char separator)
     return vs;
   }
  
-  string s = theValue;
+  std::string s = theValue;
   if(s[0] == separator) s = s.substr(1, s.size());
   while((pos = s.find(separator)) >= 0) {
     vs.push_back(s.substr(0, pos));
     s = s.substr(pos+1, s.size());
   }
-	       
+               
   if(!s.empty() && s[0] != separator) vs.push_back(s);
   return vs;
 }
@@ -187,7 +184,7 @@ vector<string> splitString(const string& theValue, char separator)
 
 int main (int argc, char * argv[])
 {
-  cout << "Test started " << endl;
+  std::cout << "Test started " << std::endl;
   
   DF_Application* appli = new DF_Application;
   /*  
@@ -202,23 +199,23 @@ int main (int argc, char * argv[])
 
   DF_Attribute* attr = NULL;
   if(!(attr = child.FindAttribute(DF_Container::GetID()))) {
-    cout << "Attribute wasn't found" << endl;
+    std::cout << "Attribute wasn't found" << std::endl;
   }
   else {
     attr1 = dynamic_cast<DF_Container*>(attr);
-    cout << "Attribute was found " << " HasID " << attr1->HasIntID("eighteen") << " value = " << attr1->GetInt("eighteen")<< endl;
+    std::cout << "Attribute was found " << " HasID " << attr1->HasIntID("eighteen") << " value = " << attr1->GetInt("eighteen")<< std::endl;
   }
   
   DF_Container *attr2 = (DF_Container*)child.FindAttribute(DF_Container::GetID());    
 
   if(!attr2) cout << "Can't find the attribute" << endl;
 
-  cout << "Change find : " << attr2->GetInt("eighteen") << endl;
+  std::cout << "Change find : " << attr2->GetInt("eighteen") << std::endl;
 
 
-  cout << "Forgetting " << child.ForgetAttribute(DF_Container::GetID()) << endl;
+  std::cout << "Forgetting " << child.ForgetAttribute(DF_Container::GetID()) << std::endl;
    if(!child.FindAttribute(DF_Container::GetID())) {
-    cout << "Attribute wasn't found" << endl;
+    std::cout << "Attribute wasn't found" << std::endl;
   }
 
 
@@ -228,8 +225,8 @@ int main (int argc, char * argv[])
     
   child.NewChild();//0:1:4:2
 
-  cout << "Is equal " << (child == child)   << endl;
-  cout << "Is equal " << (child == root1)   << endl;
+  std::cout << "Is equal " << (child == child)   << std::endl;
+  std::cout << "Is equal " << (child == root1)   << std::endl;
 
   child = root1.NewChild(); //0:1:5
 
@@ -240,24 +237,24 @@ int main (int argc, char * argv[])
   DF_ChildIterator CI(root1.Father(), true);
   //root1.dump();
   for(; CI.More(); CI.Next()) {
-    cout << CI.Value().Entry() << endl;
+    std::cout << CI.Value().Entry() << std::endl;
     //CI.Value().dump();
   }
 
   DF_Label L = DF_Label::Label(child, "0:1:4:1");
-  cout << "Found Label " <<  L.Entry()   << endl;
+  std::cout << "Found Label " <<  L.Entry()   << std::endl;
 
   std::string s("012-56");
   
   int pos = s.find('-');
-  cout << "Fisrt part : " << s.substr(0, pos) << endl;
-  cout << "Last part : " << s.substr(pos+1, s.size()) << endl;
+  std::cout << "Fisrt part : " << s.substr(0, pos) << std::endl;
+  std::cout << "Last part : " << s.substr(pos+1, s.size()) << std::endl;
 
-  vector<string> vs = splitString("/dn20/salome/srn/salome2/", '/');
+  std::vector<std::string> vs = splitString("/dn20/salome/srn/salome2/", '/');
   for(int i = 0; i<vs.size(); i++)
-    cout << vs[i] << endl;
+    std::cout << vs[i] << std::endl;
 
-  cout << "Diveded str = " << divideString("abcdefg",3) << endl;
+  std::cout << "Diveded str = " << divideString("abcdefg",3) << std::endl;
   
   //mkdir("/dn20/salome/srn/salome2", 0x1ff);
 
@@ -275,9 +272,9 @@ int main (int argc, char * argv[])
   
   int month=0,day=0,year=0,hh=0,mn=0,ss=0;
   GetSystemDate(year, month, day, hh, mn, ss);
-  cout << "Date: " << year << " " << month << " " << day << " " << hh << " " << mn << " " << ss << endl;
+  std::cout << "Date: " << year << " " << month << " " << day << " " << hh << " " << mn << " " << ss << std::endl;
 
-  string t("absd");
+  std::string t("absd");
   t.insert(t.begin(), 'b');
   cout << "Result = " << t   << endl;
   char* cstr = (char*)t.c_str();
@@ -303,13 +300,13 @@ int main (int argc, char * argv[])
   DF_ChildIterator CI2(so5, true);
   so5.dump();
   for(; CI2.More(); CI2.Next()) {
-    cout << " ###### Found child with entry = " << CI2.Value().Entry() << endl;
+    std::cout << " ###### Found child with entry = " << CI2.Value().Entry() << std::endl;
     //CI2.Value().dump();
   }
 
   delete appli;    
 
-  cout << "Test finished " << endl;    
+  std::cout << "Test finished " << std::endl;    
   return 0;
 }
 

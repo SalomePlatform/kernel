@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOMELocalTrace : log on local machine
 #  File   : Makefile.am
 #  Author : Guillaume BOULANT (CSSI)
@@ -36,7 +37,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS= NamingServiceTest.hxx
 
 # Scripts to be installed
-dist_salomescript_SCRIPTS = TestNamingService.py
+dist_salomescript_PYTHON = TestNamingService.py
 
 
 #
@@ -54,9 +55,13 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/Basics \
 	-I$(srcdir)/$(RPATH)/SALOMELocalTrace \
 	-I$(srcdir)/$(RPATH)/Utils \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+# This local variable defines the list of dependant libraries common to all target in this package.
+COMMON_LIBS =\
+	@CPPUNIT_LIBS@ \
+	../libSalomeNS.la @CORBA_LIBS@
 
 #
 # ===============================================================
@@ -67,7 +72,7 @@ lib_LTLIBRARIES = libNamingServiceTest.la
 libNamingServiceTest_la_SOURCES = NamingServiceTest.cxx
 libNamingServiceTest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libNamingServiceTest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-libNamingServiceTest_la_LIBADD   = @CPPUNIT_LIBS@
+libNamingServiceTest_la_LIBADD   = $(COMMON_LIBS)
 
 
 #
@@ -91,4 +96,4 @@ TestNamingService_LDADD    = \
 	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	$(RPATH)/Utils/Test/libUtilsTest.la $(RPATH)/Utils/libOpUtil.la \
 	$(RPATH)/Basics/libSALOMEBasics.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la
+	$(top_builddir)/idl/libSalomeIDLKernel.la $(COMMON_LIBS)

@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // --- include all SALOMEDS Test from basics until the present directory
 //
 #include "SALOMELocalTraceTest.hxx"
@@ -52,7 +53,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 
-using namespace std;
 
 // ============================================================================
 /*!
@@ -75,10 +75,10 @@ int main(int argc, char* argv[])
   int size;
   gethostname(hostname, size);
   char* chr_port = getenv("SALOMEDS_UNITTESTS_PORT");
-  string port;
+  std::string port;
   if(chr_port) port = chr_port;
   if(port.empty()) port = "2810";
-  string cfg_file = string(getenv("HOME"))+"/.omniORB_"+string(hostname)+"_"+port+".cfg";
+  std::string cfg_file = std::string(getenv("HOME"))+"/.omniORB_"+std::string(hostname)+"_"+port+".cfg";
   setenv("OMNIORB_CONFIG", cfg_file.c_str(), 1);
 
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 
   sleep(15);
 
-  string host; // = Kernel_Utils::GetHostname();
+  std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
   if(wait_Superv) host = Kernel_Utils::GetHostname(); 
 
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   if(host.empty())
     NamingService_WaitForServerReadiness(&NS, "/myStudyManager");
   else {
-    string serverName = "/Containers/"+host+"/SuperVisionContainer";
+    std::string serverName = "/Containers/"+host+"/SuperVisionContainer";
     NamingService_WaitForServerReadiness(&NS, serverName);
   }
 
@@ -106,13 +106,13 @@ int main(int argc, char* argv[])
   }
 
   //Set up the environement for Embedded case
-  string kernel_root = getenv("KERNEL_ROOT_DIR");
+  std::string kernel_root = getenv("KERNEL_ROOT_DIR");
   CPPUNIT_ASSERT(!kernel_root.empty());
   kernel_root+="/share/salome/resources/kernel";
 
   CORBA::Object_var poaObj = orb->resolve_initial_references("RootPOA");
   if(!CORBA::is_nil(poaObj)) {
-		PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);
+                PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);
 
     SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, poa);
     // Activate the objects.  This tells the POA that the objects are ready to accept requests.

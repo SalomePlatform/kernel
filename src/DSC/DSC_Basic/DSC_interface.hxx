@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : DSC_interface.hxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
@@ -50,37 +51,37 @@ public:
    * \see Engines::DSC::add_provides_port
    */
   virtual void add_provides_port(Ports::Port_ptr ref, 
-				 const char* provides_port_name,
-				 Ports::PortProperties_ptr port_prop) 
+                                 const char* provides_port_name,
+                                 Ports::PortProperties_ptr port_prop) 
     throw (Engines::DSC::PortAlreadyDefined,
-	   Engines::DSC::NilPort,
-	   Engines::DSC::BadProperty);
+           Engines::DSC::NilPort,
+           Engines::DSC::BadProperty);
 
   /*!
    * \see Engines::DSC::add_uses_port
    */
   virtual void add_uses_port(const char* repository_id, 
-			     const char* uses_port_name,
-			     Ports::PortProperties_ptr port_prop)
+                             const char* uses_port_name,
+                             Ports::PortProperties_ptr port_prop)
     throw (Engines::DSC::PortAlreadyDefined,
-	   Engines::DSC::BadProperty);
+           Engines::DSC::BadProperty);
 
   /*!
    * \see Engines::DSC::get_provides_port
    */
   virtual Ports::Port_ptr get_provides_port(const char* provides_port_name,
-					    const CORBA::Boolean connection_error) 
+                                            const CORBA::Boolean connection_error) 
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected,
-	   Engines::DSC::BadPortType);
+           Engines::DSC::PortNotConnected,
+           Engines::DSC::BadPortType);
 
   /*!
    * \see Engines::DSC::get_uses_port
    */
   virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name)
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected,
-	   Engines::DSC::BadPortType);
+           Engines::DSC::PortNotConnected,
+           Engines::DSC::BadPortType);
 
   /*!
    * \see Engines::DSC::connect_provides_port
@@ -100,10 +101,10 @@ public:
    * port how much provides ports are connected with.
    */
   virtual void connect_uses_port(const char* uses_port_name,
-				 Ports::Port_ptr provides_port_ref) 
+                                 Ports::Port_ptr provides_port_ref) 
   throw (Engines::DSC::PortNotDefined,
-	 Engines::DSC::BadPortType,
-	 Engines::DSC::NilPort);
+         Engines::DSC::BadPortType,
+         Engines::DSC::NilPort);
 
   /*!
    * \see Engines::DSC::is_connected
@@ -120,9 +121,9 @@ public:
    * to manage connections between ports.
    */
   virtual void disconnect_provides_port(const char* provides_port_name,
-					const Engines::DSC::Message message)
+                                        const Engines::DSC::Message message)
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected);
+           Engines::DSC::PortNotConnected);
 
    /*!
    * \see Engines::DSC::disconnect_uses_port
@@ -136,17 +137,20 @@ public:
    * the sequence.
    */
   virtual void disconnect_uses_port(const char* uses_port_name,
-				    Ports::Port_ptr provides_port_ref,
-				    const Engines::DSC::Message message)
+                                    Ports::Port_ptr provides_port_ref,
+                                    const Engines::DSC::Message message)
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected,
-	   Engines::DSC::BadPortReference);
+           Engines::DSC::PortNotConnected,
+           Engines::DSC::BadPortReference);
 
   /*!
    * \see Engines::DSC::get_port_properties
    */
   virtual Ports::PortProperties_ptr get_port_properties(const char* port_name)
     throw (Engines::DSC::PortNotDefined);
+
+  static void writeEvent(const char* request,const std::string& containerName, const char* instance_name,
+                         const char* port_name, const char* error, const char* message);
 
 protected:
 

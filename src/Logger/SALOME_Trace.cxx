@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Logger : CORBA server managing trace output
 //  File   : SALOME_Logger.cxx
 //  Author : Vasily Rusyaev
@@ -30,7 +31,6 @@
 //#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-using namespace std;
 
 #ifdef WIN32
 #include <omnithread/pthread_nt.h>
@@ -51,8 +51,8 @@ SALOME_Trace::~SALOME_Trace()
 
 SALOME_Trace& SALOME_Trace::Instance()
 {
-	static SALOME_Trace instance;
-	return instance;
+        static SALOME_Trace instance;
+        return instance;
 }
 
 int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
@@ -76,15 +76,15 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 #ifndef WIN32
     if (i != 1) nanosleep(&ts_req,&ts_rem);
 #else
-	if (i != 1) Sleep(TIMESleep / 1000000);
+        if (i != 1) Sleep(TIMESleep / 1000000);
 #endif
     try{ 
       if(CORBA::is_nil(obj))
-	obj = theOrb->resolve_initial_references("RootPOA");
+        obj = theOrb->resolve_initial_references("RootPOA");
       if(CORBA::is_nil(theObj))
-	theObj = theOrb->resolve_initial_references("NameService"); 
+        theObj = theOrb->resolve_initial_references("NameService"); 
       if (!CORBA::is_nil(theObj))
-	inc = CosNaming::NamingContext::_narrow(theObj);
+        inc = CosNaming::NamingContext::_narrow(theObj);
       if (!CORBA::is_nil(inc)) break;
     } catch( CORBA::SystemException& ) {
     } catch (...) {
@@ -92,7 +92,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
   }
   
   if (CORBA::is_nil(inc)) {
-    cout<<"SALOME_Trace can not find NameService"<<endl;
+    std::cout<<"SALOME_Trace can not find NameService"<<std::endl;
     return 0;
   }
   
@@ -111,22 +111,22 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 #ifndef WIN32
       if (i != 1) nanosleep(&ts_req, &ts_rem);
 #else
-	  if (i != 1) Sleep(TIMESleep / 1000000);
+          if (i != 1) Sleep(TIMESleep / 1000000);
 #endif
       try {
-	obj = inc->resolve(name);
-	if (!CORBA::is_nil(obj)) m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
+        obj = inc->resolve(name);
+        if (!CORBA::is_nil(obj)) m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
       } catch(CosNaming::NamingContext::NotFound) {
       } catch(...) {
       }
       if (!CORBA::is_nil(m_pInterfaceLogger)) {
-	//cout<<"SALOME_Trace : Logger Server was found"<<endl;
-	m_pInterfaceLogger->ping();
-	break;
+        //cout<<"SALOME_Trace : Logger Server was found"<<endl;
+        m_pInterfaceLogger->ping();
+        break;
       }
     }
     if (CORBA::is_nil(m_pInterfaceLogger)) {
-      cout<<"SALOME_Trace can not find Logger"<<endl;
+      std::cout<<"SALOME_Trace can not find Logger"<<std::endl;
       return 0;
     }
   }
@@ -134,24 +134,24 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
   return 1;
 }
 
-void SALOME_Trace::putMessage(ostream& msg)
+void SALOME_Trace::putMessage(std::ostream& msg)
 {
-  //if (!isInitialized) cout<<"!!! SALOME_Trace is used without initialising !!!"<<endl;
+  //if (!isInitialized) std::cout<<"!!! SALOME_Trace is used without initialising !!!"<<std::endl;
   //write resulting string into Logger CORBA server
   //concatenate string from passing parameters for transfering into Logger CORBA server
 
-  //cerr << "-+- " << msg << " ";
+  //std::cerr << "-+- " << msg << " ";
 
   //   CORBA::String_var LogMsg = CORBA::string_dup( str() );
   //Allow automatic deletion of ostrstream content 
-  char* adt = str();
+  const char* adt = str().c_str();
   CORBA::String_var LogMsg = CORBA::string_dup( adt );
-  rdbuf()->freeze(false);
+  //rdbuf()->freeze(false);
   //rdbuf()->sync(); // problem with gcc3.2
   seekp(0);
 
   if (CORBA::is_nil(m_pInterfaceLogger))
-    cout << LogMsg;
+    std::cout << LogMsg;
   else
     m_pInterfaceLogger-> putMessage (LogMsg) ;
 }

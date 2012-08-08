@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef _SALOME_COMM_I_HXX_
 #define _SALOME_COMM_I_HXX_
 
@@ -63,7 +64,7 @@ public:
 };
 
 class COMMUNICATION_EXPORT SALOME_SenderDouble_i : public virtual POA_SALOME::SenderDouble,
-			      public virtual SALOME_Sender_i
+                              public virtual SALOME_Sender_i
 {
 public:
   SALOME_SenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
@@ -74,7 +75,7 @@ public:
 };
 
 class COMMUNICATION_EXPORT SALOME_SenderInt_i : public virtual POA_SALOME::SenderInt,
-			   public virtual SALOME_Sender_i
+                           public virtual SALOME_Sender_i
 {
 public:
   SALOME_SenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
@@ -87,7 +88,7 @@ public:
 /*! Servant class for CORBA sender for double* when no copy of array _tabToSend is required, that is to say double and CORBA::Double are binary equal.
  */
 class COMMUNICATION_EXPORT SALOME_CorbaDoubleNCSender_i : public POA_SALOME::CorbaDoubleNCSender,
-				     public SALOME_SenderDouble_i
+                                     public SALOME_SenderDouble_i
 {
 public:
   SALOME_CorbaDoubleNCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
@@ -100,7 +101,7 @@ public:
 /*! Servant class for CORBA sender for double* when copy of array _tabToSend is required, that is to say double and CORBA::Double are NOT binary equal.
  */
 class COMMUNICATION_EXPORT SALOME_CorbaDoubleCSender_i : public POA_SALOME::CorbaDoubleCSender,
-				    public SALOME_SenderDouble_i
+                                    public SALOME_SenderDouble_i
 {
 public:
   SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
@@ -112,7 +113,7 @@ public:
 /*! Servant class for CORBA sender for int* when no copy of array _tabToSend is required, that is to say int and CORBA::Long are binary equal.
  */
 class COMMUNICATION_EXPORT SALOME_CorbaLongNCSender_i : public POA_SALOME::CorbaLongNCSender,
-				   public SALOME_SenderInt_i
+                                   public SALOME_SenderInt_i
 {
 public:
   SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
@@ -125,16 +126,13 @@ public:
 /*! Servant class for CORBA sender for int* when copy of array _tabToSend is required, that is to say int and CORBA::Long are NOT binary equal.
  */
 class COMMUNICATION_EXPORT SALOME_CorbaLongCSender_i : public POA_SALOME::CorbaLongCSender,
-				  public SALOME_SenderInt_i
+                                  public SALOME_SenderInt_i
 {
 public:
   SALOME_CorbaLongCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
   ~SALOME_CorbaLongCSender_i();
   CORBA::ULong getSize();
   SALOME::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
-#ifndef WIN32
-  SALOME::CorbaLongCSender_ptr _this();
-#endif
 };
 
 #ifdef HAVE_MPI2
@@ -142,7 +140,7 @@ public:
 /*! Servant class of sender using MPI2.
  */
 class COMMUNICATION_EXPORT SALOME_MPISender_i : public virtual POA_SALOME::MPISender,
-			   public virtual SALOME_Sender_i
+                           public virtual SALOME_Sender_i
 {
 private:
   static unsigned long _tag1;
@@ -173,16 +171,16 @@ private:
 };
 
 class COMMUNICATION_EXPORT SALOME_MPISenderDouble_i : public POA_SALOME::MPISenderDouble,
-				 public SALOME_SenderDouble_i,
-				 public SALOME_MPISender_i
+                                 public SALOME_SenderDouble_i,
+                                 public SALOME_MPISender_i
 {
 public:
   SALOME_MPISenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
 };
 
 class COMMUNICATION_EXPORT SALOME_MPISenderInt_i : public POA_SALOME::MPISenderInt,
-			      public SALOME_SenderInt_i,
-			      public SALOME_MPISender_i
+                              public SALOME_SenderInt_i,
+                              public SALOME_MPISender_i
 {
 public:
   SALOME_MPISenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
@@ -195,7 +193,7 @@ public:
 /*! Servant class of sender using Sockets.
  */
 class COMMUNICATION_EXPORT SALOME_SocketSender_i : public virtual POA_SALOME::SocketSender,
-			      public virtual SALOME_Sender_i
+                              public virtual SALOME_Sender_i
 {
 private:
   int _serverSockfd;
@@ -222,16 +220,16 @@ private:
 };
 
 class COMMUNICATION_EXPORT SALOME_SocketSenderDouble_i : public POA_SALOME::SocketSenderDouble,
-				    public SALOME_SenderDouble_i,
-				    public SALOME_SocketSender_i
+                                    public SALOME_SenderDouble_i,
+                                    public SALOME_SocketSender_i
 {
 public:
   SALOME_SocketSenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
 };
 
 class COMMUNICATION_EXPORT SALOME_SocketSenderInt_i : public POA_SALOME::SocketSenderInt,
-				 public SALOME_SenderInt_i,
-				 public SALOME_SocketSender_i
+                                 public SALOME_SenderInt_i,
+                                 public SALOME_SocketSender_i
 {
 public:
   SALOME_SocketSenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);

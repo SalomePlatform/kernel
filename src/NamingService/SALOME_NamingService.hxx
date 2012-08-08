@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME NamingService : wrapping NamingService services
 //  File   : SALOME_NamingService.hxx
 //  Author : Estelle Deville
@@ -40,6 +41,10 @@
 
 #include "SALOME_NamingService_defs.hxx"
 
+#ifdef WNT
+#pragma warning(disable:4290) // Warning Exception ...
+#endif
+
 class NAMINGSERVICE_EXPORT SALOME_NamingService
 {
 public:
@@ -48,26 +53,32 @@ public:
 
   virtual ~SALOME_NamingService();
 
-  void init_orb(CORBA::ORB_ptr orb);
+  void init_orb(CORBA::ORB_ptr orb=0);
   void Register(CORBA::Object_ptr ObjRef,
-		const char* Path) 
+                const char* Path) 
     throw(ServiceUnreachable);
   CORBA::Object_ptr Resolve(const char* Path)
     throw( ServiceUnreachable); 
   CORBA::Object_ptr ResolveFirst(const char* Path)
     throw( ServiceUnreachable); 
   CORBA::Object_ptr ResolveComponent(const char* hostname,
-				     const char* containerName,
-				     const char* componentName,
-				     const int nbproc=0)
+                                     const char* containerName,
+                                     const char* componentName,
+                                     const int nbproc=0)
     throw(ServiceUnreachable);
   std::string ContainerName(const char *ContainerName);
-  std::string ContainerName(const Engines::MachineParameters& params);
+  std::string ContainerName(const Engines::ContainerParameters& params);
   std::string BuildContainerNameForNS(const char *ContainerName,
-				      const char *hostname);
+                                      const char *hostname);
+  std::string 
+  BuildContainerNameForNS(const Engines::ContainerParameters& params,
+                          const char *hostname);
+
+  // Will Be deleted on SALOME 6
+  std::string ContainerName(const Engines::MachineParameters& params);
   std::string 
   BuildContainerNameForNS(const Engines::MachineParameters& params,
-			  const char *hostname);
+                          const char *hostname);
   int Find(const char* name)
     throw(ServiceUnreachable);
   bool Create_Directory(const char* Path)
@@ -91,25 +102,26 @@ public:
   virtual void Destroy_FullDirectory(const char* Path)
     throw(ServiceUnreachable);
   char* getIORaddr();
+  CORBA::ORB_ptr orb();
 
 protected:
   Utils_Mutex _myMutex;
-  CORBA::ORB_ptr _orb;
+  CORBA::ORB_var _orb;
   CosNaming::NamingContext_var _root_context, _current_context;
 
   void _initialize_root_context();
   int _createContextNameDir(std::string path,
-			    CosNaming::Name& context_name,
-			    std::vector<std::string>& splitPath,
-			    bool onlyDir);
+                            CosNaming::Name& context_name,
+                            std::vector<std::string>& splitPath,
+                            bool onlyDir);
   void _Find(const char* name, CORBA::Long& occurence_number);
   void _current_directory(std::vector<std::string>& splitPath,
-			  int& lengthResult,
-			  CosNaming::NamingContext_var contextToFind,
-			  bool& notFound);
+                          int& lengthResult,
+                          CosNaming::NamingContext_var contextToFind,
+                          bool& notFound);
   void _list_directory_recurs(std::vector<std::string>& myList,
-			      std::string relativeSubDir,
-			      std::string absCurDirectory);
+                              std::string relativeSubDir,
+                              std::string absCurDirectory);
 
 };
 

@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 //  File   : test3.cxx
 //  Module : SALOME
@@ -26,7 +27,6 @@
 #include <iostream.h>
 #include "HDFOI.hxx"
 #include <stdlib.h>
-using namespace std;
 
 
 int main()
@@ -122,52 +122,52 @@ int main()
 
       MESSAGE( ">> File Exploration " );
       for (explorer->Init();explorer->More();explorer->Next())
-	{
-	  object = explorer->Value();
-	  MESSAGE( "--> Name of the object : " << object->GetName() );
-	  switch (object->GetObjectType())
-	    {
-	    case HDF_FILE :
-	      MESSAGE( "--> Type of the object : HDF_FILE : " );
-	      break;
+        {
+          object = explorer->Value();
+          MESSAGE( "--> Name of the object : " << object->GetName() );
+          switch (object->GetObjectType())
+            {
+            case HDF_FILE :
+              MESSAGE( "--> Type of the object : HDF_FILE : " );
+              break;
 
-	    case HDF_GROUP :
-	      MESSAGE( "--> Type of the object : HDF_GROUP : " );
-	      break;
+            case HDF_GROUP :
+              MESSAGE( "--> Type of the object : HDF_GROUP : " );
+              break;
 
-	    case HDF_DATASET :
-	      MESSAGE( "--> Type of the object : HDF_DATASET : " );
-	      break;
+            case HDF_DATASET :
+              MESSAGE( "--> Type of the object : HDF_DATASET : " );
+              break;
 
-	    default :
-	      MESSAGE( "--> PANIC !!! : " ); 
-	    }
-	}
+            default :
+              MESSAGE( "--> PANIC !!! : " ); 
+            }
+        }
       
       MESSAGE( ">> Group exploration" );
       explorer->Reset(hdf_group); 
       for (explorer->Init();explorer->More();explorer->Next())
-	{
-	  object = explorer->Value();
-	  MESSAGE( "--> Name of the object : " << object->GetName() );
-	  switch (object->GetObjectType())
-	    {
-	    case HDF_FILE :
-	      MESSAGE( "--> Type of the object : HDF_FILE : " );
-	      break;
+        {
+          object = explorer->Value();
+          MESSAGE( "--> Name of the object : " << object->GetName() );
+          switch (object->GetObjectType())
+            {
+            case HDF_FILE :
+              MESSAGE( "--> Type of the object : HDF_FILE : " );
+              break;
 
-	    case HDF_GROUP :
-	      MESSAGE( "--> Type of the object : HDF_GROUP : " );
-	      break;
+            case HDF_GROUP :
+              MESSAGE( "--> Type of the object : HDF_GROUP : " );
+              break;
 
-	    case HDF_DATASET :
-	      MESSAGE( "--> Type of the object : HDF_DATASET : " );
-	      break;
+            case HDF_DATASET :
+              MESSAGE( "--> Type of the object : HDF_DATASET : " );
+              break;
 
-	    default :
-	      MESSAGE( "--> !!! PANIC !!! : " );
-	    }
-	}      
+            default :
+              MESSAGE( "--> !!! PANIC !!! : " );
+            }
+        }      
       
       // memory clean
       MESSAGE( ">> MEMORY CLEAN " );

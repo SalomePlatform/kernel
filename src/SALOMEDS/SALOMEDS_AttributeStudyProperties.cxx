@@ -1,32 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeStudyProperties.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDS_AttributeStudyProperties.hxx"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 SALOMEDS_AttributeStudyProperties::SALOMEDS_AttributeStudyProperties
                                    (SALOMEDSImpl_AttributeStudyProperties* theAttr)
@@ -51,7 +50,7 @@ void SALOMEDS_AttributeStudyProperties::SetUserName(const std::string& theName)
       dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     anImpl->ChangeCreatorName(theName);
   } else
-    SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetUserName(theName.c_str());
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetUserName(theName.c_str());
 }
 
 std::string SALOMEDS_AttributeStudyProperties::GetUserName()
@@ -62,9 +61,9 @@ std::string SALOMEDS_AttributeStudyProperties::GetUserName()
     aName = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetCreatorName();
   }
 #ifndef WIN32
-  else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserName();
+  else aName = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUserName();
 #else
-  else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserNameA();
+  else aName = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUserNameA();
 #endif
   return aName;
 }
@@ -79,22 +78,22 @@ void SALOMEDS_AttributeStudyProperties::SetCreationDate
       dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     int aTmp;
     if (anImpl->GetCreationDate(aTmp, aTmp, aTmp, aTmp, aTmp)) return;
-    string S;
+    std::string S;
     anImpl->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
   } else {
-    SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetCreationDate(theMinute,
-									      theHour,
-									      theDay,
-									      theMonth,
-									      theYear);
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetCreationDate(theMinute,
+                                                                              theHour,
+                                                                              theDay,
+                                                                              theMonth,
+                                                                              theYear);
   }
 }
 
 bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
-							int& theHour,
-							int& theDay,
-							int& theMonth,
-							int& theYear)
+                                                        int& theHour,
+                                                        int& theDay,
+                                                        int& theMonth,
+                                                        int& theYear)
 {
   bool ret;
   if (_isLocal) {
@@ -103,11 +102,11 @@ bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
       (_local_impl)->GetCreationDate(theMinute, theHour, theDay, theMonth, theYear);
   } else {
     CORBA::Long aMinute, anHour, aDay, aMonth, anYear;
-    ret = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetCreationDate(aMinute,
-										    anHour,
-										    aDay,
-										    aMonth,
-										    anYear);
+    ret = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetCreationDate(aMinute,
+                                                                                    anHour,
+                                                                                    aDay,
+                                                                                    aMonth,
+                                                                                    anYear);
     theMinute = (int)aMinute;
     theHour = (int)anHour;
     theDay = (int)aDay;
@@ -129,7 +128,7 @@ void SALOMEDS_AttributeStudyProperties::SetCreationMode(const std::string& theMo
     else //Not defined
       dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->SetCreationMode(0);
   }
-  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetCreationMode(theMode.c_str());
+  else ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetCreationMode(theMode.c_str());
 }
 
 std::string SALOMEDS_AttributeStudyProperties::GetCreationMode()
@@ -142,7 +141,7 @@ std::string SALOMEDS_AttributeStudyProperties::GetCreationMode()
     if (mode == 2) aMode = "copy from";
   }
   else
-    aMode = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetCreationMode();
+    aMode = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetCreationMode();
   return aMode;
 }
 
@@ -153,7 +152,7 @@ void SALOMEDS_AttributeStudyProperties::SetModified(int theModified)
     dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->SetModified(theModified);
   }
   else
-    SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetModified(theModified);
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetModified(theModified);
 }
 
 bool SALOMEDS_AttributeStudyProperties::IsModified()
@@ -164,7 +163,7 @@ bool SALOMEDS_AttributeStudyProperties::IsModified()
     ret = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->IsModified();
   }
   else
-    ret = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->IsModified();
+    ret = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->IsModified();
   return ret;
 }
 
@@ -176,7 +175,7 @@ int SALOMEDS_AttributeStudyProperties::GetModified()
     isModified = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetModified();
   }
   else
-    isModified = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetModified();
+    isModified = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetModified();
   return isModified;
 }
 
@@ -187,7 +186,7 @@ void SALOMEDS_AttributeStudyProperties::SetLocked(bool theLocked)
     dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->SetLocked(theLocked);
   }
   else
-    SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetLocked(theLocked);
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetLocked(theLocked);
 }
 
 bool SALOMEDS_AttributeStudyProperties::IsLocked()
@@ -198,16 +197,16 @@ bool SALOMEDS_AttributeStudyProperties::IsLocked()
     ret = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->IsLocked();
   }
   else
-    ret = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->IsLocked();
+    ret = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->IsLocked();
   return ret;
 }
 
 void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theName,
-							int theMinute,
-							int theHour,
-							int theDay,
-							int theMonth,
-							int theYear)
+                                                        int theMinute,
+                                                        int theHour,
+                                                        int theDay,
+                                                        int theMonth,
+                                                        int theYear)
 {
   if (_isLocal) {
     CheckLocked();
@@ -215,7 +214,7 @@ void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theNa
     SALOMEDSImpl_AttributeStudyProperties* anImpl = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     anImpl->SetModification(theName, theMinute, theHour, theDay, theMonth, theYear);
   } else
-    SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetModification(theName.c_str(),
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetModification(theName.c_str(),
                                                                               theMinute,
                                                                               theHour,
                                                                               theDay,
@@ -224,19 +223,19 @@ void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theNa
 }
 
 void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::string>& theNames,
-							     std::vector<int>& theMinutes,
-							     std::vector<int>& theHours,
-							     std::vector<int>& theDays,
-							     std::vector<int>& theMonths,
-							     std::vector<int>& theYears,
-							     bool theWithCreator)
+                                                             std::vector<int>& theMinutes,
+                                                             std::vector<int>& theHours,
+                                                             std::vector<int>& theDays,
+                                                             std::vector<int>& theMonths,
+                                                             std::vector<int>& theYears,
+                                                             bool theWithCreator)
 {
   int i, aLength;
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<string> aNames;
-    vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+    std::vector<std::string> aNames;
+    std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
     SALOMEDSImpl_AttributeStudyProperties* anImpl = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     anImpl->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
     aLength = aNames.size();
@@ -252,13 +251,13 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
   } else {
     SALOMEDS::StringSeq_var aNames;
     SALOMEDS::LongSeq_var aMinutes, aHours, aDays, aMonths, aYears;
-    SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetModificationsList(aNames.out(),
-										   aMinutes.out(),
-										   aHours.out(),
-										   aDays.out(),
-										   aMonths.out(),
-										   aYears.out(),
-										   theWithCreator);
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetModificationsList(aNames.out(),
+                                                                                   aMinutes.out(),
+                                                                                   aHours.out(),
+                                                                                   aDays.out(),
+                                                                                   aMonths.out(),
+                                                                                   aYears.out(),
+                                                                                   theWithCreator);
     aLength = aNames->length();
     for (i = 0; i<aLength; i++) {
       theNames.push_back(aNames[i].in());
@@ -269,4 +268,54 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
       theYears.push_back(aYears[i]);
     }
   }
+}
+
+
+void SALOMEDS_AttributeStudyProperties::SetComment(const std::string& theComment)
+{
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    SALOMEDSImpl_AttributeStudyProperties* anImpl =
+      dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
+    anImpl->SetComment(theComment);
+  } else
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetComment(theComment.c_str());
+}
+
+std::string SALOMEDS_AttributeStudyProperties::GetComment()
+{
+  std::string aComment;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aComment = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetComment();
+  }
+  else 
+    aComment = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetComment();
+  return aComment;
+}
+
+
+void SALOMEDS_AttributeStudyProperties::SetUnits(const std::string& theUnits)
+{
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    SALOMEDSImpl_AttributeStudyProperties* anImpl =
+      dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
+    anImpl->SetUnits(theUnits);
+  } else
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetUnits(theUnits.c_str());
+}
+
+std::string SALOMEDS_AttributeStudyProperties::GetUnits()
+{
+  std::string anUnits;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    anUnits = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetUnits();
+  }
+  else 
+    anUnits = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUnits();
+  return anUnits;
 }

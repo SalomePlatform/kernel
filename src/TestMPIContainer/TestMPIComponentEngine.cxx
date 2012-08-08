@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //=============================================================================
 // File      : TestMPIComponentEngine.cxx
 // Created   : mer jui 4 12:28:26 CEST 2003
@@ -30,23 +31,21 @@
 #include <mpi.h>
 #include "utilities.h"
 #include "TestMPIComponentEngine.hxx"
-using namespace std;
 
-TestMPIComponentEngine::TestMPIComponentEngine(int nbproc, int numproc,
-					       CORBA::ORB_ptr orb,
-					       PortableServer::POA_ptr poa,
-					       PortableServer::ObjectId * contId, 
-					       const char *instanceName, 
-					       const char *interfaceName,
-					       bool regist) :
-  Engines_Component_i(orb, poa, contId, instanceName, interfaceName,true,regist), MPIObject_i(nbproc,numproc)
+TestMPIComponentEngine::TestMPIComponentEngine(CORBA::ORB_ptr orb,
+                                               PortableServer::POA_ptr poa,
+                                               PortableServer::ObjectId * contId, 
+                                               const char *instanceName, 
+                                               const char *interfaceName,
+                                               bool regist) :
+  Engines_Component_i(orb, poa, contId, instanceName, interfaceName,true,regist)
 {
   MESSAGE("activate object")
   _thisObj = this ;
   _id = _poa->reference_to_id(_thisObj->_this());
 }
 
-TestMPIComponentEngine::TestMPIComponentEngine(): Engines_Component_i(), MPIObject_i()
+TestMPIComponentEngine::TestMPIComponentEngine()
 {
 }
 
@@ -73,24 +72,26 @@ void TestMPIComponentEngine::SPCoucou(CORBA::Long L)
 extern "C"
 {
   PortableServer::ObjectId * TestMPIComponentEngine_factory(
-				 int nbproc, int numproc,
-				 CORBA::ORB_ptr orb,
-				 PortableServer::POA_ptr poa, 
-				 PortableServer::ObjectId * contId,
-				 const char *instanceName, 
-				 const char *interfaceName)
+                                 CORBA::ORB_ptr orb,
+                                 PortableServer::POA_ptr poa, 
+                                 PortableServer::ObjectId * contId,
+                                 const char *instanceName, 
+                                 const char *interfaceName)
   {
+    int numproc;
     bool regist;
     TestMPIComponentEngine * myTestMPIComponent;
+
     MESSAGE("[" << numproc << "] PortableServer::ObjectId * TestMPIComponentEngine_factory()");
     SCRUTE(interfaceName);
+    MPI_Comm_rank( MPI_COMM_WORLD, &numproc );
     if(numproc==0)
       regist = true;
     else
       regist = false;
 
     myTestMPIComponent 
-      = new TestMPIComponentEngine(nbproc,numproc,orb, poa, contId, instanceName, interfaceName,regist);
+      = new TestMPIComponentEngine(orb, poa, contId, instanceName, interfaceName,regist);
     return myTestMPIComponent->getId() ;
   }
 }

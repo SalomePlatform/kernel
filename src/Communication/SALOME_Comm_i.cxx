@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOME_Comm_i.hxx"
 #ifndef WIN32
 #include <rpc/xdr.h>
@@ -30,7 +31,6 @@
 #include "utilities.h"
 
 #include "SenderFactory.hxx"
-using namespace std;
 
 #ifndef WIN32
 CORBA::ORB_var &getGlobalORB(){
@@ -240,7 +240,7 @@ SALOME_MPISender_i::~SALOME_MPISender_i(){
 SALOME::MPISender::param* SALOME_MPISender_i::getParam()
 {
   char stag[12];
-  int myproc,i=0;
+  int i=0;
 
   SALOME::MPISender::param_var p = new SALOME::MPISender::param;
   MPI_Comm_rank(MPI_COMM_WORLD,&_cproc);
@@ -315,7 +315,6 @@ void* SALOME_MPISender_i::myThread(void *args)
 void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
 {
   std::string service(p.service);
-  const char *st=p.service;
   void *r;
   _newThr->join(&r);
   MPI_Comm_free(&_com); 
@@ -378,7 +377,7 @@ std::string SALOME_SocketSender_i::inetAddress()
       host = gethostbyname(s);
       if (host != NULL)
          inet_ntop(AF_INET, (struct in_addr *) *host->h_addr_list, 
-		   t, INET_ADDRSTRLEN);
+                   t, INET_ADDRSTRLEN);
    }
    return std::string(t);
 }
@@ -432,19 +431,19 @@ void* SALOME_SocketSender_i::myThread(void *args)
 
       *errorFlag = false;
       while( n < *lgrTabToSend*sizeof(double) ){
-	m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(double)-n);
-	if( m < 0 ){
-	  if( *clientSockfd >= 0 ){
-	    ::close(*clientSockfd);
-	    *clientSockfd = -1;
-	  }
-	  if( *serverSockfd >= 0 ){
-	    ::close(*serverSockfd);
-	    *serverSockfd = -1;
-	  }
-	  *errorFlag = true;
-	}
-	n += m;
+        m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(double)-n);
+        if( m < 0 ){
+          if( *clientSockfd >= 0 ){
+            ::close(*clientSockfd);
+            *clientSockfd = -1;
+          }
+          if( *serverSockfd >= 0 ){
+            ::close(*serverSockfd);
+            *serverSockfd = -1;
+          }
+          *errorFlag = true;
+        }
+        n += m;
       }
       xdr_destroy( &xp );
 
@@ -458,19 +457,19 @@ void* SALOME_SocketSender_i::myThread(void *args)
 
       *errorFlag = false;
       while( n < *lgrTabToSend*sizeof(int) ){
-	m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(int)-n);
-	if( m < 0 ){
-	  if( *clientSockfd >= 0 ){
-	    ::close(*clientSockfd);
-	    *clientSockfd = -1;
-	  }
-	  if( *serverSockfd >= 0 ){
-	    ::close(*serverSockfd);
-	    *serverSockfd = -1;
-	  }
-	  *errorFlag = true;
-	}
-	n += m;
+        m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(int)-n);
+        if( m < 0 ){
+          if( *clientSockfd >= 0 ){
+            ::close(*clientSockfd);
+            *clientSockfd = -1;
+          }
+          if( *serverSockfd >= 0 ){
+            ::close(*serverSockfd);
+            *serverSockfd = -1;
+          }
+          *errorFlag = true;
+        }
+        n += m;
       }
       xdr_destroy( &xp );
 
@@ -502,7 +501,7 @@ void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)
 
   /* Association of socket with a port */
   if( ::bind(_serverSockfd, (struct sockaddr *) & serv_addr, 
-	   sizeof(struct sockaddr)) < 0 ) {
+           sizeof(struct sockaddr)) < 0 ) {
     closeCom();
     es.type = SALOME::COMM;
     es.text = "error bind Socket exception";

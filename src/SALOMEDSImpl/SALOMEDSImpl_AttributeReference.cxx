@@ -1,31 +1,30 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeReference.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeReference.hxx"
-
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -38,7 +37,7 @@ const std::string& SALOMEDSImpl_AttributeReference::GetID ()
 } 
 
 SALOMEDSImpl_AttributeReference* SALOMEDSImpl_AttributeReference::Set(const DF_Label& theLabel, 
-								      const DF_Label& theRefLabel)
+                                                                      const DF_Label& theRefLabel)
 {
   SALOMEDSImpl_AttributeReference* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeReference*)theLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
@@ -73,12 +72,12 @@ void SALOMEDSImpl_AttributeReference::Set(const DF_Label& Origin)
 const std::string& SALOMEDSImpl_AttributeReference::ID () const { return GetID(); } 
 
 
-string SALOMEDSImpl_AttributeReference::Save() 
+std::string SALOMEDSImpl_AttributeReference::Save() 
 {
   return myLabel.Entry();
 }
 
-void SALOMEDSImpl_AttributeReference::Load(const string& value) 
+void SALOMEDSImpl_AttributeReference::Load(const std::string& value) 
 {
   myLabel = DF_Label::Label(Label(), value, true);
 }

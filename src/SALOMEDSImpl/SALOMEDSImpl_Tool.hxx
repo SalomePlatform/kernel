@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File      : SALOMEDSImpl_Tool.hxx
 //  Created   : Mon Oct 21 16:24:50 2002
 //  Author    : Sergey RUIN
@@ -47,8 +48,8 @@ public:
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
   static void RemoveTemporaryFiles(const std::string& theDirectory,
-				   const std::vector<std::string>& theFiles,
-				   const bool IsDirDeleted);
+                                   const std::vector<std::string>& theFiles,
+                                   const bool IsDirDeleted);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"
@@ -68,8 +69,8 @@ public:
   //The functions returns a list of substring of initial string divided by given separator, 
   //include empty strings
   static std::vector< std::vector<std::string> > splitStringWithEmpty(const std::string& theValue,
-								      char separator1,
-								      char separator2);
+                                                                      char separator1,
+                                                                      char separator2);
   
 
   //Returns a system date  

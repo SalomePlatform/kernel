@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : Superv_Component_i.hxx
 //  Author : André RIBES (EDF), Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -35,6 +36,7 @@
 #include "DSC_Exception.hxx"
 #include <vector>
 
+//#define MYDEBUG
 
 /*! \class Superv_Component_i
  *  \brief This class implements DSC_User component.
@@ -43,7 +45,7 @@
  *  a programming level for service's developpers who want to use DSC ports.
  *
  *  This class has two level for using and declare ports. The higher level proposes
- *  operations to add ports that are provided by default by Salomé like Calcium ports.
+ *  operations to add ports that are provided by default by SALOME like Calcium ports.
  *  It provides too some methods to add their own DSC_User ports.
  *
  *  \note This class doesn't implement the init_service CORBA operation.
@@ -54,17 +56,17 @@ class Superv_Component_i :
 {
 public:
   Superv_Component_i(CORBA::ORB_ptr orb,
-		     PortableServer::POA_ptr poa,
-		     PortableServer::ObjectId * contId,
-		     const char *instanceName,
-		     const char *interfaceName,
-		     bool notif = false);
+                     PortableServer::POA_ptr poa,
+                     PortableServer::ObjectId * contId,
+                     const char *instanceName,
+                     const char *interfaceName,
+                     bool notif = false);
   Superv_Component_i(CORBA::ORB_ptr orb,
-		     PortableServer::POA_ptr poa,
-		     Engines::Container_ptr container, 
-		     const char *instanceName,
-		     const char *interfaceName,
-		     bool notif = false,
+                     PortableServer::POA_ptr poa,
+                     Engines::Container_ptr container, 
+                     const char *instanceName,
+                     const char *interfaceName,
+                     bool notif = false,
          bool regist = true );
   virtual ~Superv_Component_i();
 
@@ -141,8 +143,8 @@ public:
    * \param port_name the name of the port in the component.
    */
   virtual void add_port(const char * port_fab_type,
-			const char * port_type,
-			const char * port_name)
+                        const char * port_type,
+                        const char * port_name)
     throw (PortAlreadyDefined, BadFabType, BadType, BadProperty);
 
   /*!
@@ -156,8 +158,8 @@ public:
    */
   template < typename SpecificPortType >  
   SpecificPortType * add_port(const char * port_fab_type,
-			      const char * port_type,
-			      const char * port_name)
+                              const char * port_type,
+                              const char * port_name)
     throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty);
 
   /*!
@@ -167,7 +169,7 @@ public:
    * \param provides_port_name the name of the port in the component.
    */
   virtual void add_port(provides_port * port, 
-			const char* provides_port_name)
+                        const char* provides_port_name)
     throw (PortAlreadyDefined, NilPort, BadProperty);
 
   /*!
@@ -177,7 +179,7 @@ public:
    * \param uses_port_name the name of the port in the component.
    */
   virtual void add_port(uses_port * port, 
-			const char* uses_port_name)
+                        const char* uses_port_name)
     throw (PortAlreadyDefined, NilPort, BadProperty);
 
   /*!
@@ -187,7 +189,7 @@ public:
    * \param provides_port_name the name of the port.
    */
   virtual void get_port(provides_port *& port, 
-			const char* provides_port_name)
+                        const char* provides_port_name)
     throw (PortNotDefined, PortNotConnected);
   
   /*!
@@ -197,7 +199,7 @@ public:
    * \param uses_port_name the name of the port.
    */
   virtual void get_port(uses_port *& port, 
-			const char* uses_port_name)
+                        const char* uses_port_name)
     throw (PortNotDefined, PortNotConnected);
 
   /*!
@@ -209,7 +211,7 @@ public:
    * \param servicename service's name.
    */
   virtual void get_uses_port_names(std::vector<std::string> & port_names,
-				   const std::string servicename="") const;
+                                   const std::string servicename="") const;
 
   /*!
    * Gets a port already added in the component.
@@ -225,15 +227,15 @@ public:
    * \see DSC_Callbacks::provides_port_changed
    */
   virtual void provides_port_changed(const char* provides_port_name,
-				     int connection_nbr,
-				     const Engines::DSC::Message message);
+                                     int connection_nbr,
+                                     const Engines::DSC::Message message);
 
   /*!
    * \see DSC_Callbacks::uses_port_changed
    */
   virtual void uses_port_changed(const char* uses_port_name,
-				 Engines::DSC::uses_port * new_uses_port,
-				 const Engines::DSC::Message message);
+                                 Engines::DSC::uses_port * new_uses_port,
+                                 const Engines::DSC::Message message);
 
 
   /*!
@@ -245,7 +247,7 @@ public:
    * \param factory_ptr factory pointer (destroyed by the component)
    */
   static void register_factory(const std::string & factory_name,
-				port_factory * factory_ptr);
+                                port_factory * factory_ptr);
 
   /*!
    * Get a factory from the component. 
@@ -255,7 +257,22 @@ public:
    */
   virtual port_factory * get_factory(const std::string & factory_name);
 
-private:   
+  /*!
+   */
+  static long dscTimeOut;
+  static void setTimeOut();
+  void beginService(const char *serviceName);
+
+
+  // This method is implemented by default since it is a very specific usage.
+  // It also permits to not break compatibility with older components.
+  virtual CORBA::Boolean init_service_with_multiple(const char* service_name,
+                                                    const Engines::Superv_Component::seq_multiple_param & params)
+  {
+    return true;
+  }
+
+private:
   // Factory map
   typedef std::map<std::string, port_factory*> factory_map_t;
   static factory_map_t _factory_map;
@@ -267,7 +284,18 @@ private:
     ~superv_port_t()
     {
       if(u_ref)delete u_ref;
-      if(p_ref)delete p_ref;
+      if(p_ref)
+        {
+          // do not delete CORBA servant : deactivate it and then call _remove_ref or delete
+          PortableServer::ServantBase* servant=dynamic_cast<PortableServer::ServantBase*>(p_ref);
+          if(servant)
+            {
+              PortableServer::POA_var poa =servant->_default_POA();
+              PortableServer::ObjectId_var oid = poa->servant_to_id(servant);
+              poa->deactivate_object(oid);
+              servant->_remove_ref();
+            }
+        }
     };
     // For uses ports.
     uses_port * u_ref;
@@ -288,8 +316,8 @@ private:
 
 template < typename SpecificPortType >  SpecificPortType * 
 Superv_Component_i::add_port(const char * port_fab_type,
-			     const char * port_type,
-			     const char * port_name)
+                             const char * port_type,
+                             const char * port_name)
   throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty)
 {
   assert(port_fab_type);
@@ -297,7 +325,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
   assert(port_name);
   SpecificPortType * retPort; 
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
   std::cout << "---- Superv_Component_i::add_port :  Mark 0 ----  " << port_name << "----" << std::endl;
 #endif
     
@@ -307,27 +335,27 @@ Superv_Component_i::add_port(const char * port_fab_type,
     add_port(port, port_name);
     retPort = dynamic_cast<SpecificPortType *>(port);
     if ( retPort == NULL ) { delete port;  
-      throw BadCast( LOC("La conversion vers le type de port demandé n'est pas possible " ));
+      throw BadCast( LOC("Can't cast to asked port type " ));
     }
   }
   else if (s_port_type == "uses") {
     uses_port * port = create_uses_data_port(port_fab_type);
     add_port(port, port_name);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "---- Superv_Component_i::add_port :  Mark 1 ----  " << port << "----" << std::endl;
     std::cout << "---- Superv_Component_i::add_port :  Mark 1 ----   get_repository_id()" << port->get_repository_id() << std::endl;
 #endif
     retPort = dynamic_cast<SpecificPortType *>(port);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "---- Superv_Component_i::add_port :  Mark 2 ----  " << retPort << "----" << std::endl;
 #endif
     if ( retPort == NULL ) { delete port;  
-      throw BadCast( LOC("La conversion vers le type de port demandé n'est pas possible " ));
+      throw BadCast( LOC("Can't cast to asked port type " ));
     }
   }
   else
-    throw BadType(LOC(OSS()<< "Le port_type doit être soit 'provides' soit 'uses' not "
-		      << port_type));
+    throw BadType(LOC(OSS()<< "port_type must be either 'provides' either 'uses' not "
+                      << port_type));
   
   return retPort;
 };
@@ -363,17 +391,16 @@ Superv_Component_i::get_port( const char * port_name)
     
     }
   } catch (const Engines::DSC::PortNotDefined&) {
-    throw PortNotDefined( LOC(OSS()<< "Le port "
-			      << port_name <<" n'existe pas."));
+    throw PortNotDefined( LOC(OSS()<< "port "
+                              << port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
-    throw PortNotConnected( LOC(OSS()<< "Le port " << port_name 
-				<< " n'est pas connecté."));
+    throw PortNotConnected( LOC(OSS()<< "port " << port_name 
+                                << " is not connected."));
   }
   
   retPort = dynamic_cast<SpecificPortType *>(port);
   if ( retPort == NULL ) {
-    delete port; 
-    throw BadCast( LOC("La conversion vers le type de port demandé n'est pas possible " ));
+    throw BadCast( LOC("Can't cast to required port type " ));
   }
 
   return retPort;

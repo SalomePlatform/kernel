@@ -1,0 +1,296 @@
+/*!
+
+\page kernel_salome Using salome.py module
+
+
+The salome.py Python module provides a set of variables and functions
+allowing access to different elements of the current SALOME
+session.
+This page gives a short description of most useful variables and
+functions.
+
+\li \b orb Reference to the CORBA::ORB instance
+
+This variable can be used to initialize different CORBA-related
+elements of the SALOME session (for example, naming service, etc).
+For example, to get an access to the SALOME naming service, you can
+use the following commands:
+\code
+import SALOME_NamingServicePy
+NS = SALOME_NamingServicePy.SALOME_NamingServicePy_i(salome.orb)
+\endcode
+
+The \b orb variable is also useful when it is necessary to convert
+CORBA reference object to its string representation (IOR) and vice
+versa:
+\code
+studyIOR = salome.orb.object_to_string(salome.myStudy)
+study    = salome.orb.string_to_object(studyIOR)
+is_same  = salome.myStudy._is_equivalent(study) # is_same = True
+\endcode
+
+\li \b naming_service SALOME naming service instance
+
+This variable can be used to register/find objects created in a
+distributed environment. For example, to get access to the SALOME
+Module Catalog server, use \c Resolve() method:
+\code
+import SALOME_ModuleCatalog
+mc = salome.naming_service.Resolve('/Kernel/ModulCatalog')
+\endcode
+
+Similarly, method \c Register() can be used to register objects
+in the naming service:
+\code
+salome.naming_service.Register(myObject,'/My/Object/Path')
+o = salome.naming_service.Resolve('/My/Object/Path')
+is_same = myObject._is_equivalent(o) # is_same = True
+\endcode
+
+\li \b lcc Life Cycle CORBA class instance
+
+This object can be used to get access to CORBA engine part of some
+SALOME module, available in the current SALOME session. The following
+code returns a reference to the Geometry module engine, loading it if
+necessary:
+\code
+import GEOM
+geom = salome.lcc.FindOrLoadComponent('FactoryServer', 'GEOM')
+\endcode
+\b Note, that in the above example, \e "FactoryServer" is a name of the
+SALOME container, where Geometry module engine should be loaded.
+
+\li \b myStudyManager Reference to the study manager
+
+SALOMEDS Study manager is used to manipulate with the studies: create,
+open, save, close. It also can be used to find the study by its
+numerical ID or name. The code below demonstrates main
+functionalities of a study manager:
+\code
+# create new study with the name "MyStudy"
+new_study = salome.myStudyManager.NewStudy("MyStudy")
+
+# open study from file /home/user/MyStudy.hdf
+study = salome.myStudyManager.OpenStudy("/home/user/MyStudy.hdf")
+
+# save study
+salome.myStudyManager.Save(study, False) # not using multifile save mode
+
+# save study in ASCII format
+salome.myStudyManager.SaveASCII(study, True) # using multifile save mode
+
+# save study with the new file path
+salome.myStudyManager.SaveAs("/home/user/MyStudy.hdf", study, False)
+
+# save study with the new file path in ASCII format
+salome.myStudyManager.SaveAsASCII("/home/user/MyStudy.hdf", study, False)
+
+# close study
+salome.myStudyManager.Close(study)
+
+# get list of all opened studies
+studies = salome.myStudyManager.GetOpenStudies()
+
+# find study by its numerical ID (integer value starting from 1)
+study = salome.myStudyManager.GetStudyByID(studyID)
+
+# find study by its name
+study = salome.myStudyManager.GetStudyByName("/home/user/MyStudy.hdf")
+
+# ...
+\endcode
+
+\li \b myStudy Reference to the current (active) study
+
+This variable can be used to manipulate with the date of the study:
+create data tree, assign attributes of different types to the objects
+in a data tree, create references between objects, etc.
+
+\b Note, that the term "active" or "current" study does not make much
+sense outise the GUI Python console. When working in GUI, user always
+deals with one only top-level study, which desktop is currently on the
+top if the windows stack. This is what is called \e "active study".
+In TUI mode (without GUI or outside GUI), user has to manipulate with
+studies manually; no any special control for the life cycle of the
+study is done. In TUI mode, \c salome.muStudy variable is an instance
+of the first study created when you call salome_init() function.
+
+The following code demonstrates some examples of \c salome.myStudy
+variable usage. For more details please refer to the SALOMEDS.idl file
+documentation.
+
+\code
+# get study name
+studyName = salome.myStudy._get_Name()
+
+# get study numerical ID
+studyID = salome.myStudy._get_StudyId()
+
+# find SALOMEDS component by its type
+scomponent = FindComponent("MyComponent")
+
+# find SALOMEDS component by its entry ID
+scomponent = FindComponentID("0:1:1") # "0:1:1" is a component ID
+
+# find SALOMEDS object by its name (first found object is returned)
+sobject = salome.myStudy.FindObject("MyObject")
+
+# find SALOMEDS object by its entry ID
+sobject = salome.myStudy.FindObjectID() # "0:1:1:1" is an object ID
+
+# find SALOMEDS object by its IOR attribute
+sobject = salome.myStudy.FindObjectIOR(IOR)
+
+# find SALOMEDS object by its path in the data tree
+sobject = salome.myStudy.FindObjectByPath("/MyComponent/MyObject/MySubObject")
+
+# get SALOMEDS object's path in a study data tree
+sobject_path = salome.myStudy.GetObjectPath(sobject)
+
+# get study properties
+prop = salome.myStudy.GetProperties()
+prop.GetCreationDate() # get creation date
+prop.IsModified() # check if study has been modified (and not yet saved)
+prop.SetLocked(True) # lock the study (prohibit modifications)
+prop.IsLocked() # check if study is locked
+
+# create objects with study builder
+builder = salome.myStudy.NewBuilder() # create builder
+comp = builder.NewComponent("MyComponent") # create a component of the "MyComponent" type
+attrName = builder.FindOrCreateAttribute(comp, "AttributeName")
+attrName.SetValue("MyComponent") # set name to the component
+object = builder.NewObject(comp) # create new object, a child of the component
+attrName = builder.FindOrCreateAttribute(object, "AttributeName")
+attrName.SetValue("MyObject") # set name to the object
+attrInt = builder.FindOrCreateAttribute(object, "AttributeInteger")
+attrInt.SetValue(123) # assign integer attribute to the object
+attrIOR = builder.FindOrCreateAttribute(object, "AttributeIOR")
+attrIOR.SetValue(IOR) # assign IOR attribute to the object (to point to some CORBA object)
+
+# iterate through objects of the data tree with child iterator
+iter = salome.myStudy.NewChildIterator(comp) # initialize from the component
+iter.InitEx(True) # init recursive mode
+while iter.More():
+      c = iter.Value()
+      print c.GetID()
+      iter.Next()
+      pass
+
+# ...
+\endcode
+
+\li \b myStudyId Identifier of the current (active) study
+
+This variable contains the numerical identifier of the current
+(active) study. It is an equivalent of \c
+salome.myStudy._get_StudyId() code.
+
+\li \b myStudyName Name of the current (active) study
+
+This variable contains the name of the current (active) study. It is
+an equivalent of \c salome.myStudy._get_Name() code.
+
+\li \b DumpStudy() Print study contents
+
+This function prints the study data object tree to the terminal
+window. The output for each object includes its entry ID, name, IOR
+(if there is one) and referenced object ID (for references). I.e.
+this is the same data the user can see in the Object Browser columns.
+\code
+salome.DumpStudy(salome.myStudy)
+\endcode
+
+\li \b IDToSObject() Get SALOMEDS object by its entry ID.
+
+This function checks if the SObject with the specified entry ID exists
+in the current study and returns it. Otherwise \c None is returned.
+\code
+sobject = salome.IDToSObject("0:1:1:1") # "0:1:1:1" is an object ID
+\endcode
+Actually this function is just a shortcut to the following code:
+\code
+sobject = salome.myStudy.FindObjectID("0:1:1:1")
+\endcode
+
+\li \b IDToObject() Get CORBA object by its entry ID.
+
+This function checks if the SObject with the specified entry ID exists
+in the current study, then retrieves IOR attribute from it and,
+finally, if IOR is not empty, returns CORBA object corresponding to
+the found SObject:
+\code
+object = salome.IDToObject("0:1:1:1") # "0:1:1:1" is an object ID
+\endcode
+Actually this function is just a shortcut to the following code:
+\code
+sobject = salome.myStudy.FindObjectID("0:1:1:1")
+if sobject:
+   object = sobject.GetObject()
+else:
+   object = None
+\endcode
+
+\li \b ObjectToSObject() Get SALOMEDS object corresponding to the
+CORBA object.
+
+This function finds an object in the current study which corresponds
+to the specified CORBA object (i.e. it has IOR attribute, pointing to
+the CORBA object). If there is no corresponding SALOMEDS object in the
+study, \c None is returned:
+\code
+sobject = salome.ObjectToSObject(object)
+\endcode
+Actually this function is just a shortcut to the following code:
+\code
+ior = salome.orb.object_to_string(object)
+sobject = salome.myStudy.FindObjectIOR(ior)
+\endcode
+
+\li \b ObjectToID() Get SALOMEDS object entry ID corresponding to the
+CORBA object.
+
+This function finds an object in the current study which corresponds
+to the specified CORBA object (i.e. it has IOR attribute, pointing to
+the CORBA object). If the object is found, its entry ID is returned,
+otherwise empty string is returned:
+\code
+entry = salome.ObjectToID(object)
+\endcode
+Actually this function is just a shortcut to the following code:
+\code
+ior = salome.orb.object_to_string(object)
+sobject = salome.myStudy.FindObjectIOR(ior)
+if sobject:
+   entry = sobject.GetID()
+else:
+   entry = ""
+\endcode
+
+\li \b createNewStudy() Create new study
+
+This function can be used to create new SALOME study. Returns an ID of
+the created study.
+\code
+studyId = salome.createNewStudy()
+study   = salome.myStudyManager.GetStudyByID(s)
+\endcode
+
+\li \b generateName() Generate unique name
+
+This function adds random numerical suffix to the passed string
+parameter ("Study" by default) and returns the resulting string:
+\code
+name_1 = salome.generateName() # name_1 is something like "Study682"
+name_1 = salome.generateName("Obj") # name_1 is something like "Obj32"
+\endcode
+
+\li \b sg SWIG interface to the SALOME GUI
+
+This variable provides an access to some GUI functions.
+
+\b Note, that this variable is only available if you use salome.py
+Python module within the GUI desktop (since SWIG library is linked directly to the GUI library).
+See GUI documentation for more information.
+
+
+*/

@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeIOR.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -26,7 +27,62 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-using namespace std;
+//to disable automatic genericobj management comment the following line
+#define WITHGENERICOBJ
+
+#ifdef WITHGENERICOBJ
+#include "SALOME_GenericObj_i.hh"
+
+static CORBA::ORB_var getORB()
+{
+  int argc=0;
+  return CORBA::ORB_init(argc,0);
+}
+
+void IORGenericObjDecref(const std::string& anIOR)
+{
+  if(anIOR=="")return;
+  CORBA::Object_var obj;
+  SALOME::GenericObj_var gobj;
+  try
+    {
+      obj = getORB()->string_to_object(anIOR.c_str());
+      if(obj->_non_existent())return;
+      gobj = SALOME::GenericObj::_narrow(obj);
+      if(! CORBA::is_nil(gobj) )
+        {
+          gobj->UnRegister();
+        }
+    }
+  catch(const CORBA::Exception& e)
+    {
+    }
+}
+
+void IORGenericObjIncref(const std::string& anIOR)
+{
+  CORBA::Object_var obj;
+  SALOME::GenericObj_var gobj;
+  try
+    {
+      obj = getORB()->string_to_object(anIOR.c_str());
+      if(obj->_non_existent())return;
+      gobj = SALOME::GenericObj::_narrow(obj);
+      if(! CORBA::is_nil(gobj) )
+        {
+          gobj->Register();
+        }
+    }
+  catch(const CORBA::Exception& e)
+    {
+    }
+}
+#else
+void IORGenericObjDecref(const std::string& anIOR)
+{}
+void IORGenericObjIncref(const std::string& anIOR)
+{}
+#endif
 
 //=======================================================================
 //function : GetID
@@ -47,7 +103,7 @@ const std::string& SALOMEDSImpl_AttributeIOR::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label& L,
-							   const std::string& S) 
+                                                           const std::string& S) 
 {
   SALOMEDSImpl_AttributeIOR* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeIOR*)L.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
@@ -56,7 +112,6 @@ SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label& L,
   }
 
   A->SetValue(S); 
-  SALOMEDSImpl_Study::IORUpdated(A);
   return A;
 }
 
@@ -68,12 +123,25 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
 {
   CheckLocked();
 
-  SALOMEDSImpl_Study::GetStudy(Label());
+  SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudy(Label());
 
   Backup();
+  //remove IOR entry in study
+  if(theValue != myString)
+    {
+      IORGenericObjIncref(theValue);
+      IORGenericObjDecref(myString);
+      study->DeleteIORLabelMapItem(myString);
+    }
+
   myString = theValue;
 
+  //add IOR entry in study
   SALOMEDSImpl_Study::IORUpdated(this);
+  
+  //Reason = 5 means that IOR attribute updated
+  //Used in the gui module to detect that IOR attribure was assigned to the object
+  SetModifyFlag(5);
 }
 
 //=======================================================================
@@ -92,6 +160,11 @@ std::string SALOMEDSImpl_AttributeIOR::Value() const
 SALOMEDSImpl_AttributeIOR::SALOMEDSImpl_AttributeIOR()
 :SALOMEDSImpl_GenericAttribute("AttributeIOR")
 {
+}
+
+SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR()
+{
+  IORGenericObjDecref(myString);
 }
 
 //=======================================================================

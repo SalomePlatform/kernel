@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : GenericUsesPort.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -36,14 +37,14 @@
 
 #include "DSC_Exception.hxx"
 
-// #define GENERATE_USES_PORT(dataManip,portType,portName)			\
+// #define GENERATE_USES_PORT(dataManip,portType,portName)                      \
 //   const char * _repository_##portType##_name_ = "IDL:Ports/##portType##:1.0"; \
 //   GenericUsesPort< dataManip, portType, _repository_##portType##_name_ > portName;
 
 //ex : GENERATE_USES_PORT(Ports::Data_Short_Port,data_short_port);
 
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName, 
-	  typename UsesPort=uses_port > 
+          typename UsesPort=uses_port > 
 class GenericUsesPort : public UsesPort
 {
 public :
@@ -59,7 +60,7 @@ public :
   void  put(CorbaInDataType data,  TimeType time, TagType tag); 
 
   virtual void uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-				 const Engines::DSC::Message message);
+                                 const Engines::DSC::Message message);
 
 protected :
   Engines::DSC::uses_port * _my_ports;
@@ -88,8 +89,8 @@ template <typename DataManipulator,typename CorbaPortType, char * repositoryName
 template <typename TimeType,typename TagType>
 void
 GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put( CorbaInDataType data, 
-										  TimeType time, 
-										  TagType tag) {
+                                                                                  TimeType time, 
+                                                                                  TagType tag) {
   typedef typename CorbaPortType::_var_type CorbaPortTypeVar;
   if (!_my_ports)
     throw DSC_Exception(LOC("There is no connected provides port to communicate with."));
@@ -107,8 +108,8 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
     //OLD :   copyOfData = DataManipulator::clone(data);
-#ifdef _DEBUG_
-    std::cout << "-------- GenericUsesPort::put -------- " << std::endl;
+#ifdef MYDEBUG
+    std::cerr << "-------- GenericUsesPort::put -------- " << std::endl;
 #endif
     //} PB1
     try {
@@ -116,8 +117,8 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
       // OLD : port->put(*copyOfData,time,tag);
     } catch(const CORBA::SystemException& ex) {
       //OLD : DataManipulator::delete_data(copyOfData);
-      throw DSC_Exception(LOC(OSS() << "Impossible d'invoquer la méthode put sur le port n°"
-			      << i << "( i>=  0)"));
+      throw DSC_Exception(LOC(OSS() << "Can't invoke put method on port number "
+                              << i << "( i>=  0)"));
 
     }
     //if (i) PB1 
@@ -132,12 +133,12 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName, typename UsesPort>
 void 
 GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort  
-		 >::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-				      const Engines::DSC::Message message)
+                 >::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
+                                      const Engines::DSC::Message message)
 {
   if (_my_ports) delete _my_ports;
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
   std::cerr << "GenericUsesPort::uses_port_changed" << std::endl;
 #endif
   _my_ports = new_uses_port;

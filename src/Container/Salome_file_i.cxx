@@ -1,24 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 //  File   : Salome_file_i.cxx
 //  Author : André RIBES, EDF
 //  Module : SALOME
@@ -37,6 +35,11 @@
 # include <io.h>
 # include <windows.h>
 #endif
+
+/*! \class Salome_file_i
+ *  \brief A class to manage file transfer in %SALOME
+ *
+ */
 
 
 //=============================================================================
@@ -170,66 +173,66 @@ Salome_file_i::load(const char* hdf5_file) {
 
       if (mode == "all") {
 
-	// Changing path, is now current directory
-	path = getcwd(NULL, _path_max);
+        // Changing path, is now current directory
+        path = getcwd(NULL, _path_max);
   
-	std::string group_name("GROUP");
-	group_name += file_name;
-	hdf_group = new HDFgroup(group_name.c_str(),hdf_file); 
-	hdf_group->OpenOnDisk();
-	hdf_dataset = new HDFdataset("FILE DATASET",hdf_group);
-	hdf_dataset->OpenOnDisk();
-	size = hdf_dataset->GetSize();
-	buffer = new char[size];
+        std::string group_name("GROUP");
+        group_name += file_name;
+        hdf_group = new HDFgroup(group_name.c_str(),hdf_file); 
+        hdf_group->OpenOnDisk();
+        hdf_dataset = new HDFdataset("FILE DATASET",hdf_group);
+        hdf_dataset->OpenOnDisk();
+        size = hdf_dataset->GetSize();
+        buffer = new char[size];
       
-	if ( (fd = ::open(file_name.c_str(),O_RDWR|O_CREAT,00666)) <0) { 
-	  SALOME::ExceptionStruct es;
-	  es.type = SALOME::INTERNAL_ERROR;
-	  std::string text = "open failed";
-	  es.text = CORBA::string_dup(text.c_str());
-	  throw SALOME::SALOME_Exception(es);
-	};
-	hdf_dataset->ReadFromDisk(buffer);
-	if ( write(fd,buffer,size) <0) { 
-	  SALOME::ExceptionStruct es;
-	  es.type = SALOME::INTERNAL_ERROR;
-	  std::string text = "write failed";
-	  es.text = CORBA::string_dup(text.c_str());
-	  throw SALOME::SALOME_Exception(es);
-	};
-	// Close the target file
-	::close(fd);
+        if ( (fd = ::open(file_name.c_str(),O_RDWR|O_CREAT,00666)) <0) { 
+          SALOME::ExceptionStruct es;
+          es.type = SALOME::INTERNAL_ERROR;
+          std::string text = "open failed";
+          es.text = CORBA::string_dup(text.c_str());
+          throw SALOME::SALOME_Exception(es);
+        };
+        hdf_dataset->ReadFromDisk(buffer);
+        if ( write(fd,buffer,size) <0) { 
+          SALOME::ExceptionStruct es;
+          es.type = SALOME::INTERNAL_ERROR;
+          std::string text = "write failed";
+          es.text = CORBA::string_dup(text.c_str());
+          throw SALOME::SALOME_Exception(es);
+        };
+        // Close the target file
+        ::close(fd);
 
-	Engines::file infos;
-	infos.file_name = CORBA::string_dup(file_name.c_str());
-	infos.path = CORBA::string_dup(path.c_str());
-	infos.type = CORBA::string_dup(type.c_str());
-	infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
-	infos.status = CORBA::string_dup(status.c_str());
+        Engines::file infos;
+        infos.file_name = CORBA::string_dup(file_name.c_str());
+        infos.path = CORBA::string_dup(path.c_str());
+        infos.type = CORBA::string_dup(type.c_str());
+        infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
+        infos.status = CORBA::string_dup(status.c_str());
 
-	_fileManaged[file_name] = infos;
+        _fileManaged[file_name] = infos;
 
-	// Update Salome_file state
-	_state.number_of_files++;
-	_state.files_ok = true;
+        // Update Salome_file state
+        _state.number_of_files++;
+        _state.files_ok = true;
       }
       else {
-	Engines::file infos;
-	infos.file_name = CORBA::string_dup(file_name.c_str());
-	infos.path = CORBA::string_dup(path.c_str());
-	infos.type = CORBA::string_dup(type.c_str());
-	infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
-	infos.status = CORBA::string_dup(status.c_str());
-	// Infos for parallel extensions...
-	infos.node = 0;
-	infos.container = Engines::Container::_duplicate(_container);
+        Engines::file infos;
+        infos.file_name = CORBA::string_dup(file_name.c_str());
+        infos.path = CORBA::string_dup(path.c_str());
+        infos.type = CORBA::string_dup(type.c_str());
+        infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
+        infos.status = CORBA::string_dup(status.c_str());
+        // Infos for parallel extensions...
+        infos.node = 0;
+        infos.container = Engines::Container::_duplicate(_container);
 
-	_fileManaged[file_name] = infos;
+        _fileManaged[file_name] = infos;
 
-	// Update Salome_file state
-	_state.number_of_files++;
-	if (status != "ok")
-	  _state.files_ok = false;
+        // Update Salome_file state
+        _state.number_of_files++;
+        if (status != "ok")
+          _state.files_ok = false;
       }
     }
   }
@@ -626,7 +629,7 @@ Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file)
       _t_fileDistributedSource::iterator it = _fileDistributedSource.find(file_name);
       if (it == _fileDistributedSource.end()) 
       {
-	_fileDistributedSource[file_name] = Engines::Salome_file::_duplicate(source_Salome_file);
+        _fileDistributedSource[file_name] = Engines::Salome_file::_duplicate(source_Salome_file);
       }
     }
   }
@@ -666,7 +669,7 @@ Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file)
 //=============================================================================
 void
 Salome_file_i::connectDistributedFile(const char * file_name,
-				      Engines::Salome_file_ptr source_Salome_file) 
+                                      Engines::Salome_file_ptr source_Salome_file) 
 {
   // Test if this file is added
   _t_fileManaged::iterator it = _fileManaged.find(file_name);
@@ -692,7 +695,7 @@ Salome_file_i::connectDistributedFile(const char * file_name,
 //=============================================================================
 void 
 Salome_file_i::setDistributedSourceFile(const char* file_name,
-					const char * source_file_name)
+                                        const char * source_file_name)
 {
   std::string fname(file_name);
 
@@ -733,12 +736,12 @@ Salome_file_i::recvFiles() {
     if (std::string(file_infos.type.in()) == "local")
     {
       if (std::string(file_infos.status.in()) == "not_ok")
-	result = checkLocalFile(file_infos.file_name.in());
+        result = checkLocalFile(file_infos.file_name.in());
     }
     else
     {
       if (std::string(file_infos.status.in()) == "not_ok")
-	result = getDistributedFile(file_infos.file_name.in());
+        result = getDistributedFile(file_infos.file_name.in());
     }
     // if the result is false
     // we add this file to files_not_ok

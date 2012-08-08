@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
@@ -47,7 +48,7 @@ salomeinclude_HEADERS= \
 	SALOMEDS_Defines.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA = SALOME_DriverPy.py
+dist_salomescript_PYTHON = SALOME_DriverPy.py
 
 #
 # ===============================================================
@@ -69,7 +70,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../GenericObj \
 	-I$(srcdir)/../SALOMEDSClient \
 	-I$(srcdir)/../LifeCycleCORBA \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
@@ -287,6 +287,7 @@ bin_PROGRAMS = SALOMEDS_Server SALOMEDS_Client
 SALOMEDS_Server_SOURCES  = SALOMEDS_Server.cxx
 SALOMEDS_Server_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Server_LDADD    = libSalomeDS.la \
+	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
 	$(CORBA_LIBS)
@@ -294,6 +295,7 @@ SALOMEDS_Server_LDADD    = libSalomeDS.la \
 SALOMEDS_Client_SOURCES  = SALOMEDS_Client.cxx
 SALOMEDS_Client_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Client_LDADD    = libSalomeDS.la \
+	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
 	$(CORBA_LIBS)

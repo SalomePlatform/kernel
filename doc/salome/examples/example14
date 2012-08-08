@@ -1,0 +1,47 @@
+
+#--------------------------------------------------------------------------
+#   create  AttributePixMap
+#===============================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributePixMap")
+if A == None :
+        raise  RuntimeError, "Can't create AttributePixMap attribute"
+aPixmap = A._narrow(SALOMEDS.AttributePixMap);
+aPixmap.SetPixMap( "ICON_OBJBROWSER_Geometry" );
+
+if aPixmap.GetPixMap() != "ICON_OBJBROWSER_Geometry":
+        print "Error: wrong value of AttributePixMap"
+
+
+#      save / restore study      
+#============================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy = batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#       find   AttributePixMap
+#============================================================
+
+res,A=father.FindAttribute("AttributePixMap")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error: AttributePixMap not found "
+
+A = A._narrow(SALOMEDS.AttributePixMap)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributePixMap attribute"
+
+if A.GetPixMap() != "ICON_OBJBROWSER_Geometry":
+        print "Error: wrong value of AttributePixMap"
+

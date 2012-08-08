@@ -1,28 +1,33 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "BatchTest.hxx"
 
-#include "Batch_Date.hxx"
-#include "MpiImpl.hxx"
+#include "BatchTest.hxx"
+#include "Launcher.hxx"
+
+#ifdef WITH_LIBBATCH
+#include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_MpiImpl.hxx>
+#endif
+
 #include "utilities.h"
 
 #include <sys/stat.h>
@@ -31,8 +36,9 @@
 #ifdef WIN32
 # include <io.h>
 #endif
-BatchTest::BatchTest(const Engines::MachineParameters& batch_descr) 
+BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr) 
 {
+#ifdef WITH_LIBBATCH
   _batch_descr = batch_descr;
 
   // Getting date
@@ -52,8 +58,9 @@ BatchTest::BatchTest(const Engines::MachineParameters& batch_descr)
   // Creating test temporary file
   _test_filename =  "/tmp/";
   _test_filename +=  _date + "_test_cluster_file_";
-  _test_filename += _batch_descr.alias.in();
-  _base_filename = _date + "_test_cluster_file_" + _batch_descr.alias.in();
+  _test_filename += _batch_descr.hostname.in();
+  _base_filename = _date + "_test_cluster_file_" + _batch_descr.hostname.in();
+#endif
 }
 
 BatchTest::~BatchTest() {}
@@ -63,14 +70,14 @@ BatchTest::test()
 {
   bool rtn = false;
   INFOS(std::endl 
-	<< "--- Testing batch Machine :" << std::endl
-	<< "--- Name       : " << _batch_descr.hostname << std::endl
-	<< "--- Alias      : " << _batch_descr.alias << std::endl
-	<< "--- Protocol   : " << _batch_descr.protocol << std::endl
-	<< "--- User Name  : " << _batch_descr.username << std::endl
-	<< "--- Batch Type : " << _batch_descr.batch << std::endl
-	<< "--- MPI Impl   : " << _batch_descr.mpiImpl << std::endl
-	<< "--- Appli Path : " << _batch_descr.applipath << std::endl
+        << "--- Testing batch Machine :" << std::endl
+        << "--- Name       : " << _batch_descr.hostname << std::endl
+        << "--- hostname      : " << _batch_descr.hostname << std::endl
+        << "--- Protocol   : " << _batch_descr.protocol << std::endl
+        << "--- User Name  : " << _batch_descr.username << std::endl
+        << "--- Batch Type : " << _batch_descr.batch << std::endl
+        << "--- MPI Impl   : " << _batch_descr.mpiImpl << std::endl
+        << "--- Appli Path : " << _batch_descr.applipath << std::endl
        );
 
   std::string result_connection("Not Tested");
@@ -88,13 +95,13 @@ BatchTest::test()
   result_appli = test_appli();
 
   INFOS(std::endl
-	<< "--- Test results" << std::endl
-	<< "--- Connection          : " << result_connection << std::endl
-	<< "--- File copy           : " << result_filecopy << std::endl
-	<< "--- Get results         : " << result_getresult << std::endl
-	<< "--- Submit simple job   : " << result_jobsubmit_simple << std::endl
-	<< "--- Submit mpi job      : " << result_jobsubmit_mpi << std::endl
-	<< "--- Application         : " << result_appli << std::endl
+        << "--- Test results" << std::endl
+        << "--- Connection          : " << result_connection << std::endl
+        << "--- File copy           : " << result_filecopy << std::endl
+        << "--- Get results         : " << result_getresult << std::endl
+        << "--- Submit simple job   : " << result_jobsubmit_simple << std::endl
+        << "--- Submit mpi job      : " << result_jobsubmit_mpi << std::endl
+        << "--- Application         : " << result_appli << std::endl
        );
   
   if (result_connection == "OK"       && 
@@ -108,21 +115,21 @@ BatchTest::test()
   return rtn;
 }
 
-// For this test we use : alias, protocol, username
+// For this test we use : hostname, protocol, username
 std::string
 BatchTest::test_connection()
 {
   int status;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
 
   // Basic tests
-  if(alias == "")
+  if(hostname == "")
   {
-    result += "alias is empty !";
+    result += "hostname is empty !";
     return result;
   }
   if(username == "")
@@ -138,8 +145,8 @@ BatchTest::test_connection()
 
   // Build command
   command += protocol
-	  + " "
-	  + username + "@" + alias;
+          + " "
+          + username + "@" + hostname;
 
   // Test
   status = system(command.c_str());
@@ -155,7 +162,7 @@ BatchTest::test_connection()
   return result;
 }
 
-// For this test we use : alias, protocol, username
+// For this test we use : hostname, protocol, username
 std::string
 BatchTest::test_filecopy()
 {
@@ -163,7 +170,7 @@ BatchTest::test_filecopy()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
 
@@ -190,7 +197,7 @@ BatchTest::test_filecopy()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_filename + " "
-	  + username + "@" + alias + ":" + home;
+          + username + "@" + hostname + ":" + home;
 
   // Test
   status = system(command.c_str());
@@ -206,7 +213,7 @@ BatchTest::test_filecopy()
   return result;
 }
 
-// For this test we use : alias, protocol, username
+// For this test we use : hostname, protocol, username
 std::string
 BatchTest::test_getresult()
 {
@@ -214,7 +221,7 @@ BatchTest::test_getresult()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
 
@@ -229,8 +236,8 @@ BatchTest::test_getresult()
   command = "scp";
   if(protocol == "rsh")
     command = "rcp";
-  command += " " + username + "@" + alias + ":" + home 
-	  + "/" + _base_filename + " " + _test_filename + "_copy";
+  command += " " + username + "@" + hostname + ":" + home 
+          + "/" + _base_filename + " " + _test_filename + "_copy";
 
   // Test
   status = system(command.c_str());
@@ -279,7 +286,7 @@ BatchTest::test_jobsubmit_simple()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string batch_type = _batch_descr.batch.in();
@@ -288,6 +295,18 @@ BatchTest::test_jobsubmit_simple()
   if (batch_type == "lsf")
   {
     INFOS("test_jobsubmit_simple not yet implemented for lsf... return OK");
+    result = "OK";
+    return result;
+  }
+  if (batch_type == "ccc")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for ccc... return OK");
+    result = "OK";
+    return result;
+  }
+  if (batch_type == "slurm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
     result = "OK";
     return result;
   }
@@ -330,7 +349,7 @@ BatchTest::test_jobsubmit_simple()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_simple + " "
-	  + username + "@" + alias + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -342,7 +361,7 @@ BatchTest::test_jobsubmit_simple()
 
   // Build command for submit job
   std::string file_job_name = _test_filename + "_jobid";
-  command = protocol + " " + username + "@" + alias + " qsub " + _base_filename + "_simple > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qsub " + _base_filename + "_simple > " + file_job_name;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -362,7 +381,7 @@ BatchTest::test_jobsubmit_simple()
   file_job.close();
  
   // Wait the end of the job
-  command = protocol + " " + username + "@" + alias + " qstat -f " + jobid + " > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qstat -f " + jobid + " > " + file_job_name;
   bool stop = false;
   while (!stop) 
   {
@@ -390,7 +409,7 @@ BatchTest::test_jobsubmit_simple()
   if(protocol == "rsh")
     command = "rcp";
   command += " " 
-	  + username + "@" + alias + ":" + home + "/" + _date + "_simple* /tmp";
+          + username + "@" + hostname + ":" + home + "/" + _date + "_simple* /tmp";
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -438,12 +457,13 @@ BatchTest::test_jobsubmit_simple()
 std::string 
 BatchTest::test_jobsubmit_mpi() 
 {
+#ifdef WITH_LIBBATCH
   int status;
   std::string home;
   std::string command;
   MpiImpl * mpiImpl;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string batch_type = _batch_descr.batch.in();
@@ -458,7 +478,7 @@ BatchTest::test_jobsubmit_mpi()
     mpiImpl = new MpiImpl_MPICH2();
   else if(mpi_type == "openmpi")
     mpiImpl = new MpiImpl_OPENMPI();
-  else if(mpi_type == "slurm")
+  else if(mpi_type == "slurmmpi")
     mpiImpl = new MpiImpl_SLURM();
   else
   {
@@ -470,6 +490,20 @@ BatchTest::test_jobsubmit_mpi()
   if (batch_type == "lsf")
   {
     INFOS("test_jobsubmit_simple not yet implemented for lsf... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "ccc")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for ccc... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "slurm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
     result = "OK";
     return result;
   }
@@ -493,7 +527,7 @@ BatchTest::test_jobsubmit_mpi()
   std::ofstream file_script;
   file_script.open(_test_file_script.c_str(), std::ofstream::out);
   file_script << "#!/bin/bash\n"
-	      << "echo HELLO MPI\n";
+              << "echo HELLO MPI\n";
   file_script.flush();
   file_script.close();
 #ifdef WIN32
@@ -507,13 +541,13 @@ BatchTest::test_jobsubmit_mpi()
   std::ofstream file_mpi;
   file_mpi.open(_test_file_mpi.c_str(), std::ofstream::out);
   file_mpi << "#!/bin/bash\n"
-	   << "#PBS -l nodes=1\n"
-	   << "#PBS -l walltime=00:01:00\n"
-	   << "#PBS -o " << home << "/" << _date << "_mpi_output.log\n"
-	   << "#PBS -e " << home << "/" << _date << "_mpi_error.log\n"
-	   << mpiImpl->boot("${PBS_NODEFILE}", 1)
-	   << mpiImpl->run("${PBS_NODEFILE}", 1, _base_filename + "_script")
-	   << mpiImpl->halt();
+           << "#PBS -l nodes=1\n"
+           << "#PBS -l walltime=00:01:00\n"
+           << "#PBS -o " << home << "/" << _date << "_mpi_output.log\n"
+           << "#PBS -e " << home << "/" << _date << "_mpi_error.log\n"
+           << mpiImpl->boot("${PBS_NODEFILE}", 1)
+           << mpiImpl->run("${PBS_NODEFILE}", 1, _base_filename + "_script")
+           << mpiImpl->halt();
   file_mpi.flush();
   file_mpi.close();
 
@@ -523,7 +557,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_script + " "
-	  + username + "@" + alias + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -536,7 +570,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_mpi + " "
-	  + username + "@" + alias + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -548,7 +582,7 @@ BatchTest::test_jobsubmit_mpi()
 
   // Build command for submit job
   std::string file_job_name = _test_filename + "_jobid";
-  command = protocol + " " + username + "@" + alias + " qsub " + _base_filename + "_mpi > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qsub " + _base_filename + "_mpi > " + file_job_name;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -568,7 +602,7 @@ BatchTest::test_jobsubmit_mpi()
   file_job.close();
  
   // Wait the end of the job
-  command = protocol + " " + username + "@" + alias + " qstat -f " + jobid + " > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qstat -f " + jobid + " > " + file_job_name;
   bool stop = false;
   while (!stop) 
   {
@@ -596,7 +630,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " 
-	  + username + "@" + alias + ":" + home + "/" + _date + "_mpi* /tmp";
+          + username + "@" + hostname + ":" + home + "/" + _date + "_mpi* /tmp";
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -629,6 +663,10 @@ BatchTest::test_jobsubmit_mpi()
   }
   result = "OK";
   return result;  
+#else
+  throw LauncherException("Method BatchTest::test_jobsubmit_mpi is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 std::string 
@@ -638,7 +676,7 @@ BatchTest::test_appli()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string applipath = _batch_descr.applipath.in();
@@ -654,12 +692,12 @@ BatchTest::test_appli()
   std::ofstream file_appli;
   file_appli.open(_test_file_appli.c_str(), std::ofstream::out);
   file_appli << "#!/bin/bash\n"
-	     << "if [ -f " << applipath << "/runAppli ]\n"
-	     << "then\n"
-	     << "  echo OK\n"
-	     << "else\n"
-	     << "  echo NOK\n"
-	     << "fi\n";
+             << "if [ -f " << applipath << "/runAppli ]\n"
+             << "then\n"
+             << "  echo OK\n"
+             << "else\n"
+             << "  echo NOK\n"
+             << "fi\n";
   file_appli.flush();
   file_appli.close();
 
@@ -668,7 +706,7 @@ BatchTest::test_appli()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_appli + " "
-	  + username + "@" + alias + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -679,9 +717,9 @@ BatchTest::test_appli()
   }
 
   // Launch test
-  command = protocol + " " + username + "@" + alias 
-	  + " sh " + home + "/" + _base_filename + "_appli_test > " 
-	  + _test_filename + "_appli_test_result";
+  command = protocol + " " + username + "@" + hostname 
+          + " sh " + home + "/" + _base_filename + "_appli_test > " 
+          + _test_filename + "_appli_test_result";
 
   status = system(command.c_str());
   if(status) {
@@ -721,12 +759,12 @@ BatchTest::get_home(std::string * home)
   int status;
   std::string result = "";
   std::string command;
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string file_home_name = _test_filename + "_home";
 
-  command = protocol + " " + username + "@" + alias + " 'echo $HOME' > " + file_home_name; 
+  command = protocol + " " + username + "@" + hostname + " 'echo $HOME' > " + file_home_name; 
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;

@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_impl.hxx
 //  Author : Estelle Deville
@@ -37,6 +38,11 @@
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
+
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
+#pragma warning(disable:4290) // Warning Exception ...
+#endif
 
 class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog
 {
@@ -122,8 +128,8 @@ private:
     \param typeMap ParserTypes arguments
   */
   virtual void _parse_xml_file(const char* file, 
-			  ParserComponents & modulelist, 
-			  ParserPathPrefixes & pathlist,
+                          ParserComponents & modulelist, 
+                          ParserPathPrefixes & pathlist,
         ParserTypes& typeMap,
         TypeList& typeList);
 
@@ -140,7 +146,7 @@ private:
     \param C_parser const ParserComponent argument
   */
   void duplicate(SALOME_ModuleCatalog::ComponentDef & C_corba,
-		 const ParserComponent & C_parser);
+                 const ParserComponent & C_parser);
     
   //! method to create a CORBA interface description from parser
   /*!
@@ -148,7 +154,7 @@ private:
     \param I_parser const ParserInterface argument
   */
   void duplicate(SALOME_ModuleCatalog::DefinitionInterface & I_corba,
-		 const ParserInterface & I_parser);
+                 const ParserInterface & I_parser);
   
   //! method to create a CORBA service description from parser
   /*!
@@ -156,7 +162,7 @@ private:
     \param S_parser const ParserService argument
   */
   void duplicate(SALOME_ModuleCatalog::Service & S_corba,
-		 const ParserService & service);
+                 const ParserService & service);
   
   //! method to create a CORBA parameter description from parser
   /*!
@@ -164,7 +170,7 @@ private:
     \param P_parser const ParserParameter argument
   */
   void duplicate(SALOME_ModuleCatalog::ServicesParameter & P_corba,
-		 const ParserParameter & P_parser);
+                 const ParserParameter & P_parser);
   
   //! method to create a CORBA datastream parameter description from parser
   /*!
@@ -172,7 +178,7 @@ private:
     \param P_parser const ParserDataStreamParameter argument
   */
   void duplicate(SALOME_ModuleCatalog::ServicesDataStreamParameter & P_corba,
-		 const ParserDataStreamParameter & P_parser);
+                 const ParserDataStreamParameter & P_parser);
   
   //! method to create the path prefix structures from the catalog parsing
   /*!
@@ -197,7 +203,7 @@ private:
     \return true if parsing is OK
   */
   virtual bool _parseArguments(int argc, char **argv, 
-			       char **_general, char** _personal);
+                               char **_general, char** _personal);
 
 
   // Theses variables will contain the path to the general and personal catalogs

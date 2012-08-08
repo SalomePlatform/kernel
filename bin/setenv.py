@@ -1,25 +1,27 @@
 #!/usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 import sys, os, string, glob, time, pickle
 import orbmodule
 from launchConfigureParser import verbose
@@ -142,10 +144,6 @@ def get_config(silent=False):
         modules_list.remove("GUI")
         pass
 
-    if "SUPERV" in modules_list and not 'supervContainer' in args['standalone']:
-        args['standalone'].append("supervContainer")
-        pass
-   
     return args, modules_list, modules_root_dir
 
 # -----------------------------------------------------------------------------
@@ -153,6 +151,17 @@ def get_config(silent=False):
 def set_env(args, modules_list, modules_root_dir, silent=False):
     """Add to the PATH-variables modules specific paths"""
     
+    import os
+    from salome_utils import getTmpDir, generateFileName, makeTmpDir, getPortNumber
+
+    # create temporary directory for environment files needed by modules from the list
+    port = getPortNumber(False)
+    if port:
+        tmp_dir = getTmpDir()
+        env_dir = generateFileName(tmp_dir, prefix="env", with_port=True)
+        makeTmpDir(env_dir)
+        pass
+
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
     if os.getenv('SALOME_BATCH') == None:
@@ -185,50 +194,31 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                                   python_version,"site-packages",
                                   salome_subdir),
                      "PYTHONPATH")
+            import platform
+            if platform.machine() == "x86_64":
+                add_path(os.path.join(module_root_dir,"lib64",
+                                      python_version,"site-packages",
+                                      salome_subdir),
+                         "PYTHONPATH")
+                pass
             add_path(os.path.join(module_root_dir,get_lib_dir(),
                                   python_version,"site-packages",
                                   salome_subdir,
                                   "shared_modules"),
                      "PYTHONPATH")
-            
-            # set environment for SMESH plugins
-            if module == "SMESH" :
-                os.environ["SMESH_MeshersList"]="StdMeshers"
-                if not os.environ.has_key("SALOME_StdMeshersResources"):
-                    os.environ["SALOME_StdMeshersResources"] \
-                    = modules_root_dir["SMESH"]+"/share/"+salome_subdir+"/resources/smesh"
+
+            # set environment by modules from the list
+            if port:
+                try:
+                    mod=__import__(module.lower()+"_setenv")
+                    mod.set_env(args)
                     pass
-                if args.has_key("SMESH_plugins"):
-                    for plugin in args["SMESH_plugins"]:
-                        plugin_root = ""
-                        if os.environ.has_key(plugin+"_ROOT_DIR"):
-                            plugin_root = os.environ[plugin+"_ROOT_DIR"]
-                        else:
-                            # workaround to avoid modifications of existing environment
-                            if os.environ.has_key(plugin.upper()+"_ROOT_DIR"):
-                                plugin_root = os.environ[plugin.upper()+"_ROOT_DIR"]
-                                pass
-                            pass
-                        if plugin_root != "":
-                            os.environ["SMESH_MeshersList"] \
-                            = os.environ["SMESH_MeshersList"]+":"+plugin
-                            if not os.environ.has_key("SALOME_"+plugin+"Resources"):
-                                os.environ["SALOME_"+plugin+"Resources"] \
-                                = plugin_root+"/share/"+salome_subdir+"/resources/"+plugin.lower()
-                                add_path(os.path.join(plugin_root,get_lib_dir(),python_version, "site-packages",salome_subdir), "PYTHONPATH")
-                                add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir), "PYTHONPATH")
-                                
-                                if sys.platform == "win32":
-                                    add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir), "PATH")
-                                else:
-                                    add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir), "LD_LIBRARY_PATH")
-                                    add_path(os.path.join(plugin_root,"bin",salome_subdir), "PYTHONPATH")
-                                    add_path(os.path.join(plugin_root,"bin",salome_subdir), "PATH")
-                                    pass
-                                pass
-                            pass
-                        pass
-                    
+                except:
+                    pass
+                pass
+            pass
+        pass
+
     if sys.platform == 'win32':
         os.environ["SALOMEPATH"]=";".join(modules_root_dir_list)
     else:
@@ -243,34 +233,11 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 
-    # set environment for SUPERV module
-    os.environ["ENABLE_MACRO_NODE"]="1"
     # set resources variables if not yet set
-    # Done now by launchConfigureParser.py
-    #if os.getenv("GUI_ROOT_DIR"):
-        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
                    salome_subdir,"resources","kernel")
-
-    if "GEOM" in modules_list:
-        if verbose() and not silent: print "GEOM OCAF Resources" 
-        
-	# set CSF_PluginDefaults variable only if it is not customized
-        # by the user
-
-        if not os.getenv("CSF_PluginDefaults"):
-    	    os.environ["CSF_PluginDefaults"] \
-    	    = os.path.join(modules_root_dir["GEOM"],"share",
-                    	   salome_subdir,"resources","geom")
-        os.environ["CSF_GEOMDS_ResourcesDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources","geom")
-        if verbose() and not silent: print "GEOM Shape Healing Resources"
-        os.environ["CSF_ShHealingDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources","geom")
 
 # -----------------------------------------------------------------------------
 

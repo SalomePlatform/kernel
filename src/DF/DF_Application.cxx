@@ -1,28 +1,24 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 #include "DF_definitions.hxx"
 #include "DF_Application.hxx"
-
-using namespace std;
 
 //Constructor
 DF_Application::DF_Application()
@@ -37,7 +33,7 @@ DF_Application::~DF_Application()
 
 //Creates a new document with given type, returns a smart pointer to
 //newly created document.
-DF_Document* DF_Application::NewDocument(const string& theDocumentType) 
+DF_Document* DF_Application::NewDocument(const std::string& theDocumentType) 
 {
   DF_Document* aDoc = new DF_Document(theDocumentType);
   aDoc->_id = ++_currentID;
@@ -68,10 +64,10 @@ DF_Document* DF_Application::GetDocument(int theDocumentID)
 }
 
 //Returns a list of IDs of all currently opened documents
-vector<int> DF_Application::GetDocumentIDs()
+std::vector<int> DF_Application::GetDocumentIDs()
 {
-  vector<int> ids;
- typedef map<int, DF_Document*>::const_iterator DI;
+  std::vector<int> ids;
+  typedef std::map<int, DF_Document*>::const_iterator DI;
   for(DI p = _documents.begin(); p!=_documents.end(); p++)
     ids.push_back(p->first);
   return ids;
@@ -86,7 +82,7 @@ int DF_Application::NbDocuments()
 
 //Restores a Document from the given file, returns a smart 
 //pointer to opened document.
-DF_Document* DF_Application::Open(const string& theFileName)
+DF_Document* DF_Application::Open(const std::string& theFileName)
 {
   //Not implemented
   return NULL;
@@ -94,7 +90,7 @@ DF_Document* DF_Application::Open(const string& theFileName)
 
 
 //Saves a Document in a given file with name theFileName
-void DF_Application::SaveAs(const DF_Document* theDocument, const string& theFileName)
+void DF_Application::SaveAs(const DF_Document* theDocument, const std::string& theFileName)
 {
   //Not implemented
 }

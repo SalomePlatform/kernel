@@ -1,31 +1,33 @@
-#!/usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#! /usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-"""Create a virtual Salome installation
 
-"""
+## \file appli_gen.py
+#  Create a %SALOME application (virtual Salome installation)
+#
 usage="""usage: %prog [options]
 Typical use is:
-  python appli_gen.py 
+  python appli_gen.py
 Typical use with options is:
   python appli_gen.py --verbose --prefix=<install directory> --config=<configuration file>
 """
@@ -42,6 +44,7 @@ prereq_tag  = "prerequisites"
 modules_tag = "modules"
 module_tag  = "module"
 samples_tag = "samples"
+resources_tag = "resources"
 
 # --- names of attributes in XML configuration file
 nam_att  = "name"
@@ -79,6 +82,10 @@ class xml_parser:
         # --- if we are analyzing "prerequisites" element then store its "path" attribute
         if self.space == [appli_tag, prereq_tag] and path_att in attrs.getNames():
             self.config["prereq_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "resources" element then store its "path" attribute
+        if self.space == [appli_tag, resources_tag] and path_att in attrs.getNames():
+            self.config["resources_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "samples" element then store its "path" attribute
         if self.space == [appli_tag, samples_tag] and path_att in attrs.getNames():
@@ -152,7 +159,7 @@ def install(prefix,config_file,verbose=0):
         print "Configure parser: parse error in configuration file %s" % filename
         pass
     except xml.sax.SAXException, inst:
-        print inst.args   
+        print inst.args
         print "Configure parser: error in configuration file %s" % filename
         pass
     except:
@@ -183,7 +190,10 @@ def install(prefix,config_file,verbose=0):
                'runAppli',
                'runConsole',
                'runSession',
+               'runSalomeScript',
                'runTests',
+               'update_catalogs.py',
+               'kill_remote_containers.py',
                '.bashrc',
                ):
         virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))
@@ -193,7 +203,7 @@ def install(prefix,config_file,verbose=0):
         command = "cp -p " + filename + ' ' + os.path.join(home_dir,"config_appli.xml")
         os.system(command)
         pass
-       
+
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
     if os.path.isfile(_config["prereq_path"]):
         command='cp -p ' + _config["prereq_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.sh')
@@ -203,7 +213,7 @@ def install(prefix,config_file,verbose=0):
         print "WARNING: prerequisite file does not exist"
         pass
 
-
+    #environment file: configSalome.sh
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
     for module in _config["modules"]:
         command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
@@ -213,19 +223,24 @@ def install(prefix,config_file,verbose=0):
         command='export DATA_DIR=' + _config["samples_path"] +'\n'
         f.write(command)
         pass
+    if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+        command='export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
+        f.write(command)
+
     f.close()
 
 
+    #environment file: configGUI.sh
     f =open(os.path.join(home_dir,'env.d','configGUI.sh'),'w')
-    command = 'export SalomeAppConfig=${HOME}/${APPLI}\n'
+    command = """export SalomeAppConfig=${HOME}/${APPLI}
+export SUITRoot=${HOME}/${APPLI}/share/salome
+export DISABLE_FPE=1
+export MMGT_REENTRANT=1
+"""
     f.write(command)
-    command = 'export SUITRoot=${HOME}/${APPLI}/share/salome\n'
-    f.write(command)
-    f.write('export DISABLE_FPE=1\n')
-    f.write('export MMGT_REENTRANT=1\n')
     f.close()
 
-
+    #SalomeApp.xml file
     f =open(os.path.join(home_dir,'SalomeApp.xml'),'w')
     command="""<document>
   <section name="launch">
@@ -240,34 +255,30 @@ def install(prefix,config_file,verbose=0):
     <parameter name="portkill"   value="no"/>
     <parameter name="killall"    value="no"/>
     <parameter name="noexcepthandler"  value="no"/>
-    <parameter name="modules"    value="""
-    f.write(command)    
-    f.write('"')
-    for module in _config["guimodules"][:-1]:
-        f.write(module)
-        f.write(',')
-        pass
-    if len(_config["guimodules"]) > 0:
-      f.write(_config["guimodules"][-1])
-    f.write('"/>')
-    command="""
+    <parameter name="modules"    value="%s"/>
     <parameter name="pyModules"  value=""/>
     <parameter name="embedded"   value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
-    <parameter name="standalone" value="pyContainer,supervContainer"/>
+    <parameter name="standalone" value="pyContainer"/>
   </section>
 </document>
 """
-    f.write(command)    
+    mods=[]
+    #Keep all modules except KERNEL and GUI
+    for m in _config["modules"]:
+      if m in ("KERNEL","GUI"):continue
+      mods.append(m)
+    f.write(command % ",".join(mods))
     f.close()
 
     #Add default CatalogResources.xml file
     f =open(os.path.join(home_dir,'CatalogResources.xml'),'w')
     command="""<!DOCTYPE ResourcesCatalog>
 <resources>
-   <machine hostname="localhost" />
+   <machine name="localhost"
+            hostname="localhost" />
 </resources>
 """
-    f.write(command)    
+    f.write(command)
     f.close()
 
     #Add USERS directory with 777 permission to store users configuration files
@@ -288,6 +299,10 @@ def main():
                       default=0, help="Increase verbosity")
 
     options, args = parser.parse_args()
+    if not os.path.exists(options.config):
+      print "ERROR: config file %s does not exist. It is mandatory." % options.config
+      sys.exit(1)
+
     install(prefix=options.prefix,config_file=options.config,verbose=options.verbose)
     pass
 

@@ -1,33 +1,42 @@
-dnl  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
-dnl  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-dnl  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+dnl This library is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Lesser General Public
+dnl License as published by the Free Software Foundation; either
+dnl version 2.1 of the License.
 dnl
-dnl  This library is free software; you can redistribute it and/or
-dnl  modify it under the terms of the GNU Lesser General Public
-dnl  License as published by the Free Software Foundation; either
-dnl  version 2.1 of the License.
+dnl This library is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl Lesser General Public License for more details.
 dnl
-dnl  This library is distributed in the hope that it will be useful,
-dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
-dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-dnl  Lesser General Public License for more details.
+dnl You should have received a copy of the GNU Lesser General Public
+dnl License along with this library; if not, write to the Free Software
+dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl
-dnl  You should have received a copy of the GNU Lesser General Public
-dnl  License along with this library; if not, write to the Free Software
-dnl  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+dnl See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 dnl
-dnl  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-dnl
+
 AC_DEFUN([CHECK_LIBXML],[
 
 AC_CHECKING(for libxml library)
+
+AC_LANG_SAVE
+AC_LANG_C
 
 AC_SUBST(LIBXML_INCLUDES)
 AC_SUBST(LIBXML_LIBS)
 
 LIBXML_INCLUDES=""
 LIBXML_LIBS=""
+
+AC_CHECKING(for libxml location)
+AC_ARG_WITH(libxml,
+            [  --with-libxml=DIR      root directory path to LIBXML library installation ],
+            [LIBXML_DIR="$withval"
+             AC_MSG_RESULT("select $withval as path to LIBXML library")])
+
+AC_MSG_RESULT(\$LIBXML_DIR = ${LIBXML_DIR})
 
 libxml_ok=no
 
@@ -39,11 +48,14 @@ then
   LOCAL_INCLUDES="-I$LIBXML_DIR/include/libxml2"
   if test "x$LIBXML_DIR" = "x/usr"
   then
+    AC_MSG_NOTICE(Trying native Libxml2...)
     LOCAL_LIBS="-lxml2"
   else
+    AC_MSG_NOTICE(Trying Libxml2 from $LIBXML_DIR ...)
     LOCAL_LIBS="-L$LIBXML_DIR/lib -lxml2"
   fi
 else
+  AC_MSG_NOTICE(Trying native Libxml2...)
   LOCAL_INCLUDES="-I/usr/include/libxml2"
   LOCAL_LIBS="-lxml2"
 fi
@@ -73,6 +85,8 @@ then
 fi
 
 AC_MSG_RESULT(for libxml: $libxml_ok)
+
+AC_LANG_RESTORE
 
 ])dnl
 dnl

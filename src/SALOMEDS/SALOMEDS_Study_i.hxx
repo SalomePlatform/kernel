@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_Study_i.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -45,12 +46,16 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
+class Notifier;
+
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
-  CORBA::ORB_ptr                 _orb;
+  CORBA::ORB_var                 _orb;
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
+  static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
+  Notifier*                      _notifier;
 
 public:
 
@@ -244,6 +249,7 @@ public:
   virtual void  StudyId(CORBA::Short id);
 
   static SALOMEDS::Study_ptr GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb);
+  static SALOMEDS_Study_i* GetStudyServant(SALOMEDSImpl_Study*, CORBA::ORB_ptr orb);
 
   static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 
@@ -285,8 +291,8 @@ public:
 
   virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);
   virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 
-							       const char* theModuleName, 
-							       CORBA::Long theSavePoint);
+                                                               const char* theModuleName, 
+                                                               CORBA::Long theSavePoint);
 
   virtual void SetStudyLock(const char* theLockerID);
 
@@ -302,17 +308,25 @@ public:
 
   virtual void SetBoolean(const char* theVarName, CORBA::Boolean theValue);
 
+  virtual void SetString(const char* theVarName, const char* theValue);
+
+  virtual void SetStringAsDouble(const char* theVarName, CORBA::Double theValue);
+
   virtual CORBA::Double GetReal(const char* theVarName);
   
   virtual CORBA::Long GetInteger(const char* theVarName);
 
   virtual CORBA::Boolean GetBoolean(const char* theVarName);
 
+  virtual char* GetString(const char* theVarName);
+
   virtual CORBA::Boolean IsReal(const char* theVarName);
   
   virtual CORBA::Boolean IsInteger(const char* theVarName);
 
   virtual CORBA::Boolean IsBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsString(const char* theVarName);
 
   virtual CORBA::Boolean IsVariable(const char* theVarName);
 
@@ -328,10 +342,16 @@ public:
 
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 
-  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);
+  virtual CORBA::Boolean DumpStudy(const char* thePath,
+                                   const char* theBaseName,
+                                   CORBA::Boolean isPublished,
+                                   CORBA::Boolean isMultiFile);
 
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
+
 };
 #endif

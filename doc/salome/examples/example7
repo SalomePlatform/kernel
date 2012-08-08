@@ -1,0 +1,45 @@
+
+#              create   AttributePersistentRef   
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributePersistentRef")
+if A == None :
+        raise  RuntimeError, "Can't create AttributePersistentRef attribute"
+A = A._narrow(SALOMEDS.AttributePersistentRef)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributePersistentRef attribute"
+
+A.SetValue("/tmp/test;1")
+
+#      save / restore study      
+#============================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy = batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find AttributePersistentRef
+#============================================================
+
+res,A=father.FindAttribute("AttributePersistentRef")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributePersistentRef"
+
+A = A._narrow(SALOMEDS.AttributePersistentRef)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributePersistentRef attribute"
+
+if A.Value() != "/tmp/test;1":
+        "Error: wrong value of AttributePersistentRef"

@@ -1,25 +1,27 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-"""Create a virtual Salome installation 
+
+"""Create a virtual Salome installation
 
 Based on a script created by Ian Bicking.
 
@@ -54,6 +56,9 @@ def mkdir(path):
 def symlink(src, dest):
     """Create a link if it does not exist"""
     if not os.path.exists(dest):
+        if os.path.lexists(dest):
+            print "Do not create symlink %s. It already exists but it's broken" % dest
+            return
         if verbose:
             print 'Creating symlink %s' % dest
             pass
@@ -95,8 +100,8 @@ def link_module(options):
 
     if not options.module:
         print "Option module is mandatory"
-        return 
-   
+        return
+
     module_dir=os.path.abspath(options.module)
     if not os.path.exists(module_dir):
         print "Module %s does not exist" % module_dir
@@ -131,7 +136,7 @@ def link_module(options):
     module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
     module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
                                           'site-packages','salome','shared_modules')
-    module_share_dir=os.path.join(module_dir,'share','salome','resources')
+    module_share_dir=os.path.join(module_dir,'share','salome')
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
     module_doc_tui_dir=os.path.join(module_dir,'doc','salome','tui')
     module_doc_dir=os.path.join(module_dir,'doc','salome')
@@ -145,7 +150,7 @@ def link_module(options):
     lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
     lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
                                    'site-packages','salome','shared_modules')
-    share_dir=os.path.join(home_dir,'share','salome','resources')
+    share_dir=os.path.join(home_dir,'share','salome')
     doc_gui_dir=os.path.join(home_dir,'doc','salome','gui')
     doc_tui_dir=os.path.join(home_dir,'doc','salome','tui')
     doc_dir=os.path.join(home_dir,'doc','salome')
@@ -162,7 +167,7 @@ def link_module(options):
         rmtree(doc_dir)
         rmtree(sharedoc_dir)
         pass
-    
+
     #directory bin/salome : create it and link content
     if os.path.exists(module_bin_dir):
         mkdir(bin_dir)
@@ -173,8 +178,8 @@ def link_module(options):
     else:
         if verbose:
             print module_bin_dir, " doesn't exist"
-        pass    
-    
+        pass
+
     #directory idl/salome : create it and link content
     if os.path.exists(module_idl_dir):
         mkdir(idl_dir)
@@ -194,26 +199,36 @@ def link_module(options):
     else:
         if verbose:
             print module_lib_dir, " doesn't exist"
-        pass    
-    
+        pass
+
     #directory lib/pyversio/site-packages/salome : create it and link content
     if not os.path.exists(module_lib_py_dir):
         print "Python directory %s does not exist" % module_lib_py_dir
     else:
+        # Specific action for the package salome
+        module_lib_pypkg_dir=os.path.join(module_lib_py_dir,"salome")
+        lib_pypkg_dir=os.path.join(lib_py_dir,"salome")
+        mkdir(lib_pypkg_dir)
         mkdir(lib_py_shared_dir)
         for fn in os.listdir(module_lib_py_dir):
             if fn == "shared_modules": continue
+            if fn == "salome": continue
             symlink(os.path.join(module_lib_py_dir, fn), os.path.join(lib_py_dir, fn))
-            pass    
+            pass
         if os.path.exists(module_lib_py_shared_dir):
             for fn in os.listdir(module_lib_py_shared_dir):
                 symlink(os.path.join(module_lib_py_shared_dir, fn), os.path.join(lib_py_shared_dir, fn))
                 pass
             pass
+        if os.path.exists(module_lib_pypkg_dir):
+            for fn in os.listdir(module_lib_pypkg_dir):
+                symlink(os.path.join(module_lib_pypkg_dir, fn), os.path.join(lib_pypkg_dir, fn))
+                pass
+            pass
         else:
             if verbose:
                 print module_lib_py_shared_dir, " doesn't exist"
-            pass    
+            pass
 
     #directory share/doc/salome (KERNEL doc) : create it and link content
     if os.path.exists(module_sharedoc_dir):
@@ -232,7 +247,7 @@ def link_module(options):
             symlink(os.path.join(module_sharedoc_gui_dir, fn), os.path.join(sharedoc_gui_dir, fn))
             pass
         pass
-    
+
     #directory share/doc/salome/tui : create it and link content
     if os.path.exists(module_sharedoc_tui_dir):
         mkdir(sharedoc_tui_dir)
@@ -241,15 +256,20 @@ def link_module(options):
             pass
         pass
 
-    #directory share/salome/resources : create it and link content
+    #directory share/salome : create it and link content
     if os.path.exists(module_share_dir):
         mkdir(share_dir)
         for fn in os.listdir(module_share_dir):
-            symlink(os.path.join(module_share_dir, fn), os.path.join(share_dir, fn))
-            pass
-        pass
+            if fn in ["resources","plugins"] :
+                # Create the directory and then link the content
+                mkdir(os.path.join(share_dir,fn))
+                for ffn in os.listdir(os.path.join(module_share_dir,fn)):
+                    symlink(os.path.join(module_share_dir, fn, ffn), os.path.join(share_dir,fn, ffn))
+            else:
+                #other directories (not resources)
+                symlink(os.path.join(module_share_dir, fn), os.path.join(share_dir, fn))
     else:
-        print "resources directory %s does not exist" % module_share_dir
+        print "share/salome directory %s does not exist" % module_share_dir
         pass
 
     #html files in doc/salome directory
@@ -261,7 +281,7 @@ def link_module(options):
             symlink(os.path.join(module_doc_dir, fn), os.path.join(doc_dir, fn))
             pass
         pass
-    
+
     #directory doc/salome/gui : create it and link content
     if os.path.exists(module_doc_gui_dir):
         mkdir(doc_gui_dir)
@@ -269,7 +289,7 @@ def link_module(options):
             symlink(os.path.join(module_doc_gui_dir, fn), os.path.join(doc_gui_dir, fn))
             pass
         pass
-    
+
     #directory doc/salome/tui : create it and link content
     if os.path.exists(module_doc_tui_dir):
         mkdir(doc_tui_dir)
@@ -293,7 +313,7 @@ Typical use is:
     parser.add_option('--prefix', dest="prefix", default='.',
                       help="The base directory to install to (default .)")
 
-    parser.add_option('--module', dest="module", 
+    parser.add_option('--module', dest="module",
                       help="The module directory to install in (mandatory)")
 
     parser.add_option('--clear', dest='clear', action='store_true',
@@ -302,7 +322,7 @@ Typical use is:
     options, args = parser.parse_args()
     link_module(options)
     pass
-    
+
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':

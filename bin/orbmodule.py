@@ -1,24 +1,30 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+## @package orbmodule
+# \brief Module that provides a client for %SALOME
+#
+
 import sys,os,time
 import string
 from nameserver import *
@@ -32,6 +38,7 @@ import CosNaming
 # -----------------------------------------------------------------------------
 
 class client:
+   """Client for SALOME"""
 
    def __init__(self,args=None):
       #set GIOP message size for bug 10560: impossible to get field values in TUI mode
@@ -54,11 +61,17 @@ class client:
           if verbose(): print "Launch Naming Service++",
           
       # On lance le Naming Server (doit etre dans le PATH)
-      NamingServer(args).run()
+      test = True
+      if args['wake_up_session']:
+         test = False
+         pass
+      if test:
+         NamingServer(args).run()
+         pass
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
-      while(ncount < 10):
+      while(ncount < 100):
           ncount += 1
           try:
               obj = self.orb.resolve_initial_references("NameService")
@@ -93,7 +106,7 @@ class client:
    # --------------------------------------------------------------------------
 
    def showNS(self):
-      """ Show the content of NS"""
+      """ Show the content of SALOME naming service """
       self.showNScontext(self.rootContext)
 
    # --------------------------------------------------------------------------
@@ -121,13 +134,13 @@ class client:
 
    # --------------------------------------------------------------------------
 
-   def waitNS(self,name,typobj=None,maxcount=60):
+   def waitNS(self,name,typobj=None,maxcount=240):
       count=0
       delta=0.5
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
-          if count > maxcount : raise "Impossible de trouver %s" % name
+          if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
           obj=self.Resolve(name)
           if obj : 
               print " found in %s seconds " % ((count-1)*delta)
@@ -154,7 +167,7 @@ class client:
          try:
            os.kill(thePID,0)
          except:
-           raise "Process %d for %s not found" % (thePID,theName)
+           raise RuntimeError, "Process %d for %s not found" % (thePID,theName)
          aCount += 1
          anObj = self.Resolve(theName)
          if anObj: 
@@ -202,7 +215,7 @@ class client:
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
-          if count > maxcount : raise "Impossible de trouver %s" % name
+          if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
           obj=self.ResolveLogger(name)
           if obj : 
               print " found in %s seconds " % ((count-1)*delta)

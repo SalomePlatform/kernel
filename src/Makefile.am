@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
@@ -27,7 +28,8 @@
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
-  HDFPersist
+  HDFPersist\
+  KERNEL_PY
 
 SUBDIR_CORBA = \
   DF \
@@ -50,7 +52,7 @@ SUBDIR_CORBA = \
   TOOLSDS \
   SALOMEDSImpl \
   SALOMEDS \
-  KERNEL_PY \
+  KernelHelpers \
   ModuleGenerator \
   Communication \
   Communication_SWIG \
@@ -68,7 +70,8 @@ SUBDIR_CPPUNIT_CORBA = \
   LifeCycleCORBA/Test \
   LifeCycleCORBA_SWIG/Test \
   SALOMEDSImpl/Test \
-  SALOMEDS/Test
+  SALOMEDS/Test \
+  KernelHelpers/Test
 
 SUBDIR_CPPUNIT_GENERAL = \
   UnitTests
@@ -76,10 +79,6 @@ SUBDIR_CPPUNIT_GENERAL = \
 SUBDIR_MPI = \
   MPIContainer \
   TestMPIContainer
-
-SUBDIR_BATCH= \
-  Batch \
-  Batch_SWIG
 
 SUBDIR_PARALLEL= ParallelContainer
 		 
@@ -89,7 +88,6 @@ DIST_SUBDIRS = \
   $(SUBDIR_CORBA) \
   $(SUBDIR_MPI) \
   $(SUBDIR_PARALLEL) \
-  $(SUBDIR_BATCH) \
   $(SUBDIR_CPPUNIT_BASE) \
   $(SUBDIR_CPPUNIT_CORBA) \
   $(SUBDIR_CPPUNIT_GENERAL)
@@ -101,14 +99,10 @@ DIST_SUBDIRS = \
 #
 
 if WITHONLYLAUNCHER
-  SUBDIRS = Batch Batch_SWIG ResourcesManager Launcher
+  SUBDIRS = Basics ResourcesManager Launcher
 else
 
 SUBDIRS = $(SUBDIR_BASE)
-
-if WITH_BATCH
-  SUBDIRS += $(SUBDIR_BATCH)
-endif
 
 if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)

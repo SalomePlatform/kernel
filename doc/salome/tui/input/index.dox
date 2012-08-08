@@ -1,0 +1,10 @@
+/*! \mainpage
+
+To browse the \b SALOME KERNEL module Developer Documentation, follow the links below or use navigation menu at the top of the page:
+<ul>
+<li> <a href="namespaces.html">Namespaces</a> - list of KERNEL namespaces and scripts.</li>
+<li> <a href="annotated.html">Data Structures</a> - list of all data structures and classes with brief descriptions.</li>
+<li> <a href="files.html">Files</a> - list of all files with brief descriptions.</li>
+</ul>
+
+*/

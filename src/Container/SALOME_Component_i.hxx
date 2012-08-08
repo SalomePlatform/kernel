@@ -1,30 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Container : implementation of container and engine for Kernel
 //  File   : SALOME_Component_i.hxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-
+//
 #ifndef _SALOME_COMPONENT_I_HXX_
 #define _SALOME_COMPONENT_I_HXX_
 
@@ -49,33 +50,26 @@ class RegistryConnexion;
 class Engines_Container_i;
 
 class CONTAINER_EXPORT Engines_Component_i: 
-  public virtual POA_Engines::Component,
+  public virtual POA_Engines::EngineComponent,
   public virtual PortableServer::ServantBase
 {
 public:
   Engines_Component_i();
   Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      PortableServer::ObjectId * contId, 
-		      const char *instanceName, 
-		      const char *interfaceName,
-                      bool notif = false);
+                      PortableServer::POA_ptr poa,
+                      PortableServer::ObjectId * contId, 
+                      const char *instanceName, 
+                      const char *interfaceName,
+                      bool notif = false,
+                      bool regist = true);
   //Constructor for standalone component
   Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      Engines::Container_ptr container, 
-		      const char *instanceName, 
-		      const char *interfaceName,
+                      PortableServer::POA_ptr poa,
+                      Engines::Container_ptr container, 
+                      const char *instanceName, 
+                      const char *interfaceName,
                       bool notif = false,
-                      bool regist=true);
-  // Constructor for parallel component : don't call registry
-  Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      PortableServer::ObjectId * contId, 
-		      const char *instanceName, 
-		      const char *interfaceName,
-		      int flag,
-                      bool notif = false);
+                      bool regist = true);
 
   virtual ~Engines_Component_i();
 
@@ -93,41 +87,47 @@ public:
   void setProperties(const Engines::FieldsDict& dico);
   Engines::FieldsDict* getProperties();
 
-  void Names( const char * graphName , const char * nodeName ) ;
+  virtual void  SetOption(const char*, const char*);
+  virtual char* GetOption(const char*);
+
+        void Names( const char * graphName , const char * nodeName ) ;
   bool Kill_impl();
   bool Stop_impl();
   bool Suspend_impl();
   bool Resume_impl();
   CORBA::Long CpuUsed_impl() ;
 
- virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
-				      CORBA::Boolean isPublished,
-				      CORBA::Boolean& isValidScript);
+  virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
+                                       CORBA::Boolean isPublished,
+                                       CORBA::Boolean isMultiFile,
+                                       CORBA::Boolean& isValidScript);
 
- // CORBA operations for Salome_file
- virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
-							const char* Salome_file_name);
- virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
-							      const char* Salome_file_name);
+  // CORBA operations for Salome_file
+  virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
+                                                         const char* Salome_file_name);
+  virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
+                                                          const char* Salome_file_name);
 
- virtual void checkInputFilesToService(const char* service_name);
- virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
-							const char* Salome_file_name);
+  virtual void checkInputFilesToService(const char* service_name);
+  virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
+                                                         const char* Salome_file_name);
 
- virtual void checkOutputFilesToService(const char* service_name);
- virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
-							 const char* Salome_file_name);
+  virtual void checkOutputFilesToService(const char* service_name);
+  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
+                                                          const char* Salome_file_name);
 
   // Object information
   virtual bool hasObjectInfo() { return false; }
-  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return ""; }
+  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return CORBA::string_dup(""); }
   
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
   Engines_Container_i *GetContainerPtr();
+  std::string getContainerName();
+  void setContainerName();
 
-  bool setStudyId(CORBA::Long studyId);
+  virtual bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
@@ -143,8 +143,8 @@ public:
   void CancelThread() ;
 
   virtual void configureSalome_file(std::string service_name,
-				    std::string file_port_name,
-				    Salome_file_i * file);
+                                    std::string file_port_name,
+                                    Salome_file_i * file);
 
 
 protected:
@@ -154,6 +154,7 @@ protected:
 
   std::string _instanceName ;
   std::string _interfaceName ;
+  std::string _containerName ;
 
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;

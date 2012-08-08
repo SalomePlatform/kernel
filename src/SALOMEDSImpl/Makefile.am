@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
@@ -56,6 +57,7 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_AttributePixMap.hxx \
 	SALOMEDSImpl_AttributeLocalID.hxx \
 	SALOMEDSImpl_AttributeTarget.hxx \
+	SALOMEDSImpl_AttributeTable.hxx \
 	SALOMEDSImpl_AttributeTableOfInteger.hxx \
 	SALOMEDSImpl_AttributeTableOfReal.hxx \
 	SALOMEDSImpl_AttributeTableOfString.hxx \
@@ -95,13 +97,19 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
 	-I$(srcdir)/../DF \
+	-I$(srcdir)/../GenericObj \
+	-I$(top_builddir)/idl \
+	-I$(top_builddir) \
 	@HDF5_INCLUDES@ \
-	@BOOST_CPPFLAGS@
+	@BOOST_CPPFLAGS@ @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
+	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
 	../DF/libDF.la \
+	../GenericObj/libSalomeGenericObj.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@HDF5_LIBS@ 
 
 
@@ -184,6 +192,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeSequenceOfReal.hxx \
 	SALOMEDSImpl_Attributes.hxx \
 	SALOMEDSImpl_AttributeStudyProperties.hxx \
+	SALOMEDSImpl_AttributeTable.hxx \
 	SALOMEDSImpl_AttributeTableOfInteger.hxx \
 	SALOMEDSImpl_AttributeTableOfReal.hxx \
 	SALOMEDSImpl_AttributeTableOfString.hxx \
@@ -215,7 +224,7 @@ libSalomeDSImpl_la_SOURCES =\
 
 libSalomeDSImpl_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDSImpl_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS)
+libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS) $(CORBA_LIBS)
 
 #
 # ===============================================================
@@ -225,5 +234,5 @@ libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS)
 bin_PROGRAMS = testDS
 testDS_SOURCES  = testDS.cxx
 testDS_CPPFLAGS = $(COMMON_CPPFLAGS)
-testDS_LDADD    = libSalomeDSImpl.la \
-	$(HDF5_LIBS)
+testDS_LDADD    = libSalomeDSImpl.la ../DF/libDF.la \
+	$(COMMON_LIBS) $(CORBA_LIBS)

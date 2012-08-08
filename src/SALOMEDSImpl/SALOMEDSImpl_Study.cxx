@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_Study.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -26,7 +27,8 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include <string.h>
 
-using namespace std;
+#include <KERNEL_version.h>
+#include <Basics_Utils.hxx>
 
 #include "DF_Application.hxx"
 #include "DF_ChildIterator.hxx"
@@ -41,6 +43,10 @@ using namespace std;
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 
 #include <fstream>
+#include <sstream>
+
+// comment out the following define to enable \t symbols in in the python dump files
+#define WITHOUT_TABS
 
 #define DIRECTORYID       16661
 #define FILELOCALID       26662
@@ -48,14 +54,13 @@ using namespace std;
 #define VARIABLE_SEPARATOR  ':'
 #define OPERATION_SEPARATOR '|'
 
-
 //============================================================================
 /*! Function : SALOMEDSImpl_Study
  *  Purpose  : SALOMEDSImpl_Study constructor
  */
 //============================================================================
 SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
-				       const string& study_name)
+                                       const std::string& study_name)
 {
   _name = study_name;
   _doc = (DF_Document*)doc;
@@ -67,6 +72,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
   _useCaseBuilder = new SALOMEDSImpl_UseCaseBuilder(_doc);
   _builder = new SALOMEDSImpl_StudyBuilder(this);
   _cb = new SALOMEDSImpl_Callback(_useCaseBuilder);
+  _notifier=0;
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by DF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
@@ -79,14 +85,18 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
  */
 //============================================================================
 SALOMEDSImpl_Study::~SALOMEDSImpl_Study()
-{}
+{
+  delete _builder;
+  delete _cb;
+  delete _useCaseBuilder;
+}
 
 //============================================================================
 /*! Function : GetPersistentReference
  *  Purpose  : Get persistent reference of study (idem URL())
  */
 //============================================================================
-string SALOMEDSImpl_Study::GetPersistentReference()
+std::string SALOMEDSImpl_Study::GetPersistentReference()
 {
   _errorCode = "";
   return URL();
@@ -96,10 +106,10 @@ string SALOMEDSImpl_Study::GetPersistentReference()
  *  Purpose  : Get IOR of the Study (registred in Document in doc->Root)
  */
 //============================================================================
-string SALOMEDSImpl_Study::GetTransientReference()
+std::string SALOMEDSImpl_Study::GetTransientReference()
 {
   _errorCode = "";
-  string IOR = "";
+  std::string IOR = "";
 
   SALOMEDSImpl_AttributeIOR* Att;
   DF_Label _lab = _doc->Root();
@@ -113,7 +123,7 @@ string SALOMEDSImpl_Study::GetTransientReference()
   return IOR;
 }
 
-void SALOMEDSImpl_Study::SetTransientReference(const string& theIOR)
+void SALOMEDSImpl_Study::SetTransientReference(const std::string& theIOR)
 {
   _errorCode = "";
 
@@ -144,11 +154,11 @@ bool SALOMEDSImpl_Study::IsEmpty()
  *  Purpose  : Find a Component with ComponentDataType = aComponentName
  */
 //============================================================================
-SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponent (const string& aComponentName)
+SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponent (const std::string& aComponentName)
 {
   _errorCode = "";
   bool _find = false;
-  string name;
+  std::string name;
   SALOMEDSImpl_SComponentIterator itcomp = NewComponentIterator();
   SALOMEDSImpl_SComponent compo;
 
@@ -174,14 +184,14 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponent (const string& aCompon
  *  Purpose  : Find a Component from it's ID
  */
 //============================================================================
-SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponentID(const string& aComponentID)
+SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponentID(const std::string& aComponentID)
 {
   _errorCode = "";
 
   // Iterate on each components defined in the study
   // Get the component ID and compare with aComponentID
   bool _find = false;
-  string ID;
+  std::string ID;
   SALOMEDSImpl_SComponent compo;
 
   SALOMEDSImpl_SComponentIterator itcomp = NewComponentIterator();
@@ -190,8 +200,8 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponentID(const string& aCompo
     ID = SC.GetID();
     if(aComponentID == ID)
       {
-	// ComponentID found
-	_find = true;
+        // ComponentID found
+        _find = true;
         compo = SC;
       }
   }
@@ -209,7 +219,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponentID(const string& aCompo
  *  Purpose  : Find an Object with SALOMEDSImpl_Name = anObjectName
  */
 //============================================================================
-SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObject(const string& anObjectName)
+SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObject(const std::string& anObjectName)
 {
   _errorCode = "";
 
@@ -223,14 +233,14 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObject(const string& anObjectName)
   for (; it.More();it.Next()){
     if(!_find)
       {
-	SALOMEDSImpl_SComponent SC = it.Value();
-	if (SC.GetName() == anObjectName)
-	{
-	    _find = true;
-	    RefSO = SC;
+        SALOMEDSImpl_SComponent SC = it.Value();
+        if (SC.GetName() == anObjectName)
+        {
+            _find = true;
+            RefSO = SC;
 
-	}
-	if (!_find) RefSO =  _FindObject(SC, anObjectName, _find);
+        }
+        if (!_find) RefSO =  _FindObject(SC, anObjectName, _find);
       }
   }
   if(!RefSO) _errorCode = "No object was found";
@@ -242,11 +252,11 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObject(const string& anObjectName)
  *  Purpose  : Find an Object with ID = anObjectID
  */
 //============================================================================
-SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectID(const string& anObjectID)
+SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectID(const std::string& anObjectID)
 {
   _errorCode = "";
   SALOMEDSImpl_SObject so;
-  
+
   // Convert aSO->GetID in DF_Label.
   DF_Label Lab = DF_Label::Label(_doc->Main(), anObjectID, false);
 
@@ -263,7 +273,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectID(const string& anObjectID)
  *  Purpose  : Creates an Object with ID = anObjectID
  */
 //============================================================================
-SALOMEDSImpl_SObject SALOMEDSImpl_Study::CreateObjectID(const string& anObjectID)
+SALOMEDSImpl_SObject SALOMEDSImpl_Study::CreateObjectID(const std::string& anObjectID)
 {
   _errorCode = "";
   SALOMEDSImpl_SObject so;
@@ -285,12 +295,12 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::CreateObjectID(const string& anObjectID
  *           : with ComponentDataType = aComponentName
  */
 //============================================================================
-vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const string& anObjectName,
-							  const string& aComponentName)
+std::vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const std::string& anObjectName,
+								       const std::string& aComponentName)
 {
   _errorCode = "";
 
-  vector<SALOMEDSImpl_SObject> listSO;
+  std::vector<SALOMEDSImpl_SObject> listSO;
 
   SALOMEDSImpl_SComponent compo = FindComponent(aComponentName) ;
   if ( !compo ) {
@@ -300,16 +310,16 @@ vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const string& 
 
   // Iterate on each object and subobject of the component
   // If objectName is found add it to the list of SObjects
-  string childName ;
+  std::string childName ;
 
-  string compoId = compo.GetID();
+  std::string compoId = compo.GetID();
   SALOMEDSImpl_ChildIterator it = NewChildIterator(compo);
   for ( ; it.More(); it.Next() ) {
 
     SALOMEDSImpl_SObject CSO = it.Value();
     if ( CSO.GetName() == anObjectName ) {
-	/* add to list */
-	listSO.push_back(CSO) ;
+        /* add to list */
+        listSO.push_back(CSO) ;
     }
 
     /* looks also for eventual children */
@@ -330,22 +340,23 @@ vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const string& 
  *  Purpose  : Find an Object with IOR = anObjectIOR
  */
 //============================================================================
-SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectIOR(const string& anObjectIOR)
+SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectIOR(const std::string& anObjectIOR)
 {
   _errorCode = "";
-  
+
   SALOMEDSImpl_SObject aResult ;
-  
+
   // searching in the datamap for optimization
-  if (myIORLabels.find(anObjectIOR) != myIORLabels.end()) {
-    aResult = GetSObject(myIORLabels[anObjectIOR]);
+  std::map<std::string, DF_Label>::iterator it=myIORLabels.find(anObjectIOR);
+  if (it != myIORLabels.end()) {
+    aResult = GetSObject(it->second);
     // 11 oct 2002: forbidden attributes must be checked here
     if (!aResult.GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID())) {
       myIORLabels.erase(anObjectIOR);
-      aResult = SALOMEDSImpl_SObject();  
-    }  
+      aResult = SALOMEDSImpl_SObject();
+    }
   }
-  
+
   if(!aResult) _errorCode = "No object was found";
   return aResult;
 }
@@ -355,11 +366,11 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectIOR(const string& anObjectIOR
  *  Purpose  : Find an Object by its path = thePath
  */
 //============================================================================
-SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const string& thePath)
+SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const std::string& thePath)
 {
   _errorCode = "";
 
-  string aPath(thePath), aToken;
+  std::string aPath(thePath), aToken;
   SALOMEDSImpl_SObject aSO;
   int aLength = aPath.size();
   bool isRelative = false;
@@ -386,7 +397,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const string& thePath)
     anIterator.Init(_doc->Main(), false);
   }
 
-  vector<string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
+  std::vector<std::string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
   for(int i = 0, len = vs.size(); i<len; i++) {
 
     aToken = vs[i];
@@ -395,14 +406,14 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const string& thePath)
     for ( ; anIterator.More(); anIterator.Next() ) {
       aLabel = anIterator.Value();
       if((anAttr=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
-	if(anAttr->Value() == aToken) {
-	  if(i == (len-1)) {  //The searched label is found (no part of the path is left)
-	      return GetSObject(aLabel);
-	  }
+        if(anAttr->Value() == aToken) {
+          if(i == (len-1)) {  //The searched label is found (no part of the path is left)
+              return GetSObject(aLabel);
+          }
 
-	  anIterator.Init(aLabel, false);
-	  break;
-	}
+          anIterator.Init(aLabel, false);
+          break;
+        }
       }
     }
 
@@ -417,19 +428,19 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const string& thePath)
  *  Purpose  :
  */
 //============================================================================
-string SALOMEDSImpl_Study::GetObjectPath(const SALOMEDSImpl_SObject& theObject)
+std::string SALOMEDSImpl_Study::GetObjectPath(const SALOMEDSImpl_SObject& theObject)
 {
   _errorCode = "";
 
-  string aPath("");
+  std::string aPath("");
   if(!theObject) {
     _errorCode = "Null object";
     return aPath;
   }
 
-  string aName = theObject.GetName();
+  std::string aName = theObject.GetName();
   if(!aName.empty() && aName != "" ) {
-    string aValue("/");
+    std::string aValue("/");
     aValue+=aName;
     aValue += aPath;
     aPath = aValue;
@@ -437,8 +448,8 @@ string SALOMEDSImpl_Study::GetObjectPath(const SALOMEDSImpl_SObject& theObject)
     if(aFather) {
        aName = aFather.GetName();
        if(!aName.empty() && aName != "") {
- 	  aValue = GetObjectPath(aFather);
-	  aPath = aValue + aPath;
+           aValue = GetObjectPath(aFather);
+          aPath = aValue + aPath;
        }
     }
   }
@@ -452,11 +463,11 @@ string SALOMEDSImpl_Study::GetObjectPath(const SALOMEDSImpl_SObject& theObject)
  *  Purpose  :
  */
 //============================================================================
-string SALOMEDSImpl_Study::GetObjectPathByIOR(const string& theIOR)
+std::string SALOMEDSImpl_Study::GetObjectPathByIOR(const std::string& theIOR)
 {
   _errorCode = "";
 
-  string aPath;
+  std::string aPath;
   SALOMEDSImpl_SObject so = FindObjectIOR(theIOR);
   if(!so) {
     _errorCode = "No SObject was found by IOR";
@@ -472,7 +483,7 @@ string SALOMEDSImpl_Study::GetObjectPathByIOR(const string& theIOR)
  *  Purpose  : Sets the current context
  */
 //============================================================================
-bool SALOMEDSImpl_Study::SetContext(const string& thePath)
+bool SALOMEDSImpl_Study::SetContext(const std::string& thePath)
 {
   _errorCode = "";
   if(thePath.empty()) {
@@ -480,7 +491,7 @@ bool SALOMEDSImpl_Study::SetContext(const string& thePath)
     return false;
   }
 
-  string aPath(thePath), aContext("");
+  std::string aPath(thePath), aContext("");
   bool isInvalid = false;
   SALOMEDSImpl_SObject aSO;
 
@@ -520,7 +531,7 @@ bool SALOMEDSImpl_Study::SetContext(const string& thePath)
  *  Purpose  : Gets the current context
  */
 //============================================================================
-string SALOMEDSImpl_Study::GetContext()
+std::string SALOMEDSImpl_Study::GetContext()
 {
   _errorCode = "";
 
@@ -537,11 +548,11 @@ string SALOMEDSImpl_Study::GetContext()
  *  Purpose  : method to get all object names in the given context (or in the current context, if 'theContext' is empty)
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetObjectNames(const string& theContext)
+std::vector<std::string> SALOMEDSImpl_Study::GetObjectNames(const std::string& theContext)
 {
   _errorCode = "";
 
-  vector<string> aResultSeq;
+  std::vector<std::string> aResultSeq;
   DF_Label aLabel;
   if (theContext.empty()) {
     aLabel = _current;
@@ -560,7 +571,7 @@ vector<string> SALOMEDSImpl_Study::GetObjectNames(const string& theContext)
   for (; anIter.More(); anIter.Next()) {
     DF_Label aLabel = anIter.Value();
     SALOMEDSImpl_AttributeName* aName;
-    if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) 
+    if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
       aResultSeq.push_back(aName->Value());
   }
 
@@ -572,11 +583,11 @@ vector<string> SALOMEDSImpl_Study::GetObjectNames(const string& theContext)
  *  Purpose  : method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetDirectoryNames(const string& theContext)
+std::vector<std::string> SALOMEDSImpl_Study::GetDirectoryNames(const std::string& theContext)
 {
   _errorCode = "";
 
-  vector<string> aResultSeq;
+  std::vector<std::string> aResultSeq;
   DF_Label aLabel;
   if (theContext.empty()) {
     aLabel = _current;
@@ -597,10 +608,10 @@ vector<string> SALOMEDSImpl_Study::GetDirectoryNames(const string& theContext)
     SALOMEDSImpl_AttributeLocalID* anID;
     if ((anID=(SALOMEDSImpl_AttributeLocalID*)aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
       if (anID->Value() == DIRECTORYID) {
-	SALOMEDSImpl_AttributeName* aName;
-	if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
-	  aResultSeq.push_back(aName->Value());
-	}
+        SALOMEDSImpl_AttributeName* aName;
+        if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
+          aResultSeq.push_back(aName->Value());
+        }
       }
     }
   }
@@ -613,11 +624,11 @@ vector<string> SALOMEDSImpl_Study::GetDirectoryNames(const string& theContext)
  *  Purpose  : method to get all file names in the given context (or in the current context, if 'theContext' is empty)
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetFileNames(const string& theContext)
+std::vector<std::string> SALOMEDSImpl_Study::GetFileNames(const std::string& theContext)
 {
   _errorCode = "";
 
-  vector<string> aResultSeq;
+  std::vector<std::string> aResultSeq;
   DF_Label aLabel;
   if (theContext.empty()) {
     aLabel = _current;
@@ -638,12 +649,12 @@ vector<string> SALOMEDSImpl_Study::GetFileNames(const string& theContext)
     SALOMEDSImpl_AttributeLocalID* anID;
     if ((anID=(SALOMEDSImpl_AttributeLocalID*)aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
       if (anID->Value() == FILELOCALID) {
-	SALOMEDSImpl_AttributePersistentRef* aName;
-	if ((aName=(SALOMEDSImpl_AttributePersistentRef*)aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
-	  std::string aFileName = aName->Value();
-	  if (aFileName.size() > 0)
-	    aResultSeq.push_back(aFileName.substr(strlen(FILEID), aFileName.size()));
-	}
+        SALOMEDSImpl_AttributePersistentRef* aName;
+        if ((aName=(SALOMEDSImpl_AttributePersistentRef*)aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
+          std::string aFileName = aName->Value();
+          if (aFileName.size() > 0)
+            aResultSeq.push_back(aFileName.substr(strlen(FILEID), aFileName.size()));
+        }
       }
     }
   }
@@ -656,16 +667,16 @@ vector<string> SALOMEDSImpl_Study::GetFileNames(const string& theContext)
  *  Purpose  : method to get all components names
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetComponentNames(const string& theContext)
+std::vector<std::string> SALOMEDSImpl_Study::GetComponentNames(const std::string& theContext)
 {
   _errorCode = "";
 
-  vector<string> aResultSeq;
+  std::vector<std::string> aResultSeq;
   DF_ChildIterator anIter(_doc->Main(), false); // iterate all subchildren at first level
   for(; anIter.More(); anIter.Next()) {
     DF_Label aLabel = anIter.Value();
     SALOMEDSImpl_AttributeName* aName;
-    if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) 
+    if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
       aResultSeq.push_back(aName->Value());
   }
 
@@ -717,7 +728,7 @@ SALOMEDSImpl_StudyBuilder* SALOMEDSImpl_Study::NewBuilder()
  *  Purpose  : get study name
  */
 //============================================================================
-string SALOMEDSImpl_Study::Name()
+std::string SALOMEDSImpl_Study::Name()
 {
   _errorCode = "";
   return _name;
@@ -728,7 +739,7 @@ string SALOMEDSImpl_Study::Name()
  *  Purpose  : set study name
  */
 //============================================================================
-void SALOMEDSImpl_Study::Name(const string& name)
+void SALOMEDSImpl_Study::Name(const std::string& name)
 {
   _errorCode = "";
   _name = name;
@@ -767,7 +778,7 @@ bool SALOMEDSImpl_Study::IsModified()
   _errorCode = "";
 
   // True if is modified
-  if (_doc->IsModified()) return true;
+  if (_doc && _doc->IsModified()) return true;
 
   return false;
 }
@@ -777,7 +788,7 @@ bool SALOMEDSImpl_Study::IsModified()
  *  Purpose  : get URL of the study (persistent reference of the study)
  */
 //============================================================================
-string SALOMEDSImpl_Study::URL()
+std::string SALOMEDSImpl_Study::URL()
 {
   _errorCode = "";
   return _URL;
@@ -788,13 +799,13 @@ string SALOMEDSImpl_Study::URL()
  *  Purpose  : set URL of the study (persistent reference of the study)
  */
 //============================================================================
-void SALOMEDSImpl_Study::URL(const string& url)
+void SALOMEDSImpl_Study::URL(const std::string& url)
 {
   _errorCode = "";
   _URL = url;
 
   /*jfa: Now name of SALOMEDS study will correspond to name of SalomeApp study
-  string tmp(_URL);
+  std::string tmp(_URL);
 
   char *aName = (char*)tmp.ToCString();
   char *adr = strtok(aName, "/");
@@ -814,8 +825,8 @@ void SALOMEDSImpl_Study::URL(const string& url)
  */
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject& SO,
-						             const string& theObjectName,
-						             bool& _find)
+						     const std::string& theObjectName,
+						     bool& _find)
 {
   SALOMEDSImpl_SObject RefSO;
   if(!SO) return RefSO;
@@ -824,21 +835,21 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject&
   // If objectName find, stop the loop and get the object reference
   SALOMEDSImpl_AttributeName* anAttr;
 
-  string soid = SO.GetID();
+  std::string soid = SO.GetID();
   DF_ChildIterator it(SO.GetLabel());
   for (; it.More(); it.Next()){
     if(!_find)
       {
-	if ((anAttr=(SALOMEDSImpl_AttributeName*)it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
-	{
-          string Val(anAttr->Value());
-	  if (Val == theObjectName)
-	    {
-	      RefSO = GetSObject(it.Value());
-	      _find = true;
-	    }
-	}
-	if (!_find) RefSO = _FindObject(GetSObject(it.Value()), theObjectName, _find);
+        if ((anAttr=(SALOMEDSImpl_AttributeName*)it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
+        {
+          std::string Val(anAttr->Value());
+          if (Val == theObjectName)
+            {
+              RefSO = GetSObject(it.Value());
+              _find = true;
+            }
+        }
+        if (!_find) RefSO = _FindObject(GetSObject(it.Value()), theObjectName, _find);
       }
   }
   return RefSO;
@@ -851,8 +862,8 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject&
 //============================================================================
 SALOMEDSImpl_SObject
 SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
-				   const string& theObjectIOR,
-				   bool& _find)
+                                   const std::string& theObjectIOR,
+                                   bool& _find)
 {
   SALOMEDSImpl_SObject RefSO, aSO;
   if(!SO) return RefSO;
@@ -865,17 +876,17 @@ SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
   for (; it.More();it.Next()){
     if(!_find)
       {
-	if ((anAttr=(SALOMEDSImpl_AttributeIOR*)it.Value().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())))
-	{
-          string Val(anAttr->Value());
-	  if (Val == theObjectIOR)
-	    {
-	      RefSO = GetSObject(it.Value());
-	      _find = true;
-	    }
-	}
-	aSO = GetSObject(it.Value());
-	if (!_find) RefSO =  _FindObjectIOR(aSO, theObjectIOR, _find);
+        if ((anAttr=(SALOMEDSImpl_AttributeIOR*)it.Value().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())))
+        {
+          std::string Val(anAttr->Value());
+          if (Val == theObjectIOR)
+            {
+              RefSO = GetSObject(it.Value());
+              _find = true;
+            }
+        }
+        aSO = GetSObject(it.Value());
+        if (!_find) RefSO =  _FindObjectIOR(aSO, theObjectIOR, _find);
       }
   }
   return RefSO;
@@ -886,35 +897,37 @@ SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
  *  Purpose  : Find an Object with SALOMEDSImpl_IOR = anObjectIOR
  */
 //============================================================================
-string SALOMEDSImpl_Study::_GetNoteBookAccessor(){
-  return string("notebook");
+std::string SALOMEDSImpl_Study::_GetNoteBookAccessor(){
+  return std::string("notebook");
 }
 
 //============================================================================
 /*! Function : _GetStudyVariablesScript
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-string SALOMEDSImpl_Study::_GetStudyVariablesScript()
+std::string SALOMEDSImpl_Study::_GetStudyVariablesScript()
 {
-  string dump("");
-  
+  std::string dump("");
+
   if(myNoteBookVars.empty())
     return dump;
-  
+
+  Kernel_Utils::Localizer loc;
+
   dump += "####################################################\n";
   dump += "##       Begin of NoteBook variables section      ##\n";
   dump += "####################################################\n";
 
-  string set_method = _GetNoteBookAccessor()+".set(";
-  string varName;
-  string varValue;
+  std::string set_method = _GetNoteBookAccessor()+".set(";
+  std::string varName;
+  std::string varValue;
   for(int i = 0 ; i < myNoteBookVars.size();i++ ) {
     varName = myNoteBookVars[i]->Name();
     varValue = myNoteBookVars[i]->SaveToScript();
     dump+=set_method+"\""+varName+"\", "+varValue+")\n";
   }
-  
+
   dump += "####################################################\n";
   dump += "##        End of NoteBook variables section       ##\n";
   dump += "####################################################\n";
@@ -927,12 +940,12 @@ string SALOMEDSImpl_Study::_GetStudyVariablesScript()
  *  Purpose  :
  */
 //============================================================================
-string SALOMEDSImpl_Study::_GetNoteBookAccess()
+std::string SALOMEDSImpl_Study::_GetNoteBookAccess()
 {
-  string accessor = _GetNoteBookAccessor();
-  string notebook = "import salome_notebook\n";
-         notebook += accessor+" = salome_notebook."+accessor + "\n";
-  return notebook;       
+  std::string accessor = _GetNoteBookAccessor();
+  std::string notebook = "import salome_notebook\n";
+  notebook += accessor+" = salome_notebook."+accessor + "\n";
+  return notebook;
 }
 
 bool SALOMEDSImpl_Study::IsLocked()
@@ -953,12 +966,23 @@ void SALOMEDSImpl_Study::StudyId(int id)
   _StudyId = id;
 }
 
-void SALOMEDSImpl_Study::UpdateIORLabelMap(const string& anIOR,const string& anEntry)
+void SALOMEDSImpl_Study::UpdateIORLabelMap(const std::string& anIOR,const std::string& anEntry)
 {
   _errorCode = "";
   DF_Label aLabel = DF_Label::Label(_doc->Main(), anEntry, true);
-  if (myIORLabels.find(anIOR) != myIORLabels.end()) myIORLabels.erase(anIOR);
+  std::map<std::string, DF_Label>::iterator it=myIORLabels.find(anIOR);
+  if (it != myIORLabels.end()) myIORLabels.erase(it);
   myIORLabels[anIOR] = aLabel;
+}
+
+void SALOMEDSImpl_Study::DeleteIORLabelMapItem(const std::string& anIOR)
+{
+  std::map<std::string, DF_Label>::iterator it=myIORLabels.find(anIOR);
+  if (it != myIORLabels.end())
+    {
+      //remove the ior entry and decref the genericobj (if it's one)
+      myIORLabels.erase(it);
+    }
 }
 
 SALOMEDSImpl_Study* SALOMEDSImpl_Study::GetStudy(const DF_Label& theLabel)
@@ -983,14 +1007,14 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::SComponent(const DF_Label& theLabel)
 
 void SALOMEDSImpl_Study::IORUpdated(const SALOMEDSImpl_AttributeIOR* theAttribute)
 {
-  string aString = theAttribute->Label().Entry();
+  std::string aString = theAttribute->Label().Entry();
   GetStudy(theAttribute->Label())->UpdateIORLabelMap(theAttribute->Value(), aString);
 }
 
-vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindDependances(const SALOMEDSImpl_SObject& anObject)
+std::vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindDependances(const SALOMEDSImpl_SObject& anObject)
 {
   _errorCode = "";
-  vector<SALOMEDSImpl_SObject> aSeq;
+  std::vector<SALOMEDSImpl_SObject> aSeq;
 
   SALOMEDSImpl_AttributeTarget* aTarget;
   if ((aTarget=(SALOMEDSImpl_AttributeTarget*)anObject.GetLabel().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID()))) {
@@ -1007,13 +1031,13 @@ SALOMEDSImpl_AttributeStudyProperties* SALOMEDSImpl_Study::GetProperties()
   return SALOMEDSImpl_AttributeStudyProperties::Set(_doc->Main());
 }
 
-string SALOMEDSImpl_Study::GetLastModificationDate()
+std::string SALOMEDSImpl_Study::GetLastModificationDate()
 {
   _errorCode = "";
   SALOMEDSImpl_AttributeStudyProperties* aProp = GetProperties();
 
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int aLastIndex = aNames.size()-1;
@@ -1021,27 +1045,27 @@ string SALOMEDSImpl_Study::GetLastModificationDate()
   sprintf(aResult, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d",
           (int)(aDays[aLastIndex]),(int)(aMonths[aLastIndex]), (int)(aYears[aLastIndex]),
           (int)(aHours[aLastIndex]), (int)(aMinutes[aLastIndex]));
-  string aResStr (aResult);
+  std::string aResStr (aResult);
   return aResStr;
 }
 
-vector<string> SALOMEDSImpl_Study::GetModificationsDate()
+std::vector<std::string> SALOMEDSImpl_Study::GetModificationsDate()
 {
   _errorCode = "";
   SALOMEDSImpl_AttributeStudyProperties* aProp = GetProperties();
 
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int anIndex, aLength = aNames.size();
-  vector<string> aDates;
+  std::vector<std::string> aDates;
 
   for (anIndex = 1; anIndex < aLength; anIndex++) {
     char aDate[20];
     sprintf(aDate, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d",
             (int)(aDays[anIndex]), (int)(aMonths[anIndex]), (int)(aYears[anIndex]),
-	    (int)(aHours[anIndex]), (int)(aMinutes[anIndex]));
+            (int)(aHours[anIndex]), (int)(aMinutes[anIndex]));
     aDates.push_back(aDate);
   }
   return aDates;
@@ -1081,7 +1105,7 @@ void SALOMEDSImpl_Study::Close()
  *  Purpose  :
  */
 //============================================================================
-SALOMEDSImpl_SComponent SALOMEDSImpl_Study::GetSComponent(const string& theEntry)
+SALOMEDSImpl_SComponent SALOMEDSImpl_Study::GetSComponent(const std::string& theEntry)
 {
   SALOMEDSImpl_SComponent aSCO;
   if(_mapOfSCO.find(theEntry) != _mapOfSCO.end())
@@ -1110,11 +1134,12 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::GetSComponent(const DF_Label& theLab
  *  Purpose  :
  */
 //============================================================================
-SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const string& theEntry)
+SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const std::string& theEntry)
 {
   SALOMEDSImpl_SObject aSO;
-  if(_mapOfSO.find(theEntry) != _mapOfSO.end())
-    aSO = _mapOfSO[theEntry];
+  std::map<std::string, SALOMEDSImpl_SObject>::iterator it=_mapOfSO.find(theEntry);
+  if(it != _mapOfSO.end())
+    aSO = it->second;
   else {
     DF_Label aLabel = DF_Label::Label(_doc->Main(), theEntry);
     aSO = SALOMEDSImpl_SObject(aLabel);
@@ -1139,8 +1164,8 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const DF_Label& theLabel)
  *  Purpose  :
  */
 //============================================================================
-DF_Attribute* SALOMEDSImpl_Study::GetAttribute(const string& theEntry,
-					       const string& theType)
+DF_Attribute* SALOMEDSImpl_Study::GetAttribute(const std::string& theEntry,
+                                               const std::string& theType)
 {
   SALOMEDSImpl_SObject aSO = GetSObject(theEntry);
   DF_Attribute* anAttr;
@@ -1148,15 +1173,41 @@ DF_Attribute* SALOMEDSImpl_Study::GetAttribute(const string& theEntry,
   return anAttr;
 }
 
+//! number of spaces for indentation in Python dump files (to replace \t symbols)
+static const int indent_size = 2;
+
+static std::string replace_tabs( const std::string& in )
+{
+  std::string out = in;
+#ifdef WITHOUT_TABS
+  size_t pos = out.find( '\t' );
+  while ( pos != std::string::npos ) {
+    out.replace( pos, 1, indent_size, ' ' );
+    pos = out.find( '\t' );
+  }
+#endif
+  return out;
+}
+
+static std::string GetComponentHeader(const char* theComponentName)
+{
+  std::stringstream txt;
+  txt << "###" << std::endl;
+  txt << "### " << theComponentName << " component" << std::endl;
+  txt << "###" << std::endl;
+  return txt.str();
+}
+
 //============================================================================
 /*! Function : DumpStudy
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
-				   const string& theBaseName,
-				   bool isPublished,
-				   SALOMEDSImpl_DriverFactory* theFactory)
+bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
+                                   const std::string& theBaseName,
+                                   bool isPublished,
+                                   bool isMultiFile,
+                                   SALOMEDSImpl_DriverFactory* theFactory)
 {
   _errorCode = "";
 
@@ -1165,8 +1216,8 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
     return false;
   }
 
-  vector<string> aSeq;
-  string aCompType, aFactoryType;
+  std::vector<std::string> aSeq;
+  std::string aCompType, aFactoryType;
 
   //Build a list of all components in the Study
   SALOMEDSImpl_SComponentIterator itcomponent = NewComponentIterator();
@@ -1182,16 +1233,16 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
   }
 
 #ifdef WIN32
-  string aFileName =
-    thePath + string("\\") + theBaseName + string(".py");
+  std::string aFileName =
+    thePath + std::string("\\") + theBaseName + std::string(".py");
 #else
-  string aFileName =
-    thePath + string("/")  + theBaseName + string(".py");
+  std::string aFileName =
+    thePath + std::string("/")  + theBaseName + std::string(".py");
 #endif
 
   //Create a file that will contain a main Study script
-  fstream fp;
-  fp.open(aFileName.c_str(), ios::out);
+  std::fstream fp;
+  fp.open(aFileName.c_str(), std::ios::out);
 
 #ifdef WIN32
   bool isOpened = fp.is_open();
@@ -1200,41 +1251,51 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 #endif
 
   if(!isOpened) {
-    _errorCode = string("Can't create a file ")+aFileName;
+    _errorCode = std::string("Can't create a file ")+aFileName;
     return false;
   }
 
-  string aBatchModeScript = "salome";
+  std::stringstream sfp;
+
+  std::string aBatchModeScript = "salome";
 
   //Output to the main Study script required Python modules import,
   //set sys.path and add a creation of the study.
-  fp << GetDumpStudyComment() << endl << endl;
-  fp << "import sys" << endl;
-  fp << "import " << aBatchModeScript << endl << endl;
 
-  fp << aBatchModeScript << ".salome_init()" << endl << endl;
+  // dump header
+  sfp << GetDumpStudyComment() << std::endl;
 
-  fp << _GetNoteBookAccess();
+  // global imports
+  sfp << "import sys" << std::endl;
+  sfp << "import " << aBatchModeScript << std::endl << std::endl;
 
-  fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
+  // initialization function
+  sfp << aBatchModeScript << ".salome_init()" << std::endl;
+  if ( !isMultiFile )
+    sfp << "theStudy = salome.myStudy" <<std::endl << std::endl;
 
-  //Dump NoteBook Variables
-  fp << _GetStudyVariablesScript();
+  // notebook initialization
+  sfp << _GetNoteBookAccess();
 
-  //Check if it's necessary to dump visual parameters
+  // extend sys.path with the directory where the script is being dumped to
+  sfp << "sys.path.insert( 0, r\'" << thePath << "\')" << std::endl << std::endl;
+
+  // dump NoteBook variables
+  sfp << _GetStudyVariablesScript();
+
+  // dump visual parameters if necessary
   bool isDumpVisuals = SALOMEDSImpl_IParameters::isDumpPython(this);
   int lastSavePoint = -1;
   if(isDumpVisuals) {
     lastSavePoint = SALOMEDSImpl_IParameters::getLastSavePoint(this);
     if(lastSavePoint > 0) {
-      fp << SALOMEDSImpl_IParameters::getStudyScript(this, lastSavePoint) << endl << endl;
+      sfp << SALOMEDSImpl_IParameters::getStudyScript(this, lastSavePoint) << std::endl << std::endl;
     }
   }
-  
 
-  vector<string> aSeqOfFileNames;
+  std::vector<std::string> aSeqOfFileNames;
 
-  //Iterate all components and create the componponents specific scripts.
+  // dump all components and create the components specific scripts
   bool isOk = true;
   int aLength = aSeq.size();
   for(int i = 1; i <= aLength; i++) {
@@ -1243,25 +1304,25 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
     SALOMEDSImpl_SComponent sco = FindComponent(aCompType);
     SALOMEDSImpl_Driver* aDriver = NULL;
     // if there is an associated Engine call its method for saving
-    string IOREngine;
+    std::string IOREngine;
     try {
       if (!sco.ComponentIOR(IOREngine)) {
-	if (!aCompType.empty()) {
+        if (!aCompType.empty()) {
 
-	  aDriver = theFactory->GetDriverByType(aCompType);
+          aDriver = theFactory->GetDriverByType(aCompType);
 
-	  if (aDriver != NULL) {
-	    SALOMEDSImpl_StudyBuilder* SB = NewBuilder();
-	    if(!SB->LoadWith(sco, aDriver)) {
-	      _errorCode = SB->GetErrorCode();
-	      return false;
-	    }
-	  }
-	  else continue;
-	}
+          if (aDriver != NULL) {
+            SALOMEDSImpl_StudyBuilder* SB = NewBuilder();
+            if(!SB->LoadWith(sco, aDriver)) {
+              _errorCode = SB->GetErrorCode();
+              return false;
+            }
+          }
+          else continue;
+        }
       }
       else {
-	aDriver = theFactory->GetDriverByIOR(IOREngine);
+        aDriver = theFactory->GetDriverByIOR(IOREngine);
       }
     } catch(...) {
       _errorCode = "Can not restore information to dump it";
@@ -1272,60 +1333,77 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 
     bool isValidScript;
     long aStreamLength  = 0;
-    SALOMEDSImpl_TMPFile* aStream = aDriver->DumpPython(this, isPublished, isValidScript, aStreamLength);
+    SALOMEDSImpl_TMPFile* aStream = aDriver->DumpPython(this, isPublished, isMultiFile, isValidScript, aStreamLength);
     if ( !isValidScript )
       isOk = false;
 
-    //Create a file that will contain the component specific script
-    fstream fp2;
-#ifdef WIN32
-    aFileName=thePath+string("\\");
-#else
-    aFileName=thePath+string("/");
-#endif
-    string aScriptName;
-    aScriptName += theBaseName;
-    aScriptName += "_";
-    aScriptName += aCompType;
-
-    aFileName += aScriptName+ string(".py");
-    aSeqOfFileNames.push_back(aFileName);
-
-    fp2.open(aFileName.c_str(), ios::out);
-
-#ifdef WIN32
-    isOpened = fp2.is_open();
-#else
-    isOpened = fp2.rdbuf()->is_open();
-#endif
-
-    if(!isOpened) {
-      _errorCode = string("Can't create a file ")+aFileName;
-      SALOMEDSImpl_Tool::RemoveTemporaryFiles(thePath, aSeqOfFileNames, false);
-      return false;
-    }
-
+    std::stringstream sfp2;
+    
     //Output the Python script generated by the component in the newly created file.
-    fp2 << aStream->Data();
-    fp2.close();
+    if ( isMultiFile )
+      sfp2 << GetDumpStudyComment( aCompType.c_str() ) << std::endl;
+    else
+      sfp2 << GetComponentHeader( aCompType.c_str() ) << std::endl;
+    sfp2 << aStream->Data();
+    
+    if ( isMultiFile ) {
+      //Create a file that will contain the component specific script
+      std::fstream fp2;
+#ifdef WIN32
+      aFileName=thePath+std::string("\\");
+#else
+      aFileName=thePath+std::string("/");
+#endif
+      std::string aScriptName;
+      aScriptName += theBaseName;
+      aScriptName += "_";
+      aScriptName += aCompType;
+      
+      aFileName += aScriptName+ std::string(".py");
+      aSeqOfFileNames.push_back(aFileName);
+      
+      fp2.open(aFileName.c_str(), std::ios::out);
+      
+#ifdef WIN32
+      isOpened = fp2.is_open();
+#else
+      isOpened = fp2.rdbuf()->is_open();
+#endif
+      
+      if(!isOpened) {
+	_errorCode = std::string("Can't create a file ")+aFileName;
+	SALOMEDSImpl_Tool::RemoveTemporaryFiles(thePath, aSeqOfFileNames, false);
+	return false;
+      }
+     
+      // replace '\t' symbols
+      fp2 << replace_tabs( sfp2.str() );
+
+      fp2.close();
+
+      //Add to the main script a call to RebuildData of the generated by the component the Python script
+      sfp << "import " << aScriptName << std::endl;
+      sfp << aScriptName << ".RebuildData(" << aBatchModeScript << ".myStudy)" << std::endl;
+    }
+    else
+      sfp << sfp2.str();
 
     if(aStream) delete aStream;
-
-    //Add to the main script a call to RebuildData of the generated by the component the Python script
-    fp << "import " << aScriptName << endl;
-    fp << aScriptName << ".RebuildData(" << aBatchModeScript << ".myStudy)" << endl;
   }
 
-  fp << endl;
-  fp << "if salome.sg.hasDesktop():" << endl;
-  fp << "\tsalome.sg.updateObjBrowser(1)" << endl;
+  sfp << std::endl;
+  sfp << "if salome.sg.hasDesktop():" << std::endl;
+  sfp << "\tsalome.sg.updateObjBrowser(1)" << std::endl;
 
   if(isDumpVisuals) { //Output the call to Session's method restoreVisualState
-    fp << "\tiparameters.getSession().restoreVisualState(1)" << endl;
+    sfp << "\tiparameters.getSession().restoreVisualState(1)" << std::endl;
   }
 
-
+  // replace '\t' symbols
+  fp << replace_tabs( sfp.str() );
+  
   fp.close();
+
   return isOk;
 }
 
@@ -1334,30 +1412,36 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 //purpose  : return a header comment for a DumpStudy script
 //=======================================================================
 
-string SALOMEDSImpl_Study::GetDumpStudyComment(const char* theComponentName)
+std::string SALOMEDSImpl_Study::GetDumpStudyComment(const char* theComponentName)
 {
-  string txt
-    ("### This file is generated by SALOME automatically by dump python functionality");
+  std::stringstream txt;
+  txt << "# -*- coding: iso-8859-1 -*-" << std::endl << std::endl;
+  txt << "###" << std::endl;
+  txt << "### This file is generated automatically by SALOME v"
+      << KERNEL_VERSION_STR
+      << " with dump python functionality";
   if ( theComponentName )
-    txt += string(" of ") + (char*) theComponentName + " component";
-  return txt;
+    txt << " (" << theComponentName << " component)";
+  txt << std::endl;
+  txt << "###" << std::endl;
+  return txt.str();
 }
 
 void dumpSO(const SALOMEDSImpl_SObject& theSO,
-	    fstream& fp,
-	    const string& Tab,
-	    SALOMEDSImpl_Study* theStudy);
+            std::fstream& fp,
+            const std::string& Tab,
+            SALOMEDSImpl_Study* theStudy);
 
 //============================================================================
 /*! Function : dump
  *  Purpose  :
  */
 //============================================================================
-void SALOMEDSImpl_Study::dump(const string& theFileName)
+void SALOMEDSImpl_Study::dump(const std::string& theFileName)
 {
   //Create a file that will contain a main Study script
-  fstream fp;
-  fp.open(theFileName.c_str(), ios::out);
+  std::fstream fp;
+  fp.open(theFileName.c_str(), std::ios::out);
 
 #ifdef WIN32
   bool isOpened = fp.is_open();
@@ -1366,15 +1450,15 @@ void SALOMEDSImpl_Study::dump(const string& theFileName)
 #endif
 
   if(!isOpened) {
-    _errorCode = string("Can't create a file ")+theFileName;
-    cout << "### SALOMEDSImpl_Study::dump Error: " << _errorCode << endl;
+    _errorCode = std::string("Can't create a file ")+theFileName;
+    std::cout << "### SALOMEDSImpl_Study::dump Error: " << _errorCode << std::endl;
     return;
   }
 
   SALOMEDSImpl_SObject aSO = FindObjectID("0:1");
-  fp << "0:1" << endl;
+  fp << "0:1" << std::endl;
   SALOMEDSImpl_ChildIterator Itr = NewChildIterator(aSO);
-  string aTab("   ");
+  std::string aTab("   ");
   for(; Itr.More(); Itr.Next()) {
     dumpSO(Itr.Value(), fp, aTab, this);
   }
@@ -1384,13 +1468,13 @@ void SALOMEDSImpl_Study::dump(const string& theFileName)
 
 
 void dumpSO(const SALOMEDSImpl_SObject& theSO,
-	    fstream& fp,
-	    const string& Tab,
-	    SALOMEDSImpl_Study* theStudy)
+            std::fstream& fp,
+            const std::string& Tab,
+            SALOMEDSImpl_Study* theStudy)
 {
-  string aTab(Tab), anID(theSO.GetID());
-  fp << aTab << anID << endl;
-  vector<DF_Attribute*> attribs = theSO.GetLabel().GetAttributes();
+  std::string aTab(Tab), anID(theSO.GetID());
+  fp << aTab << anID << std::endl;
+  std::vector<DF_Attribute*> attribs = theSO.GetLabel().GetAttributes();
   for(int i = 0; i<attribs.size(); i++) {
     SALOMEDSImpl_GenericAttribute* anAttr = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(attribs[i]);
 
@@ -1398,29 +1482,29 @@ void dumpSO(const SALOMEDSImpl_SObject& theSO,
       continue;
     }
 
-    string aType = anAttr->GetClassType();
+    std::string aType = anAttr->GetClassType();
     fp << Tab << "  -- " << aType;
 
-    if(aType == string("AttributeReal")) {
+    if(aType == std::string("AttributeReal")) {
       fp << " : " << dynamic_cast<SALOMEDSImpl_AttributeReal*>(anAttr)->Value();
     }
-    else if(aType == string("AttributeInteger")) {
+    else if(aType == std::string("AttributeInteger")) {
       fp << " : " << dynamic_cast<SALOMEDSImpl_AttributeInteger*>(anAttr)->Value();
     }
-    else if(aType ==  string("AttributeName")) {
+    else if(aType ==  std::string("AttributeName")) {
       fp << " : " << dynamic_cast<SALOMEDSImpl_AttributeName*>(anAttr)->Value();
     }
-    else if(aType == string("AttributeComment")) {
+    else if(aType == std::string("AttributeComment")) {
       fp << " : " << dynamic_cast<SALOMEDSImpl_AttributeComment*>(anAttr)->Value();
     }
-    else if(aType == string("AttributeReference")) {
+    else if(aType == std::string("AttributeReference")) {
       fp << " : " << dynamic_cast<SALOMEDSImpl_AttributeReference*>(anAttr)->Save();
     }
-    fp << endl;
+    fp << std::endl;
   }
 
   SALOMEDSImpl_ChildIterator Itr = theStudy->NewChildIterator(theSO);
-  string aNewTab("   ");
+  std::string aNewTab("   ");
   aNewTab+=aTab;
   for(; Itr.More(); Itr.Next()) {
     dumpSO(Itr.Value(), fp, aNewTab, theStudy);
@@ -1436,18 +1520,30 @@ void SALOMEDSImpl_Study::Modify()
 }
 
 //============================================================================
-/*! Function : 
+/*! Function :
  *  Purpose  :
  */
 //============================================================================
 SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
-  if (theSavePoint < 0) return NULL;
+  if (theSavePoint < -1) return NULL;
   SALOMEDSImpl_StudyBuilder* builder = NewBuilder();
   SALOMEDSImpl_SObject so = FindComponent((char*)theID);
   if (!so) so = builder->NewComponent((char*)theID);
   SALOMEDSImpl_AttributeParameter* attParam = NULL;
 
+  if (theSavePoint == -1) {
+    int ctag = 1;
+    DF_Label savePointLabel = so.GetLabel().FindChild( ctag, /*create=*/0 );
+    DF_Label prevPointLabel;
+    while ( !savePointLabel.IsNull() ) {
+      ctag++;
+      prevPointLabel = savePointLabel;
+      savePointLabel = so.GetLabel().FindChild( ctag, /*create=*/0 );
+    }
+    if ( !prevPointLabel.IsNull() )
+      so = GetSObject( prevPointLabel );
+  }
   if (theSavePoint > 0) { // Try to find SObject that contains attribute parameter ...
     DF_Label savePointLabel = so.GetLabel().FindChild( theSavePoint, /*create=*/0 );
     if ( !savePointLabel.IsNull() )
@@ -1460,7 +1556,7 @@ SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetCommonParameters(const c
   if (so) {
     builder->FindAttribute(so, A, "AttributeParameter");
     if ( !A ) { // first call of GetCommonParameters on "Interface Applicative" component
-      A = builder->FindOrCreateAttribute(so, "AttributeParameter"); 
+      A = builder->FindOrCreateAttribute(so, "AttributeParameter");
     }
     attParam = dynamic_cast<SALOMEDSImpl_AttributeParameter*>( A );
   }
@@ -1468,21 +1564,21 @@ SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetCommonParameters(const c
 }
 
 //============================================================================
-/*! Function : 
+/*! Function :
  *  Purpose  :
  */
 //============================================================================
-SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetModuleParameters(const char* theID, 
-									 const char* theModuleName,
-									 int theSavePoint)
+SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetModuleParameters(const char* theID,
+                                                                         const char* theModuleName,
+                                                                         int theSavePoint)
 {
-  if(theSavePoint <= 0) return NULL;
+  if(theSavePoint < -1) return NULL;
   SALOMEDSImpl_AttributeParameter* main_ap = GetCommonParameters(theID, theSavePoint);
   SALOMEDSImpl_SObject main_so = main_ap->GetSObject();
   SALOMEDSImpl_AttributeParameter* par = NULL;
 
   SALOMEDSImpl_ChildIterator it = NewChildIterator(main_so);
-  string moduleName(theModuleName);
+  std::string moduleName(theModuleName);
   for(; it.More(); it.Next()) {
     SALOMEDSImpl_SObject so(it.Value());
     if((par=(SALOMEDSImpl_AttributeParameter*)so.GetLabel().FindAttribute(SALOMEDSImpl_AttributeParameter::GetID()))) {
@@ -1525,10 +1621,10 @@ bool SALOMEDSImpl_Study::IsStudyLocked()
 //============================================================================
 void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
 {
-  vector<string>::iterator vsI = _lockers.begin();
+  std::vector<std::string>::iterator vsI = _lockers.begin();
   int length = _lockers.size();
   bool isFound = false;
-  string id(theLockerID);
+  std::string id(theLockerID);
   for(int i = 0; i<length; i++, vsI++) {
     if(id == _lockers[i]) {
       isFound = true;;
@@ -1537,13 +1633,13 @@ void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
   }
   if(isFound) _lockers.erase(vsI);
 }
-  
+
 //============================================================================
 /*! Function : GetLockerID
  *  Purpose  :
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetLockerID()
+std::vector<std::string> SALOMEDSImpl_Study::GetLockerID()
 {
   return _lockers;
 }
@@ -1553,13 +1649,13 @@ vector<string> SALOMEDSImpl_Study::GetLockerID()
  *  Purpose  :
  */
 //============================================================================
-void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
+void SALOMEDSImpl_Study::SetVariable(const std::string& theVarName,
                                      const double theValue,
                                      const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
   bool modified = false;
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
-  
+
   if( aGVar == NULL ) {
 
     SALOMEDSImpl_ScalarVariable* aSVar = new SALOMEDSImpl_ScalarVariable(theType, theVarName);
@@ -1579,17 +1675,77 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
 }
 
 //============================================================================
+/*! Function : SetStringVariable
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetStringVariable(const std::string& theVarName,
+					   const std::string& theValue,
+					   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+{
+  bool modified = false;
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+
+  if( aGVar == NULL ) {
+
+    SALOMEDSImpl_ScalarVariable* aSVar = new SALOMEDSImpl_ScalarVariable(theType, theVarName);
+
+    aSVar->setStringValue(theValue);
+    myNoteBookVars.push_back(aSVar);
+    modified = true;
+  }
+  else {
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar)) {
+      modified = aSVar->setStringValue(theValue) || modified;
+      modified = aSVar->setType(theType) || modified;
+    }
+  }
+  if(modified)
+    Modify();
+}
+
+//============================================================================
+/*! Function : SetStringVariableAsDouble
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetStringVariableAsDouble(const std::string& theVarName,
+						   const double theValue,
+						   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
+    aSVar->setValue(theValue);
+}
+
+//============================================================================
 /*! Function : GetReal
  *  Purpose  :
  */
 //============================================================================
-double SALOMEDSImpl_Study::GetVariableValue(const string& theVarName)
+double SALOMEDSImpl_Study::GetVariableValue(const std::string& theVarName)
 {
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
-  
+
   if(aGVar != NULL )
     if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
       return aSVar->getValue();
+
+  return 0;
+}
+
+//============================================================================
+/*! Function : GetString
+ *  Purpose  :
+ */
+//============================================================================
+std::string SALOMEDSImpl_Study::GetStringVariableValue(const std::string& theVarName)
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+
+  if(aGVar != NULL )
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
+      return aSVar->getStringValue();
 
   return 0;
 }
@@ -1599,15 +1755,15 @@ double SALOMEDSImpl_Study::GetVariableValue(const string& theVarName)
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::IsTypeOf(const string& theVarName,
+bool SALOMEDSImpl_Study::IsTypeOf(const std::string& theVarName,
                                   SALOMEDSImpl_GenericVariable::
                                   VariableTypes theType) const
 {
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
-  
+
   if(aGVar != NULL )
     return aGVar->Type() == theType;
-  
+
   return false;
 }
 
@@ -1616,7 +1772,7 @@ bool SALOMEDSImpl_Study::IsTypeOf(const string& theVarName,
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::IsVariable(const string& theVarName) const
+bool SALOMEDSImpl_Study::IsVariable(const std::string& theVarName) const
 {
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   return (aGVar != NULL);
@@ -1627,13 +1783,13 @@ bool SALOMEDSImpl_Study::IsVariable(const string& theVarName) const
  *  Purpose  :
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetVariableNames() const
+std::vector<std::string> SALOMEDSImpl_Study::GetVariableNames() const
 {
-  vector<string> aResult;
+  std::vector<std::string> aResult;
 
   for(int i = 0; i < myNoteBookVars.size(); i++)
     aResult.push_back(myNoteBookVars[i]->Name());
-  
+
   return aResult;
 }
 
@@ -1659,7 +1815,7 @@ SALOMEDSImpl_GenericVariable* SALOMEDSImpl_Study::GetVariable(const std::string&
     if(theName.compare(myNoteBookVars[i]->Name()) == 0) {
       aResult = myNoteBookVars[i];
       break;
-    }  
+    }
   }
   return aResult;
 }
@@ -1669,13 +1825,13 @@ SALOMEDSImpl_GenericVariable* SALOMEDSImpl_Study::GetVariable(const std::string&
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::RemoveVariable(const string& theVarName)
+bool SALOMEDSImpl_Study::RemoveVariable(const std::string& theVarName)
 {
   SALOMEDSImpl_GenericVariable* aVariable = GetVariable( theVarName );
   if( !aVariable )
     return false;
 
-  string aValue = aVariable->SaveToScript();
+  std::string aValue = aVariable->SaveToScript();
   ReplaceVariableAttribute( theVarName, aValue );
 
   std::vector<SALOMEDSImpl_GenericVariable*>::iterator it = myNoteBookVars.begin(), itEnd = myNoteBookVars.end();
@@ -1698,7 +1854,7 @@ bool SALOMEDSImpl_Study::RemoveVariable(const string& theVarName)
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::RenameVariable(const string& theVarName, const string& theNewVarName)
+bool SALOMEDSImpl_Study::RenameVariable(const std::string& theVarName, const std::string& theNewVarName)
 {
   SALOMEDSImpl_GenericVariable* aVariable = GetVariable( theVarName );
   if( !aVariable )
@@ -1726,7 +1882,7 @@ bool SALOMEDSImpl_Study::RenameVariable(const string& theVarName, const string& 
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::IsVariableUsed(const string& theVarName)
+bool SALOMEDSImpl_Study::IsVariableUsed(const std::string& theVarName)
 {
   return FindVariableAttribute( theVarName );
 }
@@ -1737,8 +1893,8 @@ bool SALOMEDSImpl_Study::IsVariableUsed(const string& theVarName)
  */
 //============================================================================
 bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-					       SALOMEDSImpl_SObject theSObject,
-					       const std::string& theName)
+                                               SALOMEDSImpl_SObject theSObject,
+                                               const std::string& theName)
 {
   SALOMEDSImpl_ChildIterator anIter = NewChildIterator( theSObject );
   for( ; anIter.More(); anIter.Next() )
@@ -1750,18 +1906,18 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStu
   {
     if( SALOMEDSImpl_AttributeString* aStringAttr = ( SALOMEDSImpl_AttributeString* )anAttr )
     {
-      string aString = aStringAttr->Value();
+      std::string aString = aStringAttr->Value();
 
-      vector< vector<string> > aSections = ParseVariables( aString );
+      std::vector< std::vector<std::string> > aSections = ParseVariables( aString );
       for( int i = 0, n = aSections.size(); i < n; i++ )
       {
-	vector<string> aVector = aSections[i];
-	for( int j = 0, m = aVector.size(); j < m; j++ )
-	{
-	  string aStr = aVector[j];
-	  if( aStr.compare( theName ) == 0 )
-	    return true;
-	}
+        std::vector<std::string> aVector = aSections[i];
+        for( int j = 0, m = aVector.size(); j < m; j++ )
+        {
+          std::string aStr = aVector[j];
+          if( aStr.compare( theName ) == 0 )
+            return true;
+        }
       }
     }
   }
@@ -1792,9 +1948,9 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(const std::string& theName)
  */
 //============================================================================
 void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-						  SALOMEDSImpl_SObject theSObject,
-						  const std::string& theSource,
-						  const std::string& theDest)
+                                                  SALOMEDSImpl_SObject theSObject,
+                                                  const std::string& theSource,
+                                                  const std::string& theDest)
 {
   SALOMEDSImpl_ChildIterator anIter = NewChildIterator( theSObject );
   for( ; anIter.More(); anIter.Next() )
@@ -1806,31 +1962,31 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* the
     if( SALOMEDSImpl_AttributeString* aStringAttr = ( SALOMEDSImpl_AttributeString* )anAttr )
     {
       bool isChanged = false;
-      string aNewString, aCurrentString = aStringAttr->Value();
+      std::string aNewString, aCurrentString = aStringAttr->Value();
 
-      vector< vector<string> > aSections = ParseVariables( aCurrentString );
+      std::vector< std::vector<std::string> > aSections = ParseVariables( aCurrentString );
       for( int i = 0, n = aSections.size(); i < n; i++ )
       {
-	vector<string> aVector = aSections[i];
-	for( int j = 0, m = aVector.size(); j < m; j++ )
-	{
-	  string aStr = aVector[j];
-	  if( aStr.compare( theSource ) == 0 )
-	  {
-	    isChanged = true;
-	    aStr = theDest;
-	  }
+        std::vector<std::string> aVector = aSections[i];
+        for( int j = 0, m = aVector.size(); j < m; j++ )
+        {
+          std::string aStr = aVector[j];
+          if( aStr.compare( theSource ) == 0 )
+          {
+            isChanged = true;
+            aStr = theDest;
+          }
 
-	  aNewString.append( aStr );
-	  if( j != m - 1 )
-	    aNewString.append( ":" );
-	}
-	if( i != n - 1 )
-	  aNewString.append( "|" );
+          aNewString.append( aStr );
+          if( j != m - 1 )
+            aNewString.append( ":" );
+        }
+        if( i != n - 1 )
+          aNewString.append( "|" );
       }
 
       if( isChanged )
-	aStringAttr->SetValue( aNewString );
+        aStringAttr->SetValue( aNewString );
     }
   }
 }
@@ -1856,7 +2012,7 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(const std::string& theSource, 
  *  Purpose  :
  */
 //============================================================================
-vector< vector< string > > SALOMEDSImpl_Study::ParseVariables(const string& theVariables) const
+std::vector< std::vector< std::string > > SALOMEDSImpl_Study::ParseVariables(const std::string& theVariables) const
 {
   return SALOMEDSImpl_Tool::splitStringWithEmpty( theVariables, OPERATION_SEPARATOR, VARIABLE_SEPARATOR );
 }
@@ -1867,8 +2023,8 @@ vector< vector< string > > SALOMEDSImpl_Study::ParseVariables(const string& theV
  */
 //============================================================================
 void SALOMEDSImpl_Study::EnableUseCaseAutoFilling(bool isEnabled)
-{ 
-  _errorCode = ""; _autoFill = isEnabled; 
+{
+  _errorCode = ""; _autoFill = isEnabled;
   if(isEnabled) {
     _builder->SetOnAddSObject(_cb);
     _builder->SetOnRemoveSObject(_cb);
@@ -1884,12 +2040,62 @@ void SALOMEDSImpl_Study::EnableUseCaseAutoFilling(bool isEnabled)
  *  Purpose  :
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::GetIORs()
+std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
 {
-  vector<string> anIORs;
-  map<string, DF_Label>::const_iterator MI;
+  std::vector<std::string> anIORs;
+  std::map<std::string, DF_Label>::const_iterator MI;
   for(MI = myIORLabels.begin(); MI!=myIORLabels.end(); MI++)
     anIORs.push_back(MI->first);
 
   return anIORs;
+}
+
+//============================================================================
+/*! Function : addSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been added
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject)
+{
+  if(_notifier)
+    return _notifier->addSO_Notification(theSObject);
+  else
+    return false;
+}
+
+//============================================================================
+/*! Function : removeSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been removed
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theSObject)
+{
+  if(_notifier)
+    return _notifier->removeSO_Notification(theSObject);
+  else
+    return false;
+}
+
+//============================================================================
+/*! Function : modifySO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been modified and
+               pass the mofification reason
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject, int reason) 
+{
+  if(_notifier)
+    return _notifier->modifySO_Notification(theSObject, reason);
+  else
+    return false;
+}
+
+//============================================================================
+/*! Function : setNotifier
+ *  Purpose  : register a notifier
+ */
+//============================================================================
+void SALOMEDSImpl_Study::setNotifier(SALOMEDSImpl_AbstractCallback* notifier) 
+{
+  _notifier=notifier;
 }

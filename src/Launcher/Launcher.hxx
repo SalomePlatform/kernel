@@ -1,43 +1,40 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __LAUNCHER_HXX__
 #define __LAUNCHER_HXX__
 
-#ifdef WIN32
-# ifdef LAUNCHER_EXPORTS
-#  define LAUNCHER_EXPORT __declspec(dllexport)
-# else
-#  define LAUNCHER_EXPORT __declspec(dllimport)
-# endif
-#else
-# define LAUNCHER_EXPORT
-#endif
+#include "Launcher_Utils.hxx"
+#include "Launcher_Job.hxx"
 
-#include <SALOME_ResourcesCatalog_Parser.hxx>
 #include "ResourcesManager.hxx"
+#include <SALOME_ResourcesCatalog_Parser.hxx>
+
 #include "SALOME_Launcher_Parser.hxx"
 
 #include <string>
 #include <vector>
+
+#include <pthread.h>
 
 class MpiImpl;
 
@@ -53,59 +50,47 @@ struct batchParams{
   unsigned long nb_proc;
 };
 
-class LAUNCHER_EXPORT LauncherException
-{
-public:
-  const std::string msg;
-
-  LauncherException(const std::string m) : msg(m) {}
-};
-
 class LAUNCHER_EXPORT Launcher_cpp
 {
 
 public:
   Launcher_cpp();
-  ~Launcher_cpp();
+  virtual ~Launcher_cpp();
 
-  long submitJob(const std::string xmlExecuteFile,
-		 const std::string clusterName) throw(LauncherException);
+  // Main interface
+  void         createJob(Launcher::Job * new_job);
+  void         launchJob(int job_id);
+  const char * getJobState(int job_id);
+  void         getJobResults(int job_id, std::string directory);
+  bool         getJobDumpState(int job_id, std::string directory);
+  void         stopJob(int job_id);
+  void         removeJob(int job_id);
 
-  long submitSalomeJob(const std::string fileToExecute ,
-		       const std::vector<std::string>& filesToExport ,
-		       const std::vector<std::string>& filesToImport ,
-		       const batchParams& batch_params,
-		       const machineParams& params) throw(LauncherException);
+  // Useful methods
+  long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
+  std::map<int, Launcher::Job *> getJobs();
+  void createBatchManagerForJob(Launcher::Job * job);
+  void addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference);
 
-  std::string queryJob( const long jobId, const machineParams& params) throw(LauncherException);
-  std::string queryJob( const long jobId, const std::string clusterName);
-  void deleteJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void deleteJob( const long jobId, const std::string clusterName);
-  void getResultsJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
-  void getResultsJob( const std::string directory, const long jobId, const std::string clusterName );
+  // Lib methods
+  void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
 
-  void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
-
+  // Used by SALOME_Launcher
+  ResourcesManager_cpp *_ResManager;
 protected:
 
-  std::string buildSalomeCouplingScript(const std::string fileToExecute, const std::string dirForTmpFiles, const ParserResourcesType& params);
-  MpiImpl *FactoryMpiImpl(MpiImplType mpiImpl) throw(LauncherException);
-  Batch::BatchManager_eClient *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
-  std::string getTmpDirForBatchFiles();
-  std::string getRemoteFile( std::string remoteDir, std::string localFile );
-  std::string getHomeDir(const ParserResourcesType& p, const std::string & tmpdir);  
+  virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
 
-  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
-  std::map < std::pair<std::string,long> , Batch::Job* > _jobmap;
-  ResourcesManager_cpp *_ResManager;
-  bool check(const batchParams& batch_params);
-  long getWallTime(std::string edt);
-  long getRamSize(std::string mem);
-  void ParseXmlFile(std::string xmlExecuteFile);
+  // Methods used by user interface methods
+#ifdef WITH_LIBBATCH
+  Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params);
+  std::map <int, Batch::BatchManager_eClient*> _batchmap;
+#endif
+  ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 
-  //! will contain the informations on the data type catalog(after parsing)
-  ParserLauncherType _launch;
-
+  std::map <int, Launcher::Job *> _launcher_job_map;  
+  int _job_cpt; // job number counter
+  pthread_mutex_t * _job_cpt_mutex; // mutex for job counter
 };
 
 #endif

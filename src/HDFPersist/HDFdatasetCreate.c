@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*----------------------------------------------------------------------------
 SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
   File   : HDFdatasetCreate.c
@@ -42,7 +43,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
  */ 
 
 hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
-			 hdf_size *dimd, int ndim, hdf_byte_order order)
+                         hdf_size *dimd, int ndim, hdf_byte_order order, hdf_idt arrayId)
 {
   hdf_idt dataset, dataspace = 0;
   hdf_err ret;
@@ -72,11 +73,15 @@ hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
 
     case HDF_STRING :           
       if((new_type_hdf = H5Tcopy(H5T_C_S1)) < 0)
-	return -1;
+        return -1;
       if((ret = H5Tset_size(new_type_hdf,1)) < 0)
-	return -1;
-      break;
+        return -1;
+      break;    
 
+    case HDF_ARRAY :
+      type_hdf = arrayId;
+      break;
+      
     default :
       return -1;
     }
@@ -94,12 +99,12 @@ hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
 
   if ((dataset = H5Dopen(pid,name)) < 0)
     {
-      if ((dataspace = H5Screate_simple(ndim, dimd, NULL)) < 0)								
-	return -1;
+      if ((dataspace = H5Screate_simple(ndim, dimd, NULL)) < 0)                                                         
+        return -1;
       if ((dataset = H5Dcreate(pid,name,
                                new_type_hdf < 0 ? type_hdf : new_type_hdf,
                                dataspace, H5P_DEFAULT)) < 0)
-	return -1;
+        return -1;
     }
   else
     return -1;

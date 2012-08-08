@@ -1,31 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeStudyProperties_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS.hxx"
-using namespace std;
 
 #define CREATION_MODE_NOTDEFINED 0
 #define CREATION_MODE_SCRATCH 1
@@ -41,31 +41,31 @@ void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName)
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName()
 {
   SALOMEDS::Locker lock;
-  string S = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreatorName();
+  std::string S = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreatorName();
   CORBA::String_var c_s = CORBA::string_dup(S.c_str());
   return c_s._retn();
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetCreationDate(CORBA::Long theMinute,
-							  CORBA::Long theHour,
-							  CORBA::Long theDay,
-							  CORBA::Long theMonth,
-							  CORBA::Long theYear)
+                                                          CORBA::Long theHour,
+                                                          CORBA::Long theDay,
+                                                          CORBA::Long theMonth,
+                                                          CORBA::Long theYear)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
   SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   int aTmp;
   if (aProp->GetCreationDate(aTmp, aTmp, aTmp, aTmp, aTmp)) return;
-  string S;
+  std::string S;
   aProp->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
 }
 
 CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::GetCreationDate(CORBA::Long& theMinute,
-								    CORBA::Long& theHour,
-								    CORBA::Long& theDay,
-								    CORBA::Long& theMonth,
-								    CORBA::Long& theYear)
+                                                                    CORBA::Long& theHour,
+                                                                    CORBA::Long& theDay,
+                                                                    CORBA::Long& theMonth,
+                                                                    CORBA::Long& theYear)
 {
   SALOMEDS::Locker lock;
   int aMinute;
@@ -137,11 +137,11 @@ CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::IsLocked()
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
-							  CORBA::Long theMinute,
-							  CORBA::Long theHour,
-							  CORBA::Long theDay,
-							  CORBA::Long theMonth,
-							  CORBA::Long theYear)
+                                                          CORBA::Long theMinute,
+                                                          CORBA::Long theHour,
+                                                          CORBA::Long theDay,
+                                                          CORBA::Long theMonth,
+                                                          CORBA::Long theYear)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
@@ -151,16 +151,16 @@ void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
 }
 
 void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringSeq_out theNames,
-							       SALOMEDS::LongSeq_out theMinutes,
-							       SALOMEDS::LongSeq_out theHours,
-							       SALOMEDS::LongSeq_out theDays,
-							       SALOMEDS::LongSeq_out theMonths,
-							       SALOMEDS::LongSeq_out theYears,
-							       CORBA::Boolean theWithCreator)
+                                                               SALOMEDS::LongSeq_out theMinutes,
+                                                               SALOMEDS::LongSeq_out theHours,
+                                                               SALOMEDS::LongSeq_out theDays,
+                                                               SALOMEDS::LongSeq_out theMonths,
+                                                               SALOMEDS::LongSeq_out theYears,
+                                                               CORBA::Boolean theWithCreator)
 {
   SALOMEDS::Locker lock;
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
   int aLength = aNames.size();
@@ -187,3 +187,34 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
     (*theYears)[a] = aYears[ind-1];
   }
 }
+
+void SALOMEDS_AttributeStudyProperties_i::SetComment(const char* theComment)
+{
+  SALOMEDS::Locker lock;
+  CheckLocked();
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->SetComment(std::string(theComment));
+}
+
+char* SALOMEDS_AttributeStudyProperties_i::GetComment()
+{
+  SALOMEDS::Locker lock;
+  std::string C = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetComment();
+  CORBA::String_var c_s = CORBA::string_dup(C.c_str());
+  return c_s._retn();
+}
+
+void SALOMEDS_AttributeStudyProperties_i::SetUnits(const char* theUnits)
+{
+  SALOMEDS::Locker lock;
+  CheckLocked();
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->SetUnits(std::string(theUnits));
+}
+
+char* SALOMEDS_AttributeStudyProperties_i::GetUnits()
+{
+  SALOMEDS::Locker lock;
+  std::string U = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetUnits();
+  CORBA::String_var c_s = CORBA::string_dup(U.c_str());
+  return c_s._retn();
+}
+

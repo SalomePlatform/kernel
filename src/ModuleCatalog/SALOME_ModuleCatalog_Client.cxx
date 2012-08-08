@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Client.cxx
 //  Module : SALOME
@@ -30,14 +31,13 @@
 #include "SALOME_ModuleCatalog.hh"
 #include <string>
 #include "utilities.h"
-using namespace std;
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-		  const string & InterfaceName,
-		  const string & ServiceName);
+                  const std::string & InterfaceName,
+                  const std::string & ServiceName);
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-		    const string & InterfaceName);
+                    const std::string & InterfaceName);
 
 void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C);
 
@@ -49,7 +49,7 @@ int main(int argc,char **argv)
   CORBA::Object_var objVar, objVarN;
   try {
 
-  	// initialize the ORB
+        // initialize the ORB
 
   orb = CORBA::ORB_init (argc, argv);
 
@@ -120,7 +120,7 @@ int main(int argc,char **argv)
     }
   catch(SALOME_ModuleCatalog::NotFound &ex){
     INFOS("SALOME_ModuleCatalog::NotFound")
-      cerr << ex.what << endl;
+      std::cerr << ex.what << std::endl;
   }
     catch(CORBA::SystemException&) {
       INFOS("Caught CORBA::SystemException.")
@@ -141,7 +141,7 @@ int main(int argc,char **argv)
       INFOS("CosNaming::NamingContext::NotEmpty")
   }
 
-  catch(CORBA::Exception &sysEx) {
+  catch(CORBA::Exception &) {
     INFOS("Caught CORBA::Exception.")
   }
 
@@ -167,10 +167,10 @@ void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C)
 
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-		    const string & InterfaceName)
+                    const std::string & InterfaceName)
 {
   unsigned int i, n;
-   	
+        
    SALOME_ModuleCatalog::DefinitionInterface_var _interf 
      = C->GetInterface(InterfaceName.c_str());
    MESSAGE ("Interface : " << _interf->interfacename);
@@ -184,8 +184,8 @@ void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
 }
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-		  const string & InterfaceName,
-		  const string & ServiceName)
+                  const std::string & InterfaceName,
+                  const std::string & ServiceName)
 {
   int i, n;
 
@@ -201,9 +201,9 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter       " 
-	       << Service->ServiceinParameter[i].Parametername);
+               << Service->ServiceinParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceinParameter[i].Parametertype);
+               << Service->ServiceinParameter[i].Parametertype);
      }
    
    MESSAGE("Out Parameter(s):");
@@ -211,9 +211,9 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter       " 
-	       << Service->ServiceoutParameter[i].Parametername);
+               << Service->ServiceoutParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceoutParameter[i].Parametertype);
+               << Service->ServiceoutParameter[i].Parametertype);
      }
    
    MESSAGE("In DataStreamParameter(s):");
@@ -221,11 +221,11 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter " 
-	       << Service->ServiceinDataStreamParameter[i].Parametername);
+               << Service->ServiceinDataStreamParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceinDataStreamParameter[i].Parametertype);
+               << Service->ServiceinDataStreamParameter[i].Parametertype);
        MESSAGE("  Dependency    : "
-	       << Service->ServiceinDataStreamParameter[i].Parametertype);
+               << Service->ServiceinDataStreamParameter[i].Parametertype);
      }
    
    MESSAGE("Out DataStreamParameter(s):");
@@ -233,11 +233,11 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter " 
-	       << Service->ServiceoutDataStreamParameter[i].Parametername);
+               << Service->ServiceoutDataStreamParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceoutDataStreamParameter[i].Parametertype);
+               << Service->ServiceoutDataStreamParameter[i].Parametertype);
        MESSAGE("  Dependency    : "
-	       << Service->ServiceoutDataStreamParameter[i].Parametertype);
+               << Service->ServiceoutDataStreamParameter[i].Parametertype);
      }
    
 

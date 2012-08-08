@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : CalciumCouplingPolicy.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -39,6 +40,8 @@
 #include "CalciumTypes.hxx"
 #include "CalciumException.hxx"
 
+//#define MYDEBUG
+
 class CalciumCouplingPolicy : public CouplingPolicy  {
 
 
@@ -49,6 +52,7 @@ public:
   template <typename DataManipulator, 
     class EnableIf >                  friend class BoundedDataIdProcessor;
   template <typename DataManipulator >        friend class EraseDataIdProcessor;
+  template <typename DataManipulator >        friend class EraseDataIdBeforeOrAfterTagProcessor;
   template <typename DataManipulator >        friend class DisconnectProcessor;
 
   typedef CalciumTypes::DependencyType       DependencyType;
@@ -107,9 +111,10 @@ public:
   inline TagType  getTag (const DataId &dataId) const { return dataId.second;}
 
   template <typename DataManipulator, 
- 	    class EnableIf = void >    struct BoundedDataIdProcessor;
+            class EnableIf = void >    struct BoundedDataIdProcessor;
   //template <typename DataManipulator>  struct BoundedDataIdProcessor;
   template <typename DataManipulator>  struct EraseDataIdProcessor;
+  template <typename DataManipulator>  struct EraseDataIdBeforeOrAfterTagProcessor;
   template <typename DataManipulator>  struct DisconnectProcessor;
 
   // Renvoie isEqual si le dataId attendu est trouvé dans storedDataIds :
@@ -120,9 +125,9 @@ public:
   // Le container doit être associatif
   template < typename AssocContainer >
   bool isDataIdConveniant( AssocContainer & storedDatas, 
-			   const typename AssocContainer::key_type & expectedDataId,
-			   bool & isEqual, bool & isBounded, 
-			   typename AssocContainer::iterator & wDataIt1) const;
+                           const typename AssocContainer::key_type & expectedDataId,
+                           bool & isEqual, bool & isBounded, 
+                           typename AssocContainer::iterator & wDataIt1) const;
 
   TimeType getEffectiveTime(TimeType ti, TimeType tf);
 
@@ -143,8 +148,8 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
   typedef std::vector < DataId >        DataIdVect;
     
   InternalDataIdContainer(const DataId & dataId, 
-			  const CalciumCouplingPolicy & policy
-			  ):std::vector< std::pair< T_TIME,T_TAG> >() {
+                          const CalciumCouplingPolicy & policy
+                          ):std::vector< std::pair< T_TIME,T_TAG> >() {
     // Ignore les paramètres qui ne sont pas en rapport avec le type de dépendance
     switch (policy._dependencyType) {
     case CalciumTypes::TIME_DEPENDENCY:
@@ -166,10 +171,12 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor{
   BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
   template < typename Iterator, typename DataId > 
   void inline apply(typename iterator_t<Iterator>::value_type & data,
-		    const DataId & dataId,
-		    const Iterator  & it1) const {
+                    const DataId & dataId,
+                    const Iterator  & it1) const {
     typedef typename iterator_t<Iterator>::value_type value_type;
+#ifdef MYDEBUG
     std::cout << "-------- Calcium Generic BoundedDataIdProcessor.apply() called " << std::endl;
+#endif
 
   }
 };
@@ -188,7 +195,7 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
   // Méthode implémentant l'interpolation temporelle
   template < typename MapIterator > 
   void inline apply (typename iterator_t<MapIterator>::value_type & data,
-		     const DataId & dataId, const MapIterator & it1) const {
+                     const DataId & dataId, const MapIterator & it1) const {
       
     typedef typename iterator_t<MapIterator>::value_type value_type;
     typedef typename DataManipulator::InnerType InnerType;
@@ -196,14 +203,14 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
 
     MapIterator it2=it1; ++it2;
     size_t   dataSize1 = DataManipulator::size(it1->second);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Taille de donnée dataId1 : " << dataSize1 << std::endl;
 #endif
  
     // Gérer dans calcium la limite de la taille du buffer donnée par
     // l'utilisateur.
     size_t   dataSize2 = DataManipulator::size(it2->second);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Taille de donnée dataId2 : " << dataSize2 << std::endl;
 #endif
 
@@ -212,31 +219,31 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
     DataId   dataId1 = it1->first;
     TimeType t2      = dataId2.first;
     TimeType t1      = dataId1.first;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Valeur de t1 : " << t1 << std::endl;
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Valeur de t2 : " << t2 << std::endl;
 #endif
     TimeType t       = dataId.first;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Valeur de t : " << t << std::endl;
 #endif
     TimeType timeDiff  = t2-t1;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Valeur de timeDiff : " << timeDiff << std::endl;
 #endif
     TimeType coeff   = (t2-t)/timeDiff;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Valeur de coeff : " << coeff << std::endl;
 #endif
 
     InnerType const * const InIt1 = DataManipulator::getPointer(it1->second);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Données à t1 : " << std::endl;
     std::copy(InIt1,InIt1+dataSize1,std::ostream_iterator<InnerType>(std::cout," "));
     std::cout << std::endl;
 #endif
     InnerType const * const InIt2 = DataManipulator::getPointer(it2->second);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Données à t2 : " << std::endl;
     std::copy(InIt2,InIt2+dataSize2,std::ostream_iterator<InnerType>(std::cout," "));
     std::cout << std::endl;
@@ -244,7 +251,7 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
     Type              dataOut = DataManipulator::create(dataSize);
     InnerType * const OutIt   = DataManipulator::getPointer(dataOut);
  
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : interpolationSchem : " << _couplingPolicy._interpolationSchem << std::endl;
     std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : alpha : " << _couplingPolicy._alpha << std::endl;
     std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : datecalschem : " << _couplingPolicy._dateCalSchem << std::endl;
@@ -259,13 +266,13 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
       // OLD: REM : Pour des buffers de type int
       // OLD: le compilo indiquera warning: converting to `long int' from `Double'
       std::transform(InIt1,InIt1+dataSize,InIt2,OutIt,
-       		     ( _1 - _2 ) * coeff + _2 );
+                     ( _1 - _2 ) * coeff + _2 );
 //       for(size_t i =0;  i < dataSize3; ++i) {
-// 	OutIt[i]=(InIt1[i] - InIt2[i]) * coeff + InIt2[i];
+//      OutIt[i]=(InIt1[i] - InIt2[i]) * coeff + InIt2[i];
 //       }
 
     }
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Données calculées à t : " << std::endl;
     std::copy(OutIt,OutIt+dataSize,std::ostream_iterator<InnerType>(std::cout," "));
     std::cout << std::endl;
@@ -283,14 +290,14 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
 // Le container doit être associatif
 template < typename AssocContainer >
 bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, const typename AssocContainer::key_type & expectedDataId,
-						bool & isEqual, bool & isBounded, typename AssocContainer::iterator & wDataIt1) const {
+                                                bool & isEqual, bool & isBounded, typename AssocContainer::iterator & wDataIt1) const {
  
   // Rem : le type key_type == DataId
   typedef typename AssocContainer::key_type key_type;
   AdjacentFunctor< key_type > af(expectedDataId);
   if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY )
   {
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- time expected : " << expectedDataId.first << std::endl;
     std::cout << "-------- time expected corrected : " << expectedDataId.first*(1.0-_deltaT) << std::endl;
 #endif
@@ -310,15 +317,15 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   //
   // L'algo find_if ne peut être utilisé car il recopie l'AdjacentFunctor
   // qui ne peut alors pas mémoriser ses états précédents
-  //	
+  //    
  
   // Un codage en reverse serait plus efficace
   typename AssocContainer::iterator prev    = storedDatas.begin();
   typename AssocContainer::iterator current = prev;
   while ( (current != storedDatas.end()) && !af(current->first)  ) 
   {
-#ifdef _DEBUG_
-    std::cout << "------- stored time : " << current->first << std::endl;
+#ifdef MYDEBUG
+    std::cerr << "------- stored time : " << current->first << std::endl;
 #endif
     //  if ( af(current->first) ) break;
     prev = current++;
@@ -336,12 +343,76 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
     else
       wDataIt1 = storedDatas.end();
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
   std::cout << "-------- isDataIdConvenient : isEqual : " << isEqual << " , isBounded " << isBounded << std::endl;
 #endif
 
   return isEqual || isBounded;
 }
+
+//Remove DataId before or after a given time or tag
+template < typename DataManipulator > 
+struct CalciumCouplingPolicy::EraseDataIdBeforeOrAfterTagProcessor
+{
+  CalciumCouplingPolicy &_couplingPolicy;
+    
+  EraseDataIdBeforeOrAfterTagProcessor(CalciumCouplingPolicy &couplingPolicy):
+    _couplingPolicy(couplingPolicy) {};
+
+  template < typename Container,typename TimeType,typename TagType >
+  void apply(Container & storedDatas, TimeType time, TagType tag, bool before) const 
+    {
+      typedef typename Container::iterator   iterator;
+      typedef typename Container::reverse_iterator   riterator;
+
+      if(_couplingPolicy._dependencyType == CalciumTypes::TIME_DEPENDENCY)
+        {
+          if(before)
+            {
+              iterator it=storedDatas.begin();
+              while(it != storedDatas.end() && it->first.first <= time)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it);
+                  it=storedDatas.begin();
+                }
+            }
+          else
+            {
+              riterator it=storedDatas.rbegin();
+              while(it != storedDatas.rend() && it->first.first >= time)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it->first);
+                  it=storedDatas.rbegin();
+                }
+            }
+        }
+      else
+        {
+          if(before)
+            {
+              iterator it=storedDatas.begin();
+              while(it != storedDatas.end() && it->first.second <= tag)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it);
+                  it=storedDatas.begin();
+                }
+            }
+          else
+            {
+              riterator it=storedDatas.rbegin();
+              while(it != storedDatas.rend() && it->first.second >= tag)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it->first);
+                  it=storedDatas.rbegin();
+                }
+            }
+        }
+    }
+};
 
 // TODO :PAS ENCORE TESTE AVEC UN NIVEAU POSITIONNE
 // Supprime les DataId et les données associées
@@ -360,13 +431,13 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
 
   template < typename Container >
   void apply(Container & storedDatas, 
-	     typename Container::iterator & wDataIt1 ) const {
+             typename Container::iterator & wDataIt1 ) const {
 
     typedef typename Container::key_type   key_type;
     typedef typename Container::value_type value_type;
     typedef typename Container::iterator iterator;
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::eraseDataId, storedDatasSize : " << storedDatas.size() << std::endl;
 #endif
  
@@ -377,18 +448,18 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
     if (s > 0 ) {
       size_t dist=distance(storedDatas.begin(),wDataIt1);
       for (int i=0; i<s; ++i) {
-	      //no bug if removed : DataManipulator::delete_data((*storedDatas.begin()).second);
-	      DataManipulator::delete_data((*storedDatas.begin()).second);
-	      storedDatas.erase(storedDatas.begin());
+              //no bug if removed : DataManipulator::delete_data((*storedDatas.begin()).second);
+              DataManipulator::delete_data((*storedDatas.begin()).second);
+              storedDatas.erase(storedDatas.begin());
       }
       // Si l'itérateur pointait sur une valeur que l'on vient de supprimer
       if (dist < s ) {
-	throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La gestion du niveau CALCIUM " 
-					    << _couplingPolicy._storageLevel << 
-					    " vient d'entraîner la suppression de la donnée à renvoyer")));
+        throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "StorageLevel management " 
+                                            << _couplingPolicy._storageLevel << 
+                                            " has just removed the data to send")));
       }
     }
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::eraseDataId, new storedDatasSize : " << storedDatas.size() << std::endl;
 #endif
     return;
@@ -414,28 +485,28 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
 
   template < typename Container, typename DataId >
   bool apply(Container & storedDatas,
-	     const DataId & expectedDataId,
-	     typename Container::iterator & wDataIt1 ) const {
+             const DataId & expectedDataId,
+             typename Container::iterator & wDataIt1 ) const {
 
     typedef typename Container::key_type   key_type;
     typedef typename Container::value_type value_type;
     typedef typename Container::iterator   iterator;
 
     // Pas de traitement particulier a effectuer
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK1 ("<< _couplingPolicy._disconnectDirective<<") --------" << std::endl;
 #endif
     if ( (_couplingPolicy._disconnectDirective) == (CalciumTypes::UNDEFINED_DIRECTIVE) ) return false;
   
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK2 --------" << std::endl;
 #endif
 
     // TODO : Ds GenericPort::next il faut convertir en CPSTOPSEQ
     if ( _couplingPolicy._disconnectDirective == CalciumTypes::CP_ARRET )
-      throw(CalciumException(CalciumTypes::CPINARRET,LOC(OSS()<< "La directive CP_ARRET" 
-					   << " provoque l'interruption de toute lecture de données")));
-#ifdef _DEBUG_
+      throw(CalciumException(CalciumTypes::CPINARRET,LOC(OSS()<< "CP_ARRET directive" 
+                                           << " interrupts all further data reading")));
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK3 --------" << std::endl;
 #endif
 
@@ -443,20 +514,20 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     // S'il n'y a plus de données indique que l'on a pas pu effectuer de traitement
     // TODO : Dans la gestion des niveaux il faut peut être interdire un niveau ==  0
     if ( storedDatas.empty() ) 
-      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La directive CP_CONT" 
-					  << " est active mais aucune donnée n'est disponible.")));
+      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "CP_CONT directive" 
+                                          << " is active but no data is available.")));
     
     // expectedDataId n'a ni été trouvé dans storedDataIds ni encadré mais il se peut
     // qu'en mode itératif il ne soit pas plus grand que le plus grand DataId stocké auquel
     // cas on doit renvoyer une expection car on n'est plus connecté et on ne pourra jamais
     // fournir de données pour ce dataId.
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK4  " << expectedDataId <<" --------" << std::endl;
 #endif
 
     // >= expectedDataId
     iterator it1 = storedDatas.lower_bound(expectedDataId);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK5  " << std::endl;
     for (iterator it=storedDatas.begin();it!=storedDatas.end();++it)
       std::cout <<" "<<(*it).first ;
@@ -465,16 +536,16 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
 
     // TODO : Il faut en fait renvoyer le plus proche cf IT ou DT
     if (it1 == storedDatas.end())
-      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La directive CP_CONT" 
-					  << " est active mais le dataId demandé est inférieur ou égal au dernier reçu.")));
+      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "CP_CONT directive" 
+                                          << " is active but the requested dataId is less or equal to the last one received.")));
   
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK6 " << std::endl;
 #endif
 
     wDataIt1 = storedDatas.end();
     --wDataIt1;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor, CP_CONT : " << (*wDataIt1).first << std::endl;
 #endif
 

@@ -1,0 +1,163 @@
+
+child1 = batchmode_geompy.myBuilder.NewObject(batchmode_geompy.father)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child1,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N1")
+N1 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child1, "AttributeTreeNode")
+if N1 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child2 = batchmode_geompy.myBuilder.NewObject(batchmode_geompy.father)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child2,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N2")
+N2 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child2, "AttributeTreeNode")
+if N2 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child3 = batchmode_geompy.myBuilder.NewObject(batchmode_geompy.father)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child3,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N3")
+N3 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child3, "AttributeTreeNode")
+if N3 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+
+child11 = batchmode_geompy.myBuilder.NewObject(child1)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child11,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N11")
+
+N11 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child11, "AttributeTreeNode")
+
+if N11 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child111 = batchmode_geompy.myBuilder.NewObject(child11)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child111, "AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N111")
+
+N111 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child111, "AttributeTreeNode")
+
+if N111 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+ 
+
+child31 = batchmode_geompy.myBuilder.NewObject(child3)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child31,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N31")
+
+N31 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child31, "AttributeTreeNode")
+if N31 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child32 = batchmode_geompy.myBuilder.NewObject(child3)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child32,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N32")
+
+N32 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child32, "AttributeTreeNode")
+if N32 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child321 = batchmode_geompy.myBuilder.NewObject(child32)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child321,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N321")
+
+N321 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child321, "AttributeTreeNode")
+if N321 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child33 = batchmode_geompy.myBuilder.NewObject(child3)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child33,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N33")
+
+N33 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child33, "AttributeTreeNode")
+if N33 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+child34 = batchmode_geompy.myBuilder.NewObject(child3)
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child34,"AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+A.SetValue("N34")
+
+N34 = batchmode_geompy.myBuilder.FindOrCreateAttribute(child34, "AttributeTreeNode")
+if N34 == None :
+        raise  RuntimeError, "Can't create AttributeTreeNode attribute"
+
+
+
+#Create links between tree nodes.
+#  -| root
+#   --N1 __
+#   |     N11__
+#   |           N111
+#   --N2           
+#   |   
+#   --N3__
+#         N31
+#         N32__
+#              N321
+#         N33
+#         N34
+        
+N11.SetFather(N1)
+N11.Append(N111)
+N3.SetPrevious(N1)
+N3.Prepend(N2)
+
+N32.SetFather(N3)
+N32.Prepend(N31)
+N33.InsertAfter(N32)
+N33.Append(N34)
+print "-------------  ", N1, "  -------------  "
+print "N1.Label() = ", N1.Label() , "IsRoot() = ", N1.IsRoot(), "Depth() = ", N1.Depth()
+print "N11.Label() = ", N11.Label() , "IsRoot() = ", N11.IsRoot(), "Depth() = ", N11.Depth()
+print "N111.Label() = ", N111.Label() , "IsRoot() = ", N111.IsRoot(), "Depth() = ", N111.Depth()
+print "N2.Label() = ", N2.Label() , "IsRoot() = ",  N2.IsRoot(), "Depth() = ", N2.Depth()
+print "N3.Label() = ", N3.Label() , "IsRoot() = ", N3.IsRoot(), "Depth() = ", N3.Depth()
+print "N31.Label() = ", N31.Label() , "IsRoot() = ", N31.IsRoot(), "Depth() = ", N31.Depth()
+print "N32.Label() = ", N32.Label() , "IsRoot() = ", N32.IsRoot(), "Depth() = ", N32.Depth()
+print "N321.Label() = ", N321.Label() , "IsRoot() = ", N321.IsRoot(), "Depth() = ", N321.Depth()
+print "N33.Label() = ", N33.Label() , "IsRoot() = ", N33.IsRoot(), "Depth() = ", N33.Depth()
+print "N34.Label() = ", N34.Label() , "IsRoot() = ", N34.IsRoot(), "Depth() = ", N34.Depth()
+print "N1.IsRoot()=", N1.IsRoot()
+
+print "N1.HasNext() = ",N1.HasNext()
+if  N1.HasNext():
+        print N1.Next().Label()
+
+print "N32.HasPrevious() = ",N32.HasPrevious()
+if  N32.HasPrevious():
+        print N32.GetPrevious().Label()
+
+print "N111.HasFirst()=",N111.HasFirst()
+print "N111.HasFather()=",N111.HasFather()
+if N111.HasFather() :
+        print "N111.GetFather().Label()=",N111.GetFather().Label()
+

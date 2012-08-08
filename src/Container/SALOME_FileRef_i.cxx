@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOME_FileRef_i.cxx
 //  Author : Paul RASCLE, EDF
 //  Module : SALOME
@@ -28,8 +29,6 @@
 #include "utilities.h"
 #include "Basics_Utils.hxx"
 #include <string>
-
-using namespace std;
 
 //=============================================================================
 /*! 
@@ -48,7 +47,7 @@ fileRef_i::fileRef_i()
 //=============================================================================
 
 fileRef_i::fileRef_i(Engines::Container_ptr container,
-		     const char* origFileName)
+                     const char* origFileName)
 {
   MESSAGE("fileRef_i::fileRef_i "<< origFileName);
   _container =  Engines::Container::_duplicate(container);
@@ -126,11 +125,11 @@ Engines::Container_ptr fileRef_i::getContainer()
 //=============================================================================
 
 CORBA::Boolean fileRef_i::addRef(const char* machine,
-				 const char* fileName)
+                                 const char* fileName)
 {
   MESSAGE("fileRef_i::addRef " << machine << " " << fileName);
-  string theMachine = machine;
-  string theFileName = fileName;
+  std::string theMachine = machine;
+  std::string theFileName = fileName;
 
   if (theFileName[0] != '/')
     {
@@ -147,7 +146,7 @@ CORBA::Boolean fileRef_i::addRef(const char* machine,
   if (! _copies[theMachine].empty())
     {
       INFOS("there is already a copy on " << theMachine << " under the path "
-	    <<  _copies[theMachine] << " new ref not added! ");
+            <<  _copies[theMachine] << " new ref not added! ");
       return 0;
     }
 
@@ -168,17 +167,17 @@ CORBA::Boolean fileRef_i::addRef(const char* machine,
 char* fileRef_i::getRef(const char* machine)
 {
   MESSAGE("fileRef_i::getRef "<< machine);
-  string theMachine = machine;
-  string theFileName = _copies[theMachine];
+  std::string theMachine = machine;
+  std::string theFileName = _copies[theMachine];
   if (_copies[theMachine].empty())
     {
       MESSAGE("no copy of " << _machine << _origFileName << " available on "
-	      << theMachine);
+              << theMachine);
     }
   else
     {
       MESSAGE("a copy of " << _machine << _origFileName << "is available on "
-	      << theMachine << _copies[theMachine]);
+              << theMachine << _copies[theMachine]);
     }
   return CORBA::string_dup(_copies[theMachine].c_str());
 }

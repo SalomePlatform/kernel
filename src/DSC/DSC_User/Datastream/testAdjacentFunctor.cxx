@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : testAdjacentFunctor.cxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -45,7 +46,7 @@ struct MyRand {
   static const double MAXVALUE = 150.0;
   MyRand() { srand(getpid()); }
   int operator()() const {
-	return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
+        return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
   }
 };
 
@@ -93,7 +94,7 @@ int main() {
   
   
 
-	 
+         
  //  if ( it == vect.end() ) {
 //     std::cout << " Je n'ai pas trouvé la valeur " << valueToFind << std::endl;
 //   } else {
@@ -102,7 +103,7 @@ int main() {
 //       Type min,max;
 //       if ( ap.getBounds(min,max) ) {
 //         it2=it;it2--;
-// 	std::cout << "La valeur : " << valueToFind << " est encadrée par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
+//      std::cout << "La valeur : " << valueToFind << " est encadrée par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
 //       }
 //     }
 //   }
@@ -122,7 +123,7 @@ int main() {
 //   AdjacentFunctor<MapIntDouble::value_type::first_type> apMap(valueToFind);
 //   for (itM1 = myMap.begin(); itM1 != myMap.end(); ++itM1) 
 //      if ( apMap(itM1->first) ) break;
-	 
+         
 //   if ( itM1 == myMap.end() ) {
 //     std::cout << " Je n'est pas trouvé la valeur " << valueToFind << std::endl;
 //   } else {
@@ -131,7 +132,7 @@ int main() {
 //       Type min,max;
 //       if ( apMap.getBounds(min,max) ) {
 //         itM2=itM1;itM2--;
-// 	std::cout << "La valeur " << valueToFind << " est encadrée par  (itM1->first) :" << (itM1->first) << " et valeur de (it-1)->first :" << (itM2->first) << std::endl;
+//      std::cout << "La valeur " << valueToFind << " est encadrée par  (itM1->first) :" << (itM1->first) << " et valeur de (it-1)->first :" << (itM2->first) << std::endl;
 //       }
 //     }
 //   }
@@ -163,7 +164,7 @@ int main() {
 //       MapIntDouble_Double::key_type min,max;
 //       if ( apMapP.getBounds(min,max) ) {
 //         itMP2=itMP1;itMP2--;
-// 	std::cout << "La valeur " << valuePToFind << " est encadrée par  (itMP1->first) :" << (itMP1->first) << " et valeur de (it-1)->first :" << (itMP2->first) << std::endl;
+//      std::cout << "La valeur " << valuePToFind << " est encadrée par  (itMP1->first) :" << (itMP1->first) << " et valeur de (it-1)->first :" << (itMP2->first) << std::endl;
 //       }
 //     }
 //   }

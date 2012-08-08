@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Notification : wrapping of Notification service services
 //  File   : NOTIFICATION.cxx
 //  Author : Laurent DADA / Francis KLOSS
@@ -28,7 +29,6 @@
 
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-using namespace std;
 
 CosNA_EventChannel_ptr NOTIFICATION_channel() {
     ORB_INIT&      init = *SINGLETON_<ORB_INIT>::Instance(); ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
@@ -46,10 +46,10 @@ CosNA_EventChannel_ptr NOTIFICATION_channel() {
             MESSAGE("NOTIFICATION Error : failed to obtain context for NameService");
             return(channel);
         };
-    } catch(CORBA::ORB::InvalidName& ex) {
+    } catch(CORBA::ORB::InvalidName& ) {
         MESSAGE("NOTIFICATION Error : service required is invalid [does not exist]");
         return(channel);
-    } catch (CORBA::SystemException& ex) {
+    } catch (CORBA::SystemException& ) {
         MESSAGE("NOTIFICATION Error : caught system exception COMM_FAILURE");
         return(channel);
     } catch (...) {
@@ -67,9 +67,9 @@ CosNA_EventChannel_ptr NOTIFICATION_channel() {
         if (CORBA::is_nil(channel)) {
             MESSAGE("NOTIFICATION Error : failed to narrow object found in naming service");
         };
-    } catch(CORBA::ORB::InvalidName& ex) {
+    } catch(CORBA::ORB::InvalidName& ) {
         MESSAGE("NOTIFICATION Error : invalid name");
-    } catch (CORBA::SystemException& ex) {
+    } catch (CORBA::SystemException& ) {
         MESSAGE("NOTIFICATION Error : caught system exception COMM_FAILURE while resolving event channel name");
     } catch (...) {
         MESSAGE("NOTIFICATION Error : caught exception while resolving event channel name");

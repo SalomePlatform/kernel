@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Utils : general SALOME's definitions and tools
 //  File   : Utils_ORB_INIT.cxx
 //  Author : Antoine YESSAYAN, EDF
@@ -59,18 +60,18 @@ CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv ) throw( CommExcep
   try {
     if ( CORBA::is_nil( _orb ) )
       {
-	try
-	  {
+        try
+          {
 #if OMNIORB_VERSION >= 4
-	    _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
+            _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
 #else
-	    _orb = CORBA::ORB_init( argc, argv, "omniORB3" ) ;
+            _orb = CORBA::ORB_init( argc, argv, "omniORB3" ) ;
 #endif
-	  }
-	catch( const CORBA::Exception &ex )
-	  {
-	    throw CommException( "Unable to create an ORB connexion" ) ;
-	  }
+          }
+        catch( const CORBA::Exception & )
+          {
+            throw CommException( "Unable to create an ORB connexion" ) ;
+          }
       }
     return _orb ;
   } catch ( CommException& e) {throw e;}

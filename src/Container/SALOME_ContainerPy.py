@@ -1,25 +1,27 @@
 #! /usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOME Container : implementation of container and engine for Kernel
 #  File   : SALOME_ContainerPy.py
 #  Author : Paul RASCLE, EDF
@@ -42,7 +44,7 @@ from launchConfigureParser import verbose
 
 #=============================================================================
 
-#define an implementation of the container interface
+#define an implementation of the container interface for the container implemented in Python
 
 class SALOME_ContainerPy_i (Engines__POA.Container):
     _orb = None
@@ -58,7 +60,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._poa = poa
         myMachine=getShortHostName()
         Container_path = "/Containers/" + myMachine + "/" + containerName
-        #self._containerName = containerName
         self._containerName = Container_path
         if verbose(): print "container name ",self._containerName
 
@@ -167,18 +168,24 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )
-        ret=0
+        reason = ""
         try:
-            if verbose(): print "try import ",componentName
+            if verbose(): print "try import %s" % componentName
+            # try import component
             module=__import__(componentName)
-            if verbose(): print "import ",componentName," successful"
-            ret=1
+            if verbose(): print "import %s is done successfully" % componentName
+            # if import successfully, check that component is loadable
+            if not hasattr(module, componentName):
+                reason = "module %s is not loadable" % componentName
+                print reason
+                pass
+            pass
         except:
-            if verbose(): 
-              import traceback
-              traceback.print_exc()
-              print "import ",componentName," not possible"
-        return ret
+            import traceback
+            print "cannot import %s" % componentName
+            traceback.print_exc()
+            reason = "cannot import %s" % componentName
+        return reason
 
     #-------------------------------------------------------------------------
 
@@ -187,27 +194,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret = 0
         instanceName = componentName + "_inst_" + `self._numInstance`
         interfaceName = componentName
-        #the_command = "import " + componentName + "\n"
-        #the_command = the_command + "comp_i = " + componentName + "." + componentName
-        #the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
-        #MESSAGE( "SALOME_ContainerPy_i::load_component_Library :" + str (the_command) )
-        #exec the_command
-        #comp_o = comp_i._this()
-        #if comp_o is not None:
-        #    ret = 1
-        #else:
-            # --- try to import Python component
-        #    retImpl = self.import_component(componentName)
-        #    if retImpl == 1:
-                #import is possible
-        #        ret = 1
-        #    else:
-                #import isn't possible
-        #        ret = 0
-        #return ret
-        return self.import_component(componentName)
+        reason = self.import_component(componentName)
+        return reason == "", reason
     
     #-------------------------------------------------------------------------
+
+    def create_component_instance_env(self, componentName, studyId, env):
+      return self.create_component_instance(componentName, studyId), ""
 
     def create_component_instance(self, componentName, studyId):
         MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) + ' ' + str(studyId) )

@@ -13,7 +13,6 @@
 			<plugin name="GHS3DPlugin"/>
 	        </module>
 	        <module name="VISU"/>
-	        <module name="SUPERV"/>
 	        <module name="MED"/>
 	        <module name="COMPONENT"/>
 	        <module name="PYCALCULATOR"/>
@@ -26,6 +25,5 @@
 	</embedded-list>
 	<standalone-list>
 	        <standaloneserver>pyContainer</standaloneserver>
-	        <standaloneserver>supervContainer</standaloneserver>
 	</standalone-list>
 </Configuration-list>

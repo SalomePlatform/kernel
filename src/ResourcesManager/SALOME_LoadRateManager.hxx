@@ -1,38 +1,61 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __SALOME_LOADRATEMANAGER_HXX__
 #define __SALOME_LOADRATEMANAGER_HXX__
 
 #include "ResourcesManager_Defs.hxx"
 #include <string>
+#include <map>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
-class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
-  {
-
+class RESOURCESMANAGER_EXPORT LoadRateManager
+{
   public:
-    std::string FindFirst(const std::vector<std::string>& hosts);
-    std::string FindNext(const std::vector<std::string>& hosts,MapOfParserResourcesType& resList);
-    std::string FindBest(const std::vector<std::string>& hosts);
-  };
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList){return "";};
+};
+
+class RESOURCESMANAGER_EXPORT LoadRateManagerFirst:public LoadRateManager
+{
+  public:
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList);
+};
+
+class RESOURCESMANAGER_EXPORT LoadRateManagerCycl :public LoadRateManager
+{
+  public:
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList);
+};
+
+class RESOURCESMANAGER_EXPORT LoadRateManagerAltCycl :public LoadRateManager
+{
+  public:
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList);
+  protected:
+    std::map<std::string,int> _numberOfUses;
+};
 
 #endif

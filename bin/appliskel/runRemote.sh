@@ -1,25 +1,26 @@
 #!/bin/bash
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # --- run command in SALOME environment from remote call, ssh or rsh
 #     - SALOME configuration is defined by :
 #        - list of MODULE_ROOT_DIR
@@ -40,7 +41,7 @@
 #     $4 : if $3 == WORKINGDIR, the path to the workingdir
 #     $5 (or $3 if no workingdir given) and following : local command to execute, with args
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
-#
+
 APPLI_HOME=`dirname $0`
 export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
@@ -57,7 +58,7 @@ export NSHOST
 NSPORT=$2
 export NSPORT
 initref="NameService=corbaname::"$1":$2"
-echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+echo "InitRef = $initref" > $OMNIORB_CONFIG
 
 #go to the requested working directory if any
 if test "x$3" == "xWORKINGDIR"; then

@@ -23,16 +23,48 @@
   <sequence name="intvec" content="int"/>
   <sequence name="stringvec" content="string"/>
   <sequence name="boolvec" content="bool"/>
+  <struct name="dataref" >
+    <member name="ref" type="string"/>
+  </struct>
   <objref name="CALCIUM_integer" id="IDL:Ports/Calcium_Ports/Calcium_Integer_Port:1.0"/>
+  <objref name="CALCIUM_long" id="IDL:Ports/Calcium_Ports/Calcium_Long_Port:1.0"/>
   <objref name="CALCIUM_real" id="IDL:Ports/Calcium_Ports/Calcium_Real_Port:1.0"/>
   <objref name="CALCIUM_double" id="IDL:Ports/Calcium_Ports/Calcium_Double_Port:1.0"/>
   <objref name="CALCIUM_string" id="IDL:Ports/Calcium_Ports/Calcium_String_Port:1.0"/>
   <objref name="CALCIUM_logical" id="IDL:Ports/Calcium_Ports/Calcium_Logical_Port:1.0"/>
   <objref name="CALCIUM_boolean" id="IDL:Ports/Calcium_Ports/Calcium_Logical_Port:1.0"/>
   <objref name="CALCIUM_complex" id="IDL:Ports/Calcium_Ports/Calcium_Complex_Port:1.0"/>
+  <objref name="Param_Double_Port" id="IDL:Ports/Param_Double_Port:1.0"/>
   <objref name="BASIC_short" id="IDL:Ports/Data_Short_Port:1.0"/>
   <objref name="Study" id="IDL:SALOMEDS/Study:1.0"/>
   <objref name="SObject" id="IDL:SALOMEDS/SObject:1.0"/>
+  <objref name="SALOME/SenderDouble"/>
+  <objref name="SALOME/SenderInt"/>
+  <objref name="SALOME/Matrix"/>
+  
+  <!-- Types for parametric computations -->
+  <struct name="SALOME_TYPES/Parameter">
+    <member type="string" name="name"></member>
+    <member type="string" name="value"></member>
+  </struct>
+  <sequence content="SALOME_TYPES/Parameter" name="SALOME_TYPES/ParameterList"></sequence>
+  <sequence content="double" name="SALOME_TYPES/Variable"></sequence>
+  <sequence content="SALOME_TYPES/Variable" name="SALOME_TYPES/VariableSequence"></sequence>
+  <sequence content="SALOME_TYPES/VariableSequence" name="SALOME_TYPES/StateSequence"></sequence>
+  <sequence content="SALOME_TYPES/StateSequence" name="SALOME_TYPES/TimeSequence"></sequence>
+  <sequence content="string" name="SALOME_TYPES/VarList"></sequence>
+  <struct name="SALOME_TYPES/ParametricInput">
+    <member type="SALOME_TYPES/VarList" name="inputVarList"></member>
+    <member type="SALOME_TYPES/VarList" name="outputVarList"></member>
+    <member type="SALOME_TYPES/TimeSequence" name="inputValues"></member>
+    <member type="SALOME_TYPES/ParameterList" name="specificParameters"></member>
+  </struct>
+  <struct name="SALOME_TYPES/ParametricOutput">
+    <member type="SALOME_TYPES/TimeSequence" name="outputValues"></member>
+    <member type="SALOME_TYPES/ParameterList" name="specificOutputInfos"></member>
+    <member type="long" name="returnCode"></member>
+    <member type="string" name="errorMessage"></member>
+  </struct>
 </type-list>
 
 <!-- Component list -->

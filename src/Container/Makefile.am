@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOME Container : implementation of container and engine for Kernel
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
@@ -44,8 +45,9 @@ salomeinclude_HEADERS = \
 	Salome_file_i.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA =\
+dist_salomescript_PYTHON =\
 	SALOME_ComponentPy.py \
+	SALOME_PyNode.py \
 	SALOME_Container.py
 
 # These files are executable scripts
@@ -61,9 +63,7 @@ dist_salomescript_SCRIPTS=\
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
-	@MPI_INCLUDES@ \
 	@HDF5_INCLUDES@ \
-	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -72,7 +72,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../HDFPersist \
-	-I$(top_builddir)/salome_adm/unix \
+	-I$(srcdir)/../GenericObj \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @LIBXML_INCLUDES@
 
@@ -87,11 +87,15 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
-	../Batch/libSalomeBatch.la \
+	../GenericObj/libSalomeGenericObj.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
-	@MPI_LIBS@ \
 	@CORBA_LIBS@ \
 	$(PYTHON_LIBS)
+
+if WITH_MPI_SEQ_CONTAINER	
+COMMON_CPPFLAGS += @MPI_INCLUDES@
+COMMON_LIBS += @MPI_LIBS@
+endif
 
 #
 # ===============================================================
@@ -140,11 +144,14 @@ SALOME_Container_CPPFLAGS =\
 
 SALOME_Container_LDADD = \
 	libSalomeContainer.la \
-	../Basics/libSALOMEBasics.la \
+	../Basics/libSALOMEBasics.la ${COMMON_LIBS} \
 	$(HDF5_LIBS) \
-	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
+
+if WITH_MPI_SEQ_CONTAINER	
+SALOME_Container_LDADD += $(MPI_LIBS)
+endif
 
 SALOME_Container_LDFLAGS  =\
 -Xlinker -export-dynamic
@@ -158,7 +165,12 @@ TestSalome_file_CPPFLAGS =\
 TestSalome_file_LDADD =\
 	libSalomeContainer.la \
 	../Basics/libSALOMEBasics.la \
+	$(COMMON_LIBS) \
 	$(HDF5_LIBS) \
-	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
+
+install-data-hook:
+	@for f in $(dist_salomescript_PYTHON) ; do \
+          chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
+        done

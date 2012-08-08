@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_GenericAttribute.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -39,8 +40,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-using namespace std; 
 
 SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDSImpl_GenericAttribute* theGA)
 {
@@ -71,7 +70,7 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
 SALOMEDS_GenericAttribute::~SALOMEDS_GenericAttribute() 
 {
   if (!_isLocal) {
-    _corba_impl->Destroy();
+    _corba_impl->UnRegister();
   }
 }
 
@@ -99,7 +98,7 @@ std::string SALOMEDS_GenericAttribute::Type()
     aType = _local_impl->Type();
   }
   else {
-    aType = _corba_impl->Type();
+    aType = (CORBA::String_var)_corba_impl->Type();
   }
   return aType;
 }
@@ -112,7 +111,7 @@ std::string SALOMEDS_GenericAttribute::GetClassType()
     aType = _local_impl->GetClassType();
   }
   else {
-    aType = _corba_impl->GetClassType();
+    aType = (CORBA::String_var)_corba_impl->GetClassType();
   }
   return aType;
 }
@@ -125,7 +124,7 @@ _PTR(SObject) SALOMEDS_GenericAttribute::GetSObject()
     aSO = new SALOMEDS_SObject(_local_impl->GetSObject());
   }
   else {
-    aSO = new SALOMEDS_SObject(_corba_impl->GetSObject());
+    aSO = new SALOMEDS_SObject((SALOMEDS::SObject_var)_corba_impl->GetSObject());
   }
 
   return _PTR(SObject)(aSO);
@@ -148,7 +147,8 @@ SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::
 {
   SALOMEDS_GenericAttribute* aGA = NULL;
   if(!CORBA::is_nil(theGA)) {
-      std::string aTypeOfAttribute = theGA->GetClassType();
+      CORBA::String_var astr=theGA->GetClassType();
+      std::string aTypeOfAttribute = astr.in();
       __CreateGenericClientAttributeCORBA
   }
   return aGA;

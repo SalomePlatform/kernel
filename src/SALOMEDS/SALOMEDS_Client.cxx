@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
 //  File   : SALOMEDS_Client.cxx
 //  Author : Yves FRICAUD
@@ -31,8 +32,6 @@
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "utilities.h"
 #include "HDFOI.hxx"
-
-using namespace std;
 
 //============================================================================
 /*! Function :
@@ -50,12 +49,12 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, in
       SALOMEDS::AttributeName_var Name = SALOMEDS::AttributeName::_narrow(anAttr);
       CORBA::String_var Val = Name->Value();
       for (int i = 1; i <= offset ; i++) 
-	MESSAGE("--");
+        MESSAGE("--");
       MESSAGE(">"<<CSO->GetID()<<Val);
     }
     if (CSO->ReferencedObject(RefSO)) {
       for (int i = 1; i <= offset ; i++) 
-	MESSAGE(" ");
+        MESSAGE(" ");
       MESSAGE("*Reference"<<RefSO->GetID());
     }
     DumpComponent(Study,CSO,offset+2);

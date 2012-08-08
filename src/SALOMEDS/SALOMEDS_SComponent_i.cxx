@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_SComponent_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -28,14 +29,11 @@
 #include "utilities.h"
 #include <map>
 
-using namespace std;
-
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const SALOMEDSImpl_SComponent& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SComponent_i* sco_servant = new SALOMEDS_SComponent_i(theImpl, theORB);
-  SALOMEDS::SComponent_var sco  = SALOMEDS::SComponent::_narrow(sco_servant->SComponent::_this()); 
 
-  return sco._retn();
+  return sco_servant->_this();
 }    
 
 //============================================================================
@@ -63,7 +61,7 @@ SALOMEDS_SComponent_i::~SALOMEDS_SComponent_i()
 char* SALOMEDS_SComponent_i::ComponentDataType()
 {
   SALOMEDS::Locker lock;
-  string aType = dynamic_cast<SALOMEDSImpl_SComponent*>(_impl)->ComponentDataType();
+  std::string aType = dynamic_cast<SALOMEDSImpl_SComponent*>(_impl)->ComponentDataType();
   return CORBA::string_dup(aType.c_str());
 }
   
@@ -76,7 +74,7 @@ char* SALOMEDS_SComponent_i::ComponentDataType()
 CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
 {
   SALOMEDS::Locker lock;
-  string ior;
+  std::string ior;
   if(!dynamic_cast<SALOMEDSImpl_SComponent*>(_impl)->ComponentIOR(ior)) {
     IOR = CORBA::string_dup("");
     return false;

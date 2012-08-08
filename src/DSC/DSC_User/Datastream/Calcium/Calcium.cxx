@@ -1,32 +1,30 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 #include "Calcium.hxx"
 #include "CalciumInterface.hxx"
 #include "calcium.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <exception>
-
-//#define _DEBUG_
+#include <cstring>
 
 PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               PortableServer::POA_ptr poa,
@@ -43,8 +41,11 @@ PySupervCompo::~PySupervCompo()
 }
 
 
-extern "C" 
+extern "C"
 {
+  void cp_exit(int);
+  void setDependency(provides_port*, char*, CalciumTypes::DependencyType);
+
   void cp_exit(int err)
     {
       throw CalciumException(err,LOC("Abort coupling"));
@@ -63,6 +64,10 @@ extern "C"
     else if(std::string(type)=="CALCIUM_integer")
       {
         dynamic_cast<calcium_integer_port_provides *>(port)->setDependencyType(depend);
+      }
+    else if(std::string(type)=="CALCIUM_long")
+      {
+        dynamic_cast<calcium_long_port_provides *>(port)->setDependencyType(depend);
       }
     else if(std::string(type)=="CALCIUM_string")
       {
@@ -84,9 +89,11 @@ extern "C"
 
   void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
   {
-#ifdef _DEBUG_
-    std::cerr << "create_calcium_port: " << name << " " << type << " " << mode << " " << depend << std::endl;
-#endif
+    std::stringstream msg;
+    msg << type << " " << mode << " " << depend;
+    CORBA::String_var componentName=compo->instanceName();
+    std::string containerName=compo->getContainerName();
+    Engines_DSC_interface::writeEvent("create_calcium_port",containerName,componentName,name,"",msg.str().c_str());
 
     if(std::string(mode) == "IN")
       {
@@ -140,6 +147,33 @@ extern "C"
         //Unknown mode
         std::cerr << "create_calcium_port:Unknown mode: " << mode << std::endl;
       }
+  }
+
+  char** create_multiple_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend, int number)
+  {
+    if (number <= 0)
+    {
+      std::cerr << "Cannot create a multiple calcium port with number <= 0, value is " << number << std::endl;
+      return NULL;
+    }
+    char** names = new char*[number];
+    for (int i = 0; i < number; i++)
+    {
+      std::ostringstream new_name;
+      new_name << name << "_" << i;
+      std::string cpp_name = new_name.str();
+      char * c_name = new char [cpp_name.size()+1];
+      strcpy(c_name, cpp_name.c_str());
+      names[i] = c_name;
+    }
+
+    // Create ports
+    for (int i = 0; i < number; i++)
+    {
+      create_calcium_port(compo, (char*)std::string(names[i]).c_str(), type, mode, depend);
+    }
+
+    return names;
   }
 
 }

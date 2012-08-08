@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Utils : general SALOME's definitions and tools
 //  File   : utilities.h
 //  Author : Antoine YESSAYAN, Paul RASCLE, EDF
@@ -67,12 +68,12 @@
 
 #ifdef WIN32
 #define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
-                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << std::flush; \
                                std::cerr << "ABORT return code= "<< code << std::endl; \
                                /*std::*/exit(code);}
 #else
 #define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
-                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << std::flush; \
                                std::cerr << "ABORT return code= "<< code << std::endl; \
                                std::exit(code);}
 #endif
@@ -80,17 +81,17 @@
 /* --- To print date and time of compilation of current source --- */
 
 #if defined ( __GNUC__ )
-#define COMPILER		"g++" 
+#define COMPILER                "g++" 
 #elif defined ( __sun )
-#define COMPILER		"CC" 
+#define COMPILER                "CC" 
 #elif defined ( __KCC )
-#define COMPILER		"KCC" 
+#define COMPILER                "KCC" 
 #elif defined ( __PGI )
-#define COMPILER		"pgCC" 
+#define COMPILER                "pgCC" 
 #elif defined ( __alpha )
-#define COMPILER		"cxx" 
+#define COMPILER                "cxx" 
 #else
-#define COMPILER		"undefined" 
+#define COMPILER                "undefined" 
 #endif
 
 #ifdef INFOS_COMPILATION
@@ -102,8 +103,8 @@
 // --- the following MACROS are useful at debug time
 
 #define INFOS_COMPILATION { MESS_BEGIN("COMPILED with ") << COMPILER \
-				       << ", " << __DATE__ \
-				       << " at " << __TIME__ << MESS_END }
+                                       << ", " << __DATE__ \
+                                       << " at " << __TIME__ << MESS_END }
 
 #define MESSAGE(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define SCRUTE(var)  {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}

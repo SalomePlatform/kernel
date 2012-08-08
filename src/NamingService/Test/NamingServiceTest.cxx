@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "NamingServiceTest.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
@@ -29,7 +30,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-using namespace std;
 
 // --- uncomment to have some traces on standard error
 //     (useful only when adding new tests...)
@@ -114,15 +114,15 @@ NamingServiceTest::setUp()
   // --- trace on file
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   //s="local";
   //s="with_logger";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
+  std::ofstream traceFile;
   //  traceFile.open(theFileName, ios::out | ios::trunc);
-  traceFile.open(theFileName, ios::out | ios::app);
+  traceFile.open(theFileName, std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -416,7 +416,7 @@ NamingServiceTest::testResolveFirst()
     {
       NSTEST::echo_var anEchoRef = myFactory->createInstance();
       ref[i] = anEchoRef->getId();
-      string name = "/nstestfirst/echo_";
+      std::string name = "/nstestfirst/echo_";
       char anum[10];
       sprintf(anum,"%d",ref[i]);
       name += anum;
@@ -425,7 +425,7 @@ NamingServiceTest::testResolveFirst()
 
   for (int i=0; i<NB_OBJS; i++)
     {
-      string name = "/nstestfirst/echo_";
+      std::string name = "/nstestfirst/echo_";
       char anum[10];
       sprintf(anum,"%d",ref[i]);
       name += anum;
@@ -436,7 +436,7 @@ NamingServiceTest::testResolveFirst()
       CPPUNIT_ASSERT(anEchoRef->getId() == ref[i]);
     }
 
-  string name = "/nstestfirst/echo";
+  std::string name = "/nstestfirst/echo";
   obj = _NS.ResolveFirst(name.c_str());
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
   NSTEST::echo_var anEchoRef = NSTEST::echo::_narrow(obj);
@@ -468,7 +468,7 @@ NamingServiceTest::testResolveFirstRelative()
     {
       NSTEST::echo_var anEchoRef = myFactory->createInstance();
       ref[i] = anEchoRef->getId();
-      string name = "/nstestfirstrel/echo_";
+      std::string name = "/nstestfirstrel/echo_";
       char anum[10];
       sprintf(anum,"%d",ref[i]);
       name += anum;
@@ -478,7 +478,7 @@ NamingServiceTest::testResolveFirstRelative()
   for (int i=0; i<NB_OBJS; i++)
     {
       _NS.Change_Directory("/nstestfirstrel");
-      string name = "echo_";
+      std::string name = "echo_";
       char anum[10];
       sprintf(anum,"%d",ref[i]);
       name += anum;
@@ -490,7 +490,7 @@ NamingServiceTest::testResolveFirstRelative()
     }
 
   _NS.Change_Directory("/nstestfirstrel");
-  string name = "echo";
+  std::string name = "echo";
   obj = _NS.ResolveFirst(name.c_str());
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
 }
@@ -504,7 +504,7 @@ NamingServiceTest::testResolveFirstRelative()
 void
 NamingServiceTest::testResolveFirstUnknown()
 {
-  string name = "/notYeyRegistered";
+  std::string name = "/notYeyRegistered";
   CORBA::Object_var obj= _NS.ResolveFirst(name.c_str());
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 
@@ -529,7 +529,7 @@ NamingServiceTest::testResolveFirstUnknownRelative()
   _NS.Create_Directory("/myContext");
   _NS.Change_Directory("/myContext");
 
-  string name = "RelnotYeyRegistered";
+  std::string name = "RelnotYeyRegistered";
   CORBA::Object_var obj = _NS.ResolveFirst(name.c_str());
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 
@@ -558,11 +558,11 @@ NamingServiceTest::testResolveComponentOK()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("theHostName",
-			     "theContainerName",
-			     "theComponentName");
+                             "theContainerName",
+                             "theComponentName");
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
   NSTEST::echo_var anEchoRefa = NSTEST::echo::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRefa));
@@ -571,12 +571,12 @@ NamingServiceTest::testResolveComponentOK()
 
   NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
   _NS.Register(anEchoRef2,
-	       "/Containers/theHostName/theContainerName_2/theComponentName");
+               "/Containers/theHostName/theContainerName_2/theComponentName");
 
   obj = _NS.ResolveComponent("theHostName",
-			     "theContainerName",
-			     "theComponentName",
-			     2);
+                             "theContainerName",
+                             "theComponentName",
+                             2);
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
   NSTEST::echo_var anEchoRefb = NSTEST::echo::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRefb));
@@ -599,11 +599,11 @@ NamingServiceTest::testResolveComponentEmptyHostname()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("",
-			     "theContainerName",
-			     "theComponentName");
+                             "theContainerName",
+                             "theComponentName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 }
 
@@ -623,11 +623,11 @@ NamingServiceTest::testResolveComponentUnknownHostname()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("anUnknownHostName",
-			     "theContainerName",
-			     "theComponentName");
+                             "theContainerName",
+                             "theComponentName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 }
 
@@ -651,24 +651,24 @@ NamingServiceTest::testResolveComponentEmptyContainerName()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
   _NS.Register(anEchoRef2,
-	       "/Containers/theHostName/aContainerName/aComponentName");
+               "/Containers/theHostName/aContainerName/aComponentName");
 
   NSTEST::echo_var anEchoRef3 = myFactory->createInstance();
   _NS.Register(anEchoRef3,
-	       "/Containers/theHostName/otherContainerName/theComponentName");
+               "/Containers/theHostName/otherContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("anUnknownHostName",
-			     "",
-			     "theComponentName");
+                             "",
+                             "theComponentName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 
   obj = _NS.ResolveComponent("theHostName",
-			     "",
-			     "theComponentName");
+                             "",
+                             "theComponentName");
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
   NSTEST::echo_var anEchoRefa = NSTEST::echo::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRefa));
@@ -691,19 +691,19 @@ NamingServiceTest::testResolveComponentUnknownContainerName()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
   _NS.Register(anEchoRef2,
-	       "/Containers/theHostName/aContainerName/aComponentName");
+               "/Containers/theHostName/aContainerName/aComponentName");
 
   NSTEST::echo_var anEchoRef3 = myFactory->createInstance();
   _NS.Register(anEchoRef3,
-	       "/Containers/theHostName/otherContainerName/theComponentName");
+               "/Containers/theHostName/otherContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("theHostName",
-			     "anUnknownContainerName",
-			     "theComponentName");
+                             "anUnknownContainerName",
+                             "theComponentName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 }
 
@@ -723,15 +723,15 @@ NamingServiceTest::testResolveComponentEmptyComponentName()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
   _NS.Register(anEchoRef2,
-	       "/Containers/theHostName/EmptyContainerName/");
+               "/Containers/theHostName/EmptyContainerName/");
 
   obj = _NS.ResolveComponent("theHostName",
-			     "EmptyContainerName",
-			     "");
+                             "EmptyContainerName",
+                             "");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 }
 
@@ -751,11 +751,11 @@ NamingServiceTest::testResolveComponentUnknownComponentName()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("theHostName",
-			     "theContainerName",
-			     "anUnknownComponentName");
+                             "theContainerName",
+                             "anUnknownComponentName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 }
 
@@ -777,18 +777,18 @@ NamingServiceTest::testResolveComponentFalseNbproc()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("theHostName",
-			     "theContainerName",
-			     "theComponentName",
-			     25);
+                             "theContainerName",
+                             "theComponentName",
+                             25);
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
 
   obj = _NS.ResolveComponent("theHostName",
-			     "theContainerName",
-			     "theComponentName",
-			     -25);
+                             "theContainerName",
+                             "theComponentName",
+                             -25);
   CPPUNIT_ASSERT(! CORBA::is_nil(obj));
 }
 
@@ -801,8 +801,8 @@ NamingServiceTest::testResolveComponentFalseNbproc()
 void
 NamingServiceTest::testContainerName()
 {
-  string ref0 = "FactoryServer";
-  string ret = _NS.ContainerName("");
+  std::string ref0 = "FactoryServer";
+  std::string ret = _NS.ContainerName("");
   CPPUNIT_ASSERT(ret == ref0);
 
   ref0 = "MyContainerName";
@@ -829,8 +829,8 @@ NamingServiceTest::testContainerNameParams()
   params.nb_node = 0;
   params.isMPI = false;
 
-  string ref0 = "FactoryServer";
-  string ret = _NS.ContainerName(params);
+  std::string ref0 = "FactoryServer";
+  std::string ret = _NS.ContainerName(params);
   CPPUNIT_ASSERT(ret == ref0);
 
   ref0 = "MyContainerName";
@@ -848,8 +848,8 @@ NamingServiceTest::testContainerNameParams()
 void
 NamingServiceTest::testBuildContainerNameForNS()
 {
-  string ref0 = "/Containers/theHostName/theContainerName";
-  string ret = _NS.BuildContainerNameForNS("theContainerName","theHostName");
+  std::string ref0 = "/Containers/theHostName/theContainerName";
+  std::string ret = _NS.BuildContainerNameForNS("theContainerName","theHostName");
   CPPUNIT_ASSERT(ret == ref0);
 
   ref0 = "/Containers/theHostName/FactoryServer";
@@ -877,8 +877,8 @@ NamingServiceTest::testBuildContainerNameForNSParams()
   params.isMPI = false;
 
   params.container_name = "theContainerName";
-  string ref0 = "/Containers/theHostName/theContainerName";
-  string ret = _NS.BuildContainerNameForNS(params,"theHostName");
+  std::string ref0 = "/Containers/theHostName/theContainerName";
+  std::string ret = _NS.BuildContainerNameForNS(params,"theHostName");
   CPPUNIT_ASSERT(ret == ref0);
 
   params.container_name = "";
@@ -903,19 +903,19 @@ NamingServiceTest::testFind()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
   _NS.Register(anEchoRef2,
-	       "/Containers/theHostName/aContainerName/aComponentName");
+               "/Containers/theHostName/aContainerName/aComponentName");
 
   NSTEST::echo_var anEchoRef3 = myFactory->createInstance();
   _NS.Register(anEchoRef3,
-	       "/Containers/theHostName/otherContainerName/theComponentName");
+               "/Containers/theHostName/otherContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef4 = myFactory->createInstance();
   _NS.Register(anEchoRef4,
-	       "/Containers/anHostName/oneContainerName/theComponentName");
+               "/Containers/anHostName/oneContainerName/theComponentName");
 
   _NS.Change_Directory("/Containers");
   int occ= _NS.Find("theComponentName");
@@ -950,13 +950,13 @@ NamingServiceTest::testCreateDirectory()
   _NS.Change_Directory("/aaa/bbb/ccc/ddd/eee");
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   int val = anEchoRef->getId();
-  string name = "echo_";
+  std::string name = "echo_";
   char anum[10];
   sprintf(anum,"%d",val);
   name += anum;
   _NS.Register(anEchoRef,name.c_str());
 
-  string dirname = "/aaa/bbb/ccc/ddd/eee/";
+  std::string dirname = "/aaa/bbb/ccc/ddd/eee/";
   dirname += name;
   obj = _NS.Resolve(dirname.c_str());
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
@@ -993,19 +993,19 @@ NamingServiceTest::testChangeDirectory()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContainerName/theComponentName");
+               "/Containers/theHostName/theContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
   _NS.Register(anEchoRef2,
-	       "/Containers/theHostName/aContainerName/aComponentName");
+               "/Containers/theHostName/aContainerName/aComponentName");
 
   NSTEST::echo_var anEchoRef3 = myFactory->createInstance();
   _NS.Register(anEchoRef3,
-	       "/Containers/theHostName/otherContainerName/theComponentName");
+               "/Containers/theHostName/otherContainerName/theComponentName");
 
   NSTEST::echo_var anEchoRef4 = myFactory->createInstance();
   _NS.Register(anEchoRef4,
-	       "/Containers/anHostName/oneContainerName/theComponentName");
+               "/Containers/anHostName/oneContainerName/theComponentName");
   
   _NS.Change_Directory("/Containers/theHostName/otherContainerName");
   obj = _NS.Resolve("theComponentName");
@@ -1025,13 +1025,13 @@ NamingServiceTest::testChangeDirectory()
 void
 NamingServiceTest::testCurrentDirectory()
 {
-  string path = "/aaa/bbb/ccc/ddd/eee";
+  std::string path = "/aaa/bbb/ccc/ddd/eee";
   bool ret = _NS.Create_Directory(path.c_str());
   CPPUNIT_ASSERT(ret);
 
   _NS.Change_Directory(path.c_str());
   char* acurdir = _NS.Current_Directory();
-  string curdir = acurdir;
+  std::string curdir = acurdir;
   free(acurdir);
   CPPUNIT_ASSERT(curdir == path);
 }
@@ -1114,7 +1114,7 @@ NamingServiceTest::testDestroyName()
   NSTEST::aFactory_var myFactory = NSTEST::aFactory::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(myFactory));
 
-  string path = "/Containers/theHostName/theContainerName/theComponentName";
+  std::string path = "/Containers/theHostName/theContainerName/theComponentName";
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef, path.c_str());
@@ -1141,7 +1141,7 @@ NamingServiceTest::testDestroyDirectory()
   NSTEST::aFactory_var myFactory = NSTEST::aFactory::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(myFactory));
 
-  string path = "/Containers/theHostName/theContainerName/theComponentName";
+  std::string path = "/Containers/theHostName/theContainerName/theComponentName";
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef, path.c_str());
@@ -1163,22 +1163,22 @@ NamingServiceTest::testDestroyDirectory()
  */
 // ============================================================================
 
-void NamingServiceTest::_destroyDirectoryRecurs(string path)
+void NamingServiceTest::_destroyDirectoryRecurs(std::string path)
 {
-  string current = path;
+  std::string current = path;
   SCRUTE(path);
   if (_NS.Change_Directory(path.c_str()))
     {
-      vector<string> subdirs = _NS.list_subdirs();
+      std::vector<std::string> subdirs = _NS.list_subdirs();
       for (int i=0; i<subdirs.size(); i++)
-	{
-	  string subpath=path + "/" +subdirs[i];
-	  _destroyDirectoryRecurs(subpath);
-	}
+        {
+          std::string subpath=path + "/" +subdirs[i];
+          _destroyDirectoryRecurs(subpath);
+        }
       if (_NS.Change_Directory(path.c_str()))
-	{
-	  _NS.Destroy_FullDirectory(path.c_str());
-	}
+        {
+          _NS.Destroy_FullDirectory(path.c_str());
+        }
     }
 }
 
@@ -1187,10 +1187,10 @@ NamingServiceTest::testDestroyFullDirectory()
 {
   _NS.Destroy_FullDirectory("/Containers");
   CPPUNIT_ASSERT(_NS.Change_Directory("/Containers"));
-  vector<string> subdirs = _NS.list_subdirs();
+  std::vector<std::string> subdirs = _NS.list_subdirs();
   CPPUNIT_ASSERT(subdirs.size() >0);
   _NS.list_directory_recurs();
-  string path = "/Containers";
+  std::string path = "/Containers";
   _destroyDirectoryRecurs(path);
   CPPUNIT_ASSERT( ! _NS.Change_Directory("/Containers"));
   _NS.Change_Directory("/");

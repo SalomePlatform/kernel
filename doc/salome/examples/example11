@@ -1,0 +1,49 @@
+
+#              create    AttributeOpened
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeOpened")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeOpened attribute"
+A = A._narrow(SALOMEDS.AttributeOpened)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeOpened attribute"
+
+A.SetOpened(1)
+
+if A.IsOpened() == 0:
+        "Error: wrong value of AttributeOpened"
+
+
+#      save / restore study      
+#============================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy=batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find   AttributeOpened
+#============================================================
+
+res,A=father.FindAttribute("AttributeOpened")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeOpened"
+
+A = A._narrow(SALOMEDS.AttributeOpened)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeOpened attribute"
+
+if A.IsOpened() == 0:
+        "Error: wrong value of AttributeOpened"

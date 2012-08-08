@@ -1,37 +1,43 @@
 #! /usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOME Container : implementation of container and engine for Kernel
 #  File   : SALOME_ComponentPy.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
+
+## @package SALOME_ComponentPy
+# \brief python implementation of component interface for Kernel
 #
+
 import os
 import sys
 import time
 import string
 import signal
-from omniORB import CORBA, PortableServer
+from omniORB import CORBA, PortableServer, any
 import Engines, Engines__POA
 import Registry
 from Utils_Identity import *
@@ -46,9 +52,10 @@ from thread import *
 
 _Sleeping = 0
 
-#define an implementation of the component interface
-
-class SALOME_ComponentPy_i (Engines__POA.Component):
+## define an implementation of the component interface Engines::Component
+#
+#  
+class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     _orb = None
     _poa = None
     _fieldsDict = []
@@ -145,16 +152,14 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        #id = self._poa.servant_to_id(self)
-        #self._poa.deactivate_object(id)
+        id = self._poa.servant_to_id(self)
+        self._poa.deactivate_object(id)
         return
         
     #-------------------------------------------------------------------------
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
-        #corbaObj_ptr = self._poa.id_to_reference(self._contId)
-        #return corbaObj_ptr._narrow(Engines.Container)
         return self._contId._narrow(Engines.Container)
                 
     #-------------------------------------------------------------------------
@@ -168,7 +173,13 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._StartUsed = self.CpuUsed_impl()
         self._ThreadCpuUsed = 0
         self._Executed = 1
+        print "beginService for ",serviceName," Component instance : ",self._instanceName
         MESSAGE( "SALOME_ComponentPy_i::beginService _StartUsed " + str( self._ThreadId ) + " " + str( self._StartUsed ) )
+        for e in self._fieldsDict:
+          key=e.key
+          value=any.from_any(e.value)
+          if isinstance(value,str):
+            os.environ[key]=value
         
 
     #-------------------------------------------------------------------------
@@ -176,6 +187,8 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     def endService(self , serviceName ):
         MESSAGE(  "Send EndService notification for " + str( self._ThreadId ) + " " + str(serviceName) + " for graph/node " + str(self._graphName) + " " + str(self._nodeName) + " CpuUsed " + str( self.CpuUsed_impl() ) )
         MESSAGE(  "Component instance : " + str(self._instanceName) )
+        print "endService for",serviceName,"Component instance :",self._instanceName,"Cpu Used:",self.CpuUsed_impl()," (s) "
+
 
     #-------------------------------------------------------------------------
 
@@ -270,7 +283,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         if ( self._ThreadId | self._Executed ) :
             if self._ThreadId == get_ident() :
                 cpu = time.clock()
-                self._ThreadCpuUsed = int(cpu) - self._StartUsed
+                self._ThreadCpuUsed = cpu - self._StartUsed
                 MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( int(cpu) ) + " - " + str( self._StartUsed ) + " = " + str( self._ThreadCpuUsed ) )
                 return self._ThreadCpuUsed
             MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( self._ThreadCpuUsed ) )
@@ -280,11 +293,24 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     #-------------------------------------------------------------------------
    
-    def DumpPython(self, theStudy, isPublished):
-        aBuffer = "def RebuildData(theStudy): pass\n\0"
-	return (aBuffer, 1)
+    def DumpPython(self, theStudy, isPublished, isMultiFile):
+        aBuffer = "\0"
+        if isMultiFile :
+            aBuffer = "def RebuildData(theStudy): pass\n\0"
+        return (aBuffer, 1)
 
     #-------------------------------------------------------------------------    
 
     def getStudyId(self):
         return self._studyId
+
+    #-------------------------------------------------------------------------    
+
+    def hasObjectInfo(self):
+        return 0
+
+    #-------------------------------------------------------------------------    
+
+    def getObjectInfo(self, studyId, entry):
+        return ""
+

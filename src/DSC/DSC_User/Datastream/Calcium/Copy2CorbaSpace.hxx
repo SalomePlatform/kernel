@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : Copy2CorbaSpace.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -29,9 +30,12 @@
 #ifndef _COPY_TO_CORBA_SPACE_HXX_
 #define _COPY_TO_CORBA_SPACE_HXX_
 
+
 #include <string>
 #include <iostream>
 #include "CalciumPortTraits.hxx"
+
+//#define MYDEBUG
 
 template <bool zerocopy, typename DataManipulator> 
 struct Copy2CorbaSpace  {
@@ -44,7 +48,7 @@ struct Copy2CorbaSpace  {
     //ESSAI:     typedef typename PortType::DataManipulator         DataManipulator;
     typedef typename DataManipulator::InnerType        InnerType;
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cerr << "-------- Copy2CorbaSpace<true> MARK 1 ------------------" << std::endl;
 #endif
     // Crée le type corba à partir du data sans lui en donner la propriété.
@@ -52,9 +56,9 @@ struct Copy2CorbaSpace  {
     // DataManipulator::create n'a pas le caractère const sur son paramètre data pour le
     // cas de figure où  la propriété de la donnée lui est donnée.
     corbaData = DataManipulator::create(nRead,const_cast<T2 * > (&data),false);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cerr << "-------- Copy2CorbaSpace<true> MARK 2 --(dataPtr : " 
-	      << DataManipulator::getPointer(corbaData,false)<<")----------------" << std::endl;
+              << DataManipulator::getPointer(corbaData,false)<<")----------------" << std::endl;
 #endif
 
   }
@@ -75,14 +79,14 @@ Copy2CorbaSpace<false, DataManipulator>  {
     corbaData = DataManipulator::create(nRead);
     InnerType * dataPtr  = DataManipulator::getPointer(corbaData,false);
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cerr << "-------- Copy2CorbaSpace<false> MARK 1 --(dataPtr : " <<
       dataPtr<<")----------------" << std::endl;
 #endif
     // Attention : Pour les chaines ou tout autre object complexe il faut utiliser une recopie profonde !   
     std::copy(&data,&data+nRead,dataPtr);
  
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cerr << "-------- Copy2CorbaSpace<false> MARK 2 --(nRead: "<<nRead<<")-------------" << std::endl;
  
     std::cerr << "-------- Copy2CorbaSpace<false> MARK 3 : " ;

@@ -1,24 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 #include "Salome_file_i.hxx"
 #include <iostream>
 #include <fstream>
@@ -26,25 +24,26 @@
 #include "HDFascii.hxx"
 #include <stdlib.h>
 
-using namespace std;
+void print_infos(Engines::file*);
+void print_state(Engines::SfState*);
 
 void print_infos(Engines::file * infos) 
 {
-  cerr << "-------------------------------------------------------------------" << endl;
-  cerr << "file_name = " << infos->file_name << endl;
-  cerr << "path = " << infos->path << endl;
-  cerr << "type = " << infos->type << endl;
-  cerr << "source_file_name = " << infos->source_file_name << endl;
-  cerr << "status = " << infos->status << endl;
+  std::cerr << "-------------------------------------------------------------------" << std::endl;
+  std::cerr << "file_name = " << infos->file_name << std::endl;
+  std::cerr << "path = " << infos->path << std::endl;
+  std::cerr << "type = " << infos->type << std::endl;
+  std::cerr << "source_file_name = " << infos->source_file_name << std::endl;
+  std::cerr << "status = " << infos->status << std::endl;
 }
 
 void print_state(Engines::SfState * state) 
 {
-  cerr << "-------------------------------------------------------------------" << endl;
-  cerr << "name = " << state->name << endl;
-  cerr << "hdf5_file_name = " <<  state->hdf5_file_name << endl;
-  cerr << "number_of_files = " <<  state->number_of_files << endl;
-  cerr << "files_ok = " <<  state->files_ok << endl;
+  std::cerr << "-------------------------------------------------------------------" << std::endl;
+  std::cerr << "name = " << state->name << std::endl;
+  std::cerr << "hdf5_file_name = " <<  state->hdf5_file_name << std::endl;
+  std::cerr << "number_of_files = " <<  state->number_of_files << std::endl;
+  std::cerr << "files_ok = " <<  state->files_ok << std::endl;
 }
 
 
@@ -64,23 +63,23 @@ int main (int argc, char * argv[])
   PortableServer::POAManager_var pman;
   CORBA::Object_var obj;
 
-  cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cerr << "Test of setLocalFile()" << endl;
+  std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+  std::cerr << "Test of setLocalFile()" << std::endl;
   file.setLocalFile("/tmp/toto");
   infos = file.getFileInfos("toto");
   print_infos(infos);
 
 
-  cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cerr << "Test of getFilesInfos()" << endl;
+  std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+  std::cerr << "Test of getFilesInfos()" << std::endl;
   all_infos = file.getFilesInfos();
   for (int i = 0; i < all_infos->length(); i++)
   {
     print_infos(&((*all_infos)[i]));
   }
 
-  cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cerr << "Test of getSalome_fileState()" << endl;
+  std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+  std::cerr << "Test of getSalome_fileState()" << std::endl;
   state = file.getSalome_fileState();
   print_state(state);
 
@@ -94,8 +93,8 @@ int main (int argc, char * argv[])
   file2.setLocalFile("/tmp/toto_distributed_source");
   Engines::Salome_file_ptr file2_ref = file2._this();
 
-  cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cerr << "Test of setDistributedFile()" << endl;
+  std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+  std::cerr << "Test of setDistributedFile()" << std::endl;
   file.setDistributedFile("/tmp/toto_distributed");
   file.connectDistributedFile("toto_distributed", file2_ref);
 //  file.setDistributedSourceFile("toto_distributed", "toto_distributed_source");
@@ -121,19 +120,19 @@ int main (int argc, char * argv[])
   }
   catch (SALOME::SALOME_Exception & e)
   {
-    cerr << "Exception : " << e.details.text << endl;
+    std::cerr << "Exception : " << e.details.text << std::endl;
   }
 
-  cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cerr << "Test of getFilesInfos()" << endl;
+  std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+  std::cerr << "Test of getFilesInfos()" << std::endl;
   all_infos = file.getFilesInfos();
   for (int i = 0; i < all_infos->length(); i++)
   {
     print_infos(&((*all_infos)[i]));
   }
 
-  cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cerr << "Test of getSalome_fileState()" << endl;
+  std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+  std::cerr << "Test of getSalome_fileState()" << std::endl;
   state = file.getSalome_fileState();
   print_state(state);
 
@@ -166,11 +165,11 @@ int main (int argc, char * argv[])
 
   // Test of ConvertFromHDFToASCII
   // and ConvertFromASCIIToHDF
-  cerr << "Test of ConvertFromASCIIToHDF" << endl;
+  std::cerr << "Test of ConvertFromASCIIToHDF" << std::endl;
   HDFascii::ConvertFromASCIIToHDF("/tmp/toto"); // RETURN NULL !
-  cerr << "Test of ConvertFromHDFToASCII" << endl;
-  cerr << HDFascii::ConvertFromHDFToASCII("test2.hdf", false) << endl;
-  cerr << HDFascii::ConvertFromHDFToASCII("test2.hdf", true) << endl;
+  std::cerr << "Test of ConvertFromHDFToASCII" << std::endl;
+  std::cerr << HDFascii::ConvertFromHDFToASCII("test2.hdf", false) << std::endl;
+  std::cerr << HDFascii::ConvertFromHDFToASCII("test2.hdf", true) << std::endl;
 
-  cerr << "End of tests" << endl;
+  std::cerr << "End of tests" << std::endl;
 }

@@ -1,24 +1,25 @@
-dnl  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
-dnl  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-dnl  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 dnl
-dnl  This library is free software; you can redistribute it and/or
-dnl  modify it under the terms of the GNU Lesser General Public
-dnl  License as published by the Free Software Foundation; either
-dnl  version 2.1 of the License.
+dnl This library is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Lesser General Public
+dnl License as published by the Free Software Foundation; either
+dnl version 2.1 of the License.
 dnl
-dnl  This library is distributed in the hope that it will be useful,
-dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
-dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-dnl  Lesser General Public License for more details.
+dnl This library is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl Lesser General Public License for more details.
 dnl
-dnl  You should have received a copy of the GNU Lesser General Public
-dnl  License along with this library; if not, write to the Free Software
-dnl  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+dnl You should have received a copy of the GNU Lesser General Public
+dnl License along with this library; if not, write to the Free Software
+dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl
-dnl  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+dnl See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 dnl
+
 AC_DEFUN([CHECK_MPI],[
 
 AC_REQUIRE([AC_PROG_CC])dnl
@@ -26,6 +27,10 @@ AC_REQUIRE([AC_PROG_CC])dnl
 AC_ARG_WITH(mpi_lib,
    [AC_HELP_STRING([--with-mpi_lib=DIR],[directory path of MPICH lib installation])],
    MPILIBREQUESTED="$withval")
+
+AC_ARG_WITH(mpi_include,
+   [AC_HELP_STRING([--with-mpi_include=DIR],[directory path of MPICH header file installation])],
+   MPIINCLUDEREQUESTED="$withval")
 
 AC_ARG_WITH(mpi,
    [AC_HELP_STRING([--with-mpi=DIR],[root directory path of MPICH installation])],
@@ -58,6 +63,10 @@ if test x"$MPIREQUESTED" = xyes; then
     MPI_LIBS="-L$MPILIBREQUESTED"
   fi
 
+  if test x"$MPIINCLUDEREQUESTED" != x; then
+    MPI_INCLUDES="-I$MPIINCLUDEREQUESTED"
+  fi
+
   CPPFLAGS_old="$CPPFLAGS"
   CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
   AC_CHECK_HEADER(mpi.h,WITHMPI="yes",WITHMPI="no")
@@ -79,6 +88,12 @@ if test x"$MPIREQUESTED" = xyes; then
     MPI_LIBS="$MPI_LIBS -lmpi -lmpio -lmpiCC"
   else
     mpi_ok=no
+  fi
+
+  if test "$WITHMPI2" = "yes";then
+    mpi2_ok=yes
+  else
+    mpi2_ok=no
   fi
 
 fi
@@ -126,5 +141,8 @@ AC_SUBST(WITHMPI)
 AC_SUBST(MPI_INCLUDES)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(mpi_ok)
+AC_SUBST(mpi2_ok)
 AM_CONDITIONAL(MPI_IS_OK, [test x"$mpi_ok" = xyes])
+AM_CONDITIONAL(MPI2_IS_OK, [test x"$mpi2_ok" = xyes])
+
 ])dnl

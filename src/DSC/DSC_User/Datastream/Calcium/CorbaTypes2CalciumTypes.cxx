@@ -1,40 +1,40 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // Modified by : $LastChangedBy$
 // Date        : $LastChangedDate: 2007-03-01 13:40:26 +0100 (Thu, 01 Mar 2007) $
 // Id          : $Id$
 //
 #include "CorbaTypes2CalciumTypes.hxx"
+#include "utilities.h"
 #include <iostream>
 
-using namespace std;
-
-DATE_CAL_SCHEM::DATE_CAL_SCHEM() : map<Ports::Calcium_Ports::DateCalSchem,
-				   CalciumTypes::DateCalSchem>()
+DATE_CAL_SCHEM::DATE_CAL_SCHEM() : std::map<Ports::Calcium_Ports::DateCalSchem,
+                                   CalciumTypes::DateCalSchem>()
 {
-  map<Ports::Calcium_Ports::DateCalSchem,
+  std::map<Ports::Calcium_Ports::DateCalSchem,
     CalciumTypes::DateCalSchem > &
-    table  = ( map<Ports::Calcium_Ports::DateCalSchem,
-	       CalciumTypes::DateCalSchem > & ) *this ;
+    table  = ( std::map<Ports::Calcium_Ports::DateCalSchem,
+               CalciumTypes::DateCalSchem > & ) *this ;
 
 table[Ports::Calcium_Ports::TI_SCHEM ] = CalciumTypes::TI_SCHEM ;
 table[Ports::Calcium_Ports::TF_SCHEM ] = CalciumTypes::TF_SCHEM ;
@@ -44,9 +44,9 @@ table[Ports::Calcium_Ports::ALPHA_SCHEM ] = CalciumTypes::ALPHA_SCHEM ;
 
 CalciumTypes::DateCalSchem DATE_CAL_SCHEM::operator[]( const Ports::Calcium_Ports::DateCalSchem &c ) const
 {
-  map<Ports::Calcium_Ports::DateCalSchem,
-    CalciumTypes::DateCalSchem> &table = (map<Ports::Calcium_Ports::DateCalSchem,
-					    CalciumTypes::DateCalSchem>&)*this ;
+  std::map<Ports::Calcium_Ports::DateCalSchem,
+    CalciumTypes::DateCalSchem> &table = (std::map<Ports::Calcium_Ports::DateCalSchem,
+                                            CalciumTypes::DateCalSchem>&)*this ;
   assert( table.find( (Ports::Calcium_Ports::DateCalSchem)c ) != table.end() ) ;
   return table[ (Ports::Calcium_Ports::DateCalSchem)c ] ;
 }
@@ -55,39 +55,31 @@ const DATE_CAL_SCHEM dateCalSchem ;
 
 
 
-DEPENDENCY_TYPE::DEPENDENCY_TYPE() : map<Ports::Calcium_Ports::DependencyType,
-				   CalciumTypes::DependencyType>()
+DEPENDENCY_TYPE::DEPENDENCY_TYPE() : std::map<Ports::Calcium_Ports::DependencyType,
+                                   CalciumTypes::DependencyType>()
 {
-  map<Ports::Calcium_Ports::DependencyType,
+  std::map<Ports::Calcium_Ports::DependencyType,
     CalciumTypes::DependencyType > &
-    table  = ( map<Ports::Calcium_Ports::DependencyType,
-	       CalciumTypes::DependencyType > & ) *this ;
+    table  = ( std::map<Ports::Calcium_Ports::DependencyType,
+               CalciumTypes::DependencyType > & ) *this ;
 
-table[Ports::Calcium_Ports::TIME_DEPENDENCY ]      = CalciumTypes::TIME_DEPENDENCY ;
-table[Ports::Calcium_Ports::ITERATION_DEPENDENCY ] = CalciumTypes::ITERATION_DEPENDENCY ;
-table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY ] = CalciumTypes::UNDEFINED_DEPENDENCY ;
+  table[Ports::Calcium_Ports::TIME_DEPENDENCY ]      = CalciumTypes::TIME_DEPENDENCY ;
+  table[Ports::Calcium_Ports::ITERATION_DEPENDENCY ] = CalciumTypes::ITERATION_DEPENDENCY ;
+  table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY ] = CalciumTypes::UNDEFINED_DEPENDENCY ;
 
-
-#ifdef _DEBUG_
-std::cerr << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::TIME_DEPENDENCY<<"] : "<< 
-  table[Ports::Calcium_Ports::TIME_DEPENDENCY] << std::endl;
-std::cerr << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::ITERATION_DEPENDENCY<<"] : "<< 
-  table[Ports::Calcium_Ports::ITERATION_DEPENDENCY] << std::endl;
-std::cerr << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::UNDEFINED_DEPENDENCY<<"] : "<< 
-  table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY] << std::endl;
-#endif
+  MESSAGE("DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::TIME_DEPENDENCY<<"] : "<< table[Ports::Calcium_Ports::TIME_DEPENDENCY]);
+  MESSAGE("DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::ITERATION_DEPENDENCY<<"] : "<< table[Ports::Calcium_Ports::ITERATION_DEPENDENCY]);
+  MESSAGE("DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::UNDEFINED_DEPENDENCY<<"] : "<< table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY]);
 }
 
 
 CalciumTypes::DependencyType DEPENDENCY_TYPE::operator[]( const Ports::Calcium_Ports::DependencyType &c ) const
 {
-  map<Ports::Calcium_Ports::DependencyType,
-    CalciumTypes::DependencyType> &table = (map<Ports::Calcium_Ports::DependencyType,
-					    CalciumTypes::DependencyType>&)*this ;
+  std::map<Ports::Calcium_Ports::DependencyType,
+    CalciumTypes::DependencyType> &table = (std::map<Ports::Calcium_Ports::DependencyType,
+                                            CalciumTypes::DependencyType>&)*this ;
 
-#ifdef _DEBUG_
-std::cerr << "DEPENDENCY_TYPE() : ::operator["<<c<<"]: " << table[c] << std::endl;
-#endif
+  MESSAGE("DEPENDENCY_TYPE() : ::operator["<<c<<"]: " << table[c]);
 
   assert( table.find( (Ports::Calcium_Ports::DependencyType)c ) != table.end() ) ;
   return table[ (Ports::Calcium_Ports::DependencyType)c ] ;
@@ -98,13 +90,13 @@ const DEPENDENCY_TYPE dependencyType ;
 
 
 
-INTERPOLATION_SCHEM::INTERPOLATION_SCHEM() : map<Ports::Calcium_Ports::InterpolationSchem,
-						 CalciumTypes::InterpolationSchem > () 
+INTERPOLATION_SCHEM::INTERPOLATION_SCHEM() : std::map<Ports::Calcium_Ports::InterpolationSchem,
+                                                 CalciumTypes::InterpolationSchem > () 
 {
-  map<Ports::Calcium_Ports::InterpolationSchem, 
+  std::map<Ports::Calcium_Ports::InterpolationSchem, 
     CalciumTypes::InterpolationSchem > &
-    table  = ( map<Ports::Calcium_Ports::InterpolationSchem, 
-	       CalciumTypes::InterpolationSchem > & ) *this ;
+    table  = ( std::map<Ports::Calcium_Ports::InterpolationSchem, 
+               CalciumTypes::InterpolationSchem > & ) *this ;
 
   table[Ports::Calcium_Ports::L0_SCHEM ] = CalciumTypes::L0_SCHEM ;
   table[Ports::Calcium_Ports::L1_SCHEM ] = CalciumTypes::L1_SCHEM ;
@@ -113,9 +105,9 @@ INTERPOLATION_SCHEM::INTERPOLATION_SCHEM() : map<Ports::Calcium_Ports::Interpola
 
 CalciumTypes::InterpolationSchem INTERPOLATION_SCHEM::operator[]( const Ports::Calcium_Ports::InterpolationSchem &c ) const
 {
-  map<Ports::Calcium_Ports::InterpolationSchem,
+  std::map<Ports::Calcium_Ports::InterpolationSchem,
     CalciumTypes::InterpolationSchem> &table = 
-    (map<Ports::Calcium_Ports::InterpolationSchem,
+    (std::map<Ports::Calcium_Ports::InterpolationSchem,
      CalciumTypes::InterpolationSchem>& ) *this ;
 
   assert( table.find( (Ports::Calcium_Ports::InterpolationSchem)c ) != table.end() ) ;
@@ -126,13 +118,13 @@ const INTERPOLATION_SCHEM interpolationSchem ;
 
 
 
-EXTRAPOLATION_SCHEM::EXTRAPOLATION_SCHEM() : map<Ports::Calcium_Ports::ExtrapolationSchem,
-						 CalciumTypes::ExtrapolationSchem > () 
+EXTRAPOLATION_SCHEM::EXTRAPOLATION_SCHEM() : std::map<Ports::Calcium_Ports::ExtrapolationSchem,
+                                                 CalciumTypes::ExtrapolationSchem > () 
 {
-  map<Ports::Calcium_Ports::ExtrapolationSchem, 
+  std::map<Ports::Calcium_Ports::ExtrapolationSchem, 
     CalciumTypes::ExtrapolationSchem > &
-    table  = ( map<Ports::Calcium_Ports::ExtrapolationSchem, 
-	       CalciumTypes::ExtrapolationSchem > & ) *this ;
+    table  = ( std::map<Ports::Calcium_Ports::ExtrapolationSchem, 
+               CalciumTypes::ExtrapolationSchem > & ) *this ;
 
   table[Ports::Calcium_Ports::E0_SCHEM ] = CalciumTypes::E0_SCHEM ;
   table[Ports::Calcium_Ports::E1_SCHEM ] = CalciumTypes::E1_SCHEM ;
@@ -142,9 +134,9 @@ EXTRAPOLATION_SCHEM::EXTRAPOLATION_SCHEM() : map<Ports::Calcium_Ports::Extrapola
 
 CalciumTypes::ExtrapolationSchem EXTRAPOLATION_SCHEM::operator[]( const Ports::Calcium_Ports::ExtrapolationSchem &c ) const
 {
-  map<Ports::Calcium_Ports::ExtrapolationSchem,
+  std::map<Ports::Calcium_Ports::ExtrapolationSchem,
     CalciumTypes::ExtrapolationSchem> &table = 
-    (map<Ports::Calcium_Ports::ExtrapolationSchem,
+    (std::map<Ports::Calcium_Ports::ExtrapolationSchem,
      CalciumTypes::ExtrapolationSchem>& ) *this ;
 
   assert( table.find( (Ports::Calcium_Ports::ExtrapolationSchem)c ) != table.end() ) ;

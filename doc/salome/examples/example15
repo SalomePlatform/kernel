@@ -1,0 +1,43 @@
+
+#       create AttributeLocalID
+#=================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeLocalID")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeLocalID attribute"
+A = A._narrow(SALOMEDS.AttributeLocalID)
+
+A.SetValue(763242882)
+
+if A.Value() != 763242882:
+        print "Error: wrong value of AttributeLocalID"
+
+#      save / restore study      
+#=================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy = batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find  AttributeLocalID
+#=================================
+
+res,A=father.FindAttribute("AttributeLocalID")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeLocalID"
+
+A = A._narrow(SALOMEDS.AttributeLocalID)
+
+if A.Value() != 763242882:
+        print "Error: wrong value of AttributeLocalID"
+

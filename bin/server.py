@@ -1,26 +1,29 @@
 #!/usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 import os, sys, string
+from salome_utils import getHostName
 process_id = {}
 
 # -----------------------------------------------------------------------------
@@ -30,27 +33,39 @@ process_id = {}
 
 class Server:
     """Generic class for CORBA server launch"""
+    
+    server_launch_mode = "daemon"
 
     def initArgs(self):
         self.PID=None
         self.CMD=[]
         self.ARGS=[]
         if self.args.get('xterm'):
+          if sys.platform != "win32":
             self.ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
+          else:
+            self.ARGS=['cmd', '/c', 'start  cmd.exe', '/K']
 
     def __init__(self,args):
         self.args=args
         self.initArgs()
 
+    @staticmethod
+    def set_server_launch_mode(mode):
+      if mode == "daemon" or mode == "fork":
+        Server.server_launch_mode = mode
+      else:
+        raise Exception("Unsupported server launch mode: %s" % mode)
 
     def run(self):
         global process_id
         myargs=self.ARGS
         if self.args.get('xterm'):
             # (Debian) send LD_LIBRARY_PATH to children shells (xterm)
-            env_ld_library_path=['env', 'LD_LIBRARY_PATH='
-                                 + os.getenv("LD_LIBRARY_PATH")]
-            myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
+            if sys.platform != "win32":
+              env_ld_library_path=['env', 'LD_LIBRARY_PATH='
+                                   + os.getenv("LD_LIBRARY_PATH")]
+              myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
         #print "command = ", command
         if sys.platform == "win32":
@@ -60,8 +75,9 @@ class Server:
           #pid = win32pm.spawnpid( cmd_str )
           pid = win32pm.spawnpid( string.join(command, " "), '-nc' )
           #pid = win32pm.spawnpid( string.join(command, " ") )
-        else:
-          #pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        elif Server.server_launch_mode == "fork":
+          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        else: # Server launch mode is daemon
           pid=self.daemonize(command)
         if pid is not None:
           #store process pid if it really exists
@@ -121,5 +137,7 @@ class Server:
         try:
           os.execvp(args[0], args)
         except OSError, e:
-          print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
+          if args[0] != "notifd":
+            print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
+            pass
           os._exit(127)

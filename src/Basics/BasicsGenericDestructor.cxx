@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Basics : general SALOME definitions and tools (C++ part - no CORBA)
 //  File   : BasicGenericDestructor.cxx
 //  Author : Antoine YESSAYAN, Paul RASCLE, EDF
@@ -30,8 +31,6 @@
 #include <cstdlib>
 
 #include "BasicsGenericDestructor.hxx"
-
-using namespace std;
 
 void HouseKeeping();
 
@@ -60,17 +59,17 @@ void PROTECTED_DELETE::deleteInstance(PROTECTED_DELETE *anObject)
       return;
     else
       {
-	int ret;
-	ret = pthread_mutex_lock(&_listMutex); // acquire lock, an check again
-	if (std::find(_objList.begin(), _objList.end(), anObject)
-	    != _objList.end())
-	  {
-	    DEVTRACE("PROTECTED_DELETE::deleteInstance1 " << anObject);
-	    delete anObject;
-	    DEVTRACE("PROTECTED_DELETE::deleteInstance2 " << &_objList);
-	    _objList.remove(anObject);
-	  }
-	ret = pthread_mutex_unlock(&_listMutex); // release lock
+        int ret;
+        ret = pthread_mutex_lock(&_listMutex); // acquire lock, an check again
+        if (std::find(_objList.begin(), _objList.end(), anObject)
+            != _objList.end())
+          {
+            DEVTRACE("PROTECTED_DELETE::deleteInstance1 " << anObject);
+            delete anObject;
+            DEVTRACE("PROTECTED_DELETE::deleteInstance2 " << &_objList);
+            _objList.remove(anObject);
+          }
+        ret = pthread_mutex_unlock(&_listMutex); // release lock
       }
   }
 
@@ -116,12 +115,16 @@ public:
   {
     if (Make_ATEXIT && !atExitSingletonDone)
       {
-	DEVTRACE("atExitSingleton(" << Make_ATEXIT << ")");
-	assert(GENERIC_DESTRUCTOR::Destructors == 0);
-	GENERIC_DESTRUCTOR::Destructors = new std::list<GENERIC_DESTRUCTOR*>;
-	int cr = atexit(HouseKeeping);
-	assert(cr == 0);
-	atExitSingletonDone = true;
+        DEVTRACE("atExitSingleton(" << Make_ATEXIT << ")");
+        assert(GENERIC_DESTRUCTOR::Destructors == 0);
+        GENERIC_DESTRUCTOR::Destructors = new std::list<GENERIC_DESTRUCTOR*>;
+#ifndef _DEBUG_
+        atexit(HouseKeeping);
+#else
+        int cr = atexit(HouseKeeping);
+        assert(cr == 0);
+#endif
+        atExitSingletonDone = true;
       }
   }
 
@@ -150,16 +153,16 @@ void HouseKeeping( void )
   if(GENERIC_DESTRUCTOR::Destructors->size())
     {
       std::list<GENERIC_DESTRUCTOR*>::iterator it =
-	GENERIC_DESTRUCTOR::Destructors->end();
+        GENERIC_DESTRUCTOR::Destructors->end();
 
       do
-	{
-	  it-- ;
-	  GENERIC_DESTRUCTOR* ptr = *it ;
-	  DEVTRACE("HouseKeeping() " << typeid(ptr).name());
-	  (*ptr)();
-	  delete ptr ;
-	}
+        {
+          it-- ;
+          GENERIC_DESTRUCTOR* ptr = *it ;
+          DEVTRACE("HouseKeeping() " << typeid(ptr).name());
+          (*ptr)();
+          delete ptr ;
+        }
       while (it !=  GENERIC_DESTRUCTOR::Destructors->begin()) ;
 
       DEVTRACE("HouseKeeping() end list ");
@@ -186,7 +189,7 @@ void HouseKeeping( void )
 const int GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject)
 {
   DEVTRACE("GENERIC_DESTRUCTOR::Add("<<typeid(anObject).name()<<") "
-	   << &anObject);
+           << &anObject);
   if (!atExitSingletonDone)
     {
       HouseKeeper = atExitSingleton(true);

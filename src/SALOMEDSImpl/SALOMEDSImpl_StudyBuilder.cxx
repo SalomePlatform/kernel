@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_StudyBuilder.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -36,8 +37,7 @@
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
-
-using namespace std;
+#include <string.h> 
 
 #define USE_CASE_LABEL_TAG            2
 #define DIRECTORYID                   16661
@@ -72,7 +72,7 @@ SALOMEDSImpl_StudyBuilder::~SALOMEDSImpl_StudyBuilder()
  *  Purpose  : Create a new component (Scomponent)
  */
 //============================================================================
-SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& DataType)
+SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const std::string& DataType)
 {
   _errorCode = "";
   CheckLocked();
@@ -91,6 +91,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& Da
   SALOMEDSImpl_SComponent so =  _study->GetSComponent (NL);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);
 
@@ -103,7 +104,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& Da
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::DefineComponentInstance(const SALOMEDSImpl_SComponent& aComponent,
-							const string& IOR)
+                                                        const std::string& IOR)
 {
    _errorCode = "";
 
@@ -148,6 +149,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SOb
   
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);  
   return so;
@@ -159,7 +161,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SOb
  */
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObjectToTag(const SALOMEDSImpl_SObject& theFatherObject,
-						        const int theTag)
+                                                        const int theTag)
 {
   _errorCode = "";
   CheckLocked();
@@ -172,6 +174,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObjectToTag(const SALOMEDSImp
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);  
   return so;
@@ -204,11 +207,13 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
 
   SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
   if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    _study->DeleteIORLabelMapItem(anAttr->Value());
   }
 
   Lab.ForgetAllAttributes();
  
   _doc->SetModified(true);  
+  _study->removeSO_Notification(anObject);
     
   return true;
 }
@@ -239,6 +244,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   }
   SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
   if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    _study->DeleteIORLabelMapItem(anAttr->Value());
   }
 
   DF_ChildIterator it(Lab, true);
@@ -247,16 +253,18 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
     if ((aReference=(SALOMEDSImpl_AttributeReference*)aLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
       SALOMEDSImpl_AttributeTarget* aTarget = NULL;
       if ((aTarget=(SALOMEDSImpl_AttributeTarget*)aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID())))
-	aTarget->Remove(SALOMEDSImpl_Study::SObject(aLabel));
+        aTarget->Remove(SALOMEDSImpl_Study::SObject(aLabel));
     }
     SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
     if ((anAttr=(SALOMEDSImpl_AttributeIOR*)aLabel.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+      _study->DeleteIORLabelMapItem(anAttr->Value());
     }
   }
 
   Lab.ForgetAllAttributes(true);
 
   _doc->SetModified(true);  
+  _study->removeSO_Notification(anObject);
   
   return true;
 }
@@ -280,7 +288,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
     if (aLocked) _study->GetProperties()->SetLocked(false);
 
     std::string Res(Att->Value());
-    string aHDFPath(Res);
+    std::string aHDFPath(Res);
 
     SALOMEDSImpl_AttributeComment* type = NULL;
     std::string DataType;
@@ -302,7 +310,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
 
     DefineComponentInstance (anSCO, aDriver->GetIOR());
 
-    string aHDFUrl;
+    std::string aHDFUrl;
     bool isASCII = false;
     if (HDFascii::isASCII(aHDFPath.c_str())) {
       isASCII = true;
@@ -317,26 +325,28 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
 
     char aMultifileState[2];
     char ASCIIfileState[2];
+    bool hasModuleData = false;
     try {
-      string scoid = anSCO.GetID();
+      std::string scoid = anSCO.GetID();
       hdf_file->OpenOnDisk(HDF_RDONLY);
       HDFgroup *hdf_group = new HDFgroup("DATACOMPONENT",hdf_file);
       hdf_group->OpenOnDisk();
       HDFgroup *hdf_sco_group = new HDFgroup((char*)scoid.c_str(), hdf_group);
       hdf_sco_group->OpenOnDisk();
+      hasModuleData = true;
 
       unsigned char* aStreamFile = NULL;
       int aStreamSize = 0;
 
       if (hdf_sco_group->ExistInternalObject("FILE_STREAM")) {
-	HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group);
-	hdf_dataset->OpenOnDisk();
-	aStreamSize = hdf_dataset->GetSize();
-	aStreamFile  = new unsigned char[aStreamSize];
-	if(aStreamFile == NULL) throw HDFexception("Unable to open dataset FILE_STREAM");
-	hdf_dataset->ReadFromDisk(aStreamFile);
-	hdf_dataset->CloseOnDisk();
-	hdf_dataset = 0;
+        HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group);
+        hdf_dataset->OpenOnDisk();
+        aStreamSize = hdf_dataset->GetSize();
+        aStreamFile  = new unsigned char[aStreamSize];
+        if(aStreamFile == NULL) throw HDFexception("Unable to open dataset FILE_STREAM");
+        hdf_dataset->ReadFromDisk(aStreamFile);
+        hdf_dataset->CloseOnDisk();
+        hdf_dataset = 0;
       } else
         aStreamFile = NULL;
 
@@ -348,19 +358,22 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       ascii_hdf_dataset->OpenOnDisk();
       ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
 
-      string aDir = SALOMEDSImpl_Tool::GetDirFromPath(Res);
+      std::string aDir = SALOMEDSImpl_Tool::GetDirFromPath(Res);
 
-      bool aResult = (ASCIIfileState[0]=='A')?
-	aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'):
-	aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M');
+      bool aResult = true;
+      if(aStreamFile && aStreamSize > 0 ) {
+        aResult = (ASCIIfileState[0]=='A')?
+        aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'):
+        aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M');
+      }
 
       if(aStreamFile != NULL) delete []aStreamFile; 
 
       if(!aResult) {
-	RemoveAttribute( anSCO, "AttributeIOR" );
+        RemoveAttribute( anSCO, "AttributeIOR" );
 
-	_errorCode = "Can't load component";
-	throw HDFexception("Unable to load component");
+        _errorCode = "Can't load component";
+        throw HDFexception("Unable to load component");
       }
 
       //if(aDir != NULL) delete []aDir;
@@ -378,9 +391,9 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       delete hdf_file;
 
       if (isASCII) {
-	vector<string> aFilesToRemove;
-	aFilesToRemove.push_back("hdf_from_ascii.hdf");
-	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
+        std::vector<std::string> aFilesToRemove;
+        aFilesToRemove.push_back("hdf_from_ascii.hdf");
+        SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
                                                 aFilesToRemove, true);
       }      
     }
@@ -388,12 +401,16 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       delete hdf_file;
 
       if (isASCII) {
-	vector<string> aFilesToRemove;
-	aFilesToRemove.push_back(aHDFUrl);
-	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+        std::vector<std::string> aFilesToRemove;
+        aFilesToRemove.push_back(aHDFUrl);
+        SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
       }
 
       if (aLocked) _study->GetProperties()->SetLocked(true);
+
+      if (!hasModuleData)
+	return true;
+
       _errorCode = "No persistent file";   
       return false;
     }
@@ -432,7 +449,7 @@ bool SALOMEDSImpl_StudyBuilder::Load(const SALOMEDSImpl_SObject& sco)
  */
 //============================================================================
 DF_Attribute* SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const SALOMEDSImpl_SObject& anObject, 
-							       const string& aTypeOfAttribute)
+                                                               const std::string& aTypeOfAttribute)
 {
   _errorCode = "";
   if(!anObject) {
@@ -455,7 +472,7 @@ DF_Attribute* SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const SALOMEDSImp
   //Add checks for TreeNode and UserID attributes  
   if (strncmp(aTypeOfAttribute.c_str(), "AttributeTreeNode",17) == 0 ) {
     
-    string aTreeNodeGUID;
+    std::string aTreeNodeGUID;
     if (strcmp(aTypeOfAttribute.c_str(), "AttributeTreeNode") == 0) {
       aTreeNodeGUID = SALOMEDSImpl_AttributeTreeNode::GetDefaultTreeID();
     } else {
@@ -495,8 +512,8 @@ DF_Attribute* SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const SALOMEDSImp
 //============================================================================
 
 bool SALOMEDSImpl_StudyBuilder::FindAttribute(const SALOMEDSImpl_SObject& anObject, 
-					      DF_Attribute*& anAttribute, 
-					      const string& aTypeOfAttribute)
+                                              DF_Attribute*& anAttribute, 
+                                              const std::string& aTypeOfAttribute)
 {
   _errorCode = "";
   if(!anObject) {
@@ -519,7 +536,7 @@ bool SALOMEDSImpl_StudyBuilder::FindAttribute(const SALOMEDSImpl_SObject& anObje
 //============================================================================
 
 bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anObject, 
-						const string& aTypeOfAttribute)
+                                                const std::string& aTypeOfAttribute)
 {
   _errorCode = "";
   CheckLocked();
@@ -529,15 +546,17 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anOb
   }
   DF_Label Lab = anObject.GetLabel();
   
-  if (aTypeOfAttribute == string("AttributeIOR")) { // Remove from IORLabel map
+  if (aTypeOfAttribute == std::string("AttributeIOR")) { // Remove from IORLabel map
     SALOMEDSImpl_AttributeIOR* anAttr = NULL;
     if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+      _study->DeleteIORLabelMapItem(anAttr->Value());
     }
   }
 
   Lab.ForgetAttribute (SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute));
     
   _doc->SetModified(true);  
+  _study->modifySO_Notification(anObject,0);
     
   return true;
 }
@@ -548,7 +567,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anOb
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::Addreference(const SALOMEDSImpl_SObject& me, 
-					     const SALOMEDSImpl_SObject& theReferencedObject)
+                                             const SALOMEDSImpl_SObject& theReferencedObject)
 {
   _errorCode = "";
   if(!me || !theReferencedObject) {
@@ -605,7 +624,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveReference(const SALOMEDSImpl_SObject& me)
  *  Purpose  : adds a new directory with a path = thePath
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::AddDirectory(const string& thePath) 
+bool SALOMEDSImpl_StudyBuilder::AddDirectory(const std::string& thePath) 
 {
   _errorCode = "";
   CheckLocked();
@@ -614,7 +633,7 @@ bool SALOMEDSImpl_StudyBuilder::AddDirectory(const string& thePath)
     return false;
   }
 
-  string aPath(thePath), aContext(""), aFatherPath;
+  std::string aPath(thePath), aContext(""), aFatherPath;
   DF_Label aLabel;
   SALOMEDSImpl_SObject anObject;
 
@@ -633,7 +652,7 @@ bool SALOMEDSImpl_StudyBuilder::AddDirectory(const string& thePath)
     aPath = _study->GetContext() + aPath;
   }
 
-  vector<string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
+  std::vector<std::string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
   if(vs.size() == 1) 
     aFatherPath = "/";
   else {
@@ -676,7 +695,7 @@ bool SALOMEDSImpl_StudyBuilder::AddDirectory(const string& thePath)
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::SetGUID(const SALOMEDSImpl_SObject& anObject, 
-					const string& theGUID)
+                                        const std::string& theGUID)
 {
   _errorCode = "";
   CheckLocked();
@@ -699,7 +718,7 @@ bool SALOMEDSImpl_StudyBuilder::SetGUID(const SALOMEDSImpl_SObject& anObject,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::IsGUID(const SALOMEDSImpl_SObject& anObject, 
-				       const string& theGUID)
+                                       const std::string& theGUID)
 {
   _errorCode = "";
   if(!anObject) {
@@ -909,7 +928,7 @@ void SALOMEDSImpl_StudyBuilder::CheckLocked()
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::SetName(const SALOMEDSImpl_SObject& theSO, 
-					const string& theValue)
+                                        const std::string& theValue)
 {
   _errorCode = "";
   CheckLocked();
@@ -930,7 +949,7 @@ bool SALOMEDSImpl_StudyBuilder::SetName(const SALOMEDSImpl_SObject& theSO,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::SetComment(const SALOMEDSImpl_SObject& theSO, 
-					   const string& theValue)
+                                           const std::string& theValue)
 {
   _errorCode = "";
   CheckLocked();
@@ -951,7 +970,7 @@ bool SALOMEDSImpl_StudyBuilder::SetComment(const SALOMEDSImpl_SObject& theSO,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyBuilder::SetIOR(const SALOMEDSImpl_SObject& theSO, 
-				       const string& theValue)
+                                       const std::string& theValue)
 {
   _errorCode = "";
   CheckLocked();
@@ -984,14 +1003,14 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
 
       SALOMEDSImpl_AttributeLocalID* anID = NULL;
       if ((anID=(SALOMEDSImpl_AttributeLocalID*)current.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) 
-	if (anID->Value() == FILELOCALID) continue;   //SRN: This attribute store a file name, skip it 
+        if (anID->Value() == FILELOCALID) continue;   //SRN: This attribute store a file name, skip it 
 
-      string persist_ref = Att->Value();
+      std::string persist_ref = Att->Value();
       SALOMEDSImpl_SObject so = SALOMEDSImpl_Study::SObject(current);
-      string ior_string = driver->LocalPersistentIDToIOR(so, 
-							 persist_ref, 
-							 isMultiFile, 
-							 isASCII);
+      std::string ior_string = driver->LocalPersistentIDToIOR(so, 
+                                                         persist_ref, 
+                                                         isMultiFile, 
+                                                         isASCII);
       SALOMEDSImpl_AttributeIOR::Set (current, ior_string); 
      
     }

@@ -1,36 +1,35 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-#
+
 # ---
 # File   : salome_utils.py
 # Author : Vadim SANDLER, Open CASCADE S.A.S. (vadim.sandler@opencascade.com)
 # ---
-#
-"""
-Set of utility functions used by SALOME python scripts.
-"""
+
+## @package salome_utils
+# \brief Set of utility functions used by SALOME python scripts.
 
 #
 # Exported functions
 #
+
 __all__ = [
     'getORBcfgInfo',
     'getHostFromORBcfg',
@@ -41,7 +40,10 @@ __all__ = [
     'getAppName',
     'getPortNumber',
     'getTmpDir',
+    'getHomeDir',
     'generateFileName',
+    'makeTmpDir',
+    'uniteFiles',
     ]
 
 # ---
@@ -180,12 +182,12 @@ def getAppName():
 
 # ---
 
-def getPortNumber():
+def getPortNumber(use_default=True):
     """
     Get current naming server port number:
     1. try NSPORT environment variable
     1. if fails, try to parse config file defined by OMNIORB_CONFIG environment variable
-    2. if fails, return 2809 as default port number
+    2. if fails, return 2809 as default port number (if use_default is True) or None (id use_default is False)
     """
     import os
     try:
@@ -194,8 +196,33 @@ def getPortNumber():
         pass
     port = getPortFromORBcfg()
     if port is not None: return port
-    return 2809      # '2809' is default port number
+    if use_default: return 2809 # '2809' is default port number
+    return None
 
+# ---
+
+def getHomeDir():
+    """
+    Get home directory.
+    """
+    import os, sys
+    if sys.platform == "win32":
+        # for Windows the home directory is detected in the following way:
+        # 1. try USERPROFILE env variable
+        # 2. try combination of HOMEDRIVE and HOMEPATH env variables
+        # 3. try HOME env variable
+        # TODO: on Windows, also GetUserProfileDirectoryW() system function might be used
+        dir = os.getenv("USERPROFILE")
+        if not dir and os.getenv("HOMEDRIVE") and os.getenv("HOMEPATH"):
+            dir = os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"))
+        if not dir:
+            dir = os.getenv("HOME")
+        pass
+    else:
+        # for Linux: use HOME variable
+        dir = os.getenv("HOME")
+        pass
+    return dir
 # ---
 
 def getTmpDir():
@@ -345,3 +372,118 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
             pass
         pass
     return os.path.normpath(name)
+
+# ---
+
+def makeTmpDir( path, mode=0777 ):
+    """
+    Make temporary directory with the specified path.
+    If the directory exists then clear its contents.
+
+    Parameters:
+    - path : absolute path to the directory to be created.
+    - mode : access mode
+    """
+    import os
+    if os.path.exists( path ):
+        import sys
+        if sys.platform == "win32":
+            os.system( "rmdir /S /Q " + '"' + path + '"' )
+            os.system( "mkdir " + '"' + path + '"' )
+        else:
+            os.system( "rm -rf " + path + "/*" )
+    else:
+        dirs = path.split("/")
+        shift1 = shift2 = 0
+        if not dirs[0]: shift1 = 1
+        if dirs[-1]: shift2 = 1
+        for i in range(1+shift1,len(dirs)+shift2):
+            p = "/".join(dirs[:i])
+            try:
+                os.mkdir(p, mode)
+                os.chmod(p, mode)
+            except:
+                pass
+
+# ---
+
+def uniteFiles( src_file, dest_file ):
+    """
+    Unite contents of the source file with contents of the destination file
+    and put result of the uniting to the destination file.
+    If the destination file does not exist then the source file is simply
+    copied to its path.
+
+    Parameters:
+    - src_file  : absolute path to the source file
+    - dest_file : absolute path to the destination file
+    """
+    import os
+
+    if not os.path.exists( src_file ):
+        return
+        pass
+
+    if os.path.exists( dest_file ):
+        # add a symbol of new line to contents of the destination file (just in case)
+        dest = open( dest_file, 'r' )
+        dest_lines = dest.readlines()
+        dest.close()
+
+        dest_lines.append( "\n" )
+
+        dest = open( dest_file, 'w' )
+        dest.writelines( dest_lines )
+        dest.close()
+
+        import sys
+        if sys.platform == "win32":
+            command = "type " + '"' + src_file + '"' + " >> " + '"' + dest_file + '"'
+        else:
+            command = "cat " + src_file + " >> " + dest_file
+            pass
+        pass
+    else:
+        import sys
+        if sys.platform == "win32":
+            command = "copy " + '"' + src_file + '"' + " " + '"' + dest_file + '"' + " > nul"
+        else:
+            command = "cp " + src_file + " " + dest_file
+            pass
+        pass
+
+    os.system( command )
+
+# --
+
+_verbose = None
+
+def verbose():
+    """
+    Get verbosity level. Default verbosity level is specified via the environment variable
+    SALOME_VERBOSE, e.g.:
+    [bash %] export SALOME_VERBOSE=1
+    The function setVerbose() can be used to change verbosity level explicitly.
+    """
+    global _verbose
+    # verbose has already been called
+    if _verbose is not None:
+        return _verbose
+    # first time
+    try:
+        from os import getenv
+        _verbose = int(getenv('SALOME_VERBOSE'))
+    except:
+        _verbose = 0
+        pass
+    #
+    return _verbose
+
+def setVerbose(level):
+    """
+    Change verbosity level. The function verbose() can be used to get current verbosity level.
+    """
+    global _verbose
+    _verbose = level
+    return
+

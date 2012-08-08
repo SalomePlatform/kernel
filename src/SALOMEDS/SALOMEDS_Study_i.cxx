@@ -1,30 +1,32 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_Study_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
@@ -40,6 +42,7 @@
 #include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
+#include "SALOMEDSImpl_Callback.hxx"
 
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
@@ -53,7 +56,88 @@
 #include <unistd.h>
 #endif
 
-using namespace std;
+class Notifier: public SALOMEDSImpl_AbstractCallback
+{
+public:
+Notifier(CORBA::ORB_ptr orb)
+{
+  _orb = CORBA::ORB::_duplicate(orb);
+}
+
+//============================================================================
+/*! Function : addSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been added
+ */
+//============================================================================
+
+  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    {
+      std::string anID=theSObject.GetID();
+      const char* cID=anID.c_str();
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          it->first->notifyObserverID(cID,1);
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+//============================================================================
+/*! Function : removeSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been removed
+ */
+//============================================================================
+
+  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    {
+      std::string anID=theSObject.GetID();
+      const char* cID=anID.c_str();
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          it->first->notifyObserverID(cID,2);
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+//============================================================================
+/*! Function : modifySO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been modified
+ */
+//============================================================================
+
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason)
+    {
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          if(it->second)
+            {
+              std::string anID=theSObject.GetID();
+              const char* cID=anID.c_str();
+              it->first->notifyObserverID(cID,reason);
+            }
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+//============================================================================
+/*! Function : attach
+ *  Purpose  : register an Observer
+ */
+//============================================================================
+
+  virtual void attach(SALOMEDS::Observer_ptr theObs, bool modify)
+    {
+      myObservers.push_back(std::pair< SALOMEDS::Observer_var, bool > (SALOMEDS::Observer::_duplicate(theObs),modify));
+    }
+
+private:
+    typedef std::list< std::pair< SALOMEDS::Observer_var, bool > > ObsList;
+    typedef ObsList::iterator ObsListIter;
+    ObsList myObservers;
+    CORBA::ORB_var                    _orb;
+};
+
+
+std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudies;
 
 //============================================================================
 /*! Function : SALOMEDS_Study_i
@@ -61,10 +145,12 @@ using namespace std;
  */
 //============================================================================
 SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
-				   CORBA::ORB_ptr orb)
+                                   CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
+  _notifier = new Notifier(_orb);
+  theImpl->setNotifier(_notifier);
 
   _builder = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
 }
@@ -76,6 +162,15 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 //============================================================================
 SALOMEDS_Study_i::~SALOMEDS_Study_i()
 {
+  //delete the builder servant
+  PortableServer::POA_var poa=_builder->_default_POA();
+  PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
+  poa->deactivate_object(anObjectId.in());
+  _builder->_remove_ref();
+  
+  //delete implementation
+  delete _impl;
+  _mapOfStudies.erase(_impl);
 }  
 
 //============================================================================
@@ -119,7 +214,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponent (const char* aComponent
 {
   SALOMEDS::Locker lock; 
   
-  SALOMEDSImpl_SComponent aCompImpl = _impl->FindComponent(string(aComponentName));
+  SALOMEDSImpl_SComponent aCompImpl = _impl->FindComponent(std::string(aComponentName));
   if(aCompImpl.IsNull()) return SALOMEDS::SComponent::_nil();
 
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aCompImpl, _orb);
@@ -135,7 +230,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponen
 {
   SALOMEDS::Locker lock; 
   
-  SALOMEDSImpl_SComponent aCompImpl = _impl->FindComponentID(string((char*)aComponentID));
+  SALOMEDSImpl_SComponent aCompImpl = _impl->FindComponentID(std::string((char*)aComponentID));
   if(aCompImpl.IsNull()) return SALOMEDS::SComponent::_nil();
 
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aCompImpl, _orb);
@@ -151,7 +246,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* anObjectName)
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->FindObject(string((char*)anObjectName));
+  SALOMEDSImpl_SObject aSO = _impl->FindObject(std::string((char*)anObjectName));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
   if(aSO.IsComponent()) {
@@ -174,7 +269,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->FindObjectID(string((char*)anObjectID));
+  SALOMEDSImpl_SObject aSO = _impl->FindObjectID(std::string((char*)anObjectID));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
@@ -205,12 +300,12 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
  */
 //============================================================================
 SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* anObjectName,
-								    const char* aComponentName )
+                                                                    const char* aComponentName )
 {
   SALOMEDS::Locker lock; 
 
-  vector<SALOMEDSImpl_SObject> aSeq = _impl->FindObjectByName(string((char*)anObjectName),
-							       string((char*)aComponentName));
+  std::vector<SALOMEDSImpl_SObject> aSeq = _impl->FindObjectByName(std::string((char*)anObjectName),
+                                                               std::string((char*)aComponentName));
   int aLength = aSeq.size();
   SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject ;
   listSO->length(aLength);
@@ -230,7 +325,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* anObjectIOR)
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->FindObjectIOR(string((char*)anObjectIOR));
+  SALOMEDSImpl_SObject aSO = _impl->FindObjectIOR(std::string((char*)anObjectIOR));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
@@ -246,7 +341,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->FindObjectByPath(string((char*)thePath));
+  SALOMEDSImpl_SObject aSO = _impl->FindObjectByPath(std::string((char*)thePath));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
@@ -262,7 +357,7 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
 {
   SALOMEDS::Locker lock; 
 
-  string aPath("");
+  std::string aPath("");
   if(CORBA::is_nil(theObject)) return CORBA::string_dup(aPath.c_str());
   SALOMEDSImpl_SObject aSO;
   SALOMEDS::SObject_var aSObj = SALOMEDS::SObject::_narrow(theObject);
@@ -290,7 +385,7 @@ void SALOMEDS_Study_i::SetContext(const char* thePath)
 {
   SALOMEDS::Locker lock; 
 
-  _impl->SetContext(string((char*)thePath));
+  _impl->SetContext(std::string((char*)thePath));
   if(_impl->IsError() && _impl->GetErrorCode() == "InvalidContext") 
     throw SALOMEDS::Study::StudyInvalidContext();  
 }
@@ -322,7 +417,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext
   if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  vector<string> aSeq = _impl->GetObjectNames(string((char*)theContext));
+  std::vector<std::string> aSeq = _impl->GetObjectNames(std::string((char*)theContext));
   if (_impl->GetErrorCode() == "InvalidContext")
     throw SALOMEDS::Study::StudyInvalidContext();
 
@@ -349,7 +444,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theCont
   if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  vector<string> aSeq = _impl->GetDirectoryNames(string((char*)theContext));
+  std::vector<std::string> aSeq = _impl->GetDirectoryNames(std::string((char*)theContext));
   if (_impl->GetErrorCode() == "InvalidContext")
     throw SALOMEDS::Study::StudyInvalidContext();
 
@@ -376,7 +471,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext)
   if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  vector<string> aSeq = _impl->GetFileNames(string((char*)theContext));
+  std::vector<std::string> aSeq = _impl->GetFileNames(std::string((char*)theContext));
   if (_impl->GetErrorCode() == "InvalidContext")
     throw SALOMEDS::Study::StudyInvalidContext();
 
@@ -401,7 +496,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
 
-  vector<string> aSeq = _impl->GetComponentNames(string((char*)theContext));
+  std::vector<std::string> aSeq = _impl->GetComponentNames(std::string((char*)theContext));
 
   int aLength = aSeq.size();
   aResult->length(aLength);
@@ -421,14 +516,14 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->GetSObject(theSO->GetID());
+  CORBA::String_var anID=theSO->GetID();
+  SALOMEDSImpl_SObject aSO = _impl->GetSObject(anID.in());
   SALOMEDSImpl_ChildIterator anItr(aSO);
 
   //Create iterator
   SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(anItr, _orb);
-  SALOMEDS::ChildIterator_var it = SALOMEDS::ChildIterator::_narrow(it_servant->_this()); 
 
-  return it;
+  return it_servant->_this();
 }
 
 
@@ -476,7 +571,7 @@ char* SALOMEDS_Study_i::Name()
 void SALOMEDS_Study_i::Name(const char* name)
 {
   SALOMEDS::Locker lock;  
-  _impl->Name(string((char*)name));
+  _impl->Name(std::string((char*)name));
 }
 
 //============================================================================
@@ -543,7 +638,7 @@ char* SALOMEDS_Study_i::URL()
 void SALOMEDS_Study_i::URL(const char* url)
 {
   SALOMEDS::Locker lock; 
-  _impl->URL(string((char*)url));
+  _impl->URL(std::string((char*)url));
 }
 
 
@@ -562,7 +657,7 @@ void SALOMEDS_Study_i::StudyId(CORBA::Short id)
 void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR,const char* anEntry) 
 {
   SALOMEDS::Locker lock; 
-  _impl->UpdateIORLabelMap(string((char*)anIOR), string((char*)anEntry));
+  _impl->UpdateIORLabelMap(std::string((char*)anIOR), std::string((char*)anEntry));
 }
 
 SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb) 
@@ -580,6 +675,18 @@ SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::
     MESSAGE("GetStudy: Problem to get study");
   }
   return SALOMEDS::Study::_nil();
+}
+
+SALOMEDS_Study_i* SALOMEDS_Study_i::GetStudyServant(SALOMEDSImpl_Study* aStudyImpl, CORBA::ORB_ptr orb)
+{
+  if (_mapOfStudies.find(aStudyImpl) != _mapOfStudies.end()) 
+    return _mapOfStudies[aStudyImpl];
+  else
+    {
+      SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, orb);
+      _mapOfStudies[aStudyImpl]=Study_servant;
+      return Study_servant;
+    }
 }
 
 void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 
@@ -621,7 +728,7 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate()
 {
   SALOMEDS::Locker lock; 
   
-  vector<string> aSeq = _impl->GetModificationsDate();
+  std::vector<std::string> aSeq = _impl->GetModificationsDate();
   int aLength = aSeq.size();
   SALOMEDS::ListOfDates_var aDates = new SALOMEDS::ListOfDates;
   aDates->length(aLength);
@@ -661,24 +768,37 @@ void SALOMEDS_Study_i::Close()
   SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
   for (; itcomponent->More(); itcomponent->Next()) {
     SALOMEDS::SComponent_var sco = itcomponent->Value();
-    MESSAGE ( "Look for an engine for data type :"<< sco->ComponentDataType());
+    CORBA::String_var compodatatype=sco->ComponentDataType();
+    MESSAGE ( "Look for an engine for data type :"<< compodatatype);
     // if there is an associated Engine call its method for closing
     CORBA::String_var IOREngine;
     if (sco->ComponentIOR(IOREngine)) {
       // we have found the associated engine to write the data 
-      MESSAGE ( "We have found an engine for data type :"<< sco->ComponentDataType());
-      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-      if (!CORBA::is_nil(obj)) {
-	SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-
-	if (!anEngine->_is_nil()) { 
-	  SALOMEDS::unlock();
-	  anEngine->Close(sco);
-	  SALOMEDS::lock();
-	}
-      }
+      MESSAGE ( "We have found an engine for data type :"<< compodatatype);
+      //_narrow can throw a corba exception
+      try
+        {
+          CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+          if (!CORBA::is_nil(obj)) 
+            {
+              SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+              if (!anEngine->_is_nil()) 
+                { 
+                  SALOMEDS::unlock();
+                  anEngine->Close(sco);
+                  SALOMEDS::lock();
+                }
+            }
+        } 
+      catch (CORBA::Exception&) 
+        {/*pass*/ }
     }
+    sco->UnRegister();
   }
+
+  //Does not need any more this iterator
+  itcomponent->UnRegister();
+
 
   _impl->Close();
 }
@@ -713,14 +833,17 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
 {  
   SALOMEDS::Locker lock; 
 
-  vector<string> anIORs = _impl->GetIORs();
+  std::vector<std::string> anIORs = _impl->GetIORs();
   int i, aSize = (int)anIORs.size();
 
   for(i = 0; i < aSize; i++) {
     try {
       CORBA::Object_var obj = _orb->string_to_object(anIORs[i].c_str());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
-      if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
+	  //rnv: To avoid double deletion of the Salome Generic Objects:
+	  //rnv: 1. First decrement of the reference count in the SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR();
+	  //rnv: 2. Second decrement of the reference count in the next string : aGeneric->UnRegister();
+      //if (!CORBA::is_nil(aGeneric)) aGeneric->UnRegister();
     } catch (...) {}
   }
 
@@ -749,14 +872,15 @@ void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay)
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, 
-					   const char* theBaseName, 
-					   CORBA::Boolean isPublished)
+                                           const char* theBaseName, 
+                                           CORBA::Boolean isPublished,
+                                           CORBA::Boolean isMultiFile)
 {
   SALOMEDS::Locker lock; 
 
-  string aPath((char*)thePath), aBaseName((char*)theBaseName);
+  std::string aPath((char*)thePath), aBaseName((char*)theBaseName);
   SALOMEDS_DriverFactory_i* factory = new SALOMEDS_DriverFactory_i(_orb);
-  CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, factory);
+  CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, isMultiFile, factory);
   delete factory;
   return ret;
 }
@@ -781,8 +905,8 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetCommonParameters(const cha
  */
 //============================================================================
 SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const char* theID, 
-								       const char* theModuleName, 
-								       CORBA::Long theSavePoint)
+                                                                       const char* theModuleName, 
+                                                                       CORBA::Long theSavePoint)
 {
   SALOMEDS::Locker lock; 
   
@@ -835,7 +959,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
 
-  vector<string> aSeq = _impl->GetLockerID();
+  std::vector<std::string> aSeq = _impl->GetLockerID();
 
   int aLength = aSeq.size();
   aResult->length(aLength);
@@ -851,7 +975,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 //============================================================================
 void SALOMEDS_Study_i::SetReal(const char* theVarName, CORBA::Double theValue)
 {
-  _impl->SetVariable(string(theVarName), 
+  _impl->SetVariable(std::string(theVarName), 
                      theValue,
                      SALOMEDSImpl_GenericVariable::REAL_VAR);
 }
@@ -863,7 +987,7 @@ void SALOMEDS_Study_i::SetReal(const char* theVarName, CORBA::Double theValue)
 //============================================================================
 void SALOMEDS_Study_i::SetInteger(const char* theVarName, CORBA::Long theValue)
 {
-  _impl->SetVariable(string(theVarName), 
+  _impl->SetVariable(std::string(theVarName), 
                      theValue,
                      SALOMEDSImpl_GenericVariable::INTEGER_VAR);
 }
@@ -875,9 +999,33 @@ void SALOMEDS_Study_i::SetInteger(const char* theVarName, CORBA::Long theValue)
 //============================================================================
 void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValue)
 {
-  _impl->SetVariable(string(theVarName), 
+  _impl->SetVariable(std::string(theVarName), 
                      theValue,
                      SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+}
+
+//============================================================================
+/*! Function : SetString
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetString(const char* theVarName, const char* theValue)
+{
+  _impl->SetStringVariable(std::string(theVarName), 
+                           theValue,
+                           SALOMEDSImpl_GenericVariable::STRING_VAR);
+}
+
+//============================================================================
+/*! Function : SetStringAsDouble
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetStringAsDouble(const char* theVarName, CORBA::Double theValue)
+{
+  _impl->SetStringVariableAsDouble(std::string(theVarName), 
+                                   theValue,
+                                   SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================
@@ -887,7 +1035,7 @@ void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValu
 //============================================================================
 CORBA::Double SALOMEDS_Study_i::GetReal(const char* theVarName)
 {
-  return _impl->GetVariableValue(string(theVarName));
+  return _impl->GetVariableValue(std::string(theVarName));
 }
 
 //============================================================================
@@ -897,7 +1045,7 @@ CORBA::Double SALOMEDS_Study_i::GetReal(const char* theVarName)
 //============================================================================
 CORBA::Long SALOMEDS_Study_i::GetInteger(const char* theVarName)
 {
-  return (int)_impl->GetVariableValue(string(theVarName));
+  return (int)_impl->GetVariableValue(std::string(theVarName));
 }
 
 //============================================================================
@@ -907,7 +1055,17 @@ CORBA::Long SALOMEDS_Study_i::GetInteger(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::GetBoolean(const char* theVarName)
 {
-  return (bool)_impl->GetVariableValue(string(theVarName));
+  return (bool)_impl->GetVariableValue(std::string(theVarName));
+}
+
+//============================================================================
+/*! Function : GetString
+ *  Purpose  : 
+ */
+//============================================================================
+char* SALOMEDS_Study_i::GetString(const char* theVarName)
+{
+  return CORBA::string_dup(_impl->GetStringVariableValue(std::string(theVarName)).c_str());
 }
 
 //============================================================================
@@ -917,7 +1075,7 @@ CORBA::Boolean SALOMEDS_Study_i::GetBoolean(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::IsReal(const char* theVarName)
 {
-  return _impl->IsTypeOf(string(theVarName),
+  return _impl->IsTypeOf(std::string(theVarName),
                          SALOMEDSImpl_GenericVariable::REAL_VAR);
 }
 
@@ -928,7 +1086,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsReal(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::IsInteger(const char* theVarName)
 {
-  return _impl->IsTypeOf(string(theVarName),
+  return _impl->IsTypeOf(std::string(theVarName),
                          SALOMEDSImpl_GenericVariable::INTEGER_VAR);
 }
 
@@ -939,8 +1097,19 @@ CORBA::Boolean SALOMEDS_Study_i::IsInteger(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::IsBoolean(const char* theVarName)
 {
-  return _impl->IsTypeOf(string(theVarName),
+  return _impl->IsTypeOf(std::string(theVarName),
                          SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+}
+
+//============================================================================
+/*! Function : IsString
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsString(const char* theVarName)
+{
+  return _impl->IsTypeOf(std::string(theVarName),
+                         SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================
@@ -950,7 +1119,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsBoolean(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::IsVariable(const char* theVarName)
 {
-  return _impl->IsVariable(string(theVarName));
+  return _impl->IsVariable(std::string(theVarName));
 }
 
 //============================================================================
@@ -960,7 +1129,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsVariable(const char* theVarName)
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
 {
-  vector<string> aVarNames = _impl->GetVariableNames();
+  std::vector<std::string> aVarNames = _impl->GetVariableNames();
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
   
   int aLen = aVarNames.size();
@@ -979,7 +1148,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::RemoveVariable(const char* theVarName)
 {
-  return _impl->RemoveVariable(string(theVarName));
+  return _impl->RemoveVariable(std::string(theVarName));
 }
 
 //============================================================================
@@ -989,7 +1158,7 @@ CORBA::Boolean SALOMEDS_Study_i::RemoveVariable(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::RenameVariable(const char* theVarName, const char* theNewVarName)
 {
-  return _impl->RenameVariable(string(theVarName), string(theNewVarName));
+  return _impl->RenameVariable(std::string(theVarName), std::string(theNewVarName));
 }
 
 //============================================================================
@@ -999,7 +1168,7 @@ CORBA::Boolean SALOMEDS_Study_i::RenameVariable(const char* theVarName, const ch
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::IsVariableUsed(const char* theVarName)
 {
-  return _impl->IsVariableUsed(string(theVarName));
+  return _impl->IsVariableUsed(std::string(theVarName));
 }
 
 
@@ -1010,7 +1179,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsVariableUsed(const char* theVarName)
 //============================================================================
 SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theVarName)
 {
-  vector< vector<string> > aSections = _impl->ParseVariables(string(theVarName));
+  std::vector< std::vector<std::string> > aSections = _impl->ParseVariables(std::string(theVarName));
 
   SALOMEDS::ListOfListOfStrings_var aResult = new SALOMEDS::ListOfListOfStrings;
 
@@ -1018,7 +1187,7 @@ SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theV
   aResult->length(aSectionsLen);
 
   for (int aSectionInd = 0; aSectionInd < aSectionsLen; aSectionInd++) {
-    vector<string> aVarNames = aSections[aSectionInd];
+    std::vector<std::string> aVarNames = aSections[aSectionInd];
 
     SALOMEDS::ListOfStrings_var aList = new SALOMEDS::ListOfStrings;
 
@@ -1043,7 +1212,7 @@ char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* 
 {
   SALOMEDS::Locker lock; 
 
-  string script = SALOMEDSImpl_IParameters::getDefaultScript(_impl, theModuleName, theShift);
+  std::string script = SALOMEDSImpl_IParameters::getDefaultScript(_impl, theModuleName, theShift);
   return CORBA::string_dup(script.c_str());
 }
 
@@ -1066,6 +1235,17 @@ void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled)
       builder->SetOnRemoveSObject(NULL);
     }
   }
+}
+
+//============================================================================
+/*! Function : attach
+ *  Purpose  : This function attach an observer to the study
+ */
+//============================================================================
+void SALOMEDS_Study_i::attach(SALOMEDS::Observer_ptr theObs,CORBA::Boolean modify)
+{
+  if(_notifier)
+    _notifier->attach(theObs,modify);
 }
 
 //===========================================================================

@@ -1,30 +1,32 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : SALOMEDS.idl
+
+//  File   : SALOMEDS_Attributes.idl
 //  Author : Yves FRICAUD
 //  $Header$
 //
-/*! \file SALOMEDS_Attributes.idl This file contains a set of interfaces
-    for the attributes which can be assigned to %SObject
+/*! \file SALOMEDS_Attributes.idl 
+    \brief This file contains a set of interfaces
+    for the attributes which can be assigned to SObject
 */
 #ifndef _SALOMEDS_AttributesIDL_
 #define _SALOMEDS_AttributesIDL_
@@ -33,1449 +35,1823 @@
 
 module SALOMEDS
 {
-/*! Sequence of double values
-*/
+  //! Sequence of double values
   typedef sequence <double> DoubleSeq;
-/*! Sequence of long values
-*/
+  //! Sequence of long values
   typedef sequence <long>   LongSeq;
-/*! Sequence of string values
-*/
+  //! Sequence of string values
   typedef sequence <string> StringSeq;
-/*! \struct Color
-   This structure stores a set of elements defining the color based on RGB palette. These elements are
-   used as input parameters for methods necessary for color definition of different items.
-*/
+
+  /*!
+    \brief Represents the color based on RGB palette.
+    
+    Used by different interfaces to specify the color attributes of different items.
+  */
   struct Color {
-/*! Red color
-*/
-   double R;
-/*! Green color
-*/
-   double G;
-/*! Blue color
-*/
-   double B;
+    //! Red component of the color
+    double R;
+    //! Green component of the color
+    double G;
+    //! Blue component  of the color
+    double B;
   };
+
   //==========================================================================
-/*! \brief Attribute allowing to store a real value
+  /*!
+    \brief Attribute allowing to store a real value
 
-    Attribute allowing to store a real value
-*/
- //==========================================================================
+    <em>See \ref example1 for an example of this attribute usage in batchmode of %SALOME application.</em>
 
+    \sa AttributeInteger, AttributeString
+  */
+  //==========================================================================
   interface AttributeReal : GenericAttribute
   {
-/*!
-    Returns the value of this attribute.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     double Value();
-/*!
-   Sets the value of this attribute.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute
+      \param value value being set to the attribute
+    */
     void   SetValue(in double value);
 
   };
-  //==========================================================================
-/*! \brief Attribute allowing to store an integer value
 
-   Attribute allowing to store an integer value
-*/
+  //==========================================================================
+  /*!
+    \brief Attribute allowing to store an %integer value
+
+    <em>See \ref example17 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeReal, AttributeString
+  */
   //==========================================================================
   interface AttributeInteger : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     long   Value();
-/*!
-   Sets the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute
+      \param value value being set to the attribute
+    */
     void   SetValue(in long value);
   };
-  //==========================================================================
-/*! \brief Attribute - sequence of real values
 
-  Attribute - sequence of real values, indexing from 1 (like in CASCADE).
-*/
+  //==========================================================================
+  /*!
+    \brief Attribute allowing to store a sequence of real values.
+    \note The indices in the sequence start from 1.
+
+    <em>See \ref example3 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeSequenceOfInteger
+  */
   //==========================================================================
   interface AttributeSequenceOfReal : GenericAttribute
   {
-/*!
-   Initialization of the attribute with initial data.
-   \param other    Initially assigned sequence of real numbers.
-*/
+    /*!
+      \brief Initialization of the attribute with initial data.
+      \param other sequence of values assigned to the attribute
+    */
     void      Assign (in DoubleSeq other);
-/*!
-   Returns the sequence of real numbers stored in the attribute.
-*/
+    /*! 
+      \brief Returns the sequence of values stored in the attribute.
+      \return sequence of values
+    */
     DoubleSeq CorbaSequence();
-/*!
-   Adds to the end of the sequence a real number.
-
-   \param value    A real number added to the sequence.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Adds new value to the end of the sequence.
+      \param value value being added to the sequence
+    */
     void      Add (in double value);
-/*!
-    Removes a real number with a definite index
-    from the sequence of real numbers stored in the Attribute.
-
-    \param index The index of the given real number
-*/
+    /*!
+      \brief Removes a value by the specified \a index
+             from the sequence stored in the attribute.
+      \param index index of the value in the sequence to be removed
+    */
     void      Remove(in long index);
-/*!
-    Substitutes a given real number with a definite index for another real number.
-    \param index The index of the given real number.
-    \param value The value of another real number.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Sets new value to the sequence by the specified \a index.
+      \param index index in the sequence
+      \param value new value being set to the sequence by specified \a index
+    */
     void      ChangeValue(in long index, in double value);
-/*!
-  Returns a given real number with a definite index
-    in the sequence of real numbers stored in the Attribute.
-    \param index The index of the given real number.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns a value in the sequence specified by its \a index.
+      \param index index in the sequence
+      \return value specified by \a index
+    */
     double    Value(in short index);
-/*!
-    Returns the length of the sequence of real numbers stored in the Attribute.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the length of the sequence stored in the attribute.
+      \return sequence length
+    */
     long      Length();
   };
+  
   //==========================================================================
-/*! \brief Attribute - sequence of integer
+  /*!
+    \brief Attribute allowing to store a sequence of %integer values.
+    \note The indices in the sequence start from 1.
 
-  Attribute - sequence of integer, indexing from 1 (like in CASCADE)
-*/
+    <em>See \ref example4 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeSequenceOfReal
+   */
   //==========================================================================
   interface AttributeSequenceOfInteger : GenericAttribute
   {
-/*!
-   Initialisation of the attribute with initial data.
-   \param other    Initially assigned sequence of integer numbers.
-*/
+    /*!
+      \brief Initialization of the attribute with initial data.
+      \param other sequence of values assigned to the attribute
+    */
     void      Assign (in LongSeq other);
-/*!
-   Returns the sequence of integer numbers stored in the Attribute.
-*/
-    LongSeq CorbaSequence();
-/*!
-   Adds to the end of the sequence an integer number.
-   \param value    An integer number added to the sequence.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*! 
+      \brief Returns the sequence of values stored in the attribute.
+      \return sequence of values
+    */
+    LongSeq   CorbaSequence();
+    /*!
+      \brief Adds new value to the end of the sequence.
+      \param value value being added to the sequence
+    */
     void      Add (in long value);
-/*!
-    Removes an integer number with a definite index
-    from the sequence of integer numbers stored in the Attribute.
-    \param index The index of the given integer number.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Removes an value by the specified \a index
+             from the sequence stored in the attribute.
+      \param index index of the value in the sequence to be removed
+    */
     void      Remove(in long index);
-/*!
-    Substitutes an integer number with a definite index for another integer number.
-    \param index The index of the given integer number.
-    \param value The value of another integer number.
-
-*/
+    /*!
+      \brief Sets new value to the sequence by the specified \a index.
+      \param index index in the sequence
+      \param value new value being set to the sequence by specified \a index
+    */
     void      ChangeValue(in long index, in long value);
-/*!
-   Returns a given integer number with a definite index
-    in the sequence of integer numbers stored in the Attribute.
-    \param index The index of the given integer number.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns a value in the sequence specified by its \a index.
+      \param index index in the sequence
+      \return value specified by \a index
+    */
     long      Value(in short index);
-/*!
-    Returns the length of the sequence of integer numbers stored in the Attribute.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the length of the sequence stored in the attribute.
+      \return sequence length
+    */
     long      Length();
   };
 
   //==========================================================================
-/*! \brief Name attribute
+  /*!
+    \brief Name attribute
 
-   This attribute stores a string value, which corresponds to the name of the %SObject
-   or to the name of corresponding object.
-*/
+    The attribute stores a string value, which corresponds to the name of the SObject
+    or to the name of corresponding %object.
+
+    <em>See \ref example5 for an example of this attribute usage in batchmode of %SALOME application.</em>
+    
+    \sa AttributeComment
+  */
   //==========================================================================
-
   interface AttributeName : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value assigned to the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-
-   \param value This parameter defines the value of this attribute.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute (name of a SObject).
+      \param value value being set to the attribute
+    */
     void   SetValue(in string value);
   };
 
   //==========================================================================
-/*! \brief Comment attribute
+  /*!
+    \brief Comment attribute
 
-    This attribute stores a string value containing supplementary information about
-    the %SObject. In particular it contains the data type of the %SComponent.
-*/
+    The attribute stores arbitrary string value containing supplementary information about
+    the SObject. This is common-usage attribute that can be used for any purpose.
+
+    There is only one explicit limitation: for the SComponent %object representing
+    the root item of the SALOME component tree, the AttributeComment is used to store
+    component data type value. This attribute is automatically set with NewComponent()
+    function of StudyBuilder. Also, the value of this attribute is returned by the 
+    ComponentDataType() function of SComponent interface.
+    
+    <em>See \ref example6 for an example of this attribute usage in batchmode of %SALOME application.</em>
+      
+    \sa AttributeName
+  */
   //==========================================================================
   interface AttributeComment : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-   \param value This string parameter defines the value of this attribute - a description of a %SObject.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute (description of a SObject).
+      \param value value being set to the attribute
+    */
     void   SetValue(in string value);
   };
-  //==========================================================================
-/*! \brief String attribute
 
-    This attribute stores a string value containing arbitrary information.
-*/
+  //==========================================================================
+  /*!
+    \brief String attribute
+    
+    The attribute stores a string value containing arbitrary information.
+    \sa AttributeInteger, AttributeReal
+  */
   //==========================================================================
   interface AttributeString : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-   \param value This string parameter defines the value of this attribute.
-*/
+    /*!
+      \brief Sets the value of the attribute.
+      \param value value being set to the attribute
+    */
     void   SetValue(in string value);
   };
-  //==========================================================================
-/*! \brief IOR attribute
 
-    This attribute stores a string value identifying a runtime object.In particular
-    it contains CORBA Interoperable Object Reference.
-*/
- //==========================================================================
+  //==========================================================================
+  /*!
+    \brief IOR attribute
+    
+    The attribute stores a string value identifying a runtime %object. 
+    In particular it contains CORBA Interoperable Object Reference.
+
+    <em>See \ref example19 for an example of this method usage in batchmode of %SALOME application.</em>
+
+    \sa AttributePersistentRef
+  */
+  //==========================================================================
   interface AttributeIOR : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-   \param value This parameter defines the value of this attribute - IOR of a %SObject.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute (IOR of a SObject).
+      \param value value being set to the attribute.
+    */
     void   SetValue(in string value);
   };
 
   //==========================================================================
-/*! \brief Persistent reference attribute
+  /*!
+    \brief Persistent reference attribute
+    
+    The attribute stores a persistent identifier of the %object. It is a part
+    of SALOME persistence mechanism .
 
-     This attribute stores a persistent identifier of the object.
-*/
+    <em>See \ref example7 for an example of this method usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeIOR
+  */
   //==========================================================================
   interface AttributePersistentRef : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-   \param value This parameter defines the value of this attribute.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute.
+      \param value Value being set to the attribute
+    */
     void   SetValue(in string value);
   };
 
   //==========================================================================
-/*! \brief External File definition
-
-     This attribute stores a path to an External File.
-*/
+  /*!
+    \brief External file definition.
+    
+    The attribute stores a path to an external file.
+    
+    \sa AttributeFileType
+  */
   //==========================================================================
   interface AttributeExternalFileDef: GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute.
+      \param value value being set to the attribute
+    */
     void   SetValue(in string value);
   };
 
   //==========================================================================
-/*! \brief File Type definition
+  /*!
+    \brief External file type definition.
 
-     This attribute stores an external File Type (see ExternalFileDef attribute).
-*/
+    The attribute stores an external file type.
+
+    \sa AttributeExternalFileDef
+  */
   //==========================================================================
   interface AttributeFileType: GenericAttribute
   {
-/*!
-    Returns the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute.
+      \param value value being set to the attribute
+    */
     void   SetValue(in string value);
   };
 
   //==========================================================================
-  //Below the list of presentation attributes for display study tree in browser
+  // Presentation attributes (parameters of the object displaying in the Object browser)
   //==========================================================================
 
-
   //==========================================================================
-/*! \brief Drawable flag Attribute.
+  /*!
+    \brief Drawable flag attribute.
 
-   This is a presentation attribute necessary for display of a study tree in the browser.
-   The item associated to a %SObject is created/displayed if TRUE.
-*/
+    This presentation attribute specifies if the parent SObject should be displayed
+    in the study tree in the Object browser.
+
+    If this attribute is defined for the parent %object and set to \c false, the item
+    is not displayed in the Object browser. By default, the item is always displayed.
+
+    <em>See \ref example8 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeExpandable, AttributeSelectable
+  */
   //==========================================================================
   interface AttributeDrawable : GenericAttribute
   {
-/*!
-   Returns TRUE if the item is drawable (as it is by default) and FALSE if it isn't.
-
-<BR><VAR>See also <A href="exemple/Example8.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return \c true if the item is drawable or \c false otherwise
+    */
     boolean IsDrawable();
-/*!
-Sets the item to be drawable.
-
-\param value If the value of this boolean parameter is TRUE (default) the item will be drawable.
-
-<BR><VAR>See also <A href="exemple/Example8.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    void   SetDrawable(in boolean value);
+    /*!
+      \brief Sets the value of the attribute.
+      \param value value being set to the attribute (\c true if item should be drawable or \c false otherwise)
+    */
+    void    SetDrawable(in boolean value);
   };
 
   //==========================================================================
-/*! \brief Selectable flag Attribute.
+  /*!
+    \brief Selectable flag attribute.
 
-  This is a presentation attribute necessary for display of the study tree in the browser.
-  The item is selectable by %SALOME selection mechanism if TRUE.
-*/
+    This presentation attribute specifies if the parent SObject is selectable
+    by the user in the Object browser.
+    If this attribute is defined for the parent %object and set to \c false, the item
+    is not selectable in the Object browser. By default, the item is always selectable.
+
+    <em>See \ref example9 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeDrawable, AttributeExpandable
+  */
   //==========================================================================
   interface AttributeSelectable : GenericAttribute
   {
-/*!
-   Returns TRUE if the item is selectable (as it is by default) and FALSE if it isn't.
-
-
-<BR><VAR>See also <A href="exemple/Example9.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return \c true if the item is selectable or \c false otherwise
+    */
     boolean IsSelectable();
-/*!
-Sets the item to be selectable
-
-\param value If the value of this parameter is TRUE (the default) the item will be set as selectable.
-
-<BR><VAR>See also <A href="exemple/Example9.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    void   SetSelectable(in boolean value);
+    /*!
+      \brief Sets the value of the attribute.
+      \param value value being set to the attribute (\c true if item should be selectable or \c false otherwise)
+    */
+    void    SetSelectable(in boolean value);
   };
 
   //==========================================================================
-/*! \brief Expandable flag Attribute.
+  /*!
+    \brief Expandable flag attribute.
 
- This is a presentation attribute necessary for display of the study tree in the browser.
- It sets this item to be expandable even if it has no children if value is TRUE. If value is FALSE
- expandable only if it has children.
-*/
+    This presentation attribute specifies if the parent SObject can be expanded
+    by the user in the Object browser (to show its child objects).
+    If this attribute is defined for the parent %object and set to \c false, the item
+    is not expandable in the Object browser. By default, the item is always expandable
+    (if it has children).
+    
+    <em>See \ref example10 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeDrawable, AttributeSelectable
+  */
   //==========================================================================
   interface AttributeExpandable : GenericAttribute
   {
-/*!
-    Returns TRUE if this item is expandable even when it has no children.
-
-<BR><VAR>See also <A href="exemple/Example10.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return \c true if the item is expandable or \c false otherwise
+    */
     boolean IsExpandable();
-/*! Sets this item to be expandable even if it has no children.
-
- \param value If the value of this boolean parameter is TRUE, this item will be set as expandable.
-
-<BR><VAR>See also <A href="exemple/Example10.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    void   SetExpandable(in boolean value);
+    /*!
+      \brief Sets the value of the attribute.
+      \param value value being set to the attribute (\c true if item should be expandable or \c false otherwise)
+    */
+    void    SetExpandable(in boolean value);
   };
 
   //==========================================================================
-/*! \brief Flags Attribute.
+  /*!
+    \brief Flags attribute.
 
-   This interface is intended for storing different object attributes that
-   have only two states (0 and 1).
-*/
+    The interface is intended for storing different %object attributes that
+    have only two states: 0 (\c false) or 1 (\c true).
+    \note The interpretation of the flag values attribute is a matter of the user.
+    \note The total number of flags which can be stored in a single attribute
+    is defined by the size of CORBA::Long data type.
+  */
   //==========================================================================
 
   interface AttributeFlags : GenericAttribute
   {
+    /*!
+      \brief Returns the value of the attribute.
+      \return set of flags currently set to the attribute
+    */
     long    GetFlags();
-    void    SetFlags( in long theFlags );
-
-    boolean Get( in long theFlag );
-    void    Set( in long theFlag, in boolean theValue );
+    /*!
+      \brief Sets the value of the attribute.
+      \param flags new set of flags to be stored in the attribute
+    */
+    void    SetFlags(in long flags);
+    /*!
+      \brief Test the value for the specified flag or set of flags.
+      \param flags flag or set of flags being tested.
+      \return \c true if all bits correspoding to the \a flags are currently set or \c false otherwise
+    */
+    boolean Get(in long flags);
+    /*!
+      \brief Set/clear specific flag or set of flags.
+      \param flags flag or set of flags being set / cleared
+      \param value \c true if all bits correspoding to the \a flags should be set
+              or \c false if flag(s) should be cleared
+    */
+    void    Set(in long flags, in boolean value);
   };
 
   //==========================================================================
-/*! \brief Graphic Attribute.
-   This class is intended for storing information about
-   graphic representation of objects in dirrent views
-*/
-  //==========================================================================
+  /*!
+    \brief Graphic attribute.
 
+    This interface is intended for storing information about graphical representation
+    of the %object in different views.
+  */
+  //==========================================================================
   interface AttributeGraphic : GenericAttribute
   {
-    void     SetVisibility( in long theViewId, in boolean theValue );
-    boolean  GetVisibility( in long theViewId );
+    /*!
+      \brief Set / clear visibility flag of the parent SObject for the view
+             specified by \a viewId.
+      \param viewId view identifier
+      \param value visibility flag value being set to the attribute
+    */
+    void     SetVisibility(in long viewId, in boolean value);
+    /*!
+      \brief Get visibility flag of the parent SObject for the view
+             specified by \a viewId.
+      \param viewId view identifier
+      \return visibility flag currently set to the attribute for the specified view
+    */
+    boolean  GetVisibility(in long viewId);
   };  
 
   //==========================================================================
-/*! \brief Opened flag Attribute.
+  /*!
+    \brief Opened flag Attribute
+    \warning Deprecated interface. Not used since version 3.0.
 
-   This is a presentation attribute necessary for display of the study tree in the browser.
-   It sets this item to be open (its children are visible) if bool is TRUE, and to be closed (its children
-   are not visible) if bool is FALSE.
-*/
+    This presentation attribute specifies if the item corresponding to the
+    parent SObject in the Object browser is currently opened (expanded) or no.
+  */
   //==========================================================================
   interface AttributeOpened : GenericAttribute
   {
-/*!
-    Returns TRUE if this item is open (its children are visible) and FALSE if it isn't.
-
-<BR><VAR>See also <A href="exemple/Example11.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \obsolete
+      \return \c true if the item is opened (expanded) in the Object browser or \c false otherwise
+    */
     boolean IsOpened();
-/*!
-   Sets this item to be open (its children are visible)
-
-   \param value If the value of this boolean parameter is TRUE this item will be set as open,
-    and as closed if FALSE.
-
-<BR><VAR>See also <A href="exemple/Example11.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    void   SetOpened(in boolean value);
+    /*!
+      \brief Sets the value of the attribute.
+      \obsolete
+      \param value value being set to the attribute (\c true if item should 
+                   be opened (expanded) or \c false otherwise)
+    */
+    void    SetOpened(in boolean value);
   };
-  //==========================================================================
-/*! \brief TextColorAttribute.
 
-     This attribute sets the color of an item.
-*/
+  //==========================================================================
+  /*!
+    \brief Text color attribute.
+
+    This attribute allows to specify the text color to be used to render the item
+    in the Object browser. If the attribute is not set for the SObject, default
+    value (GUI specific) is used.
+
+    <em>See \ref example12 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeTextHighlightColor, AttributePixMap
+  */
   //==========================================================================
   interface AttributeTextColor : GenericAttribute
   {
-/*!
-   Returns the color of an item.
-
-<BR><VAR>See also <A href="exemple/Example12.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    Color TextColor();
-/*!
-   Sets the color of an item.
-
-   \param value This parameter defines the color of the item.
-
-<BR><VAR>See also <A href="exemple/Example12.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return text color assigned to the attribute
+    */
+    Color  TextColor();
+    /*!
+      \brief Sets the value of the attribute.
+      \param value text color value being set to the attribute
+    */
     void   SetTextColor(in Color value);
   };
 
   //==========================================================================
-  /*! \brief TextHighlightColorAttribute.
+  /*!
+    \brief Text highlight color attribute.
+    
+    This attribute allows to specify the highlight color to be used to render
+    the item in the Object browser (used only when the item is selected).
+    If the attribute is not set for the SObject, default value (GUI specific) is used.
 
-     This attribute sets the highlight color of an item.
-*/
+    <em>See \ref example13 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeTextColor, AttributePixMap
+  */
   //==========================================================================
   interface AttributeTextHighlightColor : GenericAttribute
   {
-/*!
-   Returns the highlight color of an item.
-
-
-
-<BR><VAR>See also <A href="exemple/Example13.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    Color TextHighlightColor();
-/*!
-   Sets the highlight color of an item.
-   \param value This parameter defines the highlight color of the item.
-
-<BR><VAR>See also <A href="exemple/Example13.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return highlight color assigned to the attribute
+    */
+    Color  TextHighlightColor();
+    /*!
+      \brief Sets the value of the attribute.
+      \param value highlight color value being set to the attribute
+    */
     void   SetTextHighlightColor(in Color value);
   };
-  //==========================================================================
-/*! \brief PixMapAttribute.
 
-    This attribute stores an icon which is put before the name of an item.
-*/
+  //==========================================================================
+  /*!
+    \brief Icon attribute.
+    
+    This attribute is used to specifiy the name (file name) of an icon which
+    should be drawn in the Object browser when rendering an item.
+
+    <em>See \ref example14 for an example of this attribute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeTextColor, AttributeTextHighlightColor
+  */
   //==========================================================================
   interface AttributePixMap : GenericAttribute
   {
-/*!
-   Returns True if there is an icon before the name of the given item.
-*/
+    /*!
+      Checks if the pixmap is assigned to the attribute.
+      \return \c true if an icon file name is set to the attribute
+    */
     boolean HasPixMap();
-/*!
-   Returns the name of the icon in the format of a string.
-
-<BR><VAR>See also <A href="exemple/Example14.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return icon file name assigned to the attribute (empty string if not set)
+    */
     string  GetPixMap();
-/*!
-   Sets the name of the icon.
-   \param value This string parameter defines the name of the icon.
-
-<BR><VAR>See also <A href="exemple/Example14.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Sets the value of the attribute.
+      \param icom file name being set to the attribute
+    */
     void    SetPixMap(in string value);
   };
 
   //==========================================================================
-/*! \brief TreeNodeAttribute.
+  /*!
+    \brief Tree node attribute.
 
-   A set of these attributes on the %SObjects of the %study forms an inner auxiliary
-   tree whith its own structure and identifier. The quantity of such trees with different
-   identifiers can be arbitrary.
+    By specifying the tree node attributes for the SObjects it is possible to
+    create internal auxillary %object tree with its own structure and identifier.
 
-<BR><VAR>See also <A href="exemple/Example18.html"> an example </A> of usage of the methods of this interface in batchmode of %SALOME application.</VAR>
-
-*/
+    Since each such tree is specfied by the unique identifier, it is possible
+    to create as many trees as it is required.
+    
+    <em>See \ref example18 for an example of usage of this attribute in batchmode of %SALOME application.</em>
+  */
   //==========================================================================
   interface AttributeTreeNode : GenericAttribute
   {
-/*!
-  Assigns the father tree node to this tree node.
-*/
-    void              SetFather(in AttributeTreeNode value);
-/*!
-  Returns True if there is a father tree node of this tree node.
-*/
+    /*!
+      \brief Assigns the father tree node to this tree node.
+      \param father tree node attribute being set as a parent of this tree node
+    */
+    void              SetFather(in AttributeTreeNode father);
+    /*!
+      \brief Checks if father tree node attribute is set for this tree node.
+      \return \c true if father tree node attribute is defined or \c false otherwise
+    */
     boolean           HasFather();
-/*!
-  Returns the father tree node of this tree node.
-*/
+    /*!
+      \brief Returns the father tree node of this tree node.
+      \return father tree node attribute
+    */
     AttributeTreeNode GetFather();
-/*!
-  Assigns the previous brother tree node to the given tree node.
-*/
-    void              SetPrevious(in AttributeTreeNode value);
-/*!
-  Returns True if there is the previous brother tree node of this tree node.
-*/
+    /*!
+      \brief Assigns the previous sibling tree node to this tree node.
+      \param sibling tree node attribute being set as a previous sibling of this tree node
+    */
+    void              SetPrevious(in AttributeTreeNode sibling);
+    /*!
+      \brief Checks if previous sibling tree node attribute is set for this tree node.
+      \return \c true if previous sibling tree node attribute is defined or \c false otherwise
+    */
     boolean           HasPrevious();
-/*!
-  Returns the previous brother tree node of this tree node.
-*/
+    /*!
+      \brief Returns the previous sibling tree node of this tree node.
+      \return previous sibling tree node attribute
+    */
     AttributeTreeNode GetPrevious();
-/*!
-  Sets the next brother tree node to this tree node.
-*/
-    void              SetNext(in AttributeTreeNode value);
-/*!
-  Returns True if there is the next brother tree node of this tree node.
-*/
+    /*!
+      \brief Assigns the next sibling tree node to this tree node.
+      \param sibling tree node attribute being set as a next sibling of this tree node
+    */
+    void              SetNext(in AttributeTreeNode sibling);
+    /*!
+      \brief Checks if next sibling tree node attribute is set for this tree node.
+      \return \c true if next sibling tree node attribute is defined or \c false otherwise
+    */
     boolean           HasNext();
-/*!
-  Returns the previous brother tree node of this tree node.
-*/
+    /*!
+      \brief Returns the next sibling tree node of this tree node.
+      \return next sibling tree node attribute
+    */
     AttributeTreeNode GetNext();
-/*!
-  Sets the first child tree node to this tree node.
-*/
-    void              SetFirst(in AttributeTreeNode value);
-/*!
-  Returns True if there is the first child tree node of this tree node.
-*/
+    /*!
+      \brief Sets the specified tree node as a first child of this tree node.
+      \param child tree node attribute being set filrst child of this tree node
+    */
+    void              SetFirst(in AttributeTreeNode child);
+    /*!
+      \brief Checks if first child tree node attribute is set for this tree node.
+      \return \c true if first child tree node attribute is defined or \c false otherwise
+    */
     boolean           HasFirst();
-/*!
-  Returns the first child tree node of this tree node.
-*/
+    /*!
+      \brief Returns the first child tree node of this tree node.
+      \return first child tree node attribute
+    */
     AttributeTreeNode GetFirst();
-/*!
-  Sets ID of a tree.
-  \param value String parameter defining the ID of a tree.
-  \note <br>Tree nodes of one tree have the same ID.
-*/
-    void              SetTreeID(in string value);
-/*!
-  Gets ID of a tree.
-  \return An ID of a tree in the format of a string.
-*/
+    /*!
+      \brief Sets identifier of the parent tree to this tree node.
+      \note All tree nodes which belong to the same tree, should have the same identifier.
+      \param ID identifier (arbitrary non-empty string) being set for this tree node
+    */
+    void              SetTreeID(in string ID);
+    /*!
+      \brief Returns identifier of the parent tree.
+      \return parent tree identifier
+    */
     string            GetTreeID();
-
-/*!
-   Adds a child tree node to the end of the list of children of this tree node.
-*/
-    void              Append(in AttributeTreeNode value);
-/*!
-   Adds a child tree node to the beginning of the list of children of this tree node.
-
-*/
-    void              Prepend(in AttributeTreeNode value);
-/*!
-   Adds a brother tree node before this tree node.
-    In this case the both tree nodes will belong to the same father.
-*/
-    void              InsertBefore(in AttributeTreeNode value);
-/*!
-   Adds a brother tree node after this tree node.
-    In this case the both tree nodes will belong to the same father.
-*/
-    void              InsertAfter(in AttributeTreeNode value);
-/*!
-   Deletes a tree node.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      \brief Appends specified tree node to the end of the children list of this tree node.
+      \param child tree node being added to the list of children
+    */
+    void              Append(in AttributeTreeNode child);
+    /*!
+      \brief Puts specified tree node to the beginning of the children list of this tree node.
+      \param child tree node being added to the list of children
+    */
+    void              Prepend(in AttributeTreeNode child);
+    /*!
+      \brief Insert specified tree node as a previous child in the parent tree node's children list.
+      \param child tree node being inserted to the parent tree node
+    */
+    void              InsertBefore(in AttributeTreeNode child);
+    /*!
+      \brief Insert specified tree node as a next child in the parent tree node's children list.
+      \param child tree node being inserted to the parent tree node
+    */
+    void              InsertAfter(in AttributeTreeNode child);
+    /*!
+      \brief Removes this tree node.
+    */
     void              Remove();
-
-/*!
-   Returns  the  depth  of the tree node in the
-   structure, it means the  number of  fathers of the given tree node.
-   (i.e.: the depth of the root tree node is 0).
-*/
+    /*!
+      \brief Returns the depth of the tree node in the tree structure. The resulting value
+      it equal to the number of the fathers of this tree node.
+      \note The depth of the root tree node is 0.
+      \return tree node's depth
+    */
     long              Depth();
-/*!
-    Returns True if it is a root tree node.
-*/
+    /*!
+      \brief Checks if the tree node is a root of the tree.
+      \return \c true if it is a root tree node or \c false otherwise
+    */
     boolean           IsRoot();
-/*!
-    Returns True if this tree node is a descendant of the tree node.
-*/
-    boolean           IsDescendant(in AttributeTreeNode value);
-/*!
-    Returns True if this tree node is the father of the tree node.
-*/
-    boolean           IsFather(in AttributeTreeNode value);
-/*!
-    Returns True if this tree node is a child of the tree node.
-*/
-    boolean           IsChild(in AttributeTreeNode value);
-/*!
-   Returns ID of the according %SObject.
-*/
+    /*!
+      \brief Checks if the tree node is a descendant of the specified tree node.
+      \param other tree node that is tested for being ancestor of this tree node
+      \return \c true if this node is descendant of the \a other node or \c false otherwise
+    */
+    boolean           IsDescendant(in AttributeTreeNode other);
+    /*!
+      \brief Checks if this tree node is a parent of the specified tree node \a other.
+      \param other tree node that is tested for being father of this tree node
+      \return \c true if this node is father of the \a other node or \c false otherwise
+    */
+    boolean           IsFather(in AttributeTreeNode other);
+    /*!
+      \brief Checks if this tree node is a child of the specified tree node \a other.
+      \param other tree node that is tested for being child of this tree node
+      \return \c true if this node is child of the \a other node or \c false otherwise
+    */
+    boolean           IsChild(in AttributeTreeNode other);
+    /*!
+      \brief Returns string identifier of the owner SObject (e.g. "0:1:2").
+      \return string entry of the owner SObject
+    */
     string            Label();
   };
-  //==========================================================================
-/*! \brief LocalID attribute
 
-   Attribute describing the link between a %SObject and a local object in the component.
-*/
+  //==========================================================================
+  /*!
+    \brief Local identifier attribute
+    
+    This attribute can be used for identification of the SObject (for example by type).
+
+    <em>See \ref example15 for an example of this atrtibute usage in batchmode of %SALOME application.</em>
+
+    \sa AttributeUserID
+  */
   //==========================================================================
   interface AttributeLocalID : GenericAttribute
   {
-/*!
-   Returns the value of this attribute.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     long   Value();
-/*!
-   Sets the value of this attribute.
-
-   \param value This parameter defines the local ID which will be set.
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute
+      \param value value being set to the attribute
+    */
     void   SetValue(in long value);
   };
 
   //==========================================================================
-/*! \brief Attribute storing GUID
+  /*!
+    \brief Attribute storing GUID.
+    
+    This attribute can be used to store arbitrary GUID. Attribute allowing to store GUID.
+    In contrast to any other atribute (e.g. AttributeLocalID), it is possible to
+    define as many GUID attributes for the same SObject as it is required provided that
+    they have different GUID values.
 
-    Attribute allowing to store GUID
-*/
+    \sa AttributeLocalID
+  */
   //==========================================================================
   interface AttributeUserID : GenericAttribute
   {
-/*!
-   Returns the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Returns the value of the attribute.
+      \return attribute value
+    */
     string Value();
-/*!
-   Sets the value of this attribute
-
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-*/
+    /*!
+      \brief Sets the value of the attribute
+      \param value value being set to the attribute
+    */
     void   SetValue(in string value);
   };
 
   //==========================================================================
-/*! \brief %AttributeTarget iterface
+  /*!
+    \brief Back references attribute.
+    \internal
 
-   This attribute stores the list of all %SObjects that refer
-   to this %SObject. This attribute is used for inner purposes of the application.
-   It is also needed for optimization.
-*/
+   This attribute is used to store back references to all the SObjects that refer
+   to the owner SObject.
+   
+   This attribute is used for inner purposes (in particular, for performance 
+   optimization).
+  */
   //==========================================================================
 
   interface AttributeTarget : GenericAttribute
   {
-/*!
-    Adds a %SObject to the list of %SObjects which refer to this %SObject.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
-    void          Add(in SObject anObject);
-/*!
-    Returns a list of %SObjects which refer to this %SObject.
-*/
+    /*!
+      Adds specified SObject to the list of SObjects which refer to the owner SObject.
+      \param refobj %SObject being added to the list
+    */
+    void          Add(in SObject refobj);
+    /*!
+      Returns a list of SObjects which refer to the owner SObject.
+      \return list of SObject referencing to the owher SObject
+    */
     SALOMEDS::Study::ListOfSObject Get();
-/*!
-    Deletes a %SObject from the list of %SObjects which refer to this %SObject.
-
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
-
-*/
+    /*!
+      Removes specified SObject from the list of SObjects which refer to the owner SObject.
+      \param refobj %SObject being removed to the list
+    */
     void          Remove(in SObject anObject);
   };
+  
   //==========================================================================
-  /*! \brief %AttributeTableOfInteger interface
+  /*!
+    \brief Generic table attribute.
 
-   This attribute allows to store a table of integers (indexing from 1 like in CASCADE)
-    and string titles of this table, of each row, of each column.
+    Used as base interface for the AttributeTableOfInteger, AttributeTableOfReal
+    and AttributeTableOfString. Provides functions which are common for all table
+    attributes.
 
-<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
-
-*/
+    \note The indices of rows and columns in the table start from 1.
+    \sa AttributeTableOfInteger, AttributeTableOfReal, AttributeTableOfString
+  */
   //==========================================================================
 
-  interface AttributeTableOfInteger : GenericAttribute
+  interface AttributeTable : GenericAttribute
   {
-/*!
-   This exception is raised when an incorrect index is passed as parameter.
-*/
+    //! This exception is raised when an invalid (out of range) index is passed as parameter.
     exception IncorrectIndex {};
-/*!
-   This exception is raised when an incorrect length of the argument is passed as parameter.
-*/
+    //! This exception is raised when sequence of incorrect length is passed as parameter.
     exception IncorrectArgumentLength {};
 
-    // titles: for table, for each row, for each column
-/*!
-   Sets the title of the table.
-*/
-    void SetTitle(in string theTitle);
-/*!
-  Returns the title of the table.
-*/
+    //! Sort order
+    enum SortOrder { 
+      AscendingOrder,  //!< The items are sorted ascending
+      DescendingOrder  //!< The items are sorted descending
+    };
+
+    //! Sort policy (specifies how empty cells are taken into account when sorting)
+    enum SortPolicy {
+      EmptyLowest,     //!< Empty cells are considered as lowest values
+      EmptyHighest,    //!< Empty cells are considered as highest values
+      EmptyFirst,      //!< Empty cells are always first
+      EmptyLast,       //!< Empty cells are always last
+      EmptyIgnore      //!< Empty cells are ignored (stay at initial positions)
+    };
+
+    /*!
+      \brief Sets the main title of the table.
+      \param title title being set to the table
+      \sa GetTitle()
+    */
+    void SetTitle(in string title);
+    /*!
+      \brief Returns the title of the table.
+      \return table title (empty string if not set)
+      \sa SetTitle()
+    */
     string GetTitle();
-/*!
-   Sets the title of a row with a definite index.
-*/
-    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all rows of the table.
-*/
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all rows of the table.
-*/
+    /*!
+      \brief Sets the title of a row with specified index.
+
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param title title being set to the row
+      \sa GetRowTitle()
+    */
+    void SetRowTitle(in long row, in string title) raises(IncorrectIndex);
+    /*!
+      \brief Returns the title of a row with specified index.
+
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \return row title (empty string if not set)
+      \sa SetRowTitle()
+    */
+    string GetRowTitle(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sets the titles for all rows in the table.
+
+      Raises an exception if length of the \a titles parameter is not equal
+      to the number of rows in the table.
+
+      \param titles titles being set to the table rows
+      \sa GetRowTitles()
+    */
+    void SetRowTitles(in StringSeq titles) raises(IncorrectArgumentLength);
+    /*!
+      \brief Returns the titles of all rows of the table.
+      \return list of all rows titles
+      \sa SetRowTitles()
+    */
     StringSeq GetRowTitles();
-/*!
-   Sets the title of a column with a definite index.
-*/
-    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all columns of the table.
-*/
-    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all columns of the table.
-*/
+    /*!
+      \brief Sets the title of a column with specified index.
+
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \param title title being set to the column
+      \sa GetColumnTitle()
+    */
+    void SetColumnTitle(in long column, in string title) raises(IncorrectIndex);
+    /*!
+      \brief Returns the title of a column with specified index.
+
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \return column title (empty string if not set)
+      \sa SetColumnTitle()
+    */
+    string GetColumnTitle(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Sets the titles for all columns in the table.
+
+      Raises an exception if length of the \a titles parameter is not equal
+      to the number of columns in the table.
+
+      \param titles titles being set to the table columns
+      \sa GetColumnTitles()
+    */
+    void SetColumnTitles(in StringSeq titles) raises(IncorrectArgumentLength);
+    /*!
+      \brief Returns the titles of all columns of the table.
+      \return list of all columns titles
+      \sa SetColumnTitles()
+    */
     StringSeq GetColumnTitles();
+    /*!
+      \brief Assigns the unit label to the row with specified index.
 
-    //Rows units
-/*!
-   Sets the unit of a row with a definite index.
-*/
-    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
-/*!
-   Sets the units for all rows of the table.
-*/
-    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
-/*!
-   Returns the units of all rows of the table.
-*/
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param unit unit label being set to the row
+      \sa GetRowUnit()
+    */
+    void SetRowUnit(in long row, in string unit) raises(IncorrectIndex);
+    /*!
+      \brief Returns the unit label of a row with specified index.
+
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \return row unit label (empty string if not set)
+      \sa SetRowUnit()
+    */
+    string GetRowUnit(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sets the unit labels for all rows in the table.
+
+      Raises an exception if length of the \a units parameter is not equal
+      to the number of rows in the table.
+
+      \param units unit labels being set to the table rows
+      \sa GetRowUnits()
+    */
+    void SetRowUnits(in StringSeq units) raises(IncorrectArgumentLength);
+    /*!
+      \brief Returns the unit labels of all rows of the table.
+      \return list of all rows unit labels
+      \sa SetRowUnits()
+    */
     StringSeq GetRowUnits();
-
-    // table information
-/*!
-   Returns the number of rows of the table.
-*/
+    /*!
+      \brief Returns the number of rows of the table.
+      \return rows count
+      \sa GetNbColumns()
+    */
     long GetNbRows();
-/*!
-   Returns the number of columns of the table.
-*/
+    /*!
+      \brief Returns the number of columns of the table.
+      \return columns count
+      \sa GetNbRows(), SetNbColumns()
+    */
     long GetNbColumns();
+    /*!
+      \brief Check if the value is set for the cell with specified \a row and \a column indices.
+      \param row    row index
+      \param column column index
+      \return \c true if value is set for the specified cell or \c false otherwise
+              (or if row/column index is/are out of range)
+    */
+    boolean HasValue(in long row, in long column);
+    /*!
+      \brief Clear value in the specified table cell.
+      
+      Raises an exception if \a row or \a column is out of range.
 
-    // operations with rows
-/*!
-   Adds a row to the end of the table.
-   \param theData A sequence of long values which will be set as elements of the added row.
-*/
-    void AddRow(in LongSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the elements of a definite row.
-   \param theRow The number of the row.
-   \param theData A sequence of long values which will be set as elements of this row.
+      \param row    row index
+      \param column column index
+      \sa HasValue()
+    */
+    void RemoveValue(in long row, in long column) raises(IncorrectIndex);
+    /*!
+      \brief Sets the maximum number of colums in the table.
 
-*/
-    void SetRow(in long theRow, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Gets the row of the table.
+      If new number of columns is less than the current one, the table is truncated
+      (extra columns are removed).
 
-   \param theRow The number of the row.
-   \return A sequence of long values which are set as elements of this row.
-*/
-    LongSeq GetRow(in long theRow) raises(IncorrectIndex);
+      \note It is recommended to set number of columns before assigning data to the table.
 
-    // operations with columns
-/*!
-   Adds a column to the end of the table.
+      \param columns total number of columns being set for the table
+      \sa GetNbColumns()
+    */
+    void SetNbColumns(in long columns);
+    /*!
+      \brief Returns the indices of the columns in the specified \a row for which
+      values are set.
 
-   \param theData A sequence of long values which will be set as elements of this column.
-*/
-    void AddColumn(in LongSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the column.
+      Raises an exception if \a row is out of range.
 
-  \param theData A sequence of long values which will be set as elements of this column.
-*/
-    void SetColumn(in long theColumn, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the column of the table.
-*/
-    LongSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+      \param row    row index
+      \return list of column indices
+    */
+    LongSeq GetRowSetIndices(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sort values in the specified table row.
+      
+      Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
 
-    // operations with elements
-/*!
-    Puts a value in the table.
-    \param theRow      The row, where the value will be placed.
-    \param theColumn   The column, where the value will be placed.
-*/
-    void PutValue(in long theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
-/*!
-    Returns True if there is a value in the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    boolean HasValue(in long theRow, in long theColumn);
-/*!
-    Returns the value from the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    long GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+      Raises an exception if \a row is out of range.
 
-/*!
-    Sets the max number of colums in the table.
-    \note It'd better to set it before filling the table.
-*/
-    void SetNbColumns(in long theNbColumns);
+      \note Other table rows are not affected.
+      
+      \param row row index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed column indices
+    */
+    LongSeq SortRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort values in the specified table column.
+      
+      Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
 
-/*!
-    Returns the indices of the row where the values are defined.
-*/
-    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
-    // operations with files
-/*!
-   Reads a table from a file.
-*/
-    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
-/*!
-   Saves a table into a file.
-*/
+      Raises an exception if \a column is out of range.
+
+      \note Other table columns are not affected.
+      
+      \param column column index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed row indices
+    */
+    LongSeq SortColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort table columns by the specified row.
+      
+      All the table columns are sorted according to the values in the specified
+      row. Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+      
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed column indices
+    */
+    LongSeq SortByRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort table rows by the specified column.
+      
+      All the table rows are sorted according to the values in the specified
+      column. Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+      
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed row indices
+    */
+    LongSeq SortByColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Swap values in two table cells.
+
+      Raises an exception if any specified index is out of range.
+
+      \param row1    first cell's row index
+      \param column1 first cell's column index
+      \param row2    second cell's row index
+      \param column2 second cell's column index
+    */
+    void SwapCells(in long row1, in long column1, in long row2, in long column2) raises(IncorrectIndex);
+    /*!
+      \brief Swap two table rows.
+
+      Raises an exception if any \a row1 or \a row2 is out of range.
+
+      \param row1 first row's index
+      \param row2 second row's index
+    */
+    void SwapRows(in long row1, in long row2) raises(IncorrectIndex);
+    /*!
+      \brief Swap two table columns.
+
+      Raises an exception if any \a column1 or \a column2 is out of range.
+
+      \param column1 first column's index
+      \param column2 second column's index
+    */
+    void SwapColumns(in long column1, in long column2) raises(IncorrectIndex);
+    /*!
+      \brief Reads a table from a byte stream.
+      \param fileStream byte stream
+      \return \c true if table is successfully read or \c false otherwise
+      \sa SaveToFile()
+    */
+    boolean ReadFromFile(in SALOMEDS::TMPFile fileStream);
+    /*!
+      \brief Saves a table into a byte stream.
+      \return byte stream with table representation
+      \sa ReadFromFile()
+    */
     SALOMEDS::TMPFile SaveToFile();
   };
 
   //==========================================================================
-/*! \brief %AttributeTableOfReal interface
+  /*!
+    \brief Table of %integer values
 
-   This attribute allows to store a table of reals (indexing from 1 like in CASCADE)
-    and string titles of this table, of each row, of each column.
-<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+    This attribute allows to store a table of %integer values. It is possible 
+    to specify titles for rows and columns. In addition, the unis labels can be
+    assigned to the rows. And finally, the table iself can have title.
 
-*/
+    \note The indices of rows and columns in the table start from 1.
+
+    <em>See \ref example21 for an example of usage of this attribute in batchmode of %SALOME application.</em>
+
+    \sa AttributeTable, AttributeTableOfReal, AttributeTableOfString
+  */
   //==========================================================================
 
-  interface AttributeTableOfReal : GenericAttribute
+  interface AttributeTableOfInteger : AttributeTable
   {
-/*!
-   This exception is raised when an incorrect index is passed as parameter.
-*/
-    exception IncorrectIndex {};
-/*!
-   This exception is raised when an incorrect length of the argument is passed as parameter.
-*/
-    exception IncorrectArgumentLength {};
+    /*!
+      \brief Appends new row to the table.
+      
+      If the length of the \a data parameter is greater than current number of columns
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added row
+      \sa SetRow(), GetRow(), AddColumn()
+    */
+    void AddRow(in LongSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified \a row with new values.
 
-    // titles: for table, for each row, for each column
-/*!
-   Sets the title of the table.
-*/
-    void SetTitle(in string theTitle);
-/*!
-  Returns the title of the table.
-*/
-    string GetTitle();
-/*!
-   Sets the title of a row with a definite index.
-*/
-    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all rows of the table.
-*/
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all rows of the table.
-*/
-    StringSeq GetRowTitles();
-/*!
-   Sets the title of a column with a definite index.
-*/
-    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all columns of the table.
-*/
-    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all columns of the table.
-*/
-    StringSeq GetColumnTitles();
+      Raises an exception if \a row is out of range or if the length of the
+      \a data parameter is not equal to the number of columns in the table.
 
-    //Rows units
-/*!
-   Sets the unit of a row with a definite index.
-*/
-    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
-/*!
-   Sets the units for all rows of the table.
-*/
-    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
-/*!
-   Returns the units of all rows of the table.
-*/
-    StringSeq GetRowUnits();
+      \param row row index
+      \param data sequence of values being set as values of the row
+      \sa GetRow(), AddRow(), SetColumn()
+    */
+    void SetRow(in long row, in LongSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified row in the table.
 
-    // table information
-/*!
-   Returns the number of rows of the table.
-*/
-    long GetNbRows();
-/*!
-   Returns the number of columns of the table.
-*/
-    long GetNbColumns();
+      Raises an exception if \a row is out of range.
+      
+      \note For empty cells 0 value is returned.
 
-    // operations with rows
-/*!
-   Adds a row to the end of the table.
-*/
-    void AddRow(in DoubleSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the row.
-*/
-    void SetRow(in long theRow, in DoubleSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the row of the table.
-*/
-    DoubleSeq GetRow(in long theRow) raises(IncorrectIndex);
+      \param row row index
+      \return sequence of values which are set as elements of the row.
+      \sa SetRow(), AddRow()
+    */
+    LongSeq GetRow(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Appends new column to the table.
+      
+      If the length of the \a data parameter is greater than current number of rows
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added column
+      \sa SetColumn(), GetColumn(), AddRow()
+    */
+    void AddColumn(in LongSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified column with new values.
 
-    // operations with columns
-/*!
-   Adds a column to the end of the table.
-*/
-    void AddColumn(in DoubleSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the column.
-*/
-    void SetColumn(in long theColumn, in DoubleSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the column of the table.
-*/
-    DoubleSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+      Raises an exception if \a column is out of range or if the length of the
+      \a data parameter is not equal to the number of rows in the table.
 
-    // operations with elements
-/*!
-    Puts a value in the table.
-    \param theRow      The row, where the value will be placed.
-    \param theColumn   The column, where the value will be placed.
-*/
-    void PutValue(in double theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
-/*!
-    Returns True if there is a value in the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    boolean HasValue(in long theRow, in long theColumn);
-/*!
-    Returns the value from the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    double GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+      \param column column index
+      \param data sequence of values being set as values of the column
+      \sa GetColumn(), AddColumn(), SetRow()
+    */
+    void SetColumn(in long column, in LongSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified column in the table.
 
-/*!
-    Sets the max number of colums in the table.
-    \note It'd better to set it before filling the table.
-*/
-    void SetNbColumns(in long theNbColumns);
+      Raises an exception if \a column is out of range.
+      
+      \note For empty cells 0 value is returned.
+      
+      \param column column index
+      \return sequence of values which are set as elements of the column.
+      \sa SetColumn(), AddColumn()
+    */
+    LongSeq GetColumn(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Puts a value to the table cell specified by \a row and \a column indices.
 
-/*!
-    Returns the indices of the row where the values are defined.
-*/
-    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
-    // operations with files
-/*!
-   Reads a table from a file.
-*/
-    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
-/*!
-   Saves a table into a file.
-*/
-    SALOMEDS::TMPFile SaveToFile();
+      If the \a row and/or \a column parameter(s) are greater than current number of rows/columns
+      in the table, the table is automatically resized.
+      
+      \param value  value being set to the table cell
+      \param row    row index
+      \param column column index
+      \sa GetValue(), HasValue()
+    */
+    void PutValue(in long value, in long row, in long column) raises(IncorrectIndex);
+    /*!
+      \brief Returns the value from the cell table.
+
+      Raises an exception if \a row or \a column is out of range or 
+      if value is not set for the specified table cell.
+      
+      \param row    row index
+      \param column column index
+      \return value assigned to the table cell
+      \sa PutValue(), HasValue()
+    */
+    long GetValue(in long row, in long column) raises(IncorrectIndex);
   };
 
-
-
   //==========================================================================
-/*! \brief %AttributeTableOfString interface
+  /*!
+    \brief Table of real values
 
-   This attribute allows to store a table of strings (indexing from 1 like in CASCADE)
-    and string titles of this table, of each row, of each column.
-<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+    This attribute allows to store a table of real values. It is possible 
+    to specify titles for rows and columns. In addition, the unis labels can be
+    assigned to the rows. And finally, the table iself can have title.
 
-*/
+    \note The indices of rows and columns in the table start from 1.
+
+    <em>See \ref example22 for an example of usage of this attribute in batchmode of %SALOME application.</em>
+
+    \sa AttributeTable, AttributeTableOfInteger, AttributeTableOfString
+  */
   //==========================================================================
 
-  interface AttributeTableOfString : GenericAttribute
+  interface AttributeTableOfReal : AttributeTable
   {
-/*!
-   This exception is raised when an incorrect index is passed as parameter.
-*/
-    exception IncorrectIndex {};
-/*!
-   This exception is raised when an incorrect length of the argument is passed as parameter.
-*/
-    exception IncorrectArgumentLength {};
+    /*!
+      \brief Appends new row to the table.
+      
+      If the length of the \a data parameter is greater than current number of columns
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added row
+      \sa SetRow(), GetRow(), AddColumn()
+    */
+    void AddRow(in DoubleSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified \a row with new values.
 
-    // titles: for table, for each row, for each column
-/*!
-   Sets the title of the table.
-*/
-    void SetTitle(in string theTitle);
-/*!
-  Returns the title of the table.
-*/
-    string GetTitle();
-/*!
-   Sets the title of a row with a definite index.
-*/
-    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all rows of the table.
-*/
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all rows of the table.
-*/
-    StringSeq GetRowTitles();
-/*!
-   Sets the title of a column with a definite index.
-*/
-    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all columns of the table.
-*/
-    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all columns of the table.
-*/
-    StringSeq GetColumnTitles();
+      Raises an exception if \a row is out of range or if the length of the
+      \a data parameter is not equal to the number of columns in the table.
 
-    //Rows units
-/*!
-   Sets the unit of a row with a definite index.
-*/
-    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
-/*!
-   Sets the units for all rows of the table.
-*/
-    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
-/*!
-   Returns the units of all rows of the table.
-*/
-    StringSeq GetRowUnits();
+      \param row row index
+      \param data sequence of values being set as values of the row
+      \sa GetRow(), AddRow(), SetColumn()
+    */
+    void SetRow(in long row, in DoubleSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified row in the table.
 
-    // table information
-/*!
-   Returns the number of rows of the table.
-*/
-    long GetNbRows();
-/*!
-   Returns the number of columns of the table.
-*/
-    long GetNbColumns();
+      Raises an exception if \a row is out of range.
+      
+      \note For empty cells 0.0 value is returned.
+      
+      \param row row index
+      \return sequence of values which are set as elements of the row.
+      \sa SetRow(), AddRow()
+    */
+    DoubleSeq GetRow(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Appends new column to the table.
+      
+      If the length of the \a data parameter is greater than current number of rows
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added column
+      \sa SetColumn(), GetColumn(), AddRow()
+    */
+    void AddColumn(in DoubleSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified column with new values.
 
-    // operations with rows
-/*!
-   Adds a row to the end of the table.
-*/
-    void AddRow(in StringSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the row.
-*/
-    void SetRow(in long theRow, in StringSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the row of the table.
-*/
-    StringSeq GetRow(in long theRow) raises(IncorrectIndex);
+      Raises an exception if \a column is out of range or if the length of the
+      \a data parameter is not equal to the number of rows in the table.
 
-    // operations with columns
-/*!
-   Adds a column to the end of the table.
-*/
-    void AddColumn(in StringSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the column.
-*/
-    void SetColumn(in long theColumn, in StringSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the column of the table.
-*/
-    StringSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+      \param column column index
+      \param data sequence of values being set as values of the column
+      \sa GetColumn(), AddColumn(), SetRow()
+    */
+    void SetColumn(in long column, in DoubleSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified column in the table.
 
-    // operations with elements
-/*!
-    Puts a value in the table.
-    \param theRow      The row, where the value will be placed.
-    \param theColumn   The column, where the value will be placed.
-*/
-    void PutValue(in string theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
-/*!
-    Returns True if there is a value in the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    boolean HasValue(in long theRow, in long theColumn);
-/*!
-    Returns the value from the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    string GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+      Raises an exception if \a column is out of range.
+      
+      \note For empty cells 0.0 value is returned.
 
-/*!
-    Sets the max number of colums in the table.
-    \note It'd better to set it before filling the table.
-*/
-    void SetNbColumns(in long theNbColumns);
+      \param column column index
+      \return sequence of values which are set as elements of the column.
+      \sa SetColumn(), AddColumn()
+    */
+    DoubleSeq GetColumn(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Puts a value to the table cell specified by \a row and \a column indices.
 
-/*!
-    Returns the indices of the row where the values are defined.
-*/
-    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
-    // operations with files
-/*!
-   Reads a table from a file.
-*/
-    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
-/*!
-   Saves a table into a file.
-*/
-    SALOMEDS::TMPFile SaveToFile();
+      If the \a row and/or \a column parameter(s) are greater than current number of rows/columns
+      in the table, the table is automatically resized.
+      
+      \param value  value being set to the table cell
+      \param row    row index
+      \param column column index
+      \sa GetValue(), HasValue()
+    */
+    void PutValue(in double value, in long row, in long volumn) raises(IncorrectIndex);
+    /*!
+      \brief Returns the value from the cell table.
+
+      Raises an exception if \a row or \a column is out of range or 
+      if value is not set for the specified table cell.
+      
+      \param row    row index
+      \param column column index
+      \return value assigned to the table cell
+      \sa PutValue(), HasValue()
+    */
+    double GetValue(in long row, in long column) raises(IncorrectIndex);
   };
 
+  //==========================================================================
+  /*!
+    \brief Table of string values
+
+    This attribute allows to store a table of string values. It is possible 
+    to specify titles for rows and columns. In addition, the unis labels can be
+    assigned to the rows. And finally, the table iself can have title.
+
+    \note The indices of rows and columns in the table start from 1.
+    \sa AttributeTable, AttributeTableOfInteger, AttributeTableOfReal
+  */
+  //==========================================================================
+  interface AttributeTableOfString : AttributeTable
+  {
+    /*!
+      \brief Appends new row to the table.
+      
+      If the length of the \a data parameter is greater than current number of columns
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added row
+      \sa SetRow(), GetRow(), AddColumn()
+    */
+    void AddRow(in StringSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified \a row with new values.
+
+      Raises an exception if \a row is out of range or if the length of the
+      \a data parameter is not equal to the number of columns in the table.
+
+      \param row row index
+      \param data sequence of values being set as values of the row
+      \sa GetRow(), AddRow(), SetColumn()
+    */
+    void SetRow(in long row, in StringSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified row in the table.
+
+      Raises an exception if \a row is out of range.
+      
+      \note For empty cells empty string is returned.
+
+      \param row row index
+      \return sequence of values which are set as elements of the row.
+      \sa SetRow(), AddRow()
+    */
+    StringSeq GetRow(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Appends new column to the table.
+      
+      If the length of the \a data parameter is greater than current number of rows
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added column
+      \sa SetColumn(), GetColumn(), AddRow()
+    */
+    void AddColumn(in StringSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified column with new values.
+
+      Raises an exception if \a column is out of range or if the length of the
+      \a data parameter is not equal to the number of rows in the table.
+
+      \param column column index
+      \param data sequence of values being set as values of the column
+      \sa GetColumn(), AddColumn(), SetRow()
+    */
+    void SetColumn(in long column, in StringSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified column in the table.
+
+      Raises an exception if \a column is out of range.
+      
+      \note For empty cells empty string is returned.
+
+      \param column column index
+      \return sequence of values which are set as elements of the column.
+      \sa SetColumn(), AddColumn()
+    */
+    StringSeq GetColumn(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Puts a value to the table cell specified by \a row and \a column indices.
+
+      If the \a row and/or \a column parameter(s) are greater than current number of rows/columns
+      in the table, the table is automatically resized.
+      
+      \param value  value being set to the table cell
+      \param row    row index
+      \param column column index
+      \sa GetValue(), HasValue()
+    */
+    void PutValue(in string value, in long row, in long column) raises(IncorrectIndex);
+    /*!
+      \brief Returns the value from the cell table.
+
+      Raises an exception if \a row or \a column is out of range or 
+      if value is not set for the specified table cell.
+      
+      \param row    row index
+      \param column column index
+      \return value assigned to the table cell
+      \sa PutValue(), HasValue()
+    */
+    string GetValue(in long row, in long column) raises(IncorrectIndex);
+  };
 
   //==========================================================================
-/*! \brief %AttributeStudyProperties interface
+  /*!
+    \brief %Study properties attribute
+    
+    This attribute is used to store study properties: user name, creation date,
+    creation mode, modified flag, locked flag.
 
-   This attribute allows to store study properties: user name, creation date, creation
-   mode, modified flag, locked flag.
-<BR><VAR>See also <A href="exemple/Example20.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
-
-*/
+    <em>See \ref example20 for an example of usage of this attribute in batchmode of %SALOME application.</em>
+  */
   //==========================================================================
-
   interface AttributeStudyProperties : GenericAttribute
   {
-/*!
-   Sets the name of the author of the %Study
-*/
-    void SetUserName(in string theName);
-/*!
-     Returns the name of the user of the %Study.
-    \note <BR>It returns a null string, if user name is not set
-*/
+    /*!
+      \brief Sets the name of the study author to the attribute.
+      \param author study author name
+    */
+    void SetUserName(in string author);
+    /*!
+      \brief Returns the name of the study author.
+      \return study author name (empty string if not set)
+    */
     string GetUserName();
-/*!
-   Sets creation date of the %Study.
-*/
-    void SetCreationDate(in long theMinute, in long theHour, in long theDay, in long theMonth, in long theYear);
-/*!
-     Returns creation date of the %Study and True if creation date is set.
-*/
-    boolean GetCreationDate(out long theMinute, out long theHour, out long theDay, out long theMonth, out long theYear);
-/*!
-   Sets creation mode of the %Study.
-   \note <BR>Creation mode must be: "from scratch" or "copy from".
-*/
-    void SetCreationMode(in string theMode);
-/*!
-   Returns creation mode: "from scratch", "copy from", or null string
-   if creation mode is not set
-*/
+    /*!
+      \brief Sets creation date of the study.
+      \param minute minutes part of the date
+      \param hour   hour part of the date
+      \param day    day number part of the date
+      \param month  month part of the date
+      \param year   year part of the date
+    */
+    void SetCreationDate(in long minute, in long hour, in long day, in long month, in long year);
+    /*!
+      \brief Returns creation date of the study.
+      \param minute used to return minutes part of the date (undefined if creation date is not set)
+      \param hour   used to return hour part of the date (undefined if creation date is not set)
+      \param day    used to return day number part of the date (undefined if creation date is not set)
+      \param month  used to return month part of the date (undefined if creation date is not set)
+      \param year   used to return year part of the date (undefined if creation date is not set)
+      \return \c true if creation date is set or \c false otherwise
+    */
+    boolean GetCreationDate(out long minute, out long hour, out long day, out long month, out long year);
+    /*!
+      \brief Sets creation mode of the study.
+      \note Creation mode must be either "from scratch" or "copy from".
+      \param mode creation mode description
+    */
+    void SetCreationMode(in string mode);
+    /*!
+      \brief Returns creation mode of the study.
+      
+      \brief The following values are allowed for creation mode: "from scratch", "copy from",
+      empty string (if not set).
+
+      \return creation mode description
+    */
     string GetCreationMode();
-/*!
-   Sets the number of transactions executed after the last saving of the document.
-*/
-    void SetModified(in long theModified);
-/*!
-    Returns True, if the document has been modified and not saved.
-*/
+    /*!
+      \brief Sets the number of transactions executed after the last saving of the study.
+      \param modified transaction count
+    */
+    void SetModified(in long modified);
+    /*!
+      \brief Check if study has been modified since last saving operation.
+      \return \c true, if the study has been modified and not saved or \c false otherwise
+    */
     boolean IsModified();
-/*!
-  Returns the number of transactions executed after the last saving of the document.
-*/
+    /*!
+      \brief Returns the number of transactions executed after the last saving of the study.
+      \return transaction count
+    */
     long GetModified();
-/*!
-    Sets the document locked for modifications if <VAR>theLocked</VAR> is True.
-*/
-    void SetLocked(in boolean theLocked);
-/*!
-    Returns True if the document is locked for modifications.
-*/
+    /*!
+      \brief Lock/unlock the study for modifications.
+      \note This parameter is not recursive.
+      \note If the study is locked, any attempt to modify study contents leads to the raising
+      of the LockProtection exception.
+      \param lock \c true if study should be locked or \c false if study should be unlocked
+    */
+    void SetLocked(in boolean lock);
+    /*!
+      \brief Check if study is locked.
+      \return \c true if study is locked or \c false otherwise
+    */
     boolean IsLocked();
-/*!
-   Appends modification parameters to the modifications list.
-*/
-    void SetModification(in string theName, in long theMinute, in long theHour, in long theDay, in long theMonth, in long theYear);
-/*!
-   Returns a list of mosdifiers user names, modification dates.
-   /note <BR>If <VAR>theWithCreator</VAR> is True, then the output list will also contain the name of the author and the date of creation.
-*/
-    void GetModificationsList(out StringSeq theNames, out LongSeq theMinutes, out LongSeq theHours, out LongSeq theDays, out LongSeq theMonths, out LongSeq theYears, in boolean theWithCreator);
+    /*!
+      \brief Appends modification record to the list of study modifications.
+      \param author author of the modification
+      \param minute minutes part of the modification date
+      \param hour   hour part of the modification date
+      \param day    day number part of the modification date
+      \param month  month part of the modification date
+      \param year   year part of the modification date
+    */
+    void SetModification(in string author, in long minute, in long hour, in long day, in long month, in long year);
+    /*!
+      \brief Returns list of all the study modification records.
+      \param authors     used to return authors of the modification records
+      \param minutes     used to return minutes parts of the modification records
+      \param hours       used to return hour parts of the modification records
+      \param days        used to return day number parts of the modification records
+      \param months      used to return month parts of the modification records
+      \param years       used to return year parts of the modification records
+      \param withCreator \c true if creation record should be also added to the resulting list or \c false otherwise
+    */
+    void GetModificationsList(out StringSeq authors, out LongSeq minutes, out LongSeq hours, out LongSeq days, out LongSeq months, out LongSeq years, in boolean withCreator);
+
+    /*!
+      \brief Sets the comment of the study.
+      \param comment comment of the study.
+    */
+    void SetComment(in string comment);
+
+    /*!
+      \brief Returns comment of the study.      
+      \return comment
+    */
+    string GetComment();
+
+    /*!
+      \brief Sets the units of the study.
+      \param units units of the study.
+    */
+    void SetUnits(in string units);
+
+    /*!
+      \brief Returns units of the study.      
+      \return units
+    */
+    string GetUnits();
   };
-  //==========================================================================
-/*! \brief %AttributePythonObject interface
 
-    Attribute allowing to store pyton objects as a sequence of chars.
-*/
   //==========================================================================
+  /*!
+    \brief Python %object attribute
 
+    This attribute is used to store pyton objects as a sequence of characters.
+  */
+  //==========================================================================
   interface AttributePythonObject : GenericAttribute
   {
-/*!
-   Sets in the attribute a Python object converted into a sequence of chars.
-   \param theSequence    A sequence of chars.
-   \param IsScript       Defines (if True) whether this sequence of chars is a Python script.
-*/
-    void SetObject(in string theSequence, in boolean IsScript);
-/*!
-    Returns a Python object stored in the attribute as a sequence of chars.
-*/
+    /*!
+      \brief Sets a Python %object converted into a sequence of characters to the attribute.
+      \param pyObject sequence of characters representing the encoded Python %object
+      \param isScript if \c true, the \a pyObject parameter specifies a Python script
+    */
+    void SetObject(in string pyObject, in boolean isScript);
+    /*!
+      \brief Returns a Python %object stored in the attribute as a sequence of characters.
+      \return encoded Python %object stored in the attribute (empty string if not set)
+    */
     string GetObject();
-/*!
-    Returns True if the sequence of bytes stored in the attribute corresponds
-    to a Python script.
-*/
+    /*!
+      \brief Check if the value stored in the attribute is a Python script
+      \return \c true if the sequence of characters stored in the attribute corresponds
+      to a Python script or \c false otherwise
+    */
     boolean IsScript();
   };
-  //==========================================================================
-/*! \brief %AttributeParameter interface
 
-    Attribute is a universal container of basic types
-*/
+  //==========================================================================
+  /*!
+    \brief Parameter attribute
+    
+    This attribute is a universal container of arbitrary data of basic types
+    (%integer, real, string, array, etc).
+    
+    Each parameter is identified by the unique name. Only one value of the
+    specific type can be assigned to the parameter, though it is allowed to
+    assign values of different types to the same name.
+  */
   //==========================================================================
   interface AttributeParameter : GenericAttribute
   {
-/*!
-  Associates a integer value with the ID
-  \param theID        An ID of a parameter.
-  \param theValue     A value of the parameter
-*/
-    void SetInt(in string theID, in long theValue);
-/*!
-  Returns a int value associated with the given ID
-  \param theID        An ID of a parameter.
-*/
-    long GetInt(in string theID);
+    //! This exception is raised when an invalid identifier is passed as parameter.
+    exception InvalidIdentifier {};
 
-/*!
-  Associates a real value with the ID
-  \param theID        An ID of a parameter.
-  \param theValue     A value of the parameter
-*/
-    void SetReal(in string theID, in double theValue);
-/*!
-  Returns a real value associated with the given ID
-  \param theID        An ID of a parameter.
-*/
-    double GetReal(in string theID);
+    /*!
+      \brief Associates %integer value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetInt(in string ID, in long value);
+    /*!
+      \brief Returns %integer value associated with the specified identifier.
 
-/*!
-  Associates a string value with the ID
-  \param theID        An ID of a parameter.
-  \param theValue     A value of the parameter
-*/
-    void SetString(in string theID, in string theValue);
-/*!
-  Returns a string value associated with the given ID
-  \param theID        An ID of a parameter.
-*/
-    string GetString(in string theID);
-  
-/*!
-  Associates a boolean value with the ID
-  \param theID        An ID of a parameter.
-  \param theValue     A value of the parameter
-*/
-    void SetBool(in string theID, in boolean theValue);
-/*!
-  Returns a boolean value associated with the given ID
-  \param theID        An ID of a parameter.
-*/
-    boolean GetBool(in string theID);
-  
-/*!
-  Associates an array of real values with the ID
-  \param theID        An ID of a parameter.
-  \param theArray     The array of real values
-*/
-    void SetRealArray(in string theID, in DoubleSeq theArray);
-/*!
-  Returns an array of real values associated with the ID
-  \param theID        An ID of a parameter.
-*/
-    DoubleSeq GetRealArray(in string theID);
+      Raises an exception if %integer parameter is not set for the specified
+      parameter.
 
-/*!
-  Associates an array of integer values with the ID
-  \param theID        An ID of a parameter.
-  \param theArray     The array of integer values
-*/
-    void SetIntArray(in string theID, in LongSeq theArray);
-/*!
-  Returns an array of integer values associated with the ID
-  \param theID        An ID of a parameter.
-*/
-    LongSeq GetIntArray(in string theID);
+      \param ID parameter name
+      \return   %integer value assigned to the parameter
+    */
+    long GetInt(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Associates real value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetReal(in string ID, in double value);
+    /*!
+      \brief Returns real value associated with the specified identifier.
 
-/*!
-  Associates an array of string values with the ID
-  \param theID        An ID of a parameter.
-  \param theArray     The array of string values
-*/
-    void SetStrArray(in string theID, in StringSeq theArray);
-/*!
-  Returns an array of string values associated with the ID
-  \param theID        An ID of a parameter.
-*/
-    StringSeq GetStrArray(in string theID);
-/*!
-  Returns True if for the ID of given type was assigned a value in the attribute
-  \param theID        An ID of a parameter.
-  \param theType      A type of parameter [0(Int), 1(Real), 2(Boolean), 3(String), 4(RealArray), 5(IntArray), 6(StrArray)].
-*/
-    boolean IsSet(in string theID, in long theType);
-/*!
-  Removes a parameter with given ID and Type, returns True if succeded
-  \param theID        An ID of a parameter.
-  \param theType      A type of parameter [0(Int), 1(Real), 2(Boolean), 3(String), 4(RealArray), 5(IntArray), 6(StrArray)].
-*/
-    boolean RemoveID(in string theID, in long theType);
-/*!
-   Returns a father attribute of this attribute
-*/
+      Raises an exception if real parameter is not set for the specified
+      parameter.
+
+      \param ID parameter name
+      \return   real value assigned to the parameter
+    */
+    double GetReal(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Associates string value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetString(in string ID, in string value);
+    /*!
+      \brief Returns string value associated with the specified identifier.
+
+      Raises an exception if string parameter is not set for the specified
+      parameter.
+
+      \param ID parameter name
+      \return   string value assigned to the parameter
+    */
+    string GetString(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Associates boolean value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetBool(in string ID, in boolean value);
+    /*!
+      \brief Returns boolean value associated with the specified identifier.
+
+      Raises an exception if boolean parameter is not set for the specified
+      parameter.
+
+      \param ID parameter name
+      \return   boolean value assigned to the parameter
+    */
+    boolean GetBool(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Associates real array value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetRealArray(in string ID, in DoubleSeq value);
+    /*!
+      \brief Returns real array value associated with the specified identifier.
+
+      Raises an exception if real array parameter is not set for the specified
+      parameter.
+
+      \param ID parameter name
+      \return   real array value assigned to the parameter
+    */
+    DoubleSeq GetRealArray(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Associates %integer array value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetIntArray(in string ID, in LongSeq value);
+    /*!
+      \brief Returns %integer array value associated with the specified identifier.
+
+      Raises an exception if %integer array parameter is not set for the specified
+      parameter.
+
+      \param ID parameter name
+      \return   %integer array value assigned to the parameter
+    */
+    LongSeq GetIntArray(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Associates string array value with the unique identifier.
+      \param ID    parameter name
+      \param value parameter value
+    */
+    void SetStrArray(in string ID, in StringSeq value);
+    /*!
+      \brief Returns string array value associated with the specified identifier.
+
+      Raises an exception if string array parameter is not set for the specified
+      parameter.
+
+      \param ID parameter name
+      \return   string array value assigned to the parameter
+    */
+    StringSeq GetStrArray(in string ID) raises(InvalidIdentifier);
+    /*!
+      \brief Checks if the value of specified type is set for the identifier.
+      \param ID    parameter name
+      \param ptype parameter type [0(%integer), 1(real), 2(boolean), 3(string), 
+                   4(real array), 5(%integer array), 6(string array)]
+      \returns \c true if the value of type \a ptype is associated with the parameter \a ID
+    */
+    boolean IsSet(in string ID, in long ptype);
+    /*!
+      \brief Removes value of specified type from the named parameter.
+      \param ID    parameter name
+      \param ptype parameter type [0(%integer), 1(real), 2(boolean), 3(string), 
+                   4(real array), 5(%integer array), 6(string array)]
+      \return \c true if value is successfully removed or \c false otherwise
+    */
+    boolean RemoveID(in string ID, in long ptype);
+    /*!
+      \brief Returns a father attribute of this attribute.
+      \return father parameter attribute
+    */
     AttributeParameter GetFather();
-/*!
-   Returns True if this attribute has a father attribute
-*/
+    /*!
+      \brief Check if this attribute has parent parameter attribute.
+      \return \c true if this attribute has parent parameter attribute
+    */
     boolean HasFather();
-/*!
-   Returns True if this attribute is a root attribute
-*/
+    /*!
+      \brief Check if this attribute is a root (top-level) parameter attribute.
+      \return \c true if this attribute is a root parameter attribute
+    */
     boolean IsRoot();
-/*!
-   Clears the content of the attribute
-*/
+    /*!
+      \brief Clears the content of the attribute.
+    */
     void Clear();
-/*!   
-  Returns a sequence of ID's of the give type
-  \param theType      A type of parameter [0(Int), 1(Real), 2(Boolean), 3(String), 4(RealArray), 5(IntArray), 6(StrArray)].
- */ 
-    StringSeq GetIDs(in long theType);
+    /*!   
+      \brief Returns a sequence of parameters identifiers of the specified type
+      stored in the attribute.
+      \param ptype parameter type [0(%integer), 1(real), 2(boolean), 3(string), 
+                   4(real array), 5(%integer array), 6(string array)]
+      \return list of parameters identifier
+    */ 
+    StringSeq GetIDs(in long ptype);
   };
 };
 #endif

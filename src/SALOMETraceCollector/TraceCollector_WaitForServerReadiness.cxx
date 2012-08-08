@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : TraceCollector_WaitForServerReadiness.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -31,8 +32,6 @@
 #ifdef WIN32
 #include <omnithread/pthread_nt.h>
 #endif
-
-using namespace std;
 
 // ============================================================================
 /*!
@@ -48,7 +47,7 @@ using namespace std;
 // ============================================================================
 
 CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
-							string serverName)
+                                                        std::string serverName)
 {
   long TIMESleep = 500000000;
   int NumberOfTries = 40;
@@ -75,72 +74,72 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
       CORBA::Object_var theObj=CORBA::Object::_nil();
 
       for (int itry=0; itry < NumberOfTries; itry++)
-	{
-	  try
-	    { 
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService");
-	      if (!CORBA::is_nil(theObj))
-		inc = CosNaming::NamingContext::_narrow(theObj);
-	    }  
-	  catch( CORBA::SystemException& )
-	    {
-	      cout << "TraceCollector_WaitForServerReadiness: "
-		   << "CORBA::SystemException: "
-		   << "Unable to contact the Naming Service" << endl;
-	    }
+        {
+          try
+            { 
+              if(!CORBA::is_nil(orb)) 
+                theObj = orb->resolve_initial_references("NameService");
+              if (!CORBA::is_nil(theObj))
+                inc = CosNaming::NamingContext::_narrow(theObj);
+            }  
+          catch( CORBA::SystemException& )
+            {
+              std::cout << "TraceCollector_WaitForServerReadiness: "
+                   << "CORBA::SystemException: "
+                   << "Unable to contact the Naming Service" << std::endl;
+            }
           catch(...)
-	    {
-	      cout << "TraceCollector_WaitForServerReadiness: "
-		   << "Unknown exception dealing with Naming Service" << endl;
-	    }
-	  
-	  obj=CORBA::Object::_nil();
-	  if(!CORBA::is_nil(inc))
-	    {
-	      try
-		{
-		  obj = inc->resolve(name);
-		  if (!CORBA::is_nil(obj))
-		    {
-		      //cout << "TraceCollector_WaitForServerReadiness: "
-		      //	   << serverName << " found in CORBA Name Service" << endl;
-		      break;
-		    }
-		}
-	      catch (const CosNaming::NamingContext::NotFound&)
-		{
-		  cout << "Caught exception: Naming Service can't found Logger";
-		}
-	    }
+            {
+              std::cout << "TraceCollector_WaitForServerReadiness: "
+                   << "Unknown exception dealing with Naming Service" << std::endl;
+            }
+          
+          obj=CORBA::Object::_nil();
+          if(!CORBA::is_nil(inc))
+            {
+              try
+                {
+                  obj = inc->resolve(name);
+                  if (!CORBA::is_nil(obj))
+                    {
+                      //cout << "TraceCollector_WaitForServerReadiness: "
+                      //           << serverName << " found in CORBA Name Service" << endl;
+                      break;
+                    }
+                }
+              catch (const CosNaming::NamingContext::NotFound&)
+                {
+                  std::cout << "Caught exception: Naming Service can't found Logger";
+                }
+            }
 #ifndef WIN32
-	  nanosleep(&ts_req,&ts_rem);
+          nanosleep(&ts_req,&ts_rem);
 #else
-	  Sleep(TIMESleep / 1000000);
+          Sleep(TIMESleep / 1000000);
 #endif
-	  cout << "TraceCollector_WaitForServerReadiness: retry look for"
-	       << serverName << endl;
-	}	   
+		  std::cout << "TraceCollector_WaitForServerReadiness: retry look for"
+               << serverName << std::endl;
+        }          
     }
   catch (const CosNaming::NamingContext::NotFound&)
     {
-      cout << "Caught exception: Naming Service can't found Logger";
+      std::cout << "Caught exception: Naming Service can't found Logger";
     }
   catch (CORBA::COMM_FAILURE&)
     {
-      cout << "Caught CORBA::SystemException CommFailure.";
+      std::cout << "Caught CORBA::SystemException CommFailure.";
     }
   catch (CORBA::SystemException&)
     {
-      cout << "Caught CORBA::SystemException.";
+      std::cout << "Caught CORBA::SystemException.";
     }
   catch (CORBA::Exception&)
     {
-      cout << "Caught CORBA::Exception.";
+      std::cout << "Caught CORBA::Exception.";
     }
   catch (...)
     {
-      cout << "Caught unknown exception.";
+      std::cout << "Caught unknown exception.";
     }
   return obj._retn();
 }

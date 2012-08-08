@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Logger : CORBA server managing trace output
 //  File   : SALOME_Trace.cxx
 //  Author : Vasily Rusyaev
@@ -27,7 +28,7 @@
 #if !defined(AFX_LOGGER_H__96F2A3AB_F6F8_11D6_BFA6_000476A0958C__INCLUDED_)
 #define AFX_LOGGER_H__96F2A3AB_F6F8_11D6_BFA6_000476A0958C__INCLUDED_
 
-#include <strstream>
+#include <sstream>
 #include <SALOMEconfig.h>
 #include "Logger.hh"
 
@@ -62,19 +63,19 @@
 
 # endif  /* WIN32 */
 
-class SALOME_Trace : public std::ostrstream  
+class SALOME_Trace : public std::ostringstream  
 {
 public:
-	virtual ~SALOME_Trace();
+        virtual ~SALOME_Trace();
         static Standard_EXPORT SALOME_Trace& Instance();
-	// initializes Logger (if USE_LOGGER variable is set) and returns true, in case success
-	int Initialize(CORBA::ORB_ptr theOrb);
-	Standard_EXPORT void putMessage(std::ostream& msg);
+        // initializes Logger (if USE_LOGGER variable is set) and returns true, in case success
+        int Initialize(CORBA::ORB_ptr theOrb);
+        Standard_EXPORT void putMessage(std::ostream& msg);
 protected:
-	//disable creation of instances. It's necessary to use static SALOME_Logger& Instance()
-	SALOME_Trace();
-	SALOME_Logger::Logger_var m_pInterfaceLogger;// object reference on Logger server.
-	int isInitialized;
+        //disable creation of instances. It's necessary to use static SALOME_Logger& Instance()
+        SALOME_Trace();
+        SALOME_Logger::Logger_var m_pInterfaceLogger;// object reference on Logger server.
+        int isInitialized;
 };
 
 #define GLogger SALOME_Trace::Instance()

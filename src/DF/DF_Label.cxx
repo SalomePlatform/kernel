@@ -1,24 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 #include "DF_definitions.hxx"
 #include "DF_Label.hxx"
 #include "DF_Document.hxx"
@@ -26,8 +24,6 @@
 #include "DF_ChildIterator.hxx"
 
 #include <algorithm>
-
-using namespace std;
 
 //Class DF_Label defines a persistence reference in DF_Document that contains a tree of Labels.
 //This reference is named "entry" and is a sequence of tags divided by ":". The root entry is "0:".
@@ -38,7 +34,7 @@ using namespace std;
 //       |
 //       |_ 1
 
-DF_Label DF_Label::Label(const DF_Label& theLabel, const string& theEntry, bool isCreated)
+DF_Label DF_Label::Label(const DF_Label& theLabel, const std::string& theEntry, bool isCreated)
 {
   if(theLabel.IsNull()) return DF_Label();
   
@@ -48,7 +44,7 @@ DF_Label DF_Label::Label(const DF_Label& theLabel, const string& theEntry, bool 
 
   char* cc = (char*)theEntry.c_str();
   int n = 0;
-  vector<int> tags;
+  int i=0;
 
   while (*cc != '\0') {
     while ( *cc >= '0' && *cc <= '9') {
@@ -56,20 +52,19 @@ DF_Label DF_Label::Label(const DF_Label& theLabel, const string& theEntry, bool 
       ++cc;
     }
     if (*cc == ':' || *cc == '\0') {
-      tags.push_back(n);
+      if(i>0)
+        {
+          if(aLabel.IsNull())break;
+          aLabel = aLabel.FindChild(n, isCreated);
+        }
+      i++;
       n = 0;
       if (*cc != '\0') ++cc;
     }
     else {
-      tags.clear();
-      break;
+      return DF_Label();
     }
   }
-
-  if(!tags.size()) return DF_Label();
-  
-  for(int i = 1, len = tags.size(); !aLabel.IsNull() && i<len; i++)
-    aLabel = aLabel.FindChild(tags[i], isCreated);
 
   return aLabel;
 }
@@ -136,7 +131,7 @@ int DF_Label::Tag() const
 bool DF_Label::IsAttached()
 {
   if(!_node) return false;
-  return (bool)(_node->_document);
+  return _node->_document != 0;
 }
 
 //Searches an Attribute with given ID located on this Label.
@@ -145,8 +140,10 @@ DF_Attribute* DF_Label::FindAttribute(const std::string& theID) const
 {
   if(!_node) return NULL;
 
-  if(_node->_attributes.find(theID) == _node->_attributes.end()) return NULL;
-  return _node->_attributes[theID];
+  std::map< std::string, DF_Attribute* >::iterator it=_node->_attributes.find(theID);
+  if(it == _node->_attributes.end()) return NULL;
+  return it->second;
+
 }
 
 //Returns true if there is an Attribute with given ID on this Label.
@@ -190,7 +187,7 @@ bool DF_Label::ForgetAllAttributes(bool clearChildren) const
 {
   if(!_node) return false;
 
-  vector<DF_Attribute*> va = GetAttributes();
+  std::vector<DF_Attribute*> va = GetAttributes();
   _node->_attributes.clear();
 
   for(int i = 0, len = va.size(); i<len; i++) {
@@ -238,13 +235,13 @@ bool DF_Label::HasAttributes() const
 }
 
 //Returns a list of Attributes of this Label.
-vector<DF_Attribute*> DF_Label::GetAttributes() const
+std::vector<DF_Attribute*> DF_Label::GetAttributes() const
 {
-  vector<DF_Attribute*> attributes;
+  std::vector<DF_Attribute*> attributes;
   if(!_node) return attributes;
   
-  typedef map<string, DF_Attribute*>::const_iterator AI;
-  vector<string> sorted;
+  typedef std::map<std::string, DF_Attribute*>::const_iterator AI;
+  std::vector<std::string> sorted;
   for(AI p = _node->_attributes.begin(); p!=_node->_attributes.end(); p++)
     sorted.push_back(p->first);
     
@@ -261,7 +258,7 @@ bool DF_Label::HasChild() const
 {
   if(!_node) return false;
 
-  return (bool)(_node->_firstChild);
+  return _node->_firstChild != 0;
 }
 
 //Returns a number of child Labels.
@@ -378,31 +375,33 @@ DF_Label DF_Label::NewChild()
 }
 
 //Returns a string entry of this Label
-string DF_Label::Entry() const
+std::string DF_Label::Entry() const
 {
-  string entry = "";
-  vector<int> vi;
   DF_LabelNode* father = this->_node;
-  while(father) {
-    vi.push_back(father->_tag);
-    father = father->_father;
-  }
+  if(!father->_father)return "0:";
+  int tag;
+  char buff[128];
+  char* wstr= buff;
+  char* str = buff;
 
-  int len = vi.size();
-  if(len == 1) {
-    entry = "0:";
-  }
-  else {
-    char buffer[128];
-    for(int i = len-1; i>=0; i--) {
-      int tag = vi[i];
-      sprintf(buffer, "%d", tag);
-      entry+=string(buffer);
-      if(i) entry += ":";
+  while(father)
+    {
+      tag=father->_tag;
+      do{
+         // Conversion. Number is reversed.
+         *wstr++ = '0' + (tag % 10);
+      }while(tag /= 10);
+      father = father->_father;
+      if(father)*wstr++ = ':';
     }
-  }
+  *wstr-- = '\0';
 
-  return entry;
+  //reverse the buffer
+  char aux;
+  while (wstr > str)
+    aux = *wstr, *wstr-- = *str, *str++ = aux;
+
+  return buff;
 }
 
 bool DF_Label::IsEqual(const DF_Label& theLabel)
@@ -421,23 +420,23 @@ void DF_Label::Nullify()
 
 void DF_Label::dump()
 {
-  if(!_node) cout << "DF_Label addr : " << this << " NULL " << endl;
+  if(!_node) std::cout << "DF_Label addr : " << this << " NULL " << std::endl;
   else {
-    cout << "DF_Label addr : " << this->_node << " entry : " << Entry() << endl;
-    if(_node->_father) cout << " Father : " << _node->_father << " entry : " << Father().Entry() << endl;
-    else cout << " Father : NULL " << endl;
+    std::cout << "DF_Label addr : " << this->_node << " entry : " << Entry() << std::endl;
+    if(_node->_father) std::cout << " Father : " << _node->_father << " entry : " << Father().Entry() << std::endl;
+    else std::cout << " Father : NULL " << std::endl;
 
-    if(_node->_firstChild) cout << " FirstChild : " << _node->_firstChild << " entry : " << DF_Label(_node->_firstChild).Entry() << endl;
-    else cout << " FirstChild : NULL " << endl;
+    if(_node->_firstChild) std::cout << " FirstChild : " << _node->_firstChild << " entry : " << DF_Label(_node->_firstChild).Entry() << std::endl;
+    else std::cout << " FirstChild : NULL " << std::endl;
 
-    if(_node->_lastChild) cout << " LastChild : " << _node->_lastChild << " entry : " << DF_Label(_node->_lastChild).Entry() << endl;
-    else cout << " LastChild : NULL " << endl;
+    if(_node->_lastChild) std::cout << " LastChild : " << _node->_lastChild << " entry : " << DF_Label(_node->_lastChild).Entry() << std::endl;
+    else std::cout << " LastChild : NULL " << std::endl;
 
-    if(_node->_previous) cout << " Previous : " << _node->_previous << " entry : " << DF_Label(_node->_previous).Entry() << endl;
-    else cout << " Previous : NULL " << endl;
+    if(_node->_previous) std::cout << " Previous : " << _node->_previous << " entry : " << DF_Label(_node->_previous).Entry() << std::endl;
+    else std::cout << " Previous : NULL " << std::endl;
 
-    if(_node->_next) cout << " Next : " << _node->_next << " entry : " << DF_Label(_node->_next).Entry() << endl;
-    else cout << " Next : NULL " << endl;
+    if(_node->_next) std::cout << " Next : " << _node->_next << " entry : " << DF_Label(_node->_next).Entry() << std::endl;
+    else std::cout << " Next : NULL " << std::endl;
   }
 }
 
@@ -463,8 +462,8 @@ DF_LabelNode::DF_LabelNode()
 
 DF_LabelNode::~DF_LabelNode()
 {
-  vector<DF_Attribute*> va;
-  typedef map<string, DF_Attribute*>::const_iterator AI;
+  std::vector<DF_Attribute*> va;
+  typedef std::map<std::string, DF_Attribute*>::const_iterator AI;
   for(AI p = _attributes.begin(); p!=_attributes.end(); p++)
     va.push_back(p->second);
 
@@ -480,8 +479,8 @@ void DF_LabelNode::Reset()
   _depth = 0;
   _tag = 0;
 
-  vector<DF_Attribute*> va;
-  typedef map<string, DF_Attribute*>::const_iterator AI;
+  std::vector<DF_Attribute*> va;
+  typedef std::map<std::string, DF_Attribute*>::const_iterator AI;
   for(AI p = _attributes.begin(); p!=_attributes.end(); p++)
     va.push_back(p->second);
 

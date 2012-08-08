@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOMEDSClient: client interface of SALOMEDS
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
@@ -48,6 +49,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_AttributeSequenceOfInteger.hxx \
                 SALOMEDSClient_AttributeSequenceOfReal.hxx \
                 SALOMEDSClient_AttributeStudyProperties.hxx \
+                SALOMEDSClient_AttributeTable.hxx \
                 SALOMEDSClient_AttributeTableOfInteger.hxx \
                 SALOMEDSClient_AttributeTableOfReal.hxx \
                 SALOMEDSClient_AttributeTableOfString.hxx \
@@ -70,6 +72,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_UseCaseIterator.hxx \
 		SALOMEDSClient_ClientFactory.hxx \
 		SALOMEDSClient_IParameters.hxx \
+		SALOMEDSClient_Observer.hxx \
 		SALOMEDSClient.hxx
 
 #
@@ -81,7 +84,6 @@ salomeinclude_HEADERS=\
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS= \
 	@BOOST_CPPFLAGS@ \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 

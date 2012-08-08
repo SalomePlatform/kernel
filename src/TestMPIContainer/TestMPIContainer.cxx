@@ -1,25 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// using namespace std;
+
 //=============================================================================
 // File      : TestMPIContainer.cxx
 // Created   : mer jui 4 13:11:27 CEST 2003
@@ -41,7 +41,6 @@
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
-using namespace std;
 
 int main (int argc, char * argv[])
 {
@@ -57,7 +56,7 @@ int main (int argc, char * argv[])
     int status;
 
     if( argc != 3 || strcmp(argv[1],"-np") ){
-      cout << "Usage: TestMPIContainer -np nbproc" << endl;
+      std::cout << "Usage: TestMPIContainer -np nbproc" << std::endl;
       exit(0);
     }
 
@@ -67,11 +66,11 @@ int main (int argc, char * argv[])
 
     // Use Name Service to find container
     SALOME_NamingService NS(orb) ;
-    string containerName = "/Containers/" ;
-    string hostName = Kernel_Utils::GetHostname();
+    std::string containerName = "/Containers/" ;
+    std::string hostName = Kernel_Utils::GetHostname();
     containerName += hostName + "/MPIFactoryServer_" + argv[2];
 
-    string dirn(getenv("KERNEL_ROOT_DIR"));
+    std::string dirn(getenv("KERNEL_ROOT_DIR"));
     dirn += "/lib/salome/libSalomeTestMPIComponentEngine.so";
     
     // Try to resolve MPI Container
@@ -81,7 +80,7 @@ int main (int argc, char * argv[])
     if(CORBA::is_nil(iGenFact)){
 
       // Launch MPI Container
-      string cmd("mpirun -np ");
+      std::string cmd("mpirun -np ");
       cmd += argv[2];
       cmd += " ";
       cmd += getenv("KERNEL_ROOT_DIR");
@@ -91,19 +90,19 @@ int main (int argc, char * argv[])
       MESSAGE(cmd);
       status = system(cmd.c_str());
       if (status == -1) {
-	INFOS("TestMPIContainer launch MPI Container failed (system command status -1)") ;
+        INFOS("TestMPIContainer launch MPI Container failed (system command status -1)") ;
       }
       else if (status == 217) {
-	INFOS("TestMPIContainer launch MPI Container failed (system command status 217)") ;
+        INFOS("TestMPIContainer launch MPI Container failed (system command status 217)") ;
       }
     
       // Try to resolve MPI Container
       int it = 0;
       do{
-	sleep(1);
-	obj = NS.Resolve(containerName.c_str()) ;
-	iGenFact = Engines::MPIContainer::_narrow(obj);
-	MESSAGE("Waiting for MPI Container " << containerName << " : it = " << it );
+        sleep(1);
+        obj = NS.Resolve(containerName.c_str()) ;
+        iGenFact = Engines::MPIContainer::_narrow(obj);
+        MESSAGE("Waiting for MPI Container " << containerName << " : it = " << it );
       }while( CORBA::is_nil(iGenFact) && (it++<15) );
 
     }
@@ -127,7 +126,7 @@ int main (int argc, char * argv[])
     }
     else{ 
       m1->Coucou(1L);
-// // 	sleep(5);
+// //   sleep(5);
       INFOS("Unload MPI Component");
       iGenFact->remove_impl(m1) ;
     }

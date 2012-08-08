@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_SObject
  * Use code of SALOMEDS_SObject.cxx
@@ -70,7 +71,7 @@ void SALOMEDSTest::testSObject()
   _PTR(AttributeName) _attrName = studyBuilder->FindOrCreateAttribute(so, "AttributeName");
   _PTR(AttributeComment) _attrComment = studyBuilder->FindOrCreateAttribute(so, "AttributeComment"); 
 
-   string ior = _orb->object_to_string(_sm);
+   std::string ior = _orb->object_to_string(_sm);
   _attrIOR->SetValue(ior);
   _attrName->SetValue("SO name");
   _attrComment->SetValue("SO comment");
@@ -99,7 +100,7 @@ void SALOMEDSTest::testSObject()
   CPPUNIT_ASSERT(so->Name() == "test");
 
   //Check method GetAllAttributes
-  vector< _PTR(GenericAttribute) > v = so->GetAllAttributes();
+  std::vector< _PTR(GenericAttribute) > v = so->GetAllAttributes();
    
   CPPUNIT_ASSERT(v.size() == 5); //+AttributeTarget +AttributeTreeNode
 

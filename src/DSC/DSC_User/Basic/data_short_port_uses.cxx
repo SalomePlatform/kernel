@@ -1,31 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : data_short_port_uses.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
 //
 #include "data_short_port_uses.hxx"
 #include <iostream>
-using namespace std;
 
 data_short_port_uses::data_short_port_uses() {
   _my_ports = NULL;
@@ -43,7 +43,7 @@ data_short_port_uses::put(CORBA::Short data) {
 //  if (!CORBA::is_nil(_my_port))
 //    _my_port->put(data);
   if (!_my_ports)
-    cerr << "data_short_port_uses::put is NULL" << endl;
+    std::cerr << "data_short_port_uses::put is NULL" << std::endl;
   else
   {
     for(int i = 0; i < _my_ports->length(); i++)
@@ -56,11 +56,11 @@ data_short_port_uses::put(CORBA::Short data) {
 
 void 
 data_short_port_uses::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-		       const Engines::DSC::Message message)
+                       const Engines::DSC::Message message)
 {
   if (_my_ports)
     delete _my_ports;
 
-  cerr << "data_short_port_uses::uses_port_changed" << endl;
+  std::cerr << "data_short_port_uses::uses_port_changed" << std::endl;
   _my_ports = new Engines::DSC::uses_port(*new_uses_port);
 }

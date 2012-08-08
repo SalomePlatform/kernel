@@ -1,24 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
@@ -33,6 +34,12 @@ salomeinclude_HEADERS = \
   BatchTest.hxx \
   SALOME_Launcher_defs.hxx \
   SALOME_Launcher.hxx \
+  Launcher_Utils.hxx \
+  Launcher_Job.hxx \
+  Launcher_Job_Command.hxx \
+  Launcher_Job_SALOME.hxx \
+  Launcher_Job_PythonSALOME.hxx \
+  Launcher_Job_YACSFile.hxx \
   Launcher.hxx
 
 # Scripts to be installed
@@ -52,7 +59,7 @@ COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@ \
-	-I$(srcdir)/../Batch \
+	@LIBBATCH_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -61,9 +68,12 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../Container \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+if WITH_LIBBATCH
+  COMMON_CPPFLAGS += -DWITH_LIBBATCH
+endif
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -75,8 +85,8 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
-	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@LIBBATCH_LIBS@ \
 	@MPI_LIBS@ \
 	@CORBA_LIBS@ \
 	@LIBXML_LIBS@ \
@@ -109,21 +119,32 @@ libSalomeLauncher_la_LIBADD =\
 libLauncher_la_SOURCES=\
 	SALOME_Launcher_Parser.cxx \
 	SALOME_Launcher_Handler.cxx  \
+	Launcher_Utils.hxx \
+	Launcher_Job.cxx \
+	Launcher_Job_Command.cxx \
+	Launcher_Job_SALOME.cxx \
+	Launcher_Job_PythonSALOME.cxx \
+	Launcher_Job_YACSFile.cxx \
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
-	-I$(srcdir)/../Batch \
+	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../ResourcesManager \
+	@LIBBATCH_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@
+
+if WITH_LIBBATCH
+  libLauncher_la_CPPFLAGS += -DWITH_LIBBATCH
+endif
 
 libLauncher_la_LDFLAGS  =\
 	-no-undefined -version-info=0:0:0 \
 	@LDEXPDYNFLAGS@
 
 libLauncher_la_LIBADD =\
-	../Batch/libSalomeBatch.la \
-	../ResourcesManager/libSalomeResourcesManager.la \
+	../ResourcesManager/libResourcesManager.la \
+	@LIBBATCH_LIBS@ \
 	@MPI_LIBS@ \
 	@LIBXML_LIBS@
 
@@ -133,7 +154,9 @@ libLauncher_la_LIBADD =\
 # ===============================================================
 #
 if !WITHONLYLAUNCHER
-  bin_PROGRAMS = SALOME_LauncherServer
+  bin_PROGRAMS = SALOME_LauncherServer TestLauncher
+else
+  bin_PROGRAMS = TestLauncher
 endif
 
 SALOME_LauncherServer_SOURCES =\
@@ -143,11 +166,27 @@ SALOME_LauncherServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
 
 SALOME_LauncherServer_LDADD =\
+	libLauncher.la \
 	libSalomeLauncher.la \
 	../Basics/libSALOMEBasics.la \
-	$(MPI_LIBS) \
-	$(CORBA_LIBS) \
-	$(LIBXML_LIBS) \
-	$(PYTHON_LIBS)
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	@LIBBATCH_LIBS@ \
+	@MPI_LIBS@ \
+	@CORBA_LIBS@ \
+	@LIBXML_LIBS@ \
+	@PYTHON_LIBS@
 
+TestLauncher_SOURCES = TestLauncher.cxx
 
+TestLauncher_CPPFLAGS = @LIBXML_INCLUDES@ -I$(srcdir)/../ResourcesManager @LIBBATCH_INCLUDES@
+
+if WITH_LIBBATCH
+  TestLauncher_CPPFLAGS += -DWITH_LIBBATCH
+endif
+
+TestLauncher_LDADD = \
+  @LIBXML_LIBS@ \
+  ../ResourcesManager/libResourcesManager.la \
+  libLauncher.la \
+  ../Utils/libOpUtil.la \
+  @LIBBATCH_LIBS@

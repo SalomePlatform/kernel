@@ -1,24 +1,26 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : salome_study.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
@@ -108,8 +110,8 @@ def IDToSObject(id):
     #--------------------------------------------------------------------------
 
 def generateName(prefix = None):
-    import whrandom;
-    int = whrandom.randint(1,1000);
+    import random;
+    int = random.randint(1,1000);
     if prefix is None:
         return "Study" + str(int)
     else :
@@ -248,7 +250,7 @@ salome_study_ID = -1
 
 def getActiveStudy(theStudyId=0):
     global salome_study_ID
-    
+
     if verbose(): print "getActiveStudy"
     if salome_study_ID == -1:
         if salome_iapp.hasDesktop():
@@ -265,7 +267,42 @@ def getActiveStudy(theStudyId=0):
                 salome_study_ID = createNewStudy()
             if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
-    
+
+    #--------------------------------------------------------------------------
+
+def setCurrentStudy(theStudy):
+    """
+    Change current study : an existing one given by a study object.
+
+    :param theStudy: the study CORBA object to set as current study
+    """
+    global myStudyId, myStudy, myStudyName
+    global salome_study_ID
+    myStudy=theStudy
+    myStudyId=theStudy._get_StudyId()
+    myStudyName=theStudy._get_Name()
+    return myStudyId, myStudy, myStudyName
+
+    #--------------------------------------------------------------------------
+
+def setCurrentStudyId(theStudyId=0):
+    """
+    Change current study : an existing or new one.
+    optional argument : theStudyId
+        0      : create a new study (default).
+        n (>0) : try connection to study with Id = n, or create a new one
+                 if study not found.
+    """
+    global myStudyId, myStudy, myStudyName
+    global salome_study_ID
+    salome_study_ID = -1
+    myStudyId = getActiveStudy(theStudyId)
+    if verbose(): print "myStudyId",myStudyId
+    myStudy = myStudyManager.GetStudyByID(myStudyId)
+    myStudyName = myStudy._get_Name()
+
+    return myStudyId, myStudy, myStudyName
+
     #--------------------------------------------------------------------------
 
 def createNewStudy():
@@ -301,16 +338,16 @@ def salome_study_init(theStudyId=0):
         n (>0) : try connection to study with Id = n, or create a new one
                  if study not found.
     """
-    
+
     global salome_study_initial
     global myStudyManager, myStudyId, myStudy, myStudyName
     global orb, lcc, naming_service, cm
-    
+
     if salome_study_initial:
         salome_study_initial = 0
-        
+
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
-        
+
         # get Study Manager reference
         if verbose(): print "looking for studyManager ..."
         obj = naming_service.Resolve('myStudyManager')

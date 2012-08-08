@@ -1,36 +1,39 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Container : implementation of container and engine for Kernel
 //  File   : SALOME_Container.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
 //
-#ifdef HAVE_MPI2
+#ifdef _MPI_SEQ_CONTAINER_
+  #ifdef HAVE_MPI2
 #include <mpi.h>
+  #endif
 #endif
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <stdio.h>
 #include <time.h>
@@ -57,8 +60,6 @@
 
 #include "Container_init_python.hxx"
 
-using namespace std;
-
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 
 #include <stdexcept>
@@ -68,7 +69,14 @@ extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 # include <sys/wait.h>
 #endif
 
+void AttachDebugger();
+void Handler(int);
+void terminateHandler();
+void unexpectedHandler();
+
 #ifndef WIN32
+void (* setsig(int, void (*)(int)))(int);
+
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
 {
@@ -98,10 +106,10 @@ void AttachDebugger()
 
 void Handler(int theSigId)
 {
-  std::cerr << "SIGSEGV: "  << std::endl;
+  std::cerr << "Signal= "<< theSigId  << std::endl;
   AttachDebugger();
   //to exit or not to exit
-  exit(1);
+  _exit(1);
 }
 
 void terminateHandler(void)
@@ -118,16 +126,19 @@ void unexpectedHandler(void)
 
 int main(int argc, char* argv[])
 {
-#ifdef HAVE_MPI2
+#ifdef _MPI_SEQ_CONTAINER_
+  #ifdef HAVE_MPI2
   MPI_Init(&argc,&argv);
-#endif
+  #endif
+#endif  
 
 #ifndef WIN32
   if(getenv ("DEBUGGER"))
     {
       setsig(SIGSEGV,&Handler);
-      set_terminate(&terminateHandler);
-      set_unexpected(&unexpectedHandler);
+      setsig(SIGFPE,&Handler);
+      std::set_terminate(&terminateHandler);
+      std::set_unexpected(&unexpectedHandler);
     }
 #endif
 
@@ -144,20 +155,8 @@ int main(int argc, char* argv[])
 
   ASSERT(argc > 1);
   SCRUTE(argv[1]);
-  bool isSupervContainer = false;
-  if (strcmp(argv[1],"SuperVisionContainer") == 0) isSupervContainer = true;
 
-  if (!isSupervContainer)
-    {
-      // int _argc = 1;
-      // char* _argv[] = {""};
-      KERNEL_PYTHON::init_python(argc,argv);
-    }
-  else
-    {
-      Py_Initialize() ;
-      PySys_SetArgv( argc , argv ) ;
-    }
+  KERNEL_PYTHON::init_python(argc,argv);
     
   char *containerName = (char *)"";
   if(argc > 1)
@@ -175,8 +174,8 @@ int main(int argc, char* argv[])
 
       // add new container to the kill list
 #ifndef WIN32
-      stringstream aCommand ;
-      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
+      std::stringstream aCommand ;
+      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << std::ends ;
       system(aCommand.str().c_str());
 #endif
       
@@ -193,16 +192,15 @@ int main(int argc, char* argv[])
 
       HandleServerSideSignals(orb);
 
-      if (!isSupervContainer)
-      {
+//#define MEMORYLEAKS
+#ifdef MEMORYLEAKS
         PyGILState_Ensure();
-        //Delete python container that destroy orb from python (pyCont._orb.destroy())
+        //Destroy orb from python (for chasing memory leaks)
+        PyRun_SimpleString("from omniORB import CORBA");
+        PyRun_SimpleString("orb=CORBA.ORB_init([''], CORBA.ORB_ID)");
+        PyRun_SimpleString("orb.destroy()");
         Py_Finalize();
-      }
-      else
-      {
-        orb->destroy();
-      }
+#endif
     }
   catch(CORBA::SystemException&)
     {
@@ -225,13 +223,12 @@ int main(int argc, char* argv[])
       INFOS("Caught unknown exception.");
     }
 
-#ifdef HAVE_MPI2
+#ifdef _MPI_SEQ_CONTAINER_
+  #ifdef HAVE_MPI2
   MPI_Finalize();
-#endif
+  #endif
+#endif  
 
-  //END_OF(argv[0]);
-  //LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
-  //bp1->deleteInstance(bp1);
   return 0 ;
 }
 

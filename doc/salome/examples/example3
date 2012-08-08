@@ -1,0 +1,60 @@
+
+#       create AttributeSequenceOfReal      
+#=================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeSequenceOfReal")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeSequenceOfReal attribute"
+A = A._narrow(SALOMEDS.AttributeSequenceOfReal)
+if A == None :
+        raise  RuntimeError, "_narrow returns None instead of AttributeSequenceOfReal pointer"
+
+A.Add(0.0293)
+A.Add(625.1e+2)
+A.Add(0.928e+100)
+A.Add(83.287)
+
+print "initial values ",A.Value(1), A.Value(2), A.Value(3), A.Value(4)
+A.Remove(3)
+print "after remove ", A.Value(1), A.Value(2), A.Value(3)
+A.ChangeValue(2,76.265)
+print "after second item change", A.Value(1), A.Value(2), A.Value(3)
+
+if A.Length() != 3:
+        print "Error : wrong length of SequenceOfReal"
+if A.Value(1) != 0.0293 or A.Value(2) != 76.265 or A.Value(3) != 83.287:
+        print "Error : wrong value of  AttributeSequenceOfReal"
+
+#      save / restore study      
+#=================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy=batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find AttributeSequenceOfReal
+#=================================
+
+res,A=father.FindAttribute("AttributeSequenceOfReal")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeSequenceOfReal"
+
+A = A._narrow(SALOMEDS.AttributeSequenceOfReal)
+
+if A.Length() != 3:
+        print "Error : wrong length of SequenceOfReal"
+if A.Value(1) != 0.0293 or A.Value(2) != 76.265 or A.Value(3) != 83.287:
+        print "Error : wrong value of  AttributeSequenceOfReal"
+print "after restoring ", A.Value(1), A.Value(2), A.Value(3)
+

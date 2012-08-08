@@ -1,30 +1,28 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 //  File   : SALOME_LifeCycleCORBA.hxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
-//  $Header$
-//
+
 #ifndef _SALOME_LIFECYCLECORBA_HXX_
 #define _SALOME_LIFECYCLECORBA_HXX_
 
@@ -41,7 +39,7 @@
 #include <iostream>
 
 #ifdef WIN32
-# if defined LIFECYCLECORBA_EXPORTS
+# if defined LIFECYCLECORBA_EXPORTS || defined SalomeLifeCycleCORBA_EXPORTS
 #  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
 # else
 #  define LIFECYCLECORBA_EXPORT __declspec( dllimport )
@@ -66,46 +64,61 @@ public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
   virtual ~SALOME_LifeCycleCORBA();
 
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
   FindComponent(const Engines::MachineParameters& params,
-		const char *componentName,
-		int studyId=0);
+                const char *componentName,
+                int studyId=0);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   LoadComponent(const Engines::MachineParameters& params,
-		const char *componentName,
-		int studyId=0);
+                const char *componentName,
+                int studyId=0);
 
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
   FindOrLoad_Component(const Engines::MachineParameters& params,
-		       const char *componentName,
-		       int studyId =0);
+                       const char *componentName,
+                       int studyId =0);
 
-  Engines::Component_ptr
+  // SALOME 6 - Interface
+  Engines::EngineComponent_ptr 
+  FindOrLoad_Component(const Engines::ContainerParameters& params,
+                       const char *componentName,
+                       int studyId =0);
+
+  Engines::EngineComponent_ptr
   FindOrLoad_Component(const char *containerName,
-		       const char *componentName); // for compatibility
+                       const char *componentName); // for compatibility
   
   // Parallel extension
-  Engines::Component_ptr 
-    Load_ParallelComponent(const Engines::MachineParameters& params,
+  Engines::EngineComponent_ptr 
+    Load_ParallelComponent(const Engines::ContainerParameters& params,
                            const char *componentName,
                            int studyId);
 
   bool isKnownComponentClass(const char *componentName);
 
-  bool isMpiContainer(const Engines::MachineParameters& params)
+  bool isMpiContainer(const Engines::ContainerParameters& params)
     throw(IncompatibleComponent);
 
-  int NbProc(const Engines::MachineParameters& params);
+  int NbProc(const Engines::ContainerParameters& params);
 
-  void preSet(Engines::MachineParameters& params);
+  static void preSet(Engines::MachineParameters& outparams);
+  static void preSet(Engines::ResourceParameters& outparams);
+  static void preSet(Engines::ContainerParameters& outparams);
 
   Engines::ContainerManager_ptr getContainerManager();
   Engines::ResourcesManager_ptr getResourcesManager();
+  SALOME_NamingService * namingService();
+  CORBA::ORB_ptr orb();
+  void copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest);
 
   void shutdownServers();
   static void killOmniNames();
 
+  // For SALOME 5.1.x
+  // Will be deleted on SALOME 6
+  void convert(const Engines::MachineParameters& params_in, 
+               Engines::ContainerParameters& params_out);
 protected:
 
   /*! Establish if a component called "componentName" in a container called
@@ -113,19 +126,19 @@ protected:
    *  exists among the list of resources in "listOfMachines".
    *  This method uses Naming Service to find the component.
    */
-  Engines::Component_ptr 
-  _FindComponent(const Engines::MachineParameters& params,
-		 const char *componentName,
-		 int studyId,
-		 const Engines::MachineList& listOfMachines);
+  Engines::EngineComponent_ptr 
+  _FindComponent(const Engines::ContainerParameters& params,
+                 const char *componentName,
+                 int studyId,
+                 const Engines::ResourceList& listOfResources);
 
-  Engines::Component_ptr
-  _LoadComponent(const Engines::MachineParameters& params,
-		 const char *componentName,
-		 int studyId,
-		 const Engines::MachineList& listOfMachines);
-  
+  Engines::EngineComponent_ptr
+  _LoadComponent(const Engines::ContainerParameters& params,
+                 const char *componentName,
+                 int studyId);
+
   SALOME_NamingService *_NS;
+  SALOME_NamingService *_NSnew;
   Engines::ContainerManager_var _ContManager;
   Engines::ResourcesManager_var _ResManager;
   

@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_StudyManager_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -41,7 +42,7 @@
 #include "Basics_Utils.hxx"
 #include "SALOME_GenericObj_i.hh"
 
-#include <strstream>
+#include <sstream>
 #include <vector>
 #include <map>
 
@@ -51,8 +52,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-using namespace std;
 
 UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
@@ -122,8 +121,9 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 
   MESSAGE("NewStudy : Creating the CORBA servant holding it... ");
 
-  SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this());
+  SALOMEDS_Study_i *Study_servant = SALOMEDS_Study_i::GetStudyServant(aStudyImpl, _orb);
+  PortableServer::ObjectId_var servantid = _poa->activate_object(Study_servant); // to use poa registered in _mapOfPOA
+  SALOMEDS::Study_var Study = Study_servant->_this();
 
   // Register study in the naming service
   // Path to acces the study
@@ -139,7 +139,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 
   _mapOfPOA[Study->StudyId()] = _poa;
 
-  return Study;
+  return Study._retn();
 }
 
 //============================================================================
@@ -155,7 +155,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(string(aUrl));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(std::string(aUrl));
 
   if ( !aStudyImpl )
     THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
@@ -163,19 +163,22 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
   // Temporary aStudyUrl in place of study name
-  SALOMEDS_Study_i * Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this());
+  SALOMEDS_Study_i * Study_servant = SALOMEDS_Study_i::GetStudyServant(aStudyImpl, _orb);
+  PortableServer::ObjectId_var servantid = _poa->activate_object(Study_servant); // to use poa register in _mapOfPOA
+  SALOMEDS::Study_var Study = Study_servant->_this();
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
   aStudyImpl->SetTransientReference((char*)IORStudy.in());
+
+  _mapOfPOA[Study->StudyId()] = _poa;
 
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
   else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
 
-  return Study;
+  return Study._retn();
 }
 
 
@@ -202,6 +205,14 @@ void SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
   SALOMEDS::unlock();
   aStudy->Close();
   SALOMEDS::lock();
+
+  //remove study servant
+  PortableServer::POA_ptr poa=GetPOA(aStudy);
+  PortableServer::ServantBase* aservant=poa->reference_to_servant(aStudy);
+  PortableServer::ObjectId_var anObjectId = poa->servant_to_id(aservant);
+  poa->deactivate_object(anObjectId.in());
+  aservant->_remove_ref(); // decrement for the call to reference_to_servant
+  aservant->_remove_ref(); // to delete the object
 }
 
 //============================================================================
@@ -250,7 +261,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAs(string(aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAs(std::string(aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
@@ -263,7 +274,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAsASCII(string(aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAsASCII(std::string(aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 //============================================================================
@@ -275,7 +286,7 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
 {
   SALOMEDS::Locker lock;
 
-  vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
+  std::vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
   int aLength = anOpened.size();
 
   SALOMEDS::ListOfOpenStudies_var _list_open_studies = new SALOMEDS::ListOfOpenStudies;
@@ -288,10 +299,10 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
   else
     {
       for (unsigned int ind=0; ind < aLength; ind++)
-	{
-	  _list_open_studies[ind] = CORBA::string_dup(anOpened[ind]->Name().c_str());
-	  SCRUTE(_list_open_studies[ind]) ;
-	}
+        {
+          _list_open_studies[ind] = CORBA::string_dup(anOpened[ind]->Name().c_str());
+          SCRUTE(_list_open_studies[ind]) ;
+        }
     }
   return _list_open_studies._retn();
 }
@@ -305,7 +316,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyNa
 {
   SALOMEDS::Locker lock;
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(string(aStudyName));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(std::string(aStudyName));
 
   if (!aStudyImpl)
   {
@@ -313,10 +324,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyNa
     return SALOMEDS::Study::_nil();
   }
 
-  SALOMEDS_Study_i* aStudy_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(aStudy_servant->_this());
-
-  return aStudy._retn();
+  SALOMEDS_Study_i* aStudy_servant = SALOMEDS_Study_i::GetStudyServant(aStudyImpl, _orb);
+  return aStudy_servant->_this();
 }
 
 //============================================================================
@@ -336,11 +345,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
     return SALOMEDS::Study::_nil();
   }
 
-  SALOMEDS_Study_i* aStudy_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  CORBA::Object_var obj = aStudy_servant->_this();
-  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(obj);
-
-  return aStudy._retn();
+  SALOMEDS_Study_i* aStudy_servant = SALOMEDS_Study_i::GetStudyServant(aStudyImpl, _orb);
+  return aStudy_servant->_this();
 }
 
 
@@ -355,7 +361,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(anID.in());
 
   SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
   bool ret = _impl->CanCopy(anObject, aDriver);
@@ -374,7 +381,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(anID.in());
 
   SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
   bool ret = _impl->Copy(anObject, aDriver);
@@ -393,7 +401,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(anID.in());
 
   SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
   bool ret = _impl->CanPaste(anObject, aDriver);
@@ -415,7 +424,8 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(anID.in());
   SALOMEDSImpl_SObject aNewSO;
 
   try {
@@ -438,7 +448,7 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
 
   SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
   if(!aSCO.IsNull()) {
-    string IOREngine = aSCO.GetIOR();
+    std::string IOREngine = aSCO.GetIOR();
     if(!IOREngine.empty()) {
       CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
       SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;

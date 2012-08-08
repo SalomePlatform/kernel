@@ -1,30 +1,34 @@
-// Copyright (C) 2008  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
+// License as published by the Free Software Foundation; either
 // version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_ScalarVariable.cxx
 //  Author : Roman NIKOLAEV, Open CASCADE S.A.S.
 //  Module : SALOME
-
+//
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 #include "SALOMEDSImpl_GenericVariable.hxx"
+#include "Basics_Utils.hxx"
 #include <iostream>
-using namespace std;
+#include <cstdlib>
+#include <cstdio>
+
+#define OLDSTUDY_COMPATIBILITY
 
 //============================================================================
 /*! Function : SALOMEDSImpl_ScalarVariable
@@ -33,7 +37,7 @@ using namespace std;
 //============================================================================
 SALOMEDSImpl_ScalarVariable::
 SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes type,
-                            const string& theName):
+                            const std::string& theName):
   SALOMEDSImpl_GenericVariable(type,theName)
 {}
 
@@ -60,6 +64,21 @@ bool SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
 }
 
 //============================================================================
+/*! Function : 
+ *  Purpose  : 
+ */
+//============================================================================
+bool SALOMEDSImpl_ScalarVariable::setStringValue(const std::string& theValue)
+{
+  
+  if(myStrValue == theValue) 
+    return false;
+  
+  myStrValue = theValue;
+  return true;
+}
+
+//============================================================================
 /*! Function : getValue()
  *  Purpose  : 
  */
@@ -70,11 +89,23 @@ double SALOMEDSImpl_ScalarVariable::getValue() const
 }
 
 //============================================================================
+/*! Function : getStringValue()
+ *  Purpose  : 
+ */
+//============================================================================
+std::string SALOMEDSImpl_ScalarVariable::getStringValue() const
+{
+  return myStrValue;
+}
+
+//============================================================================
 /*! Function : Save()
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::Save() const{
+std::string SALOMEDSImpl_ScalarVariable::Save() const{
+  Kernel_Utils::Localizer loc;
+
   char buffer[255];
   switch(Type())
     {
@@ -89,9 +120,14 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
         sprintf(buffer, "%d", (int)myValue);
         break;
       }
+    case SALOMEDSImpl_GenericVariable::STRING_VAR:
+      {
+        sprintf(buffer, "%s", myStrValue.c_str());
+        break;
+      }
     default:break;
     }
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -99,8 +135,10 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::SaveToScript() const
+std::string SALOMEDSImpl_ScalarVariable::SaveToScript() const
 {
+  Kernel_Utils::Localizer loc;
+
   char buffer[255];
   switch(Type())
     {
@@ -116,15 +154,17 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
       }
     case SALOMEDSImpl_GenericVariable::BOOLEAN_VAR:
       {
-        if((bool)myValue)
-          sprintf(buffer, "%s", "True");
-        else
-          sprintf(buffer, "%s", "False");
+	sprintf(buffer, "%s", ((bool)myValue) ? "True" : "False");
+        break;
+      }
+    case SALOMEDSImpl_GenericVariable::STRING_VAR:
+      {
+        sprintf(buffer, "\"%s\"", myStrValue.c_str());
         break;
       }
     default:break;
     }
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -132,10 +172,10 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::SaveType() const{
+std::string SALOMEDSImpl_ScalarVariable::SaveType() const{
   char buffer[255];
   sprintf(buffer, "%d", (int)Type());
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -143,8 +183,25 @@ string SALOMEDSImpl_ScalarVariable::SaveType() const{
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_ScalarVariable::Load(const string& theStrValue)
+void SALOMEDSImpl_ScalarVariable::Load(const std::string& theStrValue)
 {
-  double aValue = atof(theStrValue.c_str());
-  setValue(aValue);
+  Kernel_Utils::Localizer loc;
+
+  std::string strCopy = theStrValue;
+  if ( Type() == SALOMEDSImpl_GenericVariable::STRING_VAR ) {
+#ifdef OLDSTUDY_COMPATIBILITY
+    if (strCopy.size() > 1 && strCopy[0] == '\"' && strCopy[strCopy.size()-1] == '\"')
+      strCopy = strCopy.substr(1, strCopy.size()-2);
+#endif // OLDSTUDY_COMPATIBILITY
+    setStringValue( strCopy );
+  }
+  else {
+#ifdef OLDSTUDY_COMPATIBILITY
+    int dotpos = strCopy.find(',');
+    if (dotpos != std::string::npos)
+      strCopy.replace(dotpos, 1, ".");
+#endif // OLDSTUDY_COMPATIBILITY
+    double aValue = atof(strCopy.c_str());
+    setValue(aValue);
+  }
 }

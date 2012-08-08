@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : PalmCouplingPolicy.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -88,11 +89,11 @@ public:
       policy.filtre_convert_TIME.applique_filtre_conversion(dataId.first, _lTime);
       int c=0;
       for(std::vector<CORBA::Long>::iterator i=_lTime.begin();i!=_lTime.end();++i)
-	std::cout << "_lTime["<< c++ << "] : " << *i << std::endl;
+        std::cout << "_lTime["<< c++ << "] : " << *i << std::endl;
       policy.filtre_convert_TAG.applique_filtre_conversion(dataId.second, _lTag);
       c=0;
       for(std::vector<CORBA::Long>::iterator i=_lTag.begin();i!=_lTag.end();++i)
-	std::cout << "_lTag["<< c++ << "] : " << *i << std::endl;
+        std::cout << "_lTag["<< c++ << "] : " << *i << std::endl;
     }
 
     // Pas encore testé
@@ -138,51 +139,51 @@ public:
  
       // Pas encore testé
       DataIdIterator(const InternalDataIdContainer<TTIME,TTAG> & pc):
-	_pc(pc),_itTime(pc._lTime.begin()),_itTag(pc._lTag.begin()) {}
+        _pc(pc),_itTime(pc._lTime.begin()),_itTag(pc._lTag.begin()) {}
       DataIdIterator(const InternalDataIdContainer<TTIME,TTAG> & pc, ItTime itTime, ItTag itTag):
-	_pc(pc),_itTime(itTime),_itTag(itTag) {}
+        _pc(pc),_itTime(itTime),_itTag(itTag) {}
       // Pas encore testé
       DataIdIterator(const DataIdIterator & dIt):
-	_pc(dIt._pc),_itTime(dIt._itTime),_itTag(dIt._itTag) {}
+        _pc(dIt._pc),_itTime(dIt._itTime),_itTag(dIt._itTag) {}
       ~DataIdIterator() {}
       
 
       // Pas encore testé
       DataIdIterator & operator=(const DataIdIterator & dIt) {
-	if (this != &dIt) {
-	  _pc=dIt._pc;_itTime=dIt._itTime;_itTag=dIt._itTag;
-	}
-	return *this;
+        if (this != &dIt) {
+          _pc=dIt._pc;_itTime=dIt._itTime;_itTag=dIt._itTag;
+        }
+        return *this;
       }
 
       DataId operator*() const {
-	std::cout << "-------- operator*(),  *_itTime : " << *_itTime << " *_itTag " <<  *_itTag <<std::endl;
-	return DataId(*_itTime,*_itTag); }
+        std::cout << "-------- operator*(),  *_itTime : " << *_itTime << " *_itTag " <<  *_itTag <<std::endl;
+        return DataId(*_itTime,*_itTag); }
    
       bool operator==( const DataIdIterator  & dIt) const {
-	return (_itTime == dIt._itTime) && (_itTag == dIt._itTag) && (&_pc == &dIt._pc);
+        return (_itTime == dIt._itTime) && (_itTag == dIt._itTag) && (&_pc == &dIt._pc);
       }
 
       bool operator!=( const DataIdIterator  & dIt) const { 
-	return (_itTime != dIt._itTime) || (_itTag != dIt._itTag) || (&_pc != &dIt._pc);
+        return (_itTime != dIt._itTime) || (_itTag != dIt._itTag) || (&_pc != &dIt._pc);
       }
 
       // Notation préfixé
       DataIdIterator & operator++() {
-	if ( _itTag != _pc._lTag.end() ) { 
-	  ++_itTag;
-	  if (_itTag != _pc._lTag.end() ) return *this;
-	}
-	if ( _itTime != _pc._lTime.end() )  { 
-	  ++_itTime;
-	  if (_itTime != _pc._lTime.end() ) _itTag=_pc._lTag.begin();
-	}
-	return *this;
+        if ( _itTag != _pc._lTag.end() ) { 
+          ++_itTag;
+          if (_itTag != _pc._lTag.end() ) return *this;
+        }
+        if ( _itTime != _pc._lTime.end() )  { 
+          ++_itTime;
+          if (_itTime != _pc._lTime.end() ) _itTag=_pc._lTag.begin();
+        }
+        return *this;
       }
 
       // Notation postfixé
       DataIdIterator operator++(int fake) { 
-	DataIdIterator tmpIt=*this; ++*this; return tmpIt; 
+        DataIdIterator tmpIt=*this; ++*this; return tmpIt; 
       }
       
     }; //Fin de la classe de l'itérateur

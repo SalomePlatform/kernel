@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_impl.cxx
 //  Author : Estelle Deville
@@ -27,15 +28,16 @@
 //
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
+#include <libxml/parser.h>
 #include <fstream>
 #include <map>
 #include "utilities.h"
 
 #ifdef WIN32
 # include <process.h>
+#else
+# include <unistd.h>
 #endif
-
-using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
@@ -47,23 +49,23 @@ static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
 
 
-list<string> splitStringToList(const string& theString, const string& theSeparator)
+std::list<std::string> splitStringToList(const std::string& theString, const std::string& theSeparator)
 {
-  list<string> aList;
+  std::list<std::string> aList;
 
   int sepLen = theSeparator.length();
   int startPos = 0, sepPos = theString.find(theSeparator, startPos);
 
   while (1)
     {
-      string anItem ;
-      if(sepPos != string::npos)
+      std::string anItem ;
+      if(sepPos != std::string::npos)
         anItem = theString.substr(startPos, sepPos - startPos);
       else
         anItem = theString.substr(startPos);
       if (anItem.length() > 0)
-	aList.push_back(anItem);
-      if(sepPos == string::npos)
+        aList.push_back(anItem);
+      if(sepPos == std::string::npos)
         break;
       startPos = sepPos + sepLen;
       sepPos = theString.find(theSeparator, startPos);
@@ -79,6 +81,8 @@ list<string> splitStringToList(const string& theString, const string& theSeparat
 SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA::ORB_ptr orb) : _orb(orb)
 {
   if(MYDEBUG) MESSAGE("Catalog creation");
+  /* Init libxml */
+  xmlInitParser();
 
   // Conversion rules for component types
   ComponentTypeConvert[GEOM]
@@ -127,13 +131,13 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
 
-    list<string> dirList;
+    std::list<std::string> dirList;
 
 #ifdef WIN32
     dirList = splitStringToList(_general_path, SEPARATOR);
 #else
     //check for new format
-    bool isNew = (std::string( _general_path ).find(SEPARATOR) != string::npos);
+    bool isNew = (std::string( _general_path ).find(SEPARATOR) != std::string::npos);
     if ( isNew ) {
       //using new format
       dirList = splitStringToList(_general_path, SEPARATOR);
@@ -143,16 +147,16 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     }
 #endif
 
-    for (list<string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
+    for (std::list<std::string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
     {
-      string aPath = (*iter);
+      std::string aPath = (*iter);
       //remove inverted commas from filename
-      while (aPath.find('\"') != string::npos)
-	aPath.erase(aPath.find('\"'), 1);
+      while (aPath.find('\"') != std::string::npos)
+        aPath.erase(aPath.find('\"'), 1);
 
       _parse_xml_file(aPath.c_str(), 
-		      _general_module_list, 
-		      _general_path_list,
+                      _general_module_list, 
+                      _general_path_list,
                       _typeMap,
                       _typeList);
     }
@@ -160,8 +164,8 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Verification of _general_path_list content
     if (!_verify_path_prefix(_general_path_list)) {
       if(MYDEBUG) MESSAGE( "Error while parsing the general path list, "
-			   "differents paths are associated to the same computer," 
-			   "the first one will be choosen");
+                           "differents paths are associated to the same computer," 
+                           "the first one will be choosen");
     } else {
       if(MYDEBUG) MESSAGE("General path list OK");
     }
@@ -170,22 +174,22 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       // Initialize the _personal_module_list and 
       // _personal_path_list members with the personal catalog files
       _parse_xml_file(_personal_path,
-		      _personal_module_list, 
-		      _personal_path_list,
+                      _personal_module_list, 
+                      _personal_path_list,
                       _typeMap,
                       _typeList);
       
       // Verification of _general_path_list content
       if(!_verify_path_prefix(_personal_path_list)){
-	if(MYDEBUG) MESSAGE("Error while parsing the personal path list, "
-			    "differents paths are associated to the same computer, "
-			    "the first one will be choosen" );
+        if(MYDEBUG) MESSAGE("Error while parsing the personal path list, "
+                            "differents paths are associated to the same computer, "
+                            "the first one will be choosen" );
       }else {
-	if(MYDEBUG) MESSAGE("Personal path list OK");
+        if(MYDEBUG) MESSAGE("Personal path list OK");
       }
     }else 
       if(MYDEBUG) MESSAGE("No personal catalog indicated or error while "
-			  "opening the personal catalog");
+                          "opening the personal catalog");
   }
 }
 
@@ -208,7 +212,7 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
   SALOME_ModuleCatalog::ListOfTypeDefinition_var type_list = new SALOME_ModuleCatalog::ListOfTypeDefinition();
   type_list->length(_typeList.size());
 
-  for (int ind = 0 ; ind < _typeList.size() ; ind++)
+  for (unsigned int ind = 0 ; ind < _typeList.size() ; ind++)
     {
       //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
       type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());
@@ -296,17 +300,17 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
   for (unsigned int ind = 0 ; ind < _personal_path_list.size() ; ind++)
     {
       for (unsigned int ind1 = 0 ; ind1 < _personal_path_list[ind].listOfComputer.size() ; ind1++)    
-	{
-	  if (strcmp(machinename, _personal_path_list[ind].listOfComputer[ind1].c_str()) == 0)
-	    {
-	      _find = true ;
-	      // Wanted computer
-	      // affect the path to be returned
-	        const char* _temp = _personal_path_list[ind].path.c_str() ;
-		  _path = new char[strlen(_temp)+1];
-	      strcpy(_path,_temp);
-	    }
-	}
+        {
+          if (strcmp(machinename, _personal_path_list[ind].listOfComputer[ind1].c_str()) == 0)
+            {
+              _find = true ;
+              // Wanted computer
+              // affect the path to be returned
+                const char* _temp = _personal_path_list[ind].path.c_str() ;
+                  _path = new char[strlen(_temp)+1];
+              strcpy(_path,_temp);
+            }
+        }
     }
 
   if (!_find)
@@ -314,17 +318,17 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
     for (unsigned int ind = 0 ; ind < _general_path_list.size() ; ind++)
       {
         for (unsigned int ind1 = 0 ; ind1 < _general_path_list[ind].listOfComputer.size() ; ind1++)    
-	  {
-	    if (strcmp(machinename, _general_path_list[ind].listOfComputer[ind1].c_str()) == 0)
-	      {
-	        _find = true ;
-	        // Wanted computer
-	        // affect the path to be returned
-	          const char* _temp = _general_path_list[ind].path.c_str() ;
-		    _path = new char[strlen(_temp)+1];
-	        strcpy(_path,_temp);
-	      }
-	  }
+          {
+            if (strcmp(machinename, _general_path_list[ind].listOfComputer[ind1].c_str()) == 0)
+              {
+                _find = true ;
+                // Wanted computer
+                // affect the path to be returned
+                  const char* _temp = _general_path_list[ind].path.c_str() ;
+                    _path = new char[strlen(_temp)+1];
+                strcpy(_path,_temp);
+              }
+          }
       }
     }
 
@@ -364,11 +368,11 @@ SALOME_ModuleCatalogImpl::GetComponentList()
       // searching if the component is already defined in 
       // the personal catalog
       if ((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
-	_find = true;
+        _find = true;
     }
     if(!_find){
       if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name 
-			  << " has to be to added in the list");
+                          << " has to be to added in the list");
       _list_components->length(indice+1);
       // The component is not already defined => has to be taken
       _list_components[indice]=(_general_module_list[ind].name).c_str();   
@@ -377,7 +381,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
       indice++;
     }else{
       if(MYDEBUG) MESSAGE("The component " <<_general_module_list[ind].name 
-			  << " was already defined in the personal catalog") ;
+                          << " was already defined in the personal catalog") ;
     }
   }
   
@@ -425,10 +429,10 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
       // searching if the component is aleready defined in 
       // the personal catalog
       if((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
-	_find = true;
+        _find = true;
     }
     if(!_find){
-      //	  if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
+      //          if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
       _list_components_icone->length(indice+1);
       // The component is not already defined => has to be taken
       _list_components_icone[indice].modulename=_general_module_list[ind].name.c_str();  
@@ -497,12 +501,12 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
       if  (_personal_module_list[ind].type == _temp_component_type)
-	{
-	  _list_typed_component->length(_j + 1); 
+        {
+          _list_typed_component->length(_j + 1); 
            _list_typed_component[_j] = _personal_module_list[ind].name.c_str();
-	  //if(MYDEBUG) SCRUTE(_list_typed_component[_j]);
-	  _j++;
-	}
+          //if(MYDEBUG) SCRUTE(_list_typed_component[_j]);
+          _j++;
+        }
     }
 
   int indice = _list_typed_component->length() ;
@@ -515,26 +519,26 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
       _find = false;
 
       if(_general_module_list[ind].type == _temp_component_type)
-	{
-	  for (unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++)
-	    {
-	      // searching if the component is aleready defined in 
-	      // the personal catalog
-	      if ((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
-		_find = true;
-	    }
-	  if (!_find)
-	    {
-	      //if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
+        {
+          for (unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++)
+            {
+              // searching if the component is aleready defined in 
+              // the personal catalog
+              if ((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
+                _find = true;
+            }
+          if (!_find)
+            {
+              //if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
               _list_typed_component->length(indice+1);
-	      // The component is not already defined => has to be taken
-	      _list_typed_component[indice]=(_general_module_list[ind].name).c_str();   
-	      //if(MYDEBUG) SCRUTE(_list_typed_component[indice]) ;
+              // The component is not already defined => has to be taken
+              _list_typed_component[indice]=(_general_module_list[ind].name).c_str();   
+              //if(MYDEBUG) SCRUTE(_list_typed_component[indice]) ;
 
-	      indice++;
-	    }
-	  //else 
-	    //if(MYDEBUG) MESSAGE("The component " <<_general_module_list[ind].name << " was already defined in the personal catalog") ;
+              indice++;
+            }
+          //else 
+            //if(MYDEBUG) MESSAGE("The component " <<_general_module_list[ind].name << " was already defined in the personal catalog") ;
         }
     }
 
@@ -583,7 +587,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
     // Not found in the personal catalog and in the general catalog
     // return NULL object
     if(MYDEBUG) MESSAGE("Component with name  " << name 
-			<< " not found in catalog");
+                        << " not found in catalog");
   }
   
   return compo;
@@ -623,32 +627,32 @@ void SALOME_ModuleCatalogImpl::ShutdownWithExit()
 }
 
 ParserComponent *
-SALOME_ModuleCatalogImpl::findComponent(const string & name)
+SALOME_ModuleCatalogImpl::findComponent(const std::string & name)
 {
   ParserComponent * C_parser = NULL;
 
   if (!C_parser)
     for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
       {
-	if (name.compare(_personal_module_list[ind].name) == 0)
-	  {
-	    if(MYDEBUG) MESSAGE("Component named " << name 
-				<< " found in the personal catalog");
-	    C_parser = &(_personal_module_list[ind]);
-	    break;
-	  }
+        if (name.compare(_personal_module_list[ind].name) == 0)
+          {
+            if(MYDEBUG) MESSAGE("Component named " << name 
+                                << " found in the personal catalog");
+            C_parser = &(_personal_module_list[ind]);
+            break;
+          }
       }
 
   if (!C_parser)
     for (unsigned int ind=0; ind < _general_module_list.size();ind++)
       {
-	if (name.compare(_general_module_list[ind].name) == 0)
-	  {
-	    //	    if(MYDEBUG) MESSAGE("Component named " << name 
-	    //			<< " found in the general catalog");
-	    C_parser = &(_general_module_list[ind]);
-	    break;
-	  }
+        if (name.compare(_general_module_list[ind].name) == 0)
+          {
+            //      if(MYDEBUG) MESSAGE("Component named " << name 
+            //                  << " found in the general catalog");
+            C_parser = &(_general_module_list[ind]);
+            break;
+          }
       }
 
   return C_parser;
@@ -660,8 +664,8 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
 //----------------------------------------------------------------------
 void 
 SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file, 
-					  ParserComponents& modulelist, 
-					  ParserPathPrefixes& pathList,
+                                          ParserComponents& modulelist, 
+                                          ParserPathPrefixes& pathList,
                                           ParserTypes& typeMap,
                                           TypeList& typeList)
 {
@@ -681,12 +685,11 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
       xmlDocPtr aDoc = xmlReadFile(file, NULL, 0);
       
       if (aDoc != NULL) 
-	handler->ProcessXmlDocument(aDoc);
+        handler->ProcessXmlDocument(aDoc);
       else
-	MESSAGE("ModuleCatalog: could not parse file "<<file);
+        MESSAGE("ModuleCatalog: could not parse file "<<file);
 
       xmlFreeDoc(aDoc);
-      xmlCleanupParser();
       fclose(aFile);
     }
   else
@@ -699,7 +702,7 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
   for ( i = 0; i < _moduleList.size(); i++) {
     for (j=0; j<modulelist.size(); j++) {
       if (modulelist[j].name == _moduleList[i].name)
-	break;
+        break;
     }
     if (j < modulelist.size())
       modulelist[j] = _moduleList[i];
@@ -778,7 +781,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   
   for (unsigned int ind1 = 0; ind1 < _length ; ind1 ++)
     duplicate(I_corba.interfaceservicelist[ind1],
-	      I_parser.services[ind1]);
+              I_parser.services[ind1]);
 }
 
 //----------------------------------------------------------------------
@@ -805,7 +808,7 @@ void SALOME_ModuleCatalogImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceinParameter[ind2],
-	      S_parser.inParameters[ind2]);
+              S_parser.inParameters[ind2]);
   
   // duplicate out Parameters
   _length = S_parser.outParameters.size();
@@ -813,7 +816,7 @@ void SALOME_ModuleCatalogImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceoutParameter[ind2],
-	      S_parser.outParameters[ind2]);
+              S_parser.outParameters[ind2]);
   
   // duplicate in DataStreamParameters
   _length = S_parser.inDataStreamParameters.size();
@@ -821,7 +824,7 @@ void SALOME_ModuleCatalogImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceinDataStreamParameter[ind2],
-	      S_parser.inDataStreamParameters[ind2]);
+              S_parser.inDataStreamParameters[ind2]);
   
   // duplicate out DataStreamParameters
   _length = S_parser.outDataStreamParameters.size();
@@ -830,7 +833,7 @@ void SALOME_ModuleCatalogImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceoutDataStreamParameter[ind2],
-	      S_parser.outDataStreamParameters[ind2]);
+              S_parser.outDataStreamParameters[ind2]);
 }
 
 //----------------------------------------------------------------------
@@ -894,7 +897,7 @@ void SALOME_ModuleCatalogImpl::duplicate
 //----------------------------------------------------------------------
 void
 SALOME_ModuleCatalogImpl::duplicate(ParserPathPrefixes &L_out, 
-				    const ParserPathPrefixes &L_in)
+                                    const ParserPathPrefixes &L_in)
 {
   L_out = L_in;
 }
@@ -910,15 +913,15 @@ bool
 SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
 {
   bool _return_value = true;
-  vector<string> _machine_list;
+  std::vector<std::string> _machine_list;
 
   // Fill a list of all computers indicated in the path list
   for (unsigned int ind = 0; ind < pathList.size(); ind++)
     { 
       for (unsigned int ind1 = 0 ; ind1 < pathList[ind].listOfComputer.size(); ind1++)
-	{
-	  _machine_list.push_back(pathList[ind].listOfComputer[ind1]);
-	}
+        {
+          _machine_list.push_back(pathList[ind].listOfComputer[ind1]);
+        }
     }
 
   // Parse if a computer name is twice in the list of computers
@@ -926,11 +929,11 @@ SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
     {
      for (unsigned int ind1 = ind+1 ; ind1 < _machine_list.size(); ind1++)
        {
-	 if(_machine_list[ind].compare(_machine_list[ind1]) == 0)
-	   {
-	     if(MYDEBUG) MESSAGE( "The computer " << _machine_list[ind] << " is indicated more than once in the path list");
-	     _return_value = false; 
-	   }
+         if(_machine_list[ind].compare(_machine_list[ind1]) == 0)
+           {
+             if(MYDEBUG) MESSAGE( "The computer " << _machine_list[ind] << " is indicated more than once in the path list");
+             _return_value = false; 
+           }
        }
     }
   return _return_value;
@@ -943,8 +946,8 @@ SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
 //----------------------------------------------------------------------
 bool
 SALOME_ModuleCatalogImpl::_parseArguments(int argc, char **argv, 
-					  char **_general, 
-					  char** _personal)
+                                          char **_general, 
+                                          char** _personal)
 {
   bool _return_value = true;
   *_general = NULL;
@@ -953,30 +956,30 @@ SALOME_ModuleCatalogImpl::_parseArguments(int argc, char **argv,
     {
 
       if (strcmp(argv[ind],"-help") == 0)
-	{
-	  INFOS( "Usage: " << argv[0] 
-		 << " -common 'path to general catalog' "
-		 " -personal 'path to personal catalog' "
-		 " -ORBInitRef NameService=corbaname::localhost");
-	    _return_value = false ;
-	}
+        {
+          INFOS( "Usage: " << argv[0] 
+                 << " -common 'path to general catalog' "
+                 " -personal 'path to personal catalog' "
+                 " -ORBInitRef NameService=corbaname::localhost");
+            _return_value = false ;
+        }
 
       if (strcmp(argv[ind],"-common") == 0)
-	{
-	  if (ind + 1 < argc)
-	    {
-	      // General catalog file
-	      *_general = argv[ind + 1] ;
-	    }
-	}
+        {
+          if (ind + 1 < argc)
+            {
+              // General catalog file
+              *_general = argv[ind + 1] ;
+            }
+        }
       else if (strcmp(argv[ind],"-personal") == 0)
-	{
-	  if (ind + 1 < argc)
-	    {
-	      // Personal catalog file
-	      *_personal = argv[ind + 1] ;
-	    }
-	}
+        {
+          if (ind + 1 < argc)
+            {
+              // Personal catalog file
+              *_personal = argv[ind + 1] ;
+            }
+        }
     }
   return _return_value;
 }

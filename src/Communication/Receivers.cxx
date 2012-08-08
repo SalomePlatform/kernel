@@ -1,27 +1,27 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "omniORB4/poa.h"
 #include "utilities.h"
-using namespace std;
 
 #define TAILLE_SPLIT 100000
 #define TIMEOUT 20
@@ -67,13 +67,13 @@ T *CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::get
   for(long i=0;i<size;i+=TAILLE_SPLIT)
     {
       if(size-i>TAILLE_SPLIT)
-	n=TAILLE_SPLIT;
+        n=TAILLE_SPLIT;
       else
-	n=size-i;
+        n=size-i;
       TSeqCorba seq=_mySender->sendPart(i,n);
       T *seqd=(T *)seq->get_buffer(0);
       for(long j=0;j<n;j++)
-	*iter++=*seqd++;
+        *iter++=*seqd++;
     }
   return ret;
 }
@@ -102,13 +102,13 @@ T *CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getDi
   for(long i=0;i<size;i+=TAILLE_SPLIT)
     {
       if(size-i>TAILLE_SPLIT)
-	n=TAILLE_SPLIT;
+        n=TAILLE_SPLIT;
       else
-	n=size-i;
+        n=size-i;
       TSeqCorba seq=_mySender->sendPart(i,n);
       TCorba *seqd=seq->get_buffer(0);
       for(long j=0;j<n;j++)
-	*iter++=*seqd++;
+        *iter++=*seqd++;
     }
   return ret;
 }
@@ -137,9 +137,9 @@ T *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::get
   for(long i=0;i<size;i+=TAILLE_SPLIT)
     {
       if(size-i>TAILLE_SPLIT)
-	n=TAILLE_SPLIT;
+        n=TAILLE_SPLIT;
       else
-	n=size-i;
+        n=size-i;
       TSeqCorba seq=_mySender->sendPart(i,n);
       TCorba *seqd=seq->get_buffer(0);
       for(long j=0;j<n;j++)
@@ -173,7 +173,6 @@ T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   MPI_Status status;
   MPI_Comm com; 
   char   port_name_clt [MPI_MAX_PORT_NAME];
-  float telps, tuser, tsys, tcpu;
   T *_v;
   long _n;
 
@@ -195,8 +194,8 @@ T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   else{
     //       Connect to service, get the inter-communicator server
     //      Attention MPI_Comm_connect est un appel collectif :
-    // 	- Si lancement mpirun -c n -----> uniquement     MPI_COMM_SELF fonctionne
-    // 	- Si lancement client_server&client_server ----> MPI_COMM_WORLD fonctionne
+    //  - Si lancement mpirun -c n -----> uniquement     MPI_COMM_SELF fonctionne
+    //  - Si lancement client_server&client_server ----> MPI_COMM_WORLD fonctionne
     
     //      TIMEOUT is inefficient since MPI_Comm_Connect doesn't return if we asked for
     //        a service that has been unpublished !
@@ -282,12 +281,12 @@ T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &siz
     while( n < size*sizeof(T) ){
       m = read(_clientSockfd, (char*)v+n, size*sizeof(T)-n);
       if( m < 0 ){
-	closeCom();
-	delete [] v;
-	SALOME::ExceptionStruct es;
-	es.type = SALOME::COMM;
-	es.text = "error read Socket exception";
-	throw SALOME::SALOME_Exception(es);
+        closeCom();
+        delete [] v;
+        SALOME::ExceptionStruct es;
+        es.type = SALOME::COMM;
+        es.text = "error read Socket exception";
+        throw SALOME::SALOME_Exception(es);
       }
       n += m;
     }
@@ -300,9 +299,9 @@ T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &siz
   catch(SALOME::SALOME_Exception &ex){
     if( ex.details.type == SALOME::COMM )
       {
-	_senderDestruc=false;
-	cout << ex.details.text << endl;
-	throw MultiCommException("Unknown sender protocol");
+        _senderDestruc=false;
+		std::cout << ex.details.text << std::endl;
+        throw MultiCommException("Unknown sender protocol");
       }
     else
       throw ex;
@@ -330,9 +329,9 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::initCom()
   catch(SALOME::SALOME_Exception &ex){
     if( ex.details.type == SALOME::COMM )
       {
-	_senderDestruc=false;
-	cout << ex.details.text << endl;
-	throw MultiCommException("Unknown sender protocol");
+        _senderDestruc=false;
+		std::cout << ex.details.text << std::endl;
+        throw MultiCommException("Unknown sender protocol");
       }
     else
       throw ex;
@@ -363,8 +362,8 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::connectCom(const cha
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     bcopy((char *)server->h_addr, 
-	  (char *)&serv_addr.sin_addr.s_addr,
-	  server->h_length);
+          (char *)&serv_addr.sin_addr.s_addr,
+          server->h_length);
     serv_addr.sin_port = htons(port);
     
     if( connect(_clientSockfd, (struct sockaddr *) & serv_addr, sizeof(struct sockaddr)) < 0 ){
@@ -381,9 +380,9 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::connectCom(const cha
   catch(SALOME::SALOME_Exception &ex){
     if( ex.details.type == SALOME::COMM )
       {
-	_senderDestruc=false;
-	cout << ex.details.text << endl;
-	throw MultiCommException("Unknown sender protocol");
+        _senderDestruc=false;
+        std::cout << ex.details.text << std::endl;
+        throw MultiCommException("Unknown sender protocol");
       }
     else
       throw ex;

@@ -1,25 +1,27 @@
 #!/usr/bin/env python
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 import sys, os, re, socket
 #import commands
 from server import *
@@ -63,14 +65,6 @@ class NamingServer(Server):
           #print "Can't create " + upath
           pass
 
-        #os.system("touch " + upath + "/dummy")
-        for fname in os.listdir(upath):
-          try:
-            if not fname.startswith("."): os.remove(upath + "/" + fname)
-          except:
-            pass
-        #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
-
         if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
@@ -89,13 +83,34 @@ class NamingServer(Server):
         #aPort=(ss.join().split(':'))[2];
         #aPort=re.findall("\d+", ss[0])[0]
 
+        # \begin{E.A.}
+        # put the log files of omniNames in different directory with port reference,
+        # it is cleaner on linux and it is a fix for salome since it is impossible to
+        # remove the log files if the corresponding omniNames has not been killed.
+        # \end{E.A.}
+        
+        upath += "/omniNames_%s"%(aPort)
+        try:
+           os.mkdir(upath)
+        except:
+           #print "Can't create " + upath
+           pass
+        
+        #os.system("touch " + upath + "/dummy")
+        for fname in os.listdir(upath):
+          try:
+             os.remove(upath + "/" + fname)
+          except:
+            pass
+        #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
+
         #aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
         #print "sed command = ", aSedCommand
         #aPort = commands.getoutput("sed -e\"" + aSedCommand + "\"" + os.environ["OMNIORB_CONFIG"])
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"', ' -errlog', upath+'/omniNameErrors.log']
+          self.CMD=['omniNames -start ' , aPort , ' -nohostname ', ' -logdir ' , '\"' + upath + '\"', ' -errlog', '\"' + upath+'/omniNameErrors.log' + '\"']
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']

@@ -1,0 +1,151 @@
+
+dir= os.getenv("TmpDir")
+if dir == None:
+        dir = "/tmp"
+
+batchmode_geompy.myBuilder._set_UndoLimit(20)
+
+# 1st transaction -----------------------------------------
+batchmode_geompy.myBuilder.NewCommand()
+#       create AttributeSequenceOfInteger      
+#=========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeSequenceOfInteger")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeSequenceOfInteger attribute"
+A = A._narrow(SALOMEDS.AttributeSequenceOfInteger)
+if A == None :
+        raise  RuntimeError, "Can't create AttributeSequenceOfInteger attribute"
+
+A.Add(100)
+A.Add(300)
+A.Add(500)
+A.Add(400)
+A.Add(700)
+print "First transaction goes on :  HasOpenCommand() = ", batchmode_geompy.myBuilder.HasOpenCommand()
+batchmode_geompy.myBuilder.CommitCommand() #--------------
+
+# 2nd transaction ------------------------------------------
+batchmode_geompy.myBuilder.NewCommand() 
+A.Remove(3)
+A.ChangeValue(4,500)
+batchmode_geompy.myBuilder.CommitCommand() #--------------
+
+if batchmode_geompy.myBuilder.GetAvailableUndos() == 0:
+        raise RuntimeError, "GetAvailableUndos() = 0 but must not !"
+
+if A.Length() != 4:
+        print "Wrong length of SequenceOfInteger"
+if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
+        raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger"
+
+file1 = dir + "/test1.hdf"
+batchmode_geompy.myStudyManager.SaveAs(file1, batchmode_geompy.myStudy)
+
+# 1st Undo ---------------------------------------
+batchmode_geompy.myBuilder.Undo()
+res, A = batchmode_geompy.myBuilder.FindAttribute(batchmode_geompy.father, "AttributeSequenceOfInteger")
+if A is None:
+        raise  RuntimeError, "After first 'undo' can't find AttributeSequenceOfInteger"
+if A.Length() != 5:
+        print "Wrong length of SequenceOfInteger"
+if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 500 or A.Value(4) != 400 or  A.Value(5) != 700:
+        print  A.Value(1), A.Value(2), A.Value(3), A.Value(4), A.Value(5)
+        raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger after the first 'undo'!"
+# save 
+file2 = dir + "/test2.hdf"
+batchmode_geompy.myStudyManager.SaveAs(file2, batchmode_geompy.myStudy)
+#-------------------------------------------------
+# 2nd Undo ---------------------------------------
+batchmode_geompy.myBuilder.Undo()
+res, attr = batchmode_geompy.myBuilder.FindAttribute(batchmode_geompy.father, "AttributeSequenceOfInteger")
+if res !=0 or attr != None :
+        raise  RuntimeError, "After the second 'undo' AttributeSequenceOfInteger exists but must not!"
+file3 = dir + "/test3.hdf"
+batchmode_geompy.myStudyManager.SaveAs(file3, batchmode_geompy.myStudy)
+#-------------------------------------------------
+
+#make redo twice ---------------------------------
+if batchmode_geompy.myBuilder.GetAvailableRedos() == 0:
+        raise RuntimeError, "GetAvailableRedos() = 0 but must not !"
+batchmode_geompy.myBuilder.Redo()
+batchmode_geompy.myBuilder.Redo()
+res, A = batchmode_geompy.myBuilder.FindAttribute(batchmode_geompy.father, "AttributeSequenceOfInteger")
+if res ==0 or A== None :
+        raise  RuntimeError, "AttributeSequenceOfInteger is not found but must be!"
+if A.Length() != 4:
+        print "Wrong length of SequenceOfInteger"
+if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
+        raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger"
+
+
+#----------------------------------------------------------------------
+openedStudy=batchmode_geompy.myStudyManager.Open(file1);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find AttributeSequenceOfInteger
+#======================================
+
+res,A=father.FindAttribute("AttributeSequenceOfInteger")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeSequenceOfInteger"
+
+A = A._narrow(SALOMEDS.AttributeSequenceOfInteger)
+
+if A.Length() != 4:
+        print "Wrong length of SequenceOfInteger"
+if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
+        print "Wrong  value of  AttributeSequenceOfInteger"
+#----------------------------------------------------------------------
+openedStudy=batchmode_geompy.myStudyManager.Open(file2);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find AttributeSequenceOfInteger
+#======================================
+
+res,A=father.FindAttribute("AttributeSequenceOfInteger")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeSequenceOfInteger"
+
+A = A._narrow(SALOMEDS.AttributeSequenceOfInteger)
+
+if A.Length() != 5:
+        print "Wrong length of SequenceOfInteger"
+if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 500 or A.Value(4) != 400 or  A.Value(5) != 700:
+        raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger after the first 'undo'!"
+
+#----------------------------------------------------------------------
+openedStudy=batchmode_geompy.myStudyManager.Open(file3);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find AttributeSequenceOfInteger
+#======================================
+
+res,A=father.FindAttribute("AttributeSequenceOfInteger")
+
+if res!=0 or A != None:
+        raise RuntimeError, " AttributeSequenceOfInteger is found but must not!"
+

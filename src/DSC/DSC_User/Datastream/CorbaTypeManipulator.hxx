@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : CorbaTypeManipulator.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -33,6 +34,7 @@
 #include <cstring>
 #include <CORBA.h>
 
+//#define MYDEBUG
 
 // Classes manipulation
 // -------------------
@@ -167,7 +169,7 @@ public:
 
   // Operation de création
 //   static inline Type create(size_t size=1,InnerType * data=NULL,
-// 			    bool giveOwnerShip=false) {
+//                          bool giveOwnerShip=false) {
 //     Type dummy;
 //     if (dataPtr)
 //       return *data;
@@ -227,7 +229,7 @@ public:
     // En non collocalisé on recrée une séquence avec le buffer de la première dont on
     // a demandé la propriété.
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1 ------------------" << std::endl;
 #endif
     if ( data.release() ) {
@@ -236,13 +238,13 @@ public:
     // Crée une nouvelle sequence propriétaire des données du buffer (pas de recopie)
     // Les données de la nouvelle séquence seront automatiquement désallouées 
     // par appel à la méthode freebuf dans le destructeur de la séquence (cf  delete_data).
-#ifdef _DEBUG_
+#ifdef MYDEBUG
       std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(0 copy) bis ------"<<  p_data <<"------------" << std::endl;
 #endif
     
       return  new seq_T (max, len, p_data, true);
     }
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(recopie) bis ------"<<  &data <<"------------" << std::endl;
 #endif
     // Crée une nouvelle sequence propriétaire des données du buffer (avec recopie)    
@@ -305,7 +307,7 @@ public:
   // (généralement pas de recopie qlq soit l'ownership )
   // data doit avoir été alloué par allocPointer si giveOwnerShip = true  
   static inline Type create(size_t size, InnerType * const data = NULL,
-			    bool giveOwnerShip = false ) { 
+                            bool giveOwnerShip = false ) { 
     Type tmp;
     if (!data) {
       tmp = new seq_T();
@@ -397,12 +399,12 @@ public:
     // Crée une nouvelle sequence propriétaire des données du buffer (généralement pas de recopie)
     // Les données seront automatiquement désallouées par appel interne à la méthode freebuf
     // lors de la destruction de l'objet par appel à delete_data.
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1bis Pas de Duplication  -----------" << std::endl;
 #endif
        return new seq_T (len, p_data, true);
      }
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1bis Duplication pour en devenir propriétaire -----------" << std::endl;
 #endif
     // Crée une nouvelle sequence propriétaire des données du buffer (avec recopie)    
@@ -463,7 +465,7 @@ public:
   // (généralement pas de recopie qlq soit l'ownership )
   // data doit avoir été alloué par allocPointer si giveOwnerShip = true  
   static inline Type create(size_t size, InnerType * const data = NULL,
-			    bool giveOwnerShip = false ) { 
+                            bool giveOwnerShip = false ) { 
     Type tmp;
     if (!data) {
       tmp = new seq_T();

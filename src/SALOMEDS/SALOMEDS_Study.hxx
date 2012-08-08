@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_Study.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -89,10 +90,10 @@ public:
   virtual _PTR(UseCaseBuilder) GetUseCaseBuilder();
   virtual void Close();
   virtual void EnableUseCaseAutoFilling(bool isEnabled);
-  virtual bool DumpStudy(const std::string& thePath,const std::string& theBaseName,bool isPublished); 
+  virtual bool DumpStudy(const std::string& thePath,const std::string& theBaseName,bool isPublished,bool isMultiFile); 
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint);
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
-						       const std::string& theModuleName, int theSavePoint);
+                                                       const std::string& theModuleName, int theSavePoint);
   virtual void SetStudyLock(const std::string& theLockerID);
   virtual bool IsStudyLocked();
   virtual void UnLockStudy(const std::string& theLockerID);
@@ -101,14 +102,18 @@ public:
   virtual void SetReal(const std::string& theVarName, const double theValue);
   virtual void SetInteger(const std::string& theVarName, const int theValue);
   virtual void SetBoolean(const std::string& theVarName, const bool theValue);  
+  virtual void SetString(const std::string& theVarName, const std::string& theValue);
+  virtual void SetStringAsDouble(const std::string& theVarName, const double theValue);
   
   virtual double GetReal(const std::string& theVarName);
   virtual int GetInteger(const std::string& theVarName);
   virtual bool GetBoolean(const std::string& theVarName);
+  virtual std::string GetString(const std::string& theVarName);
   
   virtual bool IsReal(const std::string& theVarName);
   virtual bool IsInteger(const std::string& theVarName);
   virtual bool IsBoolean(const std::string& theVarName);
+  virtual bool IsString(const std::string& theVarName);
 
   virtual bool IsVariable(const std::string& theVarName);
   virtual std::vector<std::string> GetVariableNames();
@@ -117,6 +122,7 @@ public:
   virtual bool RenameVariable(const std::string& theVarName, const std::string& theNewVarName);
   virtual bool IsVariableUsed(const std::string& theVarName);
   virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars);
+  virtual void attach(SALOMEDS::Observer_ptr theObserver,bool modify);
 
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     

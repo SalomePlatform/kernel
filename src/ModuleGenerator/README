@@ -1,4 +1,4 @@
-Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 
 Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -75,7 +75,7 @@ ou <n> vaut 1, 1b, 2, 3, 4, 5
     a partir d'un fichier idl <fichier.idl>
     Le fichier idl contient un composant et une interface CORBA
     qui n'est pas un composant Salome (i.e. ne derive pas de
-    Engines::Component).
+    Engines::EngineComponent).
 
               _________________________________________
 2.  Un meme fichier idl est lu deux fois

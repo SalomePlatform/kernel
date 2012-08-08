@@ -1,28 +1,29 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_UseCaseBuilder.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-//
+
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -30,8 +31,6 @@
 #include "SALOMEDSImpl_Attributes.hxx"
 
 #include "DF_ChildIterator.hxx"
-
-using namespace std;
 
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"
@@ -100,6 +99,9 @@ bool SALOMEDSImpl_UseCaseBuilder::Append(const SALOMEDSImpl_SObject& theObject)
 
   aCurrentNode->Append(aNode);
 
+  // Mantis issue 0020136: Drag&Drop in OB
+  theObject.GetStudy()->addSO_Notification(theObject);
+
   return true;
 }
 
@@ -120,7 +122,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
 
   aNode->Remove();
 
-  vector<DF_Attribute*> aList;
+  std::vector<DF_Attribute*> aList;
   aList.push_back(aNode);
 
   SALOMEDSImpl_AttributeReference* aRef = NULL;
@@ -151,7 +153,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
  */
 //============================================================================
 bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather, 
-					   const SALOMEDSImpl_SObject& theObject)
+                                           const SALOMEDSImpl_SObject& theObject)
 {
   if(!_root || !theFather || !theObject) return false;
 
@@ -170,7 +172,12 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
 
   aNode->Remove();
 
-  return aFather->Append(aNode);
+  bool ret = aFather->Append(aNode);
+
+  // Mantis issue 0020136: Drag&Drop in OB
+  theObject.GetStudy()->addSO_Notification(theObject);
+
+  return ret;
 }
 
 //============================================================================
@@ -179,7 +186,7 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
  */
 //============================================================================
 bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFirst, 
-					       const SALOMEDSImpl_SObject& theNext)
+                                               const SALOMEDSImpl_SObject& theNext)
 {
   if(!_root || !theFirst || !theNext) return false;
 
@@ -201,7 +208,12 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFi
 
   aFirstNode->Remove();
 
-  return aNode->InsertBefore(aFirstNode);
+  bool ret = aNode->InsertBefore(aFirstNode);
+
+  // Mantis issue 0020136: Drag&Drop in OB
+  theFirst.GetStudy()->addSO_Notification(theFirst);
+
+  return ret;
 }
 
 
@@ -268,11 +280,33 @@ bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const SALOMEDSImpl_SObject& theObj
 }
 
 //============================================================================
+/*! Function : GetFather
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetFather(const SALOMEDSImpl_SObject& theObject)
+{
+  SALOMEDSImpl_SObject so;
+  if (!_root || !theObject) return so;
+
+  DF_Label aLabel = theObject.GetLabel(); 
+  if (aLabel.IsNull()) return so;
+
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if (!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return so; 
+
+  SALOMEDSImpl_AttributeTreeNode* aFatherNode = aNode->GetFather();
+  if (!aFatherNode) return so;
+
+  return aFatherNode->GetSObject();
+}
+
+//============================================================================
 /*! Function : SetName
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::SetName(const string& theName) {
+bool SALOMEDSImpl_UseCaseBuilder::SetName(const std::string& theName) {
   if(!_root) return false;
 
   SALOMEDSImpl_AttributeName* aNameAttrib = NULL;
@@ -312,9 +346,9 @@ SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
  *  Purpose  :
  */
 //============================================================================
-string SALOMEDSImpl_UseCaseBuilder::GetName() 
+std::string SALOMEDSImpl_UseCaseBuilder::GetName() 
 {
-  string aString;
+  std::string aString;
   if(!_root) return aString;
   
   SALOMEDSImpl_AttributeName* aName = NULL;
@@ -337,13 +371,34 @@ bool SALOMEDSImpl_UseCaseBuilder::IsUseCase(const SALOMEDSImpl_SObject& theObjec
 }
 
 //============================================================================ 
+/*! Function :  IsUseCaseNode
+ *  Purpose  :  
+ */ 
+//============================================================================ 
+bool SALOMEDSImpl_UseCaseBuilder::IsUseCaseNode(const SALOMEDSImpl_SObject& theObject)
+{
+  if(!_root) return false;
+
+  DF_Label aLabel;
+  if (!theObject) aLabel = _root->Label();
+  else 
+    aLabel = theObject.GetLabel(); 
+  if(aLabel.IsNull()) return false;
+
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false; 
+  
+  return true;
+}
+
+//============================================================================ 
 /*! Function : NewUseCase 
  *  Purpose  :  
  */ 
 //============================================================================ 
-SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::AddUseCase(const string& theName)
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::AddUseCase(const std::string& theName)
 {
-  string aBasicGUID(USE_CASE_GUID);
+  std::string aBasicGUID(USE_CASE_GUID);
 
   //Create a use cases structure if it not exists 
 
@@ -397,7 +452,7 @@ SALOMEDSImpl_UseCaseBuilder::GetUseCaseIterator(const SALOMEDSImpl_SObject& theO
 }
 
 
-SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetSObject(const string& theEntry)
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetSObject(const std::string& theEntry)
 {
   DF_Label L = DF_Label::Label(_root->Label(), theEntry);
   return SALOMEDSImpl_Study::SObject(L);    

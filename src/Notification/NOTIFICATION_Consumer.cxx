@@ -1,31 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Notification : wrapping of Notification service services
 //  File   : NOTIFICATION_Consumer.cxx
 //  Author : Laurent DADA / Francis KLOSS
 //  Module : SALOME
 //
 #include "NOTIFICATION.hxx"
-using namespace std;
 
 NOTIFICATION_Consumer::NOTIFICATION_Consumer():
     proxy_supplier(0),
@@ -50,9 +50,9 @@ NOTIFICATION_Consumer::NOTIFICATION_Consumer():
                     proxy_supplier->connect_structured_pull_consumer(_this());
                     _ok = true;
                     MESSAGE("NOTIFICATION Info : successfully connection for pull consumer notification");
-                } catch (CORBA::BAD_PARAM& ex) {
+                } catch (CORBA::BAD_PARAM&) {
                     MESSAGE("NOTIFICATION Error : pull consumer BAD_PARAM exception while connecting");
-                } catch (CosEventChannelAdmin::AlreadyConnected& ex) {
+                } catch (CosEventChannelAdmin::AlreadyConnected&) {
                     MESSAGE("NOTIFICATION Error : pull consumer already connected");
                 } catch (...) {
                     MESSAGE("NOTIFICATION Error : pull consumer failed to connect");
@@ -92,7 +92,7 @@ bool NOTIFICATION_Consumer::Receive(char** graph, char** node, char** type, char
         };
 
         if (status) {
-	    //omniORB 4.1.x requiries using only CORBA types instead C types
+            //omniORB 4.1.x requiries using only CORBA types instead C types
             const char* Asender;
             const char* Agraph;
             const char* Atype;
@@ -100,7 +100,7 @@ bool NOTIFICATION_Consumer::Receive(char** graph, char** node, char** type, char
             CORBA::ULong      Astamp;
             const char* Adate;
             const char* Anode;
-            const char* Amessage;	    
+            const char* Amessage;           
             event->filterable_data[0].value >>= Asender;
             event->filterable_data[1].value >>= Agraph;
             event->filterable_data[2].value >>= Atype;

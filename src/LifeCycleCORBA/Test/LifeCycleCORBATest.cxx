@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "LifeCycleCORBATest.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
@@ -31,7 +32,6 @@
 #include <string>
 #include <cstdlib>
 
-using namespace std;
 
 // --- uncomment to have some traces on standard error
 //     (useful only when adding new tests...)
@@ -67,15 +67,15 @@ LifeCycleCORBATest::setUp()
   // --- trace on file
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   //s="local";
   //s="with_logger";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
-  //  traceFile.open(theFileName, ios::out | ios::trunc);
-  traceFile.open(theFileName, ios::out | ios::app);
+  std::ofstream traceFile;
+  //  traceFile.open(theFileName, std::ios::out | std::ios::trunc);
+  traceFile.open(theFileName, std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -127,8 +127,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_LaunchContainer()
   // --- get a local container,
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = "myContainer";
-  Engines::Component_var mycompo =
+  std::string containerName = "myContainer";
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -155,13 +155,13 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameInstance()
   // --- get a local container,
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = "myContainer";
+  std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
-  Engines::Component_var mycompo2 =
+  Engines::EngineComponent_var mycompo2 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo2));
 
@@ -177,8 +177,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameInstance()
 
   // --- check equality of instance names
 
-  string name1 = m1->instanceName();
-  string name2 = m2->instanceName();
+  std::string name1 = m1->instanceName();
+  std::string name2 = m2->instanceName();
   CPPUNIT_ASSERT_EQUAL(name1, name2);
 }
 
@@ -198,9 +198,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_PythonInCppContainer()
   // --- get a local container,
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = "myContainer";
+  std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
@@ -227,13 +227,13 @@ LifeCycleCORBATest::testFindOrLoad_Component_PythonSameInstance()
   // --- get a local container (with a name based on local hostname),
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = "myContainer";
+  std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
-  Engines::Component_var mycompo2 =
+  Engines::EngineComponent_var mycompo2 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo2));
 
@@ -249,8 +249,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_PythonSameInstance()
 
   // --- check equality of instance names
 
-  string name1 = m1->instanceName();
-  string name2 = m2->instanceName();
+  std::string name1 = m1->instanceName();
+  std::string name2 = m2->instanceName();
   CPPUNIT_ASSERT_EQUAL(name1, name2);
 }
 
@@ -271,9 +271,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_UnknownInCatalog()
   // --- get a local container (with a name based on local hostname),
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = "myContainer";
+  std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"MyNewComponent");
   CPPUNIT_ASSERT(CORBA::is_nil(mycompo1));
 }
@@ -295,10 +295,10 @@ LifeCycleCORBATest::testFindOrLoad_Component_LaunchContainerHostname()
   // --- get a local container (with a name based on local hostname),
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = Kernel_Utils::GetHostname();
+  std::string containerName = Kernel_Utils::GetHostname();
   containerName += "/theContainer";
   DEVTRACE("containerName = " << containerName);
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -324,16 +324,16 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameContainer()
   // --- get a local container (with a name based on local hostname),
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = "aContainer";
+  std::string containerName = "aContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
   containerName = Kernel_Utils::GetHostname();
   containerName += "/aContainer";
   DEVTRACE("containerName = " << containerName);
-  Engines::Component_var mycompo2 =
+  Engines::EngineComponent_var mycompo2 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo2));
 
@@ -349,8 +349,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameContainer()
 
   // --- check equality of instance names
 
-  string name1 = m1->instanceName();
-  string name2 = m2->instanceName();
+  std::string name1 = m1->instanceName();
+  std::string name2 = m2->instanceName();
   CPPUNIT_ASSERT_EQUAL(name1, name2);
 
   // --- check containers are the same servant (same container name+hostname)
@@ -359,11 +359,11 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameContainer()
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
   Engines::Container_var c2 = m2->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
-  string cname1 = c1->name();
-  string cname2 = c2->name();
+  std::string cname1 = c1->name();
+  std::string cname2 = c2->name();
   CPPUNIT_ASSERT_EQUAL(cname1, cname2);
-  string hostname1 = c1->getHostName();
-  string hostname2 = c2->getHostName();
+  std::string hostname1 = c1->getHostName();
+  std::string hostname2 = c2->getHostName();
   CPPUNIT_ASSERT_EQUAL(hostname1, hostname2);
   CORBA::Long pidc1 = c1->getPID();
   CORBA::Long pidc2 = c2->getPID();
@@ -385,24 +385,24 @@ LifeCycleCORBATest::testFindOrLoad_Component_UnknownMachine()
   // --- try to get a distant container on an unknown machine (not existing)
   //     check that the CORBA object is null
 
-  string containerName = "aFarAwayComputer";
+  std::string containerName = "aFarAwayComputer";
   containerName += "/theContainer";
 //   CPPUNIT_ASSERT_THROW(Engines::Component_var mycompo =
-// 		       _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME::SALOME_Exception);
+//                     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME::SALOME_Exception);
   try
     {
-      Engines::Component_var mycompo =
-	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
+      Engines::EngineComponent_var mycompo =
+        _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
     }
   catch(const SALOME::SALOME_Exception &ex)
     {
       CPPUNIT_ASSERT(true);
-//       string expectedMessage = "BAD PARAM";
+//       std::string expectedMessage = "BAD PARAM";
 //       std::ostream os;
 //       os << ex;
-//       string actualMessage = os.str();
+//       std::string actualMessage = os.str();
 //       DEVTRACE("actual Exception Message = " << actualMessage);
-//       CPPUNIT_ASSERT(actualMessage.find(expectedMessage) != string::npos);
+//       CPPUNIT_ASSERT(actualMessage.find(expectedMessage) != std::string::npos);
     }
 }
 
@@ -419,7 +419,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsEmpty()
 
   Engines::MachineParameters params;
   _LCC.preSet(params);
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -442,9 +442,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
 
   Engines::MachineParameters params;
   _LCC.preSet(params);
-  string hostname=Kernel_Utils::GetHostname();
+  std::string hostname=Kernel_Utils::GetHostname();
   params.hostname=hostname.c_str();
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -458,7 +458,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
-  string hostname1 = c1->getHostName();
+  std::string hostname1 = c1->getHostName();
   CPPUNIT_ASSERT_EQUAL(hostname1, Kernel_Utils::GetHostname());
 }
 
@@ -476,9 +476,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
 
   Engines::MachineParameters params;
   _LCC.preSet(params);
-  string containerName = "myContainer";
+  std::string containerName = "myContainer";
   params.container_name = containerName.c_str();
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -492,10 +492,10 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
-  string hostname1 = c1->getHostName();
+  std::string hostname1 = c1->getHostName();
   CPPUNIT_ASSERT_EQUAL(hostname1, Kernel_Utils::GetHostname());
-  string cname1 = c1->name();
-  CPPUNIT_ASSERT(cname1.find(containerName) != string::npos);
+  std::string cname1 = c1->name();
+  CPPUNIT_ASSERT(cname1.find(containerName) != std::string::npos);
 }
 
 // ============================================================================
@@ -509,16 +509,16 @@ LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  string remoteHost = GetRemoteHost();
+  std::string remoteHost = GetRemoteHost();
 
-  string containerName = remoteHost;
+  std::string containerName = remoteHost;
   containerName += "/aContainer";
   DEVTRACE("containerName = " << containerName);
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
-			 "computers from ResourcesCatalog",
-			 !CORBA::is_nil(mycompo1));
+                         "computers from ResourcesCatalog",
+                         !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -530,7 +530,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
-  string hostname1 = c1->getHostName();
+  std::string hostname1 = c1->getHostName();
   CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
 }
 
@@ -546,17 +546,17 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  string remoteHost = GetRemoteHost();
+  std::string remoteHost = GetRemoteHost();
 
   Engines::MachineParameters params;
   _LCC.preSet(params); 
   params.hostname = remoteHost.c_str();
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
-			 "computers from ResourcesCatalog",
-			 !CORBA::is_nil(mycompo1));
+                         "computers from ResourcesCatalog",
+                         !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -568,7 +568,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
-  string hostname1 = c1->getHostName();
+  std::string hostname1 = c1->getHostName();
   CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
 }
 
@@ -584,18 +584,18 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  string remoteHost = GetRemoteHost();
+  std::string remoteHost = GetRemoteHost();
 
   Engines::MachineParameters params;
   _LCC.preSet(params); 
   params.hostname = remoteHost.c_str();
   params.container_name = "anotherContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
-			 "computers from ResourcesCatalog",
-			 !CORBA::is_nil(mycompo1));
+                         "computers from ResourcesCatalog",
+                         !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -607,7 +607,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
-  string hostname1 = c1->getHostName();
+  std::string hostname1 = c1->getHostName();
   CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
 }
 
@@ -620,11 +620,11 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
 void  LifeCycleCORBATest::testgetLocalFile_localComputer()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
-  string origFileName = getenv("KERNEL_ROOT_DIR");
+  std::string origFileName = getenv("KERNEL_ROOT_DIR");
   origFileName += "/lib/salome/libSalomeLifeCycleCORBA.so.0.0.0";
   SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
-				     origFileName);
-  string local = transfer.getLocalFile();
+                                     origFileName);
+  std::string local = transfer.getLocalFile();
   CPPUNIT_ASSERT(!local.empty());
   CPPUNIT_ASSERT_EQUAL(local, origFileName);
 }
@@ -638,13 +638,13 @@ void  LifeCycleCORBATest::testgetLocalFile_localComputer()
 void  LifeCycleCORBATest::testgetLocalFile_remoteComputer()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
-  string origFileName = getenv("KERNEL_ROOT_DIR");
+  std::string origFileName = getenv("KERNEL_ROOT_DIR");
   origFileName += "/lib/salome/libSalomeContainer.so.0.0.0";
   SALOME_FileTransferCORBA transfer( GetRemoteHost(),
-				     origFileName);
-  string local = transfer.getLocalFile();
+                                     origFileName);
+  std::string local = transfer.getLocalFile();
   CPPUNIT_ASSERT(!local.empty());
-  string local2 = transfer.getLocalFile();
+  std::string local2 = transfer.getLocalFile();
   CPPUNIT_ASSERT(!local2.empty());
   CPPUNIT_ASSERT_EQUAL(local, local2);
 }
@@ -669,7 +669,7 @@ void  LifeCycleCORBATest::testgetLocalFile_remoteComputer()
  */
 // ============================================================================
 
-string LifeCycleCORBATest::GetRemoteHost()
+std::string LifeCycleCORBATest::GetRemoteHost()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
@@ -679,27 +679,26 @@ string LifeCycleCORBATest::GetRemoteHost()
     Engines::ResourcesManager::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(resourcesManager));
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params);               // empty params to get all the machines
+  params.resource_params.componentList.length(1);
+  params.resource_params.componentList[0]="SalomeTestComponent";
 
-  Engines::CompoList clist;
-  clist.length(1);
-  clist[0] = "SalomeTestComponent";
-  Engines::MachineList_var hostList =
-    resourcesManager->GetFittingResources(params,clist);
+  Engines::ResourceList_var hostList = resourcesManager->GetFittingResources(params.resource_params);
   CPPUNIT_ASSERT(hostList->length() > 1);
 
-  string localHost = Kernel_Utils::GetHostname();
-  string remoteHost;
+  std::string localHost = Kernel_Utils::GetHostname();
+  std::string remoteHost;
   for (unsigned int i=0; i < hostList->length(); i++)
     {
       const char* aMachine = hostList[i];
-      string machine(aMachine);
+      Engines::ResourceDefinition_var resource_definition = resourcesManager->GetResourceDefinition(aMachine);
+      std::string machine(resource_definition->hostname.in());
       if (machine != localHost)
-	{
-	  remoteHost = machine;
-	  break;
-	}
+        {
+          remoteHost = machine;
+          break;
+        }
     }
   CPPUNIT_ASSERT(remoteHost != "");
   return remoteHost;

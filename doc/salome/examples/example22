@@ -1,0 +1,128 @@
+
+#       create AttributeReal      
+#===============================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeTableOfReal")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeTableOfReal attribute"
+A = A._narrow(SALOMEDS.AttributeTableOfReal)
+a=[1,2]
+
+b=[3,4]
+
+#    2x2
+# --- rows ---
+A.AddRow(a)
+A.AddRow(b)
+a=[34,14]
+A.SetRow(1,a)
+
+#    3x3
+#
+b=[54,56]
+A.AddRow(b)
+
+# --- columns ---
+a=[76,25,12]
+
+A.AddColumn(a)
+a=[836,3425,342]
+A.SetColumn(3,a)
+
+# change attribute values
+print "A.GetValue(2,2) = ", A.GetValue(2,2)
+print "A.PutValue(2,2,625323)"
+A.PutValue(625323,2,2)
+print "A.GetValue(2,2) = ", A.GetValue(2,2)
+
+#set Titles
+
+A.SetTitle("TEST")
+
+A.SetRowTitle(1,"FR")
+A.SetRowTitle(2,"SR")
+A.SetRowTitle(3,"TR")
+
+A.SetColumnTitle(1,"FC")
+A.SetColumnTitle(2,"SC")
+A.SetColumnTitle(3,"TC")
+
+
+#check the table
+print "Common title : ",A.GetTitle()
+print "Rows titles : ",  A.GetRowTitles()
+rnb = A.GetNbRows() + 1
+for i in range(1, rnb):
+        b=A.GetRow(i)
+        print b
+
+cnb = A.GetNbColumns() + 1
+print "Columns title : ", A.GetColumnTitles()
+for i in range(1, cnb):
+        b=A.GetColumn(i)
+        print b
+
+# set titles
+#titles=["11","12","13"]
+#A.SetRowTitles(titles)
+#titles=["21","22","23"]
+#A.SetRowTitles(2,titles)
+#titles=["31","32","33"]
+#A.SetRowTitles(3,titles)
+
+#--------------------------------------------------------------------------#
+#------------------------ save the study ----------------------------------#
+#--------------------------------------------------------------------------#
+import os
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+print " -------  We will save to", file, "-----------"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+
+#--------------------------------------------------------------------------#
+#---------------------------- Open file -----------------------------------# 
+#--------------------------------------------------------------------------#
+
+print" -------------- Open  " + file + "-------------- " 
+
+openedStudy = batchmode_geompy.myStudyManager.Open(file)
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+# --- check attribute ---
+
+res,A=father.FindAttribute("AttributeTableOfReal")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeTableOfReal"
+
+A = A._narrow(SALOMEDS.AttributeTableOfReal)
+
+#check the table
+print "Common title : ",A.GetTitle()
+print "Rows titles : ",  A.GetRowTitles()
+rnb = A.GetNbRows() + 1
+for i in range(1, rnb):
+        b=A.GetRow(i)
+        print b
+
+cnb = A.GetNbColumns() + 1
+print "Columns title : ", A.GetColumnTitles()
+for i in range(1, cnb):
+        b=A.GetColumn(i)
+        print b
+
+titles=["ff","ss","tt"]
+A.SetRowTitles(titles)
+print "Rows titles : ",  A.GetRowTitles()
+
+titles=["ww","zz","cc"]
+A.SetColumnTitles(titles)
+print "Column titles : ",  A.GetColumnTitles()
+

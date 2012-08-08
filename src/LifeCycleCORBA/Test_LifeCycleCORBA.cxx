@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 //  File   : TestLifeCycleCORBA.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
@@ -37,8 +38,6 @@
 #include "SALOME_FileTransferCORBA.hxx"
 #include "utilities.h"
 #include <Basics_Utils.hxx>
-
-using namespace std;
 
 int main (int argc, char * argv[])
 {
@@ -62,11 +61,11 @@ int main (int argc, char * argv[])
       // --- get a local container,
       //     load an engine, and invoque methods on that engine
 
-      string containerName = "myServer";
+      std::string containerName = "myServer";
       MESSAGE("FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" );
 
-      Engines::Component_var mycompo =
-	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
+      Engines::EngineComponent_var mycompo =
+        _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
       ASSERT(!CORBA::is_nil(mycompo));
       Engines::TestComponent_var m1;
       m1 = Engines::TestComponent::_narrow(mycompo);
@@ -77,53 +76,53 @@ int main (int argc, char * argv[])
       // --- get another container,
       //     load an engine, and invoque methods on that engine
 
-      string containerName2 = "otherServer";
+      std::string containerName2 = "otherServer";
 
-      Engines::Component_var mycompo2 =
-	_LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
+      Engines::EngineComponent_var mycompo2 =
+        _LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo2));
       Engines::TestComponent_var m2;
       m2 = Engines::TestComponent::_narrow(mycompo2);
       ASSERT(!CORBA::is_nil(m2));
       SCRUTE(m2->instanceName());
-      cout << m2->instanceName() << endl;
+      std::cout << m2->instanceName() << std::endl;
       MESSAGE("Coucou " << m2->Coucou(1L));
 
       // --- get a third container,
       //     load an engine, and invoque methods on that engine
 
-      Engines::Component_var mycompo3 =
-	_LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
+      Engines::EngineComponent_var mycompo3 =
+        _LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo3));
       Engines::TestComponent_var m3 = Engines::TestComponent::_narrow(mycompo3);
       ASSERT(!CORBA::is_nil(m3));
-      cout << m3->instanceName() << endl;
+      std::cout << m3->instanceName() << std::endl;
 
       // --- yet another container, with hostname,
       //     load an engine, and invoque methods on that engine
 
-      string containerName4 = Kernel_Utils::GetHostname();
+      std::string containerName4 = Kernel_Utils::GetHostname();
       containerName4  += "/titiPy";
-      Engines::Component_var mycompo4 = 
-	_LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
+      Engines::EngineComponent_var mycompo4 = 
+        _LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo4));
       Engines::TestComponent_var m4 = Engines::TestComponent::_narrow(mycompo4);
       ASSERT(!CORBA::is_nil(m4));
-      cout << m4->instanceName() << endl;
+      std::cout << m4->instanceName() << std::endl;
 
       // --- try a local file transfer
 
-      string origFileName = "/home/prascle/petitfichier";
+      std::string origFileName = "/home/prascle/petitfichier";
       SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
-					 origFileName);
-      string local = transfer.getLocalFile();
+                                         origFileName);
+      std::string local = transfer.getLocalFile();
       SCRUTE(local);
 
       // --- try a file transfer from another computer
 
       origFileName = "/home/prascle/occ60.tgz";
       SALOME_FileTransferCORBA transfer2( "cli76ce",
-					 origFileName);
+                                         origFileName);
       local = transfer2.getLocalFile();
       SCRUTE(local);
       local = transfer2.getLocalFile();
@@ -145,4 +144,3 @@ int main (int argc, char * argv[])
 
   return 0;
 }
-

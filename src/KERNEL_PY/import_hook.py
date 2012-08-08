@@ -1,24 +1,26 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 """
 This module replaces the standard import mechanism with one
 that filters some imports that can't be done more than once.
@@ -117,6 +119,7 @@ def import_module(partname, fqname, parent):
     """ Try to import module fqname
         It's parent is module parent and has name partname
     """
+    #print "import_module",partname, fqname, parent
     try:
        m = sys.modules[fqname]
     except KeyError:
@@ -127,6 +130,7 @@ def import_module(partname, fqname, parent):
 def ensure_fromlist(m, fromlist, recursive=0):
     """ Return the real modules list to be imported
     """
+    #print "ensure_fromlist",m, fromlist, recursive
     l=[]
     for sub in fromlist:
         if sub == "*":
@@ -137,26 +141,38 @@ def ensure_fromlist(m, fromlist, recursive=0):
                     pass
                 else:
                     l.extend(ensure_fromlist(m, all, 1))
-        elif hasattr(m,sub):
-            submod=getattr(m,sub)
+        else:
+          #try to find if sub is an attribute (eventually dotted) of m
+          components=sub.split('.')
+          has_submod=True
+          submod=m
+          for comp in components:
+            if hasattr(submod,comp):
+              submod=getattr(submod, comp)
+            else:
+              has_submod=False
+              break
+
+          if has_submod:
+            #the attribute has been found
             if type(submod) == type(sys):
                l.append(("%s.%s" % (m.__name__, sub),submod))
-        else:
+          else:
             subname="%s.%s" % (m.__name__, sub)
             submod = import_module(sub, subname, m)
-            if not submod:
-               raise ImportError, "No module named " + subname
-            l.append((subname,submod))
+            #if not found ignore it
+            if submod:
+              l.append((subname,submod))
     return l
 
-def import_hook(name, globals=None, locals=None, fromlist=None):
+def import_hook(name, globals=None, locals=None, fromlist=None, *args, **kwds):
     """ Import replacement for sharing modules among multiple interpreters
         Mostly update sys.modules before doing real import
     """
     #print "import_hook",name,fromlist
     m=get_shared_imported(name,fromlist)
 
-    module= original_import(name, globals, locals, fromlist)
+    module= original_import(name, globals, locals, fromlist, *args, **kwds)
 
     if fromlist:
        #when fromlist is specified, module is the real module

@@ -1,24 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
+
 %define DOCSTRING
 "CALCIUM python wrapping : Superv_Component class
 "
@@ -27,6 +25,8 @@
 %module(docstring=DOCSTRING) calcium
 
 %feature("autodoc", "1");
+
+%include cstring.i
 
 %{
 //C++ Includes 
@@ -117,6 +117,19 @@ typedef PyArrayObject ArrayObject;
 #define array_dimensions(a)    (((PyArrayObject *)a)->nd)
 #define array_size(a,i)        (((PyArrayObject *)a)->dimensions[i])
 #define array_is_contiguous(a) (PyArray_ISCONTIGUOUS(a))
+
+const char* pytype_string(PyObject*);
+const char* typecode_string(int);
+int type_match(int, int);
+int require_size(PyArrayObject*, int*, int);
+int require_dimensions_n(PyArrayObject*, int*, int);
+int require_dimensions(PyArrayObject*, int);
+int require_contiguous(PyArrayObject*);
+PyArrayObject* make_contiguous(PyArrayObject*, int*, int, int);
+PyArrayObject* obj_to_array_no_conversion(PyObject*, int);
+PyArrayObject* obj_to_array_allow_conversion(PyObject*, int, int*);
+PyArrayObject* obj_to_array_contiguous_allow_conversion(PyObject*, int, int*);
+PyArrayObject* obj_to_array_contiguous_allow_conversion(PyObject*, int, int*);
 
 /* Given a PyObject, return a string describing its type.
  */
@@ -400,8 +413,9 @@ typedef PyObject ArrayObject;
 
 %include "carrays.i" 
 
-%array_class(int, intArray);
-%array_class(float, floatArray);
+%array_class(int,    intArray);
+%array_class(long,   longArray);
+%array_class(float,  floatArray);
 %array_class(double, doubleArray);
 
 /* special struct to handle string arrays */
@@ -410,6 +424,7 @@ struct stringArray
 {
   stringArray(int nelements,int size=0) {
     nelem=nelements;
+    size=size;
     data= new char*[nelements];
     for(int i=0;i<nelements;i++)
     {
@@ -419,7 +434,6 @@ struct stringArray
   }
   ~stringArray() 
   {
-    std::cerr << "~stringArray() " << nelem << std::endl;
     for(int i=0;i<nelem;i++)
       free(data[i]);
     delete [] data;
@@ -433,6 +447,7 @@ struct stringArray
   }
   char** data;
   int nelem;
+  int size;
 };
 %}
 /* End of special struct to handle string arrays */
@@ -459,17 +474,24 @@ struct stringArray
   }
 }
 %typemap(freearg) type* IN_ARRAY3 {
-  if (is_new_object$argnum && array$argnum) Py_DECREF(array$argnum);
+%#ifdef WITH_NUMPY
+  if (is_new_object$argnum && array$argnum) 
+    {
+      Py_DECREF(array$argnum);
+    }
+%#endif
 }
 %enddef
 
 TYPEMAP_IN3(int,     PyArray_INT)
+TYPEMAP_IN3(long,    PyArray_LONG)
 TYPEMAP_IN3(float,   PyArray_FLOAT )
 TYPEMAP_IN3(double,  PyArray_DOUBLE)
 
 #undef TYPEMAP_IN3
 
 %apply int*    IN_ARRAY3 {int    *eval};
+%apply long*   IN_ARRAY3 {long   *eval};
 %apply float*  IN_ARRAY3 {float  *eval};
 %apply double* IN_ARRAY3 {double *eval};
 
@@ -489,12 +511,17 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
   }
 }
 %typemap(freearg) float* ecpval {
-  if (is_new_object$argnum && array$argnum) Py_DECREF(array$argnum);
+%#ifdef WITH_NUMPY
+  if (is_new_object$argnum && array$argnum) 
+    {
+      Py_DECREF(array$argnum);
+    }
+%#endif
 }
 /* End of  Specific typemap for complex */
 
 /* array of strings on input */
-%typemap(in) char** eval
+%typemap(in) (char** eval,int strSize)
          (ArrayObject* array=NULL, int is_new_object) {
   stringArray* sarray;
   if ((SWIG_ConvertPtr($input, (void **) &sarray, $descriptor(stringArray *),0)) == -1)
@@ -504,8 +531,13 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
     array = obj_to_array_contiguous_allow_conversion($input, PyArray_STRING, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (char**) malloc(array_size(array,0)*sizeof(char*));
+    $2 = array->strides[0];
     for(int i=0;i<array_size(array,0);i++)
-      $1[i]=(char*) array->data + i* array->strides[0];
+      {
+        $1[i]=(char*) malloc(sizeof(char)*(array->strides[0]+1));
+        strncpy($1[i],(char*) array->data + i* array->strides[0],array->strides[0]);
+        *($1[i]+array->strides[0])='\0';
+      }
 %#else
     SWIG_exception(SWIG_TypeError, "string array expected");
 %#endif
@@ -513,12 +545,23 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
   else
   {
     $1=sarray->data;
+    $2=sarray->size;
   }
 }
 
-%typemap(freearg) char** eval {
-  if (array$argnum) free($1);
-  if (is_new_object$argnum && array$argnum) Py_DECREF(array$argnum);
+%typemap(freearg) (char** eval,int strSize) {
+%#ifdef WITH_NUMPY
+  if (array$argnum)
+    {
+      for(int i=0;i<array_size(array$argnum,0);i++)
+        free($1[i]);
+      free($1);
+    }
+  if (is_new_object$argnum && array$argnum) 
+    {
+      Py_DECREF(array$argnum);
+    }
+%#endif
 }
 /* End of array of strings on input */
 
@@ -544,12 +587,14 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 %enddef
 
 TYPEMAP_INPLACE3(int,     PyArray_INT)
+TYPEMAP_INPLACE3(long,    PyArray_LONG)
 TYPEMAP_INPLACE3(float,   PyArray_FLOAT )
 TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 
 #undef TYPEMAP_INPLACE3
 
 %apply int*    INPLACE_ARRAY3 {int    *lval};
+%apply long*   INPLACE_ARRAY3 {long   *lval};
 %apply float*  INPLACE_ARRAY3 {float  *lval};
 %apply double* INPLACE_ARRAY3 {double *lval};
 
@@ -571,7 +616,7 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 /*  End of typemap for complex inout */
 
 /* typemap for array of strings on input/output */
-%typemap(in) char** lval
+%typemap(in) (char** lval,int strSize)
             (ArrayObject* temp=NULL) {
   stringArray* sarray;
   if ((SWIG_ConvertPtr($input, (void **) &sarray, $descriptor(stringArray *) ,0)) == -1)
@@ -580,8 +625,12 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
     temp = obj_to_array_no_conversion($input,PyArray_STRING);
     if (!temp  || !require_contiguous(temp)) SWIG_fail;
     $1 = (char**) malloc(array_size(temp,0)*sizeof(char*));
+    $2 = temp->strides[0];
     for(int i=0;i<array_size(temp,0);i++)
-      $1[i]=(char*) temp->data+i*temp->strides[0];
+      {
+        $1[i]=(char*) temp->data+i*temp->strides[0];
+        memset($1[i],0,temp->strides[0]); //numpy strings must be completed with 0 up to elsize
+      }
 %#else
     temp = NULL;
     SWIG_exception(SWIG_TypeError, "string array expected");
@@ -590,10 +639,13 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
   else
   {
     $1=sarray->data;
+    $2=sarray->size;
   }
 }
-%typemap(freearg) char** lval {
+%typemap(freearg) (char** lval,int strSize) {
+%#ifdef WITH_NUMPY
   if (temp$argnum) free($1);
+%#endif
 }
 /* End of typemap for array of strings on input/output */
 
@@ -636,13 +688,16 @@ CORBAPTR(PortableServer::POA)
 %typemap(out) Ports::Port_ptr 
 {
   $result = api->cxxObjRefToPyObjRef($1, 1);
-  //All output Ports::Port_ptr variables are duplicated by security. Need to release them for python . Explanation ??
+  //All output Ports::Port_ptr variables are duplicated by security. Need to release them for python.
   CORBA::release($1);
 }
 
 %typemap(out) Ports::PortProperties_ptr, Engines::Salome_file_ptr
 {
   $result = api->cxxObjRefToPyObjRef($1, 1);
+  //the _ptr is duplicated by the routine called. 
+  //Need to release it for Python because the call to cxxObjRefToPyObjRef has created another ref with a count of 1
+  CORBA::release($1);
 }
 
 %typemap(out) Engines::DSC::uses_port *
@@ -801,6 +856,7 @@ class PySupervCompo:public Superv_Component_i
   CORBA::Boolean is_connected(const char* port_name) throw (Engines::DSC::PortNotDefined);
 // End of DSC interface for python components
 
+   static void setTimeOut();
 
 
     %extend
@@ -825,7 +881,9 @@ extern "C" void create_calcium_port(Superv_Component_i* compo,char* name,char* t
 %ignore CPMESSAGE;
 %include "calciumP.h"
 
-int  cp_cd(Superv_Component_i *component,char *name);
+%cstring_bounded_output(char *instanceName, 1024);
+
+int  cp_cd(Superv_Component_i *component,char *instanceName);
 
 int cp_een(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
 int cp_edb(Superv_Component_i *component,int dep,double t,int n,char *nom,int nval,double *eval);
@@ -833,6 +891,8 @@ int cp_ere(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nv
 int cp_ecp(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *ecpval);
 int cp_elo(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
 int cp_ech(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,char** eval,int strSize);
+int cp_elg(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,long   *eval);
+int cp_eln(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,long   *eval);
 
 
 int cp_len(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
@@ -841,6 +901,13 @@ int cp_lre(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *nite
 int cp_lcp(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lcpval);
 int cp_llo(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
 int cp_lch(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,char** lval,int strSize);
+int cp_llg(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,long   *lval);
+int cp_lln(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,long   *lval);
+
+int cp_fini(Superv_Component_i *component,char *nom, int n);
+int cp_fint(Superv_Component_i *component,char *nom, float t);
+int cp_effi(Superv_Component_i *component,char *nom, int n);
+int cp_efft(Superv_Component_i *component,char *nom, float t);
 
 int cp_fin(Superv_Component_i *component,int cp_end);
 
