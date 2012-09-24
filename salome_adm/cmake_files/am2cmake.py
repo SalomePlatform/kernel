@@ -1922,7 +1922,7 @@ class CMakeFile(object):
         ENDIF(WINDOWS)
         ''')
         # --
-        if self.module in ["geom", "med"]:
+        if self.module in ["geom", "med", "hexoticplugin"]:
             newlines.append(r'''
             SET(var ${var} -I${CMAKE_CURRENT_SOURCE_DIR})
             SET(var ${var} -I${CMAKE_CURRENT_BINARY_DIR})
