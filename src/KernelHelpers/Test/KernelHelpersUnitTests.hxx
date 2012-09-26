@@ -25,7 +25,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class KernelHelpersUnitTests : public CppUnit::TestFixture
+#ifdef WIN32
+# if defined KERNELHELPERSTEST_EXPORTS || defined SalomeKernelHelpersTest_EXPORTS
+#  define KERNELHELPERSTEST_EXPORT __declspec( dllexport )
+# else
+#  define KERNELHELPERSTEST_EXPORT __declspec( dllimport )
+# endif
+#else
+# define KERNELHELPERSTEST_EXPORT
+#endif
+
+class KERNELHELPERSTEST_EXPORT KernelHelpersUnitTests : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( KernelHelpersUnitTests );
   CPPUNIT_TEST( TEST_corba );

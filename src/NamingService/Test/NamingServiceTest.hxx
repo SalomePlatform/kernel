@@ -29,7 +29,17 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(nstest)
 
-class NSTEST_echo_i : public virtual POA_NSTEST::echo,
+#ifdef WIN32
+# if defined NAMINGSERVICETEST_EXPORTS || defined NamingServiceTest_EXPORTS
+#  define NAMINGSERVICETEST_EXPORT __declspec( dllexport )
+# else
+#  define NAMINGSERVICETEST_EXPORT __declspec( dllimport )
+# endif
+#else
+# define NAMINGSERVICETEST_EXPORT
+#endif
+
+class NAMINGSERVICETEST_EXPORT NSTEST_echo_i : public virtual POA_NSTEST::echo,
                       public virtual PortableServer::ServantBase
 {
 public:
@@ -52,7 +62,7 @@ private:
   int _num;
 };
 
-class NamingServiceTest : public CppUnit::TestFixture
+class NAMINGSERVICETEST_EXPORT NamingServiceTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( NamingServiceTest );
   CPPUNIT_TEST( testConstructorDefault );

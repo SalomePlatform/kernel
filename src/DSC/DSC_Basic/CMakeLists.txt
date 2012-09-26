@@ -1,0 +1,64 @@
+# Copyright (C) 2012  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+INCLUDE_DIRECTORIES(
+  ${PTHREAD_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIRS}
+  ${CMAKE_BINARY_DIR}/salome_adm/unix
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_BINARY_DIR}/idl
+)
+
+SET(SalomeDSCContainer_SOURCES
+  DSC_i.cxx
+  DSC_interface.cxx
+  PortProperties_i.cxx
+)
+
+ADD_LIBRARY(SalomeDSCContainer SHARED ${SalomeDSCContainer_SOURCES})
+SET_TARGET_PROPERTIES(SalomeDSCContainer PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(SalomeDSCContainer SalomeContainer ${OMNIORB_LIBS})
+INSTALL(TARGETS SalomeDSCContainer DESTINATION ${KERNEL_salomelib_LIBS})
+
+SET(SALOME_ConnectionManagerServer_SOURCES
+  SALOME_ConnectionManagerServer.cxx
+  ConnectionManager_i.cxx
+)
+
+SET(SALOME_ConnectionManagerServer_LIBS
+  SalomeIDLKernel
+  SalomeNS
+  SALOMELocalTrace
+  SalomeContainer 
+  ${OMNIORB_LIBS}
+)
+
+ADD_EXECUTABLE(SALOME_ConnectionManagerServer ${SALOME_ConnectionManagerServer_SOURCES})
+SET_TARGET_PROPERTIES(SALOME_ConnectionManagerServer PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(SALOME_ConnectionManagerServer ${SALOME_ConnectionManagerServer_LIBS})
+INSTALL(TARGETS SALOME_ConnectionManagerServer DESTINATION ${KERNEL_salomebin_BINS})
+
+FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})
