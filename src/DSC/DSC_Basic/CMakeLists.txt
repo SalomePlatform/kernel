@@ -20,7 +20,7 @@
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/salome_adm/unix
+  ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_SOURCE_DIR}/src/Container
   ${CMAKE_SOURCE_DIR}/src/GenericObj
   ${CMAKE_SOURCE_DIR}/src/Notification

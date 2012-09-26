@@ -22,7 +22,7 @@ INCLUDE_DIRECTORIES(
   ${MPI_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
   ${PACO_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/salome_adm/unix
+  ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_SOURCE_DIR}/src/Container
   ${CMAKE_SOURCE_DIR}/src/Notification
   ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace

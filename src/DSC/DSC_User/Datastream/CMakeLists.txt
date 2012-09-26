@@ -22,7 +22,7 @@ ADD_SUBDIRECTORY(Calcium)
 
 INCLUDE_DIRECTORIES(
   ${BOOST_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/salome_adm/unix
+  ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
   ${CMAKE_BINARY_DIR}/src/DSC/DSC_User/Datastream/Palm
   ${CMAKE_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
