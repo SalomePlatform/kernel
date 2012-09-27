@@ -41,7 +41,7 @@ IF(WITH_LIBBATCH)
 ENDIF(WITH_LIBBATCH)
 
 # This local variable defines the list of FLAGS common to all target in this package.
-SET(COMMON_FLAGS "${MPI_DEFINITIONS} ${LIBXML_DEFINITIONS} ${LIBBATCH_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${WITH_LIBBATCH_FLAG} ${PLATFORM_DEFINITIONS}")
+SET(COMMON_FLAGS "${MPI_DEFINITIONS} ${LIBXML_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${WITH_LIBBATCH_FLAG} ${PLATFORM_DEFINITIONS}")
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 SET(COMMON_LIBS
