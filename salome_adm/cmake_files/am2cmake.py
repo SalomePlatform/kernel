@@ -2545,7 +2545,6 @@ if __name__ == "__main__":
     #
     from os import getenv
     from os import walk
-    convert = True # convert files by default
     for root, dirs, files in walk(the_root):
         # --
         # E.A. : Remove 'CVS' in dirs
@@ -2565,9 +2564,10 @@ if __name__ == "__main__":
         # --
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
+                convert = True # convert files by default
                 forced = getenv("AM2CMAKE_FORCE_GENERATION", "0")=="1" or \
                          getenv("AM2CMAKE_FORCE_%s_GENERATION"%module.upper(), "0")=="1"
-                if convert and not forced:
+                if not forced:
                     # detect if conversion should be done
                     if "CMakeLists.txt" in files:
                         from os.path import join
