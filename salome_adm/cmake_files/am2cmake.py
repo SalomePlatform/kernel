@@ -370,6 +370,7 @@ class CMakeFile(object):
             "MEFISTO2D",
             "MeshDriverDAT",
             "MeshDriverMED",
+            "MeshDriverGMF",
             "MeshDriver",
             "MeshDriverSTL",
             "MeshDriverUNV",
