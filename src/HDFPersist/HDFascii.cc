@@ -408,7 +408,7 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
   fscanf(fp, "%s", id_of_end);
   if(strcmp(id_of_end, ASCIIHDF_ID_END) != 0) {
     std::cout << "ConvertFromASCIIToHDF : Can not find the end ASCII token " << std::endl;
-    return false;  
+    return NULL;  
   }
 
   hdf_file->CloseOnDisk();
