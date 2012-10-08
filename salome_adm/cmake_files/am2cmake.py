@@ -370,6 +370,7 @@ class CMakeFile(object):
             "MEFISTO2D",
             "MeshDriverDAT",
             "MeshDriverMED",
+            "MeshDriverGMF",
             "MeshDriver",
             "MeshDriverSTL",
             "MeshDriverUNV",
@@ -826,8 +827,8 @@ class CMakeFile(object):
             ''')
         elif self.module == "kernel":
             newlines.append(r'''
-            SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
-            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
+            SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm -include SALOMEconfig.h)
+            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm -include SALOMEconfig.h)
             ''')
         else:
             if self.module not in ["yacs"]:
@@ -1922,7 +1923,7 @@ class CMakeFile(object):
         ENDIF(WINDOWS)
         ''')
         # --
-        if self.module in ["geom", "med"]:
+        if self.module in ["geom", "med", "hexoticplugin"]:
             newlines.append(r'''
             SET(var ${var} -I${CMAKE_CURRENT_SOURCE_DIR})
             SET(var ${var} -I${CMAKE_CURRENT_BINARY_DIR})
@@ -2563,8 +2564,10 @@ if __name__ == "__main__":
         # --
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
-                convert = True
-                if getenv("AM2CMAKE_FORCE_GENERATION", "0")=="0":
+                convert = True # convert files by default
+                forced = getenv("AM2CMAKE_FORCE_GENERATION", "0")=="1" or \
+                         getenv("AM2CMAKE_FORCE_%s_GENERATION"%module.upper(), "0")=="1"
+                if not forced:
                     # detect if conversion should be done
                     if "CMakeLists.txt" in files:
                         from os.path import join

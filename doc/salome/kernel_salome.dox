@@ -3,6 +3,18 @@
 \page kernel_salome Using salome.py module
 
 
+The Python module salome.py provides a functionality to access main
+SALOME features from the Python console (either embedded in GUI
+desktop or external one).
+
+To use salome.py module, import it into the Python interpreter and
+initialize it by calling \c salome_init() function:
+
+\code
+import salome
+salome.salome_init()
+\endcode
+
 The salome.py Python module provides a set of variables and functions
 allowing access to different elements of the current SALOME
 session.
@@ -283,14 +295,5 @@ parameter ("Study" by default) and returns the resulting string:
 name_1 = salome.generateName() # name_1 is something like "Study682"
 name_1 = salome.generateName("Obj") # name_1 is something like "Obj32"
 \endcode
-
-\li \b sg SWIG interface to the SALOME GUI
-
-This variable provides an access to some GUI functions.
-
-\b Note, that this variable is only available if you use salome.py
-Python module within the GUI desktop (since SWIG library is linked directly to the GUI library).
-See GUI documentation for more information.
-
 
 */

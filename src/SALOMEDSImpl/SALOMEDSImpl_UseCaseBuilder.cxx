@@ -160,7 +160,7 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
   DF_Label aFatherLabel = theFather.GetLabel(), aLabel = theObject.GetLabel();
   if(aFatherLabel == aLabel) return false;
 
-  SALOMEDSImpl_AttributeTreeNode *aFather = false, *aNode = false;
+  SALOMEDSImpl_AttributeTreeNode *aFather = NULL, *aNode = NULL;
   
   if(aFatherLabel.IsNull()) return false;
   if(!(aFather=(SALOMEDSImpl_AttributeTreeNode*)aFatherLabel.FindAttribute(_root->ID()))) return false;

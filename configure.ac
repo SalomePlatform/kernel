@@ -532,7 +532,7 @@ sed -i "s%\(\s*\)\(for searchdir in \$searchdirs; do\)%\1for sss in \$searchdirs
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
   KERNEL_version.h \
-  salome_adm/unix/SALOMEconfig.ref \
+  salome_adm/SALOMEconfig.ref \
   salome_adm/Makefile \
   salome_adm/cmake_files/Makefile \
   salome_adm/unix/Makefile \

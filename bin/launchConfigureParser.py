@@ -122,11 +122,18 @@ def version_id(fname):
     if len(vers) > 0: major = int(vers[0])
     if len(vers) > 1: minor = int(vers[1])
     if len(vers) > 2:
-        mr = re.search(r'^([0-9]+)([A-Za-z]?)([0-9]*)',vers[2])
+        mr = re.search(r'^([0-9]+)([A-Z]|RC)?([0-9]*)',vers[2], re.I)
         if mr:
             release = int(mr.group(1))
-            if mr.group(2).strip(): dev1 = ord(mr.group(2).strip())
-            if mr.group(3).strip(): dev2 = int(mr.group(3).strip())
+            if mr.group(2):
+                tag = mr.group(2).strip().lower()
+                if tag == "rc":
+                    dev1 = 49 # release candidate
+                elif tag:
+                    dev1 = ord(tag)-ord('a')+1
+                pass
+            if mr.group(3):
+                dev2 = int(mr.group(3).strip())
             pass
         pass
     dev = dev1 * 100 + dev2
@@ -134,15 +141,15 @@ def version_id(fname):
     ver = ver * 100 + minor
     ver = ver * 100 + release
     ver = ver * 10000
-    if dev > 0: ver = ver - 10000 + dev
+    if dev > 0: ver = ver - dev
     return ver
 
 ###
 # Get default user configuration file name
 # For SALOME, it is:
-# - on Linux:   ~/.config/salome/.SalomeApprc.[version]
-# - on Windows: ~/SalomeApp.xml.[version]
-# where [version] is a version number
+# - on Linux:   ~/.config/salome/SalomeApprc[.<version>]
+# - on Windows: ~/SalomeApp.xml[.<version>]
+# where <version> is an optional version number
 ###
 def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
     v = version()
@@ -151,7 +158,7 @@ def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
       filename = os.path.join(getHomeDir(), "%s.xml%s" % (appname, v))
     else:
         if cfgname:
-            filename = os.path.join(getHomeDir(), ".config", cfgname, ".%src%s" % (appname, v))
+            filename = os.path.join(getHomeDir(), ".config", cfgname, "%src%s" % (appname, v))
             pass
         else:
             filename = os.path.join(getHomeDir(), ".%src%s" % (appname, v))
@@ -185,24 +192,34 @@ def userFile(appname, cfgname):
         files = glob.glob(os.path.join(getHomeDir(), "%s.xml.*" % appname))
     else:
         files = []
-        if cfgname: files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".%src.*" % appname))
-        files             += glob.glob(os.path.join(getHomeDir(), ".%src.*" % appname))
+        if cfgname:
+            # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, "%src.*" % appname))
+            # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".%src.*" % appname))
+            pass
+        # old style (before v6.5.0) - in ~ directory, dot-prefixed
+        files += glob.glob(os.path.join(getHomeDir(), ".%src.*" % appname))
         pass
 
     # ... loop through all files and find most appopriate file (with closest id)
     appr_id   = -1
     appr_file = ""
     for f in files:
+        ff = os.path.basename( f )
         if sys.platform == "win32":
-            match = re.search( r'%s\.xml\.([a-zA-Z0-9.]+)$'%appname, f )
+            match = re.search( r'^%s\.xml\.([a-zA-Z0-9.]+)$'%appname, ff )
         else:
-            match = re.search( r'\.%src\.([a-zA-Z0-9.]+)$'%appname, f )
+            match = re.search( r'^\.?%src\.([a-zA-Z0-9.]+)$'%appname, ff )
         if match:
             ver = version_id(match.group(1))
             if not ver: continue                 # bad version id -> skip file
             if appr_id < 0 or abs(appr_id-id0) > abs(ver-id0):
                 appr_id   = ver
                 appr_file = f
+                pass
+            elif abs(appr_id-id0) == abs(ver-id0):
+                if not os.path.basename(f).startswith("."): appr_file = f
                 pass
             pass
         pass
