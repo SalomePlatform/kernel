@@ -20,6 +20,7 @@
 // Author: André RIBES - EDF R&D
 //
 #include "Launcher_Job_Command.hxx"
+#include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
 #include <Batch/Batch_Constants.hxx>
@@ -54,7 +55,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
 
   // File name
   std::string launch_date_port_file = launch_date;
-  std::string launch_script = "/tmp/runCommand_" + _job_file_name + "_" + launch_date + ".sh";
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_" + _job_file_name + "_" + launch_date + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
    
