@@ -276,6 +276,10 @@ class SessionServer(Server):
                     self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
                     pass
                 pass
+                if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
+                    self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
+                    pass
+                pass
             pass
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
@@ -294,9 +298,8 @@ class SessionServer(Server):
                   list_modules.insert(0,m)
             list_modules.reverse()
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
-
-        if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
-            self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
+            pass
+        pass
 
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
