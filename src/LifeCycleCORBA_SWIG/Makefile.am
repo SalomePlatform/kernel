@@ -79,7 +79,7 @@ swig_wrap.cpp libSALOME_LifeCycleCORBA.py : $(SWIGSOURCES)
 
 CLEANFILES = swig_wrap.cpp
 
-EXTRA_DIST = $(SWIGSOURCES)
+EXTRA_DIST += $(SWIGSOURCES)
 
 #
 # ===============================================================

@@ -96,7 +96,7 @@ libSALOMEDSTest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSALOMEDSTest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSALOMEDSTest_la_LIBADD    = $(COMMON_LIBS)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	SALOMEDSTest_AttributeComment.cxx \
 	SALOMEDSTest_AttributeDrawable.cxx \
 	SALOMEDSTest_AttributeExpandable.cxx \

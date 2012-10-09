@@ -52,4 +52,4 @@ else
 	KERNELCatalog.xml
 endif
 
-EXTRA_DIST = CatalogDataType.xml
+EXTRA_DIST += CatalogDataType.xml

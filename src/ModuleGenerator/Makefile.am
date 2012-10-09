@@ -29,7 +29,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 dist_salomescript_PYTHON = IDLparser.py
 
-EXTRA_DIST = tests
+EXTRA_DIST += tests
 
 install-data-hook:
 	@for f in $(dist_salomescript_PYTHON) ; do \

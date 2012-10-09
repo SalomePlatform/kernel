@@ -61,4 +61,4 @@ swig_wrap.cpp libNOTIFICATION.py : $(SWIGSOURCES)
 
 CLEANFILES = swig_wrap.cpp
 
-EXTRA_DIST = $(SWIGSOURCES)
+EXTRA_DIST += $(SWIGSOURCES)
