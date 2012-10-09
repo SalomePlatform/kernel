@@ -74,16 +74,41 @@ CONFIGURE_FILE(calcium_integer_port_uses.hxx.in calcium_integer_port_uses.hxx @O
 CONFIGURE_FILE(CalciumProvidesPort.hxx.in CalciumProvidesPort.hxx @ONLY)
 CONFIGURE_FILE(CalciumFortranInt.h.in CalciumFortranInt.h @ONLY)
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-FILE(GLOB COMMON_HEADERS_H "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 SET(COMMON_HEADERS
-  ${COMMON_HEADERS_HXX}
-  ${COMMON_HEADERS_H}
-  calcium.hf  
-  ${CMAKE_CURRENT_BINARY_DIR}/calcium_integer_port_uses.hxx
-  ${CMAKE_CURRENT_BINARY_DIR}/CalciumProvidesPort.hxx
+  Calcium.hxx
+  CalciumCInterface.hxx
+  CalciumCouplingPolicy.hxx
+  CalciumCxxInterface.hxx
+  CalciumException.hxx
+  CalciumGenericProvidesPort.hxx
+  CalciumGenericUsesPort.hxx
+  CalciumInterface.hxx
+  CalciumMacroCInterface.hxx
+  CalciumPortTraits.hxx
+  CalciumTypes.hxx
+  CalciumTypes2CorbaTypes.hxx
+  Copy2CorbaSpace.hxx
+  Copy2UserSpace.hxx
+  CorbaTypes2CalciumTypes.hxx
+  calcium_complex_port_uses.hxx
+  calcium_double_port_uses.hxx
+  calcium_intc_port_uses.hxx
+  calcium_logical_port_uses.hxx
+  calcium_long_port_uses.hxx
+  calcium_port_factory.hxx
+  calcium_provides_port.hxx
+  calcium_real_port_uses.hxx
+  calcium_string_port_uses.hxx
+  calcium_uses_port.hxx
+  calcium.h
+  calcium.hf
+  calciumE.h
+  calciumP.h
+  calciumf.h
+  fortoc.h
+  version.h
   ${CMAKE_CURRENT_BINARY_DIR}/CalciumFortranInt.h
+  ${CMAKE_CURRENT_BINARY_DIR}/CalciumProvidesPort.hxx
+  ${CMAKE_CURRENT_BINARY_DIR}/calcium_integer_port_uses.hxx
 )
-LIST(REMOVE_ITEM COMMON_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/fortoc.h)
-LIST(REMOVE_ITEM COMMON_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/CalciumTypesManipulator.hxx)
 INSTALL(FILES ${COMMON_HEADERS} DESTINATION ${KERNEL_salomeinclude_HEADERS})

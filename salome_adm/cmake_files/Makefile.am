@@ -39,6 +39,7 @@ FindPTHREADS.cmake \
 FindPYTHON.cmake \
 FindSWIG.cmake \
 FindSPHINX.cmake \
+SalomeMacros.cmake \
 install_python_from_idl.cmake \
 install_and_compile_python_file.cmake \
 InstallAndCompilePythonFile.cmake

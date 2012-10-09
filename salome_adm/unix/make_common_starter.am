@@ -76,3 +76,7 @@ sharedpkgpythondir =$(salomepythondir)/shared_modules
 
 # Documentation directory
 docdir             = $(datadir)/doc/salome
+
+# Cmake files
+CMAKEFILES         = $(notdir $(wildcard $(srcdir)/CMakeLists.txt))
+EXTRA_DIST         = $(CMAKEFILES)

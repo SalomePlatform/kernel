@@ -41,14 +41,18 @@ SET_TARGET_PROPERTIES(SalomeDatastream PROPERTIES COMPILE_FLAGS "${BOOST_DEFINIT
 TARGET_LINK_LIBRARIES(SalomeDatastream ${COMMON_LIBS})
 INSTALL(TARGETS SalomeDatastream DESTINATION ${KERNEL_salomelib_LIBS})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-SET(NOINST_HEADERS_HXX
-  ProcessTimeIntervalTraits.hxx
-  AdjacentPredicate.hxx
+SET(COMMON_HEADERS_HXX
+  AdjacentFunctor.hxx
+  ConstTraits.hxx
+  CorbaTypeManipulator.hxx
+  CouplingPolicy.hxx
+  DataIdFilter.hxx
+  DisplayPair.hxx
+  FindKeyPredicate.hxx
+  GenericPort.hxx
+  GenericProvidesPort.hxx
+  GenericUsesPort.hxx
+  IteratorTraits.hxx
 )
-FOREACH(HEADER ${NOINST_HEADERS_HXX})
-  LIST(REMOVE_ITEM COMMON_HEADERS_HXX ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER})
-ENDFOREACH(HEADER ${NOINST_HEADERS_HXX})
 
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})
-
