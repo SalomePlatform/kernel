@@ -227,6 +227,27 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     
     #--------------------------------------------------------------------------
 
+def GetComponentVersion(theComponent, all_versions = False):
+    # returns the document list tree (as list)
+    props = myStudy.GetProperties()
+    stored_components = props.GetStoredComponents()
+    version = "no component data" # vsr: better raise an exception in this case?
+    if theComponent in stored_components:
+      if all_versions:
+        version = props.GetComponentVersions(theComponent)
+        for i in range(len(version)):
+          if not version[i]: version[i] = "unknown"
+          pass
+        pass
+      else:
+        version = props.GetComponentVersion(theComponent)
+        if not version: version = "unknown"
+        pass
+      pass
+    return version
+    
+    #--------------------------------------------------------------------------
+
 def FindFileInDataDir(filename):
     import os
     datadir = os.getenv("DATA_DIR")

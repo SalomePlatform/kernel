@@ -56,6 +56,42 @@ static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject&,
                                            SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
 static void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup);
 
+namespace {
+  class StudyUnlocker
+  {
+  public:
+    StudyUnlocker( SALOMEDSImpl_Study* study ): myStudy( study ), myLocked( false )
+    {
+      myPrevLocked = myStudy->GetProperties()->IsLocked();
+      resume();
+    }
+    ~StudyUnlocker()
+    {
+      suspend();
+    }
+    void suspend()
+    {
+      if (myLocked) {
+	myStudy->GetProperties()->SetLocked(true);
+	myPrevLocked = myLocked;
+	myLocked = false;
+      }
+    }
+    void resume()
+    {
+      if (myPrevLocked) { 
+	myStudy->GetProperties()->SetLocked(false);
+	myLocked = myPrevLocked;
+	myPrevLocked = false;
+      }
+    }
+  private:
+    SALOMEDSImpl_Study* myStudy;
+    bool myLocked;
+    bool myPrevLocked;
+  };
+}
+
 //============================================================================
 /*! Function : SALOMEDSImpl_StudyManager
  *  Purpose  : SALOMEDSImpl_StudyManager constructor
@@ -398,15 +434,17 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
 
   // add modifications list (user and date of save)
   SALOMEDSImpl_AttributeStudyProperties* aProp = aStudy->GetProperties();
-  int aLocked = aProp->IsLocked();
-  if (aLocked) aProp->SetLocked(false);
 
+  // unlock study if it is locked, to set modification date
+  StudyUnlocker unlock(aStudy);
+  
   int month=0,day=0,year=0,hh=0,mn=0,ss=0;
   SALOMEDSImpl_Tool::GetSystemDate(year, month, day, hh, mn, ss);
   aProp->SetModification(SALOMEDSImpl_Tool::GetUserName(),
-                         mn, hh, day, month, year);
-
-  if (aLocked) aProp->SetLocked(true);
+			 mn, hh, day, month, year);
+  
+  // lock study back if it was locked initially, to write correct value of Locked flag
+  unlock.suspend();
 
   std::vector<std::string> aNames;
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
@@ -416,10 +454,27 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   std::string units = aProp->GetUnits();
   std::string comment = aProp->GetComment();
 
-  int aLength = 0, anIndex, i, unitsSize = 0, commentSize = 0;
+  std::map< std::string, std::vector<std::string> > allVersions = aProp->GetComponentsVersions();
+  std::map<std::string, std::string> versions;
+
+  int aLength = 0, aLength1 = 0, anIndex, i, unitsSize = 0, commentSize = 0;
+
   for(i=1; i<=aNames.size(); i++)
     aLength += aNames[i-1].size() + 1;
-  
+
+  std::map< std::string, std::vector<std::string> >::const_iterator it;
+  for (it = allVersions.begin(); it != allVersions.end(); ++it ) {
+    std::string vlist = "";
+    std::vector<std::string> vl = it->second;
+    std::vector<std::string>::const_iterator vlit;
+    for ( vlit = vl.begin(); vlit != vl.end(); ++vlit ) {
+      if ( vlist != "" ) vlist += ";";
+      vlist += *vlit;
+    }
+    versions[ it->first ] = vlist;
+    aLength1 += it->first.size() + vlist.size() + 2;
+  }
+
   unitsSize = units.size();
   commentSize = comment.size();
 
@@ -431,13 +486,16 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   //.....................................................,
   //.....................................................,
   //minutes, hours, day, months, year, user name, char(1), char(30) <- !!!! used to define end of section with modifications !!!!
-  //units, char(1), comment, char(0)
+  //units, char(1), comment, char(30) <- !!!! used to define start of section with components' versions !!!!
+  //component=versions, char(1), 
+  //component=versions, char(1), 
+  //...........................,
+  //component=versions, char(1), char(0)
 
   //string length: 1 byte = locked flag, 1 byte = modified flag, (12 + name length + 1) for each name and date, 1 byte (char(30) section delimeter)
   // unit length + 1, comment length, "zero" byte
   
-  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize ];
-
+  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize + 1 + aLength1 ];
 
   sprintf(aProperty,"%c%c", (char)aProp->GetCreationMode(),  (aProp->IsLocked())?'l':'u');
 
@@ -470,11 +528,21 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   if(comment.size() > 0) {
     sprintf(&(aProperty[a]),"%s",comment.c_str());
     a = strlen(aProperty);
-    a++;
+  }
+  
+  aProperty[a++] = 30; //delimeter of the component versions
+
+  std::map<std::string, std::string>::const_iterator versionsIt;
+  for ( versionsIt = versions.begin(); versionsIt != versions.end(); ++versionsIt ) {
+    sprintf(&(aProperty[a]),"%s=%s",
+            (char*)(versionsIt->first.c_str()),
+	    (char*)(versionsIt->second.c_str()));
+    a = a + versionsIt->first.size() + versionsIt->second.size() + 1;
+    aProperty[a++] = 1;
   }
 
   aProperty[a] = 0;
-  
+
   name_len = (hdf_int32) a;
   size[0] = name_len + 1 ;
   hdf_dataset = new HDFdataset("AttributeStudyProperties",hdf_group,HDF_STRING,size,1);
@@ -531,11 +599,14 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   // Store previous URL
   std::string anOldName = aStudy->Name();
 
+  // Map to store components' versions
+  std::map<std::string, std::string> componentVersions;
+
   //Create a temporary url to which the study is saved 
   std::string aUrl = SALOMEDSImpl_Tool::GetTmpDir() + SALOMEDSImpl_Tool::GetNameFromPath(aStudyUrl);
 
-  int aLocked = aStudy->GetProperties()->IsLocked();
-  if (aLocked) aStudy->GetProperties()->SetLocked(false);
+  // unlock study if it is locked, as some attributes need to be modified
+  StudyUnlocker unlock(aStudy);
 
   SALOMEDSImpl_StudyBuilder* SB= aStudy->NewBuilder();
   std::map<std::string, SALOMEDSImpl_Driver*> aMapTypeDriver;
@@ -543,19 +614,19 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   try
     {
       // mpv 15.12.2003: for saving components we have to load all data from all modules
-      SALOMEDSImpl_SComponentIterator itcomponent1 = aStudy->NewComponentIterator();
-      for (; itcomponent1.More(); itcomponent1.Next())
+      SALOMEDSImpl_SComponentIterator itcomponent = aStudy->NewComponentIterator();
+      for (; itcomponent.More(); itcomponent.Next())
         {
-          SALOMEDSImpl_SComponent sco = itcomponent1.Value();
+          SALOMEDSImpl_SComponent sco = itcomponent.Value();
           // if there is an associated Engine call its method for saving
           std::string IOREngine;
           try {
+	    SALOMEDSImpl_Driver* aDriver = NULL;
+	    std::string aCompType = sco.GetComment();
             if (!sco.ComponentIOR(IOREngine)) {
-              std::string aCompType = sco.GetComment();
               if (!aCompType.empty()) {
 
-                SALOMEDSImpl_Driver* aDriver = aFactory->GetDriverByType(aCompType);
-                aMapTypeDriver[aCompType] = aDriver;
+                aDriver = aFactory->GetDriverByType(aCompType);
 
                 if (aDriver != NULL) {
                   if(!SB->LoadWith(sco, aDriver)) {
@@ -565,6 +636,10 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
                 }
               }
             }
+	    else {
+	      aDriver = aFactory->GetDriverByIOR(IOREngine);
+	    }
+	    aMapTypeDriver[aCompType] = aDriver;
           } catch(...) {
             _errorCode = "Can not restore information to resave it";
             return false;
@@ -586,9 +661,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
       hdf_group_datacomponent = new HDFgroup("DATACOMPONENT",hdf_file);
       hdf_group_datacomponent->CreateOnDisk();
 
-      SALOMEDSImpl_SComponentIterator itcomponent = aStudy->NewComponentIterator();
-
-      for (; itcomponent.More(); itcomponent.Next())
+      for (itcomponent.Init(); itcomponent.More(); itcomponent.Next())
         {
           SALOMEDSImpl_SComponent sco = itcomponent.Value();
 
@@ -600,19 +673,14 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
           std::string IOREngine;
           if (sco.ComponentIOR(IOREngine))
             {
-              SALOMEDSImpl_Driver* Engine = NULL;
-              if(aMapTypeDriver.find(componentDataType) != aMapTypeDriver.end()) {
-                // we have found the associated engine to write the data
-                Engine = aMapTypeDriver[componentDataType];
-              }
-              else {
-                Engine = aFactory->GetDriverByIOR(IOREngine);
-              }
-
+	      // Engine should be already in the map as it was to added before
+	      SALOMEDSImpl_Driver* Engine = aMapTypeDriver[componentDataType];
               if (Engine != NULL)
                 {
                   SALOMEDSImpl_TMPFile* aStream = NULL;
                   long length = 0;
+
+		  componentVersions[ componentDataType ] = Engine->Version();
 
                   if (theASCII) aStream = Engine->SaveASCII(sco,
                                                             SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
@@ -666,10 +734,9 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
       hdf_group_study_structure = new HDFgroup("STUDY_STRUCTURE",hdf_file);
       hdf_group_study_structure->CreateOnDisk();
       // save component attributes
-      SALOMEDSImpl_SComponentIterator itcomp = aStudy->NewComponentIterator();
-      for (; itcomp.More(); itcomp.Next())
+      for (itcomponent.Init(); itcomponent.More(); itcomponent.Next())
         {
-          SALOMEDSImpl_SComponent SC = itcomp.Value();
+          SALOMEDSImpl_SComponent SC = itcomponent.Value();
           std::string scid = SC.GetID();
           hdf_sco_group2 = new HDFgroup((char*)scid.c_str(), hdf_group_study_structure);
           hdf_sco_group2->CreateOnDisk();
@@ -752,8 +819,15 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
       }
       hdf_notebook_vars->CloseOnDisk();
       hdf_notebook_vars = 0; //will be deleted by hdf_sco_group destructor
-        
-      if (aLocked) aStudy->GetProperties()->SetLocked(true);
+
+      // record component versions
+      std::map<std::string, std::string>::const_iterator itVersions;
+      for ( itVersions = componentVersions.begin(); itVersions != componentVersions.end(); ++itVersions )
+	aStudy->GetProperties()->SetComponentVersion( itVersions->first, itVersions->second );
+      
+      // lock study back if it was locked initially, to write correct value of Locked flag
+      unlock.suspend();
+
       //-----------------------------------------------------------------------
       //6 - Write the Study Properties
       //-----------------------------------------------------------------------

@@ -1650,6 +1650,27 @@ module SALOMEDS
       \return units
     */
     string GetUnits();
+
+    /*!
+      \brief Returns list of components which data was stored
+      (after previous sessions) in the study.
+      \return list of component names
+    */
+    StringSeq GetStoredComponents();
+
+    /*!
+      \brief Returns version of component data stored in the study
+      \param comp component name
+      \return version of stored component data
+    */
+    string GetComponentVersion( in string comp );
+
+    /*!
+      \brief Returns all versions of component data stored in the study
+      \param comp component name
+      \return versions of stored component data
+    */
+    StringSeq GetComponentVersions( in string comp );
   };
 
   //==========================================================================

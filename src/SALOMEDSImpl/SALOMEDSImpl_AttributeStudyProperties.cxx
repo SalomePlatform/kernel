@@ -60,6 +60,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Init()
   myMonth.clear();
   myYear.clear();
   myMode = 0; // none
+  myComponentVersions.clear();
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::SetModification(const std::string& theUserName,
@@ -102,9 +103,7 @@ void SALOMEDSImpl_AttributeStudyProperties::GetModifications
 
 std::string SALOMEDSImpl_AttributeStudyProperties::GetCreatorName() const
 {
-  if (myUserName.size() == 0)
-    return std::string("");
-  return myUserName[0];
+  return myUserName.empty() ? std::string("") : myUserName[0];
 }
 
 bool SALOMEDSImpl_AttributeStudyProperties::GetCreationDate
@@ -136,6 +135,7 @@ void SALOMEDSImpl_AttributeStudyProperties::ChangeCreatorName(const std::string&
 
 void SALOMEDSImpl_AttributeStudyProperties::SetCreationMode(const int theMode)
 {
+  if (theMode == myMode) return;
   CheckLocked();
   Backup();
   myMode = theMode;
@@ -175,7 +175,8 @@ bool SALOMEDSImpl_AttributeStudyProperties::IsLocked() const
   return myLocked;
 }
 
-bool SALOMEDSImpl_AttributeStudyProperties::IsLockChanged(const bool theErase) {
+bool SALOMEDSImpl_AttributeStudyProperties::IsLockChanged(const bool theErase)
+{
   if (!myLockChanged) return false;
   if (theErase) myLockChanged = false;
   return true;
@@ -204,6 +205,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
     myYear.push_back(aYears[i]);
   }
   myMode = aProp->GetCreationMode();
+  myComponentVersions = aProp->GetComponentsVersions();
 //  myModified = aProp->GetModified();
 //  myLocked = aProp->IsLocked();
 }
@@ -227,6 +229,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
   }
 
   aProp->SetCreationMode(myMode);
+  aProp->SetComponentsVersions( myComponentVersions );
 //  aProp->SetModified(myModified);
 //  aProp->SetLocked(myLocked);
 }
@@ -244,11 +247,26 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
 
   std::string units = GetUnits();
   std::string comment = GetComment();
+
+  int aLength1 = 0;
+  std::map<std::string, std::string> versions;
+  versionMap::const_iterator it;
+  for (aLength1 = 0, it = myComponentVersions.begin(); it != myComponentVersions.end(); ++it ) {
+    std::string vlist = "";
+    versionList vl = it->second;
+    versionList::const_iterator vlit;
+    for ( vlit = vl.begin(); vlit != vl.end(); ++vlit ) {
+      if ( vlist != "" ) vlist += ";";
+      vlist += *vlit;
+    }
+    versions[ it->first ] = vlist;
+    aLength1 += it->first.size() + vlist.size() + 2;
+  }
   
   unitsSize = units.size();
   commentSize = comment.size();
 
-  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize];
+  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize + 1 + aLength1 ];
 
   char crMode = (char)GetCreationMode();
 
@@ -283,9 +301,19 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   if(comment.size() > 0) {
     sprintf(&(aProperty[a]),"%s",comment.c_str());
     a = strlen(aProperty);
-    a++;
   }
   
+  aProperty[a++] = 30; //delimeter of the component versions
+
+  std::map<std::string, std::string>::const_iterator versionsIt;
+  for ( versionsIt = versions.begin(); versionsIt != versions.end(); ++versionsIt ) {
+    sprintf(&(aProperty[a]),"%s=%s",
+            (char*)(versionsIt->first.c_str()),
+	    (char*)(versionsIt->second.c_str()));
+    a = strlen(aProperty);
+    aProperty[a++] = 1;
+  }
+
   aProperty[a] = 0;
   std::string prop(aProperty);
   delete aProperty;
@@ -293,26 +321,80 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   return prop;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::SetUnits(const std::string& theUnits) {
+void SALOMEDSImpl_AttributeStudyProperties::SetUnits(const std::string& theUnits)
+{
   if(myUnits == theUnits)
     return;
+
+  CheckLocked();
+  Backup();
+
   myUnits = theUnits;
 }
 
-std::string SALOMEDSImpl_AttributeStudyProperties::GetUnits() {
+std::string SALOMEDSImpl_AttributeStudyProperties::GetUnits() const
+{
   return myUnits;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::SetComment(const std::string& theComment) {
+void SALOMEDSImpl_AttributeStudyProperties::SetComment(const std::string& theComment)
+{
   if(myComment == theComment)
     return;
+
+  CheckLocked();
+  Backup();
+
   myComment = theComment;
 }
 
-std::string SALOMEDSImpl_AttributeStudyProperties::GetComment() {
+std::string SALOMEDSImpl_AttributeStudyProperties::GetComment() const 
+{
   return myComment;
 }
 
+void SALOMEDSImpl_AttributeStudyProperties::SetComponentVersion(const std::string& theComponent, const std::string& theVersion)
+{
+  if (!theComponent.empty()) {
+    CheckLocked();
+    Backup();
+    if (myComponentVersions.find(theComponent) == myComponentVersions.end()) myComponentVersions[theComponent] = versionList();
+    if (myComponentVersions[theComponent].empty() || myComponentVersions[theComponent].back() != theVersion)
+      myComponentVersions[theComponent].push_back(theVersion);
+  }
+}
+
+std::vector<std::string> SALOMEDSImpl_AttributeStudyProperties::GetStoredComponents() const
+{
+  std::vector<std::string> components;
+  versionMap::const_iterator it;  
+  for (it = myComponentVersions.begin(); it != myComponentVersions.end(); ++it)
+    components.push_back(it->first);
+  return components;
+}
+
+std::string SALOMEDSImpl_AttributeStudyProperties::GetComponentVersion(const std::string& theComponent) const
+{
+  versionList versions = GetComponentVersions(theComponent);
+  return versions.size() > 0 ? versions[0] : std::string("");
+}
+
+std::vector<std::string> SALOMEDSImpl_AttributeStudyProperties::GetComponentVersions(const std::string& theComponent) const
+{
+  versionList versions;
+  if ( myComponentVersions.find(theComponent) != myComponentVersions.end() ) versions = myComponentVersions.at(theComponent);
+  return versions;
+}
+
+std::map< std::string, std::vector<std::string> > SALOMEDSImpl_AttributeStudyProperties::GetComponentsVersions() const
+{
+  return myComponentVersions;
+}
+
+void SALOMEDSImpl_AttributeStudyProperties::SetComponentsVersions( const std::map< std::string, std::vector<std::string> >& theVersions )
+{
+  myComponentVersions = theVersions;
+}
 
 void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
 {
@@ -322,7 +404,16 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
   SetCreationMode(crMode);
 
   int anIndex;
-  for (anIndex = 2; anIndex + 2 < value.size() ;) {
+  // number 13 below is minimal size of modification data record, which has form:
+  // mmhhddMMyyyyname1, where
+  // - mm:   minute = 2 bytes
+  // - hh:   hour   = 2 bytes
+  // - dd:   day    = 2 bytes
+  // - MM:   month  = 2 bytes
+  // - yyyy: year   = 4 bytes
+  // - name: user's name = arbitrary value, minimal length is 0 bytes
+  // - 1   : records delimiter = 1 byte  
+  for (anIndex = 2; anIndex + 13 < value.size() ;) {
     char str[10];
     int aMinute, aHour, aDay, aMonth, aYear;
     str[0] = aCopy[anIndex++];
@@ -359,7 +450,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
       break;
   }
   
-  //Case then study contains units and comment properties
+  //Case when study contains units and comment properties
   if( anIndex < value.size() ) {
     anIndex++; //skip the delimeter of the sections: char(30)
     int unitsSize;
@@ -375,7 +466,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
     anIndex += unitsSize + 1;
 
     int commentSize;
-    for(commentSize = 0; aCopy[anIndex+commentSize] != 0; commentSize++);
+    for(commentSize = 0; aCopy[anIndex+commentSize] != 0 && aCopy[anIndex+commentSize] != 30; commentSize++);
 
     if(commentSize > 0) {
       char *aComment = new char[commentSize+1];
@@ -384,7 +475,40 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
       SetComment(aComment);
       delete [] (aComment);
     }
-    anIndex += commentSize;
+    anIndex += commentSize + 1;
+  }
+
+  //Case when study contains components versions
+  if( anIndex < value.size() ) {
+    while ( anIndex < value.size() && aCopy[anIndex] != 0 ) {
+      int modSize;
+      for(modSize = 0; aCopy[anIndex+modSize] != '='; modSize++);
+      int verSize;
+      for(verSize = 0; aCopy[anIndex+modSize+1+verSize] != 1; verSize++);
+
+      if(modSize > 0) {
+	char *aModule = new char[modSize+1];
+	strncpy(aModule, &(aCopy[anIndex]), modSize);
+	aModule[modSize] = 0;
+	char *aVersions = new char[verSize+1];
+	if ( verSize > 0 )
+	  strncpy(aVersions, &(aCopy[anIndex+modSize+1]), verSize);
+	aVersions[verSize] = 0;
+	
+	std::string mVersions = aVersions;
+	int start = 0, idx = mVersions.find( ';', start );
+	while ( idx != std::string::npos ) {
+	  SetComponentVersion( aModule, mVersions.substr( start, idx-start ) );
+	  start = idx + 1;
+	  idx = mVersions.find( ';', start );
+	}
+	SetComponentVersion( aModule, mVersions.substr( start ) );
+
+	delete [] (aModule);
+	delete [] (aVersions);
+	anIndex += modSize + 1 + verSize + 1;
+      }
+    }
   }
   
   if (aCopy[1] == 'l') {

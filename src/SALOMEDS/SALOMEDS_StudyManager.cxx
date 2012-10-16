@@ -317,7 +317,7 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
     std::string IOREngine = aSCO.GetIOR();
     if(!IOREngine.empty()) {
       CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
-      SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
+      Engines::EngineComponent_var Engine = Engines::EngineComponent::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }
   }
