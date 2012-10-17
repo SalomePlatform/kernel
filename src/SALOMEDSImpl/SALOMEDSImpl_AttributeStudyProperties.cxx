@@ -382,7 +382,8 @@ std::string SALOMEDSImpl_AttributeStudyProperties::GetComponentVersion(const std
 std::vector<std::string> SALOMEDSImpl_AttributeStudyProperties::GetComponentVersions(const std::string& theComponent) const
 {
   versionList versions;
-  if ( myComponentVersions.find(theComponent) != myComponentVersions.end() ) versions = myComponentVersions.at(theComponent);
+  versionMap::const_iterator it = myComponentVersions.find(theComponent);
+  if ( it != myComponentVersions.end() ) versions = it->second;
   return versions;
 }
 
