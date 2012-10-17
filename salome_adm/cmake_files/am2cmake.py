@@ -800,6 +800,7 @@ class CMakeFile(object):
             set(VERSION 6.5.0)
             set(SHORT_VERSION 6.5)
             set(XVERSION 0x060500)
+            set(VERSION_DEV 1)
             """)
             pass
         # --
