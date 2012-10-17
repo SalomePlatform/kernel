@@ -75,7 +75,6 @@ COMMON_CPPFLAGS=\
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
-	../TOOLSDS/libTOOLSDS.la \
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
