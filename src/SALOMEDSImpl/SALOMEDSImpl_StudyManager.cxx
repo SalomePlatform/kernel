@@ -40,6 +40,7 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_ScalarVariable.hxx"
+#include "SALOMEDSImpl_IParameters.hxx"
 #include <map>
 
 #include "HDFOI.hxx"
@@ -244,6 +245,20 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const std::string& aUrl)
   }
 
   delete hdf_file; // all related hdf objects will be deleted
+
+  // unlock study if it is locked, to set components versions
+  StudyUnlocker unlock(Study);
+
+  //For old studies we have to add "unknown" version tag for all stored components
+  SALOMEDSImpl_SComponentIterator itcomponent = Study->NewComponentIterator();
+  for (; itcomponent.More(); itcomponent.Next())
+  {
+    SALOMEDSImpl_SComponent sco = itcomponent.Value();
+    std::string aCompType = sco.GetComment();
+    if ( aCompType == SALOMEDSImpl_IParameters::getDefaultVisualComponent() ) continue;
+    if ( Study->GetProperties()->GetComponentVersions( aCompType ).empty() )
+      Study->GetProperties()->SetComponentVersion( aCompType, "" ); // empty version means "unknown"
+  }
 
   return Study;
 }
