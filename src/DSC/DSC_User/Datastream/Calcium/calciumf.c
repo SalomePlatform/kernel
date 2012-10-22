@@ -247,7 +247,7 @@ void F_FUNC(cplrd,CPLRD)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
             cal_int *max,cal_int *n, double *tab,cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  *err=cp_lrd_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  *err=cp_lrd_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,(float *)tab);
   free_str1(cnom);
 }
 
@@ -363,7 +363,7 @@ void F_FUNC(cperd,CPERD)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   float tti=0.;
   if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-  *err=cp_erd_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+  *err=cp_erd_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,(float *)tab);
   free_str1(cnom);
 }
 
