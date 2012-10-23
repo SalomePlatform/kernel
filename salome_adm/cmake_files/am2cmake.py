@@ -619,7 +619,7 @@ class CMakeFile(object):
                             INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                             INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
-                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindBLSURF.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindCADSURF.cmake)
                             """)
                             pass
                         if self.module in ["ghs3dplugin", "hexoticplugin"]:
