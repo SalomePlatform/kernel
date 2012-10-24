@@ -123,7 +123,7 @@ ENDIF(WINDOWS)
 
 SET(SIZE_OF_LONG ${CMAKE_SIZEOF_VOID_P})            # set sizeof(long) the same as size of pointers, because on all memory models (EXCLUDING WINDOWS 64 bit) it is equivalent values
 IF("${CMAKE_SIZEOF_VOID_P}" EQUAL "8"  AND WINDOWS) # if it platform Windows 64 bit
-  SET((SIZE_OF_LONG "4")                            # set sizeof(long) to 4 byte
+  SET(SIZE_OF_LONG "4")                             # set sizeof(long) to 4 byte
 ENDIF("${CMAKE_SIZEOF_VOID_P}" EQUAL "8"  AND WINDOWS)
 
 SET(PLATFORM_CPPFLAGS "${PLATFORM_CPPFLAGS} -DSIZEOF_FORTRAN_INTEGER=4 -DSIZEOF_LONG=${SIZE_OF_LONG} -DSIZEOF_INT=4") # to be removed
