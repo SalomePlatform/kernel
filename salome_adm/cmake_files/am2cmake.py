@@ -656,6 +656,11 @@ class CMakeFile(object):
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
+                        if self.module == "jobmanager":
+                            newlines.append("""
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+                            """)
+                            pass
                         if self.module == "hxx2salome":
                             newlines.append("""
                             SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
@@ -1114,7 +1119,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
+        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui' or operator.contains(self.root, 'doc') and mod in ['pyhello']:
             newlines.append(r'''
             SET(top_builddir
                 ${CMAKE_BINARY_DIR}
@@ -1214,7 +1219,7 @@ class CMakeFile(object):
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )"""%(input, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
         from os import path
-        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
+        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin','pyhello'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc')  or  mod in ['pyhello'] and operator.contains(self.root, 'doc'):
             ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
@@ -1240,16 +1245,16 @@ class CMakeFile(object):
             else:
                 config_f = ""
 		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin', "ghs3dprlplugin"] :
-                    config_f = "doxyfile_py"
-                else:
-                    config_f = "doxyfile_idl"
-                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} %s
+                    config_f = "${DOXYGEN_EXECUTABLE} doxyfile_py"
+                elif mod not in ['pyhello']:
+                    config_f = "${DOXYGEN_EXECUTABLE} doxyfile_idl"
+                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs %s
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 )"""%(config_f, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
-        elif mod == 'yacs' and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
+        elif mod in ['yacs', 'jobmanager'] and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
             from sys import platform
             params = '';
             if platform == "win32":
