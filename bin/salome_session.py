@@ -36,6 +36,7 @@ _session = None
 def startSession(modules=[]):
     global _session
     if _session: return
+    from searchFreePort import searchFreePort
     searchFreePort()
     _session = SalomeSession(modules)
     return
@@ -50,59 +51,6 @@ def getShortHostName():
     """
     from salome_utils import getShortHostName
     return getShortHostName()
-
-def searchFreePort():
-    """
-    Search free port for SALOME session.
-    Returns first found free port number.
-    """
-    print "Searching a free port for naming service:",
-    from salome_utils import generateFileName, getHostName
-    hostname = getHostName()
-    NSPORT = 2810
-    limit  = NSPORT+100
-    while 1:
-        print "%s "%(NSPORT),
-        status = os.system("netstat -ltn | grep -E :%s"%(NSPORT))
-        if status:
-            home  = os.getenv("HOME")
-            appli = os.getenv("APPLI")
-            kwargs={}
-            if appli is not None: 
-              home = os.path.join(os.path.realpath(home), appli,"USERS")
-              kwargs["with_username"]=True
-            omniorb_config = generateFileName(home, prefix="omniORB",
-                                              extension="cfg",
-                                              hidden=True,
-                                              with_hostname=True,
-                                              with_port=NSPORT,
-                                              **kwargs)
-            f = open(omniorb_config, "w")
-            f.write("ORBInitRef NameService=corbaname::%s:%s\n"%(hostname, NSPORT))
-            f.close()
-            os.environ['OMNIORB_CONFIG'] = omniorb_config
-            last_running_config = generateFileName(home, prefix="omniORB",
-                                                   suffix="last",
-                                                   extension="cfg",
-                                                   hidden=True,
-                                                   **kwargs)
-            os.environ['LAST_RUNNING_CONFIG'] = last_running_config
-            if os.access(last_running_config,os.F_OK):
-                os.unlink(last_running_config)
-                pass
-            os.symlink(omniorb_config,last_running_config)
-            print "- Ok"
-            break
-        if NSPORT == limit:
-            msg  = ""
-            msg += "Can not find a free port to launch omniNames\n"
-            msg += "Kill the running servers and try again.\n"
-            raise RuntimeError, msg
-        NSPORT = NSPORT+1
-        pass
-    os.environ['NSHOST'] = hostname
-    os.environ['NSPORT'] = str(NSPORT)
-    return NSPORT
 
 
 class SalomeSession(object):

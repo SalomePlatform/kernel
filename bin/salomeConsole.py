@@ -67,14 +67,14 @@ else:
      if rep == "y":
         filename=f
         break
-     
+
 if filename != "":
   os.environ['OMNIORB_CONFIG']=filename
 else:
   rep= raw_input("Do you want to try a local session on port 2810 ? [y|n]")
   if rep == "y":
      # Try a local session running on port 2810
-     sys.argv=sys.argv+['-ORBInitRef','NameService=corbaname::localhost:2810']
+     sys.argv=sys.argv+['-ORBInitRef','NameService=corbaname::localhost:2810']#+['-ORBgiopMaxMsgSize','2097152000']  # 2 GBytes
   else:
      sys.exit(1)
 

@@ -248,6 +248,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
       resource.mpi = mpich2;
     else if (anMpi == "openmpi")
       resource.mpi = openmpi;
+    else if (anMpi == "ompi")
+      resource.mpi = ompi;
     else if  (anMpi == "slurmmpi")
       resource.mpi = slurmmpi;
     else if  (anMpi == "prun")
@@ -543,6 +545,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.mpi = mpich2;
     else if (anMpi == "openmpi")
       resource.mpi = openmpi;
+    else if (anMpi == "ompi")
+      resource.mpi = ompi;
     else if  (anMpi == "slurmmpi")
       resource.mpi = slurmmpi;
     else if  (anMpi == "prun")
@@ -767,6 +771,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
         break;
       case openmpi:
         xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+        break;
+      case ompi:
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "ompi");
         break;
       case slurmmpi:
         xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurmmpi");

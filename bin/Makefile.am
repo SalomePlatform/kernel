@@ -20,7 +20,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# -* Makefile *- 
+# -* Makefile *-
 # Author : Guillaume Boulant (CSSI)
 # Module : KERNEL
 # $Header$
@@ -68,11 +68,13 @@ dist_salomescript_PYTHON =		\
 	nameserver.py			\
 	NSparam.py			\
 	orbmodule.py			\
+	ORBConfigFile.py		\
 	runNS.py			\
 	runSalome.py			\
 	salomeConsole.py		\
 	salome_session.py		\
-	salome_utils.py	        	\
+	salome_utils.py			\
+	searchFreePort.py		\
 	server.py			\
 	setenv.py			\
 	showNS.py			\
@@ -83,5 +85,5 @@ dist_salomescript_PYTHON =		\
 
 install-data-hook:
 	@for f in $(dist_salomescript_PYTHON) ; do \
-          chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
-        done
+		chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
+	done

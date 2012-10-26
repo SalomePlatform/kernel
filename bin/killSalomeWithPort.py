@@ -117,7 +117,7 @@ def appliCleanOmniOrbConfig(port):
             os.remove(omniorb_config)
             pass
 
-        if os.path.lexists(last_running_config):return 
+        if os.path.lexists(last_running_config):return
 
         #try to relink last.cfg to an existing config file if any
         files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
@@ -144,14 +144,14 @@ def shutdownMyPort(port):
     - port - port number
     """
     if not port: return
-    
+
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
     home  = os.getenv("HOME")
     appli = os.getenv("APPLI")
     kwargs = {}
-    if appli is not None: 
+    if appli is not None:
         home = os.path.join(os.path.realpath(home), appli,"USERS")
         kwargs["with_username"]=True
         pass
@@ -177,7 +177,7 @@ def shutdownMyPort(port):
     except:
         pass
     pass
-    
+
 def killMyPort(port):
     """
     Kill SALOME session running on the specified port.
@@ -185,12 +185,12 @@ def killMyPort(port):
     - port - port number
     """
     from salome_utils import getShortHostName, getHostName
-    
+
     # try to shutdown session nomally
     import threading, time
     threading.Thread(target=shutdownMyPort, args=(port,)).start()
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
-    
+
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
@@ -218,7 +218,7 @@ def killMyPort(port):
                                          suffix="Pid_omniNames",
                                          extension="log",
                                          with_port=port)
-        if not sys.platform == 'win32':        
+        if not sys.platform == 'win32':
             cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start %s"` ; echo $pid > %s' % ( str(port), fpidomniNames )
             a = os.system(cmd)
             pass
@@ -255,7 +255,7 @@ def killMyPort(port):
                     try:
                         if sys.platform == "win32":
                             import win32pm
-                            win32pm.killpid(int(pid),0)                            
+                            win32pm.killpid(int(pid),0)
                         else:
                             os.kill(int(pid),signal.SIGKILL)
                             pass
@@ -285,7 +285,7 @@ def killMyPort(port):
     #
     appliCleanOmniOrbConfig(port)
     pass
-            
+
 def killNotifdAndClean(port):
     """
     Kill notifd daemon and clean application running on the specified port.

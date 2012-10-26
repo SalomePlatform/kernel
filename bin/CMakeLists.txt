@@ -52,11 +52,13 @@ SET(SCRIPTS
   nameserver.py
   NSparam.py
   orbmodule.py
+  ORBConfigFile.py
   runNS.py
   runSalome.py
   salomeConsole.py
   salome_session.py
   salome_utils.py
+  searchFreePort.py
   server.py
   setenv.py
   showNS.py

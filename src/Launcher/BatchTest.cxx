@@ -478,6 +478,8 @@ BatchTest::test_jobsubmit_mpi()
     mpiImpl = new MpiImpl_MPICH2();
   else if(mpi_type == "openmpi")
     mpiImpl = new MpiImpl_OPENMPI();
+  else if(mpi_type == "ompi")
+    mpiImpl = new MpiImpl_OMPI();
   else if(mpi_type == "slurmmpi")
     mpiImpl = new MpiImpl_SLURM();
   else
