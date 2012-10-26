@@ -1119,7 +1119,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui' or operator.contains(self.root, 'doc') and mod in ['pyhello']:
+        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui' or operator.contains(self.root, 'doc') and mod in ['pyhello']:
             newlines.append(r'''
             SET(top_builddir
                 ${CMAKE_BINARY_DIR}
@@ -1140,7 +1140,8 @@ class CMakeFile(object):
                 ${datadir}/doc/salome
             )
             ''')
-            self.files.append("static/header.html.in")
+            if mod not in ['blsurfplugin']:
+                self.files.append("static/header.html.in")
             if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin',"ghs3dprlplugin"] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
@@ -1296,7 +1297,7 @@ class CMakeFile(object):
   # --
   
         upmod = self.module.upper()
-        if mod in ['kernel', 'gui', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
+        if mod in ['kernel', 'gui', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui':
             if mod == 'kernel':
                 tmp = """\tADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE} -u
             COMMAND ${DOXYGEN_EXECUTABLE}
@@ -1313,8 +1314,11 @@ class CMakeFile(object):
                 else:
                     tmp1=""
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
+            inst_head_command=""
+            if mod not in ['blsurfplugin']:
+                inst_head_command = "; shutil.copy(r'''%s''', r'''%s''')"%(head_source, doc_tui_destination)
             newlines.append(tmp + """
-            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')" """%(doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination) + tmp1 + """
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s''')%s" """%(doc_tui_destination, doc_source, doc_tui_destination, inst_head_command) + tmp1 + """
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )""")
