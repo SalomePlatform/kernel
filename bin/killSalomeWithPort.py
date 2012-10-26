@@ -355,10 +355,19 @@ def killMyPortSpy(pid, port):
     return
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Usage: "
+        print "  %s <port>" % os.path.basename(sys.argv[0])
+        print
+        print "Kills SALOME session running on specified <port>."
+        sys.exit(1)
+        pass
     if sys.argv[1] == "--spy":
-        pid = sys.argv[2]
-        port = sys.argv[3]
-        killMyPortSpy(pid, port)
+        if len(sys.argv) > 3:
+            pid = sys.argv[2]
+            port = sys.argv[3]
+            killMyPortSpy(pid, port)
+            pass
         sys.exit(0)
         pass
     for port in sys.argv[1:]:
