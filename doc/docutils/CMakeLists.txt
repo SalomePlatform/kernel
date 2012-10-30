@@ -60,7 +60,7 @@ ENDIF(WINDOWS)
 
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.${EXT} "${SCR}")
 
-ADD_CUSTOM_TARGET(html_docs ${CALL_STR} ${CMAKE_CURRENT_BINARY_DIR}/env_s.${EXT} && ${SPHINX_EXECUTABLE} -Q -c ${CMAKE_BINARY_DIR}/doc/docutils -W -b html ${ALLSPHINXOPTS} html
+ADD_CUSTOM_TARGET(html_docs ${CALL_STR} ${CMAKE_CURRENT_BINARY_DIR}/env_s.${EXT} && ${SPHINX_EXECUTABLE} -Q -c ${CMAKE_BINARY_DIR}/doc/docutils -b html ${ALLSPHINXOPTS} html
   COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL/docutils''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL/docutils''')\"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

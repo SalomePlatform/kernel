@@ -1286,7 +1286,7 @@ class CMakeFile(object):
                SET(SCR "%s")
             ENDIF(WINDOWS)
             FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s "${SCR}")
-            ADD_CUSTOM_TARGET(html_docs %s ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s && ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc/docutils -W -b html ${ALLSPHINXOPTS} html
+            ADD_CUSTOM_TARGET(html_docs %s ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s && ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc/docutils -b html ${ALLSPHINXOPTS} html
             COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''%s''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''%s''')\"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(scr,scr,ext,prf,ext,params, doc_gui_destination, doc_gui_destination))
 
