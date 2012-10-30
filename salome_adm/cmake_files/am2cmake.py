@@ -1243,6 +1243,7 @@ class CMakeFile(object):
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
                 )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                newlines.append(r"""ADD_DEPENDENCIES(usr_docs html_docs)""")
             else:
                 config_f = ""
 		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin', "ghs3dprlplugin"] :
@@ -2469,7 +2470,7 @@ class CMakeFile(object):
             path = "PATH"
             begin = "%"
             end = "%"
-            delim = ";"
+            delim = "\;"
             cmd = "@SET "
             omni = "/x86_win32"
             omni_py = "/python"
@@ -2501,13 +2502,13 @@ class CMakeFile(object):
         script = script + cmd + " "+ path + "=" + root_dir_+"/lib/salome"+ _path_
 
 	if upmod == "KERNEL" :
-            script = script + cmd + " " +  python_path + "=" + _pdir + \
-            "/omniORB-4.1.5/lib" + omni + _python_path_
+            script = script + cmd + " " +  python_path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
+            omni + _python_path_
         
-            script = script + cmd + " " + python_path + "=" + _pdir + \
-            "/omniORB-4.1.5/lib" + omni_py + _python_path_
+            script = script + cmd + " " + python_path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
+            omni_py + _python_path_
         
-            script = script + cmd + " "+ path + "=" + _pdir+ "/omniORB-4.1.5/lib" + \
+            script = script + cmd + " "+ path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
             omni + _path_
 
         if upmod == "GEOM" :
