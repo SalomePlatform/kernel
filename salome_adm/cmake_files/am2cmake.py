@@ -2454,7 +2454,7 @@ class CMakeFile(object):
         f.close()
         return
 
-    def writeEnvScript(self, upmod):
+    def writeEnvScript(self, upmod, buildmod=True):
         from sys import platform, version_info
         p_version = """%s.%s"""%(version_info[0],version_info[1])
         python_path ="PYTHONPATH"
@@ -2487,19 +2487,31 @@ class CMakeFile(object):
             
         path_ = begin + path + end
         root_dir_ = begin + upmod + "_ROOT_DIR" + end  
+        cmake_prefix_ = begin + "CMAKE_INSTALL_PREFIX" + end
         python_path_ = begin + python_path + end
         _python_path_ = delim + python_path_+ "\n"
         _path_ = delim + path_+ "\n" 
         _pdir = begin + pdir + end 
            
         
-        script = cmd + " " + python_path + "=" + root_dir_+"/lib/python" + p_version \
-        + "/site-packages/salome" + _python_path_ 
+        if buildmod:
+            script = cmd + " " + python_path + "=" + cmake_prefix_+"/lib/python" + p_version \
+                + "/site-packages/salome" + _python_path_ 
+        else:
+            script = cmd + " " + python_path + "=" + root_dir_+"/lib/python" + p_version \
+                + "/site-packages/salome" + _python_path_ 
         
-        script = script + cmd + " " + python_path + "=" + root_dir_+"/bin/salome" + \
-        _python_path_
+        if buildmod:
+            script = script + cmd + " " + python_path + "=" + cmake_prefix_+"/bin/salome" + \
+                _python_path_
+        else:
+            script = script + cmd + " " + python_path + "=" + root_dir_+"/bin/salome" + \
+                _python_path_
 
-        script = script + cmd + " "+ path + "=" + root_dir_+"/lib/salome"+ _path_
+        if buildmod:
+            script = script + cmd + " "+ path + "=" + cmake_prefix_+"/lib/salome"+ _path_
+        else:
+            script = script + cmd + " "+ path + "=" + root_dir_+"/lib/salome"+ _path_
 
 	if upmod == "KERNEL" :
             script = script + cmd + " " +  python_path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
@@ -2512,11 +2524,11 @@ class CMakeFile(object):
             omni + _path_
 
         if upmod == "GEOM" :
-            script = self.writeEnvScript("KERNEL") + script
-            script = self.writeEnvScript("GUI") + script
+            script = self.writeEnvScript("KERNEL", False) + script
+            script = self.writeEnvScript("GUI", False) + script
 
         if upmod == "SMESH" :
-            script = self.writeEnvScript("GEOM") + script
+            script = self.writeEnvScript("GEOM", False) + script
 
         return script    
     pass
