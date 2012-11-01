@@ -1274,21 +1274,19 @@ class CMakeFile(object):
                 params = '-Q';
                 ext = "bat"
                 prf = "call"
+                cmd = "STRING(REPLACE \"/\" \"\\\\\" SCR"
             else:
                 ext = "sh"
                 prf = ". "
+                cmd = "SET(SCR"
             doc_gui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/%s/docutils"%(upmod)
             scr = self.writeEnvScript(upmod)            	
             newlines.append(r"""
-            IF(WINDOWS)
-               STRING(REPLACE "/" "\\" SCR "%s")
-	    ELSE(WINDOWS)
-               SET(SCR "%s")
-            ENDIF(WINDOWS)
+            %s "%s")
             FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s "${SCR}")
             ADD_CUSTOM_TARGET(html_docs %s ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s && ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc/docutils -b html ${ALLSPHINXOPTS} html
             COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''%s''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''%s''')\"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(scr,scr,ext,prf,ext,params, doc_gui_destination, doc_gui_destination))
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(cmd, scr, ext, prf, ext, params, doc_gui_destination, doc_gui_destination))
 
 
 
@@ -2455,81 +2453,60 @@ class CMakeFile(object):
         return
 
     def writeEnvScript(self, upmod, buildmod=True):
-        from sys import platform, version_info
-        p_version = """%s.%s"""%(version_info[0],version_info[1])
-        python_path ="PYTHONPATH"
-        path = ""
-        begin = ""
-        end = ""
-        delim = ""
-        cmd = ""
-        pdir = ""
-        omni = ""
-	omni_py = ""
-        if platform == "win32" :		
-            path = "PATH"
-            begin = "%"
-            end = "%"
-            delim = "\;"
-            cmd = "@SET "
-            omni = "/x86_win32"
-            omni_py = "/python"
-            pdir = "PDIR"
+        import os, sys
+        p_version = sys.version[:3]
+        python_path = "PYTHONPATH"
+        root_dir    = "%s_ROOT_DIR" % upmod
+        if sys.platform == "win32":
+            script_line = '@SET %(var)s=%(val)s;%%%(var)s%%\n'
+            var_line    = '%%%s%%'
+            lib_path = "PATH"
+            omni = "x86_win32"
+            omni_py = "python"
+            pass
         else:
-            path = "LD_LIBRARY_PATH"
-            begin = "\${"
-            end = "}"
-            delim = ":"
-            cmd = "export "
-            omni_py = "/python" + p_version + "/" + "site-packages"
-            pdir = "INST_ROOT"
-
-            
-        path_ = begin + path + end
-        root_dir_ = begin + upmod + "_ROOT_DIR" + end  
-        cmake_prefix_ = begin + "CMAKE_INSTALL_PREFIX" + end
-        python_path_ = begin + python_path + end
-        _python_path_ = delim + python_path_+ "\n"
-        _path_ = delim + path_+ "\n" 
-        _pdir = begin + pdir + end 
-           
-        
+            script_line = 'export %(var)s=%(val)s:\$%(var)s\n'
+            var_line    = '\${%s}'
+            lib_path = "LD_LIBRARY_PATH"
+            omni = ""
+            omni_py = "/".join( ["python%s"%p_version , "site-packages"] )
+            pass
+        #
+        script = ""
+        #
         if buildmod:
-            script = cmd + " " + python_path + "=" + cmake_prefix_+"/lib/python" + p_version \
-                + "/site-packages/salome" + _python_path_ 
+            script += script_line % { 'var':python_path, 'val':"/".join( ["${CMAKE_INSTALL_PREFIX}", "lib", "python%s"%p_version, "site-packages", "salome"] ) }
+            script += script_line % { 'var':python_path, 'val':"/".join( ["${CMAKE_INSTALL_PREFIX}", "bin", "salome"] ) }
+            script += script_line % { 'var':lib_path,    'val':"/".join( ["${CMAKE_INSTALL_PREFIX}", "lib", "salome"] ) }
+            pass
         else:
-            script = cmd + " " + python_path + "=" + root_dir_+"/lib/python" + p_version \
-                + "/site-packages/salome" + _python_path_ 
-        
-        if buildmod:
-            script = script + cmd + " " + python_path + "=" + cmake_prefix_+"/bin/salome" + \
-                _python_path_
-        else:
-            script = script + cmd + " " + python_path + "=" + root_dir_+"/bin/salome" + \
-                _python_path_
-
-        if buildmod:
-            script = script + cmd + " "+ path + "=" + cmake_prefix_+"/lib/salome"+ _path_
-        else:
-            script = script + cmd + " "+ path + "=" + root_dir_+"/lib/salome"+ _path_
-
+            script += script_line % { 'var':python_path, 'val':"/".join( [var_line % root_dir, "lib", "python%s"%p_version, "site-packages", "salome"] ) }
+            script += script_line % { 'var':python_path, 'val':"/".join( [var_line % root_dir, "bin", "salome"] ) }
+            script += script_line % { 'var':lib_path,    'val':"/".join( [var_line % root_dir, "lib", "salome"] ) }
+            pass
+        #
 	if upmod == "KERNEL" :
-            script = script + cmd + " " +  python_path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
-            omni + _python_path_
-        
-            script = script + cmd + " " + python_path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
-            omni_py + _python_path_
-        
-            script = script + cmd + " "+ path + "=" + "${OMNIORB_ROOT_USER}" + "/lib" + \
-            omni + _path_
-
+            script += "\n"
+            if omni:
+                script += script_line % { 'var':python_path, 'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib", omni] ) }
+                script += script_line % { 'var':lib_path,    'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib", omni] ) }
+                pass
+            else:
+                script += script_line % { 'var':python_path, 'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib"] ) }
+                script += script_line % { 'var':lib_path,    'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib"] ) }
+                pass
+            script += script_line % { 'var':python_path, 'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib", omni_py] ) }
+            pass
+        #
         if upmod == "GEOM" :
-            script = self.writeEnvScript("KERNEL", False) + script
-            script = self.writeEnvScript("GUI", False) + script
-
+            script = self.writeEnvScript("KERNEL", False) + "\n" + script
+            script = self.writeEnvScript("GUI",    False) + "\n" + script
+            pass
+        #
         if upmod == "SMESH" :
-            script = self.writeEnvScript("GEOM", False) + script
-
+            script = self.writeEnvScript("GEOM", False) + "\n" + script
+            pass
+        
         return script    
     pass
 
