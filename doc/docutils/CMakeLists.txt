@@ -37,22 +37,22 @@ SET(ALLSPHINXOPTS
 SALOME_CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in" "${CMAKE_CURRENT_BINARY_DIR}/conf.py")                
 
 IF(WINDOWS)
-  STRING(REPLACE "/" "\\" SCR "@SET PYTHONPATH=%KERNEL_ROOT_DIR%/lib/python2.6/site-packages/salome\;%PYTHONPATH%
-  @SET PYTHONPATH=%KERNEL_ROOT_DIR%/bin/salome\;%PYTHONPATH%
-  @SET PATH=%KERNEL_ROOT_DIR%/lib/salome\;%PATH%
-  @SET PYTHONPATH=${OMNIORB_ROOT_USER}/lib/x86_win32\;%PYTHONPATH%
-  @SET PYTHONPATH=${OMNIORB_ROOT_USER}/lib/python\;%PYTHONPATH%
-  @SET PATH=${OMNIORB_ROOT_USER}/lib/x86_win32\;%PATH%
+  SET(SCR "@SET PYTHONPATH=\${CMAKE_INSTALL_PREFIX}\\lib\\python2.6\\site-packages\\salome\;%PYTHONPATH%
+  @SET PYTHONPATH=\${CMAKE_INSTALL_PREFIX}\\bin\\salome\;%PYTHONPATH%
+  @SET PATH=\${CMAKE_INSTALL_PREFIX}\\lib\\salome\;%PATH%
+  @SET PYTHONPATH=\${OMNIORB_ROOT_USER}\\lib\\x86_win32\;%PYTHONPATH%
+  @SET PYTHONPATH=\${OMNIORB_ROOT_USER}\\lib\\python\;%PYTHONPATH%
+  @SET PATH=\${OMNIORB_ROOT_USER}\\lib\\x86_win32\;%PATH%
   ")
   SET(EXT "bat")
   SET(CALL_STR "call")
 ELSE(WINDOWS)
-  SET(SCR "export PYTHONPATH=\${KERNEL_ROOT_DIR}/lib/python2.6/site-packages/salome:\${PYTHONPATH}
-  export PYTHONPATH=\${KERNEL_ROOT_DIR}/bin/salome:\${PYTHONPATH}
-  export LD_LIBRARY_PATH=\${KERNEL_ROOT_DIR}/lib/salome:\${LD_LIBRARY_PATH}
-  export PYTHONPATH=\${OMNIORB_ROOT_USER}/omniORB-4.1.5/lib:\${PYTHONPATH}
-  export PYTHONPATH=\${OMNIORB_ROOT_USER}/omniORB-4.1.5/lib/python2.6/site-packages:\${PYTHONPATH}
-  export LD_LIBRARY_PATH=\${INST_ROOT}/omniORB-4.1.5/lib:\${LD_LIBRARY_PATH}
+  SET(SCR "export PYTHONPATH=\${CMAKE_INSTALL_PREFIX}/lib/python2.6/site-packages/salome:\${PYTHONPATH}
+  export PYTHONPATH=\${CMAKE_INSTALL_PREFIX}/bin/salome:\${PYTHONPATH}
+  export LD_LIBRARY_PATH=\${CMAKE_INSTALL_PREFIX}/lib/salome:\${LD_LIBRARY_PATH}
+  export PYTHONPATH=\${OMNIORB_ROOT_USER}/lib:\${PYTHONPATH}
+  export PYTHONPATH=\${OMNIORB_ROOT_USER}/lib/python2.6/site-packages:\${PYTHONPATH}
+  export LD_LIBRARY_PATH=\${OMNIORB_ROOT_USER}/lib:\${LD_LIBRARY_PATH}
   ")
   SET(EXT "sh")
   SET(CALL_STR ".")
@@ -60,7 +60,7 @@ ENDIF(WINDOWS)
 
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.${EXT} "${SCR}")
 
-ADD_CUSTOM_TARGET(html_docs ${CALL_STR} ${CMAKE_CURRENT_BINARY_DIR}/env_s.${EXT} && ${SPHINX_EXECUTABLE} -Q -c ${CMAKE_BINARY_DIR}/doc/docutils -b html ${ALLSPHINXOPTS} html
+ADD_CUSTOM_TARGET(html_docs ${CALL_STR} ${CMAKE_CURRENT_BINARY_DIR}/env_s.${EXT} && ${SPHINX_EXECUTABLE} -c ${CMAKE_BINARY_DIR}/doc/docutils -b html ${ALLSPHINXOPTS} html
   COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL/docutils''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL/docutils''')\"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
