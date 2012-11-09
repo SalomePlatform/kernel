@@ -1307,9 +1307,7 @@ class CMakeFile(object):
                 if mod == 'visu':
                     tmp1= r"""\n           COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/visuscreen.png''', r'''%s''')" """%(doc_tui_destination)
                 elif mod == 'smesh':
-                    extra_srcdir = "${CMAKE_CURRENT_SOURCE_DIR}/extra"
-                    tmp1= """\n            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/smeshscreen.png''', r'''%s'''); copy(r'''%s/AddNetgenInSalome2.pdf''', r'''%s'''); copy(r'''%s/PluginMeshers.html''', r'''%s''')" 
-            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''%s/AddNetgenInSalome2.ps''', r'''%s'''); copy(r'''%s/AddNetgenInSalome2.sxw''', r'''%s''')" """%(doc_tui_destination, extra_srcdir,doc_destination, extra_srcdir,doc_destination, extra_srcdir,doc_destination,extra_srcdir,doc_destination)
+                    tmp1= """\n            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/smeshscreen.png''', r'''%s''')" """%(doc_tui_destination)
                 else:
                     tmp1=""
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
