@@ -22,7 +22,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-def searchFreePort(args, save_config=1):
+def searchFreePort(args={}, save_config=1):
   """
   Search free port for SALOME session.
   Returns first found free port number.
