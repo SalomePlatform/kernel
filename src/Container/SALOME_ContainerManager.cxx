@@ -36,6 +36,9 @@
 #include <sstream>
 #include <string>
 
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_Session)
+
 #ifdef WNT
 #include <process.h>
 #define getpid _getpid
@@ -187,6 +190,17 @@ void SALOME_ContainerManager::Shutdown()
 void SALOME_ContainerManager::ShutdownContainers()
 {
   MESSAGE("ShutdownContainers");
+
+  SALOME::Session_var session = SALOME::Session::_nil();
+  CORBA::Long pid = 0;
+  CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
+  if (!CORBA::is_nil(objS))
+  {
+    session = SALOME::Session::_narrow(objS);
+    if (!CORBA::is_nil(session))
+      pid = session->getPID();
+  }
+
   bool isOK;
   isOK = _NS->Change_Directory("/Containers");
   if( isOK ){
@@ -199,7 +213,7 @@ void SALOME_ContainerManager::ShutdownContainers()
         try
           {
             Engines::Container_var cont=Engines::Container::_narrow(obj);
-            if(!CORBA::is_nil(cont))
+            if(!CORBA::is_nil(cont) && pid != cont->getPID())
               lstCont.push_back((*iter));
           }
         catch(const CORBA::Exception& e)

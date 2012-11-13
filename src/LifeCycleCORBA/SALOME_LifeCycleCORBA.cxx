@@ -550,6 +550,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
     if (!CORBA::is_nil(session))
     {
       pid = session->getPID();
+      session->Shutdown();
     }
   }
 
@@ -644,6 +645,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
        // ignore and continue
     }
 
+  /*
   // 6) Session
   if ( !CORBA::is_nil( session ) ) {
     try
@@ -655,6 +657,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
       // ignore and continue
     }
   }
+  */
 
   // 7) Logger
   int argc = 0;
