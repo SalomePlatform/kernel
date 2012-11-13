@@ -162,18 +162,22 @@ def shutdownMyPort(port):
                                       with_port=port,
                                       **kwargs)
     os.environ['OMNIORB_CONFIG'] = omniorb_config
+    os.environ['NSPORT'] = port
 
     # give the chance to the servers to shutdown properly
     try:
         import time
-        import salome_kernel
-        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        from omniORB import CORBA
+        from LifeCycleCORBA import LifeCycleCORBA
         # shutdown all
+        orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+        lcc = LifeCycleCORBA(orb)
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
         # shutdown omniNames and notifd
-        salome_kernel.LifeCycleCORBA.killOmniNames()
+        lcc.killOmniNames()
+        time.sleep(1)
     except:
         pass
     pass
