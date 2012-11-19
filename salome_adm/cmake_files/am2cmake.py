@@ -802,10 +802,10 @@ class CMakeFile(object):
                 pass
             # --
             newlines.append("""
-            set(VERSION 6.5.0)
-            set(SHORT_VERSION 6.5)
-            set(XVERSION 0x060500)
-            set(VERSION_DEV 1)
+            set(VERSION 6.6.0)
+            set(SHORT_VERSION 6.6)
+            set(XVERSION 0x060600)
+            set(VERSION_DEV 0)
             """)
             pass
         # --
