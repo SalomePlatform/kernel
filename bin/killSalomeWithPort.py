@@ -137,7 +137,7 @@ def appliCleanOmniOrbConfig(port):
 
 ########## kills all salome processes with the given port ##########
 
-def shutdownMyPort(port):
+def shutdownMyPort(port, cleanup=True):
     """
     Shutdown SALOME session running on the specified port.
     Parameters:
@@ -162,7 +162,7 @@ def shutdownMyPort(port):
                                       with_port=port,
                                       **kwargs)
     os.environ['OMNIORB_CONFIG'] = omniorb_config
-    os.environ['NSPORT'] = port
+    os.environ['NSPORT'] = str(port)
 
     # give the chance to the servers to shutdown properly
     try:
@@ -176,8 +176,11 @@ def shutdownMyPort(port):
         # give some time to shutdown to complete
         time.sleep(1)
         # shutdown omniNames and notifd
-        lcc.killOmniNames()
-        time.sleep(1)
+        if cleanup:
+            lcc.killOmniNames()
+            time.sleep(1)
+            pass
+        pass
     except:
         pass
     pass
@@ -192,7 +195,7 @@ def killMyPort(port):
 
     # try to shutdown session nomally
     import threading, time
-    threading.Thread(target=shutdownMyPort, args=(port,)).start()
+    threading.Thread(target=shutdownMyPort, args=(port,False)).start()
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
 
     # new-style dot-prefixed pidict file
