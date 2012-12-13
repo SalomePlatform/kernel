@@ -46,6 +46,12 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     def ComponentDataType(self):
         return self._ComponentDataType
 
+    def Version(self):
+        try:
+            return self.getVersion()
+        except:
+            return ""
+
     def Save(self, theComponent, theURL, isMultiFile):
         return ""
 

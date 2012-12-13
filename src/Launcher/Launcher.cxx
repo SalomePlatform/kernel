@@ -403,6 +403,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case openmpi:
       mpi = "openmpi";
       break;
+    case ompi:
+      mpi = "ompi";
+      break;
     case slurmmpi:
       mpi = "slurmmpi";
       break;

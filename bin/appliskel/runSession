@@ -68,6 +68,23 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
+# --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
+# Usage: writeConfigFile PORT HOST
+function writeConfigFile
+{
+  if [ $# -ne 2 ]; then
+    echo "Usage: $0 PORT HOST"
+    return
+  fi
+  export NSPORT=$1
+  export NSHOST=$2
+
+  # Get (in bash) the configuration filename from (Python) ORBConfigFile return values
+  RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${HOME}/${APPLI}/USERS ${NSHOST} ${NSPORT} with_username=${USER})
+  export OMNIORB_CONFIG=$(echo ${RETURN_VALUES} | cut -d' ' -f1)
+}
+
+
 if test "x${NSPORT}" == "xlast"; then
   #PORT is not given
   if test "x${NSHOST}" == "xlocalhost"; then
@@ -75,47 +92,28 @@ if test "x${NSPORT}" == "xlast"; then
     # --- set omniORB configuration to current session if any
     fileOmniConfig=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
     if [ -f $fileOmniConfig ]; then
-      OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
-      export OMNIORB_CONFIG
+      export OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
       # --- set environment variables for port and hostname of NamingService
-      NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
-      NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
-      export NSPORT
-      export NSHOST
+      export NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
+      export NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
     fi
   else
     #MACHINE is given PORT is not given
-    NSPORT=2810
-    OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${NSHOST}_${NSPORT}.cfg
-    export OMNIORB_CONFIG
-    #if omniorb config file exists do not override (perhaps too conservative)
-    if [ ! -f ${OMNIORB_CONFIG} ]; then
-      echo "InitRef = NameService=corbaname::${NSHOST}:${NSPORT}" > ${OMNIORB_CONFIG}
-    fi
-    export NSPORT
-    export NSHOST
+    writeConfigFile 2810 ${NSHOST}
   fi
 else
   #PORT is given
   if test "x${NSHOST}" == "xlocalhost"; then
     #MACHINE is not given PORT is given
-    NSHOST=`hostname`
+      NSHOST=`hostname`
   fi
-  OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${NSHOST}_${NSPORT}.cfg
-  export OMNIORB_CONFIG
-  #if omniorb config file exists do not override (perhaps too conservative)
-  if [ ! -f ${OMNIORB_CONFIG} ]; then
-    echo "InitRef = NameService=corbaname::${NSHOST}:${NSPORT}" > ${OMNIORB_CONFIG}
-  fi
-  export NSPORT
-  export NSHOST
+  writeConfigFile ${NSPORT} ${NSHOST}
 fi
 
 # --- invoke shell with or without args
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py -exec $*
+  ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py -exec $*
 else
-
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
+  ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
 fi

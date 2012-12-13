@@ -23,30 +23,44 @@
 
 # --- define port for CORBA naming service
 
+DEFAULT=default
+
+# call: searchFreePort [ save [test] ]
 searchFreePort() {
+    # if not specified by optional first parameter, savemode is set to default
+    savemode=${1:-$DEFAULT}
+    # if not specified by optional second parameter, testmode is set to default
+    testmode=${2:-$DEFAULT}
+
     echo -n "Searching for a free port for naming service: "
-    NSPORT=2810
-    export NSPORT
+    export NSPORT=2810
     local limit=$NSPORT
     let limit=limit+100
+
     while [ 1 ]
     do
         aRes=`netstat -ltn | grep -E :${NSPORT}`
         if [ -z "$aRes" ]; then
             echo ${NSPORT} - Ok
-	    local myhost=`hostname`
-            OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${myhost}_${NSPORT}.cfg
-            export OMNIORB_CONFIG
-	    export NSPORT
-            NSHOST=${myhost}
-            export NSHOST
-            local initref="NameService=corbaname::"`hostname`":$NSPORT"
-            #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
-            echo "InitRef = $initref" > $OMNIORB_CONFIG
-            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
-            export LAST_RUNNING_CONFIG
-	    rm ${LAST_RUNNING_CONFIG}
-            ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
+            export NSPORT
+            export NSHOST=`hostname`
+
+            RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${HOME}/${APPLI}/USERS ${NSHOST} ${NSPORT} with_username=${USER})
+            export OMNIORB_CONFIG=$(echo ${RETURN_VALUES} | cut -d' ' -f1)
+
+            if [ "$savemode" = save ]
+            then
+                if [ "$testmode" = test ]
+                then
+                    export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${NSHOST}_test.cfg
+                else
+                    export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+                fi
+
+                rm ${LAST_RUNNING_CONFIG}
+                ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
+            fi
+
             break
         fi
         echo -n "${NSPORT} "
@@ -59,4 +73,3 @@ searchFreePort() {
         let NSPORT=NSPORT+1
     done
 }
-

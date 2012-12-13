@@ -172,7 +172,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     for module in modules_list :
         if modules_root_dir.has_key(module):
             module_root_dir = modules_root_dir[module]
-            modules_root_dir_list[:0] = [module_root_dir]
+            if module_root_dir not in modules_root_dir_list:
+              modules_root_dir_list[:0] = [module_root_dir]
             if sys.platform == "win32":
               add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "PATH")

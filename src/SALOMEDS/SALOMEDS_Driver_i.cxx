@@ -29,9 +29,21 @@
 #include "SALOMEDS.hxx"
 #include <stdlib.h>
 
-SALOMEDS_Driver_i::SALOMEDS_Driver_i(SALOMEDS::Driver_ptr theDriver, CORBA::ORB_ptr theORB) 
+SALOMEDS_Driver_i::SALOMEDS_Driver_i(Engines::EngineComponent_ptr theEngine, CORBA::ORB_ptr theORB) 
 {
+  // engine should not be null - component is supposed to be inherited from Engines::EngineComponent
+  _engine = Engines::EngineComponent::_duplicate(theEngine);
+  // driver can be null - if component interface does not inherit SALOMEDS::Driver
+  _driver = SALOMEDS::Driver::_narrow(theEngine);
+  _orb = CORBA::ORB::_duplicate(theORB);        
+}
+
+SALOMEDS_Driver_i::SALOMEDS_Driver_i(SALOMEDS::Driver_ptr theDriver, CORBA::ORB_ptr theORB)
+{
+  // driver can be null - if component interface does not inherit SALOMEDS::Driver
   _driver = SALOMEDS::Driver::_duplicate(theDriver);
+  // engine can be null - since it is narrowed from SALOMEDS::Driver ptr which can be null
+  _engine = Engines::EngineComponent::_narrow(theDriver);
   _orb = CORBA::ORB::_duplicate(theORB);        
 }
 
@@ -42,8 +54,8 @@ SALOMEDS_Driver_i::~SALOMEDS_Driver_i()
 std::string SALOMEDS_Driver_i::GetIOR() 
 {
   std::string ior = "";
-  if ( !CORBA::is_nil(_driver) ) {
-    CORBA::String_var cior = _orb->object_to_string(_driver);
+  if ( !CORBA::is_nil(_engine) ) {
+    CORBA::String_var cior = _orb->object_to_string(_engine);
     ior = cior;
   }
   return ior;
@@ -161,6 +173,11 @@ std::string SALOMEDS_Driver_i::ComponentDataType()
     dtype = type;
   }
   return dtype;
+}
+
+std::string SALOMEDS_Driver_i::Version()
+{
+  return !CORBA::is_nil( _engine ) ? _engine->getVersion() : std::string("");
 }
 
 std::string SALOMEDS_Driver_i::IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
@@ -298,9 +315,8 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
   Engines::TMPFile_var aStream;
   CORBA::Boolean aValidScript = true; // VSR: maybe should be false by default ???
 
-  Engines::EngineComponent_ptr aComponent = Engines::EngineComponent::_narrow(_driver);
-  if ( !CORBA::is_nil( aComponent ) )
-    aStream = aComponent->DumpPython(st.in(), isPublished, isMultiFile, aValidScript);
+  if ( !CORBA::is_nil( _engine ) )
+    aStream = _engine->DumpPython(st.in(), isPublished, isMultiFile, aValidScript);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
@@ -344,8 +360,8 @@ SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const std::string
   }
 
   if (!CORBA::is_nil(obj)) {
-    SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
-    return new SALOMEDS_Driver_i(aDriver, _orb);
+    Engines::EngineComponent_var anEngine = Engines::EngineComponent::_narrow(obj);
+    return new SALOMEDS_Driver_i(anEngine, _orb);
   }
 
   return NULL;
@@ -357,8 +373,8 @@ SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByIOR(const std::string&
   obj = _orb->string_to_object(theIOR.c_str());
  
   if (!CORBA::is_nil(obj)) {
-    SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
-    return new SALOMEDS_Driver_i(aDriver, _orb);
+    Engines::EngineComponent_var anEngine = Engines::EngineComponent::_narrow(obj);
+    return new SALOMEDS_Driver_i(anEngine, _orb);
   }
 
   return NULL;

@@ -1105,3 +1105,20 @@ void Engines_Component_i::setContainerName()
     name[slash]='_';
   _containerName=name;
 }
+
+//=============================================================================
+/*!
+  \brief Get version of the component
+
+  This method is supposed to be implemented in all derived classes; default implementation
+  returns empty string that means that no version information about the component is available.
+
+  \note The version of the component is stored to the study, as a part of general persistence
+  mechanism; once stored, version information in the study cannot be changed.
+  
+  \return string containing component's version, e.g. "1.0"
+*/
+char* Engines_Component_i::getVersion()
+{
+  return CORBA::string_dup( "" );
+}

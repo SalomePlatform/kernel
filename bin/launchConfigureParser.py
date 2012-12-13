@@ -173,11 +173,11 @@ def userFile(appname, cfgname):
     # get app version
     v = version()
     if not v: return None                        # unknown version
-    
+
     # get default user file name
     filename = defaultUserFile(appname, cfgname)
     if not filename: return None                 # default user file name is bad
-    
+
     # check that default user file exists
     if os.path.exists(filename): return filename # user file is found
 
@@ -186,7 +186,7 @@ def userFile(appname, cfgname):
     # ... calculate default version id
     id0 = version_id(v)
     if not id0: return None                      # bad version id -> can't detect appropriate file
-    
+
     # ... get all existing user preferences files
     if sys.platform == "win32":
         files = glob.glob(os.path.join(getHomeDir(), "%s.xml.*" % appname))
@@ -301,11 +301,11 @@ class xml_parser:
     def startElement(self, name, attrs):
         self.space.append(name)
         self.current = None
-        
+
         # if we are importing file
         if self.space == [doc_tag, import_tag] and nam_att in attrs.getNames():
             self.importFile( attrs.getValue(nam_att) )
-        
+
         # if we are analyzing "section" element and its "name" attribute is
         # either "launch" or module name -- set section_name
         if self.space == [doc_tag, sec_tag] and nam_att in attrs.getNames():
@@ -366,14 +366,14 @@ class xml_parser:
     def endDocument(self):
         self.read = None
         pass
-    
+
     def importFile(self, fname):
         # get absolute name
         if os.path.isabs (fname) :
             absfname = fname
         else:
             absfname = os.path.join(os.path.dirname(self.fileName), fname)
-        
+
         # check existing and registry file
         for ext in ["", ".xml", ".XML"] :
             if os.path.exists(absfname + ext) :
@@ -386,7 +386,7 @@ class xml_parser:
         else:
             if verbose(): print "Configure parser: Error : file %s does not exist" % absfname
             return
-         
+
         # importing file
         try:
             # copy current options
@@ -404,7 +404,7 @@ class xml_parser:
         except:
             if verbose(): print "Configure parser: Error : can not read configuration file %s" % absfname
         pass
-      
+
 
 # -----------------------------------------------------------------------------
 
@@ -876,7 +876,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
 
     # Process --print-port option
     if cmd_opts.print_port:
-        from runSalome import searchFreePort
+        from searchFreePort import searchFreePort
         searchFreePort({})
         print "port:%s"%(os.environ['NSPORT'])
         sys.exit(0)

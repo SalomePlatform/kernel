@@ -82,7 +82,9 @@ public:
   virtual void SetComment(const std::string& theComment);
   virtual std::string GetComment();
 
-
+  virtual std::vector<std::string> GetStoredComponents();
+  virtual std::string GetComponentVersion( const std::string& theComponent );
+  virtual std::vector<std::string> GetComponentVersions( const std::string& theComponent );
 };
 
 

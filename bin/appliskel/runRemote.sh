@@ -50,15 +50,12 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
+export NSHOST=$1
+export NSPORT=$2
 
-OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_$1_$2.cfg
-export OMNIORB_CONFIG
-NSHOST=$1
-export NSHOST
-NSPORT=$2
-export NSPORT
-initref="NameService=corbaname::"$1":$2"
-echo "InitRef = $initref" > $OMNIORB_CONFIG
+# Get (in bash) the configuration filename from (Python) ORBConfigFile return values
+RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${HOME}/${APPLI}/USERS ${NSHOST} ${NSPORT} with_username=${USER})
+export OMNIORB_CONFIG=$(echo ${RETURN_VALUES} | cut -d' ' -f1)
 
 #go to the requested working directory if any
 if test "x$3" == "xWORKINGDIR"; then
