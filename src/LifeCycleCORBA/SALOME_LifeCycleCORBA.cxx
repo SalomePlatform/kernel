@@ -100,11 +100,13 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 
   CORBA::Object_var obj =
     _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
-  ASSERT( !CORBA::is_nil(obj));
+  if (CORBA::is_nil(obj))
+    throw SALOME_Exception("Error: Cannot resolve ContainerManager in Naming Service");
   _ContManager=Engines::ContainerManager::_narrow(obj);
 
   obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
-  ASSERT( !CORBA::is_nil(obj));
+  if (CORBA::is_nil(obj))
+    throw SALOME_Exception("Error: Cannot resolve ResourceManager in Naming Service");
   _ResManager=Engines::ResourcesManager::_narrow(obj);
 }
 
