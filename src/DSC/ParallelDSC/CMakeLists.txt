@@ -18,9 +18,9 @@
 #
 
 INCLUDE_DIRECTORIES(
-  ${MPI_INCLUDE_DIRS}
+  ${MPI_CXX_INCLUDE_PATH}
   ${PACO_INCLUDE_DIRS}
-  ${OMNIORB_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/src/Container
   ${CMAKE_SOURCE_DIR}/src/ParallelContainer
   ${CMAKE_SOURCE_DIR}/src/Notification
@@ -37,7 +37,7 @@ INCLUDE_DIRECTORIES(
 
 SET(COMMON_FLAGS
   ${OMNIORB_DEFINITIONS}
-  ${MPI_DEFINITIONS}
+  ${MPI_CXX_COMPILE_FLAGS}
   ${PACO_DEFINITIONS}
 )
 SET(SalomeParallelDSCContainer_SOURCES
@@ -46,7 +46,7 @@ SET(SalomeParallelDSCContainer_SOURCES
     Param_Double_Port_uses_i.cxx
 )
 
-ADD_LIBRARY(SalomeParallelDSCContainer SHARED ${SalomeParallelDSCContainer_SOURCES})
+ADD_LIBRARY(SalomeParallelDSCContainer ${SalomeParallelDSCContainer_SOURCES})
 SET_TARGET_PROPERTIES(SalomeParallelDSCContainer PROPERTIES COMPILE_FLAGS "${COMMON_FLAGS}")
 INSTALL(TARGETS SalomeParallelDSCContainer DESTINATION ${KERNEL_salomelib_LIBS})
 

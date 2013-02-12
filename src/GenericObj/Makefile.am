@@ -29,7 +29,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 # header files  
 salomeinclude_HEADERS =\
-	SALOME_GenericObj_i.hh
+	SALOME_GenericObj_i.hh \
+	SALOME_GenericObj_wrap.hxx
 
 # Libraries targets
 lib_LTLIBRARIES = libSalomeGenericObj.la
@@ -42,6 +43,6 @@ libSalomeGenericObj_la_CPPFLAGS = \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
-libSalomeGenericObj_la_LIBADD  = \
+	libSalomeGenericObj_la_LIBADD  = \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la

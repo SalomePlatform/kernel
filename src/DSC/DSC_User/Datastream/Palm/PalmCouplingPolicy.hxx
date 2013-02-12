@@ -32,7 +32,7 @@
 
 #include <SALOMEconfig.h>
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include <vector>
 #include "DataIdFilter.hxx"
 #include "DisplayPair.hxx"

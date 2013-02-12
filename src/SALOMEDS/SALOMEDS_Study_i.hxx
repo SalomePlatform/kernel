@@ -46,8 +46,6 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
-class Notifier;
-
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
@@ -55,7 +53,8 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
-  Notifier*                      _notifier;
+  SALOMEDSImpl_AbstractCallback* _notifier;
+  SALOMEDSImpl_AbstractCallback* _genObjRegister;
 
 public:
 

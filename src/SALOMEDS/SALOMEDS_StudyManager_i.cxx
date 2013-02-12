@@ -176,7 +176,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
-  else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
+  else _name_service->Register(Study, aStudyImpl->Name().c_str());
 
   return Study._retn();
 }

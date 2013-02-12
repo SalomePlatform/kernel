@@ -148,7 +148,8 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_
   SALOMEDS::Locker lock;
   CheckLocked();
   SALOMEDSImpl_SObject aFO, aSO;
-  aFO = _impl->GetOwner()->GetSObject(theFatherObject->GetID());
+  CORBA::String_var fatherEntry = theFatherObject->GetID();
+  aFO = _impl->GetOwner()->GetSObject( fatherEntry.in() );
   aSO = _impl->NewObjectToTag(aFO, atag);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);

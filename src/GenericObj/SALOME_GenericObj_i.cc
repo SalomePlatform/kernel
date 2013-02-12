@@ -26,14 +26,33 @@
 #include "SALOME_GenericObj_i.hh"
 #include "utilities.h"
 
+#include <iostream>
+#include <typeinfo>
+
+// note: in KERNEL _DEBUG_ is not defined by default
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
 #else
 static int MYDEBUG = 0;
 #endif
 
+//#define IS_OBJ_IN_QUESTION(where) is_obj_in_question(this, myRefCounter, where)
+#define IS_OBJ_IN_QUESTION(where)
+
 namespace SALOME
 {
+  void is_obj_in_question( const GenericObj_i* o, int myRefCounter,const char* where)
+  {
+    if ( std::string( typeid(*o).name() ).find("SALOMEDS") != std::string::npos )
+      return;
+    // if ( std::string( typeid(*o).name() ).find("SMESH_") != std::string::npos ||
+    //      std::string( typeid(*o).name() ).find("StdMesher") != std::string::npos )
+    {
+      std::cout<< typeid(*o).name() << " " << o << " " << where << "  myRefCounter ==> " << myRefCounter;
+      if ( myRefCounter == 0 ) std::cout << " DELETE !";
+      std::cout << std::endl;
+    }
+  }
 
   /*!
     \class SALOME::GenericObj_i
@@ -96,6 +115,7 @@ namespace SALOME
     if(MYDEBUG)
       MESSAGE("GenericObj_i::Register "<<this<<"; myRefCounter = "<<myRefCounter);
     ++myRefCounter;
+    IS_OBJ_IN_QUESTION( "Register" );
   }
 
   /*!
@@ -108,7 +128,9 @@ namespace SALOME
   {
     if(MYDEBUG)
       MESSAGE("GenericObj_i::UnRegister "<<this<<"; myRefCounter = "<<myRefCounter);
-    if(--myRefCounter <= 0){
+    --myRefCounter;
+    IS_OBJ_IN_QUESTION( "UnRegister" );
+    if(myRefCounter <= 0){
       PortableServer::ObjectId_var anObjectId = myPOA->servant_to_id(this);
       myPOA->deactivate_object(anObjectId.in());
       _remove_ref();

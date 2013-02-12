@@ -21,58 +21,14 @@ INCLUDE_DIRECTORIES(
   ${HDF5_INCLUDE_DIRS}
 )
 
-SET(SalomeHDFPersist_SOURCES
-  HDFfileCreate.c
-  HDFfileClose.c
-  HDFfileOpen.c
-  HDFfileMount.c
-  HDFfileUmount.c
-  HDFgroupCreate.c
-  HDFgroupOpen.c
-  HDFgroupClose.c
-  HDFdatasetOpen.c
-  HDFdatasetClose.c
-  HDFdatasetCreate.c
-  HDFdatasetWrite.c
-  HDFdatasetRead.c
-  HDFdatasetGetDim.c
-  HDFdatasetGetSize.c
-  HDFdatasetGetType.c
-  HDFdatasetGetnDim.c
-  HDFdatasetGetOrder.c
-  HDFarrayGetType.c
-  HDFarrayGetTypeId.c
-  HDFarrayCreate.c
-  HDFarrayClose.c
-  HDFarrayGetnDim.c
-  HDFarrayGetDim.c
-  HDFattrOpen.c
-  HDFattrClose.c
-  HDFattrWrite.c
-  HDFattrCreate.c
-  HDFattrRead.c
-  HDFattrGetType.c
-  HDFattrGetSize.c
-  HDFerrorModeLock.c
-  HDFnObjects.c
-  HDFobjectIdentify.c
-  HDFobjectType.c
-  HDFobject.cc
-  HDFarray.cc
-  HDFinternalObject.cc
-  HDFattribute.cc
-  HDFcontainerObject.cc
-  HDFdataset.cc
-  HDFfile.cc
-  HDFgroup.cc
-  HDFexplorer.cc
-  HDFconvert.cc
-  HDFascii.cc
-)
 
-ADD_LIBRARY(SalomeHDFPersist SHARED ${SalomeHDFPersist_SOURCES})
-SET_TARGET_PROPERTIES(SalomeHDFPersist PROPERTIES COMPILE_FLAGS "-D${MACHINE} ${HDF5_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(SalomeHDFPersist ${HDF5_LIBS} ${PLATFORM_LIBS})
+FILE(GLOB SalomeHDFPersist_SOURCES_C "${CMAKE_CURRENT_SOURCE_DIR}/HDF*.c")
+FILE(GLOB SalomeHDFPersist_SOURCES_CC "${CMAKE_CURRENT_SOURCE_DIR}/HDF*.cc")
+SET(SalomeHDFPersist_SOURCES ${SalomeHDFPersist_SOURCES_C} ${SalomeHDFPersist_SOURCES_CC})
+ADD_DEFINITIONS(${HDF5_DEFINITIONS})
+
+ADD_LIBRARY(SalomeHDFPersist ${SalomeHDFPersist_SOURCES})
+TARGET_LINK_LIBRARIES(SalomeHDFPersist ${HDF5_LIBRARIES} ${PLATFORM_LIBS})
 INSTALL(TARGETS SalomeHDFPersist DESTINATION ${KERNEL_salomelib_LIBS})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

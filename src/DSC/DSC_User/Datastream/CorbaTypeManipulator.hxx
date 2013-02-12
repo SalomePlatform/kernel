@@ -32,7 +32,7 @@
 
 #include <iostream>
 #include <cstring>
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 //#define MYDEBUG
 

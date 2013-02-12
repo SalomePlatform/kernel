@@ -18,8 +18,8 @@
 #
 
 INCLUDE_DIRECTORIES(
-  ${BOOST_INCLUDE_DIRS}
-  ${OMNIORB_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR}
+  ${OMNIORB_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
@@ -52,23 +52,24 @@ SET(SalomeCalcium_SOURCES
   Calcium.cxx
   calcium_destructors_port_uses.cxx
 )
-ADD_LIBRARY(SalomeCalcium SHARED ${SalomeCalcium_SOURCES})
-SET_TARGET_PROPERTIES(SalomeCalcium PROPERTIES COMPILE_FLAGS "${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(SalomeCalcium ${PTHREAD_LIBS} ${CORBA_LIBS} ${PLATFORM_LIBS})
+
+ADD_DEFINITIONS(${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
+ADD_LIBRARY(SalomeCalcium ${SalomeCalcium_SOURCES})
+TARGET_LINK_LIBRARIES(SalomeCalcium SalomeDSCSuperv SalomeContainer ${CMAKE_THREAD_LIBS_INIT} ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
 
 SET(CalciumC_SOURCES
   CalciumC.c
   Calcium.cxx
   calciumf.c
 )
-ADD_LIBRARY(CalciumC SHARED ${CalciumC_SOURCES})
-SET_TARGET_PROPERTIES(CalciumC PROPERTIES COMPILE_FLAGS "${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+ADD_LIBRARY(CalciumC ${CalciumC_SOURCES})
+TARGET_LINK_LIBRARIES(CalciumC SalomeDSCSuperv SalomeCalcium)
 
 INSTALL(TARGETS CalciumC DESTINATION ${KERNEL_salomelib_LIBS})
 
-ADD_EXECUTABLE(test_DataIdContainer test_DataIdContainer.cxx)
-SET_TARGET_PROPERTIES(test_DataIdContainer PROPERTIES COMPILE_FLAGS "${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(test_DataIdContainer SalomeDSCSuperv SalomeContainer SalomeCalcium OpUtil SALOMELocalTrace ${CORBA_LIBS} ${PLATFORM_LIBS})
+ADD_EXECUTABLE(test_DataIdContainer_Calcium test_DataIdContainer.cxx)
+TARGET_LINK_LIBRARIES(test_DataIdContainer_Calcium SalomeDSCSuperv SalomeContainer SalomeCalcium OpUtil SALOMELocalTrace ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
 
 CONFIGURE_FILE(calcium_integer_port_uses.hxx.in calcium_integer_port_uses.hxx @ONLY)
 CONFIGURE_FILE(CalciumProvidesPort.hxx.in CalciumProvidesPort.hxx @ONLY)

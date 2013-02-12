@@ -22,7 +22,9 @@
 
 #include "SALOME_Comm_i.hxx"
 #ifndef WIN32
+#ifndef __APPLE__
 #include <rpc/xdr.h>
+#endif
 #endif
 #include "omniORB4/poa.h"
 #include "omnithread.h"

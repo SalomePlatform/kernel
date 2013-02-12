@@ -70,19 +70,25 @@ if test "x$TBBHOME" != "xno"; then
         TBBKERNEL='cc4.1.0_libc2.4_kernel2.6.16.21'
         LOCAL_INCLUDES="-I$TBBHOME/include"
         if test "x$TBBHOME" != "x/usr"; then
+	    INTEL_LOCAL_LIB=""
             if test `uname -m` = "x86_64" ; then
-                LOCAL_LIBS="-L$TBBHOME/lib/intel64/$TBBKERNEL $LOCAL_LIBS"
+                INTEL_LOCAL_LIB="$TBBHOME/lib/intel64/$TBBKERNEL"
             else
-                LOCAL_LIBS="-L$TBBHOME/lib/ia32/$TBBKERNEL $LOCAL_LIBS"
+                INTEL_LOCAL_LIB="$TBBHOME/lib/ia32/$TBBKERNEL"
             fi
+	    if test -z ${INTEL_LOCAL_LIB}; then
+                LOCAL_LIBS="-L${INTEL_LOCAL_LIB} $LOCAL_LIBS"
+	    else
+                LOCAL_LIBS="-L${TBBHOME}/lib $LOCAL_LIBS"
+	    fi
         fi
     fi
 
 dnl check tbb header
 
-    CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES/tbb"
+    CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
 
-    AC_CHECK_HEADER(tbb.h,tbb_ok=yes ,tbb_ok=no)
+    AC_CHECK_HEADER(tbb/tbb.h,tbb_ok=yes ,tbb_ok=no)
 fi
 
 if  test "x$tbb_ok" = "xyes"
@@ -92,7 +98,7 @@ dnl check TBB library
 
   LIBS_old="$LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
-  AC_TRY_LINK([#include <tbb.h>],
+  AC_TRY_LINK([#include <tbb/tbb.h>],
               [tbb::simple_partitioner()],
               tbb_ok=yes,tbb_ok=no)
 

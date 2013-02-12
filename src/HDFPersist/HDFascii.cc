@@ -92,9 +92,11 @@ bool HDFascii::isASCII(const char* thePath) {
   read(fd, aBuffer, 8); 
   close(fd);
 
-  if(strcmp(aBuffer, ASCIIHDF_ID) == 0) return true;
+  bool res = (strcmp(aBuffer, ASCIIHDF_ID) == 0);
 
-  return false;
+  delete [] aBuffer;
+
+  return res;
 }
 
 //############################## HDF => ASCII ################################

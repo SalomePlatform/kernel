@@ -27,9 +27,10 @@ SET(docdir ${datadir}/doc/salome)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/static/header.html.in ${CMAKE_CURRENT_BINARY_DIR}/static/header.html)
 
-ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} 
- COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/KERNEL''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}/KERNEL''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/KERNEL'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/KERNEL''')"
- VERBATIM 
- WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
+ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE})
+
 ADD_DEPENDENCIES(usr_docs html_docs)
+
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${CMAKE_CACHEFILE_DIR} --target usr_docs)")
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/KERNEL DESTINATION share/doc/salome/gui)
+INSTALL(FILES images/head.png DESTINATION share/doc/salome/gui/KERNEL) 

@@ -18,9 +18,9 @@
 #
 
 INCLUDE_DIRECTORIES(
-  ${LIBXML_INCLUDE_DIRS}
+  ${LIBXML2_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIRS}
-  ${OMNIORB_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
@@ -29,8 +29,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_BINARY_DIR}/idl
 )
 
-# This local variable defines the list of FLAGS common to all target in this package.
-SET(COMMON_FLAGS "${OMNIORB_DEFINITIONS} ${LIBXML_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 SET(COMMON_LIBS
@@ -38,7 +36,7 @@ SET(COMMON_LIBS
   OpUtil
   SALOMEBasics
   SalomeIDLKernel
-  ${LIBXML_LIBS}
+  ${LIBXML2_LIBRARIES}
 )
 
 SET(ResourcesManager_SOURCES
@@ -48,14 +46,14 @@ SET(ResourcesManager_SOURCES
     ResourcesManager.cxx
 )
 
-ADD_LIBRARY(ResourcesManager SHARED ${ResourcesManager_SOURCES})
-SET_TARGET_PROPERTIES(ResourcesManager PROPERTIES COMPILE_FLAGS "${LIBXML_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(ResourcesManager SALOMEBasics OpUtil ${LIBXML_LIBS})
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${LIBXML2_DEFINITIONS} ${PLATFORM_DEFINITIONS})
+
+ADD_LIBRARY(ResourcesManager ${ResourcesManager_SOURCES})
+TARGET_LINK_LIBRARIES(ResourcesManager SALOMEBasics OpUtil ${LIBXML2_LIBRARIES})
 INSTALL(TARGETS ResourcesManager DESTINATION ${KERNEL_salomelib_LIBS})
 
 IF(NOT WITHONLYLAUNCHER)
-  ADD_LIBRARY(SalomeResourcesManager SHARED SALOME_ResourcesManager.cxx)
-  SET_TARGET_PROPERTIES(SalomeResourcesManager PROPERTIES COMPILE_FLAGS "${COMMON_FLAGS}")
+  ADD_LIBRARY(SalomeResourcesManager SALOME_ResourcesManager.cxx)
   TARGET_LINK_LIBRARIES(SalomeResourcesManager ResourcesManager ${COMMON_LIBS})
   INSTALL(TARGETS SalomeResourcesManager DESTINATION ${KERNEL_salomelib_LIBS})
 ENDIF(NOT WITHONLYLAUNCHER)

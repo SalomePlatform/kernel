@@ -19,9 +19,9 @@
 
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIRS}
-  ${OMNIORB_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIR}
   ${HDF5_INCLUDE_DIRS}
-  ${BOOST_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
@@ -36,7 +36,11 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_BINARY_DIR}/idl
 )
 
-SET(COMMON_FLAGS "${OMNIORB_DEFINITIONS} ${HDF5_DEFINITIONS} ${BOOST_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${HDF5_DEFINITIONS} ${BOOST_DEFINITIONS})
+IF(WINDOWS)
+  ADD_DEFINITIONS(-DNOGDI)
+ENDIF(WINDOWS)
+
 SET(COMMON_LIBS
   TOOLSDS
   SalomeNS
@@ -49,7 +53,7 @@ SET(COMMON_LIBS
   SalomeGenericObj
   SalomeLifeCycleCORBA
   SalomeIDLKernel
-  ${HDF5_LIBS}
+  ${HDF5_C_LIBRARIES}
 )
 
 SET(SalomeDS_SOURCES
@@ -137,114 +141,18 @@ SET(SalomeDS_SOURCES
   SALOMEDS_AttributeParameter.cxx
   SALOMEDS_AttributeString.cxx
   SALOMEDS_IParameters.cxx
-  SALOMEDS_AttLong_i.hxx
-  SALOMEDS_AttReal_i.hxx
-  SALOMEDS_AttributeComment.hxx
-  SALOMEDS_AttributeComment_i.hxx
-  SALOMEDS_AttributeDrawable.hxx
-  SALOMEDS_AttributeDrawable_i.hxx
-  SALOMEDS_AttributeExpandable.hxx
-  SALOMEDS_AttributeExpandable_i.hxx
-  SALOMEDS_AttributeExternalFileDef.hxx
-  SALOMEDS_AttributeExternalFileDef_i.hxx
-  SALOMEDS_AttributeFileType.hxx
-  SALOMEDS_AttributeFileType_i.hxx
-  SALOMEDS_AttributeFlags.hxx
-  SALOMEDS_AttributeFlags_i.hxx
-  SALOMEDS_AttributeGraphic.hxx
-  SALOMEDS_AttributeGraphic_i.hxx
-  SALOMEDS_AttributeInteger.hxx
-  SALOMEDS_AttributeInteger_i.hxx
-  SALOMEDS_AttributeIOR.hxx
-  SALOMEDS_AttributeIOR_i.hxx
-  SALOMEDS_AttributeLocalID.hxx
-  SALOMEDS_AttributeLocalID_i.hxx
-  SALOMEDS_AttributeName.hxx
-  SALOMEDS_AttributeName_i.hxx
-  SALOMEDS_AttributeOpened.hxx
-  SALOMEDS_AttributeOpened_i.hxx
-  SALOMEDS_AttributePersistentRef.hxx
-  SALOMEDS_AttributePersistentRef_i.hxx
-  SALOMEDS_AttributePixMap.hxx
-  SALOMEDS_AttributePixMap_i.hxx
-  SALOMEDS_AttributePythonObject.hxx
-  SALOMEDS_AttributePythonObject_i.hxx
-  SALOMEDS_AttributeReal.hxx
-  SALOMEDS_AttributeReal_i.hxx
-  SALOMEDS_AttributeSelectable.hxx
-  SALOMEDS_AttributeSelectable_i.hxx
-  SALOMEDS_AttributeSequenceOfInteger.hxx
-  SALOMEDS_AttributeSequenceOfInteger_i.hxx
-  SALOMEDS_AttributeSequenceOfReal.hxx
-  SALOMEDS_AttributeSequenceOfReal_i.hxx
-  SALOMEDS_Attributes.hxx
-  SALOMEDS_AttributeStudyProperties.hxx
-  SALOMEDS_AttributeStudyProperties_i.hxx
-  SALOMEDS_AttributeTableOfInteger.hxx
-  SALOMEDS_AttributeTableOfInteger_i.hxx
-  SALOMEDS_AttributeTableOfReal.hxx
-  SALOMEDS_AttributeTableOfReal_i.hxx
-  SALOMEDS_AttributeTableOfString.hxx
-  SALOMEDS_AttributeTableOfString_i.hxx
-  SALOMEDS_AttributeTarget.hxx
-  SALOMEDS_AttributeTarget_i.hxx
-  SALOMEDS_AttributeTextColor.hxx
-  SALOMEDS_AttributeTextColor_i.hxx
-  SALOMEDS_AttributeTextHighlightColor.hxx
-  SALOMEDS_AttributeTextHighlightColor_i.hxx
-  SALOMEDS_AttributeTreeNode.hxx
-  SALOMEDS_AttributeTreeNode_i.hxx
-  SALOMEDS_AttributeUserID.hxx
-  SALOMEDS_AttributeUserID_i.hxx
-  SALOMEDS_BasicAttributeFactory.hxx
-  SALOMEDS_BasicAttribute_i.hxx
-  SALOMEDS_Callback_i.hxx
-  SALOMEDS_ChildIterator.hxx
-  SALOMEDS_ChildIterator_i.hxx
-  SALOMEDS_ClientAttributes.hxx
-  SALOMEDS_Driver_i.hxx
-  SALOMEDS_GenericAttribute.hxx
-  SALOMEDS_GenericAttribute_i.hxx
-  SALOMEDS.hxx
-  SALOMEDS_SComponent.hxx
-  SALOMEDS_SComponent_i.hxx
-  SALOMEDS_SComponentIterator.hxx
-  SALOMEDS_SComponentIterator_i.hxx
-  SALOMEDS_SObject.hxx
-  SALOMEDS_SObject_i.hxx
-  SALOMEDS_StudyBuilder.hxx
-  SALOMEDS_StudyBuilder_i.hxx
-  SALOMEDS_Study.hxx
-  SALOMEDS_Study_i.hxx
-  SALOMEDS_StudyManager.hxx
-  SALOMEDS_StudyManager_i.hxx
-  SALOMEDS_UseCaseBuilder.hxx
-  SALOMEDS_UseCaseBuilder_i.hxx
-  SALOMEDS_UseCaseIterator.hxx
-  SALOMEDS_UseCaseIterator_i.hxx
-  SALOMEDS_AttributeParameter.hxx
-  SALOMEDS_AttributeParameter_i.hxx
-  SALOMEDS_AttributeString.hxx
-  SALOMEDS_AttributeString_i.hxx
-  SALOMEDS_TMPFile_i.hxx
 )
 
-IF(WINDOWS)
-  SET(COMMON_FLAGS "${COMMON_FLAGS} -DNOGDI")
-ENDIF(WINDOWS)
 
-ADD_LIBRARY(SalomeDS SHARED ${SalomeDS_SOURCES})
-SET_TARGET_PROPERTIES(SalomeDS PROPERTIES COMPILE_FLAGS "${COMMON_FLAGS}")
+ADD_LIBRARY(SalomeDS ${SalomeDS_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeDS ${COMMON_LIBS})
 INSTALL(TARGETS SalomeDS DESTINATION ${KERNEL_salomelib_LIBS})
 
 ADD_EXECUTABLE(SALOMEDS_Server SALOMEDS_Server.cxx)
-SET_TARGET_PROPERTIES(SALOMEDS_Server PROPERTIES COMPILE_FLAGS "${COMMON_FLAGS}")
-TARGET_LINK_LIBRARIES(SALOMEDS_Server SalomeDS SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBS})
+TARGET_LINK_LIBRARIES(SALOMEDS_Server SalomeDS SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 ADD_EXECUTABLE(SALOMEDS_Client SALOMEDS_Client.cxx)
-SET_TARGET_PROPERTIES(SALOMEDS_Client PROPERTIES COMPILE_FLAGS "${COMMON_FLAGS}")
-TARGET_LINK_LIBRARIES(SALOMEDS_Client SalomeDS SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBS})
+TARGET_LINK_LIBRARIES(SALOMEDS_Client SalomeDS SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 INSTALL(TARGETS SALOMEDS_Server SALOMEDS_Client DESTINATION ${KERNEL_salomebin_BINS})
 
@@ -265,5 +173,7 @@ SET(COMMON_HEADERS_HXX
   SALOMEDS_GenericAttribute.hxx
   SALOMEDS_IParameters.hxx
   SALOMEDS_Defines.hxx
+  SALOMEDS_wrap.hxx
+  SALOMEDS_Attributes_wrap.hxx
 )
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})

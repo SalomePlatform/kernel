@@ -27,63 +27,6 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-//to disable automatic genericobj management comment the following line
-#define WITHGENERICOBJ
-
-#ifdef WITHGENERICOBJ
-#include "SALOME_GenericObj_i.hh"
-
-static CORBA::ORB_var getORB()
-{
-  int argc=0;
-  return CORBA::ORB_init(argc,0);
-}
-
-void IORGenericObjDecref(const std::string& anIOR)
-{
-  if(anIOR=="")return;
-  CORBA::Object_var obj;
-  SALOME::GenericObj_var gobj;
-  try
-    {
-      obj = getORB()->string_to_object(anIOR.c_str());
-      if(obj->_non_existent())return;
-      gobj = SALOME::GenericObj::_narrow(obj);
-      if(! CORBA::is_nil(gobj) )
-        {
-          gobj->UnRegister();
-        }
-    }
-  catch(const CORBA::Exception& e)
-    {
-    }
-}
-
-void IORGenericObjIncref(const std::string& anIOR)
-{
-  CORBA::Object_var obj;
-  SALOME::GenericObj_var gobj;
-  try
-    {
-      obj = getORB()->string_to_object(anIOR.c_str());
-      if(obj->_non_existent())return;
-      gobj = SALOME::GenericObj::_narrow(obj);
-      if(! CORBA::is_nil(gobj) )
-        {
-          gobj->Register();
-        }
-    }
-  catch(const CORBA::Exception& e)
-    {
-    }
-}
-#else
-void IORGenericObjDecref(const std::string& anIOR)
-{}
-void IORGenericObjIncref(const std::string& anIOR)
-{}
-#endif
-
 //=======================================================================
 //function : GetID
 //purpose  : 
@@ -95,14 +38,12 @@ const std::string& SALOMEDSImpl_AttributeIOR::GetID ()
   return SALOMEDSImpl_AttributeIORID;
 }
 
-
-
 //=======================================================================
 //function : Set
 //purpose  : 
 //=======================================================================
 
-SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label& L,
+SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label&    L,
                                                            const std::string& S) 
 {
   SALOMEDSImpl_AttributeIOR* A = NULL;
@@ -123,14 +64,13 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
 {
   CheckLocked();
 
-  SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudy(Label());
-
   Backup();
   //remove IOR entry in study
   if(theValue != myString)
     {
-      IORGenericObjIncref(theValue);
-      IORGenericObjDecref(myString);
+      SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudy(Label());
+      study->RegisterGenObj(theValue, Label());
+      study->UnRegisterGenObj(myString, Label());
       study->DeleteIORLabelMapItem(myString);
     }
 
@@ -164,7 +104,7 @@ SALOMEDSImpl_AttributeIOR::SALOMEDSImpl_AttributeIOR()
 
 SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR()
 {
-  IORGenericObjDecref(myString);
+  SALOMEDSImpl_Study::UnRegisterGenObj(myString, Label());
 }
 
 //=======================================================================

@@ -97,19 +97,15 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
 	-I$(srcdir)/../DF \
-	-I$(srcdir)/../GenericObj \
-	-I$(top_builddir)/idl \
 	-I$(top_builddir) \
 	@HDF5_INCLUDES@ \
-	@BOOST_CPPFLAGS@ @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+	@BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
 	../DF/libDF.la \
-	../GenericObj/libSalomeGenericObj.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@HDF5_LIBS@ 
 
 
@@ -224,15 +220,14 @@ libSalomeDSImpl_la_SOURCES =\
 
 libSalomeDSImpl_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDSImpl_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS) $(CORBA_LIBS)
+libSalomeDSImpl_la_LIBADD   = $(COMMON_LIBS)
 
 #
 # ===============================================================
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = testDS
+bin_PROGRAMS    = testDS
 testDS_SOURCES  = testDS.cxx
 testDS_CPPFLAGS = $(COMMON_CPPFLAGS)
-testDS_LDADD    = libSalomeDSImpl.la ../DF/libDF.la \
-	$(COMMON_LIBS) $(CORBA_LIBS)
+testDS_LDADD    = libSalomeDSImpl.la ../DF/libDF.la $(COMMON_LIBS)

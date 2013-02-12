@@ -25,7 +25,7 @@ SET(salomepython_PYTHON
   omnipatch.py
 )
 
-IF(CORBA_GEN)
+IF(SALOME_USE_CORBA)
   SET(salomepython_PYTHON
     ${salomepython_PYTHON}
     Help.py
@@ -42,7 +42,7 @@ IF(CORBA_GEN)
     salome_pynode.py
     salome_genericobj.py
   )
-ENDIF(CORBA_GEN)
+ENDIF(SALOME_USE_CORBA)
 
 SALOME_INSTALL_SCRIPTS("${salomepython_PYTHON}" ${KERNEL_salomepythondir})
 SALOME_INSTALL_SCRIPTS(kernel_shared_modules.py ${KERNEL_sharedpkgpython_PYTHON})

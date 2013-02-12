@@ -49,8 +49,8 @@ std::string convertString(const std::string& S)
   }
 
   std::string RS(buffer); 
-  delete c;
-  delete buffer;
+  delete [] c;
+  delete [] buffer;
   return RS;
 }
 
@@ -70,8 +70,8 @@ std::string restoreString(const std::string& S)
   }
 
   std::string RS(buffer); 
-  delete c;
-  delete buffer;
+  delete [] c;
+  delete [] buffer;
   return RS;
 }
 

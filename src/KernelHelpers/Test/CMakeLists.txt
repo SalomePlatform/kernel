@@ -19,8 +19,7 @@
 
 INCLUDE_DIRECTORIES(
   ${CPPUNIT_INCLUDE_DIRS}
-  ${PTHREAD_INCLUDE_DIRS}
-  ${OMNIORB_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}/salome_adm
   ${CMAKE_SOURCE_DIR}/src/Basics/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -38,7 +37,7 @@ INCLUDE_DIRECTORIES(
 SET(SalomeKernelHelpersTest_LIBS
   ${CPPUNIT_LIBS}
   SalomeKernelHelpers
-  ${OMNIORB_LIBS}
+  ${OMNIORB_LIBRARIES}
   SalomeNS
   SALOMELocalTrace
   SALOMEBasics
@@ -50,13 +49,13 @@ SET(SalomeKernelHelpersTest_LIBS
   SalomeIDLKernel
 )
 
-ADD_LIBRARY(SalomeKernelHelpersTest SHARED KernelHelpersUnitTests.cxx)
-SET_TARGET_PROPERTIES(SalomeKernelHelpersTest PROPERTIES COMPILE_FLAGS "${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
+ADD_LIBRARY(SalomeKernelHelpersTest KernelHelpersUnitTests.cxx)
 TARGET_LINK_LIBRARIES(SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
 INSTALL(TARGETS SalomeKernelHelpersTest DESTINATION ${KERNEL_salomelib_LIBS})
 
 ADD_EXECUTABLE(TestKernelHelpers TestKernelHelpers.cxx)
-SET_TARGET_PROPERTIES(TestKernelHelpers PROPERTIES COMPILE_FLAGS "${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(TestKernelHelpers SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
 ADD_TEST(TestKernelHelpers TestKernelHelpers)
 INSTALL(TARGETS TestKernelHelpers DESTINATION ${KERNEL_salomebin_BINS})

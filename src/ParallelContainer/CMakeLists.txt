@@ -18,8 +18,8 @@
 #
 
 INCLUDE_DIRECTORIES(
-  ${OMNIORB_INCLUDE_DIRS}
-  ${MPI_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIR}
+  ${MPI_CXX_INCLUDE_PATH}
   ${PYTHON_INCLUDE_DIRS}
   ${PACO_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}/salome_adm
@@ -46,9 +46,9 @@ SET(COMMON_LIBS
   SalomeHDFPersist
   SalomeParallelIDLKernel
   SalomeIDLKernel
-  ${CORBA_LIBS}
+  ${OMNIORB_LIBRARIES}
   ${PACO_LIBS}
-  ${PYTHON_LIBS}
+  ${PYTHON_LIBRARIES}
 )
 
 SET(SalomeParallelContainer_SOURCES
@@ -59,30 +59,29 @@ SET(SalomeParallelContainer_SOURCES
   SALOME_ParallelGlobalProcessVar_i.cxx
 )
 
-ADD_LIBRARY(SalomeParallelContainer SHARED ${SalomeParallelContainer_SOURCES})
-SET_TARGET_PROPERTIES(SalomeParallelContainer PROPERTIES COMPILE_FLAGS "${ONMIORB_DEFINITIONS} ${MPI_DEFINITIONS} ${PACO_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(SalomeParallelContainer ${COMMON_LIBS} ${MPI_LIBS})
+ADD_DEFINITIONS(${ONMIORB_DEFINITIONS} ${MPI_CXX_COMPILE_FLAGS} ${PACO_DEFINITIONS})
+
+ADD_LIBRARY(SalomeParallelContainer ${SalomeParallelContainer_SOURCES})
+TARGET_LINK_LIBRARIES(SalomeParallelContainer ${COMMON_LIBS} ${MPI_CXX_LIBRARIES})
 INSTALL(TARGETS Registry DESTINATION ${KERNEL_salomelib_LIBS})
 
-IF(MPI_IS_OK)
+IF(SALOME_USE_MPI)
   SET(SALOME_ParallelContainerProxyMpi_LIBS
     SalomeParallelContainer
     ${PaCO_dummy}
     ${PaCO_mpi}
     ${PaCO_omnithread}
-    ${MPI_LIBS}
+    ${MPI_CXX_LIBRARIES}
     ${COMMON_LIBS}
   )
   ADD_EXECUTABLE(SALOME_ParallelContainerProxyMpi SALOME_Registry_Server.cxx)
-  SET_TARGET_PROPERTIES(SALOME_ParallelContainerProxyMpi PROPERTIES COMPILE_FLAGS "${ONMIORB_DEFINITIONS} ${MPI_DEFINITIONS} ${PACO_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(SALOME_ParallelContainerProxyMpi ${SALOME_ParallelContainerProxyMpi_LIBS})
 
   ADD_EXECUTABLE(SALOME_ParallelContainerNodeMpi SALOME_ParallelContainerNodeMpi.cxx)
-  SET_TARGET_PROPERTIES(SALOME_ParallelContainerNodeMpi PROPERTIES COMPILE_FLAGS "${ONMIORB_DEFINITIONS} ${MPI_DEFINITIONS} ${PACO_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(SALOME_ParallelContainerNodeMpi ${SALOME_ParallelContainerProxyMpi_LIBS})
 
   INSTALL(TARGETS SALOME_ParallelContainerProxyMpi SALOME_ParallelContainerNodeMpi DESTINATION ${KERNEL_salomebin_BINS})
-ENDIF(MPI_IS_OK)
+ENDIF(SALOME_USE_MPI)
 
 SET(SALOME_ParallelContainerProxyDummy_LIBS
   SalomeParallelContainer
@@ -92,11 +91,9 @@ SET(SALOME_ParallelContainerProxyDummy_LIBS
 )
 
 ADD_EXECUTABLE(SALOME_ParallelContainerProxyDummy SALOME_ParallelContainerProxyDummy.cxx)
-SET_TARGET_PROPERTIES(SALOME_ParallelContainerProxyDummy PROPERTIES COMPILE_FLAGS "${ONMIORB_DEFINITIONS} ${MPI_DEFINITIONS} ${PACO_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(SALOME_ParallelContainerProxyDummy ${SALOME_ParallelContainerProxyDummy_LIBS})
 
 ADD_EXECUTABLE(SALOME_ParallelContainerNodeDummy SALOME_ParallelContainerNodeDummy.cxx)
-SET_TARGET_PROPERTIES(SALOME_ParallelContainerNodeDummy PROPERTIES COMPILE_FLAGS "${ONMIORB_DEFINITIONS} ${MPI_DEFINITIONS} ${PACO_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(SALOME_ParallelContainerNodeDummy ${SALOME_ParallelContainerProxyDummy_LIBS})
 
 INSTALL(TARGETS SALOME_ParallelContainerNodeDummy SALOME_ParallelContainerProxyDummy DESTINATION ${KERNEL_salomebin_BINS})

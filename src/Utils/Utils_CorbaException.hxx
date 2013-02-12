@@ -56,7 +56,7 @@ inline std::ostream& operator<<(std::ostream& os, const CORBA::Exception& e)
   tmp<<= e;
   CORBA::TypeCode_var tc = tmp.type();
   const char *p = tc->name();
-  os<<"CORBA Exception was catch of the kind : ";
+  os << "CORBA Exception of type: ";
   if ( *p != '\0' ) {
     os<<p;
   } 

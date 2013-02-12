@@ -409,7 +409,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       if (aLocked) _study->GetProperties()->SetLocked(true);
 
       if (!hasModuleData)
-	return true;
+        return true;
 
       _errorCode = "No persistent file";   
       return false;
@@ -1008,13 +1008,14 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
       std::string persist_ref = Att->Value();
       SALOMEDSImpl_SObject so = SALOMEDSImpl_Study::SObject(current);
       std::string ior_string = driver->LocalPersistentIDToIOR(so, 
-                                                         persist_ref, 
-                                                         isMultiFile, 
-                                                         isASCII);
-      SALOMEDSImpl_AttributeIOR::Set (current, ior_string); 
-     
+                                                              persist_ref, 
+                                                              isMultiFile, 
+                                                              isASCII);
+      SALOMEDSImpl_AttributeIOR* iorAttr = SALOMEDSImpl_AttributeIOR::Set (current, ior_string);
+
+      // make myRefCounter of a loaded GenericObj == 1
+      SALOMEDSImpl_Study::UnRegisterGenObj( ior_string, iorAttr->Label());
     }
     Translate_persistentID_to_IOR (current, driver, isMultiFile, isASCII);
   }
 }
-

@@ -1,245 +1,289 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Find OmniORB4 cmake module and Pyhon backends
 #
-# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# sets the following variables:
+# OMNIORB_FOUND        - TRUE if OmniORB4 installation has been found
+# OMNIORB_INCLUDE_DIR  - OmniORB4 headers path
+# OMNIORB_LIBRARIES    - OmniORB4 libraries 
+# OMNIORB_VERSION      - OmniORB4 version
+# OMNIORB_IDL_COMPILER - OmniORB4 idl compiler command (omniidl)
+# OMNIORB_NAMESERVER   - OmniORB4 CORBA naming service (omniNames)
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# optional variables:
+# OMNIORB_DIR          - OmniORB4 local installation path
+# OMNIORBPY_DIR        - OmniORBpy local installation path
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# This module could use OMNIORB_DIR environment variable if set
+# WARNING: The precedence order is the following:
+#   1. OMNIORB_DIR cmake variable
+#   2. OMNIORB_DIR environment variable
+#   3. default cmake search paths
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# This module could use OMNIORBPY_DIR environment variable if set
+# WARNING: The precedence order is the following:
+#   1. OMNIORBPY_DIR cmake variable
+#   2. OMNIORBPY_DIR environment variable
+#   3. default cmake search paths
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# NOTE: this goes against cmake default behavior for Find* macros, 
+# more on this issue: 
+# http://www.mail-archive.com/kde-buildsystem@kde.org/msg00589.html
 #
 
-# ------
+# minimum OmniORB4 supported version
+# 4.0.6 has known bug float/double marshalling using CORBA::Any
+set(OMNIORB_MINIMUM_VERSION "4.1.2")
+set(OMNIORB_DIR $ENV{OMNIORB_DIR} CACHE PATH "Path to OmniORB directory")
 
-MESSAGE(STATUS "Check for omniorb ...")
+##############################################################################
+# find headers
+##############################################################################
+find_path(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h
+  PATHS "${OMNIORB_DIR}/include" "$ENV{OMNIORB_DIR}/include"
+  NO_DEFAULT_PATH)
 
-# ------
+find_path(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h)
 
-IF(OMNIORB_IS_MANDATORY STREQUAL 0)
-  SET(OMNIORB_IS_MANDATORY 0)
-  SET(OMNIORB_IS_OPTIONAL 1)
-ENDIF(OMNIORB_IS_MANDATORY STREQUAL 0)
-IF(OMNIORB_IS_OPTIONAL STREQUAL 0)
-  SET(OMNIORB_IS_MANDATORY 1)
-  SET(OMNIORB_IS_OPTIONAL 0)
-ENDIF(OMNIORB_IS_OPTIONAL STREQUAL 0)
-IF(NOT OMNIORB_IS_MANDATORY AND NOT OMNIORB_IS_OPTIONAL)
-  SET(OMNIORB_IS_MANDATORY 1)
-  SET(OMNIORB_IS_OPTIONAL 0)
-ENDIF(NOT OMNIORB_IS_MANDATORY AND NOT OMNIORB_IS_OPTIONAL)
 
-# ------
+##############################################################################
+# find libraries
+##############################################################################
+if (WIN32)
+  find_library(OMNIORB_LIBRARY_omniORB4
+	NAMES
+	${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
+	PATHS ${OMNIORB_DIR}/lib/x86_win32 $ENV{OMNIORB_DIR}/lib/x86_win32
+	NO_DEFAULT_PATH
+  )
+  find_library(OMNIORB_LIBRARY_omniORB4 NAMES
+    ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB_LIBRARY_omniORB4
+    NAMES omniORB4
+    PATHS "${OMNIORB_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-SET(OMNIORB_STATUS 1)
-IF(WITHOUT_OMNIORB OR WITH_OMNIORB STREQUAL 0)
-  SET(OMNIORB_STATUS 0)
-  MESSAGE(STATUS "omniorb disabled from command line.")
-ENDIF(WITHOUT_OMNIORB OR WITH_OMNIORB STREQUAL 0)
+  find_library(OMNIORB_LIBRARY_omniORB4
+    NAMES omniORB4)
+endif (WIN32)   
+  
+if (WIN32)
+  FIND_LIBRARY( OMNIORB_LIBRARY_omnithread
+	NAMES
+	${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
+	PATHS ${OMNIORB_DIR}/lib/x86_win32 $ENV{OMNIORB_DIR}/lib/x86_win32
+	NO_DEFAULT_PATH
+  )
 
-# ------
+  FIND_LIBRARY( OMNIORB_LIBRARY_omnithread
+	NAMES
+	${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB_LIBRARY_omnithread
+    NAMES omnithread
+    PATHS "${OMNIORB_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-IF(OMNIORB_STATUS)
-  IF(WITH_OMNIORB)
-    SET(OMNIORB_ROOT_USER ${WITH_OMNIORB})
-  ENDIF(WITH_OMNIORB)
-  IF(NOT OMNIORB_ROOT_USER)
-    SET(OMNIORB_ROOT_USER $ENV{OMNIORB_ROOT})
-  ENDIF(NOT OMNIORB_ROOT_USER)
-  IF(NOT OMNIORB_ROOT_USER)
-    SET(OMNIORB_ROOT_USER $ENV{OMNIORBHOME})
-  ENDIF(NOT OMNIORB_ROOT_USER)
-ENDIF(OMNIORB_STATUS)
+  find_library(OMNIORB_LIBRARY_omnithread
+    NAMES omnithread)
+endif (WIN32)
 
-# ------
 
-IF(OMNIORB_STATUS)
-  SET(OMNIIDL_EXECUTABLE_TO_FIND omniidl)
-  IF(OMNIORB_ROOT_USER)
-    FIND_PROGRAM(OMNIIDL_EXECUTABLE ${OMNIIDL_EXECUTABLE_TO_FIND} PATHS ${OMNIORB_ROOT_USER}/bin)
-  ELSE(OMNIORB_ROOT_USER)
-    FIND_PROGRAM(OMNIIDL_EXECUTABLE ${OMNIIDL_EXECUTABLE_TO_FIND})
-  ENDIF(OMNIORB_ROOT_USER)
-  IF(OMNIIDL_EXECUTABLE)
-    MESSAGE(STATUS "${OMNIIDL_EXECUTABLE_TO_FIND} found: ${OMNIIDL_EXECUTABLE}")
-    IF(OMNIORB_EXECUTABLE STREQUAL /usr/bin/${OMNIIDL_EXECUTABLE_TO_FIND})
-    ELSE(OMNIORB_EXECUTABLE STREQUAL /usr/bin/${OMNIIDL_EXECUTABLE_TO_FIND})
-      SET(OMNIORB_ROOT_USER ${OMNIIDL_EXECUTABLE})
-      GET_FILENAME_COMPONENT(OMNIORB_ROOT_USER ${OMNIORB_ROOT_USER} PATH)
-      IF(WINDOWS)
-	GET_FILENAME_COMPONENT(OMNIORB_ROOT_USER ${OMNIORB_ROOT_USER} PATH)
-      ENDIF(WINDOWS)
-      GET_FILENAME_COMPONENT(OMNIORB_ROOT_USER ${OMNIORB_ROOT_USER} PATH)
-    ENDIF(OMNIORB_EXECUTABLE STREQUAL /usr/bin/${OMNIIDL_EXECUTABLE_TO_FIND})
-  ELSE(OMNIIDL_EXECUTABLE)
-    MESSAGE(STATUS "${OMNIIDL_EXECUTABLE_TO_FIND} not found, try to use WITH_OMNIORB option or OMNIORBHOME environment variable")
-    SET(OMNIORB_STATUS 0)
-  ENDIF(OMNIIDL_EXECUTABLE)
-ENDIF(OMNIORB_STATUS)
+if (WIN32)
+  FIND_LIBRARY( OMNIORB_LIBRARY_omniDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS ${OMNIORB_DIR}/lib/x86_win32 $ENV{OMNIORB_DIR}/lib/x86_win32
+    NO_DEFAULT_PATH
+  )
 
-# ------
+  FIND_LIBRARY( OMNIORB_LIBRARY_omniDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB_LIBRARY_omniDynamic4
+    NAMES omniDynamic4
+    PATHS "${OMNIORB_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-IF(OMNIORB_STATUS)
-  IF(OMNIORB_ROOT_USER)
-    SET(OMNIORB_FIND_PATHS_OPTION NO_DEFAULT_PATH)
-  ELSE(OMNIORB_ROOT_USER)
-    SET(OMNIORB_FIND_PATHS_OPTION)
-  ENDIF(OMNIORB_ROOT_USER)
-ENDIF(OMNIORB_STATUS)
+  find_library(OMNIORB_LIBRARY_omniDynamic4
+    NAMES omniDynamic4)
+endif (WIN32)    
 
-# ------
+# optional libraries
 
-IF(OMNIORB_STATUS)
-  SET(OMNIORB_INCLUDES) # to be removed
-  SET(OMNIORB_INCLUDE_DIRS)
-ENDIF(OMNIORB_STATUS)
-IF(OMNIORB_STATUS)
-  IF(OMNIORB_ROOT_USER)
-    SET(OMNIORB_INCLUDE_PATHS ${OMNIORB_ROOT_USER}/include)
-  ELSE(OMNIORB_ROOT_USER)
-    SET(OMNIORB_INCLUDE_PATHS)
-  ENDIF(OMNIORB_ROOT_USER)
-  SET(OMNIORB_INCLUDE_TO_FIND omniORB4/CORBA.h)
-  FIND_PATH(OMNIORB_INCLUDE_DIR1 ${OMNIORB_INCLUDE_TO_FIND} PATHS ${OMNIORB_INCLUDE_PATHS} ${OMNIORB_FIND_PATHS_OPTION})
-  IF(OMNIORB_INCLUDE_DIR1)
-    SET(OMNIORB_INCLUDES ${OMNIORB_INCLUDES} -I${OMNIORB_INCLUDE_DIR1}) # to be removed
-    SET(OMNIORB_INCLUDE_DIRS ${OMNIORB_INCLUDE_DIR1})
-    MESSAGE(STATUS "${OMNIORB_INCLUDE_TO_FIND} found in ${OMNIORB_INCLUDE_DIR1}")
-  ELSE(OMNIORB_INCLUDE_DIR1)
-    SET(OMNIORB_STATUS 0)
-    IF(OMNIORB_ROOT_USER)
-      MESSAGE(STATUS "${OMNIORB_INCLUDE_TO_FIND} not found in ${OMNIORB_INCLUDE_PATHS}, check your OMNIORB installation.")
-    ELSE(OMNIORB_ROOT_USER)
-      MESSAGE(STATUS "${OMNIORB_INCLUDE_TO_FIND} not found on system, try to use WITH_OMNIORB option or OMNIORB_ROOT environment variable.")
-    ENDIF(OMNIORB_ROOT_USER)
-  ENDIF(OMNIORB_INCLUDE_DIR1)
-ENDIF(OMNIORB_STATUS)
-IF(OMNIORB_STATUS)
-  IF(OMNIORB_ROOT_USER)
-    SET(OMNIORB_INCLUDE_PATHS ${OMNIORB_ROOT_USER}/include/omniORB4)
-  ELSE(OMNIORB_ROOT_USER)
-    SET(OMNIORB_INCLUDE_PATHS /usr/include/omniORB4)
-  ENDIF(OMNIORB_ROOT_USER)
-  SET(OMNIORB_INCLUDE_TO_FIND CORBA.h)
-  FIND_PATH(OMNIORB_INCLUDE_DIR2 ${OMNIORB_INCLUDE_TO_FIND} PATHS ${OMNIORB_INCLUDE_PATHS} ${OMNIORB_FIND_PATHS_OPTION})
-  IF(OMNIORB_INCLUDE_DIR2)
-    SET(OMNIORB_INCLUDES ${OMNIORB_INCLUDES} -I${OMNIORB_INCLUDE_DIR2}) # to be removed
-    SET(OMNIORB_INCLUDE_DIRS ${OMNIORB_INCLUDE_DIRS} ${OMNIORB_INCLUDE_DIR2})
-    MESSAGE(STATUS "${OMNIORB_INCLUDE_TO_FIND} found in ${OMNIORB_INCLUDE_DIR2}")
-  ELSE(OMNIORB_INCLUDE_DIR2)
-    SET(OMNIORB_STATUS 0)
-    MESSAGE(STATUS "${OMNIORB_INCLUDE_TO_FIND} not found in ${OMNIORB_INCLUDE_PATHS}, check your OMNIORB installation.")
-  ENDIF(OMNIORB_INCLUDE_DIR2)
-ENDIF(OMNIORB_STATUS)
+if (WIN32)
+  FIND_LIBRARY( OMNIORB_LIBRARY_COS4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS ${OMNIORB_DIR}/lib/x86_win32 $ENV{OMNIORB_DIR}/lib/x86_win32
+    NO_DEFAULT_PATH 
+  )
 
-# ------
+  FIND_LIBRARY( OMNIORB_LIBRARY_COS4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB_LIBRARY_COS4
+    NAMES COS4
+    PATHS "${OMNIORB_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-IF(OMNIORB_STATUS)
-  SET(OMNIORB_CXXFLAGS) # to be removed
-  # SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -DOMNIORB_VERSION=4)
-  SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -D__x86__) # to be removed
-  SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -DCOMP_CORBA_DOUBLE) # to be removed
-  SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -DCOMP_CORBA_LONG) # to be removed
-  SET(OMNIORB_DEFINITIONS "-D__x86__ -DCOMP_CORBA_DOUBLE -DCOMP_CORBA_LONG")
-  IF(WINDOWS)
-    SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -D__WIN32__) # to be removed
-    SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__WIN32__")
-    #    #  #  # SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -D_WIN32_WINNT=0x0400)
-    #    SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -D__NT__)
-    #    SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -D__OSVERSION__=4)
-    #  ELSE(WINDOWS)
-    #    SET(OMNIORB_CXXFLAGS ${OMNIORB_CXXFLAGS} -D__linux__)
-  ENDIF(WINDOWS)
-  #  IF(WINDOWS)
-  #    SET(OMNIORB_LIBS ws2_32.lib mswsock.lib advapi32.lib ${OMNIORB_LIBS})
-  #  ENDIF(WINDOWS)
-ENDIF(OMNIORB_STATUS)
+  find_library(OMNIORB_LIBRARY_COS4
+    NAMES COS4)
+endif (WIN32)
 
-# ----
+if (WIN32)
+  FIND_LIBRARY( OMNIORB_LIBRARY_COSDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS ${OMNIORB_DIR}/lib/x86_win32 $ENV{OMNIORB_DIR}/lib/x86_win32
+    NO_DEFAULT_PATH
+  )
 
-IF(OMNIORB_STATUS)
-  IF(OMNIORB_ROOT_USER)
-    IF(WINDOWS)
-      SET(OMNIORB_LIB_PATHS ${OMNIORB_ROOT_USER}/lib/x86_win32)
-    ELSE(WINDOWS)
-      SET(OMNIORB_LIB_PATHS ${OMNIORB_ROOT_USER}/lib)
-    ENDIF(WINDOWS)
-  ELSE(OMNIORB_ROOT_USER)
-    SET(OMNIORB_LIB_PATHS)
-  ENDIF(OMNIORB_ROOT_USER)
-ENDIF(OMNIORB_STATUS)
+  FIND_LIBRARY( OMNIORB_LIBRARY_COSDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
 
-IF(OMNIORB_STATUS)
-  IF(WINDOWS)
-    IF(CMAKE_BUILD_TYPE STREQUAL Release)
-      SET(OMNIORB_LIB_SUFFIX _rt)
-    ELSE(CMAKE_BUILD_TYPE STREQUAL Release)
-      SET(OMNIORB_LIB_SUFFIX _rtd)
-    ENDIF(CMAKE_BUILD_TYPE STREQUAL Release)
-  ELSE(WINDOWS)
-    SET(OMNIORB_LIB_SUFFIX)
-  ENDIF(WINDOWS)
-ENDIF(OMNIORB_STATUS)
+else (WIN32)
+  find_library(OMNIORB_LIBRARY_COSDynamic4
+    NAMES COSDynamic4
+    PATHS "${OMNIORB_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-SET(OMNIORB_LIBS)
-FOREACH(lib omniORB4 omniDynamic4 COS4 COSDynamic4 omnithread)
-  IF(OMNIORB_STATUS)
-    FIND_LIBRARY(${lib}${OMNIORB_LIB_SUFFIX} ${lib}${OMNIORB_LIB_SUFFIX} PATHS ${OMNIORB_LIB_PATHS} ${OMNIORB_FIND_PATHS_OPTION})
-    IF(${lib}${OMNIORB_LIB_SUFFIX})
-      SET(OMNIORB_LIBS ${OMNIORB_LIBS} ${${lib}${OMNIORB_LIB_SUFFIX}})
-      MESSAGE(STATUS "${lib}${OMNIORB_LIB_SUFFIX} lib found: ${${lib}${OMNIORB_LIB_SUFFIX}}")
-    ELSE(${lib}${OMNIORB_LIB_SUFFIX})
-      SET(OMNIORB_STATUS 0)
-      IF(OMNIORB_ROOT_USER)
-	MESSAGE(STATUS "${lib}${OMNIORB_LIB_SUFFIX} lib not found in ${OMNIORB_LIB_PATHS}, check your OMNIORB installation.")
-      ELSE(OMNIORB_ROOT_USER)
-	MESSAGE(STATUS "${lib}${OMNIORB_LIB_SUFFIX} lib not found on system, try to use WITH_OMNIORB option or OMNIORB_ROOT environment variable.")
-      ENDIF(OMNIORB_ROOT_USER)
-    ENDIF(${lib}${OMNIORB_LIB_SUFFIX})
-  ENDIF(OMNIORB_STATUS)
-ENDFOREACH(lib omniORB4 omniDynamic4 COS4 COSDynamic4 omnithread)
+  find_library(OMNIORB_LIBRARY_COSDynamic4
+    NAMES COSDynamic4)
+endif (WIN32)
+##############################################################################
+# find command line tools
+##############################################################################
+IF (WIN32)
+FIND_PROGRAM( OMNIORB_IDL_COMPILER
+  NAMES omniidl
+  PATHS ${OMNIORB_DIR}/bin/x86_win32 $ENV{OMNIORB_DIR}/bin/x86_win32
+  DOC "What is the path where omniidl (the idl compiler) can be found"
+  NO_DEFAULT_PATH
+)
+FIND_PROGRAM( OMNIORB_IDL_COMPILER
+  NAMES omniidl
+  DOC "What is the path where omniidl (the idl compiler) can be found"
+)
 
-# ----------------
+FIND_PROGRAM( OMNIORB_OMNINAMES_COMMAND
+  NAMES omniNames
+  PATHS ${OMNIORB_DIR}/bin/x86_win32 $ENV{OMNIORB_DIR}/bin/x86_win32
+  DOC "What is the path where omniNames (the ORB server) can be found"
+  NO_DEFAULT_PATH
+)
+FIND_PROGRAM( OMNIORB_OMNINAMES_COMMAND
+  NAMES omniNames
+  DOC "What is the path where omniNames (the ORB server) can be found"
+)
+ELSE(WIN32)
+  find_program(OMNIORB_IDL_COMPILER
+    NAMES omniidl
+    PATHS "${OMNIORB_DIR}/bin" "$ENV{OMNIORB_DIR}/bin"
+    NO_DEFAULT_PATH)
+    
+  find_program(OMNIORB_IDL_COMPILER
+    NAMES omniidl)
 
-IF(OMNIORB_STATUS)
-  SET(OMNIORB_IDL_PYTHON $ENV{OMNIIDL_PYTHON})
-  IF(NOT OMNIORB_IDL_PYTHON)
-    SET(OMNIORB_IDL_PYTHON ${OMNIIDL_EXECUTABLE})
-  ENDIF(NOT OMNIORB_IDL_PYTHON)
-ENDIF(OMNIORB_STATUS)
+  find_program(OMNIORB_NAMESERVER
+    NAMES omniNames
+    PATHS "${OMNIORB_DIR}/bin" "$ENV{OMNIORB_DIR}/bin"
+    NO_DEFAULT_PATH)
+    
+  find_program(OMNIORB_NAMESERVER
+    NAMES omniNames)
+ENDIF (WIN32)
 
-# ----
+##############################################################################
+# find python back-end
+##############################################################################
+FIND_PATH( OMNIORB_PYTHON_BACKEND
+  NAMES python.py
+  PATHS $ENV{OMNIORB_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be $ENV{OMNIORBPY_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be
+        ${OMNIORB_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be ${OMNIORBPY_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be
+  DOC "Path to python-backend directory (omniidl_be) including python.py file"
+  NO_DEFAULT_PATH )
 
-IF(OMNIORB_STATUS)
-  SET(CORBA_GEN 1)
-  SET(OMNIORB_IDL ${OMNIIDL_EXECUTABLE})
-  SET(CORBA_INCLUDES ${OMNIORB_INCLUDES})
-  SET(CORBA_CXXFLAGS ${OMNIORB_CXXFLAGS})# to be removed
-  SET(CORBA_DEFINITIONS ${OMNIORB_DEFINITIONS})
-  SET(CORBA_LIBS ${OMNIORB_LIBS})
+FIND_PATH( OMNIORB_PYTHON_BACKEND
+  NAMES python.py
+  DOC "Path to python-backend directory (omniidl_be) including python.py file" )
+##############################################################################
+# cook our stuff
+##############################################################################
+set(OMNIORB_FOUND "FALSE")
+
+if(OMNIORB_INCLUDE_DIR AND
+    OMNIORB_LIBRARY_omniORB4 AND
+    OMNIORB_LIBRARY_omnithread AND
+    OMNIORB_LIBRARY_omniDynamic4 AND
+    OMNIORB_IDL_COMPILER)
+  set(OMNIORB_FOUND "TRUE")
+  mark_as_advanced(OMNIORB_DIR)
+  mark_as_advanced(OMNIORB_INCLUDE_DIR)
+  mark_as_advanced(OMNIORB_LIBRARY_omniORB4)
+  mark_as_advanced(OMNIORB_LIBRARY_omnithread)
+  mark_as_advanced(OMNIORB_LIBRARY_omniDynamic4)
+  mark_as_advanced(OMNIORB_IDL_COMPILER)
+  mark_as_advanced(OMNIORB_NAMESERVER)
+  mark_as_advanced(OMNIORB_VERSION)
+  mark_as_advanced(OMNIORB_LIBRARY_COS4)
+  mark_as_advanced(OMNIORB_LIBRARY_COSDynamic4)
+  mark_as_advanced(OMNIORB_PYTHON_BACKEND)
+
+  set(OMNIORB_LIBRARIES
+    ${OMNIORB_LIBRARY_omniORB4}
+    ${OMNIORB_LIBRARY_omnithread}
+    ${OMNIORB_LIBRARY_omniDynamic4})
+
+  if(OMNIORB_LIBRARY_COS4)
+    set(OMNIORB_LIBRARIES ${OMNIORB_LIBRARIES} ${OMNIORB_LIBRARY_COS4})
+  endif()
+  if(OMNIORB_LIBRARY_COSDynamic4)
+    set(OMNIORB_LIBRARIES ${OMNIORB_LIBRARIES} ${OMNIORB_LIBRARY_COSDynamic4})
+  endif()
+
+  # Optionaly, extract the the version number from the acconfig.h file:
+  if( EXISTS ${OMNIORB_INCLUDE_DIR}/omniORB4/acconfig.h )
+    file( READ ${OMNIORB_INCLUDE_DIR}/omniORB4/acconfig.h OMNIORB_ACCONFIG_H )
+    string( REGEX MATCH "#define[\t ]+PACKAGE_VERSION[\t ]+\"([0-9]+.[0-9]+.[0-9]+)\"" OMNIORB_ACCONFIG_H "${OMNIORB_ACCONFIG_H}" )
+    string( REGEX REPLACE ".*\"([0-9]+.[0-9]+.[0-9]+)\".*" "\\1" OMNIORB_VERSION "${OMNIORB_ACCONFIG_H}" )
+
+    if( ${OMNIORB_VERSION} VERSION_LESS ${OMNIORB_MINIMUM_VERSION} )
+      message( "WARNING: your version of omniORB is older than the minimum required one (${OMNIORB_MINIMUM_VERSION}), using DIET with this version may result in undetermined behaviors." )
+    endif()
+
+
+  else( EXISTS ${OMNIORB_INCLUDE_DIR}/omniORB4/acconfig.h )
+    set( OMNIORB_VERSION "NOT-FOUND" )
+  endif( EXISTS ${OMNIORB_INCLUDE_DIR}/omniORB4/acconfig.h )
+  set( OMNIORB_VERSION ${OMNIORB_VERSION}
+      CACHE STRING "OmniORB version number." )
+  
   SET(OMNIORB_IDLCXXFLAGS -Wba -nf)
   SET(OMNIORB_IDLPYFLAGS -bpython)
+  IF (OMNIORB_PYTHON_BACKEND) 
+    SET(OMNIORB_IDLPYFLAGS "-p ${OMNIORB_PYTHON_BACKEND} ${OMNIORB_IDLPYFLAGS}")
+  ENDIF(OMNIORB_PYTHON_BACKEND)
   SET(IDLCXXFLAGS ${OMNIORB_IDLCXXFLAGS})
   SET(IDLPYFLAGS ${OMNIORB_IDLPYFLAGS})
   SET(IDL_CLN_H .hh)
   SET(IDL_SRV_H .hh)
-ELSE(OMNIORB_STATUS)
-  SET(CORBA_GEN 0)
-  IF(OMNIORB_IS_MANDATORY)
-    MESSAGE(FATAL_ERROR "omniorb not found ... mandatory ... abort")
-  ELSE(OMNIORB_IS_MANDATORY)
-    MESSAGE(STATUS "omniorb not found ... optional ... disabled")
-  ENDIF(OMNIORB_IS_MANDATORY)
-ENDIF(OMNIORB_STATUS)
+  SET(OMNIORB_DEFINITIONS "-D__x86__ -DCOMP_CORBA_DOUBLE -DCOMP_CORBA_LONG")
+  IF(WINDOWS)
+    SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__WIN32__")
+  ENDIF(WINDOWS)
+  IF(APPLE)
+    SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__macos__")#for omnithread.h to be checked...
+  ENDIF(APPLE)
 
-# ----
+
+else()
+  message(FATAL_ERROR "OmniORB is required, please define OMNIORB_DIR as environment or cmake variable")
+endif()

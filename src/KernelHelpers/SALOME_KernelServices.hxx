@@ -96,23 +96,8 @@ namespace KERNEL {
 #define SALOMELOG(msg) {MESS_BEGIN("[XSALOME]") << msg << MESS_END}
 #define LOG SALOMELOG
 
-// This can help to LOG (or use in stream) the CORBA exceptions
+#include "Utils_CorbaException.hxx"
+// Tip: CORBA exceptions can be used with LOG (or more generally in streams)
 // Ex: LOG("An exception occurs: "<<e) will log the data of the exception e
-#include <CORBA.h>
-#include <ostream>
-static std::ostream &
-operator<<(std::ostream & os, const CORBA::Exception & e)
-{
-  CORBA::Any tmp;
-  tmp <<=e ;
-  CORBA::TypeCode_var tc = tmp.type();
-  const char * p = tc->name ();
-  if (*p != '\0')
-    os << p;
-  else
-    os << tc->id();
-  return os;
-}
-
 
 #endif // KERNEL_SERVICES

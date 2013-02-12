@@ -160,8 +160,8 @@ private:
 protected:
   std::string  _dscText;
   std::string  _filefuncName;
-  std::string  _exceptionName;
   int          _lineNumber;
+  std::string  _exceptionName;
   std::string  _what;
 };
 

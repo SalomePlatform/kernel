@@ -29,11 +29,12 @@
 
 #include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
-#include <string>
 #include "DF_Label.hxx"       
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeIOR : 
+#include <string>
+
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeIOR :
   public SALOMEDSImpl_GenericAttribute 
 {
 private:
@@ -53,7 +54,6 @@ public:
   DF_Attribute* NewEmpty() const;
   void Paste(DF_Attribute* into);
   ~SALOMEDSImpl_AttributeIOR() ;
-
 };
 
 #endif

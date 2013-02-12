@@ -60,5 +60,8 @@ public:
   virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
   virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
   virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason ){return false;};
+  virtual bool modifyNB_Notification(const char* theVarName){return false;};
+  virtual void RegisterGenObj  (const std::string& theIOR) {}
+  virtual void UnRegisterGenObj(const std::string& theIOR) {}
 };
 #endif

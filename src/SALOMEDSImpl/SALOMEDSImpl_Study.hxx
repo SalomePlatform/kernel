@@ -70,7 +70,8 @@ private:
   SALOMEDSImpl_Callback*   _cb;
   SALOMEDSImpl_StudyBuilder*   _builder;
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
-  SALOMEDSImpl_AbstractCallback*   _notifier;
+  SALOMEDSImpl_AbstractCallback* _notifier;
+  SALOMEDSImpl_AbstractCallback* _genObjRegister;
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
@@ -321,6 +322,9 @@ public:
   virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason);
   virtual void setNotifier(SALOMEDSImpl_AbstractCallback* notifier);
 
+  static void RegisterGenObj  (const std::string& theIOR, DF_Label label);
+  static void UnRegisterGenObj(const std::string& theIOR, DF_Label label);
+  void setGenObjRegister(SALOMEDSImpl_AbstractCallback* theRegister);
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;

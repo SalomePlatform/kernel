@@ -45,7 +45,9 @@ salomeinclude_HEADERS= \
 	SALOMEDS_GenericAttribute_i.hxx \
 	SALOMEDS_GenericAttribute.hxx \
 	SALOMEDS_IParameters.hxx \
-	SALOMEDS_Defines.hxx
+	SALOMEDS_Defines.hxx \
+	SALOMEDS_Attributes_wrap.hxx \
+	SALOMEDS_wrap.hxx
 
 # Scripts to be installed
 dist_salomescript_PYTHON = SALOME_DriverPy.py
