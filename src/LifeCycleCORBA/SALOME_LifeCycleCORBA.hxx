@@ -65,21 +65,15 @@ public:
   virtual ~SALOME_LifeCycleCORBA();
 
   Engines::EngineComponent_ptr 
-  FindComponent(const Engines::MachineParameters& params,
+  FindComponent(const Engines::ContainerParameters& params,
                 const char *componentName,
                 int studyId=0);
 
   Engines::EngineComponent_ptr
-  LoadComponent(const Engines::MachineParameters& params,
+  LoadComponent(const Engines::ContainerParameters& params,
                 const char *componentName,
                 int studyId=0);
 
-  Engines::EngineComponent_ptr 
-  FindOrLoad_Component(const Engines::MachineParameters& params,
-                       const char *componentName,
-                       int studyId =0);
-
-  // SALOME 6 - Interface
   Engines::EngineComponent_ptr 
   FindOrLoad_Component(const Engines::ContainerParameters& params,
                        const char *componentName,
@@ -87,7 +81,7 @@ public:
 
   Engines::EngineComponent_ptr
   FindOrLoad_Component(const char *containerName,
-                       const char *componentName); // for compatibility
+                       const char *componentName);
   
   // Parallel extension
   Engines::EngineComponent_ptr 
@@ -97,12 +91,8 @@ public:
 
   bool isKnownComponentClass(const char *componentName);
 
-  bool isMpiContainer(const Engines::ContainerParameters& params)
-    throw(IncompatibleComponent);
-
   int NbProc(const Engines::ContainerParameters& params);
 
-  static void preSet(Engines::MachineParameters& outparams);
   static void preSet(Engines::ResourceParameters& outparams);
   static void preSet(Engines::ContainerParameters& outparams);
 
@@ -115,10 +105,6 @@ public:
   void shutdownServers();
   static void killOmniNames();
 
-  // For SALOME 5.1.x
-  // Will be deleted on SALOME 6
-  void convert(const Engines::MachineParameters& params_in, 
-               Engines::ContainerParameters& params_out);
 protected:
 
   /*! Establish if a component called "componentName" in a container called

@@ -53,27 +53,28 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
 
     bool ProcessMachine(xmlNodePtr machine_descr, ParserResourcesType & resource);
     bool ProcessCluster(xmlNodePtr cluster_descr, ParserResourcesType & resource);
-    bool ProcessMember(xmlNodePtr member_descr, ParserResourcesClusterMembersType & resource);
+    bool ProcessMember(xmlNodePtr member_descr, ParserResourcesType & resource);
   
     void PrepareDocToXmlFile(xmlDocPtr theDoc);
 
   private :
     std::string previous_component_name;
 
-    ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
 
     const char *test_machine;
     const char *test_cluster;
     const char *test_name;
     const char *test_hostname;
+    const char *test_type;
     const char *test_protocol;
     const char *test_cluster_internal_protocol;
-    const char *test_mode;
     const char *test_batch;
     const char *test_mpi;
     const char *test_user_name;
     const char *test_appli_path;
+    const char *test_can_launch_batch_jobs;
+    const char *test_can_run_containers;
     // for compatibility
     const char *test_modules;
     const char *test_module_name;
@@ -89,8 +90,10 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     const char *test_user_commands;
     const char *test_use;
     const char *test_members;
-    const char *test_is_cluster_head;
     const char *test_working_directory;
+
+    const char *test_mode; // To be removed in SALOME 8
+    const char *test_is_cluster_head; // To be removed in SALOME 8
 
   };
 

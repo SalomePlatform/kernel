@@ -125,15 +125,12 @@ std::string SALOME_FileTransferCORBA::getLocalFile(std::string localFile)
       Engines::ContainerManager_var contManager = LCC.getContainerManager();
       Engines::ResourcesManager_var resManager = LCC.getResourcesManager();
 
-      Engines::MachineParameters params;
+      Engines::ContainerParameters params;
       LCC.preSet(params);
       params.container_name = _containerName.c_str();
-      params.hostname = _refMachine.c_str();
-
-      Engines::ContainerParameters new_params;
-      LCC.convert(params, new_params);
-      new_params.mode = CORBA::string_dup("findorstart");
-      container = contManager->GiveContainer(new_params);
+      params.resource_params.hostname = _refMachine.c_str();
+      params.mode = CORBA::string_dup("findorstart");
+      container = contManager->GiveContainer(params);
       if (CORBA::is_nil(container))
         {
           INFOS("machine " << _refMachine << " unreachable");

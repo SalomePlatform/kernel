@@ -297,6 +297,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
 
   // Step 2: Get all possibleResources from the parameters
+  // Consider only resources that can run containers
+  local_params.resource_params.can_run_containers = true;
   Engines::ResourceList_var possibleResources = _ResManager->GetFittingResources(local_params.resource_params);
   MESSAGE("[GiveContainer] - length of possible resources " << possibleResources->length());
   std::vector<std::string> local_resources;

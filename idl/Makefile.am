@@ -33,7 +33,8 @@ BASEIDL_FILES = \
   SALOME_Exception.idl \
   SALOME_Comm.idl \
   SALOME_ModuleCatalog.idl \
-  SALOME_RessourcesCatalog.idl \
+  SALOME_ResourcesManager.idl \
+  SALOME_Launcher.idl \
   SALOMEDS.idl \
   SALOMEDS_Attributes.idl \
   SALOME_Component.idl \
@@ -86,7 +87,8 @@ BASEIDL_SOURCES =\
   SALOME_ExceptionSK.cc \
   SALOME_CommSK.cc \
   SALOME_ModuleCatalogSK.cc \
-  SALOME_RessourcesCatalogSK.cc \
+  SALOME_ResourcesManagerSK.cc \
+  SALOME_LauncherSK.cc \
   SALOMEDSSK.cc \
   SALOMEDS_AttributesSK.cc \
   SALOME_ComponentSK.cc \
@@ -112,7 +114,7 @@ BASEIDL_SOURCES =\
 DYNIDL_SRCS = \
   SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
   SALOME_CommDynSK.cc   SALOME_RegistryDynSK.cc   SALOME_ModuleCatalogDynSK.cc \
-  SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_RessourcesCatalogDynSK.cc \
+  SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_ResourcesManagerDynSK.cc SALOME_LauncherDynSK.cc \
   DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc SALOME_TypesDynSK.cc \
   Palm_PortsDynSK.cc    SALOME_ExceptionDynSK.cc  SALOMEDS_AttributesDynSK.cc \
   LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc \

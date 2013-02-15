@@ -74,11 +74,6 @@ public:
   BuildContainerNameForNS(const Engines::ContainerParameters& params,
                           const char *hostname);
 
-  // Will Be deleted on SALOME 6
-  std::string ContainerName(const Engines::MachineParameters& params);
-  std::string 
-  BuildContainerNameForNS(const Engines::MachineParameters& params,
-                          const char *hostname);
   int Find(const char* name)
     throw(ServiceUnreachable);
   bool Create_Directory(const char* Path)

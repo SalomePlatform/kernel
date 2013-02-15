@@ -26,7 +26,7 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Job.hxx>
+#include <libbatch/Job.hxx>
 #endif
 
 namespace Launcher

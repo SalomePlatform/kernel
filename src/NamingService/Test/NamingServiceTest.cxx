@@ -24,6 +24,7 @@
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Basics_Utils.hxx"
+#include "SALOME_LifeCycleCORBA.hxx"
 
 #include <iostream>
 #include <fstream>
@@ -824,15 +825,8 @@ NamingServiceTest::testContainerName()
 void
 NamingServiceTest::testContainerNameParams()
 {
-  Engines::MachineParameters params;
-  params.container_name = "";
-  params.hostname = "";
-  params.OS = "";
-  params.mem_mb = 0;
-  params.cpu_clock = 0;
-  params.nb_proc_per_node = 0;
-  params.nb_node = 0;
-  params.isMPI = false;
+  Engines::ContainerParameters params;
+  SALOME_LifeCycleCORBA::preSet(params);
 
   std::string ref0 = "FactoryServer";
   std::string ret = _NS.ContainerName(params);
@@ -871,15 +865,8 @@ NamingServiceTest::testBuildContainerNameForNS()
 void
 NamingServiceTest::testBuildContainerNameForNSParams()
 {
-  Engines::MachineParameters params;
-  params.container_name = "";
-  params.hostname = "";
-  params.OS = "";
-  params.mem_mb = 0;
-  params.cpu_clock = 0;
-  params.nb_proc_per_node = 0;
-  params.nb_node = 0;
-  params.isMPI = false;
+  Engines::ContainerParameters params;
+  SALOME_LifeCycleCORBA::preSet(params);
 
   params.container_name = "theContainerName";
   std::string ref0 = "/Containers/theHostName/theContainerName";

@@ -55,13 +55,16 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/Basics \
 	-I$(srcdir)/$(RPATH)/SALOMELocalTrace \
 	-I$(srcdir)/$(RPATH)/Utils \
+    -I$(srcdir)/$(RPATH)/LifeCycleCORBA \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	@CPPUNIT_LIBS@ \
-	../libSalomeNS.la @CORBA_LIBS@
+	../libSalomeNS.la \
+	../../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
+	@CORBA_LIBS@
 
 #
 # ===============================================================

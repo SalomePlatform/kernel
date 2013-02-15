@@ -26,7 +26,7 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
-#include CORBA_SERVER_HEADER(SALOME_ContainerManager)
+#include CORBA_SERVER_HEADER(SALOME_Launcher)
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 

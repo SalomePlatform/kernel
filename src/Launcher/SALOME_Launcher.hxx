@@ -26,7 +26,7 @@
 #include "SALOME_Launcher_defs.hxx"
 
 #include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include CORBA_CLIENT_HEADER(SALOME_Launcher)
 #include "Launcher.hxx"
 
 #include <string>

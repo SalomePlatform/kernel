@@ -41,9 +41,9 @@
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
-enum AccessProtocolType {rsh, ssh, srun, pbsdsh, blaunch};
+enum AccessProtocolType {sh, rsh, ssh, srun, pbsdsh, blaunch};
 
-enum AccessModeType {interactive, batch};
+enum ResourceType {cluster, single_machine};
 
 enum BatchType {none, pbs, lsf, sge, ssh_batch, ccc, ll, slurm, vishnu};
 
@@ -78,24 +78,34 @@ class RESOURCESMANAGER_EXPORT ResourceDataToSort
     unsigned int GetNumberOfPoints() const;
   };
 
-struct RESOURCESMANAGER_EXPORT ParserResourcesClusterMembersType
+class RESOURCESMANAGER_EXPORT ParserResourcesType
 {
-  std::string HostName;
-  AccessProtocolType Protocol;
-  AccessProtocolType ClusterInternalProtocol;
-  std::string UserName;
-  std::string AppliPath;
-  ResourceDataToSort DataForSort;
-};
+public:
+  ParserResourcesType();
+  virtual ~ParserResourcesType();
 
-struct RESOURCESMANAGER_EXPORT ParserResourcesType
-{
+  std::string getAccessProtocolTypeStr() const;
+  std::string getResourceTypeStr() const;
+  std::string getBatchTypeStr() const;
+  std::string getMpiImplTypeStr() const;
+  std::string getClusterInternalProtocolStr() const;
+  std::string getCanLaunchBatchJobsStr() const;
+  std::string getCanRunContainersStr() const;
+
+  void setAccessProtocolTypeStr(const std::string & protocolTypeStr);
+  void setResourceTypeStr(const std::string & resourceTypeStr);
+  void setBatchTypeStr(const std::string & batchTypeStr);
+  void setMpiImplTypeStr(const std::string & mpiImplTypeStr);
+  void setClusterInternalProtocolStr(const std::string & internalProtocolTypeStr);
+  void setCanLaunchBatchJobsStr(const std::string & canLaunchBatchJobsStr);
+  void setCanRunContainersStr(const std::string & canRunContainersStr);
+
   ResourceDataToSort DataForSort;
   std::string Name;
   std::string HostName;
   AccessProtocolType Protocol;
   AccessProtocolType ClusterInternalProtocol;
-  AccessModeType Mode;
+  ResourceType type;
   BatchType Batch;
   MpiImplType mpi;
   std::string UserName;
@@ -106,22 +116,20 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
   std::string batchQueue;
   std::string userCommands;
   std::string use;
-  std::list<ParserResourcesClusterMembersType> ClusterMembersList;
+  std::list<ParserResourcesType> ClusterMembersList;
   unsigned int nbOfProc;
-  bool is_cluster_head;
+  bool can_launch_batch_jobs;
+  bool can_run_containers;
   std::string working_directory;
 
-  void Print();
-  void Clear();
+protected:
 
   static std::string protocolToString(AccessProtocolType protocol);
   static AccessProtocolType stringToProtocol(const std::string & protocolStr);
 
-  std::string PrintAccessProtocolType() const;
-  std::string PrintAccessModeType() const;
-  std::string PrintBatchType() const;
-  std::string PrintMpiImplType() const;
-  std::string PrintClusterInternalProtocol() const;
+  RESOURCESMANAGER_EXPORT friend std::ostream & operator<<(std::ostream &os,
+                                                           const ParserResourcesType &rt);
+
 };
 
 typedef std::map<std::string, ParserResourcesType> MapOfParserResourcesType;

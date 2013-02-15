@@ -38,10 +38,9 @@
 #include <exception>
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Job.hxx>
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_JobId.hxx>
-#include <Batch/Batch_EmulationException.hxx>
+#include <libbatch/Job.hxx>
+#include <libbatch/JobId.hxx>
+#include <libbatch/GenericException.hxx>
 #endif
 
 #include <libxml/parser.h>

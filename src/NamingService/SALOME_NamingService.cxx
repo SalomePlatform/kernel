@@ -587,47 +587,17 @@ std::string SALOME_NamingService::ContainerName(const char *containerName)
 }
 
 // ============================================================================
-/*! \brief build a container name, given a MachineParameters struct.
+/*! \brief build a container name, given a ContainerParameters struct.
  *
- *  Build a container name with a MachineParameters struct. In case of multi
- *  processor machine, container name is suffixed with _nbproc. nproc equals
- *  (number of nodes)*(number of processor per nodes).
- * \param params struct from which we get container name (may be
- *               empty),  number of nodes and number of processor
- *               per node.
+ *  Build a container name with a ContainerParameters struct. In case of multi
+ *  processor machine, container name is suffixed with number of processors.
+ * \param params struct from which we get container name (may be empty) and
+ *               number of processors.
  * \return a container name without the path.
- * \sa BuildContainerNameForNS(const Engines::MachineParameters& params,
+ * \sa BuildContainerNameForNS(const Engines::ContainerParameters& params,
  *                             const char *hostname)
  */
 // ============================================================================
-
-std::string 
-SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
-{
-  int nbproc;
-
-  if ( !params.isMPI )
-    nbproc = 0;
-  else if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
-    nbproc = 1;
-  else if ( params.nb_node == 0 )
-    nbproc = params.nb_proc_per_node;
-  else if ( params.nb_proc_per_node == 0 )
-    nbproc = params.nb_node;
-  else
-    nbproc = params.nb_node * params.nb_proc_per_node;
-
-  std::string ret = ContainerName(params.container_name);
-
-  if ( nbproc >= 1 )
-    {
-      char *suffix = new char[8];
-      sprintf(suffix, "_%d", nbproc);
-      ret += suffix;
-    }
-
-  return ret;
-}
 
 std::string 
 SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
@@ -689,19 +659,6 @@ std::string SALOME_NamingService::BuildContainerNameForNS(const char *containerN
  * \sa ContainerName(const char *containerName)
  */
 // ============================================================================
-
-std::string
-SALOME_NamingService::
-BuildContainerNameForNS(const Engines::MachineParameters& params,
-                        const char *hostname)
-{
-  std::string ret = "/Containers/";
-  ret += hostname;
-  ret += "/";
-  ret += ContainerName(params);
-
-  return ret;
-}
 
 std::string
 SALOME_NamingService::

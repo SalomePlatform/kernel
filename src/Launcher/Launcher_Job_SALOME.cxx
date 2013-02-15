@@ -23,7 +23,7 @@
 #include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Constants.hxx>
 #endif
 
 #ifdef WNT
@@ -87,7 +87,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "export SALOME_TMP_DIR=" << work_directory << "/logs" << std::endl;
 
   // -- Generates Catalog Resources
-  std::string resource_protocol = ParserResourcesType::protocolToString(_resource_definition.ClusterInternalProtocol);
+  std::string resource_protocol = _resource_definition.getClusterInternalProtocolStr();
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << "CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
@@ -99,9 +99,10 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         mpi=\"" << _resource_definition.PrintMpiImplType() << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '	  nbOfNodes='\\\"$nbproc\\\"			          >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '	  nbOfProcPerNode=\"1\"'			                  >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         mpi=\"" << _resource_definition.getMpiImplTypeStr() << "\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         nbOfNodes='\\\"$nbproc\\\" >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         nbOfProcPerNode=\"1\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         can_run_containers=\"true\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '/>'                                                              >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "done"                                 << std::endl;
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;

@@ -23,7 +23,7 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Constants.hxx>
 #endif
 
 Launcher::Job::Job()
@@ -79,7 +79,7 @@ Launcher::Job::stopJob()
     {
       _batch_job_id.deleteJob();
     }
-    catch (const Batch::EmulationException &ex)
+    catch (const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("WARNING: exception when stopping the job: " << ex.message);
     }
@@ -99,7 +99,7 @@ Launcher::Job::removeJob()
     {
       _batch_job_id.deleteJob();
     }
-    catch (const Batch::EmulationException &ex)
+    catch (const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("WARNING: exception when removing the job: " << ex.message);
     }
@@ -455,8 +455,8 @@ Launcher::Job::common_job_params()
   Batch::Parametre params;
 
   params[Batch::NAME] = getJobName();
-  params[Batch::USER] = _resource_definition.UserName;
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
+  params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
   // Memory in megabytes
   if (_resource_required_params.mem_mb > 0)
@@ -467,22 +467,14 @@ Launcher::Job::common_job_params()
   // We define a default directory based on user time
   if (_work_directory == "")
   {
-    std::string thedate;
-    Batch::Date date = Batch::Date(time(0));
-    thedate = date.str();
-    int lend = thedate.size() ;
-    int i = 0 ;
-    while ( i < lend ) {
-      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
-        thedate[i] = '_' ;
-      }
-      i++ ;
-    }
-    _work_directory = std::string("$HOME/Batch/");
-    _work_directory += thedate;
+    const size_t BUFSIZE = 32;
+    char date[BUFSIZE];
+    time_t curtime = time(NULL);
+    strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
+    _work_directory = std::string("$HOME/Batch/workdir_");
+    _work_directory += date;
   }
   params[Batch::WORKDIR] = _work_directory;
-  params[Batch::TMPDIR] = _work_directory; // To Compatibility -- remove ??? TODO
 
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")

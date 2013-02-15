@@ -270,17 +270,6 @@ export MMGT_REENTRANT=1
     f.write(command % ",".join(mods))
     f.close()
 
-    #Add default CatalogResources.xml file
-    f =open(os.path.join(home_dir,'CatalogResources.xml'),'w')
-    command="""<!DOCTYPE ResourcesCatalog>
-<resources>
-   <machine name="localhost"
-            hostname="localhost" />
-</resources>
-"""
-    f.write(command)
-    f.close()
-
     #Add USERS directory with 777 permission to store users configuration files
     users_dir=os.path.join(home_dir,'USERS')
     makedirs(users_dir)

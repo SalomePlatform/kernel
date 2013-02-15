@@ -25,6 +25,8 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
+
 #define NULL_VALUE 0
 
 unsigned int ResourceDataToSort::_nbOfProcWanted = NULL_VALUE;
@@ -130,10 +132,33 @@ void ResourceDataToSort::Print() const
   }
 
 
+ParserResourcesType::ParserResourcesType()
+: type(single_machine),
+  Protocol(ssh),
+  ClusterInternalProtocol(ssh),
+  Batch(none),
+  mpi(nompi),
+  nbOfProc(1),
+  can_launch_batch_jobs(false),
+  can_run_containers(false)
+{
+  DataForSort._Name = "";
+  DataForSort._nbOfNodes = 1;
+  DataForSort._nbOfProcPerNode = 1;
+  DataForSort._CPUFreqMHz = 0;
+  DataForSort._memInMB = 0;
+}
+
+ParserResourcesType::~ParserResourcesType()
+{
+}
+
 std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
 {
   switch (protocol)
   {
+  case sh:
+    return "sh";
   case rsh:
     return "rsh";
   case ssh:
@@ -151,7 +176,9 @@ std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
 
 AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & protocolStr)
 {
-  if (protocolStr == "rsh")
+  if (protocolStr == "sh")
+    return sh;
+  else if (protocolStr == "rsh")
     return rsh;
   else if (protocolStr == "ssh")
     return ssh;
@@ -162,139 +189,218 @@ AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & pro
   else if (protocolStr == "blaunch")
     return blaunch;
   else
-    throw SALOME_Exception("Unknown protocol");
+    throw SALOME_Exception((string("Unknown protocol ") + protocolStr).c_str());
 }
 
-void ParserResourcesType::Print()
+ostream & operator<<(ostream &os, const ParserResourcesType &prt)
 {
-  std::ostringstream oss;
-  oss << std::endl <<
-    "Name : " << Name << std::endl <<
-    "HostName : " << HostName << std::endl << 
-    "NbOfNodes : " << DataForSort._nbOfNodes << std::endl <<
-    "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << std::endl <<
-    "CPUFreqMHz : " << DataForSort._CPUFreqMHz << std::endl <<
-    "MemInMB : " << DataForSort._memInMB << std::endl <<
-    "Protocol : " << protocolToString(Protocol) << std::endl <<
-    "ClusterInternalProtocol : " << protocolToString(ClusterInternalProtocol) << std::endl <<
-    "Mode : " << Mode << std::endl <<
-    "Batch : " << Batch << std::endl <<
-    "mpi : " << mpi << std::endl <<
-    "UserName : " << UserName << std::endl <<
-    "AppliPath : " << AppliPath << std::endl <<
-    "OS : " << OS << std::endl <<
-    "batchQueue : " << batchQueue << std::endl <<
-    "userCommands : " << userCommands << std::endl <<
-    "use : " << use << std::endl <<
-    "NbOfProc : " << nbOfProc << std::endl <<
-    "Modules : " << std::endl <<
-    "Components : " << std::endl <<
-    "Is Cluster Head: " << is_cluster_head << std::endl <<
-    "Working Directory: " << working_directory << std::endl;
+  os << "Name: " << prt.Name << endl <<
+        "HostName: " << prt.HostName << endl <<
+        "Type: " << prt.getResourceTypeStr() << endl <<
+        "NbOfNodes: " << prt.DataForSort._nbOfNodes << endl <<
+        "NbOfProcPerNode: " << prt.DataForSort._nbOfProcPerNode << endl <<
+        "CPUFreqMHz: " << prt.DataForSort._CPUFreqMHz << endl <<
+        "MemInMB: " << prt.DataForSort._memInMB << endl <<
+        "Protocol: " << prt.getAccessProtocolTypeStr() << endl <<
+        "ClusterInternalProtocol: " << prt.getClusterInternalProtocolStr() << endl <<
+        "Batch: " << prt.getBatchTypeStr() << endl <<
+        "mpi: " << prt.getMpiImplTypeStr() << endl <<
+        "UserName: " << prt.UserName << endl <<
+        "AppliPath: " << prt.AppliPath << endl <<
+        "OS: " << prt.OS << endl <<
+        "batchQueue: " << prt.batchQueue << endl <<
+        "userCommands: " << prt.userCommands << endl <<
+        "use: " << prt.use << endl <<
+        "NbOfProc: " << prt.nbOfProc << endl <<
+        "Can Launch Batch Jobs: " << prt.can_launch_batch_jobs << endl <<
+        "Can Run Containers: " << prt.can_run_containers << endl <<
+        "Working Directory: " << prt.working_directory << endl;
 
-  for(unsigned int i=0;i<ComponentsList.size();i++)
-    oss << "Component " << i+1 << " called : " << ComponentsList[i] << std::endl;
+  for(unsigned int i=0 ; i<prt.ComponentsList.size() ; i++)
+    os << "Component " << i+1 << " called: " << prt.ComponentsList[i] << endl;
 
-  
-  std::list<ParserResourcesClusterMembersType>::iterator it;
-  for(it = ClusterMembersList.begin(); 
-      it != ClusterMembersList.end();
-      it++)
+  list<ParserResourcesType>::const_iterator it;
+  for(it = prt.ClusterMembersList.begin() ; it != prt.ClusterMembersList.end() ; it++)
   {
-    oss << "Cluster member  called : " << (*it).HostName << std::endl;
+    os << "Cluster member called: " << (*it).HostName << endl;
   }
-  std::cout << oss.str() << std::endl;
+  return os;
 }
 
 std::string
-ParserResourcesType::PrintAccessProtocolType() const
+ParserResourcesType::getAccessProtocolTypeStr() const
 {
   return protocolToString(Protocol);
 }
 
 std::string
-ParserResourcesType::PrintClusterInternalProtocol() const
+ParserResourcesType::getClusterInternalProtocolStr() const
 {
   return protocolToString(ClusterInternalProtocol);
 }
 
 std::string 
-ParserResourcesType::PrintAccessModeType() const
+ParserResourcesType::getResourceTypeStr() const
 {
-  if (Mode == interactive)
-    return "interactive";
-  else
-    return "batch";
+  switch (type)
+  {
+  case cluster:
+    return "cluster";
+  case single_machine:
+    return "single_machine";
+  default:
+    throw SALOME_Exception("Unknown resource type");
+  }
 }
 
 std::string 
-ParserResourcesType::PrintBatchType() const
+ParserResourcesType::getBatchTypeStr() const
 {
-  if (Batch == none)
+  switch (Batch)
+  {
+  case none:
     return "none";
-  else if (Batch == pbs)
+  case pbs:
     return "pbs";
-  else if (Batch == lsf)
+  case lsf:
     return "lsf";
-  else if (Batch == sge)
+  case sge:
     return "sge";
-  else if (Batch == ccc)
+  case ccc:
     return "ccc";
-  else if (Batch == slurm)
+  case slurm:
     return "slurm";
-  else if (Batch == ll)
+  case ll:
     return "ll";
-  else if (Batch == vishnu)
+  case vishnu:
     return "vishnu";
-  else 
-    return "ssh";
+  case ssh_batch:
+    return "ssh_batch";
+  default:
+    throw SALOME_Exception("Unknown batch type");
+  }
 }
 
 std::string 
-ParserResourcesType::PrintMpiImplType() const
+ParserResourcesType::getMpiImplTypeStr() const
 {
-  if (mpi == nompi)
+  switch (mpi)
+  {
+  case nompi:
     return "no mpi";
-  else if (mpi == lam)
+  case lam:
     return "lam";
-  else if (mpi == mpich1)
+  case mpich1:
     return "mpich1";
-  else if (mpi == mpich2)
+  case mpich2:
     return "mpich2";
-  else if (mpi == openmpi)
+  case openmpi:
     return "openmpi";
-  else if (mpi == ompi)
+  case ompi:
     return "ompi";
-  else if (mpi == slurmmpi)
+  case slurmmpi:
     return "slurmmpi";
-  else
+  case prun:
     return "prun";
+  default:
+    throw SALOME_Exception("Unknown MPI implementation type");
+  }
 }
 
-void ParserResourcesType::Clear()
+string ParserResourcesType::getCanLaunchBatchJobsStr() const
 {
-  Name = "";
-  HostName = "";
-  Protocol = rsh;
-  ClusterInternalProtocol = rsh;
-  Mode = interactive;
-  Batch = none;
-  mpi = nompi;
-  UserName = "";
-  AppliPath = "";
-  batchQueue = "";
-  userCommands = "";
-  ComponentsList.clear();
-  OS = "";
-  use = "";
-  ClusterMembersList.clear();
-  nbOfProc = 1;
-  is_cluster_head = false;
-  working_directory = "";
+  return can_launch_batch_jobs ? "true" : "false";
+}
 
-  DataForSort._Name = "";
-  DataForSort._nbOfNodes = 1;
-  DataForSort._nbOfProcPerNode = 1;
-  DataForSort._CPUFreqMHz = 0;
-  DataForSort._memInMB = 0;
+string ParserResourcesType::getCanRunContainersStr() const
+{
+  return can_run_containers ? "true" : "false";
+}
+
+void ParserResourcesType::setAccessProtocolTypeStr(const string & protocolTypeStr)
+{
+  Protocol = stringToProtocol(protocolTypeStr);
+}
+
+void ParserResourcesType::setResourceTypeStr(const string & resourceTypeStr)
+{
+  if (resourceTypeStr == "cluster")
+    type = cluster;
+  else if (resourceTypeStr == "single_machine")
+    type = single_machine;
+  else
+    throw SALOME_Exception((string("Unknown resource type ") + resourceTypeStr).c_str());
+}
+
+void ParserResourcesType::setBatchTypeStr(const string & batchTypeStr)
+{
+  if (batchTypeStr == "pbs")
+    Batch = pbs;
+  else if (batchTypeStr == "lsf")
+    Batch = lsf;
+  else if (batchTypeStr == "sge")
+    Batch = sge;
+  else if (batchTypeStr == "slurm")
+    Batch = slurm;
+  else if (batchTypeStr == "ccc")
+    Batch = ccc;
+  else if (batchTypeStr == "ssh_batch")
+    Batch = ssh_batch;
+  else if (batchTypeStr == "ll")
+    Batch = ll;
+  else if (batchTypeStr == "vishnu")
+    Batch = vishnu;
+  else if (batchTypeStr == "")
+    Batch = none;
+  else
+    throw SALOME_Exception((string("Unknown batch type ") + batchTypeStr).c_str());
+}
+
+void ParserResourcesType::setMpiImplTypeStr(const string & mpiImplTypeStr)
+{
+  if (mpiImplTypeStr == "lam")
+    mpi = lam;
+  else if (mpiImplTypeStr == "mpich1")
+    mpi = mpich1;
+  else if (mpiImplTypeStr == "mpich2")
+    mpi = mpich2;
+  else if (mpiImplTypeStr == "openmpi")
+    mpi = openmpi;
+  else if (mpiImplTypeStr == "ompi")
+    mpi = ompi;
+  else if (mpiImplTypeStr == "slurmmpi")
+    mpi = slurmmpi;
+  else if (mpiImplTypeStr == "prun")
+    mpi = prun;
+  else if (mpiImplTypeStr == "" || mpiImplTypeStr == "no mpi")
+    mpi = nompi;
+  else
+    throw SALOME_Exception((string("Unknown MPI implementation type ") + mpiImplTypeStr).c_str());
+}
+
+void ParserResourcesType::setClusterInternalProtocolStr(const string & internalProtocolTypeStr)
+{
+  ClusterInternalProtocol = stringToProtocol(internalProtocolTypeStr);
+}
+
+void ParserResourcesType::setCanLaunchBatchJobsStr(const string & canLaunchBatchJobsStr)
+{
+  if (canLaunchBatchJobsStr == "true")
+    can_launch_batch_jobs = true;
+  else if (canLaunchBatchJobsStr == "false")
+    can_launch_batch_jobs = false;
+  else
+    throw SALOME_Exception((string("Invalid boolean value for can_launch_batch_jobs: ") +
+                            canLaunchBatchJobsStr).c_str());
+}
+
+void ParserResourcesType::setCanRunContainersStr(const string & canRunContainersStr)
+{
+  if (canRunContainersStr == "true")
+    can_run_containers = true;
+  else if (canRunContainersStr == "false")
+    can_run_containers = false;
+  else
+    throw SALOME_Exception((string("Invalid boolean value for can_run_containers: ") +
+                            canRunContainersStr).c_str());
 }

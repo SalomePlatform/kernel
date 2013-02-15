@@ -420,7 +420,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsEmpty()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params);
   Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
@@ -443,10 +443,10 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params);
   std::string hostname=Kernel_Utils::GetHostname();
-  params.hostname=hostname.c_str();
+  params.resource_params.hostname=hostname.c_str();
   Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
@@ -477,7 +477,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params);
   std::string containerName = "myContainer";
   params.container_name = containerName.c_str();
@@ -551,9 +551,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
 
   std::string remoteHost = GetRemoteHost();
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params); 
-  params.hostname = remoteHost.c_str();
+  params.resource_params.hostname = remoteHost.c_str();
 
   Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
@@ -589,9 +589,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
 
   std::string remoteHost = GetRemoteHost();
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params); 
-  params.hostname = remoteHost.c_str();
+  params.resource_params.hostname = remoteHost.c_str();
   params.container_name = "anotherContainer";
 
   Engines::EngineComponent_var mycompo1 =
@@ -686,6 +686,7 @@ std::string LifeCycleCORBATest::GetRemoteHost()
   _LCC.preSet(params);               // empty params to get all the machines
   params.resource_params.componentList.length(1);
   params.resource_params.componentList[0]="SalomeTestComponent";
+  params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var hostList = resourcesManager->GetFittingResources(params.resource_params);
   CPPUNIT_ASSERT(hostList->length() > 1);

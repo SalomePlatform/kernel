@@ -39,7 +39,7 @@
 class MpiImpl;
 
 namespace Batch{
-  class BatchManager_eClient;
+  class BatchManager;
   class Job;
 }
 
@@ -83,8 +83,8 @@ protected:
 
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
-  Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params);
-  std::map <int, Batch::BatchManager_eClient*> _batchmap;
+  Batch::BatchManager *FactoryBatchManager(ParserResourcesType& params);
+  std::map <int, Batch::BatchManager*> _batchmap;
 #endif
   ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 

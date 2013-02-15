@@ -24,8 +24,7 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_MpiImpl.hxx>
+#include <libbatch/MpiImpl.hxx>
 #endif
 
 #include "utilities.h"
@@ -42,24 +41,16 @@ BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr)
   _batch_descr = batch_descr;
 
   // Getting date
-  Batch::Date date = Batch::Date(time(0));
-  _date = date.str();
-  int lend = _date.size() ;
-  int i = 0 ;
-  while (i < lend) 
-  {
-    if (_date[i] == '/' || _date[i] == '-' || _date[i] == ':' ) 
-    {
-      _date[i] = '_' ;
-    }
-    i++ ;
-  }
-  
+  const size_t BUFSIZE = 32;
+  char date[BUFSIZE];
+  time_t curtime = time(NULL);
+  strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
+
   // Creating test temporary file
   _test_filename =  "/tmp/";
-  _test_filename +=  _date + "_test_cluster_file_";
+  _test_filename += std::string(date) + "_test_cluster_file_";
   _test_filename += _batch_descr.hostname.in();
-  _base_filename = _date + "_test_cluster_file_" + _batch_descr.hostname.in();
+  _base_filename = std::string(date) + "_test_cluster_file_" + _batch_descr.hostname.in();
 #endif
 }
 

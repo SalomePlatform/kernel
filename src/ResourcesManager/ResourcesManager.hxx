@@ -53,6 +53,8 @@ struct resourceParams
 {
   std::string name;
   std::string hostname;
+  bool can_launch_batch_jobs;
+  bool can_run_containers;
   std::string OS;
   long nb_proc;
   long nb_node;
@@ -87,7 +89,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     std::string Find(const std::string& policy, 
                      const std::vector<std::string>& listOfResources);
 
-    void AddResourceInCatalog (const ParserResourcesType & new_resource) throw(ResourcesException);
+    void AddResourceInCatalog (const ParserResourcesType & new_resource);
 
     void DeleteResourceInCatalog(const char * name);
 
@@ -106,6 +108,11 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     void KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
                                         const std::vector<std::string>& componentList);
 
+    /**
+     * Add the default local resource in the catalog
+     */
+    void AddDefaultResourceInCatalog();
+
     //! will contain the path to the ressources catalog
     std::list<std::string> _path_resources;
     std::list<std::string>::iterator _path_resources_it;
@@ -118,6 +125,9 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     //! contain the time where resourcesList was created
     time_t _lasttime;
+
+    //! the name of the default local resource
+    static const std::string DEFAULT_RESOURCE_NAME;
   };
 
 #endif // __RESOURCESMANAGER_HXX__

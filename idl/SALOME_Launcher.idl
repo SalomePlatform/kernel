@@ -1,0 +1,131 @@
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+#ifndef _SALOME_LAUNCHER_IDL_
+#define _SALOME_LAUNCHER_IDL_
+
+#include "SALOME_Exception.idl"
+#include "SALOME_ResourcesManager.idl"
+
+/*! \file SALOME_Launcher.idl \brief interfaces for %SALOME Launcher service
+*/
+
+module Engines
+{
+
+//! files list
+typedef sequence<string> FilesList;
+
+//! A generic parameter
+struct Parameter
+{
+  string name;
+  string value;
+};
+//! Generic parameter list
+typedef sequence<Engines::Parameter> ParameterList;
+
+struct JobParameters
+{
+  string job_name;
+  //! Job Type - Could be equal to "command" or "yacs_file" or "python_salome"
+  string job_type;
+
+  // Common values
+  string job_file;
+  string env_file; 
+  FilesList in_files;
+  FilesList out_files;
+  string work_directory;
+  string local_directory;
+  string result_directory;
+
+  /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
+       this case, default value of the selected resource will be used.
+  */
+  string maximum_duration; 
+
+  // Memory is expressed in megabytes -> mem_mb
+  // Number of Processors -> nb_proc
+  ResourceParameters resource_required;
+
+  /*!
+    Name of the batch queue choosed - optional
+  */
+  string queue;
+
+  /*!
+    Specific parameters for each type of job - optional
+  */
+  Engines::ParameterList specific_parameters;
+};
+
+struct JobDescription
+{
+  long job_id;
+  Engines::JobParameters job_parameters;
+};
+typedef sequence<Engines::JobDescription> JobsList;
+
+interface SalomeLauncherObserver
+{
+  void notify(in string event_name, in string event_data);
+};
+
+/*! \brief Interface of the %salomelauncher
+    This interface is used for interaction with the unique instance
+    of SalomeLauncher
+*/
+interface SalomeLauncher
+{
+  // Main methods
+  long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+  void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+  string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+  boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
+  void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+
+  // Useful methods
+  long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
+  boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
+
+  // SALOME kernel service methods
+  void Shutdown();
+  long getPID();
+
+  // Observer and introspection methods
+  void addObserver(in Engines::SalomeLauncherObserver observer);
+  void removeObserver(in Engines::SalomeLauncherObserver observer);
+  Engines::JobsList getJobsList();
+  Engines::JobParameters getJobParameters(in long job_id) raises (SALOME::SALOME_Exception);
+
+  // Save and load methods
+  void loadJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+  void saveJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+
+};
+
+};
+  
+#endif

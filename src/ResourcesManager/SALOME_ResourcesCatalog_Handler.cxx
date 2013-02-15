@@ -33,6 +33,8 @@
 #include <sstream>
 #include <map>
 
+using namespace std;
+
 //=============================================================================
 /*!
  *  Constructor
@@ -48,6 +50,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list): _reso
   test_cluster = "cluster";
   test_name = "name";
   test_hostname = "hostname";
+  test_type = "type";
   test_protocol = "protocol";
   test_cluster_internal_protocol = "iprotocol";
   test_mode = "mode";
@@ -71,6 +74,8 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list): _reso
   test_members = "members";
   test_is_cluster_head = "isClusterHead";
   test_working_directory = "workingDirectory";
+  test_can_launch_batch_jobs = "canLaunchBatchJobs";
+  test_can_run_containers = "canRunContainers";
 }
 
 //=============================================================================
@@ -107,13 +112,6 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   // Empty private elements
   _resources_list.clear();
 
-  //default resources
-  _resource.Clear();
-  _resource.HostName = Kernel_Utils::GetHostname();
-  _resource.Name = Kernel_Utils::GetHostname();
-  _resource.DataForSort._Name = Kernel_Utils::GetHostname();
-  _resources_list[Kernel_Utils::GetHostname()] = _resource;
-
   // Get the document root node
   xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
 
@@ -122,34 +120,38 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   // Processing the document nodes
   while(aCurNode != NULL)
   {
-    // Cas d'une machine ou d'une machine batch
+    // Declaration of a single machine or a frontal node for a cluster managed by a batch manager
     if (!xmlStrcmp(aCurNode->name,(const xmlChar*)test_machine))
     {
-      _resource.Clear();
-      bool Ok = ProcessMachine(aCurNode, _resource);
+      ParserResourcesType resource;
+      bool Ok = ProcessMachine(aCurNode, resource);
       if (Ok)
       {
         // Adding a resource
-        if(_resource.HostName == "localhost")
+        if(resource.HostName == "localhost")
         {
-          _resource.HostName = Kernel_Utils::GetHostname();
+          resource.HostName = Kernel_Utils::GetHostname();
         }
-        std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+        std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(resource.Name);
         if (iter != _resources_list.end())
-          RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
-        _resources_list[_resource.Name] = _resource;
+          RES_INFOS("Warning resource " << resource.Name << " already added, keep last resource found !");
+        _resources_list[resource.Name] = resource;
       }
     }
-    // Cas de la déclaration d'un cluster
+    // Declaration of a cluster
+    // Here, a cluster is NOT the frontal node of a cluster managed by a batch manager (classical
+    // usage of a cluster). It is a group of machines intended to be used for a parallel container.
+    // The methods ProcessCluster and ProcessMember are only used in the context of parallel
+    // containers. They are not used in classical Salome usage scenarios.
     if (!xmlStrcmp(aCurNode->name,(const xmlChar*)test_cluster))
     {
-      _resource.Clear();
-      if(ProcessCluster(aCurNode, _resource))
+      ParserResourcesType resource;
+      if(ProcessCluster(aCurNode, resource))
       {
-        std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+        std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(resource.Name);
         if (iter != _resources_list.end())
-          RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
-        _resources_list[_resource.Name] = _resource;
+          RES_INFOS("Warning resource " << resource.Name << " already added, keep last resource found !");
+        _resources_list[resource.Name] = resource;
       }
     }
     aCurNode = aCurNode->next;
@@ -162,16 +164,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   {
     std::cerr << "************************************************" << std::endl;
     std::cerr << "Resource " << (*iter).first << " found:" << std::endl;
-    std::cerr << " Name: " << (*iter).second.Name << std::endl;
-    std::cerr << " Hostname: " << (*iter).second.HostName << std::endl;
-    std::cerr << " Username: " << (*iter).second.UserName << std::endl;
-    std::cerr << " Appli path: " <<(*iter).second.AppliPath << std::endl;
-    std::cerr << " OS: " << (*iter).second.OS << std::endl;
-    std::cerr << " Protocol: " << (*iter).second.PrintAccessProtocolType() << std::endl;
-    std::cerr << " Internal Protocol: " <<(*iter).second.PrintClusterInternalProtocol() << std::endl;
-    std::cerr << " Mode: " << (*iter).second.PrintAccessModeType() << std::endl;
-    std::cerr << " Batch Type: " << (*iter).second.PrintBatchType() << std::endl;
-    std::cerr << " MPI Impl: " << (*iter).second.PrintMpiImplType() << std::endl;
+    std::cerr << (*iter).second;
     std::cerr << "************************************************" << std::endl;
   }
 #endif
@@ -206,7 +199,7 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
   {
     resource.Name = resource.HostName;
     resource.DataForSort._Name = resource.HostName;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! No Name found use Hostname for resource: " << _resource.Name << std::endl;
+    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name << std::endl;
   }
 
   if (xmlHasProp(cluster_descr, (const xmlChar*)test_use))
@@ -240,22 +233,7 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
     xmlChar* mpi = xmlGetProp(cluster_descr, (const xmlChar*)test_mpi);
     std::string anMpi = (const char*)mpi;
     xmlFree(mpi);
-    if (anMpi == "lam")
-      resource.mpi = lam;
-    else if (anMpi == "mpich1")
-      resource.mpi = mpich1;
-    else if (anMpi == "mpich2")
-      resource.mpi = mpich2;
-    else if (anMpi == "openmpi")
-      resource.mpi = openmpi;
-    else if (anMpi == "ompi")
-      resource.mpi = ompi;
-    else if  (anMpi == "slurmmpi")
-      resource.mpi = slurmmpi;
-    else if  (anMpi == "prun")
-      resource.mpi = prun;
-    else
-      resource.mpi = nompi;
+    resource.setMpiImplTypeStr(anMpi);
   }
 
   // Parsing des membres du cluster 
@@ -270,7 +248,7 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
          // Process members
          if (!xmlStrcmp(members->name, (const xmlChar*)test_machine))
          {
-           ParserResourcesClusterMembersType new_member;
+           ParserResourcesType new_member;
            if (ProcessMember(members, new_member))
              resource.ClusterMembersList.push_back(new_member);
          }
@@ -291,7 +269,7 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
 }
 
 bool
-SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserResourcesClusterMembersType & resource)
+SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserResourcesType & resource)
 {
   if (xmlHasProp(member_descr, (const xmlChar*)test_hostname))
   {
@@ -311,9 +289,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     xmlChar* protocol= xmlGetProp(member_descr, (const xmlChar*)test_protocol);
     try
     {
-      resource.Protocol = ParserResourcesType::stringToProtocol((const char *)protocol);
+      resource.setAccessProtocolTypeStr((const char *)protocol);
     }
-    catch (SALOME_Exception e)
+    catch (const SALOME_Exception & e)
     {
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
@@ -333,9 +311,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     xmlChar* iprotocol= xmlGetProp(member_descr, (const xmlChar*)test_cluster_internal_protocol);
     try
     {
-      resource.ClusterInternalProtocol = ParserResourcesType::stringToProtocol((const char *)iprotocol);
+      resource.setClusterInternalProtocolStr((const char *)iprotocol);
     }
-    catch (SALOME_Exception e)
+    catch (const SALOME_Exception & e)
     {
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
@@ -431,7 +409,72 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   {
     resource.Name = resource.HostName;
     resource.DataForSort._Name = resource.HostName;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMachine : !!! Warning !!! No Name found use Hostname for resource: " << _resource.Name << std::endl;
+    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMachine : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name << std::endl;
+  }
+
+  // This block is for compatibility with files created in Salome 6.
+  // It can safely be removed in Salome 8.
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_mode))
+  {
+    cerr << "Warning: parameter \"" << test_mode << "\" defined for resource \"" <<
+            resource.Name << "\" is deprecated. It will be replaced when your resource " <<
+            "file is saved." << endl;
+    xmlChar* mode=xmlGetProp(machine_descr, (const xmlChar*)test_mode);
+    switch ( mode[0] )
+    {
+      case 'i':
+        resource.can_run_containers = true;
+        break;
+      case 'b':
+        resource.can_launch_batch_jobs = true;
+        break;
+      default:
+        break;
+    }
+    xmlFree(mode);
+  }
+
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_is_cluster_head))
+  {
+    cerr << "Warning: parameter \"" << test_is_cluster_head << "\" defined for resource \"" <<
+            resource.Name << "\" is deprecated. It will be replaced when your resource " <<
+            "file is saved." << endl;
+    xmlChar* is_cluster_head = xmlGetProp(machine_descr, (const xmlChar*)test_is_cluster_head);
+    std::string str_ich = (const char*)is_cluster_head;
+    if (str_ich == "true")
+    {
+      resource.type = cluster;
+      resource.can_launch_batch_jobs = true;
+      resource.can_run_containers = false;
+    }
+    else
+    {
+      resource.type = single_machine;
+      resource.can_run_containers = true;
+    }
+    xmlFree(is_cluster_head);
+  }
+  // End of compatibility block
+
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_type))
+  {
+    xmlChar* type = xmlGetProp(machine_descr, (const xmlChar*)test_type);
+    try
+    {
+      resource.setResourceTypeStr((const char*)type);
+    }
+    catch (const SALOME_Exception & e)
+    {
+      cerr << "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
+              resource.Name << "\", using default value \"" << resource.getResourceTypeStr() <<
+              "\"" << endl;
+    }
+    xmlFree(type);
+  }
+  else
+  {
+    cerr << "Warning, no type found for resource \"" << resource.Name <<
+            "\", using default value \"" << resource.getResourceTypeStr() << "\"" << endl;
   }
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_batch_queue))
@@ -440,8 +483,6 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     resource.batchQueue = (const char*)batch_queue;
     xmlFree(batch_queue);
   }
-  else
-    resource.batchQueue = "";
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_user_commands))
   {
@@ -449,110 +490,71 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     resource.userCommands = (const char*)user_commands;
     xmlFree(user_commands);
   }
-  else
-    resource.userCommands = "";
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_protocol))
   {
     xmlChar* protocol= xmlGetProp(machine_descr, (const xmlChar*)test_protocol);
     try
     {
-      resource.Protocol = ParserResourcesType::stringToProtocol((const char *)protocol);
+      resource.setAccessProtocolTypeStr((const char *)protocol);
     }
-    catch (SALOME_Exception e)
+    catch (const SALOME_Exception & e)
     {
-      // If it'not in all theses cases, the protocol is affected to rsh
-      resource.Protocol = rsh;
+      cerr << "Warning, invalid protocol \"" << (const char*)protocol << "\" for resource \"" <<
+              resource.Name << "\", using default value \"" <<
+              resource.getAccessProtocolTypeStr() << "\"" << endl;
     }
     xmlFree(protocol);
   }
-  else
-    resource.Protocol = rsh;
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol))
   {
     xmlChar* iprotocol= xmlGetProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol);
     try
     {
-      resource.ClusterInternalProtocol = ParserResourcesType::stringToProtocol((const char *)iprotocol);
+      resource.setClusterInternalProtocolStr((const char *)iprotocol);
     }
-    catch (SALOME_Exception e)
+    catch (const SALOME_Exception & e)
     {
-      // If it'not in all theses cases, the protocol is affected to rsh
-      resource.ClusterInternalProtocol = rsh;
+      cerr << "Warning, invalid internal protocol \"" << (const char*)iprotocol <<
+              "\" for resource \"" << resource.Name << "\", using default value \"" <<
+              resource.getClusterInternalProtocolStr() << "\"" << endl;
     }
     xmlFree(iprotocol);
   }
   else
     resource.ClusterInternalProtocol = resource.Protocol;
 
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_mode))
-  {
-    xmlChar* mode=xmlGetProp(machine_descr, (const xmlChar*)test_mode);
-    switch ( mode[0] )
-    {
-      case 'i':
-        resource.Mode = interactive;
-        break;
-      case 'b':
-        resource.Mode = batch;
-        break;
-      default:
-        // If it'not in all theses cases, the mode is affected to interactive
-        resource.Mode = interactive;
-        break;
-    }
-    xmlFree(mode);
-  }
-  else
-    resource.Mode = interactive;
-
   if (xmlHasProp(machine_descr, (const xmlChar*)test_batch))
   {
     xmlChar* batch = xmlGetProp(machine_descr, (const xmlChar*)test_batch);
-    std::string aBatch = (const char*)batch;
+    try
+    {
+      resource.setBatchTypeStr((const char *)batch);
+    }
+    catch (const SALOME_Exception & e)
+    {
+      cerr << "Warning, invalid batch manager \"" << (const char*)batch <<
+              "\" for resource \"" << resource.Name << "\", using default value \"" <<
+              resource.getBatchTypeStr() << "\"" << endl;
+    }
     xmlFree(batch);
-    if (aBatch == "pbs")
-      resource.Batch = pbs;
-    else if  (aBatch == "lsf")
-      resource.Batch = lsf;
-    else if  (aBatch == "sge")
-      resource.Batch = sge;
-    else if  (aBatch == "ssh_batch")
-      resource.Batch = ssh_batch;
-    else if  (aBatch == "ccc")
-      resource.Batch = ccc;
-    else if  (aBatch == "slurm")
-      resource.Batch = slurm;
-    else if  (aBatch == "ll")
-      resource.Batch = ll;
-    else if  (aBatch == "vishnu")
-      resource.Batch = vishnu;
-    else
-      resource.Batch = none;
   }
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_mpi))
   {
     xmlChar* mpi = xmlGetProp(machine_descr, (const xmlChar*)test_mpi);
-    std::string anMpi = (const char*)mpi;
+    try
+    {
+      resource.setMpiImplTypeStr((const char *)mpi);
+    }
+    catch (const SALOME_Exception & e)
+    {
+      cerr << "Warning, invalid MPI implementation \"" << (const char*)mpi <<
+              "\" for resource \"" << resource.Name << "\", using default value \"" <<
+              resource.getMpiImplTypeStr() << "\"" << endl;
+    }
     xmlFree(mpi);
-    if (anMpi == "lam")
-      resource.mpi = lam;
-    else if (anMpi == "mpich1")
-      resource.mpi = mpich1;
-    else if (anMpi == "mpich2")
-      resource.mpi = mpich2;
-    else if (anMpi == "openmpi")
-      resource.mpi = openmpi;
-    else if (anMpi == "ompi")
-      resource.mpi = ompi;
-    else if  (anMpi == "slurmmpi")
-      resource.mpi = slurmmpi;
-    else if  (anMpi == "prun")
-      resource.mpi = prun;
-    else
-      resource.mpi = nompi;
   }
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_user_name))
@@ -604,23 +606,36 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     xmlFree(nb_of_proc_per_node);
   }
 
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_is_cluster_head))
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_can_launch_batch_jobs))
   {
-    xmlChar* is_cluster_head = xmlGetProp(machine_descr, (const xmlChar*)test_is_cluster_head);
-    std::string str_ich = (const char*)is_cluster_head;
-    if (str_ich == "true")
+    xmlChar* can_launch_batch_jobs = xmlGetProp(machine_descr, (const xmlChar*)test_can_launch_batch_jobs);
+    try
     {
-      resource.is_cluster_head = true;
+      resource.setCanLaunchBatchJobsStr((const char *)can_launch_batch_jobs);
     }
-    else
+    catch (const SALOME_Exception & e)
     {
-      resource.is_cluster_head = false;
+      cerr << "Warning, invalid can_launch_batch_jobs parameter value \"" <<
+              (const char*)can_launch_batch_jobs << "\" for resource \"" << resource.Name <<
+              "\", using default value \"" << resource.getCanLaunchBatchJobsStr() << "\"" << endl;
     }
-    xmlFree(is_cluster_head);
+    xmlFree(can_launch_batch_jobs);
   }
-  else
+
+  if (xmlHasProp(machine_descr, (const xmlChar*)test_can_run_containers))
   {
-    resource.is_cluster_head = false;
+    xmlChar* can_run_containers = xmlGetProp(machine_descr, (const xmlChar*)test_can_run_containers);
+    try
+    {
+      resource.setCanRunContainersStr((const char *)can_run_containers);
+    }
+    catch (const SALOME_Exception & e)
+    {
+      cerr << "Warning, invalid can_run_containers parameter value \"" <<
+              (const char*)can_run_containers << "\" for resource \"" << resource.Name <<
+              "\", using default value \"" << resource.getCanRunContainersStr() << "\"" << endl;
+    }
+    xmlFree(can_run_containers);
   }
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_working_directory))
@@ -628,10 +643,6 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     xmlChar* working_directory = xmlGetProp(machine_descr, (const xmlChar*)test_working_directory);
     resource.working_directory = (const char*)working_directory;
     xmlFree(working_directory);
-  }
-  else
-  {
-    resource.working_directory = "";
   }
 
   // Process children nodes
@@ -647,16 +658,16 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       {
         xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_component_name);
         std::string aComponentName = (const char*)component_name;
-        _resource.ComponentsList.push_back(aComponentName);
+        resource.ComponentsList.push_back(aComponentName);
         if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
         {
           xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
           std::string aModuleName = (const char*)module_name;
-          _resource.ModulesList.push_back(aModuleName);
+          resource.ModulesList.push_back(aModuleName);
           xmlFree(module_name);
         }
         else
-          _resource.ModulesList.push_back(aComponentName);
+          resource.ModulesList.push_back(aComponentName);
         xmlFree(component_name);
       }
     }
@@ -669,8 +680,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       {
         xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
         std::string aComponentName = (const char*)component_name;
-        _resource.ComponentsList.push_back(aComponentName);
-        _resource.ModulesList.push_back(aComponentName);
+        resource.ComponentsList.push_back(aComponentName);
+        resource.ModulesList.push_back(aComponentName);
         xmlFree(component_name);
       }
     }
@@ -701,90 +712,20 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
     RES_MESSAGE("Add resource name = " << (*iter).second.Name.c_str());
     xmlNewProp(node, BAD_CAST test_name, BAD_CAST (*iter).second.Name.c_str());
     xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
+    xmlNewProp(node, BAD_CAST test_type, BAD_CAST (*iter).second.getResourceTypeStr().c_str());
     xmlNewProp(node, BAD_CAST test_appli_path, BAD_CAST (*iter).second.AppliPath.c_str());
     xmlNewProp(node, BAD_CAST test_batch_queue, BAD_CAST (*iter).second.batchQueue.c_str());
     xmlNewProp(node, BAD_CAST test_user_commands, BAD_CAST (*iter).second.userCommands.c_str());
-    xmlNewProp(node,
-               BAD_CAST test_protocol,
-               BAD_CAST ParserResourcesType::protocolToString((*iter).second.Protocol).c_str());
-    xmlNewProp(node,
-               BAD_CAST test_cluster_internal_protocol,
-               BAD_CAST ParserResourcesType::protocolToString((*iter).second.ClusterInternalProtocol).c_str());
+    xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST (*iter).second.getAccessProtocolTypeStr().c_str());
+    xmlNewProp(node, BAD_CAST test_cluster_internal_protocol,
+               BAD_CAST (*iter).second.getClusterInternalProtocolStr().c_str());
     xmlNewProp(node, BAD_CAST test_working_directory, BAD_CAST (*iter).second.working_directory.c_str());
-    if ((*iter).second.is_cluster_head)
-      xmlNewProp(node, BAD_CAST test_is_cluster_head, BAD_CAST "true");
-    else
-      xmlNewProp(node, BAD_CAST test_is_cluster_head, BAD_CAST "false");
-
-    switch ((*iter).second.Mode)
-    {
-      case interactive:
-        xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
-        break;
-      case batch:
-        xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "batch");
-        break;
-      default:
-        xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
-    }
-
-    switch ((*iter).second.Batch)
-    {
-      case pbs:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "pbs");
-        break;
-      case lsf:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
-        break;
-      case sge:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
-        break;
-      case ccc:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ccc");
-        break;
-      case slurm:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
-        break;
-      case ssh_batch:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
-        break;
-      case ll:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ll");
-        break;
-      case vishnu:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "vishnu");
-        break;
-      default:
-        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
-    }
-
-    switch ((*iter).second.mpi)
-    {
-      case lam:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "lam");
-        break;
-      case mpich1:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich1");
-        break;
-      case mpich2:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich2");
-        break;
-      case openmpi:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
-        break;
-      case ompi:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "ompi");
-        break;
-      case slurmmpi:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurmmpi");
-        break;
-      case prun:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
-        break;
-      default:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
-    }
-
+    xmlNewProp(node, BAD_CAST test_can_launch_batch_jobs,
+               BAD_CAST (*iter).second.getCanLaunchBatchJobsStr().c_str());
+    xmlNewProp(node, BAD_CAST test_can_run_containers,
+               BAD_CAST (*iter).second.getCanRunContainersStr().c_str());
+    xmlNewProp(node, BAD_CAST test_batch, BAD_CAST (*iter).second.getBatchTypeStr().c_str());
+    xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST (*iter).second.getMpiImplTypeStr().c_str());
     xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());
 
     std::vector<std::string>::const_iterator iter2 = (*iter).second.ComponentsList.begin();

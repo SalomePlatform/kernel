@@ -23,7 +23,7 @@
 #include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Constants.hxx>
 #endif
 
 #ifdef WNT

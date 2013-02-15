@@ -40,14 +40,6 @@ class LifeCycleCORBA (SALOME_LifeCycleCORBA):
                                                           containerName,
                                                           componentName)
 
-class MachineParameters (Engines.MachineParameters):
-  def __init__(self, container_name='', hostname='', componentList=[], computerList=[], OS='',
-                     mem_mb=0, cpu_clock=0, nb_proc_per_node=0, nb_node=0, isMPI=False, workingdir='',
-                     mode='start', policy='altcycl', parallelLib='', nb_component_nodes=0):
-    Engines.MachineParameters.__init__(self,container_name, hostname, componentList, computerList, OS,
-                                            mem_mb, cpu_clock, nb_proc_per_node, nb_node, isMPI, workingdir,
-                                            mode, policy, parallelLib, nb_component_nodes)
-
 class ContainerParameters (Engines.ContainerParameters):
   def __init__(self, container_name='', mode='start', workingdir='', nb_proc=0, isMPI=False, parallelLib='',resource_params=None):
     if resource_params is None:resource_params=ResourceParameters()
@@ -56,10 +48,10 @@ class ContainerParameters (Engines.ContainerParameters):
 class ResourceParameters (Engines.ResourceParameters):
   def __init__(self, name="", hostname="", OS="", componentList=[],
                      nb_proc=0, mem_mb=0, cpu_clock=0, nb_node=0, nb_proc_per_node=0,
-                     policy="", resList=[]):
-    Engines.ResourceParameters.__init__(self, name, hostname, OS, componentList,
-                                              nb_proc, mem_mb, cpu_clock, nb_node, nb_proc_per_node,
-                                              policy, resList)
+                     policy="", resList=[], can_launch_batch_jobs = False, can_run_containers = False):
+    Engines.ResourceParameters.__init__(self, name, hostname, can_launch_batch_jobs, can_run_containers,
+                                        OS, componentList, nb_proc, mem_mb, cpu_clock, nb_node,
+                                        nb_proc_per_node, policy, resList)
 
 class JobParameters (Engines.JobParameters):
   def __init__(self, job_name="", job_type="", job_file="", env_file="", in_files=[], out_files=[],
@@ -72,7 +64,9 @@ class JobParameters (Engines.JobParameters):
 class ResourceDefinition(Engines.ResourceDefinition):
   def __init__(self, name="", hostname="", protocol="rsh", username="", applipath="", componentList=[],
                mode="interactive", OS="", mem_mb=1, cpu_clock=1, nb_node=1, nb_proc_per_node=1,
-               batch="", mpiImpl="", iprotocol="rsh"):
-    Engines.ResourceDefinition.__init__(self, name, hostname, protocol, username, applipath, componentList,
-                               mode, OS, mem_mb, cpu_clock, nb_node, nb_proc_per_node, batch,
-                               mpiImpl, iprotocol)
+               batch="", mpiImpl="", iprotocol="rsh", type = "single_machine",
+               can_launch_batch_jobs = False, can_run_containers = False, working_directory = ""):
+    Engines.ResourceDefinition.__init__(self, name, hostname, type, protocol, username, applipath,
+                                        componentList, OS, mem_mb, cpu_clock, nb_node, nb_proc_per_node,
+                                        batch, mpiImpl, iprotocol, can_launch_batch_jobs,
+                                        can_run_containers, working_directory)

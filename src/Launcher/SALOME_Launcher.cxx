@@ -329,8 +329,12 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
   CORBA::Boolean rtn = false;
   try
   {
-    // find a cluster matching the structure params
-    Engines::ResourceList *aMachineList = _ResManager->GetFittingResources(params);
+    // Consider only resources that can run batch jobs
+    Engines::ResourceParameters new_params(params);
+    new_params.can_launch_batch_jobs = true;
+
+    // find a resource matching the required parameters
+    Engines::ResourceList *aMachineList = _ResManager->GetFittingResources(new_params);
     if (aMachineList->length() == 0)
       throw SALOME_Exception("No resources have been found with your parameters");
 

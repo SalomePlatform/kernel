@@ -48,6 +48,7 @@
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
 #include CORBA_CLIENT_HEADER(SALOMEDS)
 #include CORBA_CLIENT_HEADER(Logger)
+#include CORBA_CLIENT_HEADER(SALOME_Launcher)
 
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
@@ -124,24 +125,24 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
 //=============================================================================
 /*! \brief Find an already existing and registered component instance.
  *
- *  \param params         machine parameters like type or name...
+ *  \param params         container parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if not found
  */
 //=============================================================================
 Engines::EngineComponent_ptr
-SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
+SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
                                      const char *componentName,
                                      int studyId)
 {
   if (! isKnownComponentClass(componentName))
     return Engines::EngineComponent::_nil();
 
-  Engines::ContainerParameters new_params;
-  convert(params, new_params);
+  Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
   Engines::ResourceList_var listOfResources;
   try
     {
@@ -161,9 +162,9 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-/*! \brief Load a component instance on a container defined by machine parameters
+/*! \brief Load a component instance on a container defined by its parameters
  *
- *  \param params         machine parameters like type or name...
+ *  \param params         container parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if problem
@@ -171,7 +172,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 //=============================================================================
 
 Engines::EngineComponent_ptr
-SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
+SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
                                      const char *componentName,
                                      int studyId)
 {
@@ -180,10 +181,10 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::EngineComponent::_nil();
 
-  Engines::ContainerParameters new_params;
-  convert(params, new_params);
+  Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var listOfResources;
   try
@@ -205,63 +206,14 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 
 //=============================================================================
 /*! \brief Find an already existing and registered component instance or load a new
- *         component instance on a container defined by machine parameters.
+ *         component instance on a container defined by its parameters.
  *
- *  \param params         machine parameters like type or name...
+ *  \param params         container parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
 //=============================================================================
-
-Engines::EngineComponent_ptr
-SALOME_LifeCycleCORBA::
-FindOrLoad_Component(const Engines::MachineParameters& params,
-                     const char *componentName,
-                     int studyId)
-{
-  // --- Check if Component Name is known in ModuleCatalog
-
-  if (! isKnownComponentClass(componentName))
-    return Engines::EngineComponent::_nil();
-
-  Engines::ContainerParameters new_params;
-  convert(params, new_params);
-  new_params.resource_params.componentList.length(1);
-  new_params.resource_params.componentList[0] = componentName;
-
-  // For Compatibility -> if hostname == localhost put name == hostname
-  if (std::string(new_params.resource_params.hostname.in()) == "localhost")
-  {
-    new_params.resource_params.hostname = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
-    new_params.resource_params.name = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
-  }
-
-  Engines::ResourceList_var listOfResources;
-  try
-    {
-      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
-    }
-  catch( const SALOME::SALOME_Exception& ex )
-    {
-      return Engines::EngineComponent::_nil();
-    }
-
-  Engines::EngineComponent_var compo = _FindComponent(new_params,
-                                                componentName,
-                                                studyId,
-                                                listOfResources);
-
-  if(CORBA::is_nil(compo))
-  {
-    new_params.resource_params.resList = listOfResources;
-    compo = _LoadComponent(new_params,
-                           componentName,
-                           studyId);
-  }
-
-  return compo._retn();
-}
 
 Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
@@ -277,6 +229,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var listOfResources;
   try
@@ -331,22 +284,21 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
   std::string st2Container(stContainer);
   int rg=st2Container.find("/");
 
-  Engines::MachineParameters_var params=new Engines::MachineParameters;
+  Engines::ContainerParameters params;
   preSet(params);
   if (rg<0)
   {
     // containerName doesn't contain "/" => Local container
-    params->container_name=CORBA::string_dup(stContainer);
-    params->hostname="";
+    params.container_name = CORBA::string_dup(stContainer);
   }
   else 
   {
     stContainer[rg]='\0';
-    params->container_name=CORBA::string_dup(stContainer+rg+1);
-    params->hostname=CORBA::string_dup(stContainer);
+    params.container_name = CORBA::string_dup(stContainer+rg+1);
+    params.resource_params.hostname = CORBA::string_dup(stContainer);
   }
-  params->isMPI = false;
-  SCRUTE(params->container_name);
+  params.isMPI = false;
+  SCRUTE(params.container_name);
   free(stContainer);
   return FindOrLoad_Component(params, componentName);
 }
@@ -388,53 +340,9 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 }
 
 //=============================================================================
-/*! 
- *  Not so complex... useful ?
+/*! \brief Initialisation of a given Engines::ResourceParameters with default values.
  */
 //=============================================================================
-
-bool 
-SALOME_LifeCycleCORBA::isMpiContainer(const Engines::ContainerParameters& params)
-  throw(IncompatibleComponent)
-{
-  if( params.isMPI )
-    return true;
-  else
-    return false;
-}
-
-
-//=============================================================================
-/*! \brief Initialisation of a given Engines::MachineParameters with default values.
- *
- *  - container_name = ""  : not relevant
- *  - hostname = ""        : not relevant
- *  - OS = ""              : not relevant
- *  - nb_proc = 0          : not relevant
- *  - mem_mb = 0           : not relevant
- *  - cpu_clock = 0        : not relevant
- *  - nb_proc_per_node = 0 : not relevant
- *  - nb_node = 0          : not relevant
- *  - isMPI = false        : standard components
- */
-//=============================================================================
-
-void SALOME_LifeCycleCORBA::preSet(Engines::MachineParameters& params)
-{
-  params.container_name = "";
-  params.hostname = "";
-  params.OS = "";
-  params.mem_mb = 0;
-  params.cpu_clock = 0;
-  params.nb_proc_per_node = 0;
-  params.nb_node = 0;
-  params.isMPI = false;
-  params.workingdir = "";
-  params.mode = "";
-  params.policy = "";
-  params.parallelLib = "";
-  params.nb_component_nodes = 0;
-}
 
 void 
 SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
@@ -448,7 +356,14 @@ SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
   params.nb_node = 0;
   params.nb_proc_per_node = 0;
   params.policy = "";
+  params.can_launch_batch_jobs = false;
+  params.can_run_containers = false;
 }
+
+//=============================================================================
+/*! \brief Initialisation of a given Engines::ContainerParameters with default values.
+ */
+//=============================================================================
 
 void SALOME_LifeCycleCORBA::preSet( Engines::ContainerParameters& params)
 {
@@ -461,34 +376,6 @@ void SALOME_LifeCycleCORBA::preSet( Engines::ContainerParameters& params)
   SALOME_LifeCycleCORBA::preSet(params.resource_params);
 }
 
-void 
-SALOME_LifeCycleCORBA::convert(const Engines::MachineParameters& params_in, 
-                               Engines::ContainerParameters& params_out)
-{
-  SALOME_LifeCycleCORBA::preSet(params_out);
-
-  // Container part
-  params_out.container_name = params_in.container_name;
-  params_out.mode = params_in.mode;
-  params_out.workingdir = params_in.workingdir;
-  params_out.isMPI = params_in.isMPI;
-  params_out.parallelLib = params_in.parallelLib;
-
-  // Resource part
-  params_out.resource_params.hostname = params_in.hostname;
-  params_out.resource_params.OS = params_in.OS;
-  params_out.resource_params.mem_mb = params_in.mem_mb;
-  params_out.resource_params.cpu_clock = params_in.cpu_clock;
-  params_out.resource_params.nb_node = params_in.nb_node;
-  params_out.resource_params.nb_proc_per_node = params_in.nb_proc_per_node;
-  params_out.resource_params.policy = params_in.policy;
-  params_out.resource_params.componentList = params_in.componentList;
-
-  params_out.resource_params.resList.length(params_in.computerList.length());
-  for (CORBA::ULong i = 0; i < params_in.computerList.length(); i++)
-    params_out.resource_params.resList[i] = params_in.computerList[i];
-}
-
 //=============================================================================
 /*! 
  *  \return a number of processors not 0, only for MPI containers
@@ -497,7 +384,7 @@ SALOME_LifeCycleCORBA::convert(const Engines::MachineParameters& params_in,
 
 int SALOME_LifeCycleCORBA::NbProc(const Engines::ContainerParameters& params)
 {
-  if( !isMpiContainer(params) )
+  if( !params.isMPI )
     return 0;
   else if( params.nb_proc <= 0 )
     return 1;
@@ -768,7 +655,9 @@ _FindComponent(const Engines::ContainerParameters& params,
   for(unsigned int i=0; i < listOfResources.length(); i++)
   {
     const char * currentResource = listOfResources[i];
-    CORBA::Object_var obj = _NS->ResolveComponent(currentResource,
+    Engines::ResourceDefinition_var resource_definition =
+        _ResManager->GetResourceDefinition(currentResource);
+    CORBA::Object_var obj = _NS->ResolveComponent(resource_definition->hostname.in(),
                                                   containerName,
                                                   componentName,
                                                   nbproc);
@@ -781,7 +670,9 @@ _FindComponent(const Engines::ContainerParameters& params,
   {
     resourcesOK->length(lghtOfresourcesOK);
     CORBA::String_var bestResource = _ResManager->FindFirst(resourcesOK);
-    CORBA::Object_var obj = _NS->ResolveComponent(bestResource,
+    Engines::ResourceDefinition_var resource_definition =
+        _ResManager->GetResourceDefinition(bestResource);
+    CORBA::Object_var obj = _NS->ResolveComponent(resource_definition->hostname.in(),
                                                   containerName,
                                                   componentName,
                                                   nbproc);
