@@ -17,30 +17,30 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+ADD_SUBDIRECTORY(deprecated)
+
 # ===============================================================
 # Files to be installed
 # ===============================================================
 
 # These files are data, module or lib files
 SET(DATA
-  am2cmake.py
-  FindBOOST.cmake
   FindCPPUNIT.cmake
-  FindDOXYGEN.cmake
-  FindHDF5.cmake
   FindKERNEL.cmake
-  FindLIBBATCH.cmake
-  FindLIBXML2.cmake
-  FindMPI.cmake
   FindOMNIORB.cmake
   UseOMNIORB.cmake
   FindPLATFORM.cmake
-  FindPTHREADS.cmake
-  FindPYTHON.cmake
-  FindSWIG.cmake
   FindSPHINX.cmake
-  install_python_from_idl.cmake
-  install_and_compile_python_file.cmake
+  FindSalomeBOOST.cmake
+  FindSalomeCPPUNIT.cmake
+  FindSalomeDOXYGEN.cmake
+  FindSalomeHDF5.cmake
+  FindSalomeLIBBATCH.cmake
+  FindSalomeLIBXML2.cmake
+  FindSalomeMPI.cmake
+  FindSalomePYTHON.cmake
+  FindSalomeSPHINX.cmake
+  FindSalomeSWIG.cmake
   InstallAndCompilePythonFile.cmake
   SalomeMacros.cmake
 )

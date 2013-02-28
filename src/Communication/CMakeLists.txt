@@ -45,15 +45,6 @@ SET(SalomeCommunication_SOURCES
   SALOMEMultiComm.cxx
   ReceiverFactory.cxx
   MatrixClient.cxx
-  MultiCommException.hxx
-  SALOME_Comm_i.hxx
-  SALOME_Matrix_i.hxx
-  SenderFactory.hxx
-  ReceiverFactory.hxx
-  MatrixClient.hxx
-  SALOMEMultiComm.hxx
-  Receivers.hxx
-  Receiver.hxx
 )
 
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${MPI_CXX_COMPILE_FLAGS})
@@ -68,7 +59,6 @@ SET(COMMON_HEADERS_HXX
   Receiver.hxx
   ReceiverFactory.hxx
   Receivers.hxx
-  Receivers.cxx
   SALOMEMultiComm.hxx
   SALOME_Comm_i.hxx
   SALOME_Communication.hxx

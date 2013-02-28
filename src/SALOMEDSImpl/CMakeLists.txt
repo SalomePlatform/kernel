@@ -90,57 +90,6 @@ SET(SalomeDSImpl_SOURCES
   SALOMEDSImpl_TMPFile.cxx
   SALOMEDSImpl_GenericVariable.cxx
   SALOMEDSImpl_ScalarVariable.cxx
-  SALOMEDSImpl_AttributeComment.hxx
-  SALOMEDSImpl_AttributeDrawable.hxx
-  SALOMEDSImpl_AttributeExpandable.hxx
-  SALOMEDSImpl_AttributeExternalFileDef.hxx
-  SALOMEDSImpl_AttributeFileType.hxx
-  SALOMEDSImpl_AttributeFlags.hxx
-  SALOMEDSImpl_AttributeGraphic.hxx
-  SALOMEDSImpl_AttributeInteger.hxx
-  SALOMEDSImpl_AttributeIOR.hxx
-  SALOMEDSImpl_AttributeLocalID.hxx
-  SALOMEDSImpl_AttributeName.hxx
-  SALOMEDSImpl_AttributeOpened.hxx
-  SALOMEDSImpl_AttributePersistentRef.hxx
-  SALOMEDSImpl_AttributePixMap.hxx
-  SALOMEDSImpl_AttributePythonObject.hxx
-  SALOMEDSImpl_AttributeReal.hxx
-  SALOMEDSImpl_AttributeReference.hxx
-  SALOMEDSImpl_AttributeSelectable.hxx
-  SALOMEDSImpl_AttributeSequenceOfInteger.hxx
-  SALOMEDSImpl_AttributeSequenceOfReal.hxx
-  SALOMEDSImpl_Attributes.hxx
-  SALOMEDSImpl_AttributeStudyProperties.hxx
-  SALOMEDSImpl_AttributeTable.hxx
-  SALOMEDSImpl_AttributeTableOfInteger.hxx
-  SALOMEDSImpl_AttributeTableOfReal.hxx
-  SALOMEDSImpl_AttributeTableOfString.hxx
-  SALOMEDSImpl_AttributeTarget.hxx
-  SALOMEDSImpl_AttributeTextColor.hxx
-  SALOMEDSImpl_AttributeTextHighlightColor.hxx
-  SALOMEDSImpl_AttributeTreeNode.hxx
-  SALOMEDSImpl_AttributeUserID.hxx
-  SALOMEDSImpl_AttributeParameter.hxx
-  SALOMEDSImpl_AttributeString.hxx
-  SALOMEDSImpl_Callback.hxx
-  SALOMEDSImpl_ChildIterator.hxx
-  SALOMEDSImpl_ChildNodeIterator.hxx
-  SALOMEDSImpl_Defines.hxx
-  SALOMEDSImpl_Driver.hxx
-  SALOMEDSImpl_GenericAttribute.hxx
-  SALOMEDSImpl_SComponent.hxx
-  SALOMEDSImpl_SComponentIterator.hxx
-  SALOMEDSImpl_SObject.hxx
-  SALOMEDSImpl_StudyBuilder.hxx
-  SALOMEDSImpl_StudyHandle.hxx
-  SALOMEDSImpl_Study.hxx
-  SALOMEDSImpl_StudyManager.hxx
-  SALOMEDSImpl_Tool.hxx
-  SALOMEDSImpl_UseCaseBuilder.hxx
-  SALOMEDSImpl_UseCaseIterator.hxx
-  SALOMEDSImpl_GenericVariable.hxx
-  SALOMEDSImpl_ScalarVariable.hxx
 ) 
 
 ADD_LIBRARY(SalomeDSImpl ${SalomeDSImpl_SOURCES})

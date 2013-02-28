@@ -213,6 +213,7 @@ FIND_PATH( OMNIORB_PYTHON_BACKEND
 
 FIND_PATH( OMNIORB_PYTHON_BACKEND
   NAMES python.py
+  PATHS /usr/lib/omniidl/omniidl_be
   DOC "Path to python-backend directory (omniidl_be) including python.py file" )
 ##############################################################################
 # cook our stuff

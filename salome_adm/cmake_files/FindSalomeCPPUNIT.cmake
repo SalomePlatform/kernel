@@ -1,0 +1,10 @@
+
+# CPPUNIT detection for Salome
+
+set(CPPUNIT_ROOT_DIR $ENV{CPPUNIT_ROOT_DIR} CACHE PATH "Path to Cppunit directory")
+if(EXISTS ${CPPUNIT_ROOT_DIR})
+  set(CMAKE_INCLUDE_PATH ${CPPUNIT_ROOT_DIR}/include)
+  set(CMAKE_LIBRARY_PATH ${CPPUNIT_ROOT_DIR}/lib)
+  set(CMAKE_PROGRAM_PATH ${CPPUNIT_ROOT_DIR}/bin)
+endif(EXISTS ${CPPUNIT_ROOT_DIR})
+find_package(CPPUNIT)

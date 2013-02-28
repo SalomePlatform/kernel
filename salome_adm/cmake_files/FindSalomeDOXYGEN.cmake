@@ -1,0 +1,15 @@
+
+# Doxygen and graphviz detection for salome
+
+set(DOXYGEN_ROOT_DIR $ENV{DOXYGEN_ROOT_DIR} CACHE PATH "Path to Doxygen directory")
+set(GRAPHVIZ_ROOT_DIR $ENV{GRAPHVIZ_ROOT_DIR} CACHE PATH "Path to Graphviz directory")
+if(EXISTS ${DOXYGEN_ROOT_DIR})
+  set(CMAKE_PROGRAM_PATH ${DOXYGEN_ROOT_DIR}/bin)
+endif(EXISTS ${DOXYGEN_ROOT_DIR})
+if(EXISTS ${GRAPHVIZ_ROOT_DIR})
+  set(CMAKE_PROGRAM_PATH ${GRAPHVIZ_ROOT_DIR}/bin)
+  if(EXISTS ${DOXYGEN_ROOT_DIR})
+    set(CMAKE_PROGRAM_PATH ${GRAPHVIZ_ROOT_DIR}/bin ${DOXYGEN_ROOT_DIR}/bin)
+  endif(EXISTS ${DOXYGEN_ROOT_DIR})
+endif(EXISTS ${GRAPHVIZ_ROOT_DIR})
+find_package(Doxygen)

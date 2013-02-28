@@ -32,12 +32,14 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_BINARY_DIR}/idl
 )
 
+
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomePalm palm_port_factory.cxx)
 TARGET_LINK_LIBRARIES(SalomePalm SalomeDSCSuperv ${OMNIORB_LIBRARIES})
 
 ADD_EXECUTABLE(test_DataIdContainer_Palm test_DataIdContainer.cxx)
+ADD_DEPENDENCIES(test_DataIdContainer_Palm SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(test_DataIdContainer_Palm ${OMNIORB_LIBRARIES})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

@@ -44,12 +44,13 @@ AC_SUBST(CAS_LDPATH)
 AC_SUBST(CAS_STDPLUGIN)
 AC_SUBST(CAS_LIBDIR)
 AC_SUBST(CAS_DATADIR)
-AC_SUBST(OCC_VERSION_DEVELOPMENT)
+AC_SUBST(CAS_VERSION_DEVELOPMENT)
 AC_SUBST(CASROOT)
 
 CAS_CPPFLAGS=""
 CAS_CXXFLAGS=""
 CAS_LDFLAGS=""
+CAS_VERSION_DEVELOPMENT=0
 occ_ok=no
 config_h=no
 
@@ -113,7 +114,6 @@ else
   OCC_VERSION_MAJOR=0
   OCC_VERSION_MINOR=0
   OCC_VERSION_MAINTENANCE=0
-  OCC_VERSION_DEVELOPMENT=0
   if test -f $CASROOT/inc/Standard_Version.hxx; then
     ff=$CASROOT/inc/Standard_Version.hxx
   else
@@ -134,11 +134,13 @@ else
     fi
     grep "define OCC_VERSION_DEVELOPMENT" $ff > /dev/null
     if test $? = 0 ; then
-      OCC_VERSION_DEVELOPMENT_STR=`grep "define OCC_VERSION_DEVELOPMENT" $ff | awk '{i=1 ; print $i}'`
-      if test "${OCC_VERSION_DEVELOPMENT_STR}" = "#define" ; then
-        OCC_VERSION_DEVELOPMENT=1
+      CAS_VERSION_DEVELOPMENT_STR=`grep "define OCC_VERSION_DEVELOPMENT" $ff | awk '{i=3 ; print $i}'`
+      CAS_VERSION_DEVELOPMENT_FLAG=`grep "define OCC_VERSION_DEVELOPMENT" $ff | awk '{i=1 ; print $i}'`
+      if test "${CAS_VERSION_DEVELOPMENT_FLAG}" = "#define" -a "${CAS_VERSION_DEVELOPMENT_STR}" = "\"dev\"" ; then
+        # version is development if OCC_VERSION_DEVELOPMENT is defined (not commented) in Standard_Version.hxx
+	# and equal to "dev"; such values as "beta1", "rc1", etc are considered as non-development version
+        CAS_VERSION_DEVELOPMENT=1
       fi
-      dnl OCC_VERSION_DEVELOPMENT=1
     fi
     AC_MSG_CHECKING(for OpenCascade data files)
     if test -f ${CASROOT}/src/UnitsAPI/Lexi_Expr.dat; then
@@ -188,6 +190,11 @@ case $host_os in
       CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DOCC_VERSION_MINOR=$OCC_VERSION_MINOR -DOCC_VERSION_MAINTENANCE=$OCC_VERSION_MAINTENANCE -DLIN -DLINTEL -DCSFDB -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -DHAVE_WOK_CONFIG_H -I$CASROOT/inc"
       ;;
 esac
+
+  if test "$CAS_VERSION_DEVELOPMENT" = "1" ; then
+    CAS_CPPFLAGS="$CAS_CPPFLAGS -DCAS_VERSION_DEVELOPMENT"
+  fi
+
   CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
 
   echo

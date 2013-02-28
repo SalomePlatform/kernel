@@ -37,9 +37,9 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_DEFINITIONS(${MPI_CXX_COMPILE_FLAGS} ${LIBXML2_DEFINITIONS} ${OMNIORB_DEFINITIONS})
-IF(SALOME_USE_LIBBATCH)
+IF(SALOME_USE_LIBBATCH AND LIBBATCH_FOUND)
   ADD_DEFINITIONS(-DWITH_LIBBATCH)
-ENDIF(SALOME_USE_LIBBATCH)
+ENDIF(SALOME_USE_LIBBATCH AND LIBBATCH_FOUND)
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 SET(COMMON_LIBS
@@ -52,7 +52,7 @@ SET(COMMON_LIBS
   SALOMELocalTrace
   SALOMEBasics
   SalomeIDLKernel
-  ${LIBBATCH_LIBS}
+  ${LIBBATCH_LIBRARIES}
   ${MPI_CXX_LIBRARIES}
   ${OMNIORB_LIBRARIES}
   ${LIBXML2_LIBRARIES}
@@ -62,7 +62,6 @@ SET(COMMON_LIBS
 SET(Launcher_SOURCES
   SALOME_Launcher_Parser.cxx
   SALOME_Launcher_Handler.cxx
-  Launcher_Utils.hxx
   Launcher_Job.cxx
   Launcher_Job_Command.cxx
   Launcher_Job_SALOME.cxx
@@ -72,7 +71,7 @@ SET(Launcher_SOURCES
 )
 
 ADD_LIBRARY(Launcher ${Launcher_SOURCES})
-TARGET_LINK_LIBRARIES(Launcher ResourcesManager ${LIBBATCH_LIBS} ${MPI_CXX_LIBRARIES} ${LIBXML2_LIBS})
+TARGET_LINK_LIBRARIES(Launcher ResourcesManager ${LIBBATCH_LIBRARIES} ${MPI_CXX_LIBRARIES} ${LIBXML2_LIBS})
 INSTALL(TARGETS Launcher DESTINATION ${KERNEL_salomelib_LIBS})
 
 SET(TestLauncher_LIBS
@@ -80,7 +79,7 @@ SET(TestLauncher_LIBS
   ResourcesManager
   Launcher
   OpUtil
-  ${LIBBATCH_LIBS}
+  ${LIBBATCH_LIBRARIES}
 )
 
 ADD_EXECUTABLE(TestLauncher TestLauncher.cxx)
@@ -97,7 +96,7 @@ IF(NOT WITHONLYLAUNCHER)
     SalomeLauncher
     SALOMEBasics
     SALOMELocalTrace
-    ${LIBBATCH_LIBS}
+    ${LIBBATCH_LIBRARIES}
     ${MPI_CXX_LIBRARIES}
     ${OMNIORB_LIBRARIES}
     ${LIBXML2_LIBRARIES}

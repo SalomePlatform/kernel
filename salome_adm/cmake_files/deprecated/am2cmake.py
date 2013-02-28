@@ -503,7 +503,7 @@ class CMakeFile(object):
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSalomeLIBBATCH.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                     """)
                     pass
@@ -523,7 +523,7 @@ class CMakeFile(object):
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSalomeLIBBATCH.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                         ELSE(KERNEL_ROOT_DIR)
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
@@ -533,19 +533,19 @@ class CMakeFile(object):
                     else:
                         newlines.append("""
                         SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPLATFORM.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPYTHON.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindOMNIORB.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPTHREADS.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindMPI.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindHDF5.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindBOOST.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindLIBXML2.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindSWIG.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
-                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindDOXYGEN.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSalomeLIBBATCH.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindKERNEL.cmake)
                         """)
                         pass
                     if self.module == "gui":
@@ -561,13 +561,13 @@ class CMakeFile(object):
                         newlines.append("""
                         SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
                         IF(GUI_ROOT_DIR)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQT4.cmake)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindVTK.cmake)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQWT.cmake)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
-                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindGUI.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindCAS.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindQT4.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindOPENGL.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindVTK.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindQWT.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindSIPPYQT.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindGUI.cmake)
                         ENDIF(GUI_ROOT_DIR)
                         """)
                         if self.module == "med":
@@ -1449,7 +1449,7 @@ class CMakeFile(object):
             else:
                 newlines.append('''
                 STRING(REPLACE "\\\\" "/" KERNEL_ROOT_DIR ${KERNEL_ROOT_DIR})
-                INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/install_python_from_idl.cmake)
+                INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/install_python_from_idl.cmake)
                 ''')
                 pass
             newlines.append('''
@@ -2435,7 +2435,7 @@ class CMakeFile(object):
         else:
             newlines.append('''
             STRING(REPLACE "\\\\" "/" KERNEL_ROOT_DIR ${KERNEL_ROOT_DIR})
-            INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/install_and_compile_python_file.cmake)
+            INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/install_and_compile_python_file.cmake)
             ''')
             pass
         newlines.append(r'''

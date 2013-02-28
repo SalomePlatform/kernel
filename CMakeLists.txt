@@ -24,7 +24,10 @@ IF(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+# directories for packages detection
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/salome_adm/cmake_files)
+
+find_package(PLATFORM)
 
 IF(APPLE)
   SET(CMAKE_C_COMPILER gcc)
@@ -57,138 +60,42 @@ option(SALOME_USE_MPI "Use MPI containers" OFF)
 option(SALOME_USE_CORBA "Use distribute application with components" ON)
 option(SALOME_USE_DOC "Generate documentation" ON)
 option(SALOME_USE_TEST "Generate test" OFF)
-option(SALOME_USE_LIBBATCH "Generate Launcher" OFF)
-
+option(SALOME_USE_LIBBATCH "Generate Launcher" ON)
 
 # Threads
 SET(CMAKE_THREAD_PREFER_PTHREAD)
 find_package(Threads REQUIRED)
 
+# required prerequisites
 
-# Python
-set(PYTHON_ROOT_DIR $ENV{PYTHON_ROOT_DIR} CACHE PATH "Path to Python directory")
-if(EXISTS ${PYTHON_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${PYTHON_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${PYTHON_ROOT_DIR}/lib)
-  set(CMAKE_PROGRAM_PATH ${PYTHON_ROOT_DIR}/bin)
-endif(EXISTS ${PYTHON_ROOT_DIR})
-find_package(PythonInterp REQUIRED)
-# Set PythonLibs_FIND_VERSION To avoid problems when several versions are in the system
-SET(PythonLibs_FIND_VERSION ${PYTHON_VERSION_STRING})
-find_package(PythonLibs REQUIRED)
-set(PYLOGLEVEL WARNING)
+find_package(SalomePYTHON)
+find_package(SalomeSWIG)
+find_package(SalomeLIBXML2)
+find_package(SalomeHDF5)
+find_package(SalomeBOOST)
 
-# Swig
-set(SWIG_ROOT_DIR $ENV{SWIG_ROOT_DIR} CACHE PATH "Path to Swig directory")
-if(EXISTS ${SWIG_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${SWIG_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${SWIG_ROOT_DIR}/lib)
-  set(CMAKE_PROGRAM_PATH ${SWIG_ROOT_DIR}/bin)
-endif(EXISTS ${SWIG_ROOT_DIR})
-find_package(SWIG REQUIRED)
+# optional prerequisites
 
-# LIBXML2
-set(LIBXML2_ROOT_DIR $ENV{LIBXML2_ROOT_DIR} CACHE PATH "Path to LibXml2 directory")
-if(EXISTS ${LIBXML2_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${LIBXML2_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${LIBXML2_ROOT_DIR}/lib)
-  set(CMAKE_PROGRAM_PATH ${LIBXML2_ROOT_DIR}/bin)
-endif(EXISTS ${LIBXML2_ROOT_DIR})
-find_package(LibXml2 REQUIRED)
-if(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.8")
-  message(FATAL_ERROR "LIbXml2 required version is 2.7.8, version is ${LIBXML2_VERSION_STRING} , please defined LIBXML2_ROOT_DIR as environment or cmake variable")
-endif(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.8")
-
-# HDF5
-set(HDF5_ROOT_DIR $ENV{HDF5_ROOT_DIR} CACHE PATH "Path to Hdf5 directory")
-if(EXISTS ${HDF5_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${HDF5_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${HDF5_ROOT_DIR}/lib)
-  set(CMAKE_PROGRAM_PATH ${HDF5_ROOT_DIR}/bin)
-endif(EXISTS ${HDF5_ROOT_DIR})
-find_package(HDF5 COMPONENTS C REQUIRED)
-if (HDF5_FOUND)
-  set(HDF5_DEFINITIONS "-DH5_USE_16_API ${HDF5_DEFINITIONS}" )
-  if(WINDOWS)
-    set(HDF5_DEFINITIONS "-D_HDF5USEDLL_ ${HDF5_DEFINITIONS}" )
-  endif(WINDOWS)
-endif(HDF5_FOUND)
-
-# MPI
 if(SALOME_USE_MPI OR HDF5_IS_PARALLEL)
-  set(MPI_ROOT_DIR $ENV{MPI_ROOT_DIR} CACHE PATH "Path to Mpi directory")
-  if(EXISTS ${MPI_ROOT_DIR})
-    set(CMAKE_INCLUDE_PATH ${MPI_ROOT_DIR}/include)
-    set(CMAKE_LIBRARY_PATH ${MPI_ROOT_DIR}/lib)
-    set(CMAKE_PROGRAM_PATH ${MPI_ROOT_DIR}/bin)
-  endif(EXISTS ${MPI_ROOT_DIR})
-  find_package(MPI REQUIRED)
-  if(HDF5_IS_PARALLEL)
-    set(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH} )
-    set(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES})
-  endif(HDF5_IS_PARALLEL)
+  find_package(SalomeMPI)
 endif(SALOME_USE_MPI OR HDF5_IS_PARALLEL)
 
-# Omniorb
 if(SALOME_USE_CORBA)
-  INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+  find_package(OMNIORB)
 endif(SALOME_USE_CORBA)
 
-# Boost
-set(Boost_ROOT_DIR $ENV{Boost_ROOT_DIR} CACHE PATH "Path to Boost directory")
-if(EXISTS ${Boost_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${Boost_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${Boost_ROOT_DIR}/lib)
-endif(EXISTS ${Boost_ROOT_DIR})
-set(Boost_USE_STATIC_LIBS       OFF)
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-#find_package( Boost 1.49 REQUIRED  )#COMPONENTS thread date_time signals filesystem system)
-find_package( Boost REQUIRED  )#COMPONENTS thread date_time signals filesystem system)
-if(WINDOWS)
-  set(BOOST_DEFINITIONS -DBOOST_DISABLE_ASSERTS)
-endif(WINDOWS)
-
-# CPPUNIT
 if(SALOME_USE_TEST)
-  set(CPPUNIT_ROOT_DIR $ENV{CPPUNIT_ROOT_DIR} CACHE PATH "Path to Cppunit directory")
-  if(EXISTS ${CPPUNIT_ROOT_DIR})
-    set(CMAKE_INCLUDE_PATH ${CPPUNIT_ROOT_DIR}/include)
-    set(CMAKE_LIBRARY_PATH ${CPPUNIT_ROOT_DIR}/lib)
-    set(CMAKE_PROGRAM_PATH ${CPPUNIT_ROOT_DIR}/bin)
-  endif(EXISTS ${CPPUNIT_ROOT_DIR})
-  INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+  find_package(SalomeCPPUNIT)
 endif(SALOME_USE_TEST)
 
-# Doxygen and graphviz
 if(SALOME_USE_DOC)
-  set(DOXYGEN_ROOT_DIR $ENV{DOXYGEN_ROOT_DIR} CACHE PATH "Path to Doxygen directory")
-  set(GRAPHVIZ_ROOT_DIR $ENV{GRAPHVIZ_ROOT_DIR} CACHE PATH "Path to Graphviz directory")
-  if(EXISTS ${DOXYGEN_ROOT_DIR})
-    set(CMAKE_PROGRAM_PATH ${DOXYGEN_ROOT_DIR}/bin)
-  endif(EXISTS ${DOXYGEN_ROOT_DIR})
-  if(EXISTS ${GRAPHVIZ_ROOT_DIR})
-    set(CMAKE_PROGRAM_PATH ${GRAPHVIZ_ROOT_DIR}/bin)
-    if(EXISTS ${DOXYGEN_ROOT_DIR})
-      set(CMAKE_PROGRAM_PATH ${GRAPHVIZ_ROOT_DIR}/bin ${DOXYGEN_ROOT_DIR}/bin)
-    endif(EXISTS ${DOXYGEN_ROOT_DIR})
-  endif(EXISTS ${GRAPHVIZ_ROOT_DIR})
-  find_package(Doxygen)
+  find_package(SalomeDOXYGEN)
+  find_package(SalomeSPHINX)
 endif(SALOME_USE_DOC)
 
-# Libbatch
 if(SALOME_USE_LIBBATCH)
-  INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+  find_package(SalomeLIBBATCH)
 endif(SALOME_USE_LIBBATCH)
-
-# Sphinx
-if(SALOME_USE_DOC)
-  set(SPHINX_ROOT_DIR $ENV{SPHINX_ROOT_DIR} CACHE PATH "Path to Sphinx directory")
-  if(EXISTS ${SPHINX_ROOT_DIR})
-    set(CMAKE_PROGRAM_PATH ${SPHINX_ROOT_DIR}/bin)
-  endif(EXISTS ${SPHINX_ROOT_DIR})
-  INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
-endif(SALOME_USE_DOC)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
 

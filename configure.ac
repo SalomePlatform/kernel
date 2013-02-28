@@ -535,6 +535,7 @@ AC_OUTPUT([ \
   salome_adm/SALOMEconfig.ref \
   salome_adm/Makefile \
   salome_adm/cmake_files/Makefile \
+  salome_adm/cmake_files/deprecated/Makefile \
   salome_adm/unix/Makefile \
   salome_adm/unix/config_files/Makefile \
   Makefile \

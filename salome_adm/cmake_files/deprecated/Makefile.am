@@ -1,4 +1,7 @@
-# Copyright (C) 2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,26 +20,23 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE_DIRECTORIES(
-  ${Boost_INCLUDE_DIRS}
-)
-ADD_DEFINITIONS(${BOOST_DEFINITIONS})
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SET(DF_SOURCES
-  DF_Attribute.cxx
-  DF_Label.cxx
-  DF_Document.cxx
-  DF_Application.cxx
-  DF_ChildIterator.cxx
-  DF_Container.cxx
-)
+salome_cmake_deprecateddir = $(prefix)/salome_adm/cmake_files/deprecated
 
-ADD_LIBRARY(DF ${DF_SOURCES})
-INSTALL(TARGETS DF DESTINATION ${KERNEL_salomelib_LIBS})
-
-ADD_EXECUTABLE(testDF testDF.cxx)
-TARGET_LINK_LIBRARIES(testDF DF)
-INSTALL(TARGETS testDF DESTINATION ${KERNEL_salomebin_BINS})
-
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})
+dist_salome_cmake_deprecated_DATA = \
+am2cmake.py \
+FindBOOST.cmake \
+FindDOXYGEN.cmake \
+FindHDF5.cmake \
+FindKERNEL.cmake \
+FindLIBXML2.cmake \
+FindMPI.cmake \
+FindOMNIORB.cmake \
+UseOMNIORB.cmake \
+FindPLATFORM.cmake \
+FindPTHREADS.cmake \
+FindPYTHON.cmake \
+FindSWIG.cmake \
+install_python_from_idl.cmake \
+install_and_compile_python_file.cmake

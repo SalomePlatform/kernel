@@ -22,26 +22,26 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
+SUBDIRS = deprecated
+
 dist_salome_cmake_DATA = \
-am2cmake.py \
-FindBOOST.cmake \
 FindCPPUNIT.cmake \
-FindDOXYGEN.cmake \
-FindHDF5.cmake \
 FindKERNEL.cmake \
-FindLIBBATCH.cmake \
-FindLIBXML2.cmake \
-FindMPI.cmake \
 FindOMNIORB.cmake \
 UseOMNIORB.cmake \
 FindPLATFORM.cmake \
-FindPTHREADS.cmake \
-FindPYTHON.cmake \
-FindSWIG.cmake \
 FindSPHINX.cmake \
 SalomeMacros.cmake \
-install_python_from_idl.cmake \
-install_and_compile_python_file.cmake \
+FindSalomeBOOST.cmake \
+FindSalomeCPPUNIT.cmake \
+FindSalomeDOXYGEN.cmake \
+FindSalomeHDF5.cmake \
+FindSalomeLIBBATCH.cmake \
+FindSalomeLIBXML2.cmake \
+FindSalomeMPI.cmake \
+FindSalomePYTHON.cmake \
+FindSalomeSPHINX.cmake \
+FindSalomeSWIG.cmake \
 InstallAndCompilePythonFile.cmake
 
 dist_salomescript_SCRIPTS = prepare_generating_doc.py

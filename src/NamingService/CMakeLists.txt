@@ -33,9 +33,12 @@ SET(SalomeNS_SOURCES
   NamingService_WaitForServerReadiness.cxx
 )
 
+
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 ADD_LIBRARY(SalomeNS ${SalomeNS_SOURCES})
+ADD_DEPENDENCIES(SalomeNS SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(SalomeNS OpUtil)
+
 INSTALL(TARGETS SalomeNS DESTINATION ${KERNEL_salomelib_LIBS})
 
 # Executable scripts to be installed

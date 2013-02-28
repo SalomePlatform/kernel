@@ -28,10 +28,15 @@
 
 #include <Standard_Version.hxx>
 
+//
+// NOTE: CAS_VERSION_DEVELOPMENT macro is defined via command line in contrast to OCC_VERSION_DEVELOPMENT
+//       which is specified in the Standard_Version.hxx
+//
+
 #ifdef OCC_VERSION_SERVICEPACK
 #  define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8 | OCC_VERSION_SERVICEPACK)
 #else
-#  ifdef OCC_VERSION_DEVELOPMENT
+#  ifdef CAS_VERSION_DEVELOPMENT
 #    define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8 | 1)
 #  else
 #    define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8)
