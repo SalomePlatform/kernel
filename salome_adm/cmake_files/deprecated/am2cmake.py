@@ -679,6 +679,7 @@ class CMakeFile(object):
                 newlines.append("""
                 IF(WINDOWS)
                 SET(CPPUNIT_IS_OK 0)
+                MESSAGE(STATUS "cppunit is disabled.")
                 ENDIF(WINDOWS)
                 """)
                 pass
@@ -1968,6 +1969,11 @@ class CMakeFile(object):
         SET(vars ${vars} -ftemplate-depth-32)
         SET(vars ${vars} -fPIC)
         SET(vars ${vars} -g)
+        IF("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")          # if platform is Windows 64 bit 
+        IF(name STREQUAL _pilot)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")    # to avoid error C1128
+        ENDIF(name STREQUAL _pilot)
+        ENDIF("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
         ENDIF(WINDOWS)
         SET(flags)
         FOREACH(f ${var})
