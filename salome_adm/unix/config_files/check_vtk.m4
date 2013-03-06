@@ -208,7 +208,7 @@ if test "x$PVHOME" != "x" ; then
 
      dnl - try libs without suffix
 
-     PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkmetaio -lvtkverdict -lvtkNetCDF -lvtkDICOMParser -lvtkftgl -lvtkexoIIc -lvtkCommonCore -lvtkFiltersFlowPaths -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkInteractionWidgets -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
+     PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkmetaio -lvtkverdict -lvtkNetCDF -lvtkDICOMParser -lvtkftgl -lvtkexoIIc -lvtkCommonCore -lvtkCommonDataModel -lvtkCommonExecutionModel -lvtkFiltersFlowPaths -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkInteractionWidgets -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
      PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkCommonCore $LXLIB -lX11 -lXt"
 
      LIBS="${LIBS_old} $PV_TRY_LINK_LIBS"
@@ -224,7 +224,7 @@ if test "x$PVHOME" != "x" ; then
      if test "x$salome_cv_lib_pvvtk" != "yes" -a "x$PVVERSION" != "x" ; then
          dnl - try libs with suffix
 	 VTK_SUFFIX="-pv${PVVERSION:1:10}"
-     	 PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${VTK_SUFFIX} -lvtkmetaio${VTK_SUFFIX} -lvtkverdict${VTK_SUFFIX} -lvtkNetCDF${VTK_SUFFIX} -lvtkDICOMParser${VTK_SUFFIX} -lvtkftgl${VTK_SUFFIX} -lvtkexoIIc${VTK_SUFFIX} -lvtkCommonCore${VTK_SUFFIX} -lvtkFiltersFlowPaths${VTK_SUFFIX} -lvtkFiltersParallel${VTK_SUFFIX} -lvtkFiltersVerdict${VTK_SUFFIX} -lvtkInteractionStyle${VTK_SUFFIX} -lvtkInteractionWidgets${VTK_SUFFIX} -lvtkIOExport${VTK_SUFFIX} -lvtkIOXML${VTK_SUFFIX} -lvtkRenderingAnnotation${VTK_SUFFIX} -lvtkRenderingCore${VTK_SUFFIX} -lvtkRenderingFreeType${VTK_SUFFIX} -lvtkRenderingFreeTypeOpenGL${VTK_SUFFIX} -lvtkRenderingLabel${VTK_SUFFIX} -lvtkRenderingLOD${VTK_SUFFIX} -lvtkRenderingOpenGL${VTK_SUFFIX} $LXLIB -lX11 -lXt"
+     	 PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${VTK_SUFFIX} -lvtkmetaio${VTK_SUFFIX} -lvtkverdict${VTK_SUFFIX} -lvtkNetCDF${VTK_SUFFIX} -lvtkDICOMParser${VTK_SUFFIX} -lvtkftgl${VTK_SUFFIX} -lvtkexoIIc${VTK_SUFFIX} -lvtkCommonCore${VTK_SUFFIX} -lvtkCommonDataModel${VTK_SUFFIX} -lvtkCommonExecutionModel${VTK_SUFFIX} -lvtkFiltersFlowPaths${VTK_SUFFIX} -lvtkFiltersParallel${VTK_SUFFIX} -lvtkFiltersVerdict${VTK_SUFFIX} -lvtkInteractionStyle${VTK_SUFFIX} -lvtkInteractionWidgets${VTK_SUFFIX} -lvtkIOExport${VTK_SUFFIX} -lvtkIOXML${VTK_SUFFIX} -lvtkRenderingAnnotation${VTK_SUFFIX} -lvtkRenderingCore${VTK_SUFFIX} -lvtkRenderingFreeType${VTK_SUFFIX} -lvtkRenderingFreeTypeOpenGL${VTK_SUFFIX} -lvtkRenderingLabel${VTK_SUFFIX} -lvtkRenderingLOD${VTK_SUFFIX} -lvtkRenderingOpenGL${VTK_SUFFIX} $LXLIB -lX11 -lXt"
      	 PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${VTK_SUFFIX} -lvtkCommonCore${VTK_SUFFIX} $LXLIB -lX11 -lXt"
 
          LIBS="${LIBS_old} $PV_TRY_LINK_LIBS"
@@ -323,7 +323,7 @@ if test "$try_regular_vtk" = "yes"; then
   # VSR: is it necessary to check with suffix as for ParaView?
   
   VTK_LOCAL_INCLUDES="-I$VTKHOME/include/vtk${VTKSUFFIX} $OGL_INCLUDES"
-  VTK_LOCAL_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} -lvtkCommonCore -lvtkFiltersFlowPaths -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkInteractionWidgets -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
+  VTK_LOCAL_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} -lvtkCommonCore -lvtkCommonDataModel -lvtkCommonExecutionModel -lvtkFiltersFlowPaths -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkInteractionWidgets -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
   VTK_TRY_LINK_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX} -L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} -lvtkCommonCore $LXLIB -lX11 -lXt"
   
   dnl vtk headers
