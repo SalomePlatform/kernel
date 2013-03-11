@@ -129,6 +129,11 @@ class CMakeFile(object):
         content = content.replace("../NETGEN/libNETGEN.la", "${NETGEN_LIBS}")
         
         # --
+        # Compatibility VTK 6.0
+        # --
+        content = content.replace("VTK_LIBS", "VTK_LIBRARIES")
+        
+        # --
         cas_list = [
             "BinLPlugin",
             "BinPlugin",
@@ -204,6 +209,7 @@ class CMakeFile(object):
             "vtkGraphicsPythonD",
             "vtkImagingPythonD",
             "vtkPythonCore",
+            "vtkIOImage",
             ]
         kernel_list  = [
             "CalciumC",
