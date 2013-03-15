@@ -27,9 +27,9 @@ introductory documentation, listed below.
 
 \section S3_main Application Integrator
 
-    Applications integrators are in charge of configuration and installation of
-    specific %SALOME applications over a local network. Application Integrators 
-    built %SALOME modules binaries from sources tarballs.
+Applications integrators are in charge of configuration and installation of
+specific %SALOME applications over a local network. Application Integrators 
+built %SALOME modules binaries from sources tarballs.
 
 -# <b>How to install %SALOME</b>\n
     See \subpage INSTALL for general information on required configuration and 
@@ -40,10 +40,10 @@ introductory documentation, listed below.
 
 \section S4_main Module maintainer
 
-    Module maintainers are in charge of the development and debug of the %SALOME
-    modules. Each %SALOME module is stored in a CVS base. CVS bases are organised
-    in separate branches for developments and debug. All official or development
-    releases are identified by a CVS tag.
+Module maintainers are in charge of the development and debug of the %SALOME
+modules. Each %SALOME module is stored in a CVS base. CVS bases are organised
+in separate branches for developments and debug. All official or development
+releases are identified by a CVS tag.
 
 -# <b>Source code structuration and Unit Tests</b>\n
     See \subpage UnitTests for general information on code directories structure,
@@ -55,15 +55,15 @@ introductory documentation, listed below.
 
 \section S5_main SALOME programming model
 
-    You will find in the next pages informations about
-    specific points of %SALOME Kernel :
+You will find in the next pages informations about
+specific points of %SALOME Kernel :
 
-    - \subpage kernel_salome 
-    - \subpage dsc_page : DSC documentation page.
-    - \subpage salome_file_page : Salome_file documentation page.
-    - <a class="el" href="../../tui/KERNEL/docutils/index.html" target="_new">
-      Documentation of the KERNEL python package</a> : The package salome.kernel provides
-      logging tools, high-level functions to handle items in Salome study, and other utilities.
+- \subpage kernel_salome 
+- \subpage dsc_page : DSC documentation page.
+- \subpage salome_file_page : Salome_file documentation page.
+- <a class="el" href="../../tui/KERNEL/docutils/index.html" target="_new">
+  Documentation of the KERNEL python package</a> : The package salome.kernel provides
+  logging tools, high-level functions to handle items in Salome study, and other utilities.
 
 */
 

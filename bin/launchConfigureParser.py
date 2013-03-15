@@ -74,6 +74,7 @@ plugins_nam    = "plugins"
 # values passed as arguments, NOT read from XML config file, but set from within this script
 appname_nam    = "appname"
 port_nam       = "port"
+useport_nam    = "useport"
 salomecfgname  = "salome"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
@@ -773,6 +774,17 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             dest="server_launch_mode",
                             help=help_str)
 
+    # use port
+    help_str  = "Preferable port SALOME to be started on. "
+    help_str += "If specified port is not busy, SALOME session will start on it; "
+    help_str += "otherwise, any available port will be searched and used."
+    o_port = optparse.Option("--port",
+                             metavar="<port>",
+                             type="int",
+                             action="store",
+                             dest="use_port",
+                             help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -802,6 +814,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_foreground,
                 o_wake_up,
                 o_slm,   # Server launch mode
+                o_port,  # Use port
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -1152,7 +1165,16 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
 
     # Server launch command
     if cmd_opts.server_launch_mode is not None:
-      args["server_launch_mode"] = cmd_opts.server_launch_mode
+        args["server_launch_mode"] = cmd_opts.server_launch_mode
+
+    # Server launch command
+    if cmd_opts.use_port is not None:
+        min_port = 2810
+        max_port = min_port + 100
+        if cmd_opts.use_port not in xrange(min_port, max_port+1):
+            print "Error: port number should be in range [%d, %d])" % (min_port, max_port)
+            sys.exit(1)
+        args[useport_nam] = cmd_opts.use_port
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)

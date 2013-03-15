@@ -843,7 +843,7 @@ def main():
         pass
     if test:
         from searchFreePort import searchFreePort
-        searchFreePort(args, save_config)
+        searchFreePort(args, save_config, args.get('useport'))
         pass
     # --
     #setenv.main()

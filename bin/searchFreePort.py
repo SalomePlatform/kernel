@@ -22,13 +22,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-def searchFreePort(args={}, save_config=1):
+def searchFreePort(args={}, save_config=1, use_port=None):
   """
   Search free port for SALOME session.
   Returns first found free port number.
   """
   import sys, os, re, shutil
-  print "Searching for a free port for naming service:",
 
   # :NOTE: Under windows:
   #        netstat options -l and -t are unavailable
@@ -53,13 +52,8 @@ def searchFreePort(args={}, save_config=1):
       pass
     return False
   #
-  NSPORT=2810
-  limit=NSPORT+100
-  #
 
-  while 1:
-    if not portIsUsed(NSPORT, ports):
-      print "%s - OK"%(NSPORT)
+  def setup_config(nsport):
       #
       from salome_utils import generateFileName, getHostName
       hostname = getHostName()
@@ -68,12 +62,11 @@ def searchFreePort(args={}, save_config=1):
       appli = os.getenv("APPLI")
       kwargs={}
       if appli is not None:
-        home = os.path.join(os.path.realpath(home), appli,"USERS")
+        home = os.path.join(os.path.realpath(home), appli, "USERS")
         kwargs["with_username"]=True
       #
       from ORBConfigFile import writeORBConfigFile
-      omniorb_config, giopsize = writeORBConfigFile(home, hostname, NSPORT, kwargs)
-
+      omniorb_config, giopsize = writeORBConfigFile(home, hostname, nsport, kwargs)
       args['port'] = os.environ['NSPORT']
       #
       if save_config:
@@ -99,6 +92,29 @@ def searchFreePort(args={}, save_config=1):
         except:
           pass
       #
+
+  if use_port:
+    print "Check if port can be used: %d" % use_port,
+    if not portIsUsed(use_port, ports):
+      print "- OK"
+      setup_config(use_port)
+      return
+    else:
+      print "- KO: port is busy"
+    pass
+  #
+  
+  print "Searching for a free port for naming service:",
+  #
+
+  NSPORT=2810
+  limit=NSPORT+100
+  #
+
+  while 1:
+    if not portIsUsed(NSPORT, ports):
+      print "%s - OK"%(NSPORT)
+      setup_config(NSPORT)
       break
     print "%s"%(NSPORT),
     if NSPORT == limit:
@@ -108,4 +124,6 @@ def searchFreePort(args={}, save_config=1):
       raise RuntimeError, msg
     NSPORT=NSPORT+1
     pass
+  #
+  
   return
