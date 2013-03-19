@@ -76,10 +76,11 @@ if test "x$TBBHOME" != "xno"; then
             else
                 INTEL_LOCAL_LIB="$TBBHOME/lib/ia32/$TBBKERNEL"
             fi
-	    if test -z ${INTEL_LOCAL_LIB}; then
+	    if test ! -d ${INTEL_LOCAL_LIB} ; then
+	        INTEL_LOCAL_LIB="${TBBHOME}/lib"
+	    fi
+	    if test -d ${INTEL_LOCAL_LIB} ; then
                 LOCAL_LIBS="-L${INTEL_LOCAL_LIB} $LOCAL_LIBS"
-	    else
-                LOCAL_LIBS="-L${TBBHOME}/lib $LOCAL_LIBS"
 	    fi
         fi
     fi
