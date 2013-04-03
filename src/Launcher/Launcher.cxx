@@ -186,6 +186,30 @@ Launcher_cpp::getJobState(int job_id)
 
 //=============================================================================
 /*!
+ * Get job assigned hostnames
+ */
+//=============================================================================
+const char *
+Launcher_cpp::getAssignedHostnames(int job_id)
+{
+  LAUNCHER_MESSAGE("Get job assigned hostnames");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+  std::string assigned_hostnames = job->getAssignedHostnames();
+
+  return assigned_hostnames.c_str();
+}
+
+//=============================================================================
+/*!
  * Get Job result - the result directory could be changed
  */ 
 //=============================================================================
@@ -438,6 +462,12 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
       break;
     case vishnu:
       bmType = "VISHNU";
+      break;
+    case oar:
+      bmType = "OAR";
+      break;
+    case coorm:
+      bmType = "COORM";
       break;
     default:
       LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.Batch);

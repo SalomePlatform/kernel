@@ -45,7 +45,7 @@ enum AccessProtocolType {sh, rsh, ssh, srun, pbsdsh, blaunch};
 
 enum ResourceType {cluster, single_machine};
 
-enum BatchType {none, pbs, lsf, sge, ssh_batch, ccc, ll, slurm, vishnu};
+enum BatchType {none, pbs, lsf, sge, ssh_batch, ccc, ll, slurm, vishnu, oar, coorm};
 
 enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, ompi, slurmmpi, prun};
 

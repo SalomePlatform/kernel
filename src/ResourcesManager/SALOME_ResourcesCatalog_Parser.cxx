@@ -274,6 +274,10 @@ ParserResourcesType::getBatchTypeStr() const
     return "ll";
   case vishnu:
     return "vishnu";
+  case oar:
+    return "oar";
+  case coorm:
+    return "coorm";
   case ssh_batch:
     return "ssh_batch";
   default:
@@ -350,6 +354,10 @@ void ParserResourcesType::setBatchTypeStr(const string & batchTypeStr)
     Batch = ll;
   else if (batchTypeStr == "vishnu")
     Batch = vishnu;
+  else if (batchTypeStr == "oar")
+    Batch = oar;
+  else if (batchTypeStr == "coorm")
+    Batch = coorm;
   else if (batchTypeStr == "")
     Batch = none;
   else

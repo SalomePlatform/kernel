@@ -116,6 +116,12 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   new_job->setLocalDirectory(local_directory);
   new_job->setResultDirectory(result_directory);
 
+  // Parameters for COORM
+  std::string launcher_file = job_parameters.launcher_file.in();
+  std::string launcher_args = job_parameters.launcher_args.in();
+  new_job->setLauncherFile(launcher_file);
+  new_job->setLauncherArgs(launcher_args);
+
   // Job File
   std::string job_file = job_parameters.job_file.in();
   try
@@ -220,6 +226,23 @@ SALOME_Launcher::getJobState(CORBA::Long job_id)
   try
   {
     result = _l.getJobState(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+  return CORBA::string_dup(result.c_str());
+}
+
+// Get names or ids of hosts assigned to the job
+char *
+SALOME_Launcher::getAssignedHostnames(CORBA::Long job_id)
+{
+  std::string result;
+  try
+  {
+    result = _l.getAssignedHostnames(job_id);
   }
   catch(const LauncherException &ex)
   {
@@ -446,6 +469,10 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   job_parameters->local_directory  = CORBA::string_dup(job->getLocalDirectory().c_str());
   job_parameters->result_directory = CORBA::string_dup(job->getResultDirectory().c_str());
 
+  // Parameters for COORM
+  job_parameters->launcher_file = CORBA::string_dup(job->getLauncherFile().c_str());
+  job_parameters->launcher_args = CORBA::string_dup(job->getLauncherArgs().c_str());
+
   int i = 0;
   int j = 0;
   std::list<std::string> in_files  = job->get_in_files();
@@ -579,11 +606,17 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlNodePtr work_directory_node   = xmlNextElementSibling(env_file_node);
         xmlNodePtr local_directory_node  = xmlNextElementSibling(work_directory_node);
         xmlNodePtr result_directory_node = xmlNextElementSibling(local_directory_node);
+
+		// Parameters for COORM
+        xmlNodePtr launcher_file_node = xmlNextElementSibling(result_directory_node);
+
         if (job_file_node         == NULL ||
             env_file_node         == NULL ||
             work_directory_node   == NULL ||
             local_directory_node  == NULL ||
-            result_directory_node == NULL
+            result_directory_node == NULL ||
+			// For COORM
+            launcher_file_node    == NULL
            )
         {
           INFOS("A bad job is found, some user_part are not found");
@@ -594,7 +627,9 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             xmlStrcmp(env_file_node->name,         xmlCharStrdup("env_file"))         ||
             xmlStrcmp(work_directory_node->name,   xmlCharStrdup("work_directory"))   ||
             xmlStrcmp(local_directory_node->name,  xmlCharStrdup("local_directory"))  ||
-            xmlStrcmp(result_directory_node->name, xmlCharStrdup("result_directory"))
+            xmlStrcmp(result_directory_node->name, xmlCharStrdup("result_directory")) ||
+			// For COORM
+            xmlStrcmp(launcher_file_node->name, xmlCharStrdup("launcher_file"))
            )
         {
           INFOS("A bad job is found, some user part node are not in the rigth or does not have a correct name");
@@ -617,18 +652,29 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlChar* work_directory   = xmlNodeGetContent(work_directory_node);
         xmlChar* local_directory  = xmlNodeGetContent(local_directory_node);
         xmlChar* result_directory = xmlNodeGetContent(result_directory_node);
+
+		// Parameters for COORM
+        xmlChar* launcher_file = xmlNodeGetContent(launcher_file_node);
+
         new_job->setEnvFile(std::string((const char *)env_file));
         new_job->setWorkDirectory(std::string((const char *)work_directory));
         new_job->setLocalDirectory(std::string((const char *)local_directory));
         new_job->setResultDirectory(std::string((const char *)result_directory));
+
+		// Parameters for COORM
+        new_job->setLauncherFile(std::string((const char *)launcher_file));
+
         xmlFree(job_file);
         xmlFree(env_file);
         xmlFree(work_directory);
         xmlFree(local_directory);
         xmlFree(result_directory);
 
+		// Parameters for COORM
+		xmlFree(launcher_file);
+
         // Get in and out files
-        xmlNodePtr files_node = xmlNextElementSibling(result_directory_node);
+        xmlNodePtr files_node = xmlNextElementSibling(launcher_file_node);
         if (files_node == NULL)
         {
           INFOS("A bad job is found, user_part files is not found");
@@ -663,9 +709,12 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlNodePtr res_node = xmlNextElementSibling(files_node);
         xmlNodePtr maximum_duration_node = xmlNextElementSibling(res_node);
         xmlNodePtr queue_node = xmlNextElementSibling(maximum_duration_node);
+        xmlNodePtr launcher_args_node = xmlNextElementSibling(queue_node);
         if (res_node              == NULL ||
             maximum_duration_node == NULL ||
-            queue_node            == NULL
+            queue_node            == NULL ||
+			// For COORM
+            launcher_args_node    == NULL
            )
         {
           INFOS("A bad job is found, some user_part are not found");
@@ -674,7 +723,9 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         }
         if (xmlStrcmp(res_node->name,              xmlCharStrdup("resource_params"))  ||
             xmlStrcmp(maximum_duration_node->name, xmlCharStrdup("maximum_duration")) ||
-            xmlStrcmp(queue_node->name,            xmlCharStrdup("queue"))
+            xmlStrcmp(queue_node->name,            xmlCharStrdup("queue")) ||
+			// For COORM
+            xmlStrcmp(launcher_args_node->name,    xmlCharStrdup("launcher_args"))
            )
         {
           INFOS("A bad job is found, some user part node are not in the rigth or does not have a correct name");
@@ -698,7 +749,12 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlFree(maximum_duration);
         xmlFree(queue);
 
-        xmlNodePtr specific_node = xmlNextElementSibling(queue_node);
+		// For COORM
+        xmlChar* launcher_args           = xmlNodeGetContent(launcher_args_node);
+        new_job->setLauncherArgs(std::string((const char *)launcher_args));
+        xmlFree(launcher_args);
+
+        xmlNodePtr specific_node = xmlNextElementSibling(launcher_args_node);
         if (specific_node == NULL)
         {
           INFOS("A bad job is found, specific_parameters part is not found");

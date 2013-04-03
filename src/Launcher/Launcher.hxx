@@ -48,6 +48,10 @@ struct batchParams{
   std::string expected_during_time;
   std::string mem;
   unsigned long nb_proc;
+
+  // Parameters for COORM
+  std::string launcher_file;
+  std::string launcher_args;
 };
 
 class LAUNCHER_EXPORT Launcher_cpp
@@ -61,6 +65,7 @@ public:
   void         createJob(Launcher::Job * new_job);
   void         launchJob(int job_id);
   const char * getJobState(int job_id);
+  const char * getAssignedHostnames(int job_id); // Get names or ids of hosts assigned to the job
   void         getJobResults(int job_id, std::string directory);
   bool         getJobDumpState(int job_id, std::string directory);
   void         stopJob(int job_id);

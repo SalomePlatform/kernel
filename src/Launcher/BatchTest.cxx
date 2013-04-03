@@ -307,6 +307,18 @@ BatchTest::test_jobsubmit_simple()
     result = "OK";
     return result;
   }
+  if (batch_type == "oar")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for oar... return OK");
+    result = "OK";
+    return result;
+  }
+  if (batch_type == "coorm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for coorm... return OK");
+    result = "OK";
+    return result;
+  }
   if (batch_type != "pbs")
   {
     result += "Batch type unknown ! : " + batch_type;

@@ -77,6 +77,10 @@ struct JobParameters
     Specific parameters for each type of job - optional
   */
   Engines::ParameterList specific_parameters;
+
+  // Parameters for COORM
+  string launcher_file;
+  string launcher_args;
 };
 
 struct JobDescription
@@ -101,6 +105,7 @@ interface SalomeLauncher
   long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
   void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
   string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+  string getAssignedHostnames  (in long job_id)                  raises (SALOME::SALOME_Exception); // Get names or ids of hosts assigned to the job
   void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
   boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
   void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);

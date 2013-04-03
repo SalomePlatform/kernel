@@ -53,6 +53,10 @@ Launcher::Job::Job()
   _queue = "";
   _job_type = "";
 
+  // Parameters for COORM
+  _launcher_file = "";
+  _launcher_args = "";
+
 #ifdef WITH_LIBBATCH
   _batch_job = new Batch::Job();
 #endif
@@ -147,6 +151,13 @@ std::string
 Launcher::Job::getState()
 {
   return _state;
+}
+
+// Get names or ids of hosts assigned to the job
+std::string
+Launcher::Job::getAssignedHostnames()
+{
+  return _assigned_hostnames;
 }
 
 void 
@@ -270,6 +281,18 @@ Launcher::Job::setMaximumDuration(const std::string & maximum_duration)
   _maximum_duration = maximum_duration;
 }
 
+// For COORM
+void
+Launcher::Job::setLauncherFile(const std::string & launcher_file)
+{
+	_launcher_file = launcher_file;
+}
+void
+Launcher::Job::setLauncherArgs(const std::string & launcher_args)
+{
+	_launcher_args = launcher_args;
+}
+
 void 
 Launcher::Job::setResourceRequiredParams(const resourceParams & resource_required_params)
 {
@@ -317,6 +340,18 @@ std::string
 Launcher::Job::getMaximumDuration()
 {
   return _maximum_duration;
+}
+
+// For COORM
+std::string
+Launcher::Job::getLauncherFile()
+{
+	return _launcher_file;
+}
+std::string
+Launcher::Job::getLauncherArgs()
+{
+	return _launcher_args;
 }
 
 resourceParams 
@@ -434,6 +469,7 @@ Launcher::Job::updateJobState()
       Batch::JobInfo job_info = _batch_job_id.queryJob();
       Batch::Parametre par = job_info.getParametre();
       _state = par[Batch::STATE].str();
+      _assigned_hostnames = par[Batch::ASSIGNEDHOSTNAMES].str();
       LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
     }
 #endif
@@ -475,6 +511,10 @@ Launcher::Job::common_job_params()
     _work_directory += date;
   }
   params[Batch::WORKDIR] = _work_directory;
+
+  // Parameters for COORM
+  params[Batch::LAUNCHER_FILE] = _launcher_file;
+  params[Batch::LAUNCHER_ARGS] = _launcher_args;
 
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
@@ -571,6 +611,9 @@ Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
   xmlNewChild(node, NULL, xmlCharStrdup("local_directory"),  xmlCharStrdup(getLocalDirectory().c_str()));
   xmlNewChild(node, NULL, xmlCharStrdup("result_directory"), xmlCharStrdup(getResultDirectory().c_str()));
 
+  // Parameters for COORM
+  xmlNewChild(node, NULL, xmlCharStrdup("launcher_file"), xmlCharStrdup(getLauncherFile().c_str()));
+
   // Files
   xmlNodePtr files_node = xmlNewChild(node, NULL, xmlCharStrdup("files"), NULL);
   std::list<std::string> in_files  = get_in_files();
@@ -604,6 +647,9 @@ Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
 
   xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(getMaximumDuration().c_str()));
   xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(getQueue().c_str()));
+
+  // For COORM
+  xmlNewChild(node, NULL, xmlCharStrdup("launcher_args"), xmlCharStrdup(getLauncherArgs().c_str()));
 
   // Specific parameters part
   xmlNodePtr specific_parameters_node = xmlNewChild(node, NULL, xmlCharStrdup("specific_parameters"), NULL);

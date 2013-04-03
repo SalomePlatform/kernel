@@ -57,6 +57,8 @@ namespace Launcher
       // State of a Job: CREATED, IN_PROCESS, QUEUED, RUNNING, PAUSED, FINISHED, ERROR
       void setState(const std::string & state);
       std::string getState();
+	  // Get names or ids of hosts assigned to the job
+      std::string getAssignedHostnames();
 
       void setNumber(const int & number);
       int getNumber();
@@ -77,6 +79,10 @@ namespace Launcher
       void setQueue(const std::string & queue);
       void setEnvFile(const std::string & env_file);
 
+	  // For COORM
+	  void setLauncherFile(const std::string & launcher_file);
+	  void setLauncherArgs(const std::string & launcher_args);
+
       std::string getJobName();
       std::string getJobFile();
       std::string getWorkDirectory();
@@ -89,6 +95,10 @@ namespace Launcher
       std::string getQueue();
       std::string getEnvFile();
       std::string getJobType();
+
+	  // For COORM
+	  std::string getLauncherFile();
+	  std::string getLauncherArgs();
 
       std::string updateJobState();
 
@@ -120,6 +130,7 @@ namespace Launcher
       std::string _job_type;
 
       std::string _state;
+      std::string _assigned_hostnames; // Assigned hostnames
       std::string _launch_date;
       std::string _env_file;
 
@@ -140,6 +151,10 @@ namespace Launcher
       long _maximum_duration_in_second;
       resourceParams _resource_required_params;
       std::string _queue;
+
+	  // Parameters for COORM
+	  std::string _launcher_file;
+	  std::string _launcher_args;
 
 #ifdef WITH_LIBBATCH
     // Connection with LIBBATCH
