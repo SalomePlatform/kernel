@@ -469,7 +469,8 @@ Launcher::Job::updateJobState()
       Batch::JobInfo job_info = _batch_job_id.queryJob();
       Batch::Parametre par = job_info.getParametre();
       _state = par[Batch::STATE].str();
-      _assigned_hostnames = par[Batch::ASSIGNEDHOSTNAMES].str();
+      _assigned_hostnames = (par.find(Batch::ASSIGNEDHOSTNAMES) == par.end())?
+                            "" : par[Batch::ASSIGNEDHOSTNAMES].str();
       LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
     }
 #endif
