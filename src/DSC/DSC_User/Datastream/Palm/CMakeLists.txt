@@ -38,6 +38,8 @@ ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 ADD_LIBRARY(SalomePalm palm_port_factory.cxx)
 TARGET_LINK_LIBRARIES(SalomePalm SalomeDSCSuperv ${OMNIORB_LIBRARIES})
 
+INSTALL(TARGETS SalomePalm DESTINATION ${KERNEL_salomelib_LIBS})
+
 ADD_EXECUTABLE(test_DataIdContainer_Palm test_DataIdContainer.cxx)
 ADD_DEPENDENCIES(test_DataIdContainer_Palm SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(test_DataIdContainer_Palm ${OMNIORB_LIBRARIES})
