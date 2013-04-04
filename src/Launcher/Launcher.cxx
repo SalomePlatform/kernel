@@ -515,6 +515,14 @@ Launcher_cpp::getJobState(int job_id)
                           "(libBatch was not present at compilation time)");
 }
 
+const char *
+Launcher_cpp::getAssignedHostnames(int job_id)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job assigned hostnames!!!");
+  throw LauncherException("Method Launcher_cpp::getAssignedHostnames is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
 void
 Launcher_cpp::getJobResults(int job_id, std::string directory)
 {
