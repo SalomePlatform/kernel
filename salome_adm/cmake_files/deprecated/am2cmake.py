@@ -1229,27 +1229,24 @@ class CMakeFile(object):
         from os import path
         if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin','pyhello'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc')  or  mod in ['pyhello'] and operator.contains(self.root, 'doc'):
             ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
-            if mod in ['geom', 'smesh']:
+            if mod in ['geom']:
                 if mod == 'geom':
-                    tmp = 'geompy'
+                    tmp = 'geomBuilder'
                     input = "COMMAND ${DOXYGEN_EXECUTABLE} doxyfile_tui \n\t\t"
-                else:
-                    tmp =  'smesh' 
-                    input = ''
                 newlines.append(r"""
                 IF(WINDOWS)
                   STRING(REPLACE "/" "\\" f "%s")
 		ELSE(WINDOWS)
 		  SET(f "%s")			    
                 ENDIF(WINDOWS)
-                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} ${f} %s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
+                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} ${f} ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%s.py
                 %sCOMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
                 COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''%s.py''')"
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''', r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''', r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                )"""%(prepare_generating_doc_src, prepare_generating_doc_src, upmod, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
                 newlines.append(r"""ADD_DEPENDENCIES(usr_docs html_docs)""")
             else:
                 config_f = ""
@@ -1327,7 +1324,7 @@ class CMakeFile(object):
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )""")
         if mod == 'geom' and self.root[-len('tui'):] == 'tui':
-            tmp = 'geompy'
+            tmp = 'geomBuilder'
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
             newlines.append(r"""
             IF(WINDOWS)
@@ -1335,13 +1332,13 @@ class CMakeFile(object):
             ELSE(WINDOWS)
               SET(f "%s")
 	    ENDIF(WINDOWS)
-            ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} ${f} ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
+            ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} ${f} ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%s.py 
             COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
             COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
             COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/geomscreen.png''', r'''%s''')"
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-            )"""%(prepare_generating_doc_src, prepare_generating_doc_src, upmod, tmp, upmod, tmp, tmp, upmod, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
+            )"""%(prepare_generating_doc_src, prepare_generating_doc_src, upmod, tmp, upmod, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
 
         # --
         # convert the SUBDIRS in cmake grammar
