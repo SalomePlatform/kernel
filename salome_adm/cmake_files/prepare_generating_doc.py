@@ -19,32 +19,29 @@
 #
 
 # ...
-# Usage: prepare_generating_doc.py <output_file> <input_file> <myClass>
+# Usage: prepare_generating_doc.py <input_file>
 # ...
-# 1. myClassDC is replaced by myClass
-# 2. all methods of myClassDC become global methods of Python package
-# ...
-# myClass is passed as command line argument
+# 1. Remove Python documentation in triple double quotes (like """some_comments""")
 # ...
 
 import os, sys, re
 
 # check command line
-if len( sys.argv ) < 4:
-    sys.exit("Usage: %s <output_file> <input_file> <myClass>" % os.path.basename(sys.argv[0]))
+if len( sys.argv ) < 2:
+    sys.exit("Usage: %s <input_file>" % os.path.basename(sys.argv[0]))
 
 # open input file
 try:
-    infile = open(sys.argv[2], 'rb')
+    infile = open(sys.argv[1], 'rb')
 except:
-    sys.exit("File %s is not found" % sys.argv[2])
+    sys.exit("File %s is not found" % sys.argv[1])
     pass
 
-# open output file
+# open output file with the same name in current directory
 try:
-    outfile = open(sys.argv[1], 'wb')
+    outfile = open(os.path.basename(sys.argv[1]), 'wb')
 except:
-    sys.exit("File %s cannot be opened for write" % sys.argv[1])
+    sys.exit("File %s cannot be opened for write" % os.path.basename(sys.argv[1]))
     pass
 
 # parse input file
@@ -53,20 +50,7 @@ isCom   = False
 isShift = False
 
 for line in infile.readlines():
-    dc_class    = sys.argv[3]    
-    dc_class_dc = dc_class+'DC'
-
-    if isShift and ( re.match('^class\s+', line) or re.match('^def\s+', line) ):
-        # stop shifting lines as soon as myClassDC definition is over
-        isShift = False
-        pass
-    if re.match('class\s+%s' % dc_class_dc, line):
-        # start shifting lines
-        isShift = True
-        # omit this line (to remove myClassDC from the package)
-        continue
-    
-    # process documentation
+    # 1. remove comments like """some_comments"""
     n = line.find('"""')
     n1 = line[(n+2):].find('"""')
     if (n > -1) and (n1 > -1):
@@ -81,13 +65,6 @@ for line in infile.readlines():
             isCom = True
             continue
         pass
-
-    # replacements
-    if isShift:
-        line = re.sub(r'^\s+#', '#', line) 
-        line = re.sub(r'^\s+def', 'def', line)
-        pass
-    line = re.sub(dc_class_dc, dc_class, line)
 
     # write resulting line
     outfile.write(line)
