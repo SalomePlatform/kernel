@@ -515,7 +515,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     command += " ";
     ASSERT(getenv("NSPORT"));
     command += getenv("NSPORT"); // port of CORBA name server
-    command += " ls /tmp";
+    command += " ls /tmp >/dev/null 2>&1";
 
     // Launch remote command
     int status = system(command.c_str());
