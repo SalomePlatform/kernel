@@ -1765,6 +1765,7 @@ class CMakeFile(object):
             "sharedpkgpython_PYTHON"           :  "${salomepythondir}/shared_modules",
             "salomepypkg_PYTHON"               :  "${salomepypkgdir}",
             "mypkgpython_PYTHON"               :  "${mypkgpythondir}",
+	    "stdpkgpython_PYTHON"              :  "${stdpkgpythondir}",
             "nodist_mypkgpython_PYTHON"        :  "${mypkgpythondir}",
             }
         if self.module == "jobmanager":
