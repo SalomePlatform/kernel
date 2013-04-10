@@ -1334,11 +1334,11 @@ class CMakeFile(object):
 	    ENDIF(WINDOWS)
             ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} ${f} ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%s.py 
             COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-            COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
+            COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/%s.py''')"
             COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/geomscreen.png''', r'''%s''')"
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-            )"""%(prepare_generating_doc_src, prepare_generating_doc_src, upmod, tmp, upmod, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
+            )"""%(prepare_generating_doc_src, prepare_generating_doc_src, upmod, tmp, tmp, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
 
         # --
         # convert the SUBDIRS in cmake grammar
@@ -1765,7 +1765,7 @@ class CMakeFile(object):
             "sharedpkgpython_PYTHON"           :  "${salomepythondir}/shared_modules",
             "salomepypkg_PYTHON"               :  "${salomepypkgdir}",
             "mypkgpython_PYTHON"               :  "${mypkgpythondir}",
-	    "stdpkgpython_PYTHON"              :  "${stdpkgpythondir}",
+            "stdpkgpython_PYTHON"              :  "${stdpkgpythondir}",
             "nodist_mypkgpython_PYTHON"        :  "${mypkgpythondir}",
             }
         if self.module == "jobmanager":
