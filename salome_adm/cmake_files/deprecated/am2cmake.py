@@ -1250,16 +1250,23 @@ class CMakeFile(object):
                 newlines.append(r"""ADD_DEPENDENCIES(usr_docs html_docs)""")
             else:
                 config_f = ""
+                extra_doc_dir = ""
 		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin', "ghs3dprlplugin"] :
                     config_f = "${DOXYGEN_EXECUTABLE} doxyfile_py"
+                    extra_doc_dir = "%spy_doc"%(mod)
                 elif mod not in ['pyhello']:
                     config_f = "${DOXYGEN_EXECUTABLE} doxyfile_idl"
+                    if mod == 'visu':
+                        extra_doc_dir = "%sgen_doc"%(mod)
+                inst_head_command = ""
+                if extra_doc_dir != "":
+                    inst_head_command = "; shutil.copy(r'''%s''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/%s/%s''')"%(head_source, upmod, extra_doc_dir)
                 newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs %s
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
+                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')%s"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                )"""%(config_f, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                )"""%(config_f, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination, inst_head_command))
         elif mod in ['yacs', 'jobmanager'] and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
             from sys import platform
             params = '';
