@@ -31,6 +31,7 @@ SET(SCRIPTS
   runSession
   runSalomeScript
   runTests
+  .bashrc
   getAppliPath.py
   update_catalogs.py
   kill_remote_containers.py
