@@ -1147,8 +1147,7 @@ class CMakeFile(object):
                 ${datadir}/doc/salome
             )
             ''')
-            if mod not in ['blsurfplugin']:
-                self.files.append("static/header.html.in")
+            self.files.append("static/header.html.in")
             if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin',"ghs3dprlplugin"] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
@@ -1323,8 +1322,7 @@ class CMakeFile(object):
                     tmp1=""
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
             inst_head_command=""
-            if mod not in ['blsurfplugin']:
-                inst_head_command = "; shutil.copy(r'''%s''', r'''%s''')"%(head_source, doc_tui_destination)
+            inst_head_command = "; shutil.copy(r'''%s''', r'''%s''')"%(head_source, doc_tui_destination)
             newlines.append(tmp + """
             COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s''')%s" """%(doc_tui_destination, doc_source, doc_tui_destination, inst_head_command) + tmp1 + """
             VERBATIM 
