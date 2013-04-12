@@ -1126,7 +1126,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui' or operator.contains(self.root, 'doc') and mod in ['pyhello']:
+        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui' or operator.contains(self.root, 'doc') and mod in ['pyhello', 'yacs']:
             newlines.append(r'''
             SET(top_builddir
                 ${CMAKE_BINARY_DIR}
@@ -1147,7 +1147,10 @@ class CMakeFile(object):
                 ${datadir}/doc/salome
             )
             ''')
-            self.files.append("static/header.html.in")
+            if mod in ['yacs']:
+                self.files.append("sources/header.html.in")
+            else:
+                self.files.append("static/header.html.in")
             if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin',"ghs3dprlplugin"] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
@@ -1158,13 +1161,6 @@ class CMakeFile(object):
                 self.files.append("resources/SalomeApp.xml.in")
                 pass
             pass
-            from os import path
-            if operator.contains(self.root, 'YACS_SRC'+path.sep+'doc'):
-                newlines.append(r'''
-                SET(srcdir 
-                  ${CMAKE_CURRENT_SOURCE_DIR}
-                )
-                ''')
             
         if self.module == "jobmanager":
             key = "salomegui"
@@ -1174,8 +1170,6 @@ class CMakeFile(object):
             pass
         for f in self.files:
             if f[-3:] == ".in":
-                if self.module == 'yacs' and f == "Doxyfile.in":
-                    continue
                 if f == "sstream.in":
                     continue
                 if f in ["runContainer.in", "stopContainer.in"]:
@@ -1306,7 +1300,7 @@ class CMakeFile(object):
   # --
   
         upmod = self.module.upper()
-        if mod in ['kernel', 'gui', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui':
+        if ( mod in ['kernel', 'gui', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui' ) or ( mod in ['yacs'] and self.root[-len('doc'):] == 'doc' ):
             if mod == 'kernel':
                 tmp = """\tADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE} -u
             COMMAND ${DOXYGEN_EXECUTABLE}
@@ -1320,7 +1314,10 @@ class CMakeFile(object):
                     tmp1= """\n            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/smeshscreen.png''', r'''%s''')" """%(doc_tui_destination)
                 else:
                     tmp1=""
-            doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
+            if mod == 'yacs':
+                doc_source = "${CMAKE_CURRENT_BINARY_DIR}/htmldev"
+            else:
+                doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
             inst_head_command=""
             inst_head_command = "; shutil.copy(r'''%s''', r'''%s''')"%(head_source, doc_tui_destination)
             newlines.append(tmp + """
