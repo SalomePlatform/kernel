@@ -328,29 +328,36 @@ print "======================================================================"
 print "           %d. Test Med " % step; step+=1
 print "======================================================================"
 
-import SALOME_MED
+import xmed
+from xmed import properties
+from xmed.fieldproxy import FieldProxy
 
-medFileName = "pointe.med"
-medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
+xmed.setConsoleGlobals(globals())
 
-med_comp = salome.myStudy.FindComponent("MED")
+# Load some test data in the MedDataManager
+filepath  = properties.testFilePath
+xmed.dataManager.addDatasource(filepath)
+fieldHandlerList = xmed.dataManager.getFieldHandlerList()
 
-if not med_comp:
-    med  = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
+fieldHandler0 = fieldHandlerList[0]
+print "---Field Handler 0:\n%s" % fieldHandler0
+fieldHandler1 = fieldHandlerList[1]
+print "---Field Handler 1:\n%s" % fieldHandler1
 
-    print
-    print "--- Read med file structure from %s ..." % medFile
-    med.readStructFileWithFieldType(medFile, salome.myStudyName)
-    print "OK"
-    pass
+print "--- The addition of two fields can be done using field handler directly."
+addFieldHandler = xmed.calculator.add(fieldHandler0, fieldHandler1)
+print "--- Result handler:\n%s" % addFieldHandler
+
+print "--- Or with a field proxy that easy the writing of operations."
+fieldProxy0 = FieldProxy(fieldHandler0)
+fieldProxy1 = FieldProxy(fieldHandler1)
+
+resHandler = fieldProxy0 + fieldProxy1
+if resHandler is None:
+    print "Error: result handler is None!"
 else:
-    print
-    print "This script cannot work properly, because there is"
-    print "some MED component data already existing in the study."
-    print "Execution aborted."
-    print
-    print "Skipping test for MED..."
-    pass
+    print "--- Result handler:\n%s" % resHandler
+    print "OK"
 
 print
 
@@ -360,6 +367,9 @@ print "======================================================================"
 
 import VISU
 
+medFileName = "pointe.med"
+medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
+
 aMeshName = "maa1"
 anEntity = VISU.NODE
 field_name = "fieldnodedouble"
@@ -368,46 +378,6 @@ if salome.hasDesktop(): # in gui mode
     
     import visu_gui
     visu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
-
-    if not med_comp:
-        
-        print
-        print "--- Get med object from study ..."
-        med_obj = visu_gui.visu.getMedObjectFromStudy()
-        if not med_obj:
-            raise RuntimeError, "Med object is not found in the study"
-        print "OK"
-
-        print
-        print "--- Get field from study ..."
-        field = visu_gui.visu.getFieldObjectFromStudy(3,1)
-        if not field:
-            raise RuntimeError, "Field object is not found in the study"
-        print "OK"
-
-        print
-        print "--- Import field to the VISU ..."
-        aTimeStampId = -1
-        result1 = visu.ImportMedField(field)
-        if not result1:
-            raise RuntimeError, "Can't import field"
-        print "OK"
-
-        print
-        print "--- Create mesh presentation ..."
-        mesh1 = visu.MeshOnEntity(result1, aMeshName, anEntity);
-        if not mesh1:
-            raise RuntimeError, "Can't create mesh presentation"
-        print "OK"
-
-        print
-        print "--- Create scalar map ..."
-        scalarMap1 = visu.ScalarMapOnField(result1, aMeshName, anEntity, field_name, aTimeStampId)
-        if not scalarMap1:
-            raise RuntimeError, "Can't create scalar map"
-        print "OK"
-
-        pass # if not med_comp
 
     print
     print "--- Import med file %s to the VISU ..." % medFile
