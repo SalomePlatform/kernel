@@ -33,7 +33,7 @@ p_multiline = re.compile(r"""
 p_dollar = re.compile(r"""
 \$\(           # a $ then a (
 (?P<val>       # open the group val
-[^)]*          # the group contain 0 or more non ) characters
+[^()]*         # the group contain 0 or more non ) characters
 )              # close the group
 \)             # a ) at the end
 """, re.VERBOSE)
@@ -980,7 +980,13 @@ class CMakeFile(object):
         # Replace the $(TOTO) by ${TOTO}
         # Replace the @TOTO@  by ${TOTO}
         # --
-        line = p_dollar.sub(r"${\1}", line)
+        # VSR 15.04.2013 - process nesting substitutions properly, e.g. $(aaa$(bbb))
+        #line = p_dollar.sub(r"${\1}", line)
+        m_dollar = p_dollar.search(line)
+        while m_dollar:
+            line = p_dollar.sub(r"${\1}", line)
+            m_dollar = p_dollar.search(line)
+            pass
         line = p_arobas.sub(r"${\1}", line)
         
         # --
