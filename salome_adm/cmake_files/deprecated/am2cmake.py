@@ -1834,6 +1834,7 @@ class CMakeFile(object):
         ''')
         # --
         newlines.append(r'''
+        STRING(REPLACE "-module" "" ${amname}_LDFLAGS "${${amname}_LDFLAGS}")
         SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${LDADD} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
         FOREACH(lib SALOMEBasics SalomeBatch)
         IF(name STREQUAL lib)
