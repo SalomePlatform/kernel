@@ -104,7 +104,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo '         mpi=\"" << _resource_definition.getMpiImplTypeStr() << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         nbOfNodes='\\\"$nbproc\\\" >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         nbOfProcPerNode=\"1\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         can_run_containers=\"true\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         canRunContainers=\"true\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '/>'                                                              >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "done"                                 << std::endl;
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;
