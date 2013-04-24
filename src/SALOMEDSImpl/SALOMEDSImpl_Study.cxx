@@ -941,11 +941,10 @@ std::string SALOMEDSImpl_Study::_GetStudyVariablesScript()
  *  Purpose  :
  */
 //============================================================================
-std::string SALOMEDSImpl_Study::_GetNoteBookAccess()
+std::string SALOMEDSImpl_Study::_GetNoteBookAccess(const std::string& theStudyVar)
 {
-  std::string accessor = _GetNoteBookAccessor();
   std::string notebook = "import salome_notebook\n";
-  notebook += accessor+" = salome_notebook.NoteBook(";
+  notebook += _GetNoteBookAccessor() + " = salome_notebook.NoteBook(" + theStudyVar + ")" ;
   return notebook;
 }
 
@@ -1275,11 +1274,11 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   // initialization function
   sfp << aBatchModeScript << ".salome_init()" << std::endl;
   if ( !isMultiFile ) {
-    sfp << "theStudy = " << aStudyVar <<std::endl << std::endl;
+    sfp << "theStudy = " << aStudyVar << std::endl << std::endl;
     aStudyVar = "theStudy";
   }
   // notebook initialization
-  sfp << _GetNoteBookAccess() << aStudyVar << ")" <<std::endl;
+  sfp << _GetNoteBookAccess(aStudyVar) << std::endl;
 
   // extend sys.path with the directory where the script is being dumped to
   sfp << "sys.path.insert( 0, r\'" << thePath << "\')" << std::endl << std::endl;
