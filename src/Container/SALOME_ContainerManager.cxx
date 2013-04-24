@@ -515,7 +515,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     command += " ";
     ASSERT(getenv("NSPORT"));
     command += getenv("NSPORT"); // port of CORBA name server
-    command += " ls /tmp >/dev/null 2>&1";
+    command += " \"ls /tmp >/dev/null 2>&1\"";
 
     // Launch remote command
     int status = system(command.c_str());
@@ -1309,7 +1309,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
     command << "pbsdsh -o -h " << hostname << " ";
     break;
   case blaunch:
-    command << "blaunch " << hostname << " ";
+    command << "blaunch -no-shell " << hostname << " ";
     break;
   default:
     throw SALOME_Exception("Unknown protocol");
