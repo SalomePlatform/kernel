@@ -409,6 +409,111 @@ else: # not in gui mode, visu can not be tested
     print "Skipping test for VISU..."
     pass
 
+print "======================================================================"
+print "           %d. Test Paravis " % step; step+=1
+print "======================================================================"
+
+if salome.hasDesktop(): # in gui mode
+
+    print "**** Importing paravis... It can take some time."
+    from presentations import *
+    import paravis
+    import pvsimple
+    
+    my_paravis = paravis.myParavis
+    
+    #====================Stage1: Importing MED file====================
+    
+    print "**** Stage1: Importing MED file"
+    
+    print 'Import "ResOK_0000.med"...............',
+    medFileName = "ResOK_0000.med"
+    medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
+    my_paravis.ImportFile(medFile)
+    med_reader = pvsimple.GetActiveSource()
+    
+    if med_reader is None:
+        print "FAILED"
+    else:
+        print "OK"
+    
+    cell_entity = EntityType.CELL
+    node_entity = EntityType.NODE
+    
+    #====================Stage2: Displaying vector field===============
+    
+    print "**** Stage3: Displaying vector field"
+    
+    print 'Get view...................',
+    view = pvsimple.GetRenderView()
+    if view is None:
+        print "FAILED"
+    else:
+        reset_view(view)
+        print "OK"
+    
+    print "Creating Scalar Map.......",
+    scalarmap = ScalarMapOnField(med_reader, node_entity, 'vitesse', 1)
+    if scalarmap is None:
+        print "FAILED"
+    else:
+        bar = get_bar()
+        bar.Orientation = 'Horizontal'
+        bar.Position = [0.1, 0.1]
+        bar.Position2 = [0.1, 0.25]
+        bar.AspectRatio = 3
+        
+        display_only(scalarmap, view)
+        print "OK"
+    
+    view.ResetCamera()
+    
+    print "Creating Vectors..........",
+    vectors = VectorsOnField(med_reader, node_entity, 'vitesse', 1)
+    if vectors is None:
+        print "FAILED"
+    else:
+        display_only(vectors, view)
+        print "OK"
+    
+    print "Creating Iso Surfaces.....",
+    isosurfaces = IsoSurfacesOnField(med_reader, node_entity, 'vitesse', 1)
+    if isosurfaces is None:
+        print "FAILED"
+    else:
+        display_only(isosurfaces, view)
+        print "OK"
+    
+    print "Creating Cut Planes.......",
+    cutplanes = CutPlanesOnField(med_reader, node_entity, 'vitesse', 1,
+                                 nb_planes=30, orientation=Orientation.YZ)
+    if cutplanes is None:
+        print "FAILED"
+    else:
+        display_only(cutplanes, view)
+        print "OK"
+    
+    print "Creating Scalar Map On Deformed Shape.......",
+    scalarmapondefshape = DeformedShapeAndScalarMapOnField(med_reader,
+                                                           node_entity,
+                                                           'vitesse', 1,
+                                                           None,
+                                                           cell_entity,
+                                                           'pression')
+    if scalarmapondefshape is None:
+        print "FAILED"
+    else:
+        display_only(scalarmapondefshape, view)
+        print "OK"
+
+else: # not in gui mode, Paravis can not be tested
+    
+    print
+    print "PARAVIS module requires SALOME to be running in GUI mode."
+    print
+    print "Skipping test for PARAVIS..."
+    pass
+
 # ---- update object browser
 if salome.hasDesktop():
     salome.sg.updateObjBrowser(1);
