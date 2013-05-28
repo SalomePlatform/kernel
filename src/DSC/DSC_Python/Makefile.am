@@ -72,7 +72,7 @@ _calcium_la_LIBADD = ../DSC_User/Datastream/Calcium/libCalciumC.la \
 
 _calcium_la_CPPFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
 
-EXTRA_DIST=calcium_wrap.cpp calcium.i
+EXTRA_DIST+=calcium_wrap.cpp calcium.i
 
 calcium_wrap.cpp calcium.py:calcium.i
 	$(SWIG) $(MY_SWIG_FLAGS) -o calcium_wrap.cpp $<

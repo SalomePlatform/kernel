@@ -18,13 +18,13 @@ This document corresponds to SALOME2 3.2.0
 -------------------------------------------------------------------------------
 
 In a SALOME application, distributed components, servers and clients use
-the CORBA middleware for comunication. CORBA interfaces are defined via idl
+the CORBA middleware for communication. CORBA interfaces are defined via idl
 files. All the different CORBA interfaces are available for users in Python,
 see CORBA interfaces below.
 
 For some general purpose services, CORBA interfaces have been encapsulated
 in order to provide a simple interface (encapsulation is generally done in
-C++ classes, and a Python SWIG interface is also generated from C++, to 
+C++ classes, and a Python SWIG interface is also generated from C++, to
 ensure a consistent behavior between C++ modules and Python modules or user
 script).
 
@@ -53,7 +53,7 @@ In the embedded interpreter, it is already done, but there is no problem to
 do it several times, so it is preferable to add these instructions
 systematically in your scripts, to allow them to work in all configurations.
 
-Container and component instanciation
+Container and component instantiation
 -------------------------------------
 
 See LifeCycleCORBA_ for the C++ interface (Python interface obtained with SWIG
@@ -67,21 +67,21 @@ in the local container, "FactoryServer", created when SALOME starts::
 
    import salome
    salome.salome_init()
-   
+
    import LifeCycleCORBA
    lcc = LifeCycleCORBA.LifeCycleCORBA()
    obj=lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent")
-   
+
    import Engines
    comp=obj._narrow(Engines.TestComponent)
-   
+
    comp.Coucou(1)
 
 The answer is something like::
 
    'TestComponent_i : L = 1'
- 
-The _narrow() instruction is not always mandatory in Python, but sometimes 
+
+The _narrow() instruction is not always mandatory in Python, but sometimes
 useful to be sure you have got the right type of object. Here, Testcomponent_
 interface is defined in CORBA module Engines. With this example, it works also
 without the _narrow() instruction::

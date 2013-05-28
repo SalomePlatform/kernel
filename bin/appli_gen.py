@@ -185,15 +185,16 @@ def install(prefix,config_file,verbose=0):
 
     for fn in ('envd',
                'getAppliPath.py',
-               'searchFreePort.sh',
-               'runRemote.sh',
-               'runAppli',
-               'runConsole',
-               'runSession',
-               'runSalomeScript',
-               'runTests',
-               'update_catalogs.py',
                'kill_remote_containers.py',
+#               'searchFreePort.sh', # REMOVED
+               'runAppli',           # OBSOLETE (replaced by salome.py)
+               'runConsole',         # OBSOLETE (replaced by salome.py)
+               'runRemote.sh',
+               'runSalomeScript',
+               'runSession',         # OBSOLETE (replaced by salome.py)
+#               'runTests',          # REMOVED
+               'salome.py',
+               'update_catalogs.py',
                '.bashrc',
                ):
         virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))

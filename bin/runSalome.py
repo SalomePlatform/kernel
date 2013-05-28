@@ -32,11 +32,6 @@ import setenv
 from launchConfigureParser import verbose
 from server import process_id, Server
 
-if sys.platform == "win32":
-    SEP = ";"
-else:
-    SEP = ":"
-
 # -----------------------------------------------------------------------------
 
 from killSalome import killAllPorts
@@ -46,7 +41,7 @@ def killLocalPort():
     kill servers from a previous SALOME exection, if needed,
     on the CORBA port given in args of runSalome
     """
-    
+
     from killSalomeWithPort import killMyPort
     my_port=str(args['port'])
     try:
@@ -55,13 +50,13 @@ def killLocalPort():
         print "problem in killLocalPort()"
         pass
     pass
-    
+
 def givenPortKill(port):
     """
     kill servers from a previous SALOME exection, if needed,
     on the same CORBA port
     """
-    
+
     from killSalomeWithPort import killMyPort
     my_port=port
     try:
@@ -96,7 +91,7 @@ class InterpServer(Server):
           self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
         else:
           self.CMD=['cmd', '/c', 'start cmd.exe', '/K', 'python']
-       
+
     def run(self):
         global process_id
         command = self.CMD
@@ -132,7 +127,7 @@ def get_cata_path(list_modules,modules_root_dir):
                     cata_path.append(cata_file)
                     modules_cata[module]=cata_file
 
-    for path in os.getenv("SALOME_CATALOGS_PATH","").split(SEP):
+    for path in os.getenv("SALOME_CATALOGS_PATH","").split(os.pathsep):
         if os.path.exists(path):
             for cata_file in glob.glob(os.path.join(path,"*Catalog.xml")):
                 module_name= os.path.basename(cata_file)[:-11]
@@ -152,7 +147,7 @@ class CatalogServer(Server):
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
         if home_dir is not None:
-            self.SCMD2=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')] 
+            self.SCMD2=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')]
 
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
@@ -200,17 +195,6 @@ class ContainerCPPServer(Server):
 
 # ---
 
-class ContainerPYServer(Server):
-    def __init__(self,args):
-        self.args=args
-        self.initArgs()
-        if sys.platform == "win32":
-          self.CMD=[os.environ["PYTHONBIN"], '\"'+os.environ["KERNEL_ROOT_DIR"] + '/bin/salome/SALOME_ContainerPy.py'+'\"','FactoryServerPy']
-        else:
-          self.CMD=['SALOME_ContainerPy.py','FactoryServerPy']
-
-# ---
-
 class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
@@ -250,7 +234,7 @@ class SessionServer(Server):
             self.SCMD1+=['--with','ModuleCatalog','(','-common']
             home_dir=os.getenv('HOME')
             if home_dir is not None:
-                self.SCMD2+=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')] 
+                self.SCMD2+=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')]
             self.SCMD2+=[')']
         if 'study' in self.args['embedded']:
             self.SCMD2+=['--with','SALOMEDS','(',')']
@@ -258,11 +242,11 @@ class SessionServer(Server):
             self.SCMD2+=['--with','Container','(','FactoryServer',')']
         if 'SalomeAppEngine' in self.args['embedded']:
             self.SCMD2+=['--with','SalomeAppEngine','(',')']
-            
+
         if 'cppContainer' in self.args['standalone'] or 'cppContainer' in self.args['embedded']:
             self.SCMD2+=['CPP']
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
-            self.SCMD2+=['PY']
+            raise Exception('Python containers no longer supported')
         if self.args['gui']:
             session_gui = True
             if self.args.has_key('session_gui'):
@@ -274,6 +258,10 @@ class SessionServer(Server):
                     pass
                 if self.args['study_hdf'] is not None:
                     self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
+                    pass
+                pass
+                if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
+                    self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
                     pass
                 pass
             pass
@@ -294,9 +282,8 @@ class SessionServer(Server):
                   list_modules.insert(0,m)
             list_modules.reverse()
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
-
-        if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
-            self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
+            pass
+        pass
 
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
@@ -333,7 +320,7 @@ class SessionServer(Server):
                 self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
                 pass
             pass
-        
+
         if self.args["valgrind_session"]:
             l = ["valgrind"]
             val = os.getenv("VALGRIND_OPTIONS")
@@ -342,7 +329,7 @@ class SessionServer(Server):
                 pass
             self.CMD = l + self.CMD
             pass
-        
+
 # ---
 
 class LauncherServer(Server):
@@ -406,7 +393,7 @@ def startGUI(clt):
     import SALOME_Session_idl
     session=clt.waitNS("/Kernel/Session",SALOME.Session)
     session.GetInterface()
-  
+
 # -----------------------------------------------------------------------------
 
 def startSalome(args, modules_list, modules_root_dir):
@@ -414,13 +401,13 @@ def startSalome(args, modules_list, modules_root_dir):
     init_time = os.times()
 
     if verbose(): print "startSalome ", args
-    
+
     #
     # Set server launch command
     #
     if args.has_key('server_launch_mode'):
         Server.set_server_launch_mode(args['server_launch_mode'])
-    
+
     #
     # Wake up session option
     #
@@ -430,7 +417,7 @@ def startSalome(args, modules_list, modules_root_dir):
             home  = os.getenv("HOME")
             appli = os.getenv("APPLI")
             kwargs={}
-            if appli is not None: 
+            if appli is not None:
                 home = os.path.join(os.path.realpath(home), appli,"USERS")
                 kwargs["with_username"] = True
                 pass
@@ -442,11 +429,11 @@ def startSalome(args, modules_list, modules_root_dir):
             os.environ['OMNIORB_CONFIG'] = last_running_config
             pass
         pass
-    
+
     #
     # Initialisation ORB and Naming Service
     #
-   
+
     clt=orbmodule.client(args)
 
     #
@@ -478,7 +465,7 @@ def startSalome(args, modules_list, modules_root_dir):
         session.GetInterface()
         args["session_object"] = session
         return clt
-    
+
     # Save Naming service port name into
     # the file args["ns_port_log_file"]
     if args.has_key('ns_port_log_file'):
@@ -505,7 +492,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     if sys.platform != "win32":
       if verbose(): print "Notify Server to launch"
-    
+
       myServer=NotifyServer(args,modules_root_dir)
       myServer.run()
 
@@ -563,7 +550,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     # Launch LauncherServer
     #
-    
+
     myCmServer = LauncherServer(args)
     myCmServer.setpath(modules_list,modules_root_dir)
     myCmServer.run()
@@ -577,7 +564,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
 
     from Utils_Identity import getShortHostName
-    
+
     if os.getenv("HOSTNAME") == None:
         if os.getenv("HOST") == None:
             os.environ["HOSTNAME"]=getShortHostName()
@@ -585,13 +572,13 @@ def startSalome(args, modules_list, modules_root_dir):
             os.environ["HOSTNAME"]=os.getenv("HOST")
 
     theComputer = getShortHostName()
-    
+
     #
     # Launch local C++ Container (FactoryServer),
     # and wait until it is registered in naming service
     #
 
-    if ('cppContainer' in args['standalone']) | (args["gui"] == 0) : 
+    if ('cppContainer' in args['standalone']) | (args["gui"] == 0) :
         myServer=ContainerCPPServer(args)
         myServer.run()
         if sys.platform == "win32":
@@ -605,19 +592,14 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     if 'pyContainer' in args['standalone']:
-        myServer=ContainerPYServer(args)
-        myServer.run()
-        if sys.platform == "win32":
-          clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
-        else:
-          clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
+        raise Exception('Python containers no longer supported')
 
     #
     # Wait until Session Server is registered in naming service
     #
-    
+
     if args["gui"]:
-##----------------        
+##----------------
         import Engines
         import SALOME
         import SALOMEDS
@@ -641,7 +623,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # additionnal external python interpreters
     #
     nbaddi=0
-    
+
     try:
         if 'interp' in args:
             nbaddi = args['interp']
@@ -651,7 +633,7 @@ def startSalome(args, modules_list, modules_root_dir):
         print "-------------------------------------------------------------"
         print "-- to get an external python interpreter:runSalome --interp=1"
         print "-------------------------------------------------------------"
-        
+
     if verbose(): print "additional external python interpreters: ", nbaddi
     if nbaddi:
         for i in range(nbaddi):
@@ -666,7 +648,7 @@ def startSalome(args, modules_list, modules_root_dir):
             import readline
         except ImportError:
             pass
-        
+
     return clt
 
 # -----------------------------------------------------------------------------
@@ -678,7 +660,7 @@ def useSalome(args, modules_list, modules_root_dir):
     show registered objects in Naming Service.
     """
     global process_id
-    
+
     clt=None
     try:
         clt = startSalome(args, modules_list, modules_root_dir)
@@ -688,7 +670,7 @@ def useSalome(args, modules_list, modules_root_dir):
         print
         print
         print "--- Error during Salome launch ---"
-        
+
     #print process_id
 
     from addToKillList import addToKillList
@@ -702,28 +684,28 @@ def useSalome(args, modules_list, modules_root_dir):
     if verbose(): print """
     Saving of the dictionary of Salome processes in %s
     To kill SALOME processes from a console (kill all sessions from all ports):
-      python killSalome.py 
+      python killSalome.py
     To kill SALOME from the present interpreter, if it is not closed :
       killLocalPort()      --> kill this session
                                (use CORBA port from args of runSalome)
-      givenPortKill(port)  --> kill a specific session with given CORBA port 
+      givenPortKill(port)  --> kill a specific session with given CORBA port
       killAllPorts()       --> kill all sessions
-    
+
     runSalome, with --killall option, starts with killing
     the processes resulting from the previous execution.
     """%filedict
-    
+
     #
     #  Print Naming Service directory list
     #
-    
+
     if clt != None:
         if verbose():
             print
             print " --- registered objects tree in Naming Service ---"
             clt.showNS()
             pass
-        
+
         if not args['gui'] or not args['session_gui']:
             if args['shutdown_servers']:
                 class __utils__(object):
@@ -739,7 +721,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 args['shutdown_servers'] = __utils__(args['port'])
                 pass
             pass
-        
+
         # run python scripts, passed via --execute option
         toimport = []
         if args.has_key('pyscript'):
@@ -781,7 +763,7 @@ def useSalome(args, modules_list, modules_root_dir):
             pass
         pass
     return clt
-    
+
 def execScript(script_path):
     print 'executing', script_path
     sys.path.insert(0, os.path.dirname(script_path))
@@ -809,112 +791,6 @@ def registerEnv(args, modules_list, modules_root_dir):
 
 # -----------------------------------------------------------------------------
 
-def searchFreePort(args, save_config=1):
-    print "Searching for a free port for naming service:",
-    #
-    if sys.platform == "win32":
-        tmp_file = os.getenv('TEMP');
-    else:
-        tmp_file = '/tmp'
-    tmp_file = os.path.join(tmp_file, '.netstat_%s'%os.getpid())
-    #
-    ###status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
-    os.system( "netstat -a -n > %s" % tmp_file );
-    f = open( tmp_file, 'r' );
-    ports = f.readlines();
-    f.close();
-    os.remove( tmp_file );
-    #
-    def portIsUsed(port, data):
-        regObj = re.compile( ".*tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
-        for item in data:
-            try:
-                p = int(regObj.match(item).group(1))
-                if p == port: return True
-                pass
-            except:
-                pass
-            pass
-        return False
-    #
-    NSPORT=2810
-    limit=NSPORT+100
-    #
-    while 1:
-        if not portIsUsed(NSPORT, ports):
-            print "%s - OK"%(NSPORT)
-            #
-            from salome_utils import generateFileName, getHostName
-            hostname = getHostName()
-            #
-            home  = os.getenv("HOME")
-            appli = os.getenv("APPLI")
-            kwargs={}
-            if appli is not None: 
-              home = os.path.join(os.path.realpath(home), appli,"USERS")
-              kwargs["with_username"]=True
-            #
-            omniorb_config = generateFileName(home, prefix="omniORB",
-                                              extension="cfg",
-                                              hidden=True,
-                                              with_hostname=True,
-                                              with_port=NSPORT,
-                                              **kwargs)
-            orbdata = []
-            initref = "NameService=corbaname::%s:%s"%(hostname, NSPORT)
-            from omniORB import CORBA
-            if CORBA.ORB_ID == "omniORB4":
-                orbdata.append("InitRef = %s"%(initref))
-                orbdata.append("giopMaxMsgSize = 2097152000  # 2 GBytes")
-                orbdata.append("traceLevel = 0 # critical errors only")
-            else:
-                orbdata.append("ORBInitRef %s"%(initref))
-                orbdata.append("ORBgiopMaxMsgSize = 2097152000  # 2 GBytes")
-                orbdata.append("ORBtraceLevel = 0 # critical errors only")
-                pass
-            orbdata.append("")
-            f = open(omniorb_config, "w")
-            f.write("\n".join(orbdata))
-            f.close()
-            #
-            os.environ['OMNIORB_CONFIG'] = omniorb_config
-            os.environ['NSPORT'] = "%s"%(NSPORT)
-            os.environ['NSHOST'] = "%s"%(hostname)
-            args['port'] = os.environ['NSPORT']
-            #
-            if save_config:
-                last_running_config = generateFileName(home, prefix="omniORB",
-                                                       suffix="last",
-                                                       extension="cfg",
-                                                       hidden=True,
-                                                       **kwargs)
-                try:
-                    if sys.platform == "win32":
-                        import shutil       
-                        shutil.copyfile(omniorb_config, last_running_config)
-                    else:
-                        try:
-                            os.remove(last_running_config)
-                        except OSError:
-                            pass
-                        os.symlink(omniorb_config, last_running_config)
-                        pass
-                    pass
-                except:
-                    pass
-            break
-        print "%s"%(NSPORT),
-        if NSPORT == limit:
-            msg  = "\n"
-            msg += "Can't find a free port to launch omniNames\n"
-            msg += "Try to kill the running servers and then launch SALOME again.\n"
-            raise RuntimeError, msg
-        NSPORT=NSPORT+1
-        pass
-    return
-    
-# -----------------------------------------------------------------------------
-
 def no_main():
     """Salome Launch, when embedded in other application"""
     fileEnv = os.environ["SALOME_LAUNCH_CONFIG"]
@@ -922,6 +798,7 @@ def no_main():
     args, modules_list, modules_root_dir = pickle.load(fenv)
     fenv.close()
     kill_salome(args)
+    from searchFreePort import searchFreePort
     searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt
@@ -933,6 +810,7 @@ def main():
     from salome_utils import getHostName
     print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()
+
     kill_salome(args)
     save_config = True
     if args.has_key('save_config'):
@@ -943,6 +821,7 @@ def main():
         test = False
         pass
     if test:
+        from searchFreePort import searchFreePort
         searchFreePort(args, save_config)
         pass
     # --
@@ -992,7 +871,7 @@ def foreGround(clt, args):
       server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(os.getpid()), "%s"%(port)]
     else:
       server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(os.getpid()), "%s"%(port)]
-    server.run()   
+    server.run()
     # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
     # --
     dt = 1.0
@@ -1012,10 +891,9 @@ def foreGround(clt, args):
         killMyPort(port)
         pass
     return
+#
 
-# -----------------------------------------------------------------------------
-
-if __name__ == "__main__":
+def runSalome():
     import user
     clt,args = main()
     # --
@@ -1043,3 +921,10 @@ if __name__ == "__main__":
         pass
     # --
     pass
+#
+
+# -----------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    runSalome()
+#

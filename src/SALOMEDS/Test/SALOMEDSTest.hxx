@@ -28,7 +28,17 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDSTest : public CppUnit::TestFixture
+#ifdef WIN32
+# if defined SALOMEDSTEST_EXPORTS || defined SALOMEDSTest_EXPORTS
+#  define SALOMEDSTEST_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSTEST_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSTEST_EXPORT
+#endif
+
+class SALOMEDSTEST_EXPORT SALOMEDSTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( SALOMEDSTest );
 
@@ -130,7 +140,7 @@ CORBA::ORB_var             _orb;
 
 
 
-class SALOMEDSTest_Embedded : public SALOMEDSTest
+class SALOMEDSTEST_EXPORT SALOMEDSTest_Embedded : public SALOMEDSTest
 {
   CPPUNIT_TEST_SUITE( SALOMEDSTest_Embedded );
 

@@ -44,6 +44,9 @@
 #define MYDEVTRACE
 #define DEVTRACE(msg)
 #endif
+#ifdef WIN32
+#define setenv Kernel_Utils::setenv
+#endif 
 
 #define TRACEFILE "/tmp/traceUnitTest.log"
 

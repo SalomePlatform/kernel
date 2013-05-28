@@ -20,7 +20,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# -* Makefile *- 
+# -* Makefile *-
 # Author : Renaud Barate (EDF R&D)
 # Module : KERNEL
 # $Header$
@@ -37,20 +37,19 @@ appliskeldir = $(salomescriptdir)/appliskel
 # These files are executable scripts
 dist_appliskel_SCRIPTS = \
     envd                \
-    searchFreePort.sh   \
     runRemote.sh        \
     runAppli            \
     runConsole          \
     runSession          \
     runSalomeScript     \
-    runTests            \
     .bashrc
 
 # These files are python files
 dist_appliskel_PYTHON = \
     getAppliPath.py             \
     update_catalogs.py          \
-    kill_remote_containers.py
+    kill_remote_containers.py	\
+    salome.py
 
 install-data-hook:
 	@for f in $(dist_appliskel_PYTHON) ; do \

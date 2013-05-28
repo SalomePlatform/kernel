@@ -66,7 +66,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 
 nodist_salomeinclude_HEADERS = calcium_integer_port_uses.hxx CalciumProvidesPort.hxx CalciumFortranInt.h
 
-EXTRA_DIST=fortoc.h calcium_integer_port_uses.hxx.in CalciumProvidesPort.hxx.in CalciumFortranInt.h.in
+EXTRA_DIST+=fortoc.h calcium_integer_port_uses.hxx.in CalciumProvidesPort.hxx.in CalciumFortranInt.h.in
 
 calcium_integer_port_uses.hxx: calcium_integer_port_uses.hxx.in
 CalciumProvidesPort.hxx     : CalciumProvidesPort.hxx.in

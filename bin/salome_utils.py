@@ -194,8 +194,11 @@ def getPortNumber(use_default=True):
         return int( os.getenv( "NSPORT" ) )
     except:
         pass
-    port = getPortFromORBcfg()
-    if port is not None: return port
+    try:
+        port = int( getPortFromORBcfg() )
+        if port is not None: return port
+    except:
+        pass
     if use_default: return 2809 # '2809' is default port number
     return None
 

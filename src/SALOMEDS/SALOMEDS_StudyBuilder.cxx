@@ -194,12 +194,13 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
 
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
+  Engines::EngineComponent_var anEngine = Engines::EngineComponent::_narrow(obj);
   SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
   
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    SALOMEDS_Driver_i* drv = new SALOMEDS_Driver_i(aDriver, _orb);    
+    SALOMEDS_Driver_i* drv = new SALOMEDS_Driver_i(anEngine, _orb);    
     SALOMEDSImpl_SComponent aSCO_impl = *(dynamic_cast<SALOMEDSImpl_SComponent*>(aSCO->GetLocalImpl()));
     bool isDone = _local_impl->LoadWith(aSCO_impl, drv);
     delete drv;

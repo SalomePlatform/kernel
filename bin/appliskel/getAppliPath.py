@@ -24,32 +24,14 @@
 
 import os
 
-def relpath(target, base):
-    """ Find relative path from base to target
-        if target== "/local/chris/appli" and base== "/local/chris" the result is appli
-        if target== /tmp/appli and base /local/chris the result is ../../tmp/appli
-    """
-    target=target.split(os.path.sep)
-    base=base.split(os.path.sep)
-    for i in xrange(len(base)):
-      if base[i] != target[i]:
-        i=i-1
-        #not in base
-        break
-    p=['..']*(len(base)-i-1)+target[i+1:]
-    if p == []:
-      return '.'
-    return os.path.join( *p )
+def get_appli_path(filePath=None):
+    if filePath is None:
+        filePath = os.path.realpath(os.path.dirname(__file__))
 
-def set_var(VAR, strpath):
-    """Set VAR environment variable """
-    value = "%r" % strpath
-    shell = os.getenv('SHELL')
-    if shell and shell.endswith('csh'):
-        return "setenv %s %s" % (VAR, value)
-    else:
-        return "export %s=%s" % (VAR, value)
+    homePath = os.path.realpath(os.getenv('HOME'))
+    applipath = os.path.relpath(filePath, homePath)
+    return applipath
 
 if __name__ == "__main__":
-  applipath=relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
-  print applipath
+    applipath = get_appli_path()
+    print applipath

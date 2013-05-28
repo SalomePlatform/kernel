@@ -370,6 +370,7 @@ class CMakeFile(object):
             "MEFISTO2D",
             "MeshDriverDAT",
             "MeshDriverMED",
+            "MeshDriverGMF",
             "MeshDriver",
             "MeshDriverSTL",
             "MeshDriverUNV",
@@ -618,7 +619,7 @@ class CMakeFile(object):
                             INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                             INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
-                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindBLSURF.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindCADSURF.cmake)
                             """)
                             pass
                         if self.module in ["ghs3dplugin", "hexoticplugin"]:
@@ -652,6 +653,11 @@ class CMakeFile(object):
                             newlines.append("""
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+                            """)
+                            pass
+                        if self.module == "jobmanager":
+                            newlines.append("""
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
@@ -796,9 +802,10 @@ class CMakeFile(object):
                 pass
             # --
             newlines.append("""
-            set(VERSION 6.5.0)
-            set(SHORT_VERSION 6.5)
-            set(XVERSION 0x060500)
+            set(VERSION 7.0.0)
+            set(SHORT_VERSION 7.0)
+            set(XVERSION 0x070000)
+            set(VERSION_DEV 1)
             """)
             pass
         # --
@@ -826,8 +833,8 @@ class CMakeFile(object):
             ''')
         elif self.module == "kernel":
             newlines.append(r'''
-            SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
-            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
+            SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm -include SALOMEconfig.h)
+            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm -include SALOMEconfig.h)
             ''')
         else:
             if self.module not in ["yacs"]:
@@ -1112,7 +1119,7 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
-        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
+        elif self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc') or mod in ['kernel', 'gui', 'geom', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui' or operator.contains(self.root, 'doc') and mod in ['pyhello']:
             newlines.append(r'''
             SET(top_builddir
                 ${CMAKE_BINARY_DIR}
@@ -1133,7 +1140,8 @@ class CMakeFile(object):
                 ${datadir}/doc/salome
             )
             ''')
-            self.files.append("static/header.html.in")
+            if mod not in ['blsurfplugin']:
+                self.files.append("static/header.html.in")
             if mod in ['geom', 'smesh', 'visu','netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin',"ghs3dprlplugin"] and self.root[-len(mod):] == upmod:
               self.files.append("static/header_py.html.in")
      
@@ -1212,7 +1220,7 @@ class CMakeFile(object):
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )"""%(input, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
         from os import path
-        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
+        if mod in ['geom', 'smesh', 'visu', 'netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin','ghs3dprlplugin','pyhello'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc')  or  mod in ['pyhello'] and operator.contains(self.root, 'doc'):
             ign = r"""'*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
@@ -1235,19 +1243,20 @@ class CMakeFile(object):
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
                 )"""%(prepare_generating_doc_src, prepare_generating_doc_src, tmp, upmod, tmp, tmp, input, tmp, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
+                newlines.append(r"""ADD_DEPENDENCIES(usr_docs html_docs)""")
             else:
                 config_f = ""
 		if mod in ['netgenplugin','blsurfplugin','hexoticplugin','ghs3dplugin', "ghs3dprlplugin"] :
-                    config_f = "doxyfile_py"
-                else:
-                    config_f = "doxyfile_idl"
-                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} %s
+                    config_f = "${DOXYGEN_EXECUTABLE} doxyfile_py"
+                elif mod not in ['pyhello']:
+                    config_f = "${DOXYGEN_EXECUTABLE} doxyfile_idl"
+                newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs %s
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
                 COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=shutil.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 )"""%(config_f, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
-        elif mod == 'yacs' and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
+        elif mod in ['yacs', 'jobmanager'] and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
             from sys import platform
             params = '';
             if platform == "win32":
@@ -1265,21 +1274,19 @@ class CMakeFile(object):
                 params = '-Q';
                 ext = "bat"
                 prf = "call"
+                cmd = "STRING(REPLACE \"/\" \"\\\\\" SCR"
             else:
                 ext = "sh"
                 prf = ". "
+                cmd = "SET(SCR"
             doc_gui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/%s/docutils"%(upmod)
             scr = self.writeEnvScript(upmod)            	
             newlines.append(r"""
-            IF(WINDOWS)
-               STRING(REPLACE "/" "\\" SCR "%s")
-	    ELSE(WINDOWS)
-               SET(SCR "%s")
-            ENDIF(WINDOWS)
+            %s "%s")
             FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s "${SCR}")
-            ADD_CUSTOM_TARGET(html_docs %s ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s && ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc/docutils -W -b html ${ALLSPHINXOPTS} html
+            ADD_CUSTOM_TARGET(html_docs %s ${CMAKE_CURRENT_BINARY_DIR}/env_s.%s && ${SPHINX_EXECUTABLE} %s -c ${CMAKE_BINARY_DIR}/doc/docutils -b html ${ALLSPHINXOPTS} html
             COMMAND ${PYTHON_EXECUTABLE} -c \"import shutil\;shutil.rmtree('''%s''', True)\;shutil.copytree('''${CMAKE_CURRENT_BINARY_DIR}/html''', '''%s''')\"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(scr,scr,ext,prf,ext,params, doc_gui_destination, doc_gui_destination))
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"""%(cmd, scr, ext, prf, ext, params, doc_gui_destination, doc_gui_destination))
 
 
 
@@ -1289,7 +1296,7 @@ class CMakeFile(object):
   # --
   
         upmod = self.module.upper()
-        if mod in ['kernel', 'gui', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
+        if mod in ['kernel', 'gui', 'med', 'smesh', 'visu', 'blsurfplugin'] and self.root[-len('tui'):] == 'tui':
             if mod == 'kernel':
                 tmp = """\tADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE} -u
             COMMAND ${DOXYGEN_EXECUTABLE}
@@ -1300,14 +1307,15 @@ class CMakeFile(object):
                 if mod == 'visu':
                     tmp1= r"""\n           COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/visuscreen.png''', r'''%s''')" """%(doc_tui_destination)
                 elif mod == 'smesh':
-                    extra_srcdir = "${CMAKE_CURRENT_SOURCE_DIR}/extra"
-                    tmp1= """\n            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/smeshscreen.png''', r'''%s'''); copy(r'''%s/AddNetgenInSalome2.pdf''', r'''%s'''); copy(r'''%s/PluginMeshers.html''', r'''%s''')" 
-            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''%s/AddNetgenInSalome2.ps''', r'''%s'''); copy(r'''%s/AddNetgenInSalome2.sxw''', r'''%s''')" """%(doc_tui_destination, extra_srcdir,doc_destination, extra_srcdir,doc_destination, extra_srcdir,doc_destination,extra_srcdir,doc_destination)
+                    tmp1= """\n            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/smeshscreen.png''', r'''%s''')" """%(doc_tui_destination)
                 else:
                     tmp1=""
             doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
+            inst_head_command=""
+            if mod not in ['blsurfplugin']:
+                inst_head_command = "; shutil.copy(r'''%s''', r'''%s''')"%(head_source, doc_tui_destination)
             newlines.append(tmp + """
-            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')" """%(doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination) + tmp1 + """
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''%s''', True); shutil.copytree(r'''%s''', r'''%s''')%s" """%(doc_tui_destination, doc_source, doc_tui_destination, inst_head_command) + tmp1 + """
             VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
             )""")
@@ -1922,7 +1930,7 @@ class CMakeFile(object):
         ENDIF(WINDOWS)
         ''')
         # --
-        if self.module in ["geom", "med"]:
+        if self.module in ["geom", "med", "hexoticplugin", "blsurfplugin"]:
             newlines.append(r'''
             SET(var ${var} -I${CMAKE_CURRENT_SOURCE_DIR})
             SET(var ${var} -I${CMAKE_CURRENT_BINARY_DIR})
@@ -2442,70 +2450,61 @@ class CMakeFile(object):
         f.close()
         return
 
-    def writeEnvScript(self, upmod):
-        from sys import platform, version_info
-        p_version = """%s.%s"""%(version_info[0],version_info[1])
-        python_path ="PYTHONPATH"
-        path = ""
-        begin = ""
-        end = ""
-        delim = ""
-        cmd = ""
-        pdir = ""
-        omni = ""
-	omni_py = ""
-        if platform == "win32" :		
-            path = "PATH"
-            begin = "%"
-            end = "%"
-            delim = ";"
-            cmd = "@SET "
-            omni = "/x86_win32"
-            omni_py = "/python"
-            pdir = "PDIR"
+    def writeEnvScript(self, upmod, buildmod=True):
+        import os, sys
+        p_version = sys.version[:3]
+        python_path = "PYTHONPATH"
+        root_dir    = "%s_ROOT_DIR" % upmod
+        if sys.platform == "win32":
+            script_line = '@SET %(var)s=%(val)s;%%%(var)s%%\n'
+            var_line    = '%%%s%%'
+            lib_path = "PATH"
+            omni = "x86_win32"
+            omni_py = "python"
+            pass
         else:
-            path = "LD_LIBRARY_PATH"
-            begin = "\${"
-            end = "}"
-            delim = ":"
-            cmd = "export "
-            omni_py = "/python" + p_version + "/" + "site-packages"
-            pdir = "INST_ROOT"
-
-            
-        path_ = begin + path + end
-        root_dir_ = begin + upmod + "_ROOT_DIR" + end  
-        python_path_ = begin + python_path + end
-        _python_path_ = delim + python_path_+ "\n"
-        _path_ = delim + path_+ "\n" 
-        _pdir = begin + pdir + end 
-           
-        
-        script = cmd + " " + python_path + "=" + root_dir_+"/lib/python" + p_version \
-        + "/site-packages/salome" + _python_path_ 
-        
-        script = script + cmd + " " + python_path + "=" + root_dir_+"/bin/salome" + \
-        _python_path_
-
-        script = script + cmd + " "+ path + "=" + root_dir_+"/lib/salome"+ _path_
-
+            script_line = 'export %(var)s=%(val)s:\$%(var)s\n'
+            var_line    = '\${%s}'
+            lib_path = "LD_LIBRARY_PATH"
+            omni = ""
+            omni_py = "/".join( ["python%s"%p_version , "site-packages"] )
+            pass
+        #
+        script = ""
+        #
+        if buildmod:
+            script += script_line % { 'var':python_path, 'val':"/".join( ["${CMAKE_INSTALL_PREFIX}", "lib", "python%s"%p_version, "site-packages", "salome"] ) }
+            script += script_line % { 'var':python_path, 'val':"/".join( ["${CMAKE_INSTALL_PREFIX}", "bin", "salome"] ) }
+            script += script_line % { 'var':lib_path,    'val':"/".join( ["${CMAKE_INSTALL_PREFIX}", "lib", "salome"] ) }
+            pass
+        else:
+            script += script_line % { 'var':python_path, 'val':"/".join( [var_line % root_dir, "lib", "python%s"%p_version, "site-packages", "salome"] ) }
+            script += script_line % { 'var':python_path, 'val':"/".join( [var_line % root_dir, "bin", "salome"] ) }
+            script += script_line % { 'var':lib_path,    'val':"/".join( [var_line % root_dir, "lib", "salome"] ) }
+            pass
+        #
 	if upmod == "KERNEL" :
-            script = script + cmd + " " +  python_path + "=" + _pdir + \
-            "/omniORB-4.1.5/lib" + omni + _python_path_
-        
-            script = script + cmd + " " + python_path + "=" + _pdir + \
-            "/omniORB-4.1.5/lib" + omni_py + _python_path_
-        
-            script = script + cmd + " "+ path + "=" + _pdir+ "/omniORB-4.1.5/lib" + \
-            omni + _path_
-
+            script += "\n"
+            if omni:
+                script += script_line % { 'var':python_path, 'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib", omni] ) }
+                script += script_line % { 'var':lib_path,    'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib", omni] ) }
+                pass
+            else:
+                script += script_line % { 'var':python_path, 'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib"] ) }
+                script += script_line % { 'var':lib_path,    'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib"] ) }
+                pass
+            script += script_line % { 'var':python_path, 'val':"/".join( ["${OMNIORB_ROOT_USER}", "lib", omni_py] ) }
+            pass
+        #
         if upmod == "GEOM" :
-            script = self.writeEnvScript("KERNEL") + script
-            script = self.writeEnvScript("GUI") + script
-
+            script = self.writeEnvScript("KERNEL", False) + "\n" + script
+            script = self.writeEnvScript("GUI",    False) + "\n" + script
+            pass
+        #
         if upmod == "SMESH" :
-            script = self.writeEnvScript("GEOM") + script
-
+            script = self.writeEnvScript("GEOM", False) + "\n" + script
+            pass
+        
         return script    
     pass
 
@@ -2563,8 +2562,10 @@ if __name__ == "__main__":
         # --
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
-                convert = True
-                if getenv("AM2CMAKE_FORCE_GENERATION", "0")=="0":
+                convert = True # convert files by default
+                forced = getenv("AM2CMAKE_FORCE_GENERATION", "0")=="1" or \
+                         getenv("AM2CMAKE_FORCE_%s_GENERATION"%module.upper(), "0")=="1"
+                if not forced:
                     # detect if conversion should be done
                     if "CMakeLists.txt" in files:
                         from os.path import join

@@ -42,6 +42,7 @@ FILELIST="index
 	  SALOME_Application
 	  INSTALL
 	  kernel_resources
+	  KERNEL_Services
 	  userguide"
 
 STYLESHEET=rst.css

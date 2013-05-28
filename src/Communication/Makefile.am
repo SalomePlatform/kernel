@@ -92,7 +92,7 @@ libSalomeCommunication_la_SOURCES =\
 	Receiver.hxx
 
 # the following file is needed by an include file (VERY DIRTY!)
-EXTRA_DIST = Receivers.cxx
+EXTRA_DIST += Receivers.cxx
 
 libSalomeCommunication_la_CPPFLAGS = $(COMMON_CPPFLAGS) $(OPT_CPPFLAGS)
 libSalomeCommunication_la_LDFLAGS  = -no-undefined -version-info=0:0:0 $(OPT_LDFLAGS)

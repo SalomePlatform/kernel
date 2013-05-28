@@ -25,6 +25,9 @@
 #  Module : KERNEL
 # $Header$
 #
+
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
@@ -129,4 +132,4 @@ if WITH_PACO_PARALLEL
 endif
 
 endif
-EXTRA_DIST = win32pm
+EXTRA_DIST += win32pm

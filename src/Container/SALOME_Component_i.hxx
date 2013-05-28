@@ -120,6 +120,9 @@ public:
   virtual bool hasObjectInfo() { return false; }
   virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return CORBA::string_dup(""); }
   
+  // Version information
+  virtual char* getVersion();
+  
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 

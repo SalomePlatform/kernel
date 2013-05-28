@@ -25,7 +25,7 @@
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [6.5.0], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [7.0.0], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -532,7 +532,7 @@ sed -i "s%\(\s*\)\(for searchdir in \$searchdirs; do\)%\1for sss in \$searchdirs
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
   KERNEL_version.h \
-  salome_adm/unix/SALOMEconfig.ref \
+  salome_adm/SALOMEconfig.ref \
   salome_adm/Makefile \
   salome_adm/cmake_files/Makefile \
   salome_adm/unix/Makefile \

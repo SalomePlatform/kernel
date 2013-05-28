@@ -33,7 +33,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # Header to be installed
 # ===============================================================
 #
-# header files  
+# header files
 salomeinclude_HEADERS = \
 	SALOME_Component_i.hxx \
 	SALOME_Container_i.hxx \
@@ -51,8 +51,7 @@ dist_salomescript_PYTHON =\
 	SALOME_Container.py
 
 # These files are executable scripts
-dist_salomescript_SCRIPTS=\
-	SALOME_ContainerPy.py
+dist_salomescript_SCRIPTS=
 
 #
 # ===============================================================
@@ -92,7 +91,7 @@ COMMON_LIBS =\
 	@CORBA_LIBS@ \
 	$(PYTHON_LIBS)
 
-if WITH_MPI_SEQ_CONTAINER	
+if WITH_MPI_SEQ_CONTAINER
 COMMON_CPPFLAGS += @MPI_INCLUDES@
 COMMON_LIBS += @MPI_LIBS@
 endif
@@ -149,7 +148,7 @@ SALOME_Container_LDADD = \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
 
-if WITH_MPI_SEQ_CONTAINER	
+if WITH_MPI_SEQ_CONTAINER
 SALOME_Container_LDADD += $(MPI_LIBS)
 endif
 

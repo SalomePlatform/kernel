@@ -26,7 +26,7 @@ General principles
 A SALOME application is defined by a set of modules (GEOM, SMESH, ASTER...).
 
 A SALOME User can define several SALOME Applications. These applications are
-runnable from the same user account. These applications may share the same 
+runnable from the same user account. These applications may share the same
 KERNEL and modules. Thus, the application configuration is independant of
 KERNEL and must not be put in KERNEL_ROOT_DIR.
 
@@ -62,7 +62,7 @@ First way - references to different module directories
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 The script createAppli.sh in ${KERNEL_ROOT_DIR}/bin/salome creates an
-application directory with the given path in parameter. ${APPLI} is a path 
+application directory with the given path in parameter. ${APPLI} is a path
 relative to ${HOME}.
 
 The directory is only a skeleton, the user has to edit several files to
@@ -91,7 +91,7 @@ creates a virtual installation of SALOME in the application directory ${APPLI}
 (bin, lib, doc, share...), with, for each file (executable, script, data,
 library, resources...), symbolic links to the actual file.
 
-Providing an existing an existing script for SALOME prerequisites (the same one
+Providing an existing script for SALOME prerequisites (the same one
 used for modules compilation, or given with the modules installation), the
 installation works without further modification for a single computer (unless
 some modules needs a special environment not defined in the above script).
@@ -109,7 +109,7 @@ following the computers).
 
 The ${APPLI} directory contains scripts for environment and runs. Environment
 scripts must be configured (by the user) on each computer. All the environment
-scripts are in the ${APPLI}/env.d directory. 
+scripts are in the ${APPLI}/env.d directory.
 
 The script  ${APPLI}/envd sources **all** the files (\*.sh) in ${APPLI}/env.d
 in alphanumeric order (after edition, think to remove backup files). the envd
@@ -139,8 +139,8 @@ envSALOME.sh
 
       export SalomeAppConfig=${HOME}/${APPLI}
 
-    where SalomeAppConfig designates the directory containing SalomeApp.xml. 
-    Note that ${APPLI} is already defined by the calling scripts when 
+    where SalomeAppConfig designates the directory containing SalomeApp.xml.
+    Note that ${APPLI} is already defined by the calling scripts when
     env.d/envSalome.sh is sourced.
 
 User run scripts
@@ -291,7 +291,7 @@ Add an external Python interpretor to a running session
 It's often easier to develop and try Python scripts outside the GUI embedded
 Python interpreter. Imagine, for instance, you are writing a script involving
 geometry and mesh modules.
-first, launch a SALOME session with gui, then, on another terminal::
+First, launch a SALOME session with gui, then, on another terminal::
 
    ./runSession
    python

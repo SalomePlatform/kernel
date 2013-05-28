@@ -26,8 +26,8 @@
 # ============================================================
 
 if !WITHONLYLAUNCHER
-    AM_CXXFLAGS = -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h
-    AM_CPPFLAGS = -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h
+    AM_CXXFLAGS = -I$(top_builddir)/salome_adm -include SALOMEconfig.h
+    AM_CPPFLAGS = -I$(top_builddir)/salome_adm -include SALOMEconfig.h
 else WITHONLYLAUNCHER
     AM_CXXFLAGS =
     AM_CPPFLAGS =
@@ -76,3 +76,7 @@ sharedpkgpythondir =$(salomepythondir)/shared_modules
 
 # Documentation directory
 docdir             = $(datadir)/doc/salome
+
+# Cmake files
+CMAKEFILES         = $(notdir $(wildcard $(srcdir)/CMakeLists.txt))
+EXTRA_DIST         = $(CMAKEFILES)
