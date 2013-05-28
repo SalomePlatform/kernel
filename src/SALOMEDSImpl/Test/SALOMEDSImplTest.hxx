@@ -25,17 +25,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#ifdef WIN32
-# if defined SALOMEDSIMPLTEST_EXPORTS || defined SALOMEDSImplTest_EXPORTS
-#  define SALOMEDSIMPLTEST_EXPORT __declspec( dllexport )
-# else
-#  define SALOMEDSIMPLTEST_EXPORT __declspec( dllimport )
-# endif
-#else
-# define SALOMEDSIMPLTEST_EXPORT
-#endif
-
-class SALOMEDSIMPLTEST_EXPORT SALOMEDSImplTest : public CppUnit::TestFixture
+class SALOMEDSImplTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( SALOMEDSImplTest );
   CPPUNIT_TEST( testAttributeParameter );

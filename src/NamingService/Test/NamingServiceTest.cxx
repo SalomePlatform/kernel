@@ -23,7 +23,6 @@
 #include "NamingServiceTest.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-#include "Basics_Utils.hxx"
 
 #include <iostream>
 #include <fstream>
@@ -43,10 +42,6 @@
 #define MYDEVTRACE
 #define DEVTRACE(msg)
 #endif
-
-#ifdef WIN32
-#define setenv Kernel_Utils::setenv
-#endif 
 
 #define TRACEFILE "/tmp/traceUnitTest.log"
 

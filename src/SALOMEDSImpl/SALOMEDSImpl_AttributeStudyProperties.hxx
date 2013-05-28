@@ -32,7 +32,6 @@
 #include "DF_Label.hxx"
 #include <string>
 #include <vector>
-#include <map>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeStudyProperties : public SALOMEDSImpl_GenericAttribute
@@ -74,10 +73,10 @@ public:
   void ChangeCreatorName(const std::string& theUserName);
 
   void SetUnits(const std::string& theUnits);
-  std::string GetUnits() const;
+  std::string GetUnits();
 
   void SetComment(const std::string& theComment);
-  std::string GetComment() const;
+  std::string GetComment();
 
   void SetCreationMode(const int theMode);
   int GetCreationMode() const;
@@ -90,20 +89,11 @@ public:
   bool IsLocked() const;
   bool IsLockChanged(const bool theErase);
 
-  void SetComponentsVersions( const std::map< std::string, std::vector<std::string> >& theVersions );
-  void SetComponentVersion(const std::string& theComponent, const std::string& theVersion);
-  std::vector<std::string> GetStoredComponents() const;
-  std::string GetComponentVersion(const std::string& theComponent) const;
-  std::vector<std::string> GetComponentVersions(const std::string& theComponent) const;
-  std::map< std::string, std::vector<std::string> > GetComponentsVersions() const;
-
   void Restore(DF_Attribute* with);
   DF_Attribute* NewEmpty() const;
   void Paste(DF_Attribute* into);
 
 private:
-  typedef std::vector<std::string> versionList;
-  typedef std::map<std::string, versionList> versionMap;
 
   std::vector<std::string> myUserName;
   std::vector<int> myMinute;
@@ -113,11 +103,11 @@ private:
   std::vector<int> myYear;
   std::string      myUnits;
   std::string      myComment;
-  int              myMode;
-  int              myModified;
-  bool             myLocked;
-  bool             myLockChanged;
-  versionMap       myComponentVersions;
+  int myMode;
+  int myModified;
+  bool myLocked;
+  bool myLockChanged;
+
 };
 
 #endif

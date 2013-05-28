@@ -33,7 +33,7 @@ RSTFILES = \
 	kernel.rst \
 	parametric.rst
 
-EXTRA_DIST += archives $(RSTFILES)
+EXTRA_DIST = archives $(RSTFILES)
 
 SPHINXOPTS      =
 SOURCEDIR       = $(srcdir)

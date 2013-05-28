@@ -237,8 +237,6 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     p_ptr->mpiImpl = "mpich2";
   else if( resource.mpi == openmpi )
     p_ptr->mpiImpl = "openmpi";
-  else if( resource.mpi == ompi )
-    p_ptr->mpiImpl = "ompi";
   else if( resource.mpi == slurmmpi )
     p_ptr->mpiImpl = "slurmmpi";
   else if( resource.mpi == prun )
@@ -317,8 +315,6 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.mpi = mpich2;
   else if (anMpi == "openmpi")
     resource.mpi = openmpi;
-  else if (anMpi == "ompi")
-    resource.mpi = ompi;
   else if  (anMpi == "slurmmpi")
     resource.mpi = slurmmpi;
   else if  (anMpi == "prun")
@@ -503,7 +499,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
           cluster_it++;
         }
       }
-      else if ((resource.mpi == openmpi) || (resource.mpi == ompi))
+      else if (resource.mpi == openmpi)
       {
         // Creating machine file
         machine_file_name = tmpnam(NULL);

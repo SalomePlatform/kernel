@@ -28,11 +28,7 @@
 #include <cstdlib>
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
-#include "Basics_Utils.hxx"
 
-#ifdef WIN32
-#define setenv Kernel_Utils::setenv
-#endif 
 
 // ============================================================================
 /*!
@@ -113,7 +109,4 @@ void *PrintHello(void *threadid)
                 << " - iter " << i);
 #endif
   pthread_exit(NULL);
-  #ifdef WIN32
-    return NULL;
-  #endif
 }

@@ -28,11 +28,7 @@
 #include <cstdlib>
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
-#include "Basics_Utils.hxx"
 
-#ifdef WIN32
-#define setenv Kernel_Utils::setenv
-#endif 
 
 // ============================================================================
 /*!
@@ -104,10 +100,11 @@ SALOMELocalTraceTest::testLoadBufferPoolLocal()
   std::string s = "local";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  // --- NUM_THREADS thread creation for trace generation.
-  pthread_t threads[NUM_THREADS];
+  // --- numThread thread creation for trace generation.
+  int numThread = 2;
+  pthread_t threads[numThread];
   int rc, t;
-  for(t=0;t<NUM_THREADS;t++)
+  for(t=0;t<numThread;t++)
     {
       MESSAGE("Creating thread " << t);
       rc = pthread_create(&threads[t], NULL, PrintHello, &t) ;
@@ -116,7 +113,7 @@ SALOMELocalTraceTest::testLoadBufferPoolLocal()
 
   // --- wait for end of each thread producing trace.
 
-  for(t=0;t<NUM_THREADS;t++)
+  for(t=0;t<numThread;t++)
     {
       pthread_join(threads[t], NULL);
       MESSAGE("--------------------- end of PrintHello thread " << t);
@@ -190,7 +187,4 @@ void *PrintHello(void *threadid)
         << " - iter " << i);
 #endif
   pthread_exit(NULL);
-  #ifdef WIN32
-    return NULL;
-  #endif
 }

@@ -69,7 +69,7 @@ OTHER_IDL_FILES = \
   TypeData.idl
 
 # all the idl files are needed for make dist
-EXTRA_DIST += $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
+EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
 	    SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml \
 	    SALOME_PACOExtension.xml SALOME_ParamPorts.xml \
 	    SALOME_GenericObj.xml SALOME_Exception.xml

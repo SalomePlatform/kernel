@@ -25,17 +25,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#ifdef WIN32
-# if defined SALOMETRACECOLLECTORTEST_EXPORTS || defined SALOMETraceCollectorTest_EXPORTS
-#  define SALOMETRACECOLLECTORTEST_EXPORT __declspec( dllexport )
-# else
-#  define SALOMETRACECOLLECTORTEST_EXPORT __declspec( dllimport )
-# endif
-#else
-# define SALOMETRACECOLLECTORTEST_EXPORT
-#endif
-
-class SALOMETRACECOLLECTORTEST_EXPORT SALOMETraceCollectorTest : public CppUnit::TestFixture
+class SALOMETraceCollectorTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( SALOMETraceCollectorTest );
   CPPUNIT_TEST( testLoadBufferPoolCORBA );

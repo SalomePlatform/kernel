@@ -120,7 +120,7 @@ if test "x${boost_headers_ok}" = "xyes" ; then
     done
   fi
   if test "x${boost_lib_dir_ok}" = "xyes" ; then
-    LIBS="${LIBS_old} ${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX} -lboost_system${BOOST_LIBSUFFIX}"
+    LIBS="${LIBS_old} ${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}"
     AC_TRY_LINK([#include <boost/thread/thread.hpp>],
                 [struct TBody{ void operator()(){} }; boost::thread(TBody())],
                 boost_binaries_ok=yes,
@@ -138,7 +138,7 @@ else
   AC_MSG_RESULT(\$BOOST_LIBSUFFIX = ${BOOST_LIBSUFFIX})
   AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
-                BOOST_LIB_THREAD="${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX} -lboost_system${BOOST_LIBSUFFIX}",
+                BOOST_LIB_THREAD="${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}",
                 BOOST_LIB_THREAD="")
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_signals${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_SIGNALS="${BOOST_LIBS} -lboost_signals${BOOST_LIBSUFFIX}",

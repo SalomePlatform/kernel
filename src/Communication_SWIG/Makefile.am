@@ -86,7 +86,7 @@ swig_wrap.cpp libSALOME_Comm.py : $(SWIGSOURCES)
 
 CLEANFILES = swig_wrap.cpp
 
-EXTRA_DIST += $(SWIGSOURCES)
+EXTRA_DIST = $(SWIGSOURCES)
 
 #
 # ===============================================================

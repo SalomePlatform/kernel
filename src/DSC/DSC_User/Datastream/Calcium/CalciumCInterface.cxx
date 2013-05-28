@@ -66,9 +66,6 @@ CALCIUM_C2CPP_INTERFACE_CXX_(long2integer, integer, long,);
 
 CALCIUM_C2CPP_INTERFACE_CXX_(float,float,float, );
 CALCIUM_C2CPP_INTERFACE_CXX_(double,double,double,);
-
-CALCIUM_C2CPP_INTERFACE_CXX_(float2double,double,float, );
-
 /*  Fonnctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);*/
 CALCIUM_C2CPP_INTERFACE_CXX_(bool,bool,int,);
 CALCIUM_C2CPP_INTERFACE_CXX_(cplx,cplx,float,);

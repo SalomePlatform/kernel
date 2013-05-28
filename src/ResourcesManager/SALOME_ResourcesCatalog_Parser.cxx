@@ -263,8 +263,6 @@ ParserResourcesType::PrintMpiImplType() const
     return "mpich2";
   else if (mpi == openmpi)
     return "openmpi";
-  else if (mpi == ompi)
-    return "ompi";
   else if (mpi == slurmmpi)
     return "slurmmpi";
   else

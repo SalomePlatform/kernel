@@ -102,7 +102,7 @@ libSalomeHDFPersist_la_CPPFLAGS = @HDF5_INCLUDES@ -D@MACHINE@
 
 libSalomeHDFPersist_la_LIBADD   = @HDF5_LIBS@
 
-EXTRA_DIST += \
+EXTRA_DIST = \
   test1.c \
   test2.c \
   test3.cxx \

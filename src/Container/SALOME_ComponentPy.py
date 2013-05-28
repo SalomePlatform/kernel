@@ -314,9 +314,3 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     def getObjectInfo(self, studyId, entry):
         return ""
 
-    #-------------------------------------------------------------------------    
-
-    def getVersion(self):
-        return "" # empty string means "unknown" version
-
-    pass # end of SALOME_ComponentPy_i

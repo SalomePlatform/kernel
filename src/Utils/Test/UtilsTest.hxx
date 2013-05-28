@@ -25,17 +25,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#ifdef WIN32
-# if defined UTILSTEST_EXPORTS || defined UtilsTest_EXPORTS
-#  define UTILSTEST_EXPORT __declspec( dllexport )
-# else
-#  define UTILSTEST_EXPORT __declspec( dllimport )
-# endif
-#else
-# define UTILSTEST_EXPORT
-#endif
-
-class UTILSTEST_EXPORT UtilsTest : public CppUnit::TestFixture
+class UtilsTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( UtilsTest );
   CPPUNIT_TEST( testSALOME_ExceptionThrow );

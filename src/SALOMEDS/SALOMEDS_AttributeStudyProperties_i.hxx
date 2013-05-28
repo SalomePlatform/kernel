@@ -73,10 +73,6 @@ public:
 
   virtual void SetUnits(const char* theUnits);
   virtual char* GetUnits();
-
-  virtual SALOMEDS::StringSeq* GetStoredComponents();
-  virtual char* GetComponentVersion(const char* theComponent);
-  virtual SALOMEDS::StringSeq* GetComponentVersions(const char* theComponent);
 };
 
 

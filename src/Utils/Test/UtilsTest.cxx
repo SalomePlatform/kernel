@@ -27,12 +27,8 @@
 #include <string>
 #include <cstdlib>
 #include "Utils_SALOME_Exception.hxx"
-#include "Basics_Utils.hxx"
 #include "utilities.h"
 
-#ifdef WIN32
-#define setenv Kernel_Utils::setenv
-#endif 
 
 #define TRACEFILE "/tmp/traceUnitTest.log"
 

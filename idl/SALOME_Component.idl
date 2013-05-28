@@ -453,17 +453,6 @@ module Engines
       \return an information about the given object.
     */
     string getObjectInfo(in long studyId, in string entry);
-
-    //! Get version of the component
-    /*!
-      This method is supposed to be implemented in all derived classes; default implementation
-      returns "unknown" string that means that no version information about the component is available.
-      \note The version of the component is stored to the study, as a part of general persistence
-      mechanism; once stored, version information in the study cannot be changed.
-
-      \return string containing component's version, e.g. "1.0"
-    */
-    string getVersion();
   } ;
 
   /*!

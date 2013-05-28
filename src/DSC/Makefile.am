@@ -24,8 +24,6 @@
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
 #
-include $(top_srcdir)/salome_adm/unix/make_common_starter.am
-
 SUBDIRS_COMMON = DSC_Basic 
 
 if !WINDOWS
@@ -38,6 +36,6 @@ endif
 
 SUBDIRS = $(SUBDIRS_COMMON) $(SUBDIRS_ADD) $(SUBDIR_PAR) 
 
-EXTRA_DIST+= DSC.dox
+EXTRA_DIST= DSC.dox
 
 DIST_SUBDIRS = DSC_Basic DSC_User DSC_Python ParallelDSC

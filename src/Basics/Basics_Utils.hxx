@@ -61,10 +61,6 @@ namespace Kernel_Utils
   BASICS_EXPORT std::string GetGUID( GUIDtype );
 #ifndef WIN32
   BASICS_EXPORT void print_traceback();
-#else
-#if (_MSC_VER >= 1400) // Visual Studio 2005
-  BASICS_EXPORT int setenv(const char*, const char*, int);
-#endif
 #endif
 }
 

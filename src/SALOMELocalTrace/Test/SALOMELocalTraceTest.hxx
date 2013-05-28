@@ -25,17 +25,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#ifdef WIN32
-# if defined SALOMELOCALTRACETEST_EXPORTS || defined SALOMELocalTraceTest_EXPORTS
-#  define SALOMELOCALTRACETEST_EXPORT __declspec( dllexport )
-# else
-#  define SALOMELOCALTRACETEST_EXPORT __declspec( dllimport )
-# endif
-#else
-# define SALOMELOCALTRACETEST_EXPORT
-#endif
-
-class SALOMELOCALTRACETEST_EXPORT SALOMELocalTraceTest : public CppUnit::TestFixture
+class SALOMELocalTraceTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( SALOMELocalTraceTest );
   CPPUNIT_TEST( testSingletonBufferPool );

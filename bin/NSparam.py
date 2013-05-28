@@ -37,40 +37,38 @@ def getNSparams(info=""):
     from salome_utils import getORBcfgInfo
     my_version, my_host, my_port = getORBcfgInfo()
     if info=='host':
+        # keep print, stdout used in shell
+        print my_host
         os.environ['NSHOST']=my_host
         return my_host
         pass
     elif info=='port':
+        # keep print, stdout used in shell
+        print my_port
         os.environ['NSPORT']=my_port
         return my_port
         pass
     else:
+        # keep print, stdout used in shell
+        print  my_host, my_port
         return my_host, my_port
     pass
-#
 
 # ------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    if len(sys.argv) >1:
+    if len(sys.argv) >1:        
         if sys.argv[1]=='host':
-            my_host = getNSparams('host')
-            # keep print, stdout used in shell
-            print my_host
+            getNSparams('host')
             pass
         elif sys.argv[1]=='port':
-            my_port = getNSparams('port')
-            # keep print, stdout used in shell
-            print my_port
+            getNSparams('port')
             pass
         else:
-            my_host, my_port = getNSparams()
+            getNSparams()
             pass
         pass
     else:
         getNSparams()
-        # keep print, stdout used in shell
-        print my_host, my_port
         pass
     pass
-#

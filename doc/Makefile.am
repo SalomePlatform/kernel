@@ -29,7 +29,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 SUBDIRS = salome docutils
 
-EXTRA_DIST += configuration_examples README.cluster-CCRT
+EXTRA_DIST = configuration_examples README.cluster-CCRT
 
 docs: usr_docs
 

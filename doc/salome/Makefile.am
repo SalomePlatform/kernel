@@ -39,8 +39,8 @@ dev_docs:
 	echo "Making dev_docs in tui"; \
 	(cd tui && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
 
-EXTRA_DIST+= main.dox install.dox \
+EXTRA_DIST= main.dox install.dox \
 	    kernel_resources.dox kernel_services.dox kernel_services_cpphelpers.dox \
 	    salome_application.dox unittests.dox \
-	    salome_file.dox kernel_salome.dox running_salome.dox \
+	    salome_file.dox kernel_salome.dox \
 	    examples

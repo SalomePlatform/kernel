@@ -30,17 +30,7 @@
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 #include "SALOME_NamingService.hxx"
 
-#ifdef WIN32
-# if defined LIFECYCLECORBATEST_EXPORTS || defined LifeCycleCORBATest_EXPORTS
-#  define LIFECYCLECORBATEST_EXPORT __declspec( dllexport )
-# else
-#  define LIFECYCLECORBATEST_EXPORT __declspec( dllimport )
-# endif
-#else
-# define LIFECYCLECORBATEST_EXPORT
-#endif
-
-class LIFECYCLECORBATEST_EXPORT LifeCycleCORBATest : public CppUnit::TestFixture
+class LifeCycleCORBATest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( LifeCycleCORBATest );
   CPPUNIT_TEST( testFindOrLoad_Component_LaunchContainer );

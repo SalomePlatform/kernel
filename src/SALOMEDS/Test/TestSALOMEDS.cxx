@@ -53,9 +53,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 
-#ifdef WIN32
-#define setenv Kernel_Utils::setenv
-#endif 
 
 // ============================================================================
 /*!
@@ -87,13 +84,8 @@ int main(int argc, char* argv[])
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_var orb = init(argc , argv ) ;
-  
-  #ifndef WIN32
-    sleep(15);
-  #else
-    Sleep(15000);
-  #endif
-  
+
+  sleep(15);
 
   std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");

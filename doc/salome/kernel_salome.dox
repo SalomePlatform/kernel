@@ -3,18 +3,6 @@
 \page kernel_salome Using salome.py module
 
 
-The Python module salome.py provides a functionality to access main
-SALOME features from the Python console (either embedded in GUI
-desktop or external one).
-
-To use salome.py module, import it into the Python interpreter and
-initialize it by calling \c salome_init() function:
-
-\code
-import salome
-salome.salome_init()
-\endcode
-
 The salome.py Python module provides a set of variables and functions
 allowing access to different elements of the current SALOME
 session.
@@ -112,7 +100,6 @@ study = salome.myStudyManager.GetStudyByName("/home/user/MyStudy.hdf")
 # ...
 \endcode
 
-\anchor salome_myStudy
 \li \b myStudy Reference to the current (active) study
 
 This variable can be used to manipulate with the date of the study:
@@ -297,37 +284,13 @@ name_1 = salome.generateName() # name_1 is something like "Study682"
 name_1 = salome.generateName("Obj") # name_1 is something like "Obj32"
 \endcode
 
-\li \b GetComponentVersion() Get version of component data stored in
-the study
+\li \b sg SWIG interface to the SALOME GUI
 
-This function allows to obtain the version of the component data
-stored in the current study.
-\note This function does not provide a current version of the
-component being used but that one initially stored in the study
-document.
+This variable provides an access to some GUI functions.
 
-The first parameter specifies the name of the component. If the
-specified component data is not stored in the study, the result value
-is "no component data". If the version of data is undefined, the
-result is "unknown".
+\b Note, that this variable is only available if you use salome.py
+Python module within the GUI desktop (since SWIG library is linked directly to the GUI library).
+See GUI documentation for more information.
 
-The second parameter (\c False by default), when set to \c True,
-allows to retrieve all versions of the component data stored in the
-study. This is useful to check if version information is valid (the
-data might be updated and/or re-stored in %SALOME of versions different
-from initial one). 
-
-\code
-# get initial version of GEOM module data stored in the study
-geom_version = salome.GetComponentVersion('GEOM')
-# get all versions of GEOM module data stored in the study
-all_geom_versions = salome.GetComponentVersion('GEOM', True)
-\endcode
-
-This function is introduced in %SALOME 6.6.0 (it does not work with
-studies created before version 6.6.0).
-
-\note The study should be initialized before calling this function
-(see \ref salome_myStudy "salome.myStudy").
 
 */

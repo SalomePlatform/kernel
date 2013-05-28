@@ -117,7 +117,7 @@ def appliCleanOmniOrbConfig(port):
             os.remove(omniorb_config)
             pass
 
-        if os.path.lexists(last_running_config):return
+        if os.path.lexists(last_running_config):return 
 
         #try to relink last.cfg to an existing config file if any
         files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
@@ -137,21 +137,21 @@ def appliCleanOmniOrbConfig(port):
 
 ########## kills all salome processes with the given port ##########
 
-def shutdownMyPort(port, cleanup=True):
+def shutdownMyPort(port):
     """
     Shutdown SALOME session running on the specified port.
     Parameters:
     - port - port number
     """
     if not port: return
-
+    
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
     home  = os.getenv("HOME")
     appli = os.getenv("APPLI")
     kwargs = {}
-    if appli is not None:
+    if appli is not None: 
         home = os.path.join(os.path.realpath(home), appli,"USERS")
         kwargs["with_username"]=True
         pass
@@ -162,29 +162,22 @@ def shutdownMyPort(port, cleanup=True):
                                       with_port=port,
                                       **kwargs)
     os.environ['OMNIORB_CONFIG'] = omniorb_config
-    os.environ['NSPORT'] = str(port)
 
     # give the chance to the servers to shutdown properly
     try:
         import time
-        from omniORB import CORBA
-        from LifeCycleCORBA import LifeCycleCORBA
+        import salome_kernel
+        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
         # shutdown all
-        orb = CORBA.ORB_init([''], CORBA.ORB_ID)
-        lcc = LifeCycleCORBA(orb)
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
         # shutdown omniNames and notifd
-        if cleanup:
-            lcc.killOmniNames()
-            time.sleep(1)
-            pass
-        pass
+        salome_kernel.LifeCycleCORBA.killOmniNames()
     except:
         pass
     pass
-
+    
 def killMyPort(port):
     """
     Kill SALOME session running on the specified port.
@@ -192,12 +185,12 @@ def killMyPort(port):
     - port - port number
     """
     from salome_utils import getShortHostName, getHostName
-
+    
     # try to shutdown session nomally
     import threading, time
-    threading.Thread(target=shutdownMyPort, args=(port,False)).start()
+    threading.Thread(target=shutdownMyPort, args=(port,)).start()
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
-
+    
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
@@ -225,7 +218,7 @@ def killMyPort(port):
                                          suffix="Pid_omniNames",
                                          extension="log",
                                          with_port=port)
-        if not sys.platform == 'win32':
+        if not sys.platform == 'win32':        
             cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start %s"` ; echo $pid > %s' % ( str(port), fpidomniNames )
             a = os.system(cmd)
             pass
@@ -262,7 +255,7 @@ def killMyPort(port):
                     try:
                         if sys.platform == "win32":
                             import win32pm
-                            win32pm.killpid(int(pid),0)
+                            win32pm.killpid(int(pid),0)                            
                         else:
                             os.kill(int(pid),signal.SIGKILL)
                             pass
@@ -292,7 +285,7 @@ def killMyPort(port):
     #
     appliCleanOmniOrbConfig(port)
     pass
-
+            
 def killNotifdAndClean(port):
     """
     Kill notifd daemon and clean application running on the specified port.
@@ -362,19 +355,10 @@ def killMyPortSpy(pid, port):
     return
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "Usage: "
-        print "  %s <port>" % os.path.basename(sys.argv[0])
-        print
-        print "Kills SALOME session running on specified <port>."
-        sys.exit(1)
-        pass
     if sys.argv[1] == "--spy":
-        if len(sys.argv) > 3:
-            pid = sys.argv[2]
-            port = sys.argv[3]
-            killMyPortSpy(pid, port)
-            pass
+        pid = sys.argv[2]
+        port = sys.argv[3]
+        killMyPortSpy(pid, port)
         sys.exit(0)
         pass
     for port in sys.argv[1:]:

@@ -35,11 +35,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <pthread.h>  // must be before Python.h !
-
-#ifdef _XOPEN_SOURCE
-#undef _XOPEN_SOURCE
-#endif
-
 #include <Python.h>
 #include "Container_init_python.hxx"
 

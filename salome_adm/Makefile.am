@@ -19,29 +19,6 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 SUBDIRS = unix cmake_files
 AUTOMAKE_OPTIONS=filename-length-max=255
-
-# rules for install and build (see make_common_starter.am)
-salomeadmux_DATA = SALOMEconfig.h.in
-salomeinclude_DATA = SALOMEconfig.h
-BUILT_SOURCES=SALOMEconfig.ref SALOMEconfig.h SALOMEconfig.h.in
-
-mostlyclean-local:
-	-rm -rf SALOMEconfig.h SALOMEconfig.h.in
-
-SALOMEconfig.h.in : SALOMEconfig.ref.in
-	cp -pf $< $@;
-
-# test if SALOMEconfig.ref has changed (contents), at build time
-SALOMEconfig.h: $(top_builddir)/salome_adm/SALOMEconfig.ref
-	@if ! [ -a $@ ]; then    \
-	  echo cp -pf $< $@;     \
-	  cp -pf $< $@;          \
-	fi;		         \
-	if ! cmp -s $< $@; then  \
-	  echo cp -pf $< $@;     \
-	  cp -pf $< $@;          \
-	fi;

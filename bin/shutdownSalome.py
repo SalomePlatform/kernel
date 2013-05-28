@@ -27,12 +27,9 @@
 #
 
 import time
-from omniORB import CORBA
-from LifeCycleCORBA import *
-
-orb = CORBA.ORB_init([''], CORBA.ORB_ID)
-lcc = LifeCycleCORBA(orb)
+import salome_kernel
+orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
 lcc.shutdownServers()
+#give some time to shutdown to complete
 time.sleep(1)
-LifeCycleCORBA.killOmniNames()
-time.sleep(1)
+salome_kernel.LifeCycleCORBA.killOmniNames()

@@ -62,7 +62,6 @@ public:
 
   virtual std::string ComponentDataType() = 0;
 
-  virtual std::string Version() = 0;
 
   virtual std::string IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
     const std::string& IORString,
