@@ -68,8 +68,7 @@ INSTALL(TARGETS TestLogger TestContainer DESTINATION ${KERNEL_salomebin_BINS})
 
 # Executable scripts to be installed
 SET(SCRIPTS
-  SALOME_TestComponentPy.py 
-  TestComponentPy.py 
+  SALOME_TestComponentPy.py
   TestLogger.py
 )
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${KERNEL_salomescript_PYTHON})

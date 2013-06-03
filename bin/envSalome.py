@@ -22,6 +22,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+
+##############################################
+############### IMPORTANT NOTE ###############
+##############################################
+# The envSalome.py script is obsolete.       #
+# Please consider the new salome.py command. #
+# More info: cedric.aguerre@edf.fr           #
+##############################################
+
+
 import os
 import sys
 import setenv

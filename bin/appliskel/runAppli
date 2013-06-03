@@ -21,6 +21,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+
+echo "##############################################"
+echo "############### IMPORTANT NOTE ###############"
+echo "##############################################"
+echo "# The runAppli script is obsolete.           #"
+echo "# Please consider the new salome.py command. #"
+echo "# More info: cedric.aguerre@edf.fr           #"
+echo "##############################################"
+
+
 APPLI_HOME=`dirname $0`
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
@@ -46,5 +56,5 @@ if [ $# -ne 0 ] ; then
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
 
 else
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py
 fi

@@ -33,7 +33,6 @@ from launchConfigureParser import verbose
 
 # Import the stubs for the Naming service
 import CosNaming
-#from runNS import *
 
 # -----------------------------------------------------------------------------
 

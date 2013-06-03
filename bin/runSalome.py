@@ -32,11 +32,6 @@ import setenv
 from launchConfigureParser import verbose
 from server import process_id, Server
 
-if sys.platform == "win32":
-    SEP = ";"
-else:
-    SEP = ":"
-
 # -----------------------------------------------------------------------------
 
 from killSalome import killAllPorts
@@ -132,7 +127,7 @@ def get_cata_path(list_modules,modules_root_dir):
                     cata_path.append(cata_file)
                     modules_cata[module]=cata_file
 
-    for path in os.getenv("SALOME_CATALOGS_PATH","").split(SEP):
+    for path in os.getenv("SALOME_CATALOGS_PATH","").split(os.pathsep):
         if os.path.exists(path):
             for cata_file in glob.glob(os.path.join(path,"*Catalog.xml")):
                 module_name= os.path.basename(cata_file)[:-11]
@@ -200,17 +195,6 @@ class ContainerCPPServer(Server):
 
 # ---
 
-class ContainerPYServer(Server):
-    def __init__(self,args):
-        self.args=args
-        self.initArgs()
-        if sys.platform == "win32":
-          self.CMD=[os.environ["PYTHONBIN"], '\"'+os.environ["KERNEL_ROOT_DIR"] + '/bin/salome/SALOME_ContainerPy.py'+'\"','FactoryServerPy']
-        else:
-          self.CMD=['SALOME_ContainerPy.py','FactoryServerPy']
-
-# ---
-
 class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
@@ -262,7 +246,7 @@ class SessionServer(Server):
         if 'cppContainer' in self.args['standalone'] or 'cppContainer' in self.args['embedded']:
             self.SCMD2+=['CPP']
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
-            self.SCMD2+=['PY']
+            raise Exception('Python containers no longer supported')
         if self.args['gui']:
             session_gui = True
             if self.args.has_key('session_gui'):
@@ -608,12 +592,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     if 'pyContainer' in args['standalone']:
-        myServer=ContainerPYServer(args)
-        myServer.run()
-        if sys.platform == "win32":
-          clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
-        else:
-          clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
+        raise Exception('Python containers no longer supported')
 
     #
     # Wait until Session Server is registered in naming service
@@ -912,10 +891,9 @@ def foreGround(clt, args):
         killMyPort(port)
         pass
     return
+#
 
-# -----------------------------------------------------------------------------
-
-if __name__ == "__main__":
+def runSalome():
     import user
     clt,args = main()
     # --
@@ -943,3 +921,10 @@ if __name__ == "__main__":
         pass
     # --
     pass
+#
+
+# -----------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    runSalome()
+#

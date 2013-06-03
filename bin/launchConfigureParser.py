@@ -81,7 +81,7 @@ script_nam     = "pyscript"
 
 # possible choices for the "embedded" and "standalone" parameters
 embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
-standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer", "pyContainer"]
+standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer"]
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting

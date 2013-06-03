@@ -36,9 +36,7 @@ SUBDIRS = appliskel
 #
 
 # These files are data, module or lib files
-dist_salomescript_DATA =	\
-	config_appli.xml	\
-	salome.launch
+dist_salomescript_DATA =
 
 nodist_salomescript_DATA =	\
 	VERSION
@@ -46,15 +44,7 @@ nodist_salomescript_DATA =	\
 # These files are executable scripts
 dist_salomescript_SCRIPTS =		\
 	appli_clean.sh			\
-	appli_install.sh		\
-	createAppli.sh			\
-	runIDLparser			\
-	runNS.sh			\
-	runSalome			\
-	runSalome.csh			\
-	runSalome.ksh			\
-	runSalome.bat			\
-	waitNS.sh
+	runIDLparser
 
 # These files are python files
 dist_salomescript_PYTHON =		\
@@ -64,14 +54,16 @@ dist_salomescript_PYTHON =		\
 	killSalome.py			\
 	killSalomeWithPort.py		\
 	launchConfigureParser.py	\
-	launchSalome.py			\
 	nameserver.py			\
 	NSparam.py			\
 	orbmodule.py			\
 	ORBConfigFile.py		\
-	runNS.py			\
+	parseConfigFile.py		\
 	runSalome.py			\
+	runSession.py			\
+	runConsole.py			\
 	salomeConsole.py		\
+	salomeRunner.py			\
 	salome_session.py		\
 	salome_utils.py			\
 	searchFreePort.py		\

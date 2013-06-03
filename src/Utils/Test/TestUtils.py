@@ -46,6 +46,6 @@ clt.waitLogger("Logger")
 command = ['TestUtils']
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
-# kill Test process 
+# kill Test process
 
 TestKiller.killProcess(runSalome.process_id)

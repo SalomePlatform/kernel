@@ -78,7 +78,7 @@ else:
   else:
      sys.exit(1)
 
-print sys.argv
+#print sys.argv
 
 #direct adress from clt.orb.object_to_string(clt.rootContext)
 #sys.argv=sys.argv+['-ORBInitRef','NameService=IOR:010000000100000000000000010000000000000023000000010100000a0000006c6f63616c686f737400fa0a0b0000004e616d6553657276696365']

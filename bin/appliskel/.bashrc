@@ -26,4 +26,25 @@
 [ -z "$PS1" ] && return
 
 # prefix prompt with naming server hostname and port
-export PS1='[NS='${NSHOST}':'${NSPORT}']'${PS1}
+#export PS1='[NS='${NSHOST}':'${NSPORT}']'${PS1}
+
+NO_COLOR="\[\033[0m\]"
+RED="\[\033[0;31m\]"
+DARK_RED="\[\033[1;31m\]"
+GREEN="\[\033[0;32m\]"
+DARK_GREEN="\[\033[1;32m\]"
+BROWN="\[\033[0;33m\]"
+DARK_BROWN="\[\033[1;33m\]"
+BLUE="\[\033[0;34m\]"
+DARK_BLUE="\[\033[1;34m\]"
+PURPLE="\[\033[0;35m\]"
+DARK_PURPLE="\[\033[1;35m\]"
+CYAN="\[\033[0;36m\]"
+DARK_CYAN="\[\033[1;36m\]"
+
+NS_COLOR=${BROWN}
+HOST_COLOR=${BLUE}
+PORT_COLOR=${PURPLE}
+DEFAULT_COLOR=${NO_COLOR}
+
+export PS1="${DEFAULT_COLOR}[${NS_COLOR}NS=${HOST_COLOR}${NSHOST}${NS_COLOR}:${PORT_COLOR}${NSPORT}${NS_COLOR}${DEFAULT_COLOR}]\$ "

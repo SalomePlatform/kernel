@@ -44,7 +44,7 @@ Module
 
 Container
    definition of a container
-  
+
 
 General concepts
 ================
@@ -92,24 +92,19 @@ Developer's guide - managing the development space
   - personalisation des procédures de construction
 
 Developer' guide - integration tools
-==================================== 
-- Guide de l'intégrateur (développeur de nouveaux modules)
-(on lui montre ici le principe de construction et les ressources à
-disposition pour faire le travail)
+====================================
+- Guide de l'intégrateur (développeur de nouveaux modules) : (on lui montre ici le principe de construction et les ressources à disposition pour faire le travail)
   - création d'un modules
   - intégration code boîte noire (perfect, solver)
-  - intégration bibliothèque de fonctions (hxx2salome, voir avec
-    N.Crouzet)
-  - intégration de modèles de données (xdata) 
+  - intégration bibliothèque de fonctions (hxx2salome, voir avec N.Crouzet)
+  - intégration de modèles de données (xdata)
 
 
 End user's guide
 ================
 - Guide de l'utilisateur
   - concept d'application (renvoie doc Paul)
-  - commandes avancées (showNS, exemple de contact de la
-    session, d'un engine, utilisation du lifeCycle, du module salome,
-    des modules geompy et smesh)
+  - commandes avancées (showNS, exemple de contact de la session, d'un engine, utilisation du lifeCycle, du module salome, des modules geompy et smesh)
   - utilisation en mode distribué (doc de B. Sechet)
   - GUI and TUI documentation
 
@@ -130,7 +125,7 @@ End user's guide
 RST Exemples
 ============
 
-See INSTALL_ for general information on required configuration and 
+See INSTALL_ for general information on required configuration and
 prerequisites, compilation procedure, setting environment principles.
 
 .. _INSTALL: ./INSTALL.html

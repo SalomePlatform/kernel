@@ -25,6 +25,17 @@
 # Use it with args to run a program : runSession python -i myprog.py
 # Use it without args to run an interactive shell under Salome env
 
+
+echo "##############################################"
+echo "############### IMPORTANT NOTE ###############"
+echo "##############################################"
+echo "# The runSession script is obsolete.         #"
+echo "# Please consider the new salome.py command. #"
+echo "# More info: cedric.aguerre@edf.fr           #"
+echo "##############################################"
+
+
+
 APPLI_HOME=`dirname $0`
 
 NSPORT=last
