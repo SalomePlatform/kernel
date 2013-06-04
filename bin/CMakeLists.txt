@@ -45,6 +45,7 @@ SET(SCRIPTS
   orbmodule.py
   ORBConfigFile.py
   parseConfigFile.py
+  runSalome
   runSalome.py
   runSession.py
   runConsole.py

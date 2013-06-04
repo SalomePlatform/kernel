@@ -44,7 +44,8 @@ nodist_salomescript_DATA =	\
 # These files are executable scripts
 dist_salomescript_SCRIPTS =		\
 	appli_clean.sh			\
-	runIDLparser
+	runIDLparser				\
+	runSalome
 
 # These files are python files
 dist_salomescript_PYTHON =		\
