@@ -38,7 +38,7 @@ echo "##############################################"
 
 
 
-#${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
 
 echo "The runSalome script is obsolete."
 echo "Please consider the new salome.py command."
