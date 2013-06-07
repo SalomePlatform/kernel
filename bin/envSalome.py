@@ -23,13 +23,12 @@
 #
 
 
-##############################################
-############### IMPORTANT NOTE ###############
-##############################################
-# The envSalome.py script is obsolete.       #
-# Please consider the new salome.py command. #
-# More info: cedric.aguerre@edf.fr           #
-##############################################
+###############################################
+############### IMPORTANT NOTE ################
+###############################################
+# The runConsole script is obsolete.          #
+# Please consider the new salome.py launcher. #
+###############################################
 
 
 import os
