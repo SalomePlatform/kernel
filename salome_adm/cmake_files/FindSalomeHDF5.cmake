@@ -20,6 +20,12 @@
 # HDF5 detection for Salome
 
 set(HDF5_ROOT_DIR $ENV{HDF5_ROOT_DIR} CACHE PATH "Path to Hdf5 directory")
+
+# If HDF5 is compiled with CMake, we use the config file
+if(EXISTS ${HDF5_ROOT_DIR}/share/cmake/hdf5)
+  INCLUDE(${HDF5_ROOT_DIR}/share/cmake/hdf5/hdf5-config.cmake)
+endif(EXISTS ${HDF5_ROOT_DIR}/share/cmake/hdf5)
+
 if(EXISTS ${HDF5_ROOT_DIR})
   set(CMAKE_INCLUDE_PATH ${HDF5_ROOT_DIR}/include)
   set(CMAKE_LIBRARY_PATH ${HDF5_ROOT_DIR}/lib)
