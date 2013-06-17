@@ -23,13 +23,13 @@
 
 #clean appli
 
-DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml runSalomeScript update_catalogs.py kill_remote_containers.py *.pyc *~ .bashrc"
+DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py runAppli runConsole runSession runRemote.sh SalomeApp.xml runSalomeScript update_catalogs.py kill_remote_containers.py salome *.pyc *~ .bashrc"
 DOIT="false"
 
 if [ $# -gt 0 ]
 then
   if [ "x$1" == "x-f" ]
-  then 
+  then
      DOIT="true"
   fi
 fi
@@ -47,7 +47,7 @@ then
   fi
 fi
 
-if [ $DOIT == "true" ] 
+if [ $DOIT == "true" ]
 then
   $DELCOM
 fi

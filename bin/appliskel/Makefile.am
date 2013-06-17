@@ -49,7 +49,7 @@ dist_appliskel_PYTHON = \
     getAppliPath.py             \
     update_catalogs.py          \
     kill_remote_containers.py	\
-    salome.py
+    salome # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
 
 install-data-hook:
 	@for f in $(dist_appliskel_PYTHON) ; do \

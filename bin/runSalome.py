@@ -414,14 +414,12 @@ def startSalome(args, modules_list, modules_root_dir):
     if args['wake_up_session']:
         if "OMNIORB_CONFIG" not in os.environ:
             from salome_utils import generateFileName
-            home  = os.getenv("HOME")
-            appli = os.getenv("APPLI")
+            omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
             kwargs={}
-            if appli is not None:
-                home = os.path.join(os.path.realpath(home), appli,"USERS")
-                kwargs["with_username"] = True
-                pass
-            last_running_config = generateFileName(home, prefix="omniORB",
+            if omniorbUserPath is not None:
+                kwargs["with_username"]=True
+
+            last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                                    suffix="last",
                                                    extension="cfg",
                                                    hidden=True,
@@ -469,11 +467,8 @@ def startSalome(args, modules_list, modules_root_dir):
     # Save Naming service port name into
     # the file args["ns_port_log_file"]
     if args.has_key('ns_port_log_file'):
-      home = os.environ['HOME']
-      appli= os.environ.get("APPLI")
-      if appli is not None:
-        home = os.path.join(os.path.realpath(home), appli, "USERS")
-      file_name = os.path.join(home, args["ns_port_log_file"])
+      omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+      file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
       f = open(file_name, "w")
       f.write(os.environ['NSPORT'])
       f.close()
@@ -926,5 +921,14 @@ def runSalome():
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
+
+    ### TEMP ###
+    #homePath = os.path.realpath(os.path.expanduser('~'))
+    #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
+    appli = os.getenv("APPLI")
+    defaultOmniorbUserPath = os.path.join(appli, "/USERS")
+    os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
+    ############
+
     runSalome()
 #

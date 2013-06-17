@@ -10,6 +10,15 @@ import pickle
 import subprocess
 import platform
 
+
+"""
+Define a specific exception class to manage exceptions related to SalomeRunner
+"""
+class SalomeRunnerException(Exception):
+  """Report error messages to the user interface of SalomeRunner."""
+#
+
+
 """
 The SalomeRunner class in an API to configure SALOME environment then
 start SALOME using a single python command.
@@ -25,6 +34,9 @@ class SalomeRunner:
   to .cfg format before setting the environment.
   """
   def __init__(self, configFileNames=[]):
+    if len(configFileNames) == 0:
+      raise SalomeRunnerException("No configuration files given")
+
     for filename in configFileNames:
       basename, extension = os.path.splitext(filename)
       if extension == ".cfg":
@@ -38,20 +50,20 @@ class SalomeRunner:
           # Automatically cleans up the file
           temp.close()
       else:
-        self._getLogger().warning("Unrecognized extension for configuration file: %s", filename)
+        self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
   #
 
   def go(self, args):
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
-    absoluteAppliPath = os.environ['ABSOLUTE_APPLI_PATH']
+    absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     proc = subprocess.Popen(['python', absoluteAppliPath+'/bin/salome/salomeRunner.py', pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
     proc.wait()
   #
 
   """Append value to PATH environment variable"""
   def addToPath(self, value):
-    self.__addToReserved( 'PATH', value)
+    self.__addToReserved('PATH', value)
   #
 
   """Append value to LD_LIBRARY_PATH environment variable"""
@@ -68,14 +80,14 @@ class SalomeRunner:
   def setEnviron(self, name, value, overwrite=False):
     env = os.getenv(name, '')
     if env and not overwrite:
-      self._getLogger().warning("Environment variable already existing and not overwritten: %s", name)
+      self.getLogger().warning("Environment variable already existing and not overwritten: %s", name)
       return
 
     if env:
-      self._getLogger().info("Overwriting environment variable: %s", name)
+      self.getLogger().info("Overwriting environment variable: %s", name)
 
     value = os.path.expandvars(value) # expand environment variables
-    self._getLogger().debug("Set environment variable: %s=%s", name, value)
+    self.getLogger().debug("Set environment variable: %s=%s", name, value)
     os.environ[name] = value
   #
 
@@ -121,7 +133,7 @@ Commands:
       }
 
     if not command in availableCommands.keys():
-      self._getLogger().error("Unrecognized command: %s.", command)
+      self.getLogger().error("Unrecognized command: %s.", command)
       self._usage()
       sys.exit(1)
 
@@ -147,7 +159,7 @@ Commands:
     try:
       getattr(self, command)(options) # run appropriate method
     except AttributeError:
-      self._getLogger().error("Method %s is not implemented.", command)
+      self.getLogger().error("Method %s is not implemented.", command)
       sys.exit(1)
   #
 
@@ -165,7 +177,7 @@ Commands:
       self.setEnviron(key, val, overwrite=True)
       pass
 
-    sys.path[:0] = os.environ['PYTHONPATH'].split(':')
+    sys.path[:0] = os.getenv('PYTHONPATH','').split(':')
   #
 
   def __addToReserved(self, name, value):
@@ -173,7 +185,7 @@ Commands:
       return
 
     value = os.path.expandvars(value) # expand environment variables
-    self._getLogger().debug("Add to %s: %s", name, value)
+    self.getLogger().debug("Add to %s: %s", name, value)
     env = os.getenv(name, None)
     if env is None:
       os.environ[name] = value
@@ -211,7 +223,7 @@ Commands:
       proc = subprocess.Popen(args, shell=False, close_fds=True)
       proc.wait()
     else:
-      absoluteAppliPath = os.environ['ABSOLUTE_APPLI_PATH']
+      absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
       cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
       proc = subprocess.Popen(cmd, shell=False, close_fds=True)
       proc.wait()
@@ -268,14 +280,15 @@ Commands:
   # Ref: http://stackoverflow.com/questions/2999638/how-to-stop-attributes-from-being-pickled-in-python
   def __getstate__(self):
     d = dict(self.__dict__)
-    del d['_logger']
+    if hasattr(self, '_logger'):
+      del d['_logger']
     return d
   #
   def __setstate__(self, d):
     self.__dict__.update(d) # I *think* this is a safe way to do it
   #
   # Excluding self._logger from pickle operation imply using the following method to access logger
-  def _getLogger(self):
+  def getLogger(self):
     if not hasattr(self, '_logger'):
       self._logger = logging.getLogger(__name__)
       #self._logger.setLevel(logging.DEBUG)

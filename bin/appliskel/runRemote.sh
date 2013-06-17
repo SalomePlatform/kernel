@@ -54,7 +54,7 @@ export NSHOST=$1
 export NSPORT=$2
 
 # Get (in bash) the configuration filename from (Python) ORBConfigFile return values
-RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${HOME}/${APPLI}/USERS ${NSHOST} ${NSPORT} with_username=${USER})
+RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${OMNIORB_USER_PATH} ${NSHOST} ${NSPORT} with_username=${USER})
 export OMNIORB_CONFIG=$(echo ${RETURN_VALUES} | cut -d' ' -f1)
 
 #go to the requested working directory if any

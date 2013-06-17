@@ -17,7 +17,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
 
   # copied from python 2.6.8 Lib.ConfigParser.py
   # modified (see code comments) to handle duplicate keys
-  def _read(self, fp, name):
+  def _read(self, fp, fpname):
     """Parse a sectioned setup file.
 
     The sections in setup file contains a title line at the top,
@@ -103,7 +103,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
             # raised at the end of the file and will contain a
             # list of all bogus lines
             if not e:
-              e = ParsingError(fpname)
+              e = ConfigParser.ParsingError(fpname)
             e.append(lineno, repr(line))
     # if any parsing errors occurred, raise an exception
     if e:

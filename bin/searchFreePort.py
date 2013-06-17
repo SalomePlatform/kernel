@@ -58,19 +58,17 @@ def searchFreePort(args={}, save_config=1, use_port=None):
       from salome_utils import generateFileName, getHostName
       hostname = getHostName()
       #
-      home  = os.getenv("HOME")
-      appli = os.getenv("APPLI")
+      omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
       kwargs={}
-      if appli is not None:
-        home = os.path.join(os.path.realpath(home), appli, "USERS")
+      if omniorbUserPath is not None:
         kwargs["with_username"]=True
       #
       from ORBConfigFile import writeORBConfigFile
-      omniorb_config, giopsize = writeORBConfigFile(home, hostname, nsport, kwargs)
+      omniorb_config, giopsize = writeORBConfigFile(omniorbUserPath, hostname, nsport, kwargs)
       args['port'] = os.environ['NSPORT']
       #
       if save_config:
-        last_running_config = generateFileName(home, prefix="omniORB",
+        last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                                suffix="last",
                                                extension="cfg",
                                                hidden=True,
@@ -103,7 +101,7 @@ def searchFreePort(args={}, save_config=1, use_port=None):
       print "- KO: port is busy"
     pass
   #
-  
+
   print "Searching for a free port for naming service:",
   #
 
@@ -125,5 +123,5 @@ def searchFreePort(args={}, save_config=1, use_port=None):
     NSPORT=NSPORT+1
     pass
   #
-  
+
   return

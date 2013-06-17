@@ -1,0 +1,104 @@
+#! /usr/bin/env python
+
+import os
+import sys
+import glob
+
+# Preliminary work to initialize path to SALOME Python modules
+def __initialize():
+  currentPath = os.path.dirname(__file__)
+  homePath = os.path.realpath(os.path.expanduser('~'))
+  appliPath = os.path.relpath(currentPath, homePath)
+
+  pattern = "/bin/salome/appliskel"
+  if appliPath.endswith(pattern):
+    appliPath = appliPath[:-len(pattern)]
+
+  absoluteAppliPath = os.path.join(homePath, appliPath)
+  os.environ['APPLI'] = appliPath # needed to convert .sh environment files
+  os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
+
+  # define folder to store omniorb config (initially in virtual application folder)
+  #omniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
+  omniorbUserPath = os.path.join(homePath, appliPath, "USERS")
+  os.environ['OMNIORB_USER_PATH'] = omniorbUserPath
+  if not os.path.exists(omniorbUserPath):
+    os.makedirs(omniorbUserPath)
+
+  sys.path[:0] = [absoluteAppliPath+'/bin/salome']
+# End of preliminary work
+
+def __listDirectory(path):
+  allFiles = []
+  for root, dirs, files in os.walk(path):
+    configFileNames = glob.glob(os.path.join(root,'*.cfg')) + glob.glob(os.path.join(root,'*.sh'))
+    allFiles += configFileNames
+  return allFiles
+#
+
+def __getConfigFileNamesDefault():
+  absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
+  envdDir = absoluteAppliPath + '/env.d'
+  if os.path.isdir(envdDir):
+    configFileNames = __listDirectory(envdDir)
+  else:
+    configFileNames = []
+
+  return configFileNames
+#
+
+def __getConfigFileNames(args):
+  # special case: configuration files are provided by user
+  # Search for command-line argument(s) --config=file1,file2,..., filen
+  # Search for command-line argument(s) --config=dir1,dir2,..., dirn
+  configOptionPrefix = "--config="
+  configArgs = [ str(x) for x in args if str(x).startswith(configOptionPrefix) ]
+
+  if len(configArgs) == 0:
+    return __getConfigFileNamesDefault(), args
+
+  args = [ x for x in args if not x.startswith(configOptionPrefix) ]
+  allLists = [ x.replace(configOptionPrefix, '') for x in configArgs ]
+
+  configFileNames = []
+  for currentList in allLists:
+    elements = currentList.split(',')
+    for elt in elements:
+      elt = os.path.realpath(os.path.expanduser(elt))
+      if os.path.isdir(elt):
+        configFileNames += __listDirectory(elt)
+      else:
+        configFileNames += elt
+
+  return configFileNames, args
+#
+
+
+if __name__ == "__main__":
+  args = sys.argv[1:]
+
+  # Identify application path then locate configuration files
+  __initialize()
+  configFileNames, args = __getConfigFileNames(args)
+
+  # Create a SalomeRunner which parses configFileNames to initialize environment
+  from salomeRunner import SalomeRunner, SalomeRunnerException
+  try:
+    runner = SalomeRunner(configFileNames)
+
+    # Here set specific variables, if needed
+    # runner.addToPath('mypath')
+    # runner.addToLdLibraryPath('myldlibrarypath')
+    # runner.addToPythonPath('mypythonpath')
+    # runner.setEnviron('myvarname', 'value')
+
+
+    # Start SALOME, parsing command line arguments
+    runner.go(args)
+    print 'Thank you for using SALOME!'
+
+  except SalomeRunnerException, e:
+    import logging
+    logging.getLogger("salome").error(e)
+    sys.exit(1)
+#

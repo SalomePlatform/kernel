@@ -33,7 +33,6 @@
 
 import os, sys, pickle, signal, commands,glob
 from salome_utils import verbose
-import Utils_Identity
 import salome_utils
 
 def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
@@ -82,25 +81,23 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
 def appliCleanOmniOrbConfig(port):
     """
     Remove omniorb config files related to the port in SALOME application:
-    - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_${HOSTNAME}_${NSPORT}.cfg
-    - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+    - ${OMNIORB_USER_PATH}/.omniORB_${USER}_${HOSTNAME}_${NSPORT}.cfg
+    - ${OMNIORB_USER_PATH}/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
     """
     from salome_utils import generateFileName, getUserName
-    home  = os.getenv("HOME")
-    appli = os.getenv("APPLI")
-    if appli is None:
+    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+    if omniorbUserPath is None:
         #Run outside application context
         pass
     else:
-        dir = os.path.join(os.path.realpath(home), appli,"USERS")
-        omniorb_config      = generateFileName(dir, prefix="omniORB",
+        omniorb_config      = generateFileName(omniorbUserPath, prefix="omniORB",
                                                extension="cfg",
                                                hidden=True,
                                                with_username=True,
                                                with_hostname=True,
                                                with_port=port)
-        last_running_config = generateFileName(dir, prefix="omniORB",
+        last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                                with_username=True,
                                                suffix="last",
                                                extension="cfg",
@@ -120,8 +117,7 @@ def appliCleanOmniOrbConfig(port):
         if os.path.lexists(last_running_config):return
 
         #try to relink last.cfg to an existing config file if any
-        files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
-                                       "USERS",".omniORB_"+getUserName()+"_*.cfg"))
+        files = glob.glob(os.path.join(omniorbUserPath,".omniORB_"+getUserName()+"_*.cfg"))
         current_config=None
         current=0
         for f in files:
@@ -148,14 +144,11 @@ def shutdownMyPort(port, cleanup=True):
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
-    home  = os.getenv("HOME")
-    appli = os.getenv("APPLI")
+    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
     kwargs = {}
-    if appli is not None:
-        home = os.path.join(os.path.realpath(home), appli,"USERS")
+    if omniorbUserPath is not None:
         kwargs["with_username"]=True
-        pass
-    omniorb_config = generateFileName(home, prefix="omniORB",
+    omniorb_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                       extension="cfg",
                                       hidden=True,
                                       with_hostname=True,

@@ -40,6 +40,9 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
+#export OMNIORB_USER_PATH="${HOME}/.salomeConfig/USERS"
+export OMNIORB_USER_PATH="${APPLI}/USERS"
+
 # --- open a Python interpreter with SALOME environment
 
 ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/salomeConsole.py $*

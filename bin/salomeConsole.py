@@ -52,9 +52,8 @@ import LifeCycleCORBA
 import orbmodule
 from runSalome import *
 
-import Utils_Identity
-files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
-                               "USERS",".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
+omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+files = glob.glob(os.path.join(omniorbUserPath,".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
 
 filename=""
 if len(files)==1:

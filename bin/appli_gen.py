@@ -186,14 +186,12 @@ def install(prefix,config_file,verbose=0):
     for fn in ('envd',
                'getAppliPath.py',
                'kill_remote_containers.py',
-#               'searchFreePort.sh', # REMOVED
-               'runAppli',           # OBSOLETE (replaced by salome.py)
-               'runConsole',         # OBSOLETE (replaced by salome.py)
+               'runAppli',           # OBSOLETE (replaced by salome)
+               'runConsole',         # OBSOLETE (replaced by salome)
                'runRemote.sh',
                'runSalomeScript',
-               'runSession',         # OBSOLETE (replaced by salome.py)
-#               'runTests',          # REMOVED
-               'salome.py',
+               'runSession',         # OBSOLETE (replaced by salome)
+               'salome',
                'update_catalogs.py',
                '.bashrc',
                ):

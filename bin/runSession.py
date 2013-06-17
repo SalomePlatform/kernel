@@ -63,8 +63,8 @@ If PORT is not given, try to connect to the remote session associated to port 28
     if not machine:
       # neither MACHINE nor PORT are given
       # --- set omniORB configuration to current session if any
-      absoluteAppliPath = os.environ['ABSOLUTE_APPLI_PATH']
-      fileOmniConfig = absoluteAppliPath + '/USERS/.omniORB_' + os.environ['USER'] + '_last.cfg'
+      omniorbUserPath = os.environ['OMNIORB_USER_PATH']
+      fileOmniConfig = omniorbUserPath + '/.omniORB_' + os.environ['USER'] + '_last.cfg'
       if os.path.isfile(fileOmniConfig):
         os.environ['OMNIORB_CONFIG'] = fileOmniConfig
         # --- set environment variables for port and hostname of NamingService
@@ -95,8 +95,7 @@ def _writeConfigFile(port, host):
   os.environ['NSPORT'] = port
   os.environ['NSHOST'] = host
 
-  absoluteAppliPath = os.environ['ABSOLUTE_APPLI_PATH']
-  path = absoluteAppliPath + '/USERS'
+  path = os.environ['OMNIORB_USER_PATH']
   kwargs = {'with_username' : os.environ['USER']}
 
   from ORBConfigFile import writeORBConfigFile

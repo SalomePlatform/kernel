@@ -30,7 +30,8 @@
 ###############################################
 
 
-APPLI_HOME=`dirname $0`
+#APPLI_HOME=`dirname $0`
+APPLI_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
@@ -39,6 +40,9 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+#export OMNIORB_USER_PATH="${HOME}/.salomeConfig/USERS"
+export OMNIORB_USER_PATH="${APPLI}/USERS"
 
 # --- if mpi lam, start lam (seems safe to be done several times)
 #     (manual stop with lamhalt)
