@@ -78,7 +78,7 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 #export OMNIORB_USER_PATH="${HOME}/.salomeConfig/USERS"
-export OMNIORB_USER_PATH="${APPLI}/USERS"
+export OMNIORB_USER_PATH="${HOME}/${APPLI}/USERS"
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 # Usage: writeConfigFile PORT HOST

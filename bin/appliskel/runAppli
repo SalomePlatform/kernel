@@ -42,7 +42,7 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 #export OMNIORB_USER_PATH="${HOME}/.salomeConfig/USERS"
-export OMNIORB_USER_PATH="${APPLI}/USERS"
+export OMNIORB_USER_PATH="${HOME}/${APPLI}/USERS"
 
 # --- if mpi lam, start lam (seems safe to be done several times)
 #     (manual stop with lamhalt)
