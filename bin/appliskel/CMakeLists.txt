@@ -36,4 +36,4 @@ SET(SCRIPTS
   salome # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
 )
 
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${KERNEL_salomescript_SCRIPTS}/appliskel)
+SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)

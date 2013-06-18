@@ -1,0 +1,96 @@
+# - Config file for the @PROJECT_NAME@ package
+# It defines the following variables. 
+# Specific to the pacakge @PROJECT_NAME@ itself:
+#  @PROJECT_NAME_UC@_ROOT_DIR_EXP - the root path of the installation providing this CMake file
+#
+# Other stuff specific to this package:
+#  1. Some flags:
+#   LIBBATCH_LOCAL_SUBMISSION - boolean indicating whether LibBatch was built with the 
+#   local submission support.
+#   LIBBATCH_PYTHON_WRAPPING  - boolean indicating whether the Python wrapping was built.
+#   LIBBATCH_PYTHONPATH       - (if above is True) path to the Python wrapping. 
+
+###############################################################
+#  Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or
+#  email : webmaster.salome@opencascade.com
+###############################################################
+
+### Initialisation performed by CONFIGURE_PACKAGE_CONFIG_FILE:
+@PACKAGE_INIT@
+
+# Load the dependencies for the libraries of @PROJECT_NAME@ 
+# (contains definitions for IMPORTED targets). This is only 
+# imported if we are not built as a subproject (in this case targets are already there)
+IF(NOT batch AND NOT @PROJECT_NAME@_BINARY_DIR)
+  INCLUDE("@PACKAGE_SALOME_INSTALL_CMAKE@/@PROJECT_NAME@Targets.cmake")
+ENDIF()   
+
+# Package root dir:
+SET_AND_CHECK(KERNEL_ROOT_DIR_EXP "@PACKAGE_CMAKE_INSTALL_PREFIX@")
+
+#### Now the specificities
+
+# Options exported by the package:
+SET(SALOME_USE_MPI     @SALOME_USE_MPI@)
+SET(SALOME_BUILD_DOC   @SALOME_BUILD_DOC@)
+SET(SALOME_BUILD_TESTS @SALOME_BUILD_TESTS@)
+SET(SALOME_LIGHT_ONLY  @SALOME_LIGHT_ONLY@)
+
+# Prerequisites:
+IF(SALOME_BUILD_TESTS)
+  SET_AND_CHECK(CPPUNIT_ROOT_DIR_EXP  "@PACKAGE_CPPUNIT_ROOT_DIR@")
+ENDIF()
+IF(SALOME_BUILD_DOC)
+  SET_AND_CHECK(GRAPHVIZ_ROOT_DIR_EXP "@PACKAGE_GRAPHVIZ_ROOT_DIR@")
+  SET_AND_CHECK(DOXYGEN_ROOT_DIR_EXP  "@PACKAGE_DOXYGEN_ROOT_DIR@")
+  SET_AND_CHECK(SPHINX_ROOT_DIR_EXP   "@PACKAGE_SPHINX_ROOT_DIR@")
+ENDIF()
+IF(SALOME_USE_MPI)
+  SET_AND_CHECK(MPI_ROOT_DIR_EXP      "@PACKAGE_MPI_ROOT_DIR@")
+ENDIF()
+IF(NOT SALOME_LIGHT_ONLY)
+  SET_AND_CHECK(OMNIORB_ROOT_DIR_EXP  "@PACKAGE_OMNIORB_ROOT_DIR@")
+ENDIF()
+IF(SALOME_USE_LIBBATCH)
+  SET_AND_CHECK(LIBBATCH_ROOT_DIR_EXP "@PACKAGE_LIBBATCH_ROOT_DIR@")
+ENDIF()
+
+SET_AND_CHECK(PTHREAD_ROOT_DIR_EXP  "@PACKAGE_PTHREAD_ROOT_DIR@")
+SET_AND_CHECK(BOOST_ROOT_DIR_EXP    "@PACKAGE_BOOST_ROOT_DIR@")
+SET_AND_CHECK(HDF5_ROOT_DIR_EXP     "@PACKAGE_HDF5_ROOT_DIR@")
+SET_AND_CHECK(LIBXML2_ROOT_DIR_EXP  "@PACKAGE_LIBXML2_ROOT_DIR@")
+SET_AND_CHECK(PYTHON_ROOT_DIR_EXP   "@PACKAGE_PYTHON_ROOT_DIR@")
+SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
+
+# Installation directories
+SET_AND_CHECK(SALOME_INSTALL_BINS "@SALOME_INSTALL_BINS@")
+SET_AND_CHECK(SALOME_INSTALL_LIBS "@SALOME_INSTALL_LIBS@")
+SET_AND_CHECK(SALOME_INSTALL_IDLS "@SALOME_INSTALL_IDLS@")
+SET_AND_CHECK(SALOME_INSTALL_HEADERS "@SALOME_INSTALL_HEADERS@")
+SET_AND_CHECK(SALOME_INSTALL_SCRIPT_SCRIPTS "@SALOME_INSTALL_SCRIPT_SCRIPTS@")
+SET_AND_CHECK(SALOME_INSTALL_SCRIPT_DATA "@SALOME_INSTALL_SCRIPT_DATA@")
+SET_AND_CHECK(SALOME_INSTALL_SCRIPT_PYTHON "@SALOME_INSTALL_SCRIPT_PYTHON@")
+SET_AND_CHECK(SALOME_INSTALL_APPLISKEL_SCRIPTS "@SALOME_INSTALL_APPLISKEL_SCRIPTS@")
+SET_AND_CHECK(SALOME_INSTALL_APPLISKEL_PYTHON "@SALOME_INSTALL_APPLISKEL_PYTHON@") 
+SET_AND_CHECK(SALOME_INSTALL_CMAKE "@SALOME_INSTALL_CMAKE@")
+SET_AND_CHECK(SALOME_INSTALL_PYTHON "@SALOME_INSTALL_PYTHON@")
+SET_AND_CHECK(SALOME_INSTALL_PYTHON_SHARED "@SALOME_INSTALL_PYTHON_SHARED@")

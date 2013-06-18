@@ -24,6 +24,7 @@
 #include "calciumf.h"
 #include "CalciumFortranInt.h"
 #include <stdio.h>
+#include <omniconfig.h>   // to get SIZEOF_LONG
 
 #ifdef __cplusplus
 extern "C" {

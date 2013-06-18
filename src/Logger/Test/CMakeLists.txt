@@ -18,4 +18,4 @@
 #
 
 # Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(TestKiller.py ${KERNEL_salomescript_PYTHON})
+SALOME_INSTALL_SCRIPTS(TestKiller.py ${SALOME_INSTALL_SCRIPT_PYTHON})

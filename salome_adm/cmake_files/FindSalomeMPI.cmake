@@ -16,17 +16,13 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author: Adrien Bruneton
+#
 
 # MPI detection for Salome
+#
+#  !! Please read the generic detection procedure in SalomeMacros.cmake !!
+# 
 
-set(MPI_ROOT_DIR $ENV{MPI_ROOT_DIR} CACHE PATH "Path to Mpi directory")
-if(EXISTS ${MPI_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${MPI_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${MPI_ROOT_DIR}/lib)
-  set(CMAKE_PROGRAM_PATH ${MPI_ROOT_DIR}/bin)
-endif(EXISTS ${MPI_ROOT_DIR})
-find_package(MPI REQUIRED)
-if(HDF5_IS_PARALLEL OR HDF5_ENABLE_PARALLEL)
-  set(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH} )
-  set(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES})
-endif(HDF5_IS_PARALLEL OR HDF5_ENABLE_PARALLEL)
+SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(MPI MPIEXEC 2)
+MARK_AS_ADVANCED(MPI_EXTRA_LIBRARY MPI_LIBRARY)

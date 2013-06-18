@@ -21,14 +21,14 @@ ADD_SUBDIRECTORY(appliskel)
 
 CONFIGURE_FILE(VERSION.in VERSION @ONLY)
 
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION DESTINATION ${KERNEL_salomebin_BINS})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION DESTINATION ${SALOME_INSTALL_BINS})
 
 # ===============================================================
 # Files to be installed
 # ===============================================================
 
 # These files are data, module or lib files
-#INSTALL(FILES salome.launch DESTINATION ${KERNEL_salomescript_DATA})
+#INSTALL(FILES config_appli.xml salome.launch DESTINATION ${SALOME_INSTALL_SCRIPT_DATA})
 
 # These files are executable scripts
 SET(SCRIPTS
@@ -62,4 +62,4 @@ SET(SCRIPTS
   waitContainers.py
   waitNS.py
   )
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${KERNEL_salomescript_SCRIPTS})
+SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})

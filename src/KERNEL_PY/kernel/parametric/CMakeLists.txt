@@ -25,4 +25,4 @@ SET(mypkgpython_PYTHON
 )
 
 # Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${KERNEL_salomepythondir}/salome/kernel/parametric)
+SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${SALOME_INSTALL_PYTHON}/salome/kernel/parametric)

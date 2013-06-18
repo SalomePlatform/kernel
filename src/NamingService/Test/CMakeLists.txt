@@ -36,7 +36,7 @@ INCLUDE_DIRECTORIES(
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 SET(COMMON_LIBS
-    ${CPPUNIT_LIBS}
+    ${CPPUNIT_LIBRARIES}
     SalomeNS
     SalomeLifeCycleCORBA
     ${OMNIORB_LIBRARIES}
@@ -47,7 +47,7 @@ ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(NamingServiceTest NamingServiceTest.cxx)
 TARGET_LINK_LIBRARIES(NamingServiceTest ${COMMON_LIBS})
-INSTALL(TARGETS NamingServiceTest DESTINATION ${KERNEL_salomelib_LIBS})
+INSTALL(TARGETS NamingServiceTest DESTINATION ${SALOME_INSTALL_LIBS})
 
 SET(TestNamingService_LIBS
   NamingServiceTest
@@ -64,10 +64,10 @@ SET(TestNamingService_LIBS
 
 ADD_EXECUTABLE(TestNamingService TestNamingService.cxx)
 TARGET_LINK_LIBRARIES(TestNamingService ${TestNamingService_LIBS})
-INSTALL(TARGETS TestNamingService DESTINATION ${KERNEL_salomebin_BINS})
+INSTALL(TARGETS TestNamingService DESTINATION ${SALOME_INSTALL_BINS})
 
 # Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(TestNamingService.py ${KERNEL_salomescript_PYTHON})
+SALOME_INSTALL_SCRIPTS(TestNamingService.py ${SALOME_INSTALL_SCRIPT_PYTHON})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})
+INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})

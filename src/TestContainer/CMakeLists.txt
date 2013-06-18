@@ -56,7 +56,7 @@ ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
 
-INSTALL(TARGETS SalomeTestComponentEngine DESTINATION ${KERNEL_salomelib_LIBS})
+INSTALL(TARGETS SalomeTestComponentEngine DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(TestLogger TestLogger.cxx)
 TARGET_LINK_LIBRARIES(TestLogger SalomeTestComponentEngine SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
@@ -64,11 +64,11 @@ TARGET_LINK_LIBRARIES(TestLogger SalomeTestComponentEngine SALOMEBasics ${COMMON
 ADD_EXECUTABLE(TestContainer TestContainer.cxx)
 TARGET_LINK_LIBRARIES(TestContainer SalomeTestComponentEngine SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
-INSTALL(TARGETS TestLogger TestContainer DESTINATION ${KERNEL_salomebin_BINS})
+INSTALL(TARGETS TestLogger TestContainer DESTINATION ${SALOME_INSTALL_BINS})
 
 # Executable scripts to be installed
 SET(SCRIPTS
   SALOME_TestComponentPy.py
   TestLogger.py
 )
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${KERNEL_salomescript_PYTHON})
+SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})

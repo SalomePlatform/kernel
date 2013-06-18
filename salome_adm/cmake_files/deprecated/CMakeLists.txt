@@ -39,4 +39,4 @@ SET(DATA
   install_python_from_idl.cmake
   install_and_compile_python_file.cmake
 )
-INSTALL(FILES ${DATA} DESTINATION ${KERNEL_salomeadmcmake}/deprecated)
+INSTALL(FILES ${DATA} DESTINATION ${SALOME_INSTALL_CMAKE}/deprecated)

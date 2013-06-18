@@ -22,4 +22,4 @@ CONFIGURE_FILE(testIDLparser.in testIDLparser @ONLY)
 # ===============================================================
 # Files to be installed
 # ===============================================================
-SALOME_INSTALL_SCRIPTS(IDLparser.py ${KERNEL_salomescript_PYTHON})
+SALOME_INSTALL_SCRIPTS(IDLparser.py ${SALOME_INSTALL_SCRIPT_PYTHON})

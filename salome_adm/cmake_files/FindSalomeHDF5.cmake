@@ -16,25 +16,41 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author: Adrien Bruneton
+#
 
 # HDF5 detection for Salome
+#
+#  !! Please read the generic detection procedure in SalomeMacros.cmake !!
+# 
+# --- HDF5 specificities ----
+#  MPI root directory used for HDF5 compilation is exposed into MPI_ROOT_DIR_EXP
+#
 
-set(HDF5_ROOT_DIR $ENV{HDF5_ROOT_DIR} CACHE PATH "Path to Hdf5 directory")
+SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(HDF5 HDF5_INCLUDE_DIR 1)
+MARK_AS_ADVANCED(FORCE HDF5_INCLUDE_DIR HDF5_LIB)
 
-# If HDF5 is compiled with CMake, we use the config file
-if(EXISTS ${HDF5_ROOT_DIR}/share/cmake/hdf5)
-  INCLUDE(${HDF5_ROOT_DIR}/share/cmake/hdf5/hdf5-config.cmake)
-endif(EXISTS ${HDF5_ROOT_DIR}/share/cmake/hdf5)
+# 7. Expose MPI configuration to the rest of the world
+IF(HDF5_ENABLE_PARALLEL OR HDF5_IS_PARALLEL)
+  # Set only one reference boolean variable:
+  # (unfortunately what is found in /usr/share/cmake/Modules/FindHDF5.cmake
+  #  and in the native HDF5-config.cmake differ!)
+  SET(HDF5_IS_PARALLEL TRUE)
 
-if(EXISTS ${HDF5_ROOT_DIR})
-  set(CMAKE_INCLUDE_PATH ${HDF5_ROOT_DIR}/include)
-  set(CMAKE_LIBRARY_PATH ${HDF5_ROOT_DIR}/lib)
-  set(CMAKE_PROGRAM_PATH ${HDF5_ROOT_DIR}/bin)
-endif(EXISTS ${HDF5_ROOT_DIR})
-find_package(HDF5 COMPONENTS C REQUIRED)
-if (HDF5_FOUND)
-  set(HDF5_DEFINITIONS "-DH5_USE_16_API ${HDF5_DEFINITIONS}" )
-  if(WINDOWS)
-    set(HDF5_DEFINITIONS "-D_HDF5USEDLL_ ${HDF5_DEFINITIONS}" )
-  endif(WINDOWS)
-endif(HDF5_FOUND)
+  # HDF5 was compiled with MPI support
+  # Unfortunately HDF5 doesn't expose its MPI configuration easily ...
+  # We sniff the properties of the HDF5 target which should also be there:
+  GET_PROPERTY(_lib_lst TARGET hdf5 PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES_NOCONFIG)
+  FOREACH(s ${_lib_lst})
+    STRING(FIND "${s}" "mpi." _res)   # should cover WIN(?) and LINUX
+    IF(_res GREATER -1)
+      GET_FILENAME_COMPONENT(_tmp "${s}" PATH)     # go up to levels
+      GET_FILENAME_COMPONENT(MPI_ROOT_DIR_EXP "${_tmp}" PATH)
+      BREAK()
+    ENDIF()
+  ENDFOREACH()
+  IF(NOT SalomeHDF5_FIND_QUIETLY)
+    MESSAGE(STATUS "HDF5 was compiled with MPI: ${MPI_ROOT_DIR_EXP}")
+  ENDIF()  
+ENDIF()
+

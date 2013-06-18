@@ -45,5 +45,5 @@ SET(mypkgpython_PYTHON
     studyedit.py
     services.py
 )
-SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${KERNEL_salomepythondir}/salome/kernel)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/logconfig.py DESTINATION ${KERNEL_salomepythondir}/salome/kernel)
+SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${SALOME_INSTALL_PYTHON}/salome/kernel)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/logconfig.py DESTINATION ${SALOME_INSTALL_PYTHON}/salome/kernel)
