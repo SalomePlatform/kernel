@@ -42,6 +42,11 @@
 # 4.0.6 has known bug float/double marshalling using CORBA::Any
 set(OMNIORB_MINIMUM_VERSION "4.1.2")
 
+IF(WIN32)
+  # Guide the FIND_LIBRARY command towards the correct directory <...>/lib/x86_win32:
+  SET(CMAKE_LIBRARY_ARCHITECTURE x86_win32)
+ENDIF()
+
 ##############################################################################
 # find headers
 ##############################################################################
@@ -52,14 +57,11 @@ FIND_PATH(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h)
 ##############################################################################
 IF (WIN32)
   FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS lib/x86_win32)
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX})
   FIND_LIBRARY( OMNIORB_LIBRARY_omnithread
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS lib/x86_win32)
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX})
   FIND_LIBRARY( OMNIORB_LIBRARY_omniDynamic4
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS lib/x86_win32)
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX})
 ELSE (WIN32)
   FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 NAMES omniORB4)
   FIND_LIBRARY(OMNIORB_LIBRARY_omnithread NAMES omnithread)
@@ -70,11 +72,9 @@ ENDIF (WIN32)
 
 IF (WIN32)
   FIND_LIBRARY( OMNIORB_LIBRARY_COS4
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS lib/x86_win32 )
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX})
   FIND_LIBRARY( OMNIORB_LIBRARY_COSDynamic4
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS lib/x86_win32) 
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}) 
 ELSE (WIN32)
   FIND_LIBRARY(OMNIORB_LIBRARY_COS4 NAMES COS4)
   FIND_LIBRARY(OMNIORB_LIBRARY_COSDynamic4 NAMES COSDynamic4)
@@ -100,11 +100,17 @@ ENDIF (WIN32)
 ##############################################################################
 
 SET(_py_version "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-SET(CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH} ${CMAKE_PREFIX_PATH})
-FIND_PATH(OMNIORB_PYTHON_BACKEND
-  NAMES python.py
-  PATHS "/lib/python${_py_version}/site-packages/omniidl_be" "/usr/lib/omniidl/omniidl_be" 
-  DOC "Path to python-backend directory (omniidl_be) including python.py file" )
+SET(CMAKE_FIND_ROOT_PATH ${CMAKE_PREFIX_PATH})
+SET(_doc "Path to python-backend directory (omniidl_be) including python.py file")
+IF(WIN32)
+  FIND_PATH(OMNIORB_PYTHON_BACKEND
+     NAMES python.py PATHS "/lib/python/omniidl_be" DOC ${_doc}) 
+ELSE()
+  FIND_PATH(OMNIORB_PYTHON_BACKEND
+     NAMES python.py
+     PATHS "/lib/python${_py_version}/site-packages/omniidl_be" "/usr/lib/omniidl/omniidl_be" 
+     DOC ${_doc})
+ENDIF()
 
 ##############################################################################
 # Cook our stuff

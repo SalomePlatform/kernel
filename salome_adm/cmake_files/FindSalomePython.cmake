@@ -104,7 +104,9 @@ IF (SALOMEPYTHON_FOUND)
   # For Python this is the grand-parent of the
   # include directory:
   GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${PYTHON_INCLUDE_DIR}" PATH)
-  GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${_tmp_ROOT_DIR}" PATH)
+  IF(NOT WIN32)
+    GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${_tmp_ROOT_DIR}" PATH)
+  ENDIF()
 
   # 4. Warn if CMake found something not located under ENV(XYZ_ROOT_DIR)
   IF(DEFINED ENV{PYTHON_ROOT_DIR})

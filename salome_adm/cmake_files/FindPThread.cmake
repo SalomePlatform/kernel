@@ -10,9 +10,9 @@
 # Libraries are searched with following names: 
 #    pthread
 # On Win32:
-#    pthreadVSE2 pthreadVC2
+#    pthreadVC2
 # or in Debug mode:
-#    pthreadVSE2d pthreadVC2d
+#    pthreadVC2d
 #
 
 
@@ -49,9 +49,9 @@ IF(WIN32)
     FIND_PATH(PTHREAD_INCLUDE_DIR ${PTHREADS_INCLUDE_TO_FIND})
     # Default build type is assumed to be Release:
     IF(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
-        FIND_LIBRARY(PTHREAD_LIBRARIES pthreadVSE2 pthreadVC2)
+        FIND_LIBRARY(PTHREAD_LIBRARIES pthreadVC2)
     ELSE()
-        FIND_LIBRARY(PTHREAD_LIBRARIES pthreadVSE2d pthreadVC2d)
+        FIND_LIBRARY(PTHREAD_LIBRARIES pthreadVC2d)
     ENDIF()
 ELSE(WIN32)
     FIND_PATH(PTHREAD_INCLUDE_DIR pthread.h)
