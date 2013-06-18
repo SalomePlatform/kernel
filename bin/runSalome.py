@@ -926,7 +926,9 @@ if __name__ == "__main__":
     homePath = os.path.realpath(os.path.expanduser('~'))
     #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
     appli = os.getenv("APPLI")
-    defaultOmniorbUserPath = os.path.join(homePath, appli, "USERS")
+    defaultOmniorbUserPath = homePath
+    if appli:
+        defaultOmniorbUserPath = os.path.join( homePath, appli, "USERS" )
     os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
     ############
 
