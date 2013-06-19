@@ -231,6 +231,7 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
     ENDIF()
 
     # Call the root FIND_PACKAGE():
+    #MESSAGE("blo / ${CMAKE_PREFIX_PATH} / ${CMAKE_FIND_ROOT_PATH}")
     IF(_tmp_compo)
       FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} ${mode} ${_tmp_quiet} ${_tmp_req} COMPONENTS ${_tmp_compo})
     ELSE()
@@ -295,8 +296,10 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
               "${_CONF_DIR}/${_pkg_lc}")
     MARK_AS_ADVANCED(${pkg}_DIR)
     
-    IF (NOT (${pkg_UC}_FOUND OR ${pkg}_FOUND))  
-      LIST(APPEND CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
+    IF (NOT (${pkg_UC}_FOUND OR ${pkg}_FOUND))
+      # Override the variable - don't append to it, as it would give precedence
+      # to what was stored there before!  
+      SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
     ELSE()
       MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
     ENDIF()
