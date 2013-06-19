@@ -300,6 +300,7 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
       # Override the variable - don't append to it, as it would give precedence
       # to what was stored there before!  
       SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
+      #MESSAGE("pkg ${pkg} / ${CMAKE_PREFIX_PATH}")
     ELSE()
       MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
     ENDIF()
