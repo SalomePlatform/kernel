@@ -25,23 +25,30 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 SUBDIRS = deprecated
 
 dist_salome_cmake_DATA = \
-FindCPPUNIT.cmake \
+FindCppUnit.cmake \
+FindGraphviz.cmake \
 FindKERNEL.cmake \
-FindOMNIORB.cmake \
-UseOMNIORB.cmake \
-FindPLATFORM.cmake \
-FindSPHINX.cmake \
-SalomeMacros.cmake \
-FindSalomeBOOST.cmake \
-FindSalomeCPPUNIT.cmake \
-FindSalomeDOXYGEN.cmake \
+FindOmniORB.cmake \
+FindPThread.cmake \
+FindSalomeBoost.cmake \
+FindSalomeCppUnit.cmake \
+FindSalomeDoxygen.cmake \
+FindSalomeGraphviz.cmake \
 FindSalomeHDF5.cmake \
-FindSalomeLIBBATCH.cmake \
-FindSalomeLIBXML2.cmake \
+FindSalomeLibBatch.cmake \
+FindSalomeLibXml2.cmake \
 FindSalomeMPI.cmake \
-FindSalomePYTHON.cmake \
-FindSalomeSPHINX.cmake \
+FindSalomeOmniORB.cmake \
+FindSalomePThread.cmake \
+FindSalomePython.cmake \
 FindSalomeSWIG.cmake \
-InstallAndCompilePythonFile.cmake
+FindSalomeSphinx.cmake \
+FindSphinx.cmake \
+InstallAndCompilePythonFile.cmake \
+SalomeMacros.cmake \
+SalomeSetupPlatform.cmake \
+UseOmniORB.cmake
 
 dist_salomescript_SCRIPTS = prepare_generating_doc.py
+
+EXTRA_DIST += SalomeKERNELConfig.cmake.in
