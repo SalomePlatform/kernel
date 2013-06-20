@@ -87,7 +87,7 @@ libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
 					 Parallel_Salome_file_i.cxx \
 					 SALOME_ParallelGlobalProcessVar_i.cxx
 
-libSalomeParallelContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomeParallelContainer_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeParallelContainer_la_LIBADD   = $(COMMON_LIBS) @MPI_LIBS@
 

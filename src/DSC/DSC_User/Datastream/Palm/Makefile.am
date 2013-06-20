@@ -68,7 +68,7 @@ noinst_LTLIBRARIES = libSalomePalm.la
 
 libSalomePalm_la_SOURCES  = palm_port_factory.cxx 
 
-libSalomePalm_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomePalm_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomePalm_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
@@ -81,7 +81,7 @@ noinst_PROGRAMS              = test_DataIdContainer
 
 test_DataIdContainer_SOURCES = test_DataIdContainer.cxx
 
-test_DataIdContainer_CXXFLAGS = $(COMMON_CPPFLAGS)
+test_DataIdContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 test_DataIdContainer_LDFLAGS = $(COMMON_LIBS)
 

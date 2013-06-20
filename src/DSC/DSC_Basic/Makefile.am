@@ -70,7 +70,7 @@ libSalomeDSCContainer_la_SOURCES  = DSC_i.cxx \
 				    DSC_interface.cxx \
 				    PortProperties_i.cxx
 
-libSalomeDSCContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomeDSCContainer_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeDSCContainer_la_LIBADD   = $(COMMON_LIBS)
 

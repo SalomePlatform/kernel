@@ -118,7 +118,7 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       Calcium.cxx \
 			       calcium_destructors_port_uses.cxx
 
-libSalomeCalcium_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomeCalcium_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeCalcium_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
@@ -139,7 +139,7 @@ noinst_PROGRAMS              = test_DataIdContainer
 
 test_DataIdContainer_SOURCES = test_DataIdContainer.cxx 
 
-test_DataIdContainer_CXXFLAGS = $(COMMON_CPPFLAGS)
+test_DataIdContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 test_DataIdContainer_LDADD   = libSalomeCalcium.la \
 			       $(top_builddir)/src/Utils/libOpUtil.la \

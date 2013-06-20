@@ -69,7 +69,7 @@ libSalomeDSCSupervBasic_la_SOURCES  = basic_port_factory.cxx \
 				      data_short_port_uses.cxx \
 				      data_short_port_provides.cxx 
 
-libSalomeDSCSupervBasic_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomeDSCSupervBasic_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeDSCSupervBasic_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeDSCSupervBasic_la_LIBADD  = ../libSalomeDSCSuperv.la

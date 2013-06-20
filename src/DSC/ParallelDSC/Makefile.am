@@ -69,7 +69,7 @@ libSalomeParallelDSCContainer_la_SOURCES  = ParallelDSC_i.cxx \
 					    Param_Double_Port_provides_i.cxx \
 					    Param_Double_Port_uses_i.cxx
 
-libSalomeParallelDSCContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomeParallelDSCContainer_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeParallelDSCContainer_la_LIBADD   = $(COMMON_LIBS)
 
