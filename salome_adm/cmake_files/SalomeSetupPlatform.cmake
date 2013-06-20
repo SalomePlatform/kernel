@@ -39,6 +39,13 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+## Define the log level according to the build type
+IF(CMAKE_BUILD_TYPE STREQUAL "DEBUG" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+  SET(PYLOGLEVEL DEBUG)
+ELSE()
+  SET(PYLOGLEVEL WARNING)
+ENDIF()
+
 ## Make all warnings errors on non-windows platforms
 #  CURRENTLY DISABLED
 IF(NOT (WIN32 OR APPLE))
@@ -104,4 +111,3 @@ IF(APPLE)
   SET(CMAKE_CXX_COMPILER g++)
   # because default is clang(llvm) with mountain lion at least
 ENDIF()
-
