@@ -48,6 +48,7 @@ SALOMEDSImpl_AttributeStudyProperties::SALOMEDSImpl_AttributeStudyProperties()
 {
   myLocked = false;
   myLockChanged = false;
+  myModified = false;
   Init();
 }
 
@@ -64,11 +65,11 @@ void SALOMEDSImpl_AttributeStudyProperties::Init()
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::SetModification(const std::string& theUserName,
-                                                            const int            theMinute,
-                                                            const int            theHour,
-                                                            const int            theDay,
-                                                            const int            theMonth,
-                                                            const int            theYear)
+                                                            const int          theMinute,
+                                                            const int          theHour,
+                                                            const int          theDay,
+                                                            const int          theMonth,
+                                                            const int          theYear)
 {
   if (theMinute<0 || theMinute>60 || theHour<0 || theHour>24 ||
       theDay<0 || theDay>31 || theMonth<0 || theMonth>12)
@@ -309,7 +310,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   for ( versionsIt = versions.begin(); versionsIt != versions.end(); ++versionsIt ) {
     sprintf(&(aProperty[a]),"%s=%s",
             (char*)(versionsIt->first.c_str()),
-	    (char*)(versionsIt->second.c_str()));
+            (char*)(versionsIt->second.c_str()));
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
@@ -488,26 +489,26 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
       for(verSize = 0; aCopy[anIndex+modSize+1+verSize] != 1; verSize++);
 
       if(modSize > 0) {
-	char *aModule = new char[modSize+1];
-	strncpy(aModule, &(aCopy[anIndex]), modSize);
-	aModule[modSize] = 0;
-	char *aVersions = new char[verSize+1];
-	if ( verSize > 0 )
-	  strncpy(aVersions, &(aCopy[anIndex+modSize+1]), verSize);
-	aVersions[verSize] = 0;
-	
-	std::string mVersions = aVersions;
-	int start = 0, idx = mVersions.find( ';', start );
-	while ( idx != std::string::npos ) {
-	  SetComponentVersion( aModule, mVersions.substr( start, idx-start ) );
-	  start = idx + 1;
-	  idx = mVersions.find( ';', start );
-	}
-	SetComponentVersion( aModule, mVersions.substr( start ) );
+        char *aModule = new char[modSize+1];
+        strncpy(aModule, &(aCopy[anIndex]), modSize);
+        aModule[modSize] = 0;
+        char *aVersions = new char[verSize+1];
+        if ( verSize > 0 )
+          strncpy(aVersions, &(aCopy[anIndex+modSize+1]), verSize);
+        aVersions[verSize] = 0;
+        
+        std::string mVersions = aVersions;
+        int start = 0, idx = mVersions.find( ';', start );
+        while ( idx != std::string::npos ) {
+          SetComponentVersion( aModule, mVersions.substr( start, idx-start ) );
+          start = idx + 1;
+          idx = mVersions.find( ';', start );
+        }
+        SetComponentVersion( aModule, mVersions.substr( start ) );
 
-	delete [] (aModule);
-	delete [] (aVersions);
-	anIndex += modSize + 1 + verSize + 1;
+        delete [] (aModule);
+        delete [] (aVersions);
+        anIndex += modSize + 1 + verSize + 1;
       }
     }
   }
