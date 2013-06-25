@@ -50,7 +50,14 @@ ENDIF()
 ##############################################################################
 # find headers
 ##############################################################################
-FIND_PATH(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h)
+IF (WIN32)
+  FIND_PATH(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h)
+ELSE (WIN32)
+  FIND_PATH(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h
+    PATHS "${OMNIORB_DIR}/include" "$ENV{OMNIORB_DIR}/include"
+    NO_DEFAULT_PATH)
+  FIND_PATH(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h)
+ENDIF()
 
 ##############################################################################
 # find libraries
@@ -63,11 +70,19 @@ IF (WIN32)
   FIND_LIBRARY( OMNIORB_LIBRARY_omniDynamic4
     NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX})
 ELSE (WIN32)
-  FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 NAMES omniORB4)
-  FIND_LIBRARY(OMNIORB_LIBRARY_omnithread NAMES omnithread)
-  FIND_LIBRARY(OMNIORB_LIBRARY_omniDynamic4 NAMES omniDynamic4)
+  FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 NAMES omniORB4
+    PATHS "${OMNIORB_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
+  FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 NAMES omnithread)
+
+  #the rest libraries must be at the same PATH as omniORB4
+  GET_FILENAME_COMPONENT(OMNIORB_LIBRARY_PATH ${OMNIORB_LIBRARY_omniORB4} PATH)
+  FIND_LIBRARY(OMNIORB_LIBRARY_omnithread NAMES omnithread
+    PATHS "${OMNIORB_LIBRARY_PATH}" NO_DEFAULT_PATH)
+  FIND_LIBRARY(OMNIORB_LIBRARY_omniDynamic4 NAMES omniDynamic4
+    PATHS "${OMNIORB_LIBRARY_PATH}" NO_DEFAULT_PATH)
 ENDIF (WIN32)   
-  
+
 # Optional libraries
 
 IF (WIN32)
@@ -76,8 +91,10 @@ IF (WIN32)
   FIND_LIBRARY( OMNIORB_LIBRARY_COSDynamic4
     NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}) 
 ELSE (WIN32)
-  FIND_LIBRARY(OMNIORB_LIBRARY_COS4 NAMES COS4)
-  FIND_LIBRARY(OMNIORB_LIBRARY_COSDynamic4 NAMES COSDynamic4)
+  FIND_LIBRARY(OMNIORB_LIBRARY_COS4 NAMES COS4
+    PATHS "${OMNIORB_LIBRARY_PATH}" NO_DEFAULT_PATH)
+  FIND_LIBRARY(OMNIORB_LIBRARY_COSDynamic4 NAMES COSDynamic4
+    PATHS "${OMNIORB_LIBRARY_PATH}" NO_DEFAULT_PATH)
 ENDIF (WIN32)
 
 ##############################################################################
@@ -91,7 +108,13 @@ IF (WIN32)
     NAMES omniNames PATHS bin/x86_win32 
   DOC "What is the path where omniNames (the ORB server) can be found")
 ELSE(WIN32)
+  FIND_PROGRAM(OMNIORB_IDL_COMPILER NAMES omniidl
+    PATHS "${OMNIORB_DIR}/bin" "$ENV{OMNIORB_DIR}/bin"
+    NO_DEFAULT_PATH)
   FIND_PROGRAM(OMNIORB_IDL_COMPILER NAMES omniidl)
+  FIND_PROGRAM(OMNIORB_NAMESERVER NAMES omniNames
+    PATHS "${OMNIORB_DIR}/bin" "$ENV{OMNIORB_DIR}/bin"
+    NO_DEFAULT_PATH)
   FIND_PROGRAM(OMNIORB_NAMESERVER NAMES omniNames)
 ENDIF (WIN32)
 
@@ -108,7 +131,10 @@ IF(WIN32)
 ELSE()
   FIND_PATH(OMNIORB_PYTHON_BACKEND
      NAMES __init__.py
-     PATHS "/lib/python${_py_version}/site-packages/omniidl_be" "/usr/lib/omniidl/omniidl_be" 
+     PATHS
+     "${OMNIORB_DIR}/lib/python${_py_version}/site-packages/omniidl_be" 
+     "$ENV{OMNIORB_DIR}/lib/python${_py_version}/site-packages/omniidl_be" 
+     "/usr/lib/omniidl/omniidl_be" 
      DOC ${_doc})
 ENDIF()
 
