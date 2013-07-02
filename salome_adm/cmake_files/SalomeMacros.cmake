@@ -197,24 +197,33 @@ ENDMACRO()
 
 
 ####
-# SALOME_FIND_PACKAGE(englobingPackageName standardPackageName modus)
+# SALOME_FIND_PACKAGE(englobingPackageName standardPackageName modus [onlyTryQuietly])
+#
+# example:  SALOME_FIND_PACKAGE(SalomeVTK VTK CONFIG)
+#
 # Encapsulate the call to the standard FIND_PACKAGE(standardPackageName) passing all the options
-# given when calling the command FIND_PACKAGE(customPackageName)
+# given when calling the command FIND_PACKAGE(SalomeXYZ). Those options are stored implicitly in 
+# CMake variables: xyz__FIND_QUIETLY, xyz_FIND_REQUIRED, etc ...
+# 
 # Modus is either MODULE or CONFIG (cf standard FIND_PACKAGE() documentation).
-# This macro is to be called from within the FindCustomPackage.cmake file.
+# The last argument is optional and if set to TRUE will force the search to be OPTIONAL and QUIET.
+#  
+# This macro is to be called from within the FindSalomeXXXX.cmake file.
+#
 ####
 MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
+  SET(_OPT_ARG ${ARGV3})
   # Only bother if the package was not already found:
   # Some old packages use the lower case version - standard should be to always use
   # upper case:
   STRING(TOUPPER ${stdPkg} stdPkgUC)
   IF(NOT (${stdPkg}_FOUND OR ${stdPkgUC}_FOUND))
-    IF(${englobPkg}_FIND_QUIETLY)
+    IF(${englobPkg}_FIND_QUIETLY OR _OPT_ARG)
       SET(_tmp_quiet "QUIET")
     ELSE()
       SET(_tmp_quiet)
     ENDIF()  
-    IF(${englobPkg}_FIND_REQUIRED)
+    IF(${englobPkg}_FIND_REQUIRED AND NOT _OPT_ARG)
       SET(_tmp_req "REQUIRED")
     ELSE()
       SET(_tmp_req)
@@ -224,30 +233,54 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
     ELSE()
       SET(_tmp_exact)
     ENDIF()
-    IF(${englobPkg}_FIND_COMPONENTS)
-      STRING(REPLACE ";" " " _tmp_compo ${${englobPkg}_FIND_COMPONENTS})
-    ELSE()
-      SET(_tmp_compo)
-    ENDIF()
 
-    # Call the root FIND_PACKAGE():
-    #MESSAGE("blo / ${CMAKE_PREFIX_PATH} / ${CMAKE_FIND_ROOT_PATH}")
-    IF(_tmp_compo)
-      FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} ${mode} ${_tmp_quiet} ${_tmp_req} COMPONENTS ${_tmp_compo})
+    # Call the CMake FIND_PACKAGE() command:    
+    STRING(TOLOWER ${stdPkg} _pkg_lc)
+    IF(("${mode}" STREQUAL "NO_MODULE") OR ("${mode}" STREQUAL "CONFIG"))
+      # Hope to find direclty a CMake config file, indicating the SALOME CMake file
+      # paths (the command already look in places like "share/cmake", etc ... by default)
+      
+      # Do we need to call the signature using components?
+      IF(${englobPkg}_FIND_COMPONENTS)
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+              NO_MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS}
+              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files")
+      ELSE()
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+              NO_MODULE ${_tmp_quiet} ${_tmp_req}
+              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files")
+      ENDIF()
+      MARK_AS_ADVANCED(${stdPkg}_DIR)
+      
+    ELSEIF("${mode}" STREQUAL "MODULE")
+    
+      # Do we need to call the signature using components?
+      IF(${englobPkg}_FIND_COMPONENTS)
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+              MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS})
+      ELSE()
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+              MODULE ${_tmp_quiet} ${_tmp_req})
+      ENDIF()
+      
     ELSE()
-      FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} ${mode} ${_tmp_quiet} ${_tmp_req})
+    
+      MESSAGE(FATAL_ERROR "Invalid mode argument in the call to the macro SALOME_FIND_PACKAGE. Should be CONFIG or MODULE.")
+      
     ENDIF()
+    
   ENDIF()
 ENDMACRO()
 
 
-####################################################################"
-# SALOME_FIND_PACKAGE_DETECT_CONFLICTS(pkg referenceVariable upCount)
+####################################################################
+# SALOME_FIND_PACKAGE_DETECT_CONFLICTS(pkg referenceVariable upCount <component1> <component2> ...)
 #    pkg              : name of the system package to be detected
 #    referenceVariable: variable containing a path that can be browsed up to 
 # retrieve the package root directory (xxx_ROOT_DIR)
 #    upCount          : number of times we have to go up from the path <referenceVariable>
-# to obtain the package root directory.  
+# to obtain the package root directory.
+#    <component_n>    : an optional list of components to be found.  
 #   
 # For example:  SALOME_FIND_PACKAGE_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2) 
 #
@@ -270,45 +303,52 @@ ENDMACRO()
 # conflict detection. This is added after the call to the macro by the callee.
 #
 MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
+  ##
+  ## 0. Initialization
+  ##
+  
+  # Package name, upper case
   STRING(TOUPPER ${pkg} pkg_UC)
 
-  # 1. Load environment or any previously detected root dir for the package
+  ##
+  ## 1. Load environment or any previously detected root dir for the package
+  ##
   IF(DEFINED ENV{${pkg_UC}_ROOT_DIR})
     FILE(TO_CMAKE_PATH "$ENV{${pkg_UC}_ROOT_DIR}" _${pkg_UC}_ROOT_DIR_ENV)
     SET(_dflt_value "${_${pkg_UC}_ROOT_DIR_ENV}")
   ELSE()
-    # will be blank if no package was previously loaded
+    # will be blank if no package was previously loaded:
     SET(_dflt_value "${${pkg_UC}_ROOT_DIR_EXP}")
   ENDIF()
 
+  # Detect if the variable has been set on the command line or elsewhere:
+  IF(DEFINED ${pkg_UC}_ROOT_DIR)
+     SET(_var_already_there TRUE)
+  ELSE()
+     SET(_var_already_there FALSE)
+  ENDIF()
   #   Make cache entry 
   SET(${pkg_UC}_ROOT_DIR "${_dflt_value}" CACHE PATH "Path to ${pkg_UC} directory")
 
-  # 2. Find package - config mode first (i.e. looking for XYZ-config.cmake)
-  IF(EXISTS "${${pkg_UC}_ROOT_DIR}")
-    # Hope to find direclty a CMake config file there
-    SET(_CONF_DIR "${${pkg_UC}_ROOT_DIR}/share/cmake") 
-
-    # Try find_package in config mode with a hard-coded guess. This
-    # has the priority.
-    STRING(TOLOWER ${pkg} _pkg_lc)
-    FIND_PACKAGE(${pkg} NO_MODULE QUIET PATHS "${_CONF_DIR}" "${_CONF_DIR}/${pkg}" 
-              "${_CONF_DIR}/${_pkg_lc}")
-    MARK_AS_ADVANCED(${pkg}_DIR)
-    
-    IF (NOT (${pkg_UC}_FOUND OR ${pkg}_FOUND))
-      # Override the variable - don't append to it, as it would give precedence
-      # to what was stored there before!  
-      SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
-      #MESSAGE("pkg ${pkg} / ${CMAKE_PREFIX_PATH}")
-    ELSE()
-      MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
-    ENDIF()
+  ##
+  ## 2. Find package - try CONFIG mode first (i.e. looking for XYZ-config.cmake)
+  ##
+  
+  # Override the variable - don't append to it, as it would give precedence
+  # to what was stored there before!  
+  SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
+  
+  # Try find_package in config mode. This has the priority, but is 
+  # performed QUIET and not REQUIRED:
+  SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} NO_MODULE TRUE)
+  
+  IF (${pkg_UC}_FOUND OR ${pkg}_FOUND)
+     MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
   ENDIF()
 
   # Otherwise try the standard way (module mode, with the standard CMake Find*** macro):
   SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE)
-  #MESSAGE("dbg ${pkg_UC} / ${PTHREAD_FOUND} / ${${pkg_UC}_FOUND}")
+  
   # Set the "FOUND" variable for the SALOME wrapper:
   IF(${pkg_UC}_FOUND OR ${pkg}_FOUND)
     SET(SALOME${pkg_UC}_FOUND TRUE)
@@ -317,14 +357,14 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ENDIF()
   
   IF (${pkg_UC}_FOUND OR ${pkg}_FOUND)
-    # 3. Set the root dir which was finally retained by going up "upDir" times
-    # from the given reference path. The variable "referenceVariable" may be a list
-    # - we take its first element. 
-    #   Note the double de-reference of "referenceVariable":
-    LIST(LENGTH "${${referenceVariable}}" _tmp_len)
+    ## 3. Set the root dir which was finally retained by going up "upDir" times
+    ## from the given reference path. The variable "referenceVariable" may be a list.
+    ## In this case we take its first element. 
+    LIST(LENGTH ${referenceVariable} _tmp_len)
     IF(_tmp_len)
-       LIST(GET "${${referenceVariable}}" 0 _tmp_ROOT_DIR)
+       LIST(GET ${referenceVariable} 0 _tmp_ROOT_DIR)
     ELSE()
+       #  Note the double de-reference of "referenceVariable":
        SET(_tmp_ROOT_DIR "${${referenceVariable}}")
     ENDIF()
     IF(${upCount})
@@ -334,7 +374,9 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
       ENDFOREACH()
     ENDIF()
 
-    # 4. Warn if CMake found something not located under ENV(XYZ_ROOT_DIR)
+    ##
+    ## 4. Warn if CMake found something not located under ENV(XYZ_ROOT_DIR)
+    ##
     IF(DEFINED ENV{${pkg_UC}_ROOT_DIR})
       SALOME_CHECK_EQUAL_PATHS(_res "${_tmp_ROOT_DIR}" "${_${pkg_UC}_ROOT_DIR_ENV}")
       IF(NOT _res)
@@ -346,23 +388,29 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
         MESSAGE(STATUS "${pkg} found directory matches what was specified in the ${pkg_UC}_ROOT_DIR variable, all good!")    
       ENDIF()
     ELSE()
-        MESSAGE(STATUS "Environment variable ${pkg_UC}_ROOT_DIR is not defined. The system installation was found.")
+        IF(NOT _var_already_there) 
+          MESSAGE(STATUS "Variable ${pkg_UC}_ROOT_DIR was not explicitly defined. "
+          "An installation was found anyway: ${_tmp_ROOT_DIR}")
+        ENDIF()
     ENDIF()
 
-    # 5. Conflict detection
-    # 5.1  From another prerequisite using the package
+    ##
+    ## 5. Conflict detection
+    ##     From another prerequisite using the package:
+    ##
     IF(${pkg_UC}_ROOT_DIR_EXP)
         SALOME_CHECK_EQUAL_PATHS(_res "${_tmp_ROOT_DIR}" "${${pkg_UC}_ROOT_DIR_EXP}") 
         IF(NOT _res)
            MESSAGE(WARNING "Warning: ${pkg}: detected version conflicts with a previously found ${pkg}!"
-                            "The two paths are " ${_tmp_ROOT_DIR} " vs " ${${pkg_UC}_ROOT_DIR_EXP})
+                           " The two paths are " ${_tmp_ROOT_DIR} " vs " ${${pkg_UC}_ROOT_DIR_EXP})
         ELSE()
             MESSAGE(STATUS "${pkg} directory matches what was previously exposed by another prereq, all good!")
         ENDIF()        
     ENDIF()
     
-    # 6. Save the found installation
-    #
+    ##
+    ## 6. Save the detected installation
+    ##
     SET(${pkg_UC}_ROOT_DIR "${_tmp_ROOT_DIR}")
      
   ELSE()

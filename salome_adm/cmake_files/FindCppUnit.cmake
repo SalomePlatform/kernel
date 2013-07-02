@@ -1,6 +1,6 @@
 # - Find CppUnit
 # Sets the following variables:
-#   CPPUNIT_INCLUDE_DIR  - path to the CppUnit include directory
+#   CPPUNIT_INCLUDE_DIRS - path to the CppUnit include directory
 #   CPPUNIT_LIBRARIES    - path to the CppUnit libraries to be linked against
 #   CPPUNIT_DEFINITIONS  - specific CppUnit definitions to be added
 #

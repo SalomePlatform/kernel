@@ -30,7 +30,10 @@
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(HDF5 HDF5_INCLUDE_DIR 1)
 MARK_AS_ADVANCED(FORCE HDF5_INCLUDE_DIR HDF5_LIB)
 
-# 7. Expose MPI configuration to the rest of the world
+##
+## 7. Specific to HDF5 only:
+## Expose MPI configuration to the rest of the world
+##
 IF(HDF5_ENABLE_PARALLEL OR HDF5_IS_PARALLEL)
   # Set only one reference boolean variable:
   # (unfortunately what is found in /usr/share/cmake/Modules/FindHDF5.cmake
@@ -54,3 +57,13 @@ IF(HDF5_ENABLE_PARALLEL OR HDF5_IS_PARALLEL)
   ENDIF()  
 ENDIF()
 
+## Add definitions
+ADD_DEFINITIONS(-DH5_USE_16_API)
+IF(WIN32)
+  ADD_DEFINITIONS(-D_HDF5USEDLL_)
+ENDIF()
+
+## Ensure SALOME uses MPI if HDF5 was parallel:
+IF(HDF5_IS_PARALLEL AND NOT SALOME_USE_MPI)
+   MESSAGE(FATAL_ERROR "HDF5 is compiled with MPI, you have to set SALOME_USE_MPI to ON")
+ENDIF()

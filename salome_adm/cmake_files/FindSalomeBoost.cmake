@@ -32,3 +32,8 @@ IF(Boost_FOUND OR BOOST_FOUND)
    MESSAGE(STATUS "Boost include dirs is: ${Boost_INCLUDE_DIRS}")
 ENDIF()   
 #MARK_AS_ADVANCED()
+
+## Specific definitions:
+IF(WIN32)
+  SET(BOOST_DEFINITIONS -DBOOST_DISABLE_ASSERTS)
+ENDIF()

@@ -27,7 +27,7 @@ ADD_SUBDIRECTORY(deprecated)
 SET(DATA
   FindCppUnit.cmake
   FindGraphviz.cmake
-  FindKERNEL.cmake
+  FindSalomeKERNEL.cmake
   FindOmniORB.cmake
   FindPThread.cmake
   FindSalomeBoost.cmake

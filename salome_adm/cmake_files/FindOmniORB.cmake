@@ -40,7 +40,7 @@
 
 # minimum OmniORB4 supported version
 # 4.0.6 has known bug float/double marshalling using CORBA::Any
-set(OMNIORB_MINIMUM_VERSION "4.1.2")
+SET(OmniORB_MINIMUM_VERSION "4.1.2")
 
 IF(WIN32)
   # Guide the FIND_LIBRARY command towards the correct directory <...>/lib/x86_win32:

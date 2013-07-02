@@ -72,27 +72,18 @@ MARK_AS_ADVANCED(SALOME_LIGHT_ONLY SALOME_USE_LIBBATCH SALOME_PACO_PARALLEL SALO
 #   -> this can help finding the smaller prerequisites and detect conficts.
 # =======================
 
-FIND_PACKAGE(SalomeLibBatch REQUIRED)
+# Exception: LibBatch is optional but is loaded first, as it can
+# give Python, Pthread and SWIG:
+IF(SALOME_USE_LIBBATCH)
+  FIND_PACKAGE(SalomeLibBatch REQUIRED)
+ENDIF()
+
 FIND_PACKAGE(SalomePython REQUIRED)
 FIND_PACKAGE(SalomePThread REQUIRED)
 FIND_PACKAGE(SalomeSWIG REQUIRED)
 FIND_PACKAGE(SalomeLibXml2 REQUIRED)
-
-# HDF5 requires a bit more work to ensure MPI is selected:
-FIND_PACKAGE(SalomeHDF5 REQUIRED)
-ADD_DEFINITIONS(-DH5_USE_16_API)
-IF(WINDOWS)
-  ADD_DEFINITIONS(-D_HDF5USEDLL_)
-ENDIF()
-IF(HDF5_IS_PARALLEL AND NOT SALOME_USE_MPI)
-   MESSAGE(FATAL_ERROR "HDF5 is compiled with MPI, you have to set SALOME_USE_MPI to ON")
-ENDIF()
-
-# Boost
+FIND_PACKAGE(SalomeHDF5 REQUIRED COMPONENTS C)
 FIND_PACKAGE(SalomeBoost REQUIRED)
-IF(WIN32)
-  SET(BOOST_DEFINITIONS -DBOOST_DISABLE_ASSERTS)
-ENDIF()
 
 # Optional prerequisites
 # ======================
@@ -102,8 +93,6 @@ IF(NOT SALOME_LIGHT_ONLY)
 ENDIF() 
 IF(SALOME_USE_MPI)
   FIND_PACKAGE(SalomeMPI REQUIRED)
-  SET(MPI_INCLUDE_DIRS ${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
-  SET(MPI_LIBRARIES ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES})
 ENDIF()
 IF(SALOME_BUILD_TESTS)
   ENABLE_TESTING()
@@ -135,19 +124,23 @@ SET(SALOME_INSTALL_APPLISKEL_SCRIPTS ${SALOME_INSTALL_BINS}/appliskel CACHE PATH
 SET(SALOME_INSTALL_APPLISKEL_PYTHON ${SALOME_INSTALL_BINS}/appliskel CACHE PATH 
    "Install path: SALOME application skeleton - Python")
 SET(SALOME_INSTALL_CMAKE salome_adm/cmake_files CACHE PATH "Install path: SALOME CMake files")
+SET(SALOME_INSTALL_CMAKE_LOCAL adm_local/cmake_files CACHE PATH 
+   "Install path: local SALOME CMake files")
 
 SET(_pydir lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
 SET(SALOME_INSTALL_PYTHON ${_pydir}/salome CACHE PATH "Install path: SALOME Python stuff")
 SET(SALOME_INSTALL_PYTHON_SHARED ${SALOME_INSTALL_PYTHON}/shared_modules CACHE PATH 
    "Install path: SALOME Python shared modules")
 
+SET(SALOME_INSTALL_RES share/salome/resources CACHE PATH "Install path: SALOME resources")
+
 # Kernel specific:
-SET(SALOME_KERNEL_INSTALL_RES_DATA share/salome/resources/kernel CACHE PATH "Install path: SALOME KERNEL specific data")
-SET(SALOME_KERNEL_INSTALL_RES_SCRIPTS share/salome/resources/kernel CACHE PATH "Install path: SALOME KERNEL specific scripts")
+SET(SALOME_KERNEL_INSTALL_RES_DATA "${SALOME_INSTALL_RES}/kernel" CACHE PATH "Install path: SALOME KERNEL specific data")
+SET(SALOME_KERNEL_INSTALL_RES_SCRIPTS "${SALOME_INSTALL_RES}/kernel" CACHE PATH "Install path: SALOME KERNEL specific scripts")
 
 MARK_AS_ADVANCED(SALOME_INSTALL_BINS SALOME_INSTALL_LIBS SALOME_INSTALL_IDLS SALOME_INSTALL_HEADERS)
 MARK_AS_ADVANCED(SALOME_INSTALL_SCRIPT_SCRIPTS SALOME_INSTALL_SCRIPT_DATA SALOME_INSTALL_SCRIPT_PYTHON)
-MARK_AS_ADVANCED(SALOME_INSTALL_APPLISKEL_SCRIPTS  SALOME_INSTALL_APPLISKEL_PYTHON SALOME_INSTALL_CMAKE)
+MARK_AS_ADVANCED(SALOME_INSTALL_APPLISKEL_SCRIPTS  SALOME_INSTALL_APPLISKEL_PYTHON SALOME_INSTALL_CMAKE SALOME_INSTALL_CMAKE_LOCAL SALOME_INSTALL_RES)
 MARK_AS_ADVANCED(SALOME_INSTALL_PYTHON SALOME_INSTALL_PYTHON_SHARED SALOME_KERNEL_INSTALL_RES_DATA SALOME_KERNEL_INSTALL_RES_SCRIPTS)
 
 # Sources 
@@ -165,6 +158,8 @@ ENDIF()
 
 # Header configuration
 # ====================
+EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${${PROJECT_NAME_UC}_VERSION}
+  OUTPUT_VARIABLE XVERSION)
 SET(input ${CMAKE_CURRENT_SOURCE_DIR}/KERNEL_version.h.in)
 SET(output ${CMAKE_CURRENT_BINARY_DIR}/KERNEL_version.h)
 MESSAGE(STATUS "Creation of ${output}")
@@ -175,8 +170,27 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/KERNEL_version.h DESTINATION ${SALOME_
 # ====================
 INCLUDE(CMakePackageConfigHelpers)
 
+# List of targets in this project we want to make visible to the rest of the world.
+# They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
+SET(_${PROJECT_NAME}_exposed_targets
+  CalciumC SalomeCalcium DF Launcher LifeCycleCORBATest NamingServiceTest
+  OpUtil Registry ResourcesManager SALOMEBasics SalomeCatalog SalomeCommunication
+  SalomeContainer SalomeDatastream SalomePalm SalomeDSCContainer SalomeDSClient
+  SalomeDSCSupervBasic SalomeDSCSuperv SalomeDSImpl SALOMEDSImplTest
+  SalomeDS SALOMEDSTest SalomeGenericObj SalomeHDFPersist SalomeIDLKernel
+  SalomeLauncher  SalomeLifeCycleCORBA  SALOMELocalTrace SALOMELocalTraceTest
+  SalomeLoggerServer SalomeNotification SalomeNS
+  SalomeResourcesManager SalomeTestComponentEngine 
+  SALOMETraceCollectorTest TOOLSDS UtilsTest with_loggerTraceCollector SalomeKernelHelpers)
+  
+# MPI specific targets:
+IF(SALOME_USE_MPI)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+       SalomeMPIContainer SalomeTestMPIComponentEngine)
+ENDIF()
+
 # Add all targets to the build-tree export set
-EXPORT(TARGETS SALOMEBasics
+EXPORT(TARGETS ${_${PROJECT_NAME}_exposed_targets}
   FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake)
 
 # Create the configuration files:
@@ -225,4 +239,5 @@ INSTALL(FILES
   DESTINATION "${SALOME_INSTALL_CMAKE}")
 
 # Install the export set for use with the install-tree
-INSTALL(EXPORT ${PROJECT_NAME}Targets DESTINATION "${SALOME_INSTALL_CMAKE}")
+INSTALL(EXPORT ${PROJECT_NAME}TargetGroup DESTINATION "${SALOME_INSTALL_CMAKE}" 
+        FILE ${PROJECT_NAME}Targets.cmake)

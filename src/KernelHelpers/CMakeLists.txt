@@ -55,7 +55,7 @@ ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeKernelHelpers ${SalomeKernelHelpers_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeKernelHelpers ${SalomeKernelHelpers_LIBS})
-INSTALL(TARGETS SalomeKernelHelpers DESTINATION ${SALOME_INSTALL_LIBS})
+INSTALL(TARGETS SalomeKernelHelpers EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(KernelHelpersUseCases KernelHelpersUseCases.cxx)
 TARGET_LINK_LIBRARIES(KernelHelpersUseCases SalomeKernelHelpers ${SalomeKernelHelpers_LIBS})
