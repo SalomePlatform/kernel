@@ -44,6 +44,7 @@ SET(DATA
   FindSalomeSphinx.cmake
   FindSalomeSWIG.cmake
   FindSphinx.cmake  
+  FindMEDFILE.cmake
   InstallAndCompilePythonFile.cmake
   UseOmniORB.cmake
   SalomeMacros.cmake

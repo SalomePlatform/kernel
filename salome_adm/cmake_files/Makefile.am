@@ -44,6 +44,7 @@ FindSalomePython.cmake \
 FindSalomeSWIG.cmake \
 FindSalomeSphinx.cmake \
 FindSphinx.cmake \
+FindMEDFILE.cmake \
 InstallAndCompilePythonFile.cmake \
 SalomeMacros.cmake \
 SalomeSetupPlatform.cmake \
