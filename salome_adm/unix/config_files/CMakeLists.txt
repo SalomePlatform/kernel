@@ -79,6 +79,7 @@ SET(m4_DATA
   local_install.m4
   hack_libtool.m4
   check_tbb.m4
+  check_med3.m4
 )
 INSTALL(FILES ${DEPRECATED_FILES} DESTINATION salome_adm/unix/config_files/DEPRECATED)
 INSTALL(FILES ${m4_DATA} DESTINATION salome_adm/unix/config_files)
