@@ -173,20 +173,27 @@ INCLUDE(CMakePackageConfigHelpers)
 # List of targets in this project we want to make visible to the rest of the world.
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 SET(_${PROJECT_NAME}_exposed_targets
-  CalciumC SalomeCalcium DF Launcher LifeCycleCORBATest NamingServiceTest
+  CalciumC SalomeCalcium DF Launcher  
   OpUtil Registry ResourcesManager SALOMEBasics SalomeCatalog SalomeCommunication
   SalomeContainer SalomeDatastream SalomePalm SalomeDSCContainer SalomeDSClient
-  SalomeDSCSupervBasic SalomeDSCSuperv SalomeDSImpl SALOMEDSImplTest
-  SalomeDS SALOMEDSTest SalomeGenericObj SalomeHDFPersist SalomeIDLKernel
-  SalomeLauncher  SalomeLifeCycleCORBA  SALOMELocalTrace SALOMELocalTraceTest
+  SalomeDSCSupervBasic SalomeDSCSuperv SalomeDSImpl 
+  SalomeDS  SalomeGenericObj SalomeHDFPersist SalomeIDLKernel
+  SalomeLauncher  SalomeLifeCycleCORBA  SALOMELocalTrace 
   SalomeLoggerServer SalomeNotification SalomeNS
-  SalomeResourcesManager SalomeTestComponentEngine 
-  SALOMETraceCollectorTest TOOLSDS UtilsTest with_loggerTraceCollector SalomeKernelHelpers)
+  SalomeResourcesManager  
+  TOOLSDS  with_loggerTraceCollector SalomeKernelHelpers)
   
 # MPI specific targets:
 IF(SALOME_USE_MPI)
   LIST(APPEND _${PROJECT_NAME}_exposed_targets 
        SalomeMPIContainer SalomeTestMPIComponentEngine)
+ENDIF()
+
+# Test targets:
+IF(SALOME_BUILD_TESTS)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+      LifeCycleCORBATest NamingServiceTest SALOMEDSImplTest SALOMEDSTest SALOMELocalTraceTest
+      SalomeTestComponentEngine SALOMETraceCollectorTest UtilsTest )
 ENDIF()
 
 # Add all targets to the build-tree export set

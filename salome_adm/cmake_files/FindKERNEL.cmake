@@ -20,6 +20,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+#
+#  TODO: this file should be removed when switching to full CMake
+#
+
 SET(KERNEL_CXXFLAGS -I${KERNEL_ROOT_DIR}/include/salome) # to be removed
 SET(KERNEL_INCLUDE_DIRS ${KERNEL_ROOT_DIR}/include/salome)
 

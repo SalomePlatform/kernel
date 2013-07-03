@@ -37,6 +37,7 @@ SET(DATA
   FindSalomeHDF5.cmake
   FindSalomeLibBatch.cmake
   FindSalomeLibXml2.cmake
+  FindSalomeMedfile.cmake
   FindSalomeMPI.cmake
   FindSalomeOmniORB.cmake
   FindSalomePThread.cmake

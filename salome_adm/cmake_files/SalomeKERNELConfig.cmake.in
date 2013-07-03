@@ -39,7 +39,7 @@
 # Load the dependencies for the libraries of @PROJECT_NAME@ 
 # (contains definitions for IMPORTED targets). This is only 
 # imported if we are not built as a subproject (in this case targets are already there)
-IF(NOT SALOMEBasics AND NOT @PROJECT_NAME@_BINARY_DIR)
+IF(NOT TARGET SALOMEBasics AND NOT @PROJECT_NAME@_BINARY_DIR)
   INCLUDE("@PACKAGE_SALOME_INSTALL_CMAKE@/@PROJECT_NAME@Targets.cmake")
 ENDIF()   
 
@@ -75,8 +75,6 @@ IF(NOT SALOME_LIGHT_ONLY)
 ENDIF()
 IF(SALOME_USE_LIBBATCH)
   SET_AND_CHECK(LIBBATCH_ROOT_DIR_EXP "@PACKAGE_LIBBATCH_ROOT_DIR@")
-  # Make libbatch targets available, so the linking of dependent projects find them:
-  INCLUDE("${LIBBATCH_ROOT_DIR_EXP}/share/cmake/libbatch/LibBatchTargets.cmake")
 ENDIF()
 
 SET_AND_CHECK(PTHREAD_ROOT_DIR_EXP  "@PACKAGE_PTHREAD_ROOT_DIR@")
@@ -85,6 +83,27 @@ SET_AND_CHECK(HDF5_ROOT_DIR_EXP     "@PACKAGE_HDF5_ROOT_DIR@")
 SET_AND_CHECK(LIBXML2_ROOT_DIR_EXP  "@PACKAGE_LIBXML2_ROOT_DIR@")
 SET_AND_CHECK(PYTHON_ROOT_DIR_EXP   "@PACKAGE_PYTHON_ROOT_DIR@")
 SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
+
+# For all prerequisites, load the corresponding targets if the package was used 
+# in CONFIG mode. This ensures dependent projects link correctly
+# without having to set LD_LIBRARY_PATH:
+SET(_PREREQ CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch PThread Boost HDF5 libXml2 Python)
+SET(_PREREQ_CONFIG_DIR "@CppUnit_DIR@" "@Graphviz_DIR@" "@Doxygen_DIR@" "@Sphinx_DIR@" 
+      "@MPI_DIR@" "@omniORB_DIR@" "@LibBatch_DIR@" "@PThread_DIR@" "@Boost_DIR@" "@HDF5_DIR@"
+      "@libXml2_DIR@" "@Python_DIR@")
+LIST(LENGTH _PREREQ_CONFIG_DIR _list_len)
+# Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
+MATH(EXPR _range "${_list_len}-1")
+FOREACH(_p RANGE ${_range})  
+  LIST(GET _PREREQ            ${_p} _pkg    )
+  LIST(GET _PREREQ_CONFIG_DIR ${_p} _pkg_dir)
+  IF(_pkg_dir)
+     MESSAGE(STATUS "===> Reloading targets from ${_pkg} ...")
+     FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE 
+          PATHS "${_pkg_dir}" 
+          NO_DEFAULT_PATH)
+  ENDIF()
+ENDFOREACH()
 
 # Installation directories
 SET(SALOME_INSTALL_BINS "@SALOME_INSTALL_BINS@")

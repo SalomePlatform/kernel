@@ -239,16 +239,21 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
     IF(("${mode}" STREQUAL "NO_MODULE") OR ("${mode}" STREQUAL "CONFIG"))
       # Hope to find direclty a CMake config file, indicating the SALOME CMake file
       # paths (the command already look in places like "share/cmake", etc ... by default)
+      # Note the options NO_CMAKE_BUILDS_PATH, NO_CMAKE_PACKAGE_REGISTRY to avoid (under Windows)
+      # looking into a previous CMake build done via a GUI, or into the Win registry. 
+      # See documentation of FIND_PACKAGE() for full details.
       
       # Do we need to call the signature using components?
       IF(${englobPkg}_FIND_COMPONENTS)
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS}
-              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files")
+              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
+              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY)
       ELSE()
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req}
-              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files")
+              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
+              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY)
       ENDIF()
       MARK_AS_ADVANCED(${stdPkg}_DIR)
       

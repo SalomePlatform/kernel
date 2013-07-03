@@ -25,8 +25,25 @@
 # KERNEL detection for salome - this is typically called by dependent modules
 # (GUI, PARAVIS, etc ...)
 #
-#  The detection is simpler than for other prerequisites:
+# The detection is simpler than for other prerequisites.
+# Indeed calling SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS() with SalomeKERNEL is tricky:
+#  - one would write  SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(KERNEL xyz n)
+#  - then the macro would look first for a file named SalomeKERNELConfig.cmake (=the normal situation)
+#  - if not found (because KERNEL_ROOT_DIR was badly set for example) the macro would then look
+# for a file named FindSalomeKERNEL.cmake
+#  => this is the current file, and that would trigger an infinite recursion ... :-)
+#  This could be detected with a flag mechanism, but honestly this becomes an overkill.
 #
+# So we go for a simple lookup, without conflict check:
+#
+
+IF(NOT SalomeKERNEL_FIND_QUIETLY)
+  MESSAGE(STATUS "Looking for Salome KERNEL ...")
+ENDIF()
 
 SET(CMAKE_PREFIX_PATH "${KERNEL_ROOT_DIR}")
 SALOME_FIND_PACKAGE(SalomeKERNEL SalomeKERNEL CONFIG)
+
+IF(NOT SalomeKERNEL_FIND_QUIETLY)
+  MESSAGE(STATUS "Found Salome KERNEL: ${KERNEL_ROOT_DIR}")
+ENDIF()
