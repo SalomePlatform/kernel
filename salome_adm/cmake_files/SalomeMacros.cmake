@@ -421,5 +421,7 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ELSE()
     MESSAGE(STATUS "${pkg} was not found.")  
   ENDIF()
+  
+  SET(Salome${pkg}_FOUND "${pkg}_FOUND")
 ENDMACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS)
 

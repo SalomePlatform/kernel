@@ -19,9 +19,23 @@
 # Author: Adrien Bruneton
 #
 
-# omniORB and detection for SALOME
+# omniORB Python backend detection for SALOME
 #
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
-SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(OmniORB OMNIORB_INCLUDE_DIR 1)
-#MARK_AS_ADVANCED()
+
+IF(SalomeOmniORB_FOUND)
+  # If no OMNIORBPY_ROOT_DIR is given, then try with OMNIORB_ROOT_DIR:
+  SET(OMNIORBPY_ROOT_DIR "$ENV{OMNIORBPY_ROOT_DIR}" CACHE PATH "Path to the OmniORB Python backend")
+  IF(EXISTS "${OMNIORB_ROOT_DIR}" AND (NOT OMNIORBPY_ROOT_DIR))
+    MESSAGE(STATUS "Looking for OmniORB Python backend in the OmniORB installation (OMNIORB_ROOT_DIR exists and OMNIORBPY_ROOT_DIR_ROOT_DIR is not defined) ...")  
+    SET(OMNIORBPY_ROOT_DIR "${OMNIORB_ROOT_DIR}") 
+  ENDIF()
+
+  SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(OmniORBPy OMNIORB_PYTHON_BACKEND 4)
+  #MARK_AS_ADVANCED()
+ELSE()
+  IF(NOT SalomeOmniORBPy_FIND_QUIETLY)
+    MESSAGE(STATUS "OmniORB Python backend needs OmniORB, and OmniORB was not found!")
+  ENDIF()
+ENDIF()

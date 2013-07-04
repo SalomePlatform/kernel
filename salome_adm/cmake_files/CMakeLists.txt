@@ -29,6 +29,7 @@ SET(DATA
   FindGraphviz.cmake
   FindSalomeKERNEL.cmake
   FindOmniORB.cmake
+  FindOmniORBPy.cmake
   FindPThread.cmake
   FindSalomeBoost.cmake
   FindSalomeCppUnit.cmake
@@ -40,6 +41,7 @@ SET(DATA
   FindSalomeMedfile.cmake
   FindSalomeMPI.cmake
   FindSalomeOmniORB.cmake
+  FindSalomeOmniORBPy.cmake
   FindSalomePThread.cmake
   FindSalomePython.cmake
   FindSalomeSphinx.cmake
