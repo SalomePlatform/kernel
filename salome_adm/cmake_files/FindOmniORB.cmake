@@ -107,7 +107,7 @@ IF(WIN32)
      NAMES python.py PATHS "/lib/python/omniidl_be" DOC ${_doc}) 
 ELSE()
   FIND_PATH(OMNIORB_PYTHON_BACKEND
-     NAMES __init__.py
+     NAMES python.py
      PATHS "/lib/python${_py_version}/site-packages/omniidl_be" "/usr/lib/omniidl/omniidl_be" 
      DOC ${_doc})
 ENDIF()
