@@ -24,5 +24,5 @@
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
 
-SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(medfile MEDFILE_ROOT_DIR_EXP 0)
+SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(MEDFile MEDFILE_ROOT_DIR_EXP 0)
 #MARK_AS_ADVANCED()
