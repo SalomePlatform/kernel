@@ -38,7 +38,7 @@ SET(DATA
   FindSalomeHDF5.cmake
   FindSalomeLibBatch.cmake
   FindSalomeLibXml2.cmake
-  FindSalomeMEDfile.cmake
+  FindSalomeMEDFile.cmake
   FindSalomeMPI.cmake
   FindSalomeOmniORB.cmake
   FindSalomeOmniORBPy.cmake
@@ -47,7 +47,7 @@ SET(DATA
   FindSalomeSphinx.cmake
   FindSalomeSWIG.cmake
   FindSphinx.cmake  
-  FindMEDFILE.cmake
+  FindMEDFile.cmake
   InstallAndCompilePythonFile.cmake
   UseOmniORB.cmake
   SalomeMacros.cmake
