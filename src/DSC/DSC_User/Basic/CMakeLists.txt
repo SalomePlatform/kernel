@@ -20,16 +20,16 @@
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
-  ${CMAKE_BINARY_DIR}/idl
-  ${CMAKE_BINARY_DIR}/salome_adm
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
-  ${CMAKE_SOURCE_DIR}/src/Container
-  ${CMAKE_SOURCE_DIR}/src/GenericObj
-  ${CMAKE_SOURCE_DIR}/src/Notification
-  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
-  ${CMAKE_SOURCE_DIR}/src/Basics
-  ${CMAKE_SOURCE_DIR}/src/Utils)
+  ${PROJECT_BINARY_DIR}/idl
+  ${PROJECT_BINARY_DIR}/salome_adm
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User
+  ${PROJECT_SOURCE_DIR}/src/Container
+  ${PROJECT_SOURCE_DIR}/src/GenericObj
+  ${PROJECT_SOURCE_DIR}/src/Notification
+  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
+  ${PROJECT_SOURCE_DIR}/src/Basics
+  ${PROJECT_SOURCE_DIR}/src/Utils)
 
 SET(SalomeDSCSupervBasic_SOURCES
   basic_port_factory.cxx

@@ -21,7 +21,7 @@ INCLUDE_DIRECTORIES(
   ${CPPUNIT_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/salome_adm
+  ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace
@@ -39,7 +39,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../DF
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMEDSImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMEDSImpl/Test
-  ${CMAKE_BINARY_DIR}/idl
+  ${PROJECT_BINARY_DIR}/idl
 )
 
 # This local variable defines the list of dependant libraries common to all target in this package.

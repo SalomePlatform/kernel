@@ -38,7 +38,7 @@ SET(VERSION_DEV "0")
 
 # Our own set of macros:
 LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/salome_adm/cmake_files")
-INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
 
 # Platform setup
 # ==============

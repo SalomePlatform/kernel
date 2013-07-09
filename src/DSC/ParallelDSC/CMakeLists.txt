@@ -21,18 +21,18 @@ INCLUDE_DIRECTORIES(
   ${MPI_CXX_INCLUDE_PATH}
   ${PACO_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/Container
-  ${CMAKE_SOURCE_DIR}/src/ParallelContainer
-  ${CMAKE_SOURCE_DIR}/src/Notification
-  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
-  ${CMAKE_SOURCE_DIR}/src/Basics
-  ${CMAKE_SOURCE_DIR}/src/NamingService
-  ${CMAKE_SOURCE_DIR}/src/Utils
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${CMAKE_SOURCE_DIR}/src/GenericObj
-  ${CMAKE_BINARY_DIR}/idl
-  ${CMAKE_SOURCE_DIR}/src/Registry
-  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${PROJECT_SOURCE_DIR}/src/Container
+  ${PROJECT_SOURCE_DIR}/src/ParallelContainer
+  ${PROJECT_SOURCE_DIR}/src/Notification
+  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
+  ${PROJECT_SOURCE_DIR}/src/Basics
+  ${PROJECT_SOURCE_DIR}/src/NamingService
+  ${PROJECT_SOURCE_DIR}/src/Utils
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${PROJECT_SOURCE_DIR}/src/GenericObj
+  ${PROJECT_BINARY_DIR}/idl
+  ${PROJECT_SOURCE_DIR}/src/Registry
+  ${PROJECT_SOURCE_DIR}/src/Utils
 )
 
 SET(COMMON_FLAGS

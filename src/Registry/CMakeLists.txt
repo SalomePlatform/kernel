@@ -20,12 +20,12 @@
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
-  ${CMAKE_BINARY_DIR}/salome_adm
+  ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-  ${CMAKE_BINARY_DIR}/idl
+  ${PROJECT_BINARY_DIR}/idl
 )
 
 ADD_LIBRARY(Registry RegistryConnexion.cxx RegistryService.cxx)

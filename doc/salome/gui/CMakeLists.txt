@@ -17,8 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(top_builddir ${CMAKE_BINARY_DIR})
-SET(top_srcdir ${CMAKE_SOURCE_DIR})
+SET(top_builddir ${PROJECT_BINARY_DIR})
+SET(top_srcdir ${PROJECT_SOURCE_DIR})
 SET(srcdir ${CMAKE_CURRENT_SOURCE_DIR})
 SET(builddir ${CMAKE_CURRENT_BINARY_DIR})
 SET(datadir ${CMAKE_INSTALL_PREFIX}/share)
@@ -31,6 +31,6 @@ ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE})
 
 ADD_DEPENDENCIES(usr_docs html_docs)
 
-INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${CMAKE_BINARY_DIR} --target usr_docs)")
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/KERNEL DESTINATION share/doc/salome/gui)
 INSTALL(FILES images/head.png DESTINATION share/doc/salome/gui/KERNEL) 

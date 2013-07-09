@@ -17,8 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(top_builddir ${CMAKE_BINARY_DIR})
-SET(top_srcdir ${CMAKE_SOURCE_DIR})
+SET(top_builddir ${PROJECT_BINARY_DIR})
+SET(top_srcdir ${PROJECT_SOURCE_DIR})
 SET(srcdir ${CMAKE_CURRENT_SOURCE_DIR})
 SET(builddir ${CMAKE_CURRENT_BINARY_DIR})
 SET(datadir ${CMAKE_INSTALL_PREFIX}/share)

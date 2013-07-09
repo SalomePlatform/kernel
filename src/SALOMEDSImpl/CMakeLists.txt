@@ -21,12 +21,12 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/salome_adm
+  ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
   ${CMAKE_CURRENT_SOURCE_DIR}/../DF
-  ${CMAKE_BINARY_DIR}
+  ${PROJECT_BINARY_DIR}
 )
 
 # This local variable defines the list of FLAGS common to all target in this package.

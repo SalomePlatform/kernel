@@ -35,7 +35,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../LifeCycleCORBA
   ${CMAKE_CURRENT_SOURCE_DIR}/../../DF
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMEDSImpl
-  ${CMAKE_BINARY_DIR}/idl
+  ${PROJECT_BINARY_DIR}/idl
 )
 
 # This local variable defines the list of dependant libraries common to all target in this package.

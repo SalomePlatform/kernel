@@ -20,18 +20,18 @@
 INCLUDE_DIRECTORIES(
   ${CPPUNIT_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
-  ${CMAKE_BINARY_DIR}/salome_adm
-  ${CMAKE_SOURCE_DIR}/src/Basics/Test
+  ${PROJECT_BINARY_DIR}/salome_adm
+  ${PROJECT_SOURCE_DIR}/src/Basics/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/..
-  ${CMAKE_SOURCE_DIR}/src/NamingService
-  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
-  ${CMAKE_SOURCE_DIR}/src/Basics
-  ${CMAKE_SOURCE_DIR}/src/Utils
-  ${CMAKE_SOURCE_DIR}/src/LifeCycleCORBA
-  ${CMAKE_SOURCE_DIR}/src/Container
-  ${CMAKE_SOURCE_DIR}/src/Notification
-  ${CMAKE_SOURCE_DIR}/src/GenericObj
-  ${CMAKE_BINARY_DIR}/idl
+  ${PROJECT_SOURCE_DIR}/src/NamingService
+  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
+  ${PROJECT_SOURCE_DIR}/src/Basics
+  ${PROJECT_SOURCE_DIR}/src/Utils
+  ${PROJECT_SOURCE_DIR}/src/LifeCycleCORBA
+  ${PROJECT_SOURCE_DIR}/src/Container
+  ${PROJECT_SOURCE_DIR}/src/Notification
+  ${PROJECT_SOURCE_DIR}/src/GenericObj
+  ${PROJECT_BINARY_DIR}/idl
 )
 
 SET(SalomeKernelHelpersTest_LIBS

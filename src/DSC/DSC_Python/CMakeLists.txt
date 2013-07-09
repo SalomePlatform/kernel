@@ -28,21 +28,21 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/salome_adm
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Palm
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Calcium
-  ${CMAKE_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Basic
-  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
-  ${CMAKE_SOURCE_DIR}/src/Basics
-  ${CMAKE_SOURCE_DIR}/src/Utils
-  ${CMAKE_SOURCE_DIR}/src/Container
-  ${CMAKE_SOURCE_DIR}/src/GenericObj
-  ${CMAKE_SOURCE_DIR}/src/Notification
-  ${CMAKE_BINARY_DIR}/idl
+  ${PROJECT_BINARY_DIR}/salome_adm
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Palm
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Calcium
+  ${PROJECT_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Basic
+  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
+  ${PROJECT_SOURCE_DIR}/src/Basics
+  ${PROJECT_SOURCE_DIR}/src/Utils
+  ${PROJECT_SOURCE_DIR}/src/Container
+  ${PROJECT_SOURCE_DIR}/src/GenericObj
+  ${PROJECT_SOURCE_DIR}/src/Notification
+  ${PROJECT_BINARY_DIR}/idl
   )
 
 SET(_calcium_LIBS
