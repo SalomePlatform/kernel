@@ -148,6 +148,8 @@ def shutdownMyPort(port, cleanup=True):
     kwargs = {}
     if omniorbUserPath is not None:
         kwargs["with_username"]=True
+    else:
+        omniorbUserPath = os.path.realpath(os.path.expanduser('~'))
     omniorb_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                       extension="cfg",
                                       hidden=True,
