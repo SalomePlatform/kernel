@@ -34,17 +34,11 @@
 ##############################################################################
 
 SET(_py_version "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-SET(CMAKE_FIND_ROOT_PATH ${CMAKE_PREFIX_PATH})
-SET(_doc "Path to python-backend directory (omniidl_be) including python.py file")
-IF(WIN32)
-  FIND_PATH(OMNIORB_PYTHON_BACKEND
-     NAMES python.py PATHS "/lib/python/omniidl_be" DOC ${_doc}) 
-ELSE()
-  FIND_PATH(OMNIORB_PYTHON_BACKEND
-     NAMES python.py
-     PATHS "/lib/python${_py_version}/site-packages/omniidl_be" "/usr/lib/omniidl/omniidl_be" 
-     DOC ${_doc})
-ENDIF()
+FIND_PATH(OMNIORB_PYTHON_BACKEND
+  NAMES python.py
+  PATHS "${OMNIORBPY_ROOT_DIR}" "/usr" 
+  PATH_SUFFIXES "/lib/python${_py_version}/site-packages/omniidl_be" "/lib/omniidl/omniidl_be" "/lib/python/omniidl_be"
+  DOC "Path to python-backend directory (omniidl_be) including python.py file")
 
 ##############################################################################
 # Cook our stuff
