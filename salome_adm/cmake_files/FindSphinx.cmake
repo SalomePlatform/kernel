@@ -1,6 +1,7 @@
 # - Sphinx detection
 #
 # Output variable: SPHINX_EXECUTABLE
+#                  
 # 
 # The executable 'sphinx-build' is looked for and returned in the above variable.
 #

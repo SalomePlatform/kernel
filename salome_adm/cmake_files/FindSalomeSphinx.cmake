@@ -21,6 +21,18 @@
 #
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
+# The caller of this macro might set SPHINX_PYTHONPATH to provide a PYTHONPATH with
+# which the sphinx command should be ran.
+#
 
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Sphinx SPHINX_EXECUTABLE 2)
+
+# Ensure the command is run with the given PYTHONPATH
+IF(WIN32 AND NOT CYGWIN)
+   MESSAGE(WARNING "Sphinx windows command needs a proper PYTHONPATH to run.")
+ELSE()
+   SET(SPHINX_EXECUTABLE /usr/bin/env PYTHONPATH="${SPHINX_PYTHONPATH}:$ENV{PYTHONPATH}" ${SPHINX_EXECUTABLE})
+ENDIF()
+
 MARK_AS_ADVANCED(SPHINX_EXECUTABLE)
+#message("SPHINX_EXECUTABLE : ${SPHINX_EXECUTABLE}")

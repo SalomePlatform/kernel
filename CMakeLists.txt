@@ -102,6 +102,9 @@ ENDIF()
 IF(SALOME_BUILD_DOC)
   FIND_PACKAGE(SalomeDoxygen REQUIRED)
   FIND_PACKAGE(SalomeGraphviz)          # Remains optional even here.
+  
+  # Sphinx needs to run with a specific PYTHONPATH:
+  #SET(SPHINX_PYTHONPATH "${OMNIORBPY_PYTHONPATH}")
   FIND_PACKAGE(SalomeSphinx REQUIRED)
 ENDIF()
 

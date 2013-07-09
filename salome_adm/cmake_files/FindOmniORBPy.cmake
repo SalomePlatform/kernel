@@ -2,6 +2,7 @@
 #
 # Sets the following variables:
 # OMNIORB_PYTHON_BACKEND - path to the Python backend
+# OMNIORBPY_PYTHONPATH   - Python path to the OmniORB modules
 #
 # Detection is made by looking for  
 #    lib/python${_py_version}/site-packages/omniidl_be/python.py
@@ -50,22 +51,13 @@ ENDIF()
 ##############################################################################
 MARK_AS_ADVANCED(OMNIORB_PYTHON_BACKEND)
   
-#SET(OMNIORB_IDLCXXFLAGS -Wba -nf)
 SET(OMNIORB_IDLPYFLAGS -bpython)
 IF (OMNIORB_PYTHON_BACKEND) 
   SET(OMNIORB_IDLPYFLAGS "-p ${OMNIORB_PYTHON_BACKEND} ${OMNIORB_IDLPYFLAGS}")
 ENDIF()
-#SET(IDLCXXFLAGS ${OMNIORB_IDLCXXFLAGS})
 SET(IDLPYFLAGS ${OMNIORB_IDLPYFLAGS})
-#SET(IDL_CLN_H .hh)
-#SET(IDL_SRV_H .hh)
-#SET(OMNIORB_DEFINITIONS "-D__x86__ -DCOMP_CORBA_DOUBLE -DCOMP_CORBA_LONG")
-#IF(WIN32)
-#  SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__WIN32__")
-#ENDIF()
-#IF(APPLE)
-  #SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__macos__")#for omnithread.h to be checked...
-#ENDIF()
+
+GET_FILENAME_COMPONENT(OMNIORBPY_PYTHONPATH "${OMNIORB_PYTHON_BACKEND}" PATH)
 
 # Handle standard arguments:
 INCLUDE(FindPackageHandleStandardArgs)
