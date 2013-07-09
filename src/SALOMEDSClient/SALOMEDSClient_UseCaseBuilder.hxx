@@ -44,6 +44,7 @@ public:
   virtual bool SetCurrentObject(const _PTR(SObject)& theObject) = 0;
   virtual bool SetRootCurrent() = 0;
   virtual bool HasChildren(const _PTR(SObject)& theObject) = 0;
+  virtual bool SortChildren(const _PTR(SObject)& theObject, bool theAscendingOrder) = 0;
   virtual _PTR(SObject) GetFather(const _PTR(SObject)& theObject) = 0;
   virtual bool IsUseCase(const _PTR(SObject)& theObject) = 0;
   virtual bool IsUseCaseNode(const _PTR(SObject)& theObject) = 0;

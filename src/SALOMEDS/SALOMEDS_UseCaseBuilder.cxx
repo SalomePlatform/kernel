@@ -139,6 +139,18 @@ bool SALOMEDS_UseCaseBuilder::HasChildren(const _PTR(SObject)& theObject)
   return ret;
 }
 
+bool SALOMEDS_UseCaseBuilder::SortChildren(const _PTR(SObject)& theObject, bool theAscendingOrder)
+{
+  bool ret;
+  SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    ret = _local_impl->SortChildren(*(obj->GetLocalImpl()), theAscendingOrder);
+  }
+  else ret = _corba_impl->SortChildren(obj->GetCORBAImpl(), theAscendingOrder);
+  return ret;
+}
+
 _PTR(SObject) SALOMEDS_UseCaseBuilder::GetFather(const _PTR(SObject)& theObject)
 {
   SALOMEDS_SObject* father = NULL;

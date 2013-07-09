@@ -142,6 +142,18 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::HasChildren(SALOMEDS::SObject_ptr theO
 }
 
 //============================================================================
+/*! Function : SortChildren
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SortChildren(SALOMEDS::SObject_ptr theObject, CORBA::Boolean theAscendingOrder)
+{
+  SALOMEDS::Locker lock;
+  if(!_impl) return 0;
+  return _impl->SortChildren(_impl->GetSObject(theObject->GetID()), theAscendingOrder);
+}
+
+//============================================================================
 /*! Function : GetFather
  *  Purpose  :
  */

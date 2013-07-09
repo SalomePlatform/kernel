@@ -1320,6 +1320,10 @@ Activates the %UseCaseIterator.
 */
     boolean HasChildren(in SObject theObject);
 /*!
+   Returns True if children of the given object <VAR>theObject</VAR> of the use case tree were sorted successfully.
+*/
+    boolean SortChildren(in SObject theObject, in boolean theAscendingOrder);
+/*!
    Gets father object of the given object <VAR>theObject</VAR> in the use cases tree.
 */
     SObject GetFather(in SObject theObject);

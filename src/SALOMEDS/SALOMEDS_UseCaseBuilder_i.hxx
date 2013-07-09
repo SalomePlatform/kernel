@@ -73,6 +73,8 @@ public:
 
   virtual CORBA::Boolean  HasChildren(SALOMEDS::SObject_ptr theObject);
 
+  virtual CORBA::Boolean  SortChildren(SALOMEDS::SObject_ptr theObject, CORBA::Boolean theAscendingOrder);
+
   virtual SALOMEDS::SObject_ptr GetFather(SALOMEDS::SObject_ptr theObject);
 
   virtual CORBA::Boolean  IsUseCase(SALOMEDS::SObject_ptr theObject);

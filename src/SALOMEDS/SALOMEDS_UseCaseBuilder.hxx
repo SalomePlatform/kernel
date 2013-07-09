@@ -55,6 +55,7 @@ public:
   virtual bool  SetCurrentObject(const _PTR(SObject)& theObject);
   virtual bool SetRootCurrent();
   virtual bool  HasChildren(const _PTR(SObject)& theObject);
+  virtual bool SortChildren(const _PTR(SObject)& theObject, bool theAscendingOrder);
   virtual _PTR(SObject) GetFather(const _PTR(SObject)& theObject);
   virtual bool  IsUseCase(const _PTR(SObject)& theObject);
   virtual bool  IsUseCaseNode(const _PTR(SObject)& theObject);

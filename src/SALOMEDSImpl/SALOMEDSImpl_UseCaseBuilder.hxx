@@ -65,6 +65,8 @@ public:
 
   virtual bool  HasChildren(const SALOMEDSImpl_SObject& theObject);
 
+  virtual bool SortChildren(const SALOMEDSImpl_SObject& theObject, bool theAscendingOrder);
+
   virtual SALOMEDSImpl_SObject GetFather(const SALOMEDSImpl_SObject& theObject);
 
   virtual bool  IsUseCase(const SALOMEDSImpl_SObject& theObject);

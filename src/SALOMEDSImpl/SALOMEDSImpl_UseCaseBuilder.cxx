@@ -32,9 +32,42 @@
 
 #include "DF_ChildIterator.hxx"
 
+#include <list>
+
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"
 
+namespace {
+  // comparator to sort use case nodes in ascending order
+  struct AscSortSOs {
+    bool operator()( SALOMEDSImpl_SObject firstSO, SALOMEDSImpl_SObject secondSO ) const {
+      std::string firstName, secondName;
+      SALOMEDSImpl_SObject refSO;
+      firstSO.ReferencedObject(refSO) ? 
+	firstName = refSO.GetName() : 
+	firstName = firstSO.GetName();
+      secondSO.ReferencedObject(refSO) ? 
+	secondName = refSO.GetName() : 
+	secondName = secondSO.GetName();
+      return firstName < secondName;
+    }
+  };
+
+  // comparator to sort use case nodes in descending order
+  struct DescSortSOs {
+    bool operator()( SALOMEDSImpl_SObject firstSO, SALOMEDSImpl_SObject secondSO ) const {
+      std::string firstName, secondName;
+      SALOMEDSImpl_SObject refSO;
+      firstSO.ReferencedObject(refSO) ? 
+	firstName = refSO.GetName() : 
+	firstName = firstSO.GetName();
+      secondSO.ReferencedObject(refSO) ? 
+	secondName = refSO.GetName() : 
+	secondName = secondSO.GetName();
+      return firstName > secondName;
+    }
+  };
+}
 
 //============================================================================
 /*! Function : constructor
@@ -277,6 +310,44 @@ bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const SALOMEDSImpl_SObject& theObj
   if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false; 
   
   return (aNode->GetFirst());
+}
+
+//============================================================================
+/*! Function : SortChildren
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_UseCaseBuilder::SortChildren(const SALOMEDSImpl_SObject& theObject, bool theAscendingOrder)
+{
+  if(!_root) return false;
+
+  DF_Label aLabel;
+  if (!theObject) aLabel = _root->Label();
+  else 
+    aLabel = theObject.GetLabel(); 
+  if(aLabel.IsNull()) return false;
+
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if (!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
+
+  std::list<SALOMEDSImpl_SObject> aNodeSOs;
+  for (SALOMEDSImpl_AttributeTreeNode* aChildNode=aNode->GetFirst(); aChildNode; aChildNode=aChildNode->GetNext() ) {
+    SALOMEDSImpl_SObject aSO = SALOMEDSImpl_Study::SObject(aChildNode->Label());
+    if (aSO) {
+      aNodeSOs.push_back(aSO);
+    }
+  }
+  if (aNodeSOs.empty()) return false;
+  
+  //sort items by names in ascending/descending order
+  theAscendingOrder ? aNodeSOs.sort( AscSortSOs() ) : aNodeSOs.sort( DescSortSOs() );
+
+  std::list<SALOMEDSImpl_SObject>::iterator it;
+  for (it=aNodeSOs.begin(); it!=aNodeSOs.end(); ++it) {
+    AppendTo(aNode->GetSObject(), *it);
+  }
+
+  return true;
 }
 
 //============================================================================

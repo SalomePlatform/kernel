@@ -108,6 +108,10 @@ void SALOMEDSTest::testUseCase()
   CPPUNIT_ASSERT(builder->HasChildren(so1));
   CPPUNIT_ASSERT(!builder->HasChildren(so2));
 
+  //Check method SortChildren
+  CPPUNIT_ASSERT(builder->SortChildren(so1, true));
+  CPPUNIT_ASSERT(!builder->SortChildren(so2, false));
+
   //Check method Init of UseCaseIterator
   it->Init(false); //Only the first level
   CPPUNIT_ASSERT(it->More());
