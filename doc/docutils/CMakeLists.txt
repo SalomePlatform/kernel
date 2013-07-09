@@ -17,6 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+# This file mainly prepares the environment in which sphinx should run:
+#  this sets the PYTHONPATH and LD_LIBRARY_PATH to include OMNIORB, DOCUTILS, SETUPTOOLS, etc ...
+
+# Prepare Sphinx options
 SET(SPHINXOPTS
 )
 SET(SOURCEDIR
@@ -36,8 +40,13 @@ SET(ALLSPHINXOPTS
 
 SALOME_CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in" "${CMAKE_CURRENT_BINARY_DIR}/conf.py")                
 
+# Write the shell file preparing the env for the Sphinx run:
+#    This uses the paths to SPHINX, DOCUTILS and SETUPTOOLS:
+#    Their root dir were found when looking for Sphinx (FindSalomeSphinx.cmake):
+
+SET(_pydir python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
 IF(WINDOWS)
-  STRING(REPLACE "/" "\\" SCR "@SET PYTHONPATH=${CMAKE_INSTALL_PREFIX}\\lib\\python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}\\site-packages\\salome\;%PYTHONPATH%
+  STRING(REPLACE "/" "\\" SCR "@SET PYTHONPATH=${CMAKE_INSTALL_PREFIX}\\lib\\${_pydir}\\site-packages\\salome\;%PYTHONPATH%
   @SET PYTHONPATH=${CMAKE_INSTALL_PREFIX}\\bin\\salome\;%PYTHONPATH%
   @SET PATH=${CMAKE_INSTALL_PREFIX}\\lib\\salome\;%PATH%
   @SET PYTHONPATH=${OMNIORB_ROOT_DIR}\\lib\\x86_win32\;%PYTHONPATH%
@@ -47,15 +56,18 @@ IF(WINDOWS)
   SET(EXT "bat")
   SET(CALL_STR "call")
 ELSE(WINDOWS)
-  SET(SCR  " export PYTHONPATH=${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/salome:\${PYTHONPATH}
+  SET(SCR  " export PYTHONPATH=${CMAKE_INSTALL_PREFIX}/lib/${_pydir}/site-packages/salome:\${PYTHONPATH}
   export PYTHONPATH=${CMAKE_INSTALL_PREFIX}/bin/salome:\${PYTHONPATH}
   export LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib/salome:\${LD_LIBRARY_PATH}
   export PYTHONPATH=${OMNIORB_ROOT_DIR}/lib:\${PYTHONPATH}
-  export PYTHONPATH=${OMNIORB_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages:\${PYTHONPATH}
+  export PYTHONPATH=${OMNIORB_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}
   export PYTHONPATH=${OMNIORBPY_ROOT_DIR}/lib:\${PYTHONPATH}
-  export PYTHONPATH=${OMNIORBPY_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages:\${PYTHONPATH}
+  export PYTHONPATH=${OMNIORBPY_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}
   export LD_LIBRARY_PATH=${OMNIORB_ROOT_DIR}/lib:\${LD_LIBRARY_PATH}
-  ")
+  export PYTHONPATH=${SETUPTOOLS_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}
+  export PYTHONPATH=${DOCUTILS_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}
+  export PYTHONPATH=${SPHINX_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}"
+  )
   SET(EXT "sh")
   SET(CALL_STR ".")
 ENDIF(WINDOWS)
