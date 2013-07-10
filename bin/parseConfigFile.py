@@ -3,11 +3,13 @@ import os
 import logging
 import re
 from io import StringIO
+import subprocess
 
 logging.basicConfig()
 logConfigParser = logging.getLogger(__name__)
 
-RESERVED_PREFIX = 'ADD_TO_'
+ADD_TO_PREFIX = 'ADD_TO_'
+UNSET_KEYWORD = 'UNSET'
 
 
 # :TRICKY: So ugly solution...
@@ -143,9 +145,10 @@ def _processConfigFile(config, reserved = []):
   # :TODO: may detect duplicated variables in the same section (raise a warning)
   #        or even duplicate sections
 
+  unsetVariables = []
   outputVariables = []
   # Get raw items for each section, and make some processing for environment variables management
-  reservedKeys = [RESERVED_PREFIX+str(x) for x in reserved] # produce [ 'ADD_TO_reserved_1', 'ADD_TO_reserved_2', ..., ADD_TO_reserved_n ]
+  reservedKeys = [ADD_TO_PREFIX+str(x) for x in reserved] # produce [ 'ADD_TO_reserved_1', 'ADD_TO_reserved_2', ..., ADD_TO_reserved_n ]
   reservedValues = dict([str(i),[]] for i in reserved) # create a dictionary in which keys are the 'ADD_TO_reserved_i' and associated values are empty lists: { 'reserved_1':[], 'reserved_2':[], ..., reserved_n:[] }
   sections = config.sections()
   for section in sections:
@@ -156,6 +159,8 @@ def _processConfigFile(config, reserved = []):
     for key,val in entries:
       if key in reserved:
         logConfigParser.error("Invalid use of reserved variable: %s in file: %s"%(key, filename))
+      elif key == UNSET_KEYWORD:
+        unsetVariables += val.replace(',', ' ').split()
       else:
         expandedVal = os.path.expandvars(val) # expand environment variables
         # Search for not expanded variables (i.e. non-existing environment variables)
@@ -165,7 +170,7 @@ def _processConfigFile(config, reserved = []):
         expandedVal = _trimColons(expandedVal)
 
         if key in reservedKeys:
-          shortKey = key[len(RESERVED_PREFIX):]
+          shortKey = key[len(ADD_TO_PREFIX):]
           vals = expandedVal.split(',')
           reservedValues[shortKey] += vals
           # remove left&right spaces on each element
@@ -177,7 +182,7 @@ def _processConfigFile(config, reserved = []):
       pass # end for key,val
     pass # end for section
 
-  return outputVariables, reservedValues
+  return unsetVariables, outputVariables, reservedValues
 #
 
 def _trimColons(var):
@@ -203,9 +208,11 @@ class EnvFileConverter(object):
     self.outputFile = outputFile
     self.allParsedVariableNames=[]
     # exclude line that begin with:
-    self.exclude = [ 'if', 'then', 'fi', '#' ]
+    self.exclude = [ 'if', 'then', 'fi', '#', 'echo' ]
     # discard the following keywords if at the beginning of line:
     self.discard = [ 'export' ]
+    # the following keywords imply a special processing if at the beginning of line:
+    self.special = [ 'unset' ]
 
   def readline(self):
     if self.sechead:
@@ -225,6 +232,12 @@ class EnvFileConverter(object):
           return '\n'
       # look for substrinsg beginning with sharp charcter ('#')
       line = re.sub(r'#.*$', r'', line)
+      # line to be pre-processed? (beginning by a keyword of self.special)
+      for k in self.special:
+        if k == "unset" and line.startswith(k):
+          line = line[len(k):]
+          line = line.strip(' \t\n\r')
+          line = UNSET_KEYWORD + ": " + line
       # line to be pre-processed? (beginning by a keyword of self.discard)
       for k in self.discard:
         if line.startswith(k):
@@ -235,7 +248,7 @@ class EnvFileConverter(object):
         if line.startswith(k) and "=" in line:
           variable, value = line.split('=')
           value = self._purgeValue(value, k)
-          line = RESERVED_PREFIX + k + ": " + value
+          line = ADD_TO_PREFIX + k + ": " + value
       # Update list of variable names
       if "=" in line:
         variable, value = line.split('=')
@@ -257,8 +270,8 @@ class EnvFileConverter(object):
       # Replace `shell_command` by its result
       def myrep(obj):
         obj = re.sub('`', r'', obj.group(0)) # remove quotes
-        import subprocess
-        res = subprocess.Popen([obj], stdout=subprocess.PIPE).communicate()[0]
+        obj = obj.split()
+        res = subprocess.Popen(obj, stdout=subprocess.PIPE).communicate()[0]
         res = res.strip(' \t\n\r') # trim whitespaces
         return res
       #
@@ -295,6 +308,7 @@ def convertEnvFileToConfigFile(envFilename, configFilename):
   config = MultiOptSafeConfigParser()
   config.optionxform = str # case sensitive
   config.readfp(EnvFileConverter(finput, 'SALOME Configuration', reserved, outputFile=foutput))
+
   foutput.close()
 
   logConfigParser.info('Configuration file generated: %s'%configFilename)

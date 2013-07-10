@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import ConfigParser
 
 from parseConfigFile import parseConfigFile
 from parseConfigFile import convertEnvFileToConfigFile
@@ -42,10 +43,15 @@ class SalomeRunner:
       if extension == ".cfg":
         self.__setEnvironmentFromConfigFile(filename)
       elif extension == ".sh":
+        #temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
         temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
           convertEnvFileToConfigFile(filename, temp.name)
           self.__setEnvironmentFromConfigFile(temp.name)
+        except ConfigParser.ParsingError, e:
+          self.getLogger().warning("Invalid token found when parsing file: %s\n"%(filename))
+          print e
+          print '\n'
         finally:
           # Automatically cleans up the file
           temp.close()
@@ -89,6 +95,12 @@ class SalomeRunner:
     value = os.path.expandvars(value) # expand environment variables
     self.getLogger().debug("Set environment variable: %s=%s", name, value)
     os.environ[name] = value
+  #
+
+  """Unset environment variable"""
+  def unsetEnviron(self, name):
+    if os.environ.has_key(name):
+      del os.environ[name]
   #
 
   ###################################
@@ -161,10 +173,19 @@ Commands:
     except AttributeError:
       self.getLogger().error("Method %s is not implemented.", command)
       sys.exit(1)
+    except:
+      self.getLogger().error("Unexpected error:")
+      import traceback
+      traceback.print_exc()
+      sys.exit(1)
   #
 
   def __setEnvironmentFromConfigFile(self, filename):
-    configVars, reservedDict = parseConfigFile(filename, reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH'])
+    unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH'])
+
+    # unset variables
+    for var in unsetVars:
+      self.unsetEnviron(var)
 
     # set environment
     for reserved in reservedDict:
