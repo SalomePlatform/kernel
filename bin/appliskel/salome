@@ -68,7 +68,7 @@ def __getConfigFileNames(args):
       if os.path.isdir(elt):
         configFileNames += __listDirectory(elt)
       else:
-        configFileNames += elt
+        configFileNames += [elt]
 
   return configFileNames, args
 #
