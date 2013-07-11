@@ -205,6 +205,9 @@ ENDMACRO()
 # given when calling the command FIND_PACKAGE(SalomeXYZ). Those options are stored implicitly in 
 # CMake variables: xyz__FIND_QUIETLY, xyz_FIND_REQUIRED, etc ...
 # 
+# If a list of components was specified when invoking the initial FIND_PACKAGE(SalomeXyz ...) this is 
+# also handled properly.
+#
 # Modus is either MODULE or CONFIG (cf standard FIND_PACKAGE() documentation).
 # The last argument is optional and if set to TRUE will force the search to be OPTIONAL and QUIET.
 #  
@@ -279,13 +282,12 @@ ENDMACRO()
 
 
 ####################################################################
-# SALOME_FIND_PACKAGE_DETECT_CONFLICTS(pkg referenceVariable upCount <component1> <component2> ...)
+# SALOME_FIND_PACKAGE_DETECT_CONFLICTS(pkg referenceVariable upCount)
 #    pkg              : name of the system package to be detected
 #    referenceVariable: variable containing a path that can be browsed up to 
 # retrieve the package root directory (xxx_ROOT_DIR)
 #    upCount          : number of times we have to go up from the path <referenceVariable>
 # to obtain the package root directory.
-#    <component_n>    : an optional list of components to be found.  
 #   
 # For example:  SALOME_FIND_PACKAGE_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2) 
 #
@@ -352,13 +354,23 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ENDIF()
 
   # Otherwise try the standard way (module mode, with the standard CMake Find*** macro):
-  SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE)
+  # We do it quietly to produce our own error message:
+  SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE TRUE)
   
   # Set the "FOUND" variable for the SALOME wrapper:
   IF(${pkg_UC}_FOUND OR ${pkg}_FOUND)
     SET(SALOME${pkg_UC}_FOUND TRUE)
   ELSE()
     SET(SALOME${pkg_UC}_FOUND FALSE)
+    IF(NOT Salome${pkg}_FIND_QUIETLY)
+      IF(Salome${pkg}_FIND_REQUIRED)
+         MESSAGE(FATAL_ERROR "Package ${pkg} couldn't be found - did you set the corresponing root dir correctly? "
+         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}")
+      ELSE()
+         MESSAGE(WARNING "Package ${pkg} couldn't be found - did you set the corresponing root dir correctly? "
+         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}")
+      ENDIF()
+    ENDIF()
   ENDIF()
   
   IF (${pkg_UC}_FOUND OR ${pkg}_FOUND)
