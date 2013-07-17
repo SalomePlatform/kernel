@@ -377,6 +377,13 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     ## 3. Set the root dir which was finally retained by going up "upDir" times
     ## from the given reference path. The variable "referenceVariable" may be a list.
     ## In this case we take its first element. 
+    
+    # First test if the variable exists and is not empty:
+    IF((NOT DEFINED ${referenceVariable}) OR ("${${referenceVariable}}" STREQUAL ""))
+      MESSAGE(WARNING "${pkg}: the reference variable '${referenceVariable}' used when calling the macro "
+      "SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS() does not exist or is empty.")
+    ENDIF()
+    
     LIST(LENGTH ${referenceVariable} _tmp_len)
     IF(_tmp_len)
        LIST(GET ${referenceVariable} 0 _tmp_ROOT_DIR)
