@@ -30,6 +30,13 @@
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(HDF5 HDF5_INCLUDE_DIR 1)
 MARK_AS_ADVANCED(FORCE HDF5_INCLUDE_DIR HDF5_LIB)
 
+# Stupidly enough, CONFIG mode and MODULE mode for HDF5 do not return the same thing ...!
+SET(HDF5_INCLUDE_DIRS "${HDF5_INCLUDE_DIRS};${HDF5_INCLUDE_DIR}")
+# Same story with libraries - if in CONFIG mode, HDF5_LIBRARIES is not defined:
+IF(NOT DEFINED HDF5_LIBRARIES)
+  SET(HDF5_LIBRARIES hdf5)
+ENDIF()
+
 ##
 ## 7. Specific to HDF5 only:
 ## Expose MPI configuration to the rest of the world
