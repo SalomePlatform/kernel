@@ -210,6 +210,9 @@ ENDMACRO()
 #
 # Modus is either MODULE or CONFIG (cf standard FIND_PACKAGE() documentation).
 # The last argument is optional and if set to TRUE will force the search to be OPTIONAL and QUIET.
+# If the package is looked for in CONFIG mode, the standard system paths are skipped. If you still want a 
+# system installation to be found in this mode, you have to set the ROOT_DIR variable explicitly to /usr (for
+# example). 
 #  
 # This macro is to be called from within the FindSalomeXXXX.cmake file.
 #
@@ -251,12 +254,12 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS}
               PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
-              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY)
+              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)
       ELSE()
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req}
               PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
-              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY)
+              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)
       ENDIF()
       MARK_AS_ADVANCED(${stdPkg}_DIR)
       
