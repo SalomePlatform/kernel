@@ -32,8 +32,7 @@ SET(${PROJECT_NAME_UC}_MINOR_VERSION 2)
 SET(${PROJECT_NAME_UC}_PATCH_VERSION 0)
 SET(${PROJECT_NAME_UC}_VERSION
   ${${PROJECT_NAME_UC}_MAJOR_VERSION}.${${PROJECT_NAME_UC}_MINOR_VERSION}.${${PROJECT_NAME_UC}_PATCH_VERSION})
-# Temporary backward compatibility:
-SET(VERSION ${${PROJECT_NAME_UC}_VERSION})
+
 SET(VERSION_DEV "0")
 
 # Our own set of macros:
@@ -102,9 +101,6 @@ ENDIF()
 IF(SALOME_BUILD_DOC)
   FIND_PACKAGE(SalomeDoxygen REQUIRED)
   FIND_PACKAGE(SalomeGraphviz)          # Remains optional even here.
-  
-  # Sphinx needs to run with a specific PYTHONPATH:
-  #SET(SPHINX_PYTHONPATH "${OMNIORBPY_PYTHONPATH}")
   FIND_PACKAGE(SalomeSphinx REQUIRED)
 ENDIF()
 

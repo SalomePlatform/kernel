@@ -31,7 +31,7 @@
   KERNEL_VERSION is (major << 16) + (minor << 8) + patch.
 */
 
-#define KERNEL_VERSION_STR "@VERSION@"
+#define KERNEL_VERSION_STR "@KERNEL_VERSION@"
 #define KERNEL_VERSION     @XVERSION@
 #define KERNEL_DEVELOPMENT @VERSION_DEV@
 

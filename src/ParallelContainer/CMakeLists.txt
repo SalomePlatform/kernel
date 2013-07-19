@@ -63,7 +63,7 @@ ADD_DEFINITIONS(${ONMIORB_DEFINITIONS} ${MPI_CXX_COMPILE_FLAGS} ${PACO_DEFINITIO
 
 ADD_LIBRARY(SalomeParallelContainer ${SalomeParallelContainer_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeParallelContainer ${COMMON_LIBS} ${MPI_CXX_LIBRARIES})
-INSTALL(TARGETS Registry EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+INSTALL(TARGETS SalomeParallelContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 IF(SALOME_USE_MPI)
   SET(SALOME_ParallelContainerProxyMpi_LIBS
@@ -74,7 +74,7 @@ IF(SALOME_USE_MPI)
     ${MPI_CXX_LIBRARIES}
     ${COMMON_LIBS}
   )
-  ADD_EXECUTABLE(SALOME_ParallelContainerProxyMpi SALOME_Registry_Server.cxx)
+  ADD_EXECUTABLE(SALOME_ParallelContainerProxyMpi SALOME_ParallelContainerProxyMpi.cxx)
   TARGET_LINK_LIBRARIES(SALOME_ParallelContainerProxyMpi ${SALOME_ParallelContainerProxyMpi_LIBS})
 
   ADD_EXECUTABLE(SALOME_ParallelContainerNodeMpi SALOME_ParallelContainerNodeMpi.cxx)
