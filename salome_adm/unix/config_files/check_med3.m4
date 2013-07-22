@@ -174,7 +174,11 @@ then
 dnl check med3 library
 
   LIBS_old="$LIBS"
-  LIBS="$LIBS $LOCAL_LIBS"
+  # $LOCAL_LIBS_C_ONLY is added to next line because on Fedora, check error :
+  #/usr/bin/ld: /tmp/ccQHybYu.o: undefined reference to symbol 'MEDfileOpen'                                                     
+  #/usr/bin/ld: note: 'MEDfileOpen' is defined in DSO /data/tmplgls/salome/prerequis/install/FD18_64/med-dev/FROM_hdf5-1.8.10/lib/libmedC.so so try adding it to the linker command line
+  # See http://comments.gmane.org/gmane.linux.redhat.fedora.devel/160632
+  LIBS="$LIBS $LOCAL_LIBS $LOCAL_LIBS_C_ONLY"
   AC_CHECK_LIB(med,MEDfileOpen,med3_ok=yes,med3_ok=no)
 
   if  test "x$med3_ok" = "xyes"
