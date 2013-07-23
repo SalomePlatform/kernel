@@ -79,16 +79,16 @@ print "OK"
 
 print
 print "--- Check MED ..."
-comp = catalog.GetComponent("MED")
+comp = catalog.GetComponent("MEDOPFactory")
 if not comp:
     raise RuntimeError, "Component MED is not found in Module Catalog."
 print "OK"
 
 print
-print "--- Check VISU ..."
-comp = catalog.GetComponent("VISU")
+print "--- Check PARAVIS ..."
+comp = catalog.GetComponent("PARAVIS")
 if not comp:
-    raise RuntimeError, "Component VISU is not found in Module Catalog."
+    raise RuntimeError, "Component PARAVIS is not found in Module Catalog."
 print "OK"
 
 print
@@ -361,53 +361,6 @@ else:
 
 print
 
-print "======================================================================"
-print "           %d. Test Post-Pro " % step; step+=1
-print "======================================================================"
-
-import VISU
-
-medFileName = "pointe.med"
-medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
-
-aMeshName = "maa1"
-anEntity = VISU.NODE
-field_name = "fieldnodedouble"
-
-if salome.hasDesktop(): # in gui mode
-    
-    import visu_gui
-    visu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
-
-    print
-    print "--- Import med file %s to the VISU ..." % medFile
-    result2 = visu.ImportFile(medFile);
-    if not result2:
-        raise RuntimeError, "Can't import file"
-    print "OK"
-
-    print
-    print "--- Create mesh presentation ..."
-    mesh2 = visu.MeshOnEntity(result2, aMeshName, anEntity);
-    if not mesh2:
-        raise RuntimeError, "Can't create mesh presentation"
-    print "OK"
-
-    print
-    print "--- Create scalar map ..."
-    scalarMap2 = visu.ScalarMapOnField(result2, aMeshName, anEntity, field_name, 3)
-    if not scalarMap2:
-        raise RuntimeError, "Can't create scalar map"
-    print "OK"
-    pass
-
-else: # not in gui mode, visu can not be tested
-    
-    print
-    print "VISU module requires SALOME to be running in GUI mode."
-    print
-    print "Skipping test for VISU..."
-    pass
 
 print "======================================================================"
 print "           %d. Test Paravis " % step; step+=1
