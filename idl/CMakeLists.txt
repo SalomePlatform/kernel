@@ -80,16 +80,114 @@ TARGET_LINK_LIBRARIES(SalomeIDLKernel ${OMNIORB_LIBRARIES})
 INSTALL(TARGETS SalomeIDLKernel EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 IF(SALOME_PACO_PARALLEL)
-  SET(SalomeParallelIDLKernel_IDLSOURCES
-    SALOME_ComponentPaCO.idl
-    SALOME_PortsPaCO.idl
-    DSC_EnginesPaCO.idl
-    SALOME_ParamPortsPaCO.idl
-    SALOME_PACOExtensionPaCO.idl
-    SALOME_GenericObjPaCO.idl
+
+  SET(SalomeParallelIDLKernel_PACO_XML_FILES
+    SALOME_Component.xml
+    SALOME_Ports.xml
+    DSC_Engines.xml
+    SALOME_PACOExtension.xml
+    SALOME_ParamPorts.xml
+    SALOME_GenericObj.xml
   )
-  OMNIORB_ADD_MODULE(SalomeParallelIDLKernel "${SalomeIDLKernel_IDLSOURCES}" "${IDL_INCLUDE_DIRS}" ${TYPE})
-  TARGET_LINK_LIBRARIES(SalomeParallelIDLKernel ${OMNIORB_LIBRARIES})
+
+  SET(SalomeParallelIDLKernel_SALOME_Component_GEN_PACO_SOURCES
+    SALOME_ComponentPaCO_Engines_Container_server.cxx
+	SALOME_ComponentPaCO_Engines_Container_client.cxx
+	SALOME_ComponentPaCO_Engines_EngineComponent_server.cxx
+	SALOME_ComponentPaCO_Engines_EngineComponent_client.cxx
+	SALOME_ComponentPaCO_Engines_fileTransfer_server.cxx
+	SALOME_ComponentPaCO_Engines_fileTransfer_client.cxx
+	SALOME_ComponentPaCO_Engines_Salome_file_server.cxx
+	SALOME_ComponentPaCO_Engines_Salome_file_client.cxx
+  )
+
+  SET(SalomeParallelIDLKernel_SALOME_Ports_GEN_PACO_SOURCES
+	SALOME_PortsPaCO_Ports_Port_server.cxx
+	SALOME_PortsPaCO_Ports_Port_client.cxx
+	SALOME_PortsPaCO_Ports_Data_Port_server.cxx
+	SALOME_PortsPaCO_Ports_Data_Port_client.cxx
+  )
+
+  SET(SalomeParallelIDLKernel_DSC_Engines_GEN_PACO_SOURCES
+	DSC_EnginesPaCO_Engines_DSC_server.cxx
+	DSC_EnginesPaCO_Engines_DSC_client.cxx
+	DSC_EnginesPaCO_Engines_Superv_Component_server.cxx
+	DSC_EnginesPaCO_Engines_Superv_Component_client.cxx
+  )
+
+  SET(SalomeParallelIDLKernel_SALOME_PACOExtension_GEN_PACO_SOURCES
+	SALOME_PACOExtensionPaCO_Engines_Parallel_Component_server.cxx
+	SALOME_PACOExtensionPaCO_Engines_Parallel_Component_client.cxx
+	SALOME_PACOExtensionPaCO_Engines_PACO_Container_server.cxx
+	SALOME_PACOExtensionPaCO_Engines_PACO_Container_client.cxx
+	SALOME_PACOExtensionPaCO_Engines_Parallel_Salome_file_server.cxx
+	SALOME_PACOExtensionPaCO_Engines_Parallel_Salome_file_client.cxx
+	SALOME_PACOExtensionPaCO_Engines_Parallel_DSC_server.cxx
+	SALOME_PACOExtensionPaCO_Engines_Parallel_DSC_client.cxx
+  )
+
+  SET(SalomeParallelIDLKernel_SALOME_ParamPorts_GEN_PACO_SOURCES
+	SALOME_ParamPortsPaCO_Ports_Param_Double_Port_server.cxx
+	SALOME_ParamPortsPaCO_Ports_Param_Double_Port_client.cxx
+  )
+
+  SET(SalomeParallelIDLKernel_SALOME_GenericObj_GEN_PACO_SOURCES
+	SALOME_GenericObjPaCO_SALOME_GenericObj_server.cxx
+	SALOME_GenericObjPaCO_SALOME_GenericObj_client.cxx
+  )
+
+  SET(SalomeParallelIDLKernel_PAR_SOURCES)
+  SET(SalomeParallelIDLKernel_GEN_PACO_SOURCES)
+  FOREACH(input ${SalomeParallelIDLKernel_PACO_XML_FILES})
+    GET_FILENAME_COMPONENT(base ${input} NAME_WE)
+    SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+    SET(baseidl ${CMAKE_CURRENT_SOURCE_DIR}/${base}.idl)
+    SET(basehdr ${CMAKE_CURRENT_BINARY_DIR}/${base}.hxx)
+    SET(genidl ${CMAKE_CURRENT_BINARY_DIR}/${base}PaCO.idl)
+    SET(parsrc ${CMAKE_CURRENT_BINARY_DIR}/${base}PaCO.cxx)
+    SET(parhdr ${CMAKE_CURRENT_BINARY_DIR}/${base}PaCO.hxx)
+    SET(genpacosrc)
+    SET(genpacohdr)
+    FOREACH(genpacosrcname ${SalomeParallelIDLKernel_${base}_GEN_PACO_SOURCES})
+      GET_FILENAME_COMPONENT(genpacobase ${genpacosrcname} NAME_WE)
+      LIST(APPEND genpacosrc ${CMAKE_CURRENT_BINARY_DIR}/${genpacosrcname})
+      LIST(APPEND genpacohdr ${CMAKE_CURRENT_BINARY_DIR}/${genpacobase}.hxx)
+    ENDFOREACH(genpacosrcname ${SalomeParallelIDLKernel_${base}_GEN_PACO_SOURCES})
+    LIST(APPEND SalomeParallelIDLKernel_PAR_SOURCES ${parsrc})
+    LIST(APPEND SalomeParallelIDLKernel_GEN_PACO_SOURCES ${genpacosrc})
+    ADD_CUSTOM_COMMAND(OUTPUT ${genidl} ${parsrc} ${parhdr} ${genpacosrc} ${genpacohdr}
+      COMMAND ${OMNIORB_IDL_COMPILER} -p${PACO_ROOT_DIR}/lib/python -bpaco -Wb${input},${CMAKE_CURRENT_SOURCE_DIR}:${PACO_ROOT_DIR}/idl ${baseidl}
+      DEPENDS ${input} ${baseidl})
+    INSTALL(FILES ${input} ${genidl} DESTINATION idl/salome)
+    INSTALL(FILES ${basehdr} ${parhdr} ${genpacohdr} DESTINATION include/salome)
+    IF(OMNIORB_PYTHON_BACKEND)
+      SET(IDLPYFLAGS "-bpython -p${OMNIORB_PYTHON_BACKEND} -I${CMAKE_CURRENT_SOURCE_DIR} -I${PACO_ROOT_DIR}/idl")
+      INSTALL(CODE "OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL( \"${OMNIORB_IDL_COMPILER}\" \"${IDLPYFLAGS}\" \"${genidl}\" \"${CMAKE_INSTALL_PREFIX}/\${INSTALL_PYIDL_DIR}\" )")
+    ENDIF(OMNIORB_PYTHON_BACKEND)
+  ENDFOREACH(input ${SalomeParallelIDLKernel_PACO_XML_FILES})
+
+  SET(SalomeParallelIDLKernel_PAR_INCLUDES
+    SALOME_Exception.hxx
+    SALOME_GenericObj.hxx
+    SALOMEDS.hxx
+    SALOME_PyNode.hxx
+  )
+
+  FOREACH(output ${SalomeParallelIDLKernel_PAR_INCLUDES})
+    GET_FILENAME_COMPONENT(base ${output} NAME_WE)
+    SET(baseidl ${CMAKE_CURRENT_SOURCE_DIR}/${base}.idl)
+    ADD_CUSTOM_COMMAND(OUTPUT ${output}
+      COMMAND ${OMNIORB_IDL_COMPILER} -bcxx -Wbh=.hxx -Wbs=.cxx ${baseidl}
+      DEPENDS ${baseidl})
+  ENDFOREACH(output ${SalomeParallelIDLKernel_PAR_INCLUDES})
+  ADD_CUSTOM_TARGET(BUILD_PAR_INCLUDES DEPENDS ${SalomeParallelIDLKernel_PAR_INCLUDES})
+
+  INCLUDE_DIRECTORIES(${PACO_INCLUDE_DIRS})
+  ADD_LIBRARY(SalomeParallelIDLKernel
+    ${SalomeParallelIDLKernel_PAR_SOURCES}
+    ${SalomeParallelIDLKernel_GEN_PACO_SOURCES}
+  )
+  ADD_DEPENDENCIES(SalomeParallelIDLKernel BUILD_PAR_INCLUDES)
 
   INSTALL(TARGETS SalomeParallelIDLKernel EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 ENDIF()

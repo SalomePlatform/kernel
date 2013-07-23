@@ -68,6 +68,11 @@ ELSE(WINDOWS)
   export PYTHONPATH=${DOCUTILS_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}
   export PYTHONPATH=${SPHINX_ROOT_DIR}/lib/${_pydir}/site-packages:\${PYTHONPATH}"
   )
+  IF(SALOME_PACO_PARALLEL)
+    SET(SCR "${SCR}
+             export LD_LIBRARY_PATH=${PACO_ROOT_DIR}/lib:\${LD_LIBRARY_PATH}
+             export PYTHONPATH=${PACO_ROOT_DIR}/lib/${_pydir}:\${PYTHONPATH}")
+  ENDIF()
   SET(EXT "sh")
   SET(CALL_STR ".")
 ENDIF(WINDOWS)

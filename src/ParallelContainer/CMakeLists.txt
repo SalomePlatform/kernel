@@ -34,7 +34,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
   ${PROJECT_BINARY_DIR}/idl
   ${PROJECT_SOURCE_DIR}/src/SALOMETraceCollector
-  ${PACOPATH}/lib
 )
 
 # This local variable defines the list of dependant libraries common to all target in this package.
@@ -47,7 +46,7 @@ SET(COMMON_LIBS
   SalomeParallelIDLKernel
   SalomeIDLKernel
   ${OMNIORB_LIBRARIES}
-  ${PACO_LIBS}
+  ${PACO_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 
@@ -59,7 +58,7 @@ SET(SalomeParallelContainer_SOURCES
   SALOME_ParallelGlobalProcessVar_i.cxx
 )
 
-ADD_DEFINITIONS(${ONMIORB_DEFINITIONS} ${MPI_CXX_COMPILE_FLAGS} ${PACO_DEFINITIONS})
+ADD_DEFINITIONS(${ONMIORB_DEFINITIONS} ${MPI_CXX_COMPILE_FLAGS})
 
 ADD_LIBRARY(SalomeParallelContainer ${SalomeParallelContainer_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeParallelContainer ${COMMON_LIBS} ${MPI_CXX_LIBRARIES})
@@ -68,9 +67,6 @@ INSTALL(TARGETS SalomeParallelContainer EXPORT ${PROJECT_NAME}TargetGroup DESTIN
 IF(SALOME_USE_MPI)
   SET(SALOME_ParallelContainerProxyMpi_LIBS
     SalomeParallelContainer
-    ${PaCO_dummy}
-    ${PaCO_mpi}
-    ${PaCO_omnithread}
     ${MPI_CXX_LIBRARIES}
     ${COMMON_LIBS}
   )
@@ -87,8 +83,6 @@ ENDIF(SALOME_USE_MPI)
 
 SET(SALOME_ParallelContainerProxyDummy_LIBS
   SalomeParallelContainer
-  ${PaCO_dummy}
-  ${PaCO_omnithread}
   ${COMMON_LIBS}
 )
 
