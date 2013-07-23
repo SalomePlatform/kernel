@@ -1,3 +1,13 @@
+# - Find Paco installation
+#
+# Variables set are:
+#    PACO_INCLUDE_DIRS - include directories to add when compiling
+#    PACO_LIBRARIES    - Paco libraries to link against
+#
+# You can set the environment or CMake variable PACO_ROOT_DIR to guide
+# the detection mechanism. 
+#
+#############################################################
 # Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
@@ -19,7 +29,9 @@
 
 # ------
 
-MESSAGE(STATUS "Check for Paco ...")
+IF(NOT Paco_FIND_QUIETLY)
+  MESSAGE(STATUS "Check for Paco ...")
+ENDIF()
 
 # ------
 

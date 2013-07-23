@@ -447,3 +447,14 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   SET(Salome${pkg}_FOUND "${pkg}_FOUND")
 ENDMACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS)
 
+
+####################################################################
+# SALOME_ADD_MPI_TO_HDF5()
+# 
+# Overload the HDF5 flags so that they also contain MPI references.
+# This is to be used when HDF5 was compiled with MPI support;
+MACRO(SALOME_ADD_MPI_TO_HDF5)  
+  SET(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${MPI_INCLUDE_DIRS})
+  SET(HDF5_DEFINITIONS "${HDF5_DEFINITIONS} ${MPI_DEFINITIONS}")
+  SET(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${MPI_LIBRARIES})
+ENDMACRO(SALOME_ADD_MPI_TO_HDF5)
