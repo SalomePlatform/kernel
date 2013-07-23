@@ -42,6 +42,7 @@ namespace SALOMEDS
   typedef SALOME::GenericObj_wrap< SComponentIterator > SComponentIterator_wrap;
   typedef SALOME::GenericObj_wrap< ChildIterator      > ChildIterator_wrap;
   typedef SALOME::GenericObj_wrap< UseCaseIterator    > UseCaseIterator_wrap;
+  typedef SALOME::GenericObj_wrap< UseCaseBuilder     > UseCaseBuilder_wrap;
   typedef SALOME::GenericObj_wrap< GenericAttribute   > GenericAttribute_wrap;
 }
 
