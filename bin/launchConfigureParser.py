@@ -252,7 +252,8 @@ def process_containers_params( standalone, embedded ):
 section_to_skip = ""
 
 class xml_parser:
-    def __init__(self, fileName, _opts, _importHistory=[] ):
+    def __init__(self, fileName, _opts, _importHistory):
+        #warning _importHistory=[] is NOT good: is NOT empty,reinitialized after first call
         if verbose(): print "Configure parser: processing %s ..." % fileName
         self.fileName = os.path.abspath(fileName)
         self.importHistory = _importHistory
@@ -930,7 +931,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
             if verbose(): print "Configure parser: Warning : can not find configuration file %s" % filename
         else:
             try:
-                p = xml_parser(filename, _opts)
+                p = xml_parser(filename, _opts, [])
                 _opts = p.opts
             except:
                 if verbose(): print "Configure parser: Error : can not read configuration file %s" % filename
@@ -948,7 +949,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
         if verbose(): print "Configure parser: Warning : can not find user configuration file"
     else:
         try:
-            p = xml_parser(user_config, _opts)
+            p = xml_parser(user_config, _opts, [])
             _opts = p.opts
         except:
             if verbose(): print 'Configure parser: Error : can not read user configuration file'
@@ -1150,6 +1151,9 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
             #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
             elif os.path.exists( "%s/%s.xml"%(d2, salomeappname) ):
                 dirs.append( d2 )
+        else:
+            #print "* '"+m+"' should be deleted from ",args[modules_nam]
+            pass
 
     # Test
     if cmd_opts.test_script_file is not None:
