@@ -38,7 +38,8 @@
 SALOMEDSImpl_ScalarVariable::
 SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes type,
                             const std::string& theName):
-  SALOMEDSImpl_GenericVariable(type,theName)
+  SALOMEDSImpl_GenericVariable(type,theName),
+  myValue( 1e+100 )
 {}
 
 //============================================================================
