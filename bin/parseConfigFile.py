@@ -257,6 +257,8 @@ class EnvFileConverter(object):
           if "# PRODUCT environment" in line:
             print "WARNING: parseConfigFile.py: '# PRODUCT environment' found"
             break
+      while "clean " in line[0:6]: #skip clean calls with ending ";" crash
+        line = self.fp.readline()
       if "=" in line:
         variable, value = line.split('=')
         self.allParsedVariableNames.append(variable)
@@ -303,7 +305,7 @@ class EnvFileConverter(object):
 # Convert .sh environment file to configuration file format
 def convertEnvFileToConfigFile(envFilename, configFilename):
   #reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH']
-  print "convert envFilename",envFilename
+  print "convert envFilename",envFilename,"to",configFilename
   reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'R_LIBS', 'PV_PLUGIN_PATH', 'TCLLIBPATH', 'TKLIBPATH']
   fileContents = open(envFilename, 'r').read()
 
