@@ -43,8 +43,9 @@ class SalomeRunner:
       if extension == ".cfg":
         self.__setEnvironmentFromConfigFile(filename)
       elif extension == ".sh":
-        #temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
-        temp = tempfile.NamedTemporaryFile(suffix='.cfg')
+        #new convert procedures, temporary could be use not to be automatically deleted
+        temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
+        #temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
           convertEnvFileToConfigFile(filename, temp.name)
           self.__setEnvironmentFromConfigFile(temp.name)
