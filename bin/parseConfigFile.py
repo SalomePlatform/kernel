@@ -138,10 +138,10 @@ def parseConfigFile(filename, reserved = []):
     logConfigParser.error("No section found in file: %s"%(filename))
     return []
 
-  return _processConfigFile(config, reserved)
+  return _processConfigFile(config, reserved, filename)
 #
 
-def _processConfigFile(config, reserved = []):
+def _processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
   # :TODO: may detect duplicated variables in the same section (raise a warning)
   #        or even duplicate sections
 
