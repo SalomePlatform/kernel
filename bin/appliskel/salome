@@ -80,7 +80,15 @@ if __name__ == "__main__":
   # Identify application path then locate configuration files
   __initialize()
   configFileNames, args = __getConfigFileNames(args)
-
+  
+  error=False
+  for aFile in configFileNames:
+    if not os.path.isfile(aFile):
+      print "ERROR: inexisting file: "+aFile
+      error=True
+  if error: 
+    sys.exit(1)
+     
   # Create a SalomeRunner which parses configFileNames to initialize environment
   from salomeRunner import SalomeRunner, SalomeRunnerException
   try:
