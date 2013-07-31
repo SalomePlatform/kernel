@@ -802,6 +802,18 @@ def no_main():
 
 def main():
     """Salome launch as a main application"""
+
+    ### TEMP >>> ###
+    if not os.getenv("OMNIORB_USER_PATH"):
+        homePath = os.path.realpath(os.path.expanduser('~'))
+        #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
+        defaultOmniorbUserPath = homePath
+        if os.getenv("APPLI"):
+            defaultOmniorbUserPath = os.path.join(homePath, os.getenv("APPLI"), "USERS")
+        os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
+        pass
+    ### <<< TEMP ###
+
     from salome_utils import getHostName
     print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()
@@ -921,16 +933,5 @@ def runSalome():
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-
-    ### TEMP ###
-    homePath = os.path.realpath(os.path.expanduser('~'))
-    #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
-    appli = os.getenv("APPLI")
-    defaultOmniorbUserPath = homePath
-    if appli:
-        defaultOmniorbUserPath = os.path.join( homePath, appli, "USERS" )
-    os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
-    ############
-
     runSalome()
 #
