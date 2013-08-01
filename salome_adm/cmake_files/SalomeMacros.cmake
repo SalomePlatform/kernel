@@ -246,7 +246,9 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
       # Hope to find direclty a CMake config file, indicating the SALOME CMake file
       # paths (the command already look in places like "share/cmake", etc ... by default)
       # Note the options NO_CMAKE_BUILDS_PATH, NO_CMAKE_PACKAGE_REGISTRY to avoid (under Windows)
-      # looking into a previous CMake build done via a GUI, or into the Win registry. 
+      # looking into a previous CMake build done via a GUI, or into the Win registry.
+      # NO_CMAKE_SYSTEM_PATH and NO_SYSTEM_ENVIRONMENT_PATH ensure any _system_ files like 'xyz-config.cmake' 
+      # don't get loaded (typically Boost). To force their loading, set the XYZ_ROOT_DIR variable to '/usr'. 
       # See documentation of FIND_PACKAGE() for full details.
       
       # Do we need to call the signature using components?
@@ -254,12 +256,14 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS}
               PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
-              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)
+              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH
+                NO_SYSTEM_ENVIRONMENT_PATH)
       ELSE()
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req}
               PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
-              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)
+              NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH
+                 NO_SYSTEM_ENVIRONMENT_PATH)
       ENDIF()
       MARK_AS_ADVANCED(${stdPkg}_DIR)
       
@@ -347,13 +351,13 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   # Override the variable - don't append to it, as it would give precedence
   # to what was stored there before!  
   SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
-  
+    
   # Try find_package in config mode. This has the priority, but is 
   # performed QUIET and not REQUIRED:
   SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} NO_MODULE TRUE)
   
   IF (${pkg_UC}_FOUND OR ${pkg}_FOUND)
-     MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
+    MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
   ENDIF()
 
   # Otherwise try the standard way (module mode, with the standard CMake Find*** macro):
