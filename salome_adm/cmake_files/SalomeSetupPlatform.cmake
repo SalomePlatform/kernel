@@ -105,6 +105,11 @@ ELSE()
   SET(PLATFORM_LIBS dl)    # Dynamic loading (dlopen, dlsym)
 ENDIF()
 
+## define _DEBUG_ macro
+IF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+  ADD_DEFINITIONS(-D_DEBUG_)
+ENDIF()
+
 ## Apple specific:
 IF(APPLE)
   SET(CMAKE_C_COMPILER gcc)
