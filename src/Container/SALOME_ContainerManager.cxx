@@ -706,6 +706,7 @@ bool isPythonContainer(const char* ContainerName);
 //=============================================================================
 bool isPythonContainer(const char* ContainerName)
 {
+  return false; // VSR 02/08/2013: Python containers are no more supported
   bool ret = false;
   int len = strlen(ContainerName);
 
