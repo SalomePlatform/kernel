@@ -57,7 +57,7 @@ INSTALL(TARGETS SalomeKernelHelpersTest DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(TestKernelHelpers TestKernelHelpers.cxx)
 TARGET_LINK_LIBRARIES(TestKernelHelpers SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
-ADD_TEST(TestKernelHelpers TestKernelHelpers)
+#ADD_TEST(TestKernelHelpers TestKernelHelpers)
 INSTALL(TARGETS TestKernelHelpers DESTINATION ${SALOME_INSTALL_BINS})
 
 # Executable scripts to be installed
