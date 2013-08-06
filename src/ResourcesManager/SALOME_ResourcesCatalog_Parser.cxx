@@ -278,8 +278,6 @@ ParserResourcesType::getBatchTypeStr() const
     return "oar";
   case coorm:
     return "coorm";
-  case ssh_batch:
-    return "ssh_batch";
   default:
     throw SALOME_Exception("Unknown batch type");
   }
@@ -348,8 +346,6 @@ void ParserResourcesType::setBatchTypeStr(const string & batchTypeStr)
     Batch = slurm;
   else if (batchTypeStr == "ccc")
     Batch = ccc;
-  else if (batchTypeStr == "ssh_batch")
-    Batch = ssh_batch;
   else if (batchTypeStr == "ll")
     Batch = ll;
   else if (batchTypeStr == "vishnu")
@@ -358,7 +354,7 @@ void ParserResourcesType::setBatchTypeStr(const string & batchTypeStr)
     Batch = oar;
   else if (batchTypeStr == "coorm")
     Batch = coorm;
-  else if (batchTypeStr == "")
+  else if (batchTypeStr == "" || batchTypeStr == "none" || batchTypeStr == "ssh_batch")
     Batch = none;
   else
     throw SALOME_Exception((string("Unknown batch type ") + batchTypeStr).c_str());

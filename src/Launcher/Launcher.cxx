@@ -454,7 +454,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case slurm:
       bmType = "SLURM";
       break;
-    case ssh_batch:
+    case none:
       bmType = "LOCAL";
       break;
     case ll:

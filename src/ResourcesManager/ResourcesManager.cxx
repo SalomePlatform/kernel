@@ -580,7 +580,7 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   resource.HostName = Kernel_Utils::GetHostname();
   resource.DataForSort._Name = DEFAULT_RESOURCE_NAME;
   resource.Protocol = sh;
-  resource.Batch = ssh_batch;
+  resource.Batch = none;
   if (getenv("HOME") != NULL && getenv("APPLI") != NULL)
   {
     resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
