@@ -97,7 +97,9 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "do"                                                  << std::endl;
   // Full name doesn't work. eg: sagittaire-7 instead of sagittaire-7.lyon.grid5000.fr
   launch_script_stream << "host_basename=$(echo $host | cut -f1 -d.)"                                                  << std::endl;
-  launch_script_stream << "echo '<machine hostname='\\\"$host_basename\\\"			          >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '<machine name='\\\"$host_basename\\\" >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         hostname='\\\"$host_basename\\\" >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         type=\"single_machine\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
