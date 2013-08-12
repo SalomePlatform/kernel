@@ -22,7 +22,7 @@
 #
 
 print
-print "Perform quick test of the application by loading of the GEOM, SMESH, VISU, MED"
+print "Perform quick test of the application by loading of the GEOM, SMESH, MED, PARAVIS"
 print "components and doing some operation within the components."
 print
 
@@ -63,33 +63,14 @@ print "======================================================================"
 print "           %d. Check modules availability in the module catalog " % step; step+=1
 print "======================================================================"
 
-print
-print "--- Check GEOM ..."
-comp = catalog.GetComponent("GEOM")
-if not comp:
-    raise RuntimeError, "Component GEOM is not found in Module Catalog."
-print "OK"
-
-print
-print "--- Check SMESH ..."
-comp = catalog.GetComponent("SMESH")
-if not comp:
-    raise RuntimeError, "Component SMESH is not found in Module Catalog."
-print "OK"
-
-print
-print "--- Check MED ..."
-comp = catalog.GetComponent("MEDOPFactory")
-if not comp:
-    raise RuntimeError, "Component MED is not found in Module Catalog."
-print "OK"
-
-print
-print "--- Check PARAVIS ..."
-comp = catalog.GetComponent("PARAVIS")
-if not comp:
-    raise RuntimeError, "Component PARAVIS is not found in Module Catalog."
-print "OK"
+for module in [ "GEOM", "SMESH", "MEDOPFactory", "PARAVIS"]:
+    print
+    print "--- Check %s ..." % module
+    comp = catalog.GetComponent(module)
+    if not comp:
+        raise RuntimeError, "Component %s is not found in Module Catalog." % module
+    print "OK"
+    pass
 
 print
 

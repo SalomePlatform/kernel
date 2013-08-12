@@ -1365,7 +1365,8 @@ void ActSigIntHandler()
 
 #else  
   signal( SIGINT, SigIntHandler );
-  signal( SIGUSR1, SigIntHandler );
+// legacy code required to supervisor. Commented in order to avoid problems on Windows 
+//  signal( SIGUSR1, SigIntHandler );
 #endif
 
 }

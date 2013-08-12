@@ -108,7 +108,10 @@ IF(WINDOWS)
   SET(PLATFORM_LIBS ${PLATFORM_LIBS} Userenv.lib) # At least for GEOM suit
 
   IF("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")          # if platform is Windows 64 bit 
-    SET(PLATFORM_CPPFLAGS "${PLATFORM_CPPFLAGS} -D_SECURE_SCL=0 -D_SECURE_SCL_THROWS=0 -D_HAS_ITERATOR_DEBUGGING=0") # To avoid runtime error during checking iterators  # to be removed
+    # To avoid runtime error during checking iterators  # to be removed
+    SET(PLATFORM_CPPFLAGS ${PLATFORM_CPPFLAGS} -D_SECURE_SCL=0)
+    SET(PLATFORM_CPPFLAGS ${PLATFORM_CPPFLAGS} -D_SECURE_SCL_THROWS=0) 
+    SET(PLATFORM_CPPFLAGS ${PLATFORM_CPPFLAGS} -D_HAS_ITERATOR_DEBUGGING=0) 
     SET(PLATFORM_DEFINITIONS "${PLATFORM_DEFINITIONS} -D_SECURE_SCL=0 -D_SECURE_SCL_THROWS=0 -D_HAS_ITERATOR_DEBUGGING=0") # To avoid runtime error during checking iterators 
   ENDIF("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 ELSE(WINDOWS)

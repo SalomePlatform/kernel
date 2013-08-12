@@ -190,7 +190,7 @@ void *PrintHello(void *threadid)
         << " - iter " << i);
 #endif
   pthread_exit(NULL);
-  #ifdef WIN32
-    return NULL;
-  #endif
+#ifdef WIN32
+  return NULL;
+#endif
 }

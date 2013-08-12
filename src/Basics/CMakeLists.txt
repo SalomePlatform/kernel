@@ -17,6 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE_DIRECTORIES(
+  ${PTHREAD_INCLUDE_DIRS}
+)
+
 SET(SALOMEBasics_SOURCES
   BasicsGenericDestructor.cxx
   Basics_Utils.cxx
