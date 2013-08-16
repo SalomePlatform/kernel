@@ -462,3 +462,27 @@ MACRO(SALOME_ADD_MPI_TO_HDF5)
   SET(HDF5_DEFINITIONS "${HDF5_DEFINITIONS} ${MPI_DEFINITIONS}")
   SET(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${MPI_LIBRARIES})
 ENDMACRO(SALOME_ADD_MPI_TO_HDF5)
+
+####################################################################
+# SALOME_XVERSION()
+# 
+# Computes hexadecimal version of SALOME package
+#
+# USAGE: SALOME_XVERSION(package)
+#
+# ARGUMENTS:
+#
+# package: IN: SALOME package name
+#
+# The macro reads SALOME package version from PACKAGE_VERSION variable
+# (note package name in uppercase as assumed for SALOME modules);
+# hexadecimal version value in form 0xAABBCC (where AA, BB and CC are
+# major, minor and maintenance components of package version in
+# hexadecimal form) is put to the PACKAGE_XVERSION variable
+MACRO(SALOME_XVERSION pkg)
+  STRING(TOUPPER ${pkg} _pkg_UC)
+  IF(${_pkg_UC}_VERSION)
+    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${${_pkg_UC}_VERSION}
+                    OUTPUT_VARIABLE ${_pkg_UC}_XVERSION)
+  ENDIF()
+ENDMACRO(SALOME_XVERSION)
