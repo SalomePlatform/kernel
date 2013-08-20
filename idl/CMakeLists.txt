@@ -158,8 +158,8 @@ IF(SALOME_PACO_PARALLEL)
     ADD_CUSTOM_COMMAND(OUTPUT ${genidl} ${parsrc} ${parhdr} ${genpacosrc} ${genpacohdr}
       COMMAND ${OMNIORB_IDL_COMPILER} -p${PACO_ROOT_DIR}/lib/python -bpaco -Wb${input},${CMAKE_CURRENT_SOURCE_DIR}:${PACO_ROOT_DIR}/idl ${baseidl}
       DEPENDS ${input} ${baseidl})
-    INSTALL(FILES ${input} ${genidl} DESTINATION idl/salome)
-    INSTALL(FILES ${basehdr} ${parhdr} ${genpacohdr} DESTINATION include/salome)
+    INSTALL(FILES ${input} ${genidl} DESTINATION ${SALOME_INSTALL_IDLS})
+    INSTALL(FILES ${basehdr} ${parhdr} ${genpacohdr} DESTINATION ${SALOME_INSTALL_HEADERS})
     IF(OMNIORB_PYTHON_BACKEND)
       SET(IDLPYFLAGS "-bpython -p${OMNIORB_PYTHON_BACKEND} -I${CMAKE_CURRENT_SOURCE_DIR} -I${PACO_ROOT_DIR}/idl")
       INSTALL(CODE "OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL( \"${OMNIORB_IDL_COMPILER}\" \"${IDLPYFLAGS}\" \"${genidl}\" \"${CMAKE_INSTALL_PREFIX}/\${INSTALL_PYIDL_DIR}\" )")

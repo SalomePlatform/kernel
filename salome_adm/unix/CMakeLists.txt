@@ -32,4 +32,4 @@ SET(DEPRECATED_FILES
 
 # The deprecated files are deprecated for the KERNEL but not for the
 # related modules (GUI, MED, ...), for now. Some files have to be installed.
-INSTALL(FILES ${DEPRECATED_FILES} DESTINATION salome_adm/unix)
+INSTALL(FILES ${DEPRECATED_FILES} DESTINATION ${SALOME_INSTALL_AMCONFIG})
