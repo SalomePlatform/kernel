@@ -30,7 +30,14 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/static/header.html.in ${CMAKE_CURRENT
 ADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE} -u
   COMMAND ${DOXYGEN_EXECUTABLE}
   COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/doxyfile.bak''')"  
-  COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}/KERNEL''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/KERNEL''')" 
+  COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_DOC}/tui/KERNEL''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}/KERNEL''', r'''${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_DOC}/tui/KERNEL'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''', r'''${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_DOC}/tui/KERNEL''')" 
   VERBATIM
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+# TODO
+# - Stop using shutil.rmtree() to clear installation directory - this is not safe
+#   (as the directory can potentically point to custom location)! Moreover, currently, it remove
+#   the documentation generated with Sphinx (from docutils)!
+# - Redesign dev_docs rule: 'make dev_docs' should generate documentation and 'make install'
+#   should the install it. Other solution: split dev_docs to two steps: dev_docs and install_dev_docs.
