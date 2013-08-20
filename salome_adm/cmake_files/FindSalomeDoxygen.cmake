@@ -23,6 +23,18 @@
 #
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
+# Additional variables:
+#
+# DOXYGEN_SUPPORT_STL (string) [advanced] : set to YES if doxygen properly manages STL files
+#                     or to NO otherwise (version 1.4.4 or older); see description of 
+#                     BUILTIN_STL_SUPPORT configuration variable in the doxygen documentation
 
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Doxygen DOXYGEN_EXECUTABLE 2)
-#MARK_AS_ADVANCED()
+IF(DOXYGEN_FOUND)
+  IF(DOXYGEN_VERSION VERSION_LESS "1.4.5")
+    SET(DOXYGEN_SUPPORT_STL NO)
+  ELSE()
+    SET(DOXYGEN_SUPPORT_STL YES)
+  ENDIF()
+ENDIF()
+MARK_AS_ADVANCED(DOXYGEN_SUPPORT_STL)
