@@ -40,10 +40,9 @@ SET(mypkgpython_PYTHON
     syshelper.py
 )
 # This set of modules required a running SALOME application.
-SET(mypkgpython_PYTHON
-    ${mypkgpython_PYTHON}
+LIST(APPEND mypkgpython_PYTHON
     studyedit.py
     services.py
+    ${CMAKE_CURRENT_BINARY_DIR}/logconfig.py
 )
 SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${SALOME_INSTALL_PYTHON}/salome/kernel)
-SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/logconfig.py ${SALOME_INSTALL_PYTHON}/salome/kernel)
