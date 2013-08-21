@@ -151,16 +151,26 @@ ENDMACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
 # USAGE: SALOME_CONFIGURE_FILE(in_file out_file [INSTALL dir])
 #
 # ARGUMENTS:
-# in_file: IN : input file with full paths.
-# out_file: IN : output file with full paths.
+# in_file: IN : input file (if relative path is given, full file path is computed from current source dir).
+# out_file: IN : output file (if relative path is given, full file path is computed from current build dir).
 # If INSTALL is specified, then 'out_file' will be installed to the 'dir' directory.
 #----------------------------------------------------------------------------
 MACRO(SALOME_CONFIGURE_FILE IN_FILE OUT_FILE)
-  MESSAGE(STATUS "Creation of ${OUT_FILE}")
-  CONFIGURE_FILE(${IN_FILE} ${OUT_FILE} @ONLY)
+  IF(IS_ABSOLUTE ${IN_FILE})
+    SET(_in_file ${IN_FILE})
+  ELSE()
+    SET(_in_file ${CMAKE_CURRENT_SOURCE_DIR}/${IN_FILE})
+  ENDIF()
+  IF(IS_ABSOLUTE  ${OUT_FILE})
+    SET(_out_file ${OUT_FILE})
+  ELSE()
+    SET(_out_file ${CMAKE_CURRENT_BINARY_DIR}/${OUT_FILE})
+  ENDIF()
+  MESSAGE(STATUS "Creation of ${_out_file}")
+  CONFIGURE_FILE(${_in_file} ${_out_file} @ONLY)
   PARSE_ARGUMENTS(SALOME_CONFIGURE_FILE "INSTALL" "" ${ARGN})
   IF(SALOME_CONFIGURE_FILE_INSTALL)
-    INSTALL(FILES ${OUT_FILE} DESTINATION ${SALOME_CONFIGURE_FILE_INSTALL})
+    INSTALL(FILES ${_out_file} DESTINATION ${SALOME_CONFIGURE_FILE_INSTALL})
   ENDIF(SALOME_CONFIGURE_FILE_INSTALL)
 ENDMACRO(SALOME_CONFIGURE_FILE)
 

@@ -38,7 +38,7 @@ SET(ALLSPHINXOPTS
   ${SOURCEDIR}
 )
 
-SALOME_CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in" "${CMAKE_CURRENT_BINARY_DIR}/conf.py")                
+SALOME_CONFIGURE_FILE(conf.py.in conf.py)                
 
 # Write the shell file preparing the env for the Sphinx run:
 #    This uses the paths to SPHINX, DOCUTILS and SETUPTOOLS:

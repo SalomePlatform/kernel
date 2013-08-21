@@ -174,7 +174,7 @@ ENDIF()
 # Header configuration
 # ====================
 SALOME_XVERSION(${PROJECT_NAME})
-SALOME_CONFIGURE_FILE(KERNEL_version.h.in ${CMAKE_CURRENT_BINARY_DIR}/KERNEL_version.h INSTALL ${SALOME_INSTALL_HEADERS})
+SALOME_CONFIGURE_FILE(KERNEL_version.h.in KERNEL_version.h INSTALL ${SALOME_INSTALL_HEADERS})
 
 # Configuration export
 # ====================

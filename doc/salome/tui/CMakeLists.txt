@@ -17,15 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(top_builddir ${PROJECT_BINARY_DIR})
-SET(top_srcdir ${PROJECT_SOURCE_DIR})
-SET(srcdir ${CMAKE_CURRENT_SOURCE_DIR})
-SET(builddir ${CMAKE_CURRENT_BINARY_DIR})
-SET(datadir ${CMAKE_INSTALL_PREFIX}/share)
-SET(docdir ${datadir}/doc/salome)
-
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/static/header.html.in ${CMAKE_CURRENT_BINARY_DIR}/static/header.html)
+SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
+SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
 ADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE} -u
   COMMAND ${DOXYGEN_EXECUTABLE}
