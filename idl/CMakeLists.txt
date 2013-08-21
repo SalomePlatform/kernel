@@ -24,7 +24,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-CONFIGURE_FILE(Calcium_Ports.idl.in Calcium_Ports.idl @ONLY)
+SALOME_CONFIGURE_FILE(Calcium_Ports.idl.in Calcium_Ports.idl)
 
 SET(SalomeIDLKernel_IDLSOURCES
   SALOME_Exception.idl
