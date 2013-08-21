@@ -19,8 +19,8 @@
 
 ADD_SUBDIRECTORY(parametric)
 
-CONFIGURE_FILE(logconfig.py.in logconfig.py @ONLY)
-CONFIGURE_FILE(kernelpy_autotest.sh.in kernelpy_autotest.sh @ONLY)
+SALOME_CONFIGURE_FILE(logconfig.py.in logconfig.py)
+SALOME_CONFIGURE_FILE(kernelpy_autotest.sh.in kernelpy_autotest.sh)
 
 # This first set of modules could be used in any context, you just
 # have to get a python environement.
@@ -46,4 +46,4 @@ SET(mypkgpython_PYTHON
     services.py
 )
 SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${SALOME_INSTALL_PYTHON}/salome/kernel)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/logconfig.py DESTINATION ${SALOME_INSTALL_PYTHON}/salome/kernel)
+SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/logconfig.py ${SALOME_INSTALL_PYTHON}/salome/kernel)

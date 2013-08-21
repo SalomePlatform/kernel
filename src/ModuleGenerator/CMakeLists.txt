@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-CONFIGURE_FILE(testIDLparser.in testIDLparser @ONLY)
+SALOME_CONFIGURE_FILE(testIDLparser.in testIDLparser)
 
 # ===============================================================
 # Files to be installed

@@ -73,9 +73,9 @@ INSTALL(TARGETS CalciumC EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_
 ADD_EXECUTABLE(test_DataIdContainer_Calcium test_DataIdContainer.cxx)
 TARGET_LINK_LIBRARIES(test_DataIdContainer_Calcium SalomeDSCSuperv SalomeContainer SalomeCalcium OpUtil SALOMELocalTrace ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
 
-CONFIGURE_FILE(calcium_integer_port_uses.hxx.in calcium_integer_port_uses.hxx @ONLY)
-CONFIGURE_FILE(CalciumProvidesPort.hxx.in CalciumProvidesPort.hxx @ONLY)
-CONFIGURE_FILE(CalciumFortranInt.h.in CalciumFortranInt.h @ONLY)
+SALOME_CONFIGURE_FILE(calcium_integer_port_uses.hxx.in calcium_integer_port_uses.hxx)
+SALOME_CONFIGURE_FILE(CalciumProvidesPort.hxx.in CalciumProvidesPort.hxx)
+SALOME_CONFIGURE_FILE(CalciumFortranInt.h.in CalciumFortranInt.h)
 
 SET(COMMON_HEADERS
   Calcium.hxx
