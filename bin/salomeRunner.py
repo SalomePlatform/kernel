@@ -35,6 +35,10 @@ class SalomeRunner:
   to .cfg format before setting the environment.
   """
   def __init__(self, configFileNames=[]):
+    #it could be None explicitely (if user use multiples setEnviron...for standalone)
+    if configFileNames==None:
+       return
+    
     if len(configFileNames) == 0:
       raise SalomeRunnerException("No configuration files given")
 
@@ -83,15 +87,25 @@ class SalomeRunner:
     self.__addToReserved('PYTHONPATH', value)
   #
 
+  """Append value to TCLLIBPATH environment variable"""
+  def addToTclLibPath(self, value):
+    self.__addToReservedTclTk('TCLLIBPATH', value)
+  #
+
+  """Append value to TKLIBPATH environment variable"""
+  def addToTkLibPath(self, value):
+    self.__addToReservedTclTk('TKLIBPATH', value)
+  #
+
   """Set environment variable to value"""
-  def setEnviron(self, name, value, overwrite=False):
+  def setEnviron(self, name, value, overwrite=True):
     env = os.getenv(name, '')
     if env and not overwrite:
-      self.getLogger().warning("Environment variable already existing and not overwritten: %s", name)
+      self.getLogger().warning("Environment variable already existing (and not overwritten): %s, %s", name, value)
       return
 
     if env:
-      self.getLogger().info("Overwriting environment variable: %s", name)
+      self.getLogger().warning("Environment variable overwriting: %s, %s", name, value)
 
     value = os.path.expandvars(value) # expand environment variables
     self.getLogger().debug("Set environment variable: %s=%s", name, value)
@@ -174,6 +188,12 @@ Commands:
     except AttributeError:
       self.getLogger().error("Method %s is not implemented.", command)
       sys.exit(1)
+    except SystemExit, exc:
+      if exc==0:
+        sys.exit(0) #catch sys.exit(0) happy end no warning
+      if exc==1:
+        self.getLogger().warning("SystemExit 1 in method %s.", command)
+      sys.exit(1)
     except:
       self.getLogger().error("Unexpected error:")
       import traceback
@@ -213,6 +233,21 @@ Commands:
       os.environ[name] = value
     else:
       os.environ[name] = value + os.pathsep + env
+  #
+
+  def __addToReservedTclTk(self, name, value):
+    if value == '':
+      return
+
+    value = os.path.expandvars(value) # expand environment variables
+    self.getLogger().debug("Add to %s: %s", name, value)
+    env = os.getenv(name, None)
+    #http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm
+    #Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.
+    if env is None:
+      os.environ[name] = value
+    else:
+      os.environ[name] = value + " " + env #explicitely whitespace
   #
 
   def _runAppli(self, args=[]):
