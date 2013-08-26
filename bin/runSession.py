@@ -33,8 +33,12 @@ class MyParser(OptionParser):
 #
 
 def configureSession(args=[]):
-  usage = "Usage: %prog [options]"
-  epilog  = """\nIf the command is not given a shell is opened.
+  usage = "Usage: %prog [options] [command]"
+  epilog  = """\n
+If the command is not given a shell is opened; else execute the given command.
+Command may be a series of Python scripts with arguments: [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
+\n
 If PORT and MACHINE are not given, try to connect to the last active session on the local machine.
 If PORT and MACHINE are given, try to connect to the remote session associated with PORT on MACHINE.
 If MACHINE is not given, try to connect to the session associated to PORT on the local machine.

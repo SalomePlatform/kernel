@@ -11,14 +11,8 @@ import pickle
 import subprocess
 import platform
 
-
-"""
-Define a specific exception class to manage exceptions related to SalomeRunner
-"""
-class SalomeRunnerException(Exception):
-  """Report error messages to the user interface of SalomeRunner."""
-#
-
+from salomeLauncherUtils import SalomeRunnerException
+from salomeLauncherUtils import getScriptsAndArgs, formatScriptsAndArgs
 
 """
 The SalomeRunner class in an API to configure SALOME environment then
@@ -38,7 +32,7 @@ class SalomeRunner:
     #it could be None explicitely (if user use multiples setEnviron...for standalone)
     if configFileNames==None:
        return
-    
+
     if len(configFileNames) == 0:
       raise SalomeRunnerException("No configuration files given")
 
@@ -48,8 +42,8 @@ class SalomeRunner:
         self.__setEnvironmentFromConfigFile(filename)
       elif extension == ".sh":
         #new convert procedures, temporary could be use not to be automatically deleted
-        temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
-        #temp = tempfile.NamedTemporaryFile(suffix='.cfg')
+        #temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
+        temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
           convertEnvFileToConfigFile(filename, temp.name)
           self.__setEnvironmentFromConfigFile(temp.name)
@@ -98,14 +92,14 @@ class SalomeRunner:
   #
 
   """Set environment variable to value"""
-  def setEnviron(self, name, value, overwrite=True):
+  def setEnviron(self, name, value, overwrite=False):
     env = os.getenv(name, '')
     if env and not overwrite:
-      self.getLogger().warning("Environment variable already existing (and not overwritten): %s, %s", name, value)
+      self.getLogger().warning("Environment variable already existing (and not overwritten): %s=%s", name, value)
       return
 
     if env:
-      self.getLogger().warning("Environment variable overwriting: %s, %s", name, value)
+      self.getLogger().warning("Overwriting environment variable: %s=%s", name, value)
 
     value = os.path.expandvars(value) # expand environment variables
     self.getLogger().debug("Set environment variable: %s=%s", name, value)
@@ -123,10 +117,10 @@ class SalomeRunner:
   ###################################
 
   def _usage(self, unused=[]):
-    exeName = os.path.splitext(os.path.basename(__file__))[0]
+    #exeName = os.path.splitext(os.path.basename(__file__))[0]
 
     msg = '''\
-Usage: %s [command] [options] [--config=file1,...,filen]
+Usage: salome [command] [options] [--config=file1,...,filen]
 
 Commands:
     start         Launches SALOME virtual application [DEFAULT]
@@ -137,7 +131,7 @@ Commands:
     help          Show this message
     coffee        Yes! SALOME can also make coffee!!"\
 
-'''%exeName
+'''
 
     print msg
   #
@@ -160,9 +154,8 @@ Commands:
       }
 
     if not command in availableCommands.keys():
-      self.getLogger().error("Unrecognized command: %s.", command)
-      self._usage()
-      sys.exit(1)
+      command = "start"
+      options = args
 
     return availableCommands[command], options
   #
@@ -184,20 +177,21 @@ Commands:
       command = "_runAppli"
 
     try:
-      getattr(self, command)(options) # run appropriate method
-    except AttributeError:
-      self.getLogger().error("Method %s is not implemented.", command)
-      sys.exit(1)
+      res = getattr(self, command)(options) # run appropriate method
+      return res or (None, None)
     except SystemExit, exc:
       if exc==0:
         sys.exit(0) #catch sys.exit(0) happy end no warning
       if exc==1:
         self.getLogger().warning("SystemExit 1 in method %s.", command)
       sys.exit(1)
-    except:
+    except StandardError:
       self.getLogger().error("Unexpected error:")
       import traceback
       traceback.print_exc()
+      sys.exit(1)
+    except SalomeRunnerException, e:
+      self.getLogger().error(e)
       sys.exit(1)
   #
 
@@ -268,17 +262,11 @@ Commands:
     import setenv
     setenv.main(True)
 
-    if args:
-      exe = args[0]
-      # if exe does not contain any slashes (/), search in PATH
-      # if exe contains slashes:
-      #    if exe begins with a slash, use this absolute path
-      #    else build absolute path relative to current working directory
-      if (os.sep in exe) and (exe[0] is not os.sep):
-        args[0] = os.getcwd() + os.sep + exe
-
-      proc = subprocess.Popen(args, shell=False, close_fds=True)
-      proc.wait()
+    scriptArgs = getScriptsAndArgs(args)
+    command = formatScriptsAndArgs(scriptArgs)
+    if command:
+      proc = subprocess.Popen(command, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      return proc.communicate()
     else:
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
       cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
@@ -297,7 +285,6 @@ Commands:
   #
 
   def _killAll(self, args=[]):
-    #self._runAppli(['-k'] + args)
     from killSalome import killAllPorts
     killAllPorts()
   #
@@ -349,6 +336,7 @@ Commands:
     if not hasattr(self, '_logger'):
       self._logger = logging.getLogger(__name__)
       #self._logger.setLevel(logging.DEBUG)
+      self._logger.setLevel(logging.ERROR)
     return self._logger;
   #
 
@@ -358,7 +346,11 @@ if __name__ == "__main__":
   if len(sys.argv) == 3:
     runner = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
-    runner._getStarted(args)
+    (out, err) = runner._getStarted(args)
+    if out:
+      sys.stdout.write(out)
+    if err:
+      sys.stderr.write(err)
   else:
     SalomeRunner()._usage()
 #

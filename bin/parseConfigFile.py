@@ -208,7 +208,7 @@ class EnvFileConverter(object):
     self.outputFile = outputFile
     self.allParsedVariableNames=[]
     # exclude line that begin with:
-    self.exclude = [ 'if', 'then', 'fi', '#', 'echo' ]
+    self.exclude = [ 'if', 'then', 'else', 'fi', '#', 'echo' ]
     # discard the following keywords if at the beginning of line:
     self.discard = [ 'export' ]
     # the following keywords imply a special processing if at the beginning of line:
@@ -305,7 +305,7 @@ class EnvFileConverter(object):
 # Convert .sh environment file to configuration file format
 def convertEnvFileToConfigFile(envFilename, configFilename):
   #reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH']
-  print "convert envFilename",envFilename,"to",configFilename
+  logConfigParser.debug('convert env file %s to %s'%(envFilename, configFilename))
   reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'R_LIBS', 'PV_PLUGIN_PATH', 'TCLLIBPATH', 'TKLIBPATH']
   fileContents = open(envFilename, 'r').read()
 

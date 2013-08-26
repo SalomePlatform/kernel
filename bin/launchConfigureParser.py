@@ -28,6 +28,8 @@ import types
 
 from salome_utils import verbose, setVerbose, getPortNumber, getHomeDir
 
+from salomeLauncherUtils import getScriptsAndArgs
+
 # names of tags in XML configuration file
 doc_tag = "document"
 sec_tag = "section"
@@ -537,21 +539,6 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           dest="log_file",
                           help=help_str)
 
-    # Execute python scripts. Default: None.
-    help_str  = "Python script(s) to be imported. Python scripts are imported "
-    help_str += "in the order of their appearance. In GUI mode python scripts "
-    help_str += "are imported in the embedded python interpreter of current study, "
-    help_str += "otherwise in an external python interpreter. "
-    help_str += "Note: this option is obsolete. Instead you can pass Python script(s) "
-    help_str += "directly as positional parameter."
-    o_u = optparse.Option("-u",
-                          "--execute",
-                          metavar="<script1,script2,...>",
-                          type="string",
-                          action="append",
-                          dest="py_scripts",
-                          help=help_str)
-
     # Configuration XML file. Default: see defaultUserFile() function
     help_str  = "Parse application settings from the <file> "
     help_str += "instead of default %s" % defaultUserFile()
@@ -791,7 +778,6 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_d,o_o, # Desktop
                 o_b,     # Batch
                 o_l,o_f, # Use logger or log-file
-                o_u,     # Execute python scripts
                 o_r,     # Configuration XML file
                 o_x,     # xterm
                 o_m,     # Modules
@@ -818,14 +804,16 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_port,  # Use port
                 ]
 
-    #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
+    #std_options = ["gui", "desktop", "log_file", "resources",
     #               "xterm", "modules", "embedded", "standalone",
     #               "portkill", "killall", "interp", "splash",
     #               "catch_exceptions", "print_port", "save_config", "ns_port_log_file"]
 
     opt_list += theAdditionalOptions
 
-    a_usage = "%prog [options] [STUDY_FILE] [PYTHON_FILE [PYTHON_FILE ...]]"
+    a_usage = """%prog [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
+"""
     version_str = "Salome %s" % version()
     pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
 
@@ -984,7 +972,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     # apply command-line options to the arguments
     # each option given in command line overrides the option from xml config file
     #
-    # Options: gui, desktop, log_file, py_scripts, resources,
+    # Options: gui, desktop, log_file, resources,
     #          xterm, modules, embedded, standalone,
     #          portkill, killall, interp, splash,
     #          catch_exceptions, pinter
@@ -1024,22 +1012,14 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     if cmd_opts.ns_port_log_file is not None:
       args["ns_port_log_file"] = cmd_opts.ns_port_log_file
 
-    # Python scripts
-    args[script_nam] = []
-    if cmd_opts.py_scripts is not None:
-        listlist = cmd_opts.py_scripts
-        for listi in listlist:
-            if os.sys.platform == 'win32':
-                args[script_nam] += re.split( "[;,]", listi)
-            else:
-                args[script_nam] += re.split( "[:;,]", listi)
-    for arg in cmd_args:
-        if arg[-3:] == ".py":
-            args[script_nam].append(arg)
-        elif not args["study_hdf"]:
+    # Study files
+    if len(cmd_args) > 0 and not args["study_hdf"]:
+        arg = cmd_args[0] # :NOTE: only look at first element
+        if arg[-4:] == ".hdf":
             args["study_hdf"] = arg
-            pass
-        pass
+
+    # Python scripts
+    args[script_nam] = getScriptsAndArgs(cmd_args)
 
     # xterm
     if cmd_opts.xterm is not None: args[xterm_nam] = cmd_opts.xterm

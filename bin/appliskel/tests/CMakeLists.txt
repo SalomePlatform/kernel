@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(tests)
-
-# ===============================================================
-# Files to be installed
-# ===============================================================
-
-# These files are executable scripts
-SET(SCRIPTS
-  envd
-  runRemote.sh
-  runAppli
-  runConsole
-  runSession
-  runSalomeScript
-  .bashrc
-  getAppliPath.py
-  update_catalogs.py
-  kill_remote_containers.py
-  salome # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
-)
-
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)
+ADD_SUBDIRECTORY(launcher)

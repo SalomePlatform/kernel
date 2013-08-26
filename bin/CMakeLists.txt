@@ -48,6 +48,7 @@ SET(SCRIPTS
   runSession.py
   runConsole.py
   salomeConsole.py
+  salomeLauncherUtils.py
   salomeRunner.py
   salome_session.py
   salome_utils.py

@@ -31,6 +31,9 @@ import orbmodule
 import setenv
 from launchConfigureParser import verbose
 from server import process_id, Server
+import json
+from salomeLauncherUtils import formatScriptsAndArgs
+import subprocess
 
 # -----------------------------------------------------------------------------
 
@@ -261,7 +264,8 @@ class SessionServer(Server):
                     pass
                 pass
                 if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
-                    self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
+                    msg = json.dumps(self.args['pyscript'])
+                    self.SCMD2+=['--pyscript=%s'%(msg)]
                     pass
                 pass
             pass
@@ -724,39 +728,11 @@ def useSalome(args, modules_list, modules_root_dir):
                 if not args['gui'] or not args['session_gui']:
                     toimport = args['pyscript']
 
-        for srcname in toimport :
-            if srcname == 'killall':
-                clt.showNS()
-                killAllPorts()
-                sys.exit(0)
-            else:
-                if os.path.isabs(srcname):
-                    if os.path.exists(srcname):
-                        execScript(srcname)
-                    elif os.path.exists(srcname+".py"):
-                        execScript(srcname+".py")
-                    else:
-                        print "Can't execute file %s" % srcname
-                    pass
-                else:
-                    found = False
-                    for path in [os.getcwd()] + sys.path:
-                        if os.path.exists(os.path.join(path,srcname)):
-                            execScript(os.path.join(path,srcname))
-                            found = True
-                            break
-                        elif os.path.exists(os.path.join(path,srcname+".py")):
-                            execScript(os.path.join(path,srcname+".py"))
-                            found = True
-                            break
-                        pass
-                    if not found:
-                        print "Can't execute file %s" % srcname
-                        pass
-                    pass
-                pass
-            pass
-        pass
+        command = formatScriptsAndArgs(toimport)
+        if command:
+            proc = subprocess.Popen(command, shell=True)
+            proc.wait()
+
     return clt
 
 def execScript(script_path):

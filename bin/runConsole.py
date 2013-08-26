@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -21,16 +21,18 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-def __prompt(vars = None, commands=[], message = "Connecting to SALOME"):
-  if vars is None:
-    vars = globals()
+def __prompt(environment = None, commands=[], message = "Connecting to SALOME"):
+  if environment is None:
+    environment = globals().copy()
+    environment.update(locals())
+
   import code
   import rlcompleter
   import readline
   readline.parse_and_bind("tab: complete")
   # calling this with globals ensures we can see the environment
   print message
-  shell = code.InteractiveConsole(vars)
+  shell = code.InteractiveConsole(environment)
   for cmd in commands:
     shell.push(cmd)
   return shell.interact
