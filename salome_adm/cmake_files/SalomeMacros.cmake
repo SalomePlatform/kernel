@@ -254,6 +254,14 @@ ENDMACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE)
 # adding required number of spaces to the end. Does noting if input
 # string is longer as required length.
 # Puts the result to the output variable.
+#
+# USAGE: SALOME_JUSTIFY_STRING(input length result)
+#
+# ARGUMENTS:
+#   input  [in] input string
+#   length [in] required length of resulting string
+#   result [out] name of variable where the result string is put to
+#
 MACRO(SALOME_JUSTIFY_STRING input length result)
   SET(${result} ${input})
   STRING(LENGTH ${input} _input_length)
@@ -269,11 +277,16 @@ ENDMACRO(SALOME_JUSTIFY_STRING)
 # SALOME_PACKAGE_REPORT()
 #
 # Print a quick summary of the detection of optional prerequisites.
+# 
+# If optional JUSTIFY argument is specified, names of packages
+# are left-justified to the given length; default value is 10.
+#
+# USAGE: SALOME_PACKAGE_REPORT([JUSTIFY length])
 #
 MACRO(SALOME_PACKAGE_REPORT)
-  PARSE_ARGUMENTS(SALOME_PACKAGE_REPORT "LENGTH" "" ${ARGN})
-  IF(SALOME_PACKAGE_REPORT_LENGTH)
-    SET(_length ${SALOME_PACKAGE_REPORT_LENGTH})
+  PARSE_ARGUMENTS(SALOME_PACKAGE_REPORT "JUSTIFY" "" ${ARGN})
+  IF(SALOME_PACKAGE_REPORT_JUSTIFY)
+    SET(_length ${SALOME_PACKAGE_REPORT_JUSTIFY})
   ELSE()
     SET(_length 10)
   ENDIF()
