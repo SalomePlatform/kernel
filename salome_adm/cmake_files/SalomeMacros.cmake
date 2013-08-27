@@ -248,11 +248,35 @@ MACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE pkg flag)
 ENDMACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE)
 
 ####
+# SALOME_JUSTIFY_STRING()
+#
+# Justifies the string specified as an argument to the given length
+# adding required number of spaces to the end. Does noting if input
+# string is longer as required length.
+# Puts the result to the output variable.
+MACRO(SALOME_JUSTIFY_STRING input length result)
+  SET(${result} ${input})
+  STRING(LENGTH ${input} _input_length)
+  MATH(EXPR _nb_spaces "${length}-${_input_length}-1")
+  IF (_nb_spaces GREATER 0)
+    FOREACH(_idx RANGE ${_nb_spaces})  
+      SET(${result} "${${result}} ")
+    ENDFOREACH()
+  ENDIF()
+ENDMACRO(SALOME_JUSTIFY_STRING)
+
+####
 # SALOME_PACKAGE_REPORT()
 #
 # Print a quick summary of the detection of optional prerequisites.
 #
 MACRO(SALOME_PACKAGE_REPORT)
+  PARSE_ARGUMENTS(SALOME_PACKAGE_REPORT "LENGTH" "" ${ARGN})
+  IF(SALOME_PACKAGE_REPORT_LENGTH)
+    SET(_length ${SALOME_PACKAGE_REPORT_LENGTH})
+  ELSE()
+    SET(_length 10)
+  ENDIF()
   MESSAGE(STATUS "") 
   MESSAGE(STATUS "  Optional packages - Detection report ")
   MESSAGE(STATUS "  ==================================== ")
@@ -264,6 +288,7 @@ MACRO(SALOME_PACKAGE_REPORT)
     LIST(GET _SALOME_OPTIONAL_PACKAGES_names ${_idx} _pkg_name)
     LIST(GET _SALOME_OPTIONAL_PACKAGES_found ${_idx} _pkg_found)
     LIST(GET _SALOME_OPTIONAL_PACKAGES_flags ${_idx} _pkg_flag)
+    SALOME_JUSTIFY_STRING(${_pkg_name} ${_length} _pkg_name)
     IF(_pkg_found)
       SET(_found_msg "Found")
       SET(_flag_msg "")
