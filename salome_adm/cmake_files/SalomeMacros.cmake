@@ -210,6 +210,73 @@ MACRO(SALOME_CHECK_EQUAL_PATHS varRes path1 path2)
 #  MESSAGE(${${varRes}})
 ENDMACRO()
 
+####
+# SALOME_UPDATE_FLAG_AND_LOG_PACKAGE(pkg flag)
+#
+# Register in global variables the detection status (found or not) of the optional package 'pkg' 
+# and the configuration flag that should be turned off if it is not found.
+# If the package was not found, the macro explicitly turns off the flag.
+# The global variables are read again by SALOME_PACKAGE_REPORT to produce a summary report
+# of the detection status, and of the modified flags.
+MACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE pkg flag)
+  # Was the package found
+  STRING(TOUPPER ${pkg} _pkg_UC)
+  IF(${pkg}_FOUND OR ${_pkg_UC}_FOUND)
+    SET(_isFound TRUE)
+  ELSE()
+    SET(_isFound FALSE)
+  ENDIF()
+
+  # Is the package already in the list? Then update its status:
+  LIST(FIND _SALOME_OPTIONAL_PACKAGES_names ${pkg} _result)
+  IF(NOT ${_result} EQUAL -1)
+    LIST(REMOVE_AT _SALOME_OPTIONAL_PACKAGES_found ${_result})
+    LIST(REMOVE_AT _SALOME_OPTIONAL_PACKAGES_flags ${_result})
+    LIST(INSERT    _SALOME_OPTIONAL_PACKAGES_found ${_result} ${_isFound})
+    LIST(INSERT    _SALOME_OPTIONAL_PACKAGES_flags ${_result} ${flag})
+  ELSE()
+    # Otherwise insert it
+    LIST(APPEND _SALOME_OPTIONAL_PACKAGES_names ${pkg})
+    LIST(APPEND _SALOME_OPTIONAL_PACKAGES_found ${_isFound})
+    LIST(APPEND _SALOME_OPTIONAL_PACKAGES_flags ${flag})
+  ENDIF() 
+  
+  # If the package was not found, force the cache flag to OFF 
+  IF(NOT isFound)
+    SET(${flag} OFF)
+  ENDIF()  
+ENDMACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE)
+
+####
+# SALOME_PACKAGE_REPORT()
+#
+# Print a quick summary of the detection of optional prerequisites.
+#
+MACRO(SALOME_PACKAGE_REPORT)
+  MESSAGE(STATUS "") 
+  MESSAGE(STATUS "  Optional packages - Detection report ")
+  MESSAGE(STATUS "  ==================================== ")
+  MESSAGE(STATUS "")
+  LIST(LENGTH _SALOME_OPTIONAL_PACKAGES_names _list_len)
+  # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
+  MATH(EXPR _range "${_list_len}-1")
+  FOREACH(_idx RANGE ${_range})  
+    LIST(GET _SALOME_OPTIONAL_PACKAGES_names ${_idx} _pkg_name)
+    LIST(GET _SALOME_OPTIONAL_PACKAGES_found ${_idx} _pkg_found)
+    LIST(GET _SALOME_OPTIONAL_PACKAGES_flags ${_idx} _pkg_flag)
+    IF(_pkg_found)
+      SET(_found_msg "Found")
+      SET(_flag_msg "")
+    ELSE()
+      SET(_found_msg "NOT Found")
+      SET(_flag_msg " - ${_pkg_flag} has been switched OFF.")
+    ENDIF()
+    
+    MESSAGE(STATUS "  * ${_pkg_name}  ->  ${_found_msg}${_flag_msg}")
+  ENDFOREACH()
+  MESSAGE(STATUS "")
+  MESSAGE(STATUS "")
+ENDMACRO(SALOME_PACKAGE_REPORT)
 
 ####
 # SALOME_FIND_PACKAGE(englobingPackageName standardPackageName modus [onlyTryQuietly])
@@ -259,7 +326,7 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
     STRING(TOLOWER ${stdPkg} _pkg_lc)
     IF(("${mode}" STREQUAL "NO_MODULE") OR ("${mode}" STREQUAL "CONFIG"))
       # Hope to find direclty a CMake config file, indicating the SALOME CMake file
-      # paths (the command already look in places like "share/cmake", etc ... by default)
+      # paths (the command already looks in places like "share/cmake", etc ... by default)
       # Note the options NO_CMAKE_BUILDS_PATH, NO_CMAKE_PACKAGE_REGISTRY to avoid (under Windows)
       # looking into a previous CMake build done via a GUI, or into the Win registry.
       # NO_CMAKE_SYSTEM_PATH and NO_SYSTEM_ENVIRONMENT_PATH ensure any _system_ files like 'xyz-config.cmake' 
