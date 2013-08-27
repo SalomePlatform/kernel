@@ -242,7 +242,7 @@ MACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE pkg flag)
   ENDIF() 
   
   # If the package was not found, force the cache flag to OFF 
-  IF(NOT isFound)
+  IF(NOT _isFound)
     SET(${flag} OFF)
   ENDIF()  
 ENDMACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE)
