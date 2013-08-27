@@ -89,10 +89,14 @@ IF (PYTHONINTERP_FOUND)
   SET(SalomePython_FIND_VERSION "${_old_VERSION}")
 ENDIF()
 
-# Set the FOUND flag for SalomePython:
+# Set the FOUND flag for SalomePython and Python:
 SET(SALOMEPYTHON_FOUND FALSE)
 IF (_found1 AND PYTHONLIBS_FOUND)
   SET(SALOMEPYTHON_FOUND TRUE)
+  SET(Python_FOUND TRUE)
+ELSE()
+SET(SALOMEPYTHON_FOUND FALSE)
+  SET(Python_FOUND FALSE)
 ENDIF()
 
 IF (SALOMEPYTHON_FOUND)
@@ -147,7 +151,7 @@ IF (SALOMEPYTHON_FOUND)
 
   ## None here    
 ELSE()
-  MESSAGE(STATUS "Python was only partially (or not at all) found .")  
+  MESSAGE(STATUS "Python was only partially (or not at all) found .")
 ENDIF()
 
 
