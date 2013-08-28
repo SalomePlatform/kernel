@@ -82,12 +82,14 @@ def getScriptsAndArgs(args=[]):
       if elt[-3:] == ".py":
         currentScript = os.path.abspath(elt)
       else:
-        currentScript = os.path.abspath(elt+".py")
-      if callPython:
+        currentScript = None
+        if elt[-4:] != ".hdf":
+          currentScript = os.path.abspath(elt+".py")
+      if currentScript and callPython:
         currentKey = "python "+currentScript
         scriptArgs.append({currentKey:[]})
         callPython = False
-      else:
+      elif currentScript:
         if not os.access(currentScript, os.X_OK):
           currentKey = "python "+currentScript
           scriptArgs.append({currentKey:[]})

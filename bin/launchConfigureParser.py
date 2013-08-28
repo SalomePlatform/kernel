@@ -1013,9 +1013,8 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
       args["ns_port_log_file"] = cmd_opts.ns_port_log_file
 
     # Study files
-    if len(cmd_args) > 0 and not args["study_hdf"]:
-        arg = cmd_args[0] # :NOTE: only look at first element
-        if arg[-4:] == ".hdf":
+    for arg in cmd_args:
+        if arg[-4:] == ".hdf" and not args["study_hdf"]:
             args["study_hdf"] = arg
 
     # Python scripts
