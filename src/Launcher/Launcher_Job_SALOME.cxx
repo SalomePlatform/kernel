@@ -53,7 +53,6 @@ Launcher::Job_SALOME::update_job()
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
   params[Batch::EXECUTABLE] = buildSalomeScript(params);
-  params[Batch::EXCLUSIVE] = true;
   _batch_job->setParametre(params);
 #endif
 }

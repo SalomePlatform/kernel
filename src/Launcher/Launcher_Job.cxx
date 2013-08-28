@@ -52,6 +52,7 @@ Launcher::Job::Job()
   _resource_required_params.mem_mb = -1;
   _queue = "";
   _job_type = "";
+  _exclusive = false;
 
   // Parameters for COORM
   _launcher_file = "";
@@ -306,6 +307,23 @@ Launcher::Job::setQueue(const std::string & queue)
   _queue = queue;
 }
 
+void
+Launcher::Job::setExclusive(bool exclusive)
+{
+  _exclusive = exclusive;
+}
+
+void
+Launcher::Job::setExclusiveStr(const std::string & exclusiveStr)
+{
+  if (exclusiveStr == "true")
+    _exclusive = true;
+  else if (exclusiveStr == "false")
+    _exclusive = false;
+  else
+    throw LauncherException(std::string("Invalid boolean value for exclusive: ") + exclusiveStr);
+}
+
 std::string 
 Launcher::Job::getWorkDirectory()
 {
@@ -364,6 +382,18 @@ std::string
 Launcher::Job::getQueue()
 {
   return _queue;
+}
+
+bool
+Launcher::Job::getExclusive()
+{
+  return _exclusive;
+}
+
+std::string
+Launcher::Job::getExclusiveStr() const
+{
+  return _exclusive ? "true" : "false";
 }
 
 void 
@@ -575,6 +605,10 @@ Launcher::Job::common_job_params()
   if (_queue != "")
     params[Batch::QUEUE] = _queue;
 
+  // Exclusive
+  if (getExclusive())
+    params[Batch::EXCLUSIVE] = true;
+
   // Specific parameters
   std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
   if (it != _specific_parameters.end())
@@ -648,6 +682,7 @@ Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
 
   xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(getMaximumDuration().c_str()));
   xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(getQueue().c_str()));
+  xmlNewChild(node, NULL, xmlCharStrdup("exclusive"),        xmlCharStrdup(getExclusiveStr().c_str()));
 
   // For COORM
   xmlNewChild(node, NULL, xmlCharStrdup("launcher_args"), xmlCharStrdup(getLauncherArgs().c_str()));

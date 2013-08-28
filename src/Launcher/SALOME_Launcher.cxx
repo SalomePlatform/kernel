@@ -157,6 +157,9 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   std::string queue = job_parameters.queue.in();
   new_job->setQueue(queue);
 
+  // Exclusive
+  new_job->setExclusive(job_parameters.exclusive);
+
   // Resources requirements
   try
   {
@@ -492,6 +495,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
 
   job_parameters->maximum_duration = CORBA::string_dup(job->getMaximumDuration().c_str());
   job_parameters->queue            = CORBA::string_dup(job->getQueue().c_str());
+  job_parameters->exclusive        = job->getExclusive();
 
   resourceParams resource_params = job->getResourceRequiredParams();
   job_parameters->resource_required.name             = CORBA::string_dup(resource_params.name.c_str());
@@ -709,10 +713,12 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlNodePtr res_node = xmlNextElementSibling(files_node);
         xmlNodePtr maximum_duration_node = xmlNextElementSibling(res_node);
         xmlNodePtr queue_node = xmlNextElementSibling(maximum_duration_node);
-        xmlNodePtr launcher_args_node = xmlNextElementSibling(queue_node);
+        xmlNodePtr exclusive_node = xmlNextElementSibling(queue_node);
+        xmlNodePtr launcher_args_node = xmlNextElementSibling(exclusive_node);
         if (res_node              == NULL ||
             maximum_duration_node == NULL ||
             queue_node            == NULL ||
+            exclusive_node        == NULL ||
 			// For COORM
             launcher_args_node    == NULL
            )
@@ -724,6 +730,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         if (xmlStrcmp(res_node->name,              xmlCharStrdup("resource_params"))  ||
             xmlStrcmp(maximum_duration_node->name, xmlCharStrdup("maximum_duration")) ||
             xmlStrcmp(queue_node->name,            xmlCharStrdup("queue")) ||
+            xmlStrcmp(exclusive_node->name,        xmlCharStrdup("exclusive")) ||
 			// For COORM
             xmlStrcmp(launcher_args_node->name,    xmlCharStrdup("launcher_args"))
            )
@@ -748,6 +755,20 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         new_job->setQueue(std::string((const char *)queue));
         xmlFree(maximum_duration);
         xmlFree(queue);
+
+        xmlChar* exclusive = xmlNodeGetContent(exclusive_node);
+        try
+        {
+          new_job->setExclusiveStr(std::string((const char *)exclusive));
+        }
+        catch(const LauncherException &ex)
+        {
+          INFOS("Exception received for exclusive, cannot add the job. " << ex.msg.c_str());
+          delete new_job;
+          xmlFree(exclusive);
+          break;
+        }
+        xmlFree(exclusive);
 
 		// For COORM
         xmlChar* launcher_args           = xmlNodeGetContent(launcher_args_node);

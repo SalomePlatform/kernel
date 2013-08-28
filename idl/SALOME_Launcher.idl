@@ -72,6 +72,9 @@ struct JobParameters
     Name of the batch queue choosed - optional
   */
   string queue;
+  
+  //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
+  boolean exclusive;
 
   /*!
     Specific parameters for each type of job - optional

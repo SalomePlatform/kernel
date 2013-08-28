@@ -41,7 +41,6 @@ Launcher::Job_Command::update_job()
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
   params[Batch::EXECUTABLE] = buildCommandScript(params, _launch_date);
-  params[Batch::EXCLUSIVE] = false;
   _batch_job->setParametre(params);
 #endif
 }

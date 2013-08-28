@@ -78,7 +78,8 @@ namespace Launcher
       void setResourceRequiredParams(const resourceParams & resource_required_params);
       void setQueue(const std::string & queue);
       void setEnvFile(const std::string & env_file);
-
+      void setExclusive(bool exclusive);
+      void setExclusiveStr(const std::string & exclusiveStr);
 	  // For COORM
 	  void setLauncherFile(const std::string & launcher_file);
 	  void setLauncherArgs(const std::string & launcher_args);
@@ -95,6 +96,8 @@ namespace Launcher
       std::string getQueue();
       std::string getEnvFile();
       std::string getJobType();
+      bool getExclusive();
+      std::string getExclusiveStr() const;
 
 	  // For COORM
 	  std::string getLauncherFile();
@@ -151,6 +154,7 @@ namespace Launcher
       long _maximum_duration_in_second;
       resourceParams _resource_required_params;
       std::string _queue;
+      bool _exclusive;
 
 	  // Parameters for COORM
 	  std::string _launcher_file;
