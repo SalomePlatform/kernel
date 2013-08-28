@@ -62,7 +62,7 @@ def getConfigFileNames(args):
 def getScriptsAndArgs(args=[]):
   # Syntax of args: script.py [args:a1,a2=val,an] ... script.py [args:a1,a2=val,an]
   scriptArgs = []
-  currentScript = None
+  currentKey = None
   argsPrefix = "args:"
   callPython = False
 
@@ -70,11 +70,11 @@ def getScriptsAndArgs(args=[]):
     elt = args[i]
 
     if elt.startswith(argsPrefix):
-      if not currentScript or callPython:
+      if not currentKey or callPython:
         raise SalomeRunnerException("args list must follow corresponding script file in command line.")
       elt = elt.replace(argsPrefix, '')
-      scriptArgs[len(scriptArgs)-1][currentScript] = elt.split(",")
-      currentScript = None
+      scriptArgs[len(scriptArgs)-1][currentKey] = elt.split(",")
+      currentKey = None
       callPython = False
     elif elt.startswith("python"):
       callPython = True
@@ -84,12 +84,16 @@ def getScriptsAndArgs(args=[]):
       else:
         currentScript = os.path.abspath(elt+".py")
       if callPython:
-        scriptArgs.append({"python "+currentScript:[]})
+        currentKey = "python "+currentScript
+        scriptArgs.append({currentKey:[]})
         callPython = False
       else:
         if not os.access(currentScript, os.X_OK):
-          raise SalomeRunnerException("Argument %s cannot be executed (please check file permissions)"%currentScript)
-        scriptArgs.append({currentScript:[]})
+          currentKey = "python "+currentScript
+          scriptArgs.append({currentKey:[]})
+        else:
+          currentKey = currentScript
+          scriptArgs.append({currentKey:[]})
     else:
       raise SalomeRunnerException("Incorrect syntax in command line: %s:\n\t%s"%(elt," ".join(args)))
   # end for loop
