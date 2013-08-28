@@ -263,7 +263,7 @@ class EnvFileConverter(object):
         try:
           variable, value = line.split('=')
         except: #avoid error for complicated sh line xx=`...=...`, but warning
-          print "WARNING: EnvFileConverter: line with multiples '=' character are hazardous: '"+line+"'"
+          print "WARNING: parseConfigFile.py: line with multiples '=' character are hazardous: '"+line+"'"
           variable, value = line.split('=',1)          
         self.allParsedVariableNames.append(variable)
       # Self-extending variables that are not in reserved keywords
