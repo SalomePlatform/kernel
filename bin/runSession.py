@@ -25,6 +25,7 @@ import os
 import sys
 from optparse import OptionParser
 from NSparam import getNSparams
+import socket
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -45,11 +46,11 @@ If MACHINE is not given, try to connect to the session associated to PORT on the
 If PORT is not given, try to connect to the remote session associated to port 2810 on MACHINE.\n\n"""
   parser = MyParser(usage=usage, epilog=epilog)
   parser.add_option("-p", "--port", metavar="<port>", default=0,
-                    action="store", type="int", dest="port",
+                    action="store", type="string", dest="port",
                     help="The port to connect to."
                     )
   parser.add_option("-m", "--machine", metavar="<machine>", default=0,
-                    action="store", type="int", dest="machine",
+                    action="store", type="string", dest="host",
                     help="The machine to connect to."
                     )
   try:
@@ -59,12 +60,12 @@ If PORT is not given, try to connect to the remote session associated to port 28
     return
 
   port = options.port
-  machine = options.machine
+  host = options.host
 
   # :GLITCH: this code defines specific environment variables (OMNIORB_CONFIG, NSPORT,
   # NSHOST) which are later used by other modules. Working, but not really "safe"...
   if not port:
-    if not machine:
+    if not host:
       # neither MACHINE nor PORT are given
       # --- set omniORB configuration to current session if any
       omniorbUserPath = os.environ['OMNIORB_USER_PATH']
@@ -73,32 +74,28 @@ If PORT is not given, try to connect to the remote session associated to port 28
         os.environ['OMNIORB_CONFIG'] = fileOmniConfig
         # --- set environment variables for port and hostname of NamingService
         host, port = getNSparams()
-        os.environ['NSHOST'] = host
-        os.environ['NSPORT'] = port
       else:
         # No running session
-        os.environ['NSHOST'] = "no_host"
-        os.environ['NSPORT'] = "no_port"
-        pass
+        host = "no_host"
+        port = "no_port"
     else:
       # only MACHINE is given
-      _writeConfigFile(2810, os.environ['NSHOST'])
+      port = '2810'
+      _writeConfigFile(port, host)
     #
   else:
-    if not machine:
+    if not host:
       # only PORT is given
-      os.environ['NSHOST'] = `hostname`
-      pass
+      host = socket.gethostname()
     # both MACHINE and PORT are given
-    _writeConfigFile(os.environ['NSPORT'], os.environ['NSHOST'])
+    _writeConfigFile(port, host)
   #
+  os.environ['NSPORT'] = port
+  os.environ['NSHOST'] = host
 #
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 def _writeConfigFile(port, host):
-  os.environ['NSPORT'] = port
-  os.environ['NSHOST'] = host
-
   path = os.environ['OMNIORB_USER_PATH']
   kwargs = {'with_username' : os.environ['USER']}
 

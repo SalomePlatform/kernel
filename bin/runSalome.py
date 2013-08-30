@@ -721,7 +721,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 pass
             pass
 
-        # run python scripts, passed via --execute option
+        # run python scripts, passed as command line arguments
         toimport = []
         if args.has_key('pyscript'):
             if args.has_key('gui') and args.has_key('session_gui'):

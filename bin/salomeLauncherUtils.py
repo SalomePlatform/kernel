@@ -96,8 +96,6 @@ def getScriptsAndArgs(args=[]):
         else:
           currentKey = currentScript
           scriptArgs.append({currentKey:[]})
-    else:
-      raise SalomeRunnerException("Incorrect syntax in command line: %s:\n\t%s"%(elt," ".join(args)))
   # end for loop
   return scriptArgs
 #
