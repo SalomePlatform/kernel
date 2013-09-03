@@ -56,11 +56,11 @@ class ResourceParameters (Engines.ResourceParameters):
 class JobParameters (Engines.JobParameters):
   def __init__(self, job_name="", job_type="", job_file="", env_file="", in_files=[], out_files=[],
                      work_directory="", local_directory="", result_directory="", maximum_duration="",
-                     resource_required=None, queue="", specific_parameters=[],
+                     resource_required=None, queue="", exclusive = False, specific_parameters=[],
                      launcher_file = "", launcher_args = ""):
     Engines.JobParameters.__init__(self, job_name, job_type, job_file, env_file, in_files, out_files,
                                          work_directory, local_directory, result_directory, maximum_duration,
-                                         resource_required, queue, specific_parameters,
+                                         resource_required, queue, exclusive, specific_parameters,
                                          launcher_file, launcher_args)
 
 class ResourceDefinition(Engines.ResourceDefinition):
