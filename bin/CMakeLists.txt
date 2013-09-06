@@ -43,6 +43,7 @@ SET(SCRIPTS
   orbmodule.py
   ORBConfigFile.py
   parseConfigFile.py
+  PortManager.py
   runSalome
   runSalome.py
   runSession.py
@@ -57,6 +58,7 @@ SET(SCRIPTS
   setenv.py
   showNS.py
   shutdownSalome.py
+  Singleton.py
   virtual_salome.py
   waitContainers.py
   waitNS.py

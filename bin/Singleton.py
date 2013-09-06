@@ -1,4 +1,9 @@
-# Copyright (C) 2013  CEA/DEN, EDF R&D, OPEN CASCADE
+#!/usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,5 +22,23 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(concurrentSession)
-ADD_SUBDIRECTORY(launcher)
+"""
+The Singleton metaclass is used by each class which must have a unique instance.
+Example:
+class SingleInstanceClass(object):
+  __metaclass__ = Singleton
+  ...
+"""
+class Singleton(type):
+  #
+  def __init(self):
+    super(Singleton, self).__init__()
+  #
+  def __call__(self, *args, **kwargs):
+    try:
+      return self.__instance
+    except AttributeError:
+      self.__instance = super(Singleton, self).__call__(*args, **kwargs)
+      return self.__instance
+  #
+#

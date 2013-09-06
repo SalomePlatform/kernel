@@ -209,6 +209,7 @@ class EnvFileConverter(object):
     self.allParsedVariableNames=[]
     # exclude line that begin with:
     self.exclude = [ 'if', 'then', 'else', 'fi', '#', 'echo' ]
+    self.exclude.append('$gconfTool') # QUICK FIX :TODO: provide method to extend this variable
     # discard the following keywords if at the beginning of line:
     self.discard = [ 'export' ]
     # the following keywords imply a special processing if at the beginning of line:
@@ -250,6 +251,7 @@ class EnvFileConverter(object):
           value = self._purgeValue(value, k)
           line = ADD_TO_PREFIX + k + ": " + value
       # Update list of variable names
+      # :TODO: define excludeBlock variable (similar to exclude) and provide method to extend it
       if "cleandup()" in line:
         print "WARNING: parseConfigFile.py: skip cleandup and look for '# PRODUCT environment'"
         while True:
@@ -264,7 +266,7 @@ class EnvFileConverter(object):
           variable, value = line.split('=')
         except: #avoid error for complicated sh line xx=`...=...`, but warning
           print "WARNING: parseConfigFile.py: line with multiples '=' character are hazardous: '"+line+"'"
-          variable, value = line.split('=',1)          
+          variable, value = line.split('=',1)
         self.allParsedVariableNames.append(variable)
       # Self-extending variables that are not in reserved keywords
       # Example: FOO=something:${FOO}

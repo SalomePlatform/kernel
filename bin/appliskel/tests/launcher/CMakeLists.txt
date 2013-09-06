@@ -17,12 +17,5 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SCRIPTS
-  add.py
-  getLogger.py
-  hello.py
-  lines.py
-  TestLauncherSessionArgs.py
-)
-
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel/tests/launcher)
+FILE(GLOB scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
+SALOME_INSTALL_SCRIPTS("${scripts}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel/tests/launcher)

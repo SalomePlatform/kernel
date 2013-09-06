@@ -34,6 +34,7 @@ from server import process_id, Server
 import json
 from salomeLauncherUtils import formatScriptsAndArgs
 import subprocess
+import PortManager
 
 # -----------------------------------------------------------------------------
 
@@ -769,6 +770,7 @@ def no_main():
     args, modules_list, modules_root_dir = pickle.load(fenv)
     fenv.close()
     kill_salome(args)
+    PortManager.start_server(nbSimultaneous=25, timeout=10)
     from searchFreePort import searchFreePort
     searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
@@ -804,6 +806,7 @@ def main():
         test = False
         pass
     if test:
+        PortManager.start_server(nbSimultaneous=25, timeout=10)
         from searchFreePort import searchFreePort
         searchFreePort(args, save_config, args.get('useport'))
         pass
