@@ -23,49 +23,45 @@ import sys
 import unittest
 import multiprocessing
 
-class SalomeSession(object):
-  def __init__(self, script, killAtEnd=True):
-    self.__killAtEnd = killAtEnd
-    import runSalome
-    sys.argv  = ["runSalome.py"]
-    sys.argv += ["--terminal"]
-    sys.argv += ["%s" % script]
-    clt, d = runSalome.main()
-  #
-  def __del__(self):
-    if self.__killAtEnd:
-      port = os.getenv('NSPORT')
-      import killSalomeWithPort
-      killSalomeWithPort.killMyPort(port)
-    return
-  #
-#
-
-def run_session():
-  SalomeSession("")
-#
 class TestConcurrentLaunch(unittest.TestCase):
+  @classmethod
+  def setUpClass(cls):
+    # Initialize path to SALOME application
+    path_to_launcher = os.getenv("SALOME_LAUNCHER")
+    appli_dir = os.path.dirname(path_to_launcher)
+    envd_dir = os.path.join(appli_dir, "env.d")
+
+    # Configure session startup
+    cls.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
+    cls.SALOME_args = ["shell", "--config="+envd_dir]
+  #
+  def session(self, args=[]):
+    self.SALOME.main(self.SALOME_args + args)
+  #
   def testSingleSession(self):
     print "** Testing single session **"
-    SalomeSession("")
+    self.session()
   #
   def testMultiSession(self):
     print "** Testing multi sessions **"
 
     jobs = []
     for i in range(3):
-      p = multiprocessing.Process(target=run_session)
+      p = multiprocessing.Process(target=session, args=(self,))
       jobs.append(p)
       p.start()
 
     for j in jobs:
       j.join()
   #
-  @classmethod
-  def tearDownClass(cls):
-    import killSalome
-    killSalome.killAllPorts()
-  #
 #
 
-unittest.main()
+
+if __name__ == "__main__":
+  path_to_launcher = os.getenv("SALOME_LAUNCHER")
+  if not path_to_launcher:
+    msg = "Error: please set SALOME_LAUNCHER variable to the salome command of your application folder."
+    raise Exception(msg)
+
+  unittest.main()
+#
