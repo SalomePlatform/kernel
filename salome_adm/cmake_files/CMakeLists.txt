@@ -25,6 +25,7 @@ ADD_SUBDIRECTORY(deprecated)
 
 # These files are data, module or lib files
 SET(DATA
+  FindCAS.cmake
   FindCppUnit.cmake
   FindGraphviz.cmake
   FindSalomeKERNEL.cmake
@@ -32,6 +33,7 @@ SET(DATA
   FindOmniORBPy.cmake
   FindPThread.cmake
   FindSalomeBoost.cmake
+  FindSalomeCAS.cmake
   FindSalomeCppUnit.cmake
   FindSalomeDoxygen.cmake
   FindSalomeGraphviz.cmake
