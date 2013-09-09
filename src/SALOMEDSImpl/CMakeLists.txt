@@ -18,9 +18,9 @@
 #
 
 INCLUDE_DIRECTORIES(
-  ${PTHREAD_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
+  ${PTHREAD_INCLUDE_DIR}
+  ${HDF5_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
@@ -30,8 +30,7 @@ INCLUDE_DIRECTORIES(
 )
 
 # This local variable defines the list of FLAGS common to all target in this package.
-ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${BOOST_DEFINITIONS})
-
+ADD_DEFINITIONS(${BOOST_DEFINITIONS})
 # This local variable defines the list of dependant libraries common to all target in this package.  
 SET(COMMON_LIBS
   SALOMEBasics

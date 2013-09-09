@@ -550,6 +550,7 @@ class CMakeFile(object):
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindSWIG.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindDOXYGEN.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSalomeLIBBATCH.cmake)
                         INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindKERNEL.cmake)
                         """)
@@ -596,8 +597,9 @@ class CMakeFile(object):
                             SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
                             INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindQWT.cmake)
                             INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
-                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
-                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
+
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindSalomeMED.cmake)
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
                             """)
                             pass
