@@ -65,6 +65,10 @@ AC_DEFUN([CHECK_PYTHON],
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
   if test ! -f "$PY_MAKEFILE"; then
+    # For Ubuntu >= 13.04
+    PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${build_cpu}-${build_os}/Makefile
+  fi
+  if test ! -f "$PY_MAKEFILE"; then
     if test "${build_cpu::6}" = "x86_64" ; then
       PY_MAKEFILE=${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/Makefile
     fi
