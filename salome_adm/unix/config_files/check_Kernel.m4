@@ -30,6 +30,13 @@ AC_REQUIRE([AC_LINKER_OPTIONS])dnl
 
 AC_CHECKING(for Kernel)
 
+# We check for Boost here because an exported header in Kernel depends on Boost shared
+# pointers
+if test "x$boost_ok" = "x" 
+then
+  CHECK_BOOST
+fi
+
 Kernel_ok=no
 
 KERNEL_LDFLAGS=""
@@ -73,7 +80,7 @@ if test -f ${KERNEL_DIR}/bin/salome/runSalome ; then
    AC_SUBST(KERNEL_SITE_DIR)
 
    KERNEL_LDFLAGS=-L${KERNEL_DIR}/lib${LIB_LOCATION_SUFFIX}/salome
-   KERNEL_CXXFLAGS=-I${KERNEL_DIR}/include/salome
+   KERNEL_CXXFLAGS="-I${KERNEL_DIR}/include/salome ${BOOST_CPPFLAGS}"
 
    AC_SUBST(KERNEL_LDFLAGS)
    AC_SUBST(KERNEL_CXXFLAGS)
