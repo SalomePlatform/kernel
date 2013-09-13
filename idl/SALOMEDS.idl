@@ -376,10 +376,10 @@ during each working session.
 
 /*! \brief Get a default Python script to restore visual parameters for given %theModuleName.
 
-    \param theID identifies a common parameters set (Example: "Interface Applicative")
     \param theModuleName is a name of the module (Example: "Geometry")
+    \param indent is a string to use for script indentation
 */
-    string GetDefaultScript(in string theID, in string theModuleName);
+    string GetDefaultScript(in string theModuleName, in string indent);
 
 /*!
     Private method, returns an implementation of this Study.
