@@ -211,14 +211,13 @@ MACRO(SALOME_CHECK_EQUAL_PATHS varRes path1 path2)
 ENDMACRO()
 
 ####
-# SALOME_UPDATE_FLAG_AND_LOG_PACKAGE(pkg flag)
+# SALOME_LOG_OPTIONAL_PACKAGE(pkg flag)
 #
 # Register in global variables the detection status (found or not) of the optional package 'pkg' 
-# and the configuration flag that should be turned off if it is not found.
-# If the package was not found, the macro explicitly turns off the flag.
-# The global variables are read again by SALOME_PACKAGE_REPORT to produce a summary report
-# of the detection status, and of the modified flags.
-MACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE pkg flag)
+# and the configuration flag that should be turned off to avoid detection of the package.
+# The global variables are read again by SALOME_PACKAGE_REPORT_AND_CHECK to produce 
+# a summary report of the detection status and stops the process if necessary.
+MACRO(SALOME_LOG_OPTIONAL_PACKAGE pkg flag)
   # Was the package found
   STRING(TOUPPER ${pkg} _pkg_UC)
   IF(${pkg}_FOUND OR ${_pkg_UC}_FOUND)
@@ -241,11 +240,7 @@ MACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE pkg flag)
     LIST(APPEND _SALOME_OPTIONAL_PACKAGES_flags ${flag})
   ENDIF() 
   
-  # If the package was not found, force the cache flag to OFF 
-  IF(NOT _isFound)
-    SET(${flag} OFF)
-  ENDIF()  
-ENDMACRO(SALOME_UPDATE_FLAG_AND_LOG_PACKAGE)
+ENDMACRO(SALOME_LOG_OPTIONAL_PACKAGE)
 
 ####
 # SALOME_JUSTIFY_STRING()
@@ -274,16 +269,19 @@ MACRO(SALOME_JUSTIFY_STRING input length result)
 ENDMACRO(SALOME_JUSTIFY_STRING)
 
 ####
-# SALOME_PACKAGE_REPORT()
+# SALOME_PACKAGE_REPORT_AND_CHECK()
 #
 # Print a quick summary of the detection of optional prerequisites.
-# 
+# If a package was not found, the configuration is stopped. The summary also indicates 
+# which flag should be turned off to skip the detection of the package. 
+#
 # If optional JUSTIFY argument is specified, names of packages
 # are left-justified to the given length; default value is 10.
 #
-# USAGE: SALOME_PACKAGE_REPORT([JUSTIFY length])
+# USAGE: SALOME_PACKAGE_REPORT_AND_CHECK([JUSTIFY length])
 #
-MACRO(SALOME_PACKAGE_REPORT)
+MACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
+  SET(_will_fail OFF)
   PARSE_ARGUMENTS(SALOME_PACKAGE_REPORT "JUSTIFY" "" ${ARGN})
   IF(SALOME_PACKAGE_REPORT_JUSTIFY)
     SET(_length ${SALOME_PACKAGE_REPORT_JUSTIFY})
@@ -306,15 +304,21 @@ MACRO(SALOME_PACKAGE_REPORT)
       SET(_found_msg "Found")
       SET(_flag_msg "")
     ELSE()
+      SET(_will_fail ON)
       SET(_found_msg "NOT Found")
-      SET(_flag_msg " - ${_pkg_flag} has been switched OFF.")
+      SET(_flag_msg " - ${_pkg_flag} can be switched OFF to skip this prerequisite.")
     ENDIF()
     
     MESSAGE(STATUS "  * ${_pkg_name}  ->  ${_found_msg}${_flag_msg}")
   ENDFOREACH()
   MESSAGE(STATUS "")
   MESSAGE(STATUS "")
-ENDMACRO(SALOME_PACKAGE_REPORT)
+  
+  # Failure if some packages were missing:
+  IF(_will_fail)
+    MESSAGE(FATAL_ERROR "Some required prerequisites have NOT been found. Take a look at the report above to fix this.")
+  ENDIF()
+ENDMACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
 
 ####
 # SALOME_FIND_PACKAGE(englobingPackageName standardPackageName modus [onlyTryQuietly])
