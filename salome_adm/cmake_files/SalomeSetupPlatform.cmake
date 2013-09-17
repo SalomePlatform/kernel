@@ -116,3 +116,13 @@ IF(APPLE)
   SET(CMAKE_CXX_COMPILER g++)
   # because default is clang(llvm) with mountain lion at least
 ENDIF()
+
+# Compiler flags for coverage testing
+IF(NOT WIN32) 
+  OPTION(SALOME_BUILD_FOR_GCOV "Add the compilation flags for GCov/LCov" OFF)
+  MARK_AS_ADVANCED(SALOME_BUILD_FOR_GCOV)
+  IF(SALOME_BUILD_FOR_GCOV)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+  ENDIF()
+ENDIF()
