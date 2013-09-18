@@ -192,10 +192,10 @@ INCLUDE(CMakePackageConfigHelpers)
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
 # Temporary solution for pakage src\DSC on windows
-IF(NOT WINDOWS)
+IF(NOT WIN32)
   SET(DSC_TGS CalciumC SalomeCalcium SalomeDatastream 
   SalomePalm SalomeDSCSupervBasic SalomeDSCSuperv)
-ENDIF(NOT WINDOWS)
+ENDIF()
 
 SET(_${PROJECT_NAME}_exposed_targets
   ${DSC_TGS} DF Launcher OpUtil Registry ResourcesManager 
