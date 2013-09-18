@@ -17,12 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(Basic)
-ADD_SUBDIRECTORY(Datastream)
-
 INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
+  ${PTHREAD_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${PROJECT_SOURCE_DIR}/src/Container
   ${PROJECT_SOURCE_DIR}/src/GenericObj
@@ -33,6 +31,9 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/Utils
   ${PROJECT_BINARY_DIR}/idl
 )
+
+ADD_SUBDIRECTORY(Basic)
+ADD_SUBDIRECTORY(Datastream)
 
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${BOOST_DEFINITIONS})
 

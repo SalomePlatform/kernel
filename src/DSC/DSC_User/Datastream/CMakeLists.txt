@@ -17,9 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(Palm)
-ADD_SUBDIRECTORY(Calcium)
-
 INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
@@ -28,6 +25,9 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
   ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
+
+ADD_SUBDIRECTORY(Palm)
+ADD_SUBDIRECTORY(Calcium)
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 SET(COMMON_LIBS
