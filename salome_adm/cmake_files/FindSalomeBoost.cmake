@@ -28,7 +28,12 @@ SET(Boost_USE_MULTITHREADED      ON )
 SET(Boost_USE_STATIC_RUNTIME     OFF)
 SET(Boost_NO_BOOST_CMAKE         ON)
 
-SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Boost Boost_INCLUDE_DIRS 1)
+IF(WIN32)
+  # Under windows, one extra sub-directory in the boost installation hierarchy:
+  SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Boost Boost_INCLUDE_DIRS 2)
+ELSE()
+  SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Boost Boost_INCLUDE_DIRS 2)
+ENDIF()
 IF(Boost_FOUND OR BOOST_FOUND)
    MESSAGE(STATUS "Boost include dirs is: ${Boost_INCLUDE_DIRS}")
 ENDIF()   
