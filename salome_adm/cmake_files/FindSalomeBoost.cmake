@@ -32,7 +32,7 @@ IF(WIN32)
   # Under windows, one extra sub-directory in the boost installation hierarchy:
   SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Boost Boost_INCLUDE_DIRS 2)
 ELSE()
-  SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Boost Boost_INCLUDE_DIRS 2)
+  SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Boost Boost_INCLUDE_DIRS 1)
 ENDIF()
 IF(Boost_FOUND OR BOOST_FOUND)
    MESSAGE(STATUS "Boost include dirs is: ${Boost_INCLUDE_DIRS}")
