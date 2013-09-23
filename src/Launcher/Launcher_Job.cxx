@@ -26,6 +26,8 @@
 #include <libbatch/Constants.hxx>
 #endif
 
+using namespace std;
+
 Launcher::Job::Job()
 {
   _number = -1;
@@ -53,6 +55,7 @@ Launcher::Job::Job()
   _queue = "";
   _job_type = "";
   _exclusive = false;
+  _mem_per_cpu = 0;
 
   // Parameters for COORM
   _launcher_file = "";
@@ -324,6 +327,12 @@ Launcher::Job::setExclusiveStr(const std::string & exclusiveStr)
     throw LauncherException(std::string("Invalid boolean value for exclusive: ") + exclusiveStr);
 }
 
+void
+Launcher::Job::setMemPerCpu(unsigned long mem_per_cpu)
+{
+  _mem_per_cpu = mem_per_cpu;
+}
+
 std::string 
 Launcher::Job::getWorkDirectory()
 {
@@ -394,6 +403,12 @@ std::string
 Launcher::Job::getExclusiveStr() const
 {
   return _exclusive ? "true" : "false";
+}
+
+unsigned long
+Launcher::Job::getMemPerCpu() const
+{
+  return _mem_per_cpu;
 }
 
 void 
@@ -529,6 +544,10 @@ Launcher::Job::common_job_params()
   if (_resource_required_params.mem_mb > 0)
   {
     params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb;
+  }
+  else if (_mem_per_cpu > 0)
+  {
+    params[Batch::MEMPERCPU] = (long)_mem_per_cpu;
   }
 
   // We define a default directory based on user time
@@ -683,6 +702,9 @@ Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
   xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(getMaximumDuration().c_str()));
   xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(getQueue().c_str()));
   xmlNewChild(node, NULL, xmlCharStrdup("exclusive"),        xmlCharStrdup(getExclusiveStr().c_str()));
+  ostringstream mem_per_cpu_stream;
+  mem_per_cpu_stream << _mem_per_cpu;
+  xmlNewChild(node, NULL, xmlCharStrdup("mem_per_cpu"),      xmlCharStrdup(mem_per_cpu_stream.str().c_str()));
 
   // For COORM
   xmlNewChild(node, NULL, xmlCharStrdup("launcher_args"), xmlCharStrdup(getLauncherArgs().c_str()));

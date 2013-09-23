@@ -160,6 +160,9 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   // Exclusive
   new_job->setExclusive(job_parameters.exclusive);
 
+  // Memory required per CPU
+  new_job->setMemPerCpu(job_parameters.mem_per_cpu);
+
   // Resources requirements
   try
   {
@@ -496,6 +499,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   job_parameters->maximum_duration = CORBA::string_dup(job->getMaximumDuration().c_str());
   job_parameters->queue            = CORBA::string_dup(job->getQueue().c_str());
   job_parameters->exclusive        = job->getExclusive();
+  job_parameters->mem_per_cpu      = job->getMemPerCpu();
 
   resourceParams resource_params = job->getResourceRequiredParams();
   job_parameters->resource_required.name             = CORBA::string_dup(resource_params.name.c_str());
@@ -714,11 +718,13 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlNodePtr maximum_duration_node = xmlNextElementSibling(res_node);
         xmlNodePtr queue_node = xmlNextElementSibling(maximum_duration_node);
         xmlNodePtr exclusive_node = xmlNextElementSibling(queue_node);
-        xmlNodePtr launcher_args_node = xmlNextElementSibling(exclusive_node);
+        xmlNodePtr mem_per_cpu_node = xmlNextElementSibling(exclusive_node);
+        xmlNodePtr launcher_args_node = xmlNextElementSibling(mem_per_cpu_node);
         if (res_node              == NULL ||
             maximum_duration_node == NULL ||
             queue_node            == NULL ||
             exclusive_node        == NULL ||
+            mem_per_cpu_node      == NULL ||
 			// For COORM
             launcher_args_node    == NULL
            )
@@ -731,6 +737,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             xmlStrcmp(maximum_duration_node->name, xmlCharStrdup("maximum_duration")) ||
             xmlStrcmp(queue_node->name,            xmlCharStrdup("queue")) ||
             xmlStrcmp(exclusive_node->name,        xmlCharStrdup("exclusive")) ||
+            xmlStrcmp(mem_per_cpu_node->name,      xmlCharStrdup("mem_per_cpu")) ||
 			// For COORM
             xmlStrcmp(launcher_args_node->name,    xmlCharStrdup("launcher_args"))
            )
@@ -769,6 +776,18 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
           break;
         }
         xmlFree(exclusive);
+
+        xmlChar* mem_per_cpu_str = xmlNodeGetContent(mem_per_cpu_node);
+        std::istringstream mem_per_cpu_stream((const char *)mem_per_cpu_str);
+        unsigned long mem_per_cpu = 0;
+        if (!(mem_per_cpu_stream >> mem_per_cpu))
+        {
+          INFOS("A bad job is found, mem_per_cpu parameter is not correct");
+          delete new_job;
+          break;
+        }
+        else
+          new_job->setMemPerCpu(mem_per_cpu);
 
 		// For COORM
         xmlChar* launcher_args           = xmlNodeGetContent(launcher_args_node);

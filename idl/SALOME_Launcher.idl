@@ -76,6 +76,9 @@ struct JobParameters
   //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
   boolean exclusive;
 
+  //! Specifies the memory limit per cpu (exclusive with resource_required.mem_mb)
+  unsigned long mem_per_cpu;
+
   /*!
     Specific parameters for each type of job - optional
   */
