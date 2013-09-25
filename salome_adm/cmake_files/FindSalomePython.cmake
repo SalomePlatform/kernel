@@ -146,8 +146,13 @@ IF (SALOMEPYTHON_FOUND)
       ENDIF()        
   ENDIF()
 
-  # 6. Specifics
-  #
+  ##
+  ## 6. Save the final detected installation
+  ##
+  SET(PYTHON_ROOT_DIR "${_tmp_ROOT_DIR}")
+
+  ## 7. Specifics
+  ##
   
   # NumPy detection 
   EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import numpy ; import sys ; sys.stdout.write(numpy.get_include())" OUTPUT_VARIABLE NUMPY_INCLUDE_DIR ERROR_QUIET )
