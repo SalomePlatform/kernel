@@ -509,10 +509,10 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     ## from the given reference path. The variable "referenceVariable" may be a list.
     ## In this case we take its first element. 
     
-    # First test if the variable exists and is not empty:
-    IF((NOT DEFINED ${referenceVariable}) OR ("${${referenceVariable}}" STREQUAL ""))
+    # First test if the variable exists, warn otherwise:
+    IF(NOT DEFINED ${referenceVariable})
       MESSAGE(WARNING "${pkg}: the reference variable '${referenceVariable}' used when calling the macro "
-      "SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS() does not exist or is empty.")
+      "SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS() is not defined.")
     ENDIF()
     
     LIST(LENGTH ${referenceVariable} _tmp_len)
@@ -522,9 +522,8 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
        #  Note the double de-reference of "referenceVariable":
        SET(_tmp_ROOT_DIR "${${referenceVariable}}")
     ENDIF()
-    IF(${upCount})
-      MATH(EXPR _rge "${upCount}-1") 
-      FOREACH(_unused RANGE ${_rge})        
+    IF(${upCount}) 
+      FOREACH(_unused RANGE 1 ${upCount})        
         GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${_tmp_ROOT_DIR}" PATH)
       ENDFOREACH()
     ENDIF()
