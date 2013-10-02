@@ -485,8 +485,12 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ENDIF()
 
   # Otherwise try the standard way (module mode, with the standard CMake Find*** macro):
-  # We do it quietly to produce our own error message:
-  SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE TRUE)
+  # We do it quietly to produce our own error message, except if we are in debug mode:
+  IF(SALOME_CMAKE_DEBUG)
+    SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE FALSE)
+  ELSE()
+    SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE TRUE)
+  ENDIF()
   
   # Set the "FOUND" variable for the SALOME wrapper:
   IF(${pkg_UC}_FOUND OR ${pkg}_FOUND)
@@ -496,10 +500,12 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     IF(NOT Salome${pkg}_FIND_QUIETLY)
       IF(Salome${pkg}_FIND_REQUIRED)
          MESSAGE(FATAL_ERROR "Package ${pkg} couldn't be found - did you set the corresponing root dir correctly? "
-         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}")
+         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}  "
+         "Append -DSALOME_CMAKE_DEBUG=ON on the command line if you want to see the original CMake error.")
       ELSE()
          MESSAGE(WARNING "Package ${pkg} couldn't be found - did you set the corresponing root dir correctly? "
-         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}")
+         "It currently contains ${pkg_UC}_ROOT_DIR=${${pkg_UC}_ROOT_DIR}  "
+         "Append -DSALOME_CMAKE_DEBUG=ON on the command line if you want to see the original CMake error.")
       ENDIF()
     ENDIF()
   ENDIF()
