@@ -24,9 +24,10 @@
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
 SET(Boost_USE_STATIC_LIBS        OFF)
-SET(Boost_USE_MULTITHREADED      ON )
+SET(Boost_USE_MULTITHREADED      ON)
 SET(Boost_USE_STATIC_RUNTIME     OFF)
 SET(Boost_NO_BOOST_CMAKE         ON)
+SET(SalomeBoost_FIND_COMPONENTS  filesystem regex signals system thread)
 
 IF(WIN32)
   # Under windows, one extra sub-directory in the boost installation hierarchy:
