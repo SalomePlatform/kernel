@@ -23,23 +23,37 @@
 #
 from Singleton import Singleton
 
-from multiprocessing.managers import SyncManager
 import multiprocessing
 import time
 import socket
-import Queue
+
 import sys
-import os
+import threading
+import SocketServer
+
+try:
+  import cPickle as pickle
+except:
+  import pickle
+
+import struct
+import ctypes
+
+if sys.platform == 'win32':
+  import multiprocessing.reduction    # make sockets pickable/inheritable
+
+multiprocessing.freeze_support() # Add support for when a program which uses multiprocessing has been frozen to produce a Windows executable.
+#ignore = multiprocessing.active_children()      # cleanup any old processes
 
 """
 This class handles port distribution for SALOME sessions.
 In case of concurent sessions, each will have its own port number.
 """
-class PortManager(object): # :TODO: must manage lock owner
+class _PortManager(object): # :TODO: must manage lock owner
   __metaclass__ = Singleton
   #
   def __init__(self, startNumber = 2810, limit = 100, timeout=60):
-    super(PortManager, self).__init__()
+    super(_PortManager, self).__init__()
     self.__startNumber = startNumber
     self.__limit = startNumber + limit
     self.__lockedPorts = []
@@ -47,17 +61,19 @@ class PortManager(object): # :TODO: must manage lock owner
     self.__timeout = timeout
     self.__lastChangeTime = time.time()
   #
-  def getPort(self):
+  # Test for prefered port number, if asked.
+  def getPort(self, port=None):
     with self.__lock:
-      port = self.__startNumber
-      while self.isPortUsed(port):
-        if port == self.__limit:
-          msg  = "\n"
-          msg += "Can't find a free port to launch omniNames\n"
-          msg += "Try to kill the running servers and then launch SALOME again.\n"
-          raise RuntimeError, msg
-        port = port + 1
-
+      if not port or self.isPortUsed(port):
+        port = self.__startNumber
+        while self.isPortUsed(port):
+          if port == self.__limit:
+            msg  = "\n"
+            msg += "Can't find a free port to launch omniNames\n"
+            msg += "Try to kill the running servers and then launch SALOME again.\n"
+            raise RuntimeError, msg
+          port = port + 1
+      #
       self.__lockedPorts.append(port)
       self.__lastChangeTime = time.time()
       return port
@@ -98,103 +114,149 @@ class PortManager(object): # :TODO: must manage lock owner
   #
   def __str__(self):
     with self.__lock:
-      return "PortManager: list of locked ports:" + str(self.__lockedPorts)
+      return "_PortManager: list of locked ports:" + str(sorted(self.__lockedPorts))
   #
 #
 
-def __build_server(ip, port, authkey):
-  message_queue = multiprocessing.Queue()
+#------------------------------------
+# Communication methods
 
-  class MyManager(SyncManager):
-    pass
+_marshall = pickle.dumps
+_unmarshall = pickle.loads
 
-  MyManager.register("PortManager", PortManager, exposed=['getPort', 'releasePort', 'isBusy', 'isPortUsed', 'timeout', '__str__'])
-  MyManager.register("get_message_queue", callable=lambda: message_queue)
-
-  manager = MyManager(address=(ip, port), authkey=authkey)
-
-  try:
-    manager.get_server()
-    manager.start()
-  except (EOFError, socket.error):
-    print 'Server already started on %s:%s'%(ip,port)
-    sys.exit(1)
-
-  return manager
+def _send(channel, *args):
+  buf = _marshall(args)
+  value = socket.htonl(len(buf))
+  size = struct.pack("L",value)
+  channel.send(size)
+  channel.send(buf)
 #
 
-def __build_client(ip, port, authkey):
-  class MyManager(SyncManager):
-    pass
-
-  MyManager.register("PortManager")
-  MyManager.register("get_message_queue")
-
-  manager = MyManager(address=(ip, port), authkey=authkey)
+def _receive(channel):
+  size = struct.calcsize("L")
+  size = channel.recv(size)
   try:
-    manager.connect()
-  except socket.error:
-    raise Exception("Unable to connect to server on %s:%s"%(ip, port))
-  return manager
+    size = socket.ntohl(struct.unpack("L", size)[0])
+  except struct.error, e:
+    return ''
+
+  buf = ""
+  while len(buf) < size:
+    buf = channel.recv(size - len(buf))
+
+  return _unmarshall(buf)[0]
+#
+#------------------------------------
+
+GET_PORT_MSG = "GET_PORT"
+GET_PREFERED_PORT_MSG = "GET_PREFERED_PORT"
+RELEASE_PORT_MSG = "RELEASE_PORT"
+STOP_SERVER_MSG = "STOP_SERVER"
+
+GET_PORT_ACK_MSG = "GET_PORT"
+RELEASE_PORT_ACK_MSG = "RELEASE_PORT"
+
+class _ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
+  def handle(self):
+    data = _receive(self.request)
+    if data == GET_PORT_MSG:
+      pm = _PortManager()
+      port = pm.getPort()
+      response = "%s: %s" % (GET_PORT_ACK_MSG, port)
+      _send(self.request, response)
+    elif data.startswith(GET_PREFERED_PORT_MSG):
+      port = int(data[len(GET_PREFERED_PORT_MSG)+1:])
+      pm = _PortManager()
+      port = pm.getPort(port)
+      response = "%s: %s" % (GET_PORT_ACK_MSG, port)
+      _send(self.request, response)
+    elif data.startswith(RELEASE_PORT_MSG):
+      port = int(data[len(RELEASE_PORT_MSG)+1:])
+      pm = _PortManager()
+      pm.releasePort(port)
+      response = "%s" % (RELEASE_PORT_ACK_MSG)
+      _send(self.request, response)
+      #print "RELEASE_PORT:", port
+      if not pm.isBusy():
+        #print "Close server"
+        self.server.shutdown()
+      #print pm
+    elif data == STOP_SERVER_MSG:
+      #print "Close server"
+      self.server.shutdown()
 #
 
-def __run_server(ip, port, authkey, timeout):
-  theserver = __build_server(ip, port, authkey)
-  shared_mesq = theserver.get_message_queue()
-  print 'PortManager server started on %s:%s'%(ip,port)
-  portManager = theserver.PortManager(timeout=timeout)
+class _ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    pass
 
-  while portManager.isBusy() or not portManager.timeout():
-    try:
-      message = shared_mesq.get(block=False)
-      print message
-    except Queue.Empty:
+def __getServer(address):
+  SocketServer.ThreadingTCPServer.allow_reuse_address = True # can be restarted immediately
+  server = _ThreadedTCPServer(address, _ThreadedTCPRequestHandler, False) # Do not automatically bind
+  server.allow_reuse_address = True # Prevent 'cannot bind to address' errors on restart
+  return server
+#
+
+pm_address = ('localhost', 12345)
+def __startServer():
+  try:
+    server = __getServer(pm_address)
+    server.server_bind()     # Manually bind, to support allow_reuse_address
+    server.server_activate()
+    address = server.server_address
+
+    # Start a thread with the server -- that thread will then start one
+    # more thread for each request
+    server_thread = threading.Thread(target=server.serve_forever, name="SALOME_PortManager")
+    # Exit the server thread when the main thread terminates
+    #server_thread.setDaemon(True)
+    server_thread.start()
+    #print "Server loop running in thread:", server_thread.getName()
+    #print "Server address:", address
+    #return address
+  except:
+    #print "Server already started"
+    #print "Server address:", pm_address
+    #return pm_address
+    pass
+#
+
+def __newClient(address, message):
+  try:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(address)
+    _send(sock, message)
+    response = _receive(sock)
+    if response.startswith(GET_PORT_ACK_MSG):
+      port = int(response[len(GET_PORT_ACK_MSG)+1:])
+      #print "GET_PORT:", port
+      return port
+    elif response == RELEASE_PORT_ACK_MSG:
+      #print "Received: %s" % response
+      return 0
       pass
-
-  print "PortManager server is shuting down..."
-  time.sleep(2)
-  theserver.shutdown()
+    sock.close()
+  except socket.error:
+    #print "Unable to connect to server"
+    return -1
 #
 
-#
-semaphore = None
-#
-def __run_client(manager, execute_func):
-  with semaphore:
-    name = multiprocessing.current_process().name
-    processId = os.getpid()
-
-    # do the job
-    if execute_func:
-      execute_func(manager, name, processId)
+def getPort(preferedPort=None):
+  if preferedPort:
+    return __newClient(pm_address, "%s: %s"%(GET_PREFERED_PORT_MSG,preferedPort))
+  else:
+    return __newClient(pm_address, GET_PORT_MSG)
 #
 
-#
-local_ip = '127.0.0.1'
-port = 5000
-authkey = 'salome_port_manager_access'
-#
-lock = multiprocessing.Lock()
-def start_server(nbSimultaneous=10, timeout=10):
-  with lock:
-    procServer = multiprocessing.Process(target=__run_server, args=(local_ip,port,authkey,timeout,))
-    procServer.start()
-    global semaphore
-    semaphore = multiprocessing.Semaphore(nbSimultaneous)
-    time.sleep(2)
+def releasePort(port):
+  __newClient(pm_address, "%s: %s"%(RELEASE_PORT_MSG,port))
 #
 
-def start_client(ip=local_ip, execute_func=None, name="anonymous"):
-  manager = __build_client(ip, port, authkey)
-  p = multiprocessing.Process(target=__run_client, name=name, args=(manager,execute_func,))
-  p.start()
-  return manager
+def stopServer():
+  __newClient(pm_address, STOP_SERVER_MSG)
 #
 
-client_id = 0
-def start_clients(nbClients, ip, execute_func, name_prefix="Client"):
-  global client_id
-  for i in range(nbClients):
-    start_client(ip, execute_func, name=name_prefix+"_"+str(client_id))
-    client_id = client_id + 1
-#
+# Auto start: unique instance ; no effect if called multiple times
+__startServer()
+#server_thread = threading.Thread(target=__startServer, name="SALOME_PortManager")
+#server_thread.setDaemon(True)
+#server_thread.start()

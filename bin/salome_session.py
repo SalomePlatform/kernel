@@ -30,14 +30,12 @@ import os
 import sys
 import string
 import socket
-import PortManager
 
 _session = None
 
 def startSession(modules=[]):
     global _session
     if _session: return
-    PortManager.start_server(nbSimultaneous=25, timeout=10)
     from searchFreePort import searchFreePort
     searchFreePort()
     _session = SalomeSession(modules)

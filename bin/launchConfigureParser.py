@@ -878,11 +878,11 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
 
     # Process --print-port option
     if cmd_opts.print_port:
-        import PortManager
-        PortManager.start_server(nbSimultaneous=25, timeout=10)
         from searchFreePort import searchFreePort
         searchFreePort({})
         print "port:%s"%(os.environ['NSPORT'])
+        import PortManager
+        PortManager.releasePort(os.environ['NSPORT'])
         sys.exit(0)
         pass
 

@@ -22,6 +22,11 @@ import os
 import sys
 import unittest
 import multiprocessing
+import imp
+
+def unwrap_self_session(arg, **kwarg):
+  return TestConcurrentLaunch.session(*arg, **kwarg)
+#
 
 class TestConcurrentLaunch(unittest.TestCase):
   @classmethod
@@ -29,25 +34,32 @@ class TestConcurrentLaunch(unittest.TestCase):
     # Initialize path to SALOME application
     path_to_launcher = os.getenv("SALOME_LAUNCHER")
     appli_dir = os.path.dirname(path_to_launcher)
-    envd_dir = os.path.join(appli_dir, "env.d")
+    cls.envd_dir = os.path.join(appli_dir, "env.d")
 
     # Configure session startup
     cls.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
-    cls.SALOME_args = ["shell", "--config="+envd_dir]
+    #cls.SALOME_args = ["shell", "--config="+cls.envd_dir]
+    cls.SALOME_args = ["--config="+cls.envd_dir]
+  #
+  @classmethod
+  def tearDownClass(cls):
+    args = ["killall", "--config="+cls.envd_dir]
+    cls.SALOME.main(args)
+    pass
   #
   def session(self, args=[]):
     self.SALOME.main(self.SALOME_args + args)
   #
-  def testSingleSession(self):
+  def test01_SingleSession(self):
     print "** Testing single session **"
     self.session()
   #
-  def testMultiSession(self):
+  def test02_MultiSession(self):
     print "** Testing multi sessions **"
 
     jobs = []
     for i in range(3):
-      p = multiprocessing.Process(target=session, args=(self,))
+      p = multiprocessing.Process(target=unwrap_self_session, args=([self],))
       jobs.append(p)
       p.start()
 

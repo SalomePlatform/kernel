@@ -70,13 +70,19 @@ def searchFreePort(args={}, save_config=1, use_port=None):
   Returns first found free port number.
   """
 
-  import PortManager
-  client = PortManager.start_client() # :NOTE: might specify a (remote) IP
-  portManager = client.PortManager()
+  #import PortManager
+  #client = PortManager.start_client() # :NOTE: might specify a (remote) IP
+  #portManager = client.PortManager()
+  from PortManager import getPort
+  port = getPort(use_port)
+
+  #PortManager.getPort()
+  #PortManager.test_value()
 
   if use_port:
     print "Check if port can be used: %d" % use_port,
-    if not portManager.isPortUsed(use_port):
+    #if not portManager.isPortUsed(use_port):
+    if port == use_port:
       print "- OK"
       __setup_config(use_port, args, save_config)
       return
@@ -85,8 +91,8 @@ def searchFreePort(args={}, save_config=1, use_port=None):
       pass
   #
   print "Searching for a free port for naming service:",
-  port = portManager.getPort()
+  #port = portManager.getPort()
   print "%s - OK"%(port)
   __setup_config(port, args, save_config)
-  port = portManager.releasePort(port)
+  #port = portManager.releasePort(port)
 #

@@ -18,38 +18,96 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from PortManager import start_server, start_clients
-import time
-import datetime
-import random
+from PortManager import getPort, releasePort, stopServer
 import sys
+import multiprocessing
 import unittest
 
-def hello(manager, name, processId):
-  seconds = random.randrange(3, 10)
-  startTime = datetime.datetime.now().time()
+def port_reservation(prefered=None, test=None, expected=None):
+  if prefered:
+    port = getPort(prefered)
+  else:
+    port = getPort()
+  print "port = %s"%port
 
-  portManager = manager.PortManager()
-  message_queue = manager.get_message_queue()
-  port = portManager.getPort()
-  message_queue.put("+ Process %s (%d) says: Hello! at %s on port %d and waits for %d seconds"%(name, processId, startTime, port, seconds))
-  time.sleep(seconds)
-  endTime = datetime.datetime.now().time()
-  portManager.releasePort(port)
-  message_queue.put("- Process %s (%d) finished at %s --> port %d is free"%(name, processId, endTime, port))
+  if expected:
+    print "expected = %s"%expected
+    test.assertTrue(port == expected)
 #
 
 class TestMinimalExample(unittest.TestCase):
+  @classmethod
+  def tearDownClass(cls):
+    stopServer()
+    stopServer() # no effect
+  #
+  def testSequential(self):
+    print "BEGIN testSequential"
+    processes = [
+      multiprocessing.Process(target=port_reservation)
+      for i in range(3)
+      ]
+
+    for p in processes:
+      p.start()
+
+    for p in processes:
+      p.join()
+
+    # Try to get specific port number
+    expected = 2872
+    p = multiprocessing.Process(target=port_reservation, args=(2872, self,expected,))
+    p.start()
+    p.join()
+
+    # Try to get specific port number
+    p = multiprocessing.Process(target=port_reservation, args=(2812, self,))
+    p.start()
+    p.join()
+
+    # Release port
+    p = multiprocessing.Process(target=releasePort, args=(2812,))
+    p.start()
+    p.join()
+
+    # Try to get specific port number
+    expected = 2812
+    p = multiprocessing.Process(target=port_reservation, args=(2812, self,expected,))
+    p.start()
+    p.join()
+
+    print "END testSequential"
+  #
   def testConcurrent(self):
-    nbProcesses = 10
-    nbSimultaneous = 4
-    ip = '127.0.0.1'
+    print "BEGIN testConcurrent"
+    processes = [
+      multiprocessing.Process(target=port_reservation)
+      for i in range(3)
+      ]
 
-    # start server
-    start_server(nbSimultaneous=nbSimultaneous, timeout=5)
+    # Try to get specific port number
+    p = multiprocessing.Process(target=port_reservation, args=(2852,))
+    processes.append(p)
 
-    # start several clients
-    start_clients(nbProcesses, ip, hello)
+    # Try to get specific port number
+    p = multiprocessing.Process(target=port_reservation, args=(2812,))
+    processes.append(p)
+
+    # Release port
+    p = multiprocessing.Process(target=releasePort, args=(2812,))
+    processes.append(p)
+
+    # Try to get specific port number
+    p = multiprocessing.Process(target=port_reservation, args=(2812,))
+    processes.append(p)
+
+    for p in processes:
+      p.start()
+
+    for p in processes:
+      p.join()
+
+    print "END testConcurrent"
   #
 #
 

@@ -25,14 +25,14 @@
 ###############################################
 ############### IMPORTANT NOTE ################
 ###############################################
-# The runConsole script is obsolete.          #
-# Please consider the new salome.py launcher. #
+# The runSalome script is obsolete.           #
+# Please consider the new salome launcher.    #
 ###############################################
 
 
 # **********************************************************
 # This file is used by m4 files in many modules to detect SALOME KERNEL.
-# Its initial purpose (starting salome) can be replaced by new salome.py command.
+# Its initial purpose (starting salome) can be replaced by new salome command.
 # When definitively switching from autotools to Cmake, this file may be removed.
 # **********************************************************
 

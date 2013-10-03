@@ -44,26 +44,27 @@ User run scripts
 
 The SALOME user can use the following scripts:
 
-runAppli
+runAppli [DEPRECATED]
    Launches a SALOME Session
    (similar to ${KERNEL_ROOT_DIR}/bin/salome/runSalome but with a different
    name to avoid confusions).
 
-runSession
+runSession [DEPRECATED]
    Launches a shell script in the SALOME application environment, with access
    to the current SALOME session (naming service), if any.
    Without arguments, the script is interactive. With arguments, the script
    executes the command in the SALOME application environment.
 
-runConsole
+runConsole [DEPRECATED]
    Gives a python console connected to the current SALOME Session.
    It is also possible to use runSession, then python.
 
-runTests
-   Similar to runSession, used for unit testing. runTests defines a new 
-   configuration for naming service (new port number) to avoid interferences
-   with a running SALOME session. runSession tries to use an already existing
-   naming service definition from a running session (hostname & port number).
+salome [NEW]
+   A single Python command to start SALOME:
+   salome [start]:  replace runAppli
+   salome shell:    replace runSession
+   salome console:  replace runConsole
+
 
 SALOME internal run scripts
 ---------------------------
@@ -73,9 +74,6 @@ envd
 
 getAppliPath.py
    Used by other scripts to define the Application Path.
-
-searchFreePort.sh
-   Used by other scripts to find a free port for naming service.
 
 For remote calls, SALOME uses one script.
 
@@ -123,6 +121,6 @@ configGUI.sh
 
       export SalomeAppConfig=${HOME}/${APPLI}
 
-    where SalomeAppConfig designates the directory containing SalomeApp.xml. 
-    Note that ${APPLI} is already defined by the calling scripts when 
+    where SalomeAppConfig designates the directory containing SalomeApp.xml.
+    Note that ${APPLI} is already defined by the calling scripts when
     env.d/configGUI.sh is sourced.
