@@ -615,3 +615,20 @@ MACRO(SALOME_XVERSION pkg)
                     OUTPUT_VARIABLE ${_pkg_UC}_XVERSION)
   ENDIF()
 ENDMACRO(SALOME_XVERSION)
+
+#########################################################################
+# SALOME_ACCUMULATE_HEADERS()
+# 
+# This macro is called in the various FindSalomeXYZ.cmake modules to accumulate
+# internally the list of include headers to be saved for future export. 
+# The full set of include is saved in a variable called 
+#      _${PROJECT_NAME}_EXTRA_HEADERS
+#
+MACRO(SALOME_ACCUMULATE_HEADERS lst)
+  FOREACH(l IN LISTS ${lst})
+    LIST(FIND _${PROJECT_NAME}_EXTRA_HEADERS "${l}" _res)
+    IF(_res EQUAL "-1")
+      LIST(APPEND _${PROJECT_NAME}_EXTRA_HEADERS "${l}")
+    ENDIF()
+  ENDFOREACH()
+ENDMACRO(SALOME_ACCUMULATE_HEADERS)

@@ -42,6 +42,8 @@ IF(NOT DEFINED HDF5_LIBRARIES)
   SET(HDF5_LIBRARIES hdf5)
 ENDIF()
 
+#SALOME_ACCUMULATE_HEADERS(HDF5_INCLUDE_DIRS)
+
 ##
 ## 7. Specific to HDF5 only:
 ## Expose MPI configuration to the rest of the world
