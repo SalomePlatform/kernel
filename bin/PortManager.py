@@ -43,7 +43,6 @@ if sys.platform == 'win32':
   import multiprocessing.reduction    # make sockets pickable/inheritable
 
 multiprocessing.freeze_support() # Add support for when a program which uses multiprocessing has been frozen to produce a Windows executable.
-#ignore = multiprocessing.active_children()      # cleanup any old processes
 
 """
 This class handles port distribution for SALOME sessions.
@@ -189,6 +188,7 @@ class _ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 class _ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
+pm_address = ('127.0.0.1', 51843)
 def __getServer(address):
   SocketServer.ThreadingTCPServer.allow_reuse_address = True # can be restarted immediately
   server = _ThreadedTCPServer(address, _ThreadedTCPRequestHandler, False) # Do not automatically bind
@@ -196,13 +196,13 @@ def __getServer(address):
   return server
 #
 
-pm_address = ('localhost', 12345)
 def __startServer():
+  global pm_address
   try:
     server = __getServer(pm_address)
     server.server_bind()     # Manually bind, to support allow_reuse_address
     server.server_activate()
-    address = server.server_address
+    pm_address = server.server_address
 
     # Start a thread with the server -- that thread will then start one
     # more thread for each request
@@ -211,7 +211,7 @@ def __startServer():
     #server_thread.setDaemon(True)
     server_thread.start()
     #print "Server loop running in thread:", server_thread.getName()
-    #print "Server address:", address
+    #print "Server address:", pm_address
     #return address
   except:
     #print "Server already started"
@@ -223,6 +223,7 @@ def __startServer():
 def __newClient(address, message):
   try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #print "connect client to", address
     sock.connect(address)
     _send(sock, message)
     response = _receive(sock)
@@ -257,6 +258,3 @@ def stopServer():
 
 # Auto start: unique instance ; no effect if called multiple times
 __startServer()
-#server_thread = threading.Thread(target=__startServer, name="SALOME_PortManager")
-#server_thread.setDaemon(True)
-#server_thread.start()
