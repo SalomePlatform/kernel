@@ -14,6 +14,28 @@ import platform
 from salomeLauncherUtils import SalomeRunnerException
 from salomeLauncherUtils import getScriptsAndArgs, formatScriptsAndArgs
 
+def usage():
+  #exeName = os.path.splitext(os.path.basename(__file__))[0]
+
+  msg = '''\
+Usage: salome [command] [options] [--config=file1,...,filen]
+
+Commands:
+    start         Launches SALOME virtual application [DEFAULT]
+    shell         Executes a script under SALOME application environment
+    connect       Connects a Python console to the active SALOME session
+    killall       Kill all SALOME running sessions
+    info          Display some information about SALOME
+    help          Show this message
+    coffee        Yes! SALOME can also make coffee!!"
+
+Use salome start --help or salome shell --help
+to show help on start and shell commands.
+'''
+
+  print msg
+#
+
 """
 The SalomeRunner class in an API to configure SALOME environment then
 start SALOME using a single python command.
@@ -116,26 +138,6 @@ class SalomeRunner:
   # This begins the private section #
   ###################################
 
-  def _usage(self, unused=[]):
-    #exeName = os.path.splitext(os.path.basename(__file__))[0]
-
-    msg = '''\
-Usage: salome [command] [options] [--config=file1,...,filen]
-
-Commands:
-    start         Launches SALOME virtual application [DEFAULT]
-    shell         Executes a script under SALOME application environment
-    connect       Connects a Python console to the active SALOME session
-    killall       Kill all SALOME running sessions
-    info          Display some information about SALOME
-    help          Show this message
-    coffee        Yes! SALOME can also make coffee!!"\
-
-'''
-
-    print msg
-  #
-
   def __parseArguments(self, args):
     if len(args) == 0 or args[0].startswith("-"):
       return None, args
@@ -171,7 +173,7 @@ Commands:
 
     if command is None:
       if args and args[0] in ["-h","--help","help"]:
-        self._usage()
+        usage()
         sys.exit(0)
       # try to default to "start" command
       command = "_runAppli"
@@ -294,6 +296,10 @@ Commands:
     self._runAppli(["--version"])
   #
 
+  def _usage(self, unused=[]):
+    usage()
+  #
+
   def _makeCoffee(self, args=[]):
     print "                        ("
     print "                          )     ("
@@ -352,5 +358,5 @@ if __name__ == "__main__":
     if err:
       sys.stderr.write(err)
   else:
-    SalomeRunner()._usage()
+    usage()
 #

@@ -30,6 +30,13 @@ def __initialize():
 def main(args):
   # Identify application path then locate configuration files
   __initialize()
+
+  if args == ['--help']:
+    from salomeRunner import usage
+    usage()
+    sys.exit(0)
+
+
   from salomeLauncherUtils import getConfigFileNames
   configFileNames, args = getConfigFileNames(args)
 

@@ -43,9 +43,9 @@ KERNEL_LDFLAGS=""
 KERNEL_CXXFLAGS=""
 
 AC_ARG_WITH(kernel,
-	    [--with-kernel=DIR  root directory path of KERNEL build or installation],
-	    [KERNEL_DIR="$withval"],
-	    [KERNEL_DIR=""])
+            [--with-kernel=DIR  root directory path of KERNEL build or installation],
+            [KERNEL_DIR="$withval"],
+            [KERNEL_DIR=""])
 
 if test "x${KERNEL_DIR}" = "x" ; then
   AC_MSG_RESULT(for \${KERNEL_ROOT_DIR}: ${KERNEL_ROOT_DIR})
@@ -55,16 +55,16 @@ if test "x${KERNEL_DIR}" = "x" ; then
     KERNEL_DIR=${KERNEL_ROOT_DIR}
   else
     # search Kernel binaries in PATH variable
-    AC_PATH_PROG(TEMP,runSalome)
+    AC_PATH_PROG(TEMP,runSalome.py)
     if test "x${TEMP}" != "x" ; then
-      AC_MSG_RESULT(runSalome was found at : ${TEMP})
+      AC_MSG_RESULT(runSalome.py was found at : ${TEMP})
       KERNEL_BIN_DIR=`dirname ${TEMP}`
       KERNEL_DIR=`cd ${KERNEL_BIN_DIR}/../..; pwd`
     fi
   fi
 fi
 
-if test -f ${KERNEL_DIR}/bin/salome/runSalome ; then
+if test -f ${KERNEL_DIR}/bin/salome/runSalome.py ; then
    AC_MSG_RESULT(Using Kernel module distribution in ${KERNEL_DIR})
    Kernel_ok=yes
 
@@ -89,6 +89,6 @@ else
 fi
 
 AC_MSG_RESULT(for Kernel: $Kernel_ok)
- 
+
 ])dnl
- 
+

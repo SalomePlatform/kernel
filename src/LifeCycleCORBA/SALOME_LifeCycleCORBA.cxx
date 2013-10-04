@@ -61,7 +61,7 @@ IncompatibleComponent::IncompatibleComponent( void ):
 }
 
 IncompatibleComponent::IncompatibleComponent(const IncompatibleComponent &ex):
-  SALOME_Exception( ex ) 
+  SALOME_Exception( ex )
 {
 }
 
@@ -71,7 +71,7 @@ IncompatibleComponent::IncompatibleComponent(const IncompatibleComponent &ex):
 */
 
 //=============================================================================
-/*! 
+/*!
  *  Constructor
  */
 //=============================================================================
@@ -93,7 +93,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
     }
   else _NS = ns;
   //add try catch
-  _NS->Change_Directory("/"); // mpv 250105: current directory may be not root 
+  _NS->Change_Directory("/"); // mpv 250105: current directory may be not root
                               // (in SALOMEDS for an example)
   // not enough: set a current directory in naming service is not thread safe
   // if naming service instance is shared among several threads...
@@ -112,7 +112,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  Destructor
  */
 //=============================================================================
@@ -291,7 +291,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     // containerName doesn't contain "/" => Local container
     params.container_name = CORBA::string_dup(stContainer);
   }
-  else 
+  else
   {
     stContainer[rg]='\0';
     params.container_name = CORBA::string_dup(stContainer+rg+1);
@@ -316,12 +316,12 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
   try
   {
     CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
-    SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
+    SALOME_ModuleCatalog::ModuleCatalog_var Catalog =
       SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
     ASSERT(! CORBA::is_nil(Catalog));
-    SALOME_ModuleCatalog::Acomponent_var compoInfo = 
+    SALOME_ModuleCatalog::Acomponent_var compoInfo =
       Catalog->GetComponent(componentName);
-    if (CORBA::is_nil (compoInfo)) 
+    if (CORBA::is_nil (compoInfo))
     {
       MESSAGE("Catalog Error: Component not found in the catalog " << componentName);
       return false;
@@ -344,7 +344,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
  */
 //=============================================================================
 
-void 
+void
 SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
 {
   params.name = "";
@@ -377,7 +377,7 @@ void SALOME_LifeCycleCORBA::preSet( Engines::ContainerParameters& params)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  \return a number of processors not 0, only for MPI containers
  */
 //=============================================================================
@@ -429,7 +429,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 {
   // get each Container from NamingService => shutdown it
   // (the order is inverse to the order of servers initialization)
-  
+
   SALOME::Session_var session = SALOME::Session::_nil();
   CORBA::Long pid = 0;
   CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
@@ -444,7 +444,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   }
 
   std::string hostname = Kernel_Utils::GetHostname();
-  
+
   // 1) ConnectionManager
   try
     {
@@ -515,7 +515,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
     {
        // ignore and continue
     }
-  
+
 //Wait some time so that launcher be completely shutdown
 #ifndef WIN32
   nanosleep(&ts_req,0);
@@ -562,8 +562,8 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   name.length(1);
   name[0].id = CORBA::string_dup(stdname.c_str());
   try
-  { 
-    if(!CORBA::is_nil(orb)) 
+  {
+    if(!CORBA::is_nil(orb))
       theObj = orb->resolve_initial_references("NameService");
     if (!CORBA::is_nil(theObj))
       inc = CosNaming::NamingContext::_narrow(theObj);
@@ -571,7 +571,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   catch(...)
   {
   }
-  if(!CORBA::is_nil(inc)) 
+  if(!CORBA::is_nil(inc))
   {
     try
     {
@@ -594,7 +594,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 void SALOME_LifeCycleCORBA::killOmniNames()
 {
   std::string portNumber (::getenv ("NSPORT") );
-  if ( !portNumber.empty() ) 
+  if ( !portNumber.empty() )
   {
 #ifdef WNT
 #else
@@ -610,12 +610,22 @@ void SALOME_LifeCycleCORBA::killOmniNames()
     }
 #endif
   }
-  
+
   // NPAL 18309  (Kill Notifd)
-  if ( !portNumber.empty() ) 
+  if ( !portNumber.empty() )
   {
     std::string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
     cmd += std::string("killNotifdAndClean(") + portNumber + "); ";
+    cmd  = std::string("python -c \"") + cmd +"\" > /dev/null 2> /dev/null";
+    MESSAGE(cmd);
+    system( cmd.c_str() );
+  }
+
+  // shutdown portmanager
+  if ( !portNumber.empty() )
+  {
+    std::string cmd = ("from PortManager import releasePort; ");
+    cmd += std::string("releasePort(") + portNumber + "); ";
     cmd  = std::string("python -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     MESSAGE(cmd);
     system( cmd.c_str() );
@@ -696,9 +706,9 @@ _FindComponent(const Engines::ContainerParameters& params,
  */
 //=============================================================================
 
-Engines::EngineComponent_ptr 
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
-_LoadComponent(const Engines::ContainerParameters& params, 
+_LoadComponent(const Engines::ContainerParameters& params,
               const char *componentName,
               int studyId)
 {
@@ -712,7 +722,7 @@ _LoadComponent(const Engines::ContainerParameters& params,
 
   char* reason;
   bool isLoadable = cont->load_component_Library(componentName,reason);
-  if (!isLoadable) 
+  if (!isLoadable)
     {
       //std::cerr << reason << std::endl;
       CORBA::string_free(reason);
