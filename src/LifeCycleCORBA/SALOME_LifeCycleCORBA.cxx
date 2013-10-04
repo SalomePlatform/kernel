@@ -620,16 +620,6 @@ void SALOME_LifeCycleCORBA::killOmniNames()
     MESSAGE(cmd);
     system( cmd.c_str() );
   }
-
-  // shutdown portmanager
-  if ( !portNumber.empty() )
-  {
-    std::string cmd = ("from PortManager import releasePort; ");
-    cmd += std::string("releasePort(") + portNumber + "); ";
-    cmd  = std::string("python -c \"") + cmd +"\" > /dev/null 2> /dev/null";
-    MESSAGE(cmd);
-    system( cmd.c_str() );
-  }
 }
 
 //=============================================================================

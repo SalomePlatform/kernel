@@ -17,5 +17,5 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(concurrentSession)
+#ADD_SUBDIRECTORY(concurrentSession)
 ADD_SUBDIRECTORY(launcher)
