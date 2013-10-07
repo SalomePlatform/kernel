@@ -150,6 +150,7 @@ IF (SALOMEPYTHON_FOUND)
   ## 6. Save the final detected installation
   ##
   SET(PYTHON_ROOT_DIR "${_tmp_ROOT_DIR}")
+  SALOME_ACCUMULATE_HEADERS(PYTHON_INCLUDE_DIR)
 
   ## 7. Specifics
   ##
