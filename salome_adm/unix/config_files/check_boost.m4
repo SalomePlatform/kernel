@@ -150,8 +150,8 @@ else
                 BOOST_LIB_REGEX="${BOOST_LIBS} -lboost_regex${BOOST_LIBSUFFIX}",
                 BOOST_LIB_REGEX="")
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_filesystem${BOOST_LIBSUFFIX}.so,
-                BOOST_LIB_REGEX="${BOOST_LIBS} -lboost_filesystem${BOOST_LIBSUFFIX}",
-                BOOST_LIB_REGEX="")
+                BOOST_LIB_FILESYSTEM="${BOOST_LIBS} -lboost_filesystem${BOOST_LIBSUFFIX}",
+                BOOST_LIB_FILESYSTEM="")
 fi
 AC_MSG_RESULT(for boost binaries: $boost_binaries_ok)
 
@@ -173,6 +173,7 @@ AC_SUBST(BOOST_LIB_THREAD)
 AC_SUBST(BOOST_LIB_SIGNALS)
 AC_SUBST(BOOST_LIB_SYSTEM)
 AC_SUBST(BOOST_LIB_REGEX)
+AC_SUBST(BOOST_LIB_FILESYSTEM)
 AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB)
 
 AC_LANG_RESTORE
