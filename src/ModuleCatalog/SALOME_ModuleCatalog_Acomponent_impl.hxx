@@ -31,7 +31,6 @@
 
 #include "SALOME_ModuleCatalog.hxx"
 
-#include "SALOME_ModuleCatalog_Parser.hxx"
 #include <SALOMEconfig.h>
 
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)

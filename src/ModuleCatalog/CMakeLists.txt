@@ -65,5 +65,10 @@ INSTALL(TARGETS SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
 # Executable scripts to be installed
 SALOME_INSTALL_SCRIPTS(TestModuleCatalog.py ${SALOME_INSTALL_SCRIPT_PYTHON})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+SET(COMMON_HEADERS_HXX
+  SALOME_ModuleCatalog.hxx
+  SALOME_ModuleCatalog_Acomponent_impl.hxx
+  SALOME_ModuleCatalog_impl.hxx
+  )
+
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})

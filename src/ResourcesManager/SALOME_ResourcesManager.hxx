@@ -26,8 +26,6 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
 #include <SALOMEconfig.h>
-#include "SALOME_ResourcesCatalog_Handler.hxx"
-#include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include <string>

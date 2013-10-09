@@ -30,7 +30,6 @@
 #include <vector>
 #include <list>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>

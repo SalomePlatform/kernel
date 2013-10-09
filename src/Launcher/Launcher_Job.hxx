@@ -43,8 +43,6 @@
 #include <libbatch/GenericException.hxx>
 #endif
 
-#include <libxml/parser.h>
-
 namespace Launcher
 {
   class LAUNCHER_EXPORT Job
@@ -119,9 +117,6 @@ namespace Launcher
       // Helps
       long convertMaximumDuration(const std::string & maximum_duration);
       std::string getLaunchDate();
-
-      // Xml method
-      void addToXmlDocument(xmlNodePtr root_node);
 
       void stopJob();
       void removeJob();

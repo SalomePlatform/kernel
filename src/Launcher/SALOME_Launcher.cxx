@@ -30,6 +30,7 @@
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
+#include "Launcher_Job_Writer.hxx"
 
 #ifdef WIN32
 # include <process.h>
@@ -1090,7 +1091,7 @@ SALOME_Launcher::saveJobs(const char* jobs_file)
   std::map<int, Launcher::Job *>::const_iterator it_job;
   for(it_job = jobs_list.begin(); it_job != jobs_list.end(); it_job++)
   {
-    it_job->second->addToXmlDocument(root_node);
+    addToXmlDocument(root_node, it_job->second);
   }
 
   // Final step: write file

@@ -21,6 +21,7 @@
 //
 
 #include "ResourcesManager.hxx" 
+#include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <Basics_Utils.hxx>
 #include <fstream>
 #include <iostream>

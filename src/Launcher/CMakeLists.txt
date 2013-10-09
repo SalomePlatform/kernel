@@ -67,6 +67,7 @@ SET(Launcher_SOURCES
   Launcher_Job_SALOME.cxx
   Launcher_Job_PythonSALOME.cxx
   Launcher_Job_YACSFile.cxx
+  Launcher_Job_Writer.cxx
   Launcher.cxx
 )
 
@@ -108,5 +109,17 @@ IF(NOT SALOME_LAUNCHER_ONLY)
   INSTALL(TARGETS SALOME_LauncherServer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
 ENDIF()
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+SET(COMMON_HEADERS_HXX
+  BatchTest.hxx
+  Launcher.hxx
+  Launcher_Job.hxx
+  Launcher_Job_Command.hxx
+  Launcher_Job_PythonSALOME.hxx
+  Launcher_Job_SALOME.hxx
+  Launcher_Job_YACSFile.hxx
+  Launcher_Utils.hxx
+  SALOME_Launcher.hxx
+  SALOME_Launcher_Parser.hxx
+  SALOME_Launcher_defs.hxx
+)
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
