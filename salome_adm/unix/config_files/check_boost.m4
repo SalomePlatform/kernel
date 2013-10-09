@@ -149,6 +149,9 @@ else
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_regex${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_REGEX="${BOOST_LIBS} -lboost_regex${BOOST_LIBSUFFIX}",
                 BOOST_LIB_REGEX="")
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_filesystem${BOOST_LIBSUFFIX}.so,
+                BOOST_LIB_REGEX="${BOOST_LIBS} -lboost_filesystem${BOOST_LIBSUFFIX}",
+                BOOST_LIB_REGEX="")
 fi
 AC_MSG_RESULT(for boost binaries: $boost_binaries_ok)
 
