@@ -116,7 +116,7 @@ Launcher::Job::removeJob()
 }
 
 std::string
-Launcher::Job::getJobType()
+Launcher::Job::getJobType() const
 {
   return _job_type;
 }
@@ -128,7 +128,7 @@ Launcher::Job::setJobName(const std::string & job_name)
 }
 
 std::string
-Launcher::Job::getJobName()
+Launcher::Job::getJobName() const
 {
   return _job_name;
 }
@@ -152,7 +152,7 @@ Launcher::Job::setState(const std::string & state)
 }
 
 std::string 
-Launcher::Job::getState()
+Launcher::Job::getState() const
 {
   return _state;
 }
@@ -200,7 +200,7 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
 }
 
 ParserResourcesType 
-Launcher::Job::getResourceDefinition()
+Launcher::Job::getResourceDefinition() const
 {
   return _resource_definition;
 }
@@ -223,7 +223,7 @@ Launcher::Job::setJobFile(const std::string & job_file)
 }
 
 std::string
-Launcher::Job::getJobFile()
+Launcher::Job::getJobFile() const
 {
   return _job_file;
 }
@@ -234,7 +234,7 @@ Launcher::Job::setEnvFile(const std::string & env_file)
 }
 
 std::string
-Launcher::Job::getEnvFile()
+Launcher::Job::getEnvFile() const
 {
   return _env_file;
 }
@@ -333,68 +333,74 @@ Launcher::Job::setMemPerCpu(unsigned long mem_per_cpu)
   _mem_per_cpu = mem_per_cpu;
 }
 
+void
+Launcher::Job::setReference(const std::string & reference)
+{
+  _reference = reference;
+}
+
 std::string 
-Launcher::Job::getWorkDirectory()
+Launcher::Job::getWorkDirectory() const
 {
   return _work_directory;
 }
 
 std::string 
-Launcher::Job::getLocalDirectory()
+Launcher::Job::getLocalDirectory() const
 {
   return _local_directory;
 }
 
 std::string
-Launcher::Job::getResultDirectory()
+Launcher::Job::getResultDirectory() const
 {
   return _result_directory;
 }
 
 const std::list<std::string> & 
-Launcher::Job::get_in_files()
+Launcher::Job::get_in_files() const
 {
   return _in_files;
 }
 
 const std::list<std::string> & 
-Launcher::Job::get_out_files()
+Launcher::Job::get_out_files() const
 {
   return _out_files;
 }
 
 std::string 
-Launcher::Job::getMaximumDuration()
+Launcher::Job::getMaximumDuration() const
 {
   return _maximum_duration;
 }
 
 // For COORM
 std::string
-Launcher::Job::getLauncherFile()
+Launcher::Job::getLauncherFile() const
 {
 	return _launcher_file;
 }
 std::string
-Launcher::Job::getLauncherArgs()
+Launcher::Job::getLauncherArgs() const
 {
 	return _launcher_args;
 }
 
 resourceParams 
-Launcher::Job::getResourceRequiredParams()
+Launcher::Job::getResourceRequiredParams() const
 {
   return _resource_required_params;
 }
 
 std::string 
-Launcher::Job::getQueue()
+Launcher::Job::getQueue() const
 {
   return _queue;
 }
 
 bool
-Launcher::Job::getExclusive()
+Launcher::Job::getExclusive() const
 {
   return _exclusive;
 }
@@ -409,6 +415,12 @@ unsigned long
 Launcher::Job::getMemPerCpu() const
 {
   return _mem_per_cpu;
+}
+
+std::string
+Launcher::Job::getReference() const
+{
+  return _reference;
 }
 
 void 
@@ -482,7 +494,7 @@ Launcher::Job::convertMaximumDuration(const std::string & edt)
 }
 
 std::string 
-Launcher::Job::getLaunchDate()
+Launcher::Job::getLaunchDate() const
 {
   time_t rawtime;
   time(&rawtime);
@@ -642,7 +654,7 @@ Launcher::Job::setBatchManagerJobId(Batch::JobId batch_manager_job_id)
 }
 
 Batch::JobId 
-Launcher::Job::getBatchManagerJobId()
+Launcher::Job::getBatchManagerJobId() const
 {
   return _batch_job_id;
 }
@@ -656,7 +668,7 @@ Launcher::Job::addSpecificParameter(const std::string & name,
 }
 
 const std::map<std::string, std::string> &
-Launcher::Job::getSpecificParameters()
+Launcher::Job::getSpecificParameters() const
 {
   return _specific_parameters;
 }

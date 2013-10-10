@@ -20,10 +20,36 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include <libxml/parser.h>
+#ifndef __LAUNCHER_XML_PERSISTENCE_HXX__
+#define __LAUNCHER_XML_PERSISTENCE_HXX__
+
+#include <list>
+
+#include "Launcher_Utils.hxx"
+#include "Launcher_Job.hxx"
 
 namespace Launcher
 {
-  class Job;
-  void addToXmlDocument(xmlNodePtr root_node, const Job* job);
+  class LAUNCHER_EXPORT XML_Persistence
+  {
+  public:
+    virtual ~XML_Persistence() {}
+
+    /*! Load the jobs from the XML file "jobs_file".
+     *  Return a list with the jobs that were successfully loaded.
+     *  The ownership of the created jobs is transferred to the caller.
+     */
+    static std::list<Job *> loadJobs(const char* jobs_file);
+
+    //! Save the jobs in the list "jobs_list" to the XML file "jobs_file".
+    static void saveJobs(const char* jobs_file, const std::list<const Job *> & jobs_list);
+
+  private:
+    // This class is static only, not instanciable
+    XML_Persistence() {}
+
+  };
+
 }
+
+#endif

@@ -23,7 +23,7 @@
 #include "Launcher_Job_Writer.hxx"
 #include "Launcher_Job.hxx"
 
-void Launcher::addToXmlDocument(xmlNodePtr root_node, Launcher::Job* job)
+void Launcher::addToXmlDocument(xmlNodePtr root_node, const Launcher::Job* job)
 {
   // Begin job
   xmlNodePtr job_node = xmlNewChild(root_node, NULL, xmlCharStrdup("job"), NULL);

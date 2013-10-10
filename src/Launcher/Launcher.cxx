@@ -20,6 +20,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include <list>
+#include <iostream>
+#include <sstream>
+#include <sys/stat.h>
+#include <time.h>
+
 #ifdef WITH_LIBBATCH
 #include <libbatch/BatchManagerCatalog.hxx>
 #include <libbatch/FactBatchManager.hxx>
@@ -31,10 +37,9 @@
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include "Launcher_Job_Command.hxx"
-#include <iostream>
-#include <sstream>
-#include <sys/stat.h>
-#include <time.h>
+#include "Launcher_XML_Persistence.hxx"
+
+using namespace std;
 
 //=============================================================================
 /*! 
@@ -676,7 +681,7 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
 }
 
 void 
-Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference)
+Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
 {
   // Step 0: Calculated job_id
   pthread_mutex_lock(_job_cpt_mutex);
@@ -693,7 +698,7 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
   try
   {
     Batch::JobId batch_manager_job_id = _batchmap[job_id]->addJob(*(new_job->getBatchJob()),
-                                                                  job_reference);
+                                                                  new_job->getReference());
     new_job->setBatchManagerJobId(batch_manager_job_id);
   }
   catch(const Batch::GenericException &ex)
@@ -714,4 +719,85 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
   }
   LAUNCHER_MESSAGE("New job added");
 #endif
+}
+
+list<int>
+Launcher_cpp::loadJobs(const char* jobs_file)
+{
+  list<int> new_jobs_id_list;
+
+  // Load the jobs from XML file
+  list<Launcher::Job *> jobs_list = Launcher::XML_Persistence::loadJobs(jobs_file);
+
+  // Create each job in the launcher
+  list<Launcher::Job *>::const_iterator it_job;
+  for (it_job = jobs_list.begin(); it_job != jobs_list.end(); it_job++)
+  {
+    Launcher::Job * new_job = *it_job;
+    string job_state = new_job->getState();
+
+    try
+    {
+      if (job_state == "CREATED")
+      {
+        // In this case, we ignore run_part informations
+        createJob(new_job);
+        new_jobs_id_list.push_back(new_job->getNumber());
+      }
+      else if (job_state == "QUEUED"     ||
+               job_state == "RUNNING"    ||
+               job_state == "IN_PROCESS" ||
+               job_state == "PAUSED")
+      {
+        addJobDirectlyToMap(new_job);
+        new_jobs_id_list.push_back(new_job->getNumber());
+
+        // Step 4: We check that the BatchManager could resume
+        // the job
+#ifdef WITH_LIBBATCH
+        if (new_job->getBatchManagerJobId().getReference() != new_job->getReference())
+        {
+          LAUNCHER_INFOS("BatchManager type cannot resume a job - job state is set to ERROR");
+          new_job->setState("ERROR");
+        }
+#endif
+      }
+      else if (job_state == "FINISHED" ||
+               job_state == "FAILED"   ||
+               job_state == "ERROR")
+      {
+        // Step 2: We add run_part informations
+        addJobDirectlyToMap(new_job);
+        new_jobs_id_list.push_back(new_job->getNumber());
+      }
+      else
+      {
+        LAUNCHER_INFOS("A bad job is found, state unknown " << job_state);
+        delete new_job;
+      }
+    }
+    catch(const LauncherException &ex)
+    {
+      LAUNCHER_INFOS("Cannot load the job. Exception: " << ex.msg.c_str());
+      delete new_job;
+    }
+  }
+
+  return new_jobs_id_list;
+}
+
+void
+Launcher_cpp::saveJobs(const char* jobs_file)
+{
+  // Create a sorted list from the internal job map
+  list<const Launcher::Job *> jobs_list;
+  for (int i=0; i<_job_cpt; i++)
+  {
+    map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(i);
+    if (it_job != _launcher_job_map.end())
+      jobs_list.push_back(it_job->second);
+  }
+
+  // Save the jobs in XML file
+  Launcher::XML_Persistence::saveJobs(jobs_file, jobs_list);
 }

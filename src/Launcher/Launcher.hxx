@@ -33,6 +33,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include <pthread.h>
 
@@ -71,11 +72,19 @@ public:
   void         stopJob(int job_id);
   void         removeJob(int job_id);
 
+  /*! Load the jobs from the file "jobs_file" and add them to the Launcher.
+   *  Return a list with the IDs of the jobs that were successfully loaded.
+   */
+  std::list<int> loadJobs(const char* jobs_file);
+
+  //! Save the jobs of the Launcher to the file "jobs_file".
+  void saveJobs(const char* jobs_file);
+
   // Useful methods
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
   std::map<int, Launcher::Job *> getJobs();
   void createBatchManagerForJob(Launcher::Job * job);
-  void addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference);
+  void addJobDirectlyToMap(Launcher::Job * new_job);
 
   // Lib methods
   void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}

@@ -69,6 +69,7 @@ SET(Launcher_SOURCES
   Launcher_Job_YACSFile.cxx
   Launcher_Job_Writer.cxx
   Launcher.cxx
+  Launcher_XML_Persistence.cxx
 )
 
 ADD_LIBRARY(Launcher ${Launcher_SOURCES})

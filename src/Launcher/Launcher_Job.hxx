@@ -54,7 +54,7 @@ namespace Launcher
       // Launcher managing parameters
       // State of a Job: CREATED, IN_PROCESS, QUEUED, RUNNING, PAUSED, FINISHED, ERROR
       void setState(const std::string & state);
-      std::string getState();
+      std::string getState() const;
 	  // Get names or ids of hosts assigned to the job
       std::string getAssignedHostnames();
 
@@ -62,7 +62,7 @@ namespace Launcher
       int getNumber();
 
       virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
-      ParserResourcesType getResourceDefinition();
+      ParserResourcesType getResourceDefinition() const;
 
       // Common parameters
       void setJobName(const std::string & job_name);
@@ -79,35 +79,37 @@ namespace Launcher
       void setExclusive(bool exclusive);
       void setExclusiveStr(const std::string & exclusiveStr);
       void setMemPerCpu(unsigned long mem_per_cpu);
+      void setReference(const std::string & reference);
 	  // For COORM
 	  void setLauncherFile(const std::string & launcher_file);
 	  void setLauncherArgs(const std::string & launcher_args);
 
-      std::string getJobName();
-      std::string getJobFile();
-      std::string getWorkDirectory();
-      std::string getLocalDirectory();
-      std::string getResultDirectory();
-      const std::list<std::string> & get_in_files();
-      const std::list<std::string> & get_out_files();
-      std::string getMaximumDuration();
-      resourceParams getResourceRequiredParams();
-      std::string getQueue();
-      std::string getEnvFile();
-      std::string getJobType();
-      bool getExclusive();
+      std::string getJobName() const;
+      std::string getJobFile() const;
+      std::string getWorkDirectory() const;
+      std::string getLocalDirectory() const;
+      std::string getResultDirectory() const;
+      const std::list<std::string> & get_in_files() const;
+      const std::list<std::string> & get_out_files() const;
+      std::string getMaximumDuration() const;
+      resourceParams getResourceRequiredParams() const;
+      std::string getQueue() const;
+      std::string getEnvFile() const;
+      std::string getJobType() const;
+      bool getExclusive() const;
       std::string getExclusiveStr() const;
       unsigned long getMemPerCpu() const;
+      std::string getReference() const;
 
 	  // For COORM
-	  std::string getLauncherFile();
-	  std::string getLauncherArgs();
+	  std::string getLauncherFile() const;
+	  std::string getLauncherArgs() const;
 
       std::string updateJobState();
 
       void addSpecificParameter(const std::string & name,
                                   const std::string & value);
-      const std::map<std::string, std::string> & getSpecificParameters();
+      const std::map<std::string, std::string> & getSpecificParameters() const;
       virtual void checkSpecificParameters();
 
       // Checks
@@ -116,7 +118,7 @@ namespace Launcher
 
       // Helps
       long convertMaximumDuration(const std::string & maximum_duration);
-      std::string getLaunchDate();
+      std::string getLaunchDate() const;
 
       void stopJob();
       void removeJob();
@@ -153,6 +155,7 @@ namespace Launcher
       std::string _queue;
       bool _exclusive;
       unsigned long _mem_per_cpu;
+      std::string _reference;
 
 	  // Parameters for COORM
 	  std::string _launcher_file;
@@ -164,7 +167,7 @@ namespace Launcher
       Batch::Job * getBatchJob();
       Batch::Parametre common_job_params();
       void setBatchManagerJobId(Batch::JobId batch_manager_job_id);
-      Batch::JobId getBatchManagerJobId();
+      Batch::JobId getBatchManagerJobId() const;
 
     protected:
       Batch::Job * _batch_job;
@@ -174,4 +177,3 @@ namespace Launcher
 }
 
 #endif
-
