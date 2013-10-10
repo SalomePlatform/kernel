@@ -95,7 +95,7 @@ IF(WIN32)
   SET(PLATFORM_LIBS Ws2_32.lib)
   LIST(APPEND PLATFORM_LIBS Userenv.lib)      # At least for GEOM suit
   
-  IF(MACHINE_IS_64)      
+  IF(MACHINE_IS_64)
     ADD_DEFINITIONS(-D_SECURE_SCL=0 -D_SECURE_SCL_THROWS=0)
     ADD_DEFINITIONS(-D_HAS_ITERATOR_DEBUGGING=0) # To avoid runtime error during checking iterators
     SET(SIZE_OF_LONG "4")                        # set sizeof(long) to 4 byte 
@@ -103,6 +103,9 @@ IF(WIN32)
 ELSE()
   ## Linux specific:
   SET(PLATFORM_LIBS dl)    # Dynamic loading (dlopen, dlsym)
+  IF(MACHINE_IS_64) 
+    ADD_DEFINITIONS(-DPCLINUX64)
+  ENDIF(MACHINE_IS_64)
 ENDIF()
 
 ## define _DEBUG_ macro
