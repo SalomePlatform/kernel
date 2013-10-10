@@ -48,12 +48,13 @@ SET(DATA
   FindSalomePython.cmake
   FindSalomeSphinx.cmake
   FindSalomeSWIG.cmake
-  FindSphinx.cmake  
+  FindSphinx.cmake
+  FindSalomeVTK.cmake
   FindMEDFile.cmake
   InstallAndCompilePythonFile.cmake
   UseOmniORB.cmake
   SalomeMacros.cmake
-  SalomeSetupPlatform.cmake  
+  SalomeSetupPlatform.cmake
 )
 INSTALL(FILES ${DATA} DESTINATION ${SALOME_INSTALL_CMAKE})
 
