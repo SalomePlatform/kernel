@@ -100,7 +100,7 @@ void Launcher::addToXmlDocument(xmlNodePtr root_node, Launcher::Job* job)
   xmlNewChild(run_node, NULL, xmlCharStrdup("resource_choosed_name"), xmlCharStrdup(resource_definition.Name.c_str()));
 
 #ifdef WITH_LIBBATCH
-  Batch::JobId job_id = getBatchManagerJobId();
+  Batch::JobId job_id = job->getBatchManagerJobId();
   xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job_id.getReference().c_str()));
 #endif
 }
