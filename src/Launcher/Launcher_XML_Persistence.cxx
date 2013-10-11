@@ -612,11 +612,7 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
   xmlNewChild(run_node, NULL, xmlCharStrdup("job_state"), xmlCharStrdup(job.getState().c_str()));
   ParserResourcesType resource_definition = job.getResourceDefinition();
   xmlNewChild(run_node, NULL, xmlCharStrdup("resource_choosed_name"), xmlCharStrdup(resource_definition.Name.c_str()));
-
-#ifdef WITH_LIBBATCH
-  Batch::JobId job_id = job.getBatchManagerJobId();
-  xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job_id.getReference().c_str()));
-#endif
+  xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job.getReference().c_str()));
 }
 
 }

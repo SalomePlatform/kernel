@@ -155,7 +155,7 @@ namespace Launcher
       std::string _queue;
       bool _exclusive;
       unsigned long _mem_per_cpu;
-      std::string _reference;
+      std::string _reference; //! Reference of the job for the batch manager
 
 	  // Parameters for COORM
 	  std::string _launcher_file;

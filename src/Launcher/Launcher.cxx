@@ -146,6 +146,7 @@ Launcher_cpp::launchJob(int job_id)
     Batch::JobId batch_manager_job_id = _batchmap[job_id]->submitJob(*(job->getBatchJob()));
     job->setBatchManagerJobId(batch_manager_job_id);
     job->setState("QUEUED");
+    job->setReference(batch_manager_job_id.getReference());
   }
   catch(const Batch::GenericException &ex)
   {
