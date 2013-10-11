@@ -67,7 +67,6 @@ SET(Launcher_SOURCES
   Launcher_Job_SALOME.cxx
   Launcher_Job_PythonSALOME.cxx
   Launcher_Job_YACSFile.cxx
-  Launcher_Job_Writer.cxx
   Launcher.cxx
   Launcher_XML_Persistence.cxx
 )

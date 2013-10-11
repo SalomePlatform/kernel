@@ -30,6 +30,9 @@
 
 namespace Launcher
 {
+  typedef struct _xmlNode xmlNode;
+  typedef xmlNode *xmlNodePtr;
+
   class LAUNCHER_EXPORT XML_Persistence
   {
   public:
@@ -47,6 +50,8 @@ namespace Launcher
   private:
     // This class is static only, not instanciable
     XML_Persistence() {}
+
+    static void addJobToXmlDocument(xmlNodePtr root_node, const Job & job);
 
   };
 

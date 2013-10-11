@@ -30,7 +30,6 @@
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
-#include "Launcher_Job_Writer.hxx"
 
 #ifdef WIN32
 # include <process.h>
