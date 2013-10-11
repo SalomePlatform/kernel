@@ -102,7 +102,7 @@ SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
 # For all prerequisites, load the corresponding targets if the package was used 
 # in CONFIG mode. This ensures dependent projects link correctly
 # without having to set LD_LIBRARY_PATH:
-SET(_PREREQ CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch SIMANIO PThread Boost HDF5 libXml2 Python)
+SET(_PREREQ CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch PThread Boost HDF5 libXml2 Python SIMANIO)
 SET(_PREREQ_CONFIG_DIR "@CppUnit_DIR@" "@Graphviz_DIR@" "@Doxygen_DIR@" "@Sphinx_DIR@" 
       "@MPI_DIR@" "@omniORB_DIR@" "@LibBatch_DIR@" "@PThread_DIR@" "@Boost_DIR@" "@HDF5_DIR@"
       "@libXml2_DIR@" "@Python_DIR@" "@SIMANIO_DIR@")
