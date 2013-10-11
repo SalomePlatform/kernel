@@ -60,12 +60,17 @@ module Engines
   };
 
   typedef sequence<KeyValuePair> FieldsDict;
+  typedef sequence<string> ListOfOptions;
+  typedef sequence<string> ListOfIdentifiers;
 
   interface EngineComponent ;
   interface fileRef ;
   interface fileTransfer ;
   interface Salome_file;
+  interface DataContainer;
 
+  typedef sequence<DataContainer> ListOfData;
+  
   /*! \brief Interface of the %Container.
   This interface defines the process of loading and registration
   of new components in %SALOME application
@@ -224,6 +229,32 @@ module Engines
      */
     PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
   };
+
+  /*! \brief Interface to pass data files from the client side to the SALOME Container.
+    Passes data from client side to the SALOME container (where component engine is running)
+    size via the CORBA bus as a stream of bytes.
+  */
+
+  interface DataContainer
+  {
+    //! This operation returns the stream with the data file content.
+    TMPFile get();
+    
+    //! Returns the name of the document corresponding to this data container.                                                                                  
+    string name();
+    
+    //! Returns the identifier of the document corresponding to this data container.
+    string identifier();
+
+    //! Returns the extension (type) of the document corresponding to this data container.
+    //! It is taked from the SIMAN URL.
+    string extension();
+
+    //! Defines the extension. It is required is extension of the file is not
+    //! matched with a read extension: archived file, for example.
+    void setExtension(in string extension);
+  };
+                                      
 
   /*! \brief Interface of the %component.
   This interface is used for interaction between the %container and the
@@ -464,7 +495,22 @@ module Engines
       \return string containing component's version, e.g. "1.0"
     */
     string getVersion();
-  } ;
+
+    //! Generic Import operation to let the component to import data, corresponding to it.
+    /*!
+      \param studyId indentifier of the study where the data must be placed
+      \param data data for import: usually this is just imported file content
+      \param options additional options for Importat operation
+      \return the sequence of identifiers of the importedData in the component (to use later in the export function)
+    */
+    ListOfIdentifiers importData(in long studyId, in DataContainer data, in ListOfOptions options);
+    
+    //! Generic Export operation to ket the component export all modified data corresponding to it.
+    /*!
+      \param studyId identifier of the study that contains the exported data
+     */
+    ListOfData getModifiedData(in long studyId);
+  };
 
   /*!
     \brief Base interface of the %component that supports exporting data.

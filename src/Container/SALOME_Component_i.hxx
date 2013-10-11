@@ -149,6 +149,10 @@ public:
                                     std::string file_port_name,
                                     Salome_file_i * file);
 
+  virtual Engines::ListOfIdentifiers* importData(CORBA::Long studyId,
+						 Engines::DataContainer_ptr data,
+						 const Engines::ListOfOptions& options);
+  virtual Engines::ListOfData* getModifiedData(CORBA::Long studyId);
 
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study

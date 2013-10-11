@@ -58,6 +58,7 @@
 #include "SALOMEDSClient_GenericAttribute.hxx"
 #include "SALOMEDSClient_SComponent.hxx"
 #include "SALOMEDSClient_SComponentIterator.hxx"
+#include "SALOMEDSClient_SimanStudy.hxx"
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDSClient_Study.hxx"
 #include "SALOMEDSClient_StudyBuilder.hxx"

@@ -319,4 +319,14 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     def getVersion(self):
         return "" # empty string means "unknown" version
 
+    #-------------------------------------------------------------------------    
+
+    def importData(self, studyId, dataContainer, options):
+	return [] # no implmenetation by default
+
+    #-------------------------------------------------------------------------    
+
+    def getModifiedData(self, studyId):
+	return [] # no implmenetation by default
+
     pass # end of SALOME_ComponentPy_i

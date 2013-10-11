@@ -68,6 +68,10 @@ valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
 foreground_nam = "foreground"
 wake_up_session_nam = "wake_up_session"
+siman_nam = "siman"
+siman_study_nam = "siman_study"
+siman_scenario_nam = "siman_scenario"
+siman_user_nam = "siman_user"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -769,9 +773,43 @@ def CreateOptionParser (theAdditionalOptions=[]):
     o_port = optparse.Option("--port",
                              metavar="<port>",
                              type="int",
-                             action="store",
+                                   action="store",
                              dest="use_port",
-                             help=help_str)
+                                   help=help_str)
+
+    # SIMAN launch mode
+    help_str = "Special mode for interacting with SIMAN."
+    o_siman = optparse.Option("--siman",
+                              action="store_true",
+                              dest="siman",
+                              help=help_str)
+
+    # SIMAN study
+    help_str = "SIMAN study identifier."
+    o_siman_study = optparse.Option("--siman-study",
+                                    metavar="<id>",
+                                    type="string",
+                                    action="store",
+                                    dest="siman_study",
+                                    help=help_str)
+
+    # SIMAN scenario
+    help_str = "SIMAN scenario identifier."
+    o_siman_scenario = optparse.Option("--siman-scenario",
+                                       metavar="<id>",
+                                       type="string",
+                                       action="store",
+                                       dest="siman_scenario",
+                                       help=help_str)
+
+    # SIMAN user
+    help_str = "SIMAN user identifier."
+    o_siman_user = optparse.Option("--siman-user",
+                                   metavar="<id>",
+                                   type="string",
+                                   action="store",
+                                   dest="siman_user",
+                                   help=help_str)
 
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
@@ -802,6 +840,10 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_wake_up,
                 o_slm,   # Server launch mode
                 o_port,  # Use port
+                o_siman,         # Siman launch mode
+                o_siman_study,   # Siman study
+                o_siman_scenario,# Siman scenario
+                o_siman_user,    # Siman user
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "resources",
@@ -1109,6 +1151,16 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     # wake up session
     if cmd_opts.wake_up_session is not None:
         args[wake_up_session_nam] = cmd_opts.wake_up_session
+
+    # siman options
+    if cmd_opts.siman is not None:
+        args[siman_nam] = cmd_opts.siman
+    if cmd_opts.siman_study is not None:
+        args[siman_study_nam] = cmd_opts.siman_study
+    if cmd_opts.siman_scenario is not None:
+        args[siman_scenario_nam] = cmd_opts.siman_scenario
+    if cmd_opts.siman_user is not None:
+        args[siman_user_nam] = cmd_opts.siman_user
 
     ####################################################
     # Add <theAdditionalOptions> values to args

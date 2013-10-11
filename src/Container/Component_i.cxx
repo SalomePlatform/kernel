@@ -1079,6 +1079,38 @@ Engines_Component_i::configureSalome_file(std::string service_name,
 
 //=============================================================================
 /*! 
+ *  C++ method: allows to import data file into the Component internal data 
+    structure (like import operation of BRep file in GEOM module).
+ *  \param studyId identifier of the working study
+ *  \param data container of the file content
+ *  \param options additional options for import (if needed)
+ */
+//=============================================================================
+Engines::ListOfIdentifiers* Engines_Component_i::importData(CORBA::Long studyId,
+                                     Engines::DataContainer_ptr data,
+                                     const Engines::ListOfOptions& options)
+{
+  // By default this method does nothing
+  Engines::ListOfIdentifiers_var aList = new Engines::ListOfIdentifiers;
+  return aList._retn();
+}
+
+//=============================================================================
+/*! 
+ *  C++ method: allows to export data files from the Component internal data 
+    structure (like Export operation of Step file in GEOM module).
+ *  \param studyId identifier of the working study
+ */
+//=============================================================================
+Engines::ListOfData* Engines_Component_i::getModifiedData(CORBA::Long studyId)
+{
+  // By default this method does nothing
+  Engines::ListOfData_var aList = new Engines::ListOfData;
+  return aList._retn();
+}
+
+//=============================================================================
+/*! 
  *  C++ method: return the name of the container associated with this component
  *  This name does not contains the "/Containers" string and all "/" are replaced by "_"
  *  \return the container name (reformatted)

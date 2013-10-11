@@ -128,7 +128,9 @@ public:
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
 
   SALOMEDS::Study_ptr GetStudy();
-
+  
+  SALOMEDSImpl_Study* GetLocalImpl() { return _local_impl; }
+  
 private:
   void init_orb();
 

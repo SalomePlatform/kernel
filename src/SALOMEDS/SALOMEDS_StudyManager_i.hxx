@@ -151,6 +151,8 @@ public:
   static PortableServer::POA_ptr GetPOA(const SALOMEDS::Study_ptr theStudy);
 
   void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
+
+  virtual SALOMEDS::SimanStudy_ptr GetSimanStudy();
 };
 
 #endif 

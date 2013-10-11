@@ -557,6 +557,69 @@ during each working session.
      void attach(in SALOMEDS::Observer theObserver, in boolean modify);   
   };
 
+  //===========================================================================
+ /*! \brief %SimanStudy Interface
+
+    The Siman (simulation management) study is an interface extension to the %Study
+    with functions for working with SIMAN server. Is allows to get data from SIMAN (check-out operation)
+    and to store it back (check-in operation).
+    This interface is correctly working if SALOME is compiled with SimanIO library, launched with siman
+    option and  connection to SIMAN server is established and alive. Only one study per application,
+    checked out from the SIMAN is SimanStudy. For other studies all functionality is unaccessible.
+*/
+
+  interface SimanStudy
+  {
+
+//! No connection with SIMAN server
+    exception SimanStudyNoConnection {};
+//! There is no SimanStudy with: study with checked out data.
+    exception SimanStudyNotExists {};
+
+/*! \brief The ID of the study in SIMAN server
+
+   This is equivalent to the methods setStudyId() & getStudyId()
+*/
+    attribute string      StudyId;
+    
+/*! \brief The ID of the scenario in SIMAN server
+
+   This is equivalent to the methods setScenarioId() & getScenarioId()
+*/
+    attribute string      ScenarioId;
+/*! \brief The ID of the user in SIMAN server
+
+   This is equivalent to the methods setUserId() & getUserId()
+*/
+    attribute string      UserId;
+
+/*! \brief Get data from SIMAN and put it to the given study
+
+   This method is called for just created study to make it referenced
+   by this Siman study. Also it fills this study by the checked out
+   data from SIMAN server.
+   Warning: StudyID, ScenarioID and User Id must be set before calling of this method!
+
+   \param theTarget referenced study for checking out
+*/
+    void CheckOut(in Study theTarget);
+
+/*! \brief Get data from the source study and store in SIMAN
+    
+    It works only with already checked out study.
+    \param theModuleName name of the module the check in must be perfrormed for. If empty, check in is performed for all modules.
+*/
+    void CheckIn(in string theModuleName);
+
+/*! \brief Returns the %Study with checked out data
+
+   If study is null, there is no such study in this application instance, or Salome was
+   launched without siman option.
+*/
+    Study getReferencedStudy();
+
+};
+
   //==========================================================================
 /*! \brief %Study Builder Interface
 
@@ -985,6 +1048,12 @@ Gets the list of open studies
 */
     long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
 
+/*! \brief Returns the siman study based on the given study.
+	    
+    Creates a new Siman study, or returns just a previously created.
+    \return Siman study, or none if it is not siman mode
+*/
+    SimanStudy GetSimanStudy();
 
   };
 

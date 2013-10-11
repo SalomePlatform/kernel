@@ -66,6 +66,7 @@ public:
   virtual bool Copy(const _PTR(SObject)& theSO);
   virtual bool CanPaste(const _PTR(SObject)& theSO);
   virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO); 
+  virtual _PTR(SimanStudy) GetSimanStudy(); 
 
 private:
   void init_orb();

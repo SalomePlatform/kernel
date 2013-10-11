@@ -30,6 +30,7 @@
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDS_SimanStudy_i.hxx"
 #include "SALOMEDS.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
@@ -89,6 +90,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
   delete _name_service;
   delete _factory;
   delete _impl;
+  delete SALOMEDS_SimanStudy_i::GetSimanServant(_orb);
 }
 
 //============================================================================
@@ -476,6 +478,19 @@ CORBA::Long SALOMEDS_StudyManager_i::getPID()
 void SALOMEDS_StudyManager_i::ShutdownWithExit()
 {
   exit( EXIT_SUCCESS );
+}
+
+//============================================================================
+/*! Function : GetSimanStudy
+ *  Purpose  : Retruns the created or cashed SimanStudy
+ */
+//============================================================================
+SALOMEDS::SimanStudy_ptr SALOMEDS_StudyManager_i::GetSimanStudy()
+{
+  SALOMEDS::Locker lock;
+
+  SALOMEDS_SimanStudy_i* aSiman_servant = SALOMEDS_SimanStudy_i::GetSimanServant(_orb);
+  return aSiman_servant->_this();
 }
 
 //===========================================================================

@@ -32,6 +32,7 @@
 
 #include "SALOMEDSClient_definitions.hxx"
 #include "SALOMEDSClient_Study.hxx"
+#include "SALOMEDSClient_SimanStudy.hxx"
 
 class SALOMEDSClient_StudyManager
 {
@@ -52,7 +53,7 @@ public:
   virtual bool Copy(const _PTR(SObject)& theSO) = 0;
   virtual bool CanPaste(const _PTR(SObject)& theSO) = 0;
   virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO) = 0;
-  
+  virtual _PTR(SimanStudy) GetSimanStudy() = 0;
 };
 
 #endif 
