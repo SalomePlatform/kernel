@@ -235,7 +235,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     std::list<std::string> dirList;
 
 #ifdef WIN32
-    dirList = splitStringToList(_general_path, SEPARATOR);
+    dirList = splitStringToList(myPrivate->_general_path, SEPARATOR);
 #else
     //check for new format
     bool isNew = (std::string( myPrivate->_general_path ).find(SEPARATOR) != std::string::npos);
