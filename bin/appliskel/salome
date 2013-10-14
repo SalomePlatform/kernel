@@ -62,19 +62,6 @@ def main(args):
     # runner.addToPythonPath('mypythonpath')
     # runner.setEnviron('myvarname', 'value')
 
-    kernel_root_dir = os.getenv("KERNEL_ROOT_DIR")
-    if kernel_root_dir:
-      runner.addToLdLibraryPath(os.path.join(kernel_root_dir, "lib/salome"))
-
-    gui_root_dir = os.getenv("GUI_ROOT_DIR")
-    if gui_root_dir:
-      runner.addToLdLibraryPath(os.path.join(gui_root_dir, "lib/salome"))
-
-    paravis_root_dir = os.getenv("PARAVIS_ROOT_DIR")
-    if paravis_root_dir:
-      runner.addToLdLibraryPath(os.path.join(paravis_root_dir, "lib/salome"))
-
-
     # Start SALOME, parsing command line arguments
     runner.go(args)
     print 'Thank you for using SALOME!'

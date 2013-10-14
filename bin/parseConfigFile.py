@@ -138,10 +138,10 @@ def parseConfigFile(filename, reserved = []):
     logConfigParser.error("No section found in file: %s"%(filename))
     return []
 
-  return _processConfigFile(config, reserved, filename)
+  return __processConfigFile(config, reserved, filename)
 #
 
-def _processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
+def __processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
   # :TODO: may detect duplicated variables in the same section (raise a warning)
   #        or even duplicate sections
 
@@ -261,16 +261,28 @@ class EnvFileConverter(object):
             break
       while "clean " in line[0:6]: #skip clean calls with ending ";" crash
         line = self.fp.readline()
+      # Extract variable=value
       if "=" in line:
         try:
           variable, value = line.split('=')
         except: #avoid error for complicated sh line xx=`...=...`, but warning
           print "WARNING: parseConfigFile.py: line with multiples '=' character are hazardous: '"+line+"'"
           variable, value = line.split('=',1)
+          pass
+
+        # Self-extending variables that are not in reserved keywords
+        # Example: FOO=something:${FOO}
+        # In this case, remove the ${FOO} in value
+        if variable in value:
+          value = self._purgeValue(value, variable)
+          line = "%s=%s"%(variable,value)
+
         self.allParsedVariableNames.append(variable)
-      # Self-extending variables that are not in reserved keywords
-      # Example: FOO=something:${FOO}
-      # :TODO:
+      # End of extraction
+
+      if not line:
+        return line
+
       #
       # replace "${FOO}" and "$FOO" and ${FOO} and $FOO by %(FOO)s if FOO is
       # defined in current file (i.e. it is not an external environment variable)
@@ -278,10 +290,16 @@ class EnvFileConverter(object):
         key = r'\$\{?'+k+'\}?'
         pattern = re.compile(key, re.VERBOSE)
         line = pattern.sub(r'%('+k+')s', line)
-      # Remove quotes
-        pattern = re.compile(r'\"', re.VERBOSE)
-        line = pattern.sub(r'', line)
+        # Remove quotes (if line does not contain whitespaces)
+        try:
+          variable, value = line.split('=', 1)
+        except ValueError:
+          variable, value = line.split(':', 1)
+        if not ' ' in value.strip():
+          pattern = re.compile(r'\"', re.VERBOSE)
+          line = pattern.sub(r'', line)
       #
+
       # Replace `shell_command` by its result
       def myrep(obj):
         obj = re.sub('`', r'', obj.group(0)) # remove quotes
@@ -309,10 +327,8 @@ class EnvFileConverter(object):
   #
 
 # Convert .sh environment file to configuration file format
-def convertEnvFileToConfigFile(envFilename, configFilename):
-  #reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH']
+def convertEnvFileToConfigFile(envFilename, configFilename, reserved=[]):
   logConfigParser.debug('convert env file %s to %s'%(envFilename, configFilename))
-  reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'R_LIBS', 'PV_PLUGIN_PATH', 'TCLLIBPATH', 'TKLIBPATH']
   fileContents = open(envFilename, 'r').read()
 
   pattern = re.compile('\n[\n]+', re.VERBOSE) # multiple '\n'

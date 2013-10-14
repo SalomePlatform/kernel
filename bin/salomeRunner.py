@@ -58,17 +58,18 @@ class SalomeRunner:
     if len(configFileNames) == 0:
       raise SalomeRunnerException("No configuration files given")
 
+    reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'PV_PLUGIN_PATH']
     for filename in configFileNames:
       basename, extension = os.path.splitext(filename)
       if extension == ".cfg":
-        self.__setEnvironmentFromConfigFile(filename)
+        self.__setEnvironmentFromConfigFile(filename, reserved)
       elif extension == ".sh":
         #new convert procedures, temporary could be use not to be automatically deleted
         #temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
         temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
-          convertEnvFileToConfigFile(filename, temp.name)
-          self.__setEnvironmentFromConfigFile(temp.name)
+          convertEnvFileToConfigFile(filename, temp.name, reserved)
+          self.__setEnvironmentFromConfigFile(temp.name, reserved)
         except ConfigParser.ParsingError, e:
           self.getLogger().warning("Invalid token found when parsing file: %s\n"%(filename))
           print e
@@ -90,27 +91,17 @@ class SalomeRunner:
 
   """Append value to PATH environment variable"""
   def addToPath(self, value):
-    self.__addToReserved('PATH', value)
+    self.addToEnviron('PATH', value)
   #
 
   """Append value to LD_LIBRARY_PATH environment variable"""
   def addToLdLibraryPath(self, value):
-    self.__addToReserved('LD_LIBRARY_PATH', value)
+    self.addToEnviron('LD_LIBRARY_PATH', value)
   #
 
   """Append value to PYTHONPATH environment variable"""
   def addToPythonPath(self, value):
-    self.__addToReserved('PYTHONPATH', value)
-  #
-
-  """Append value to TCLLIBPATH environment variable"""
-  def addToTclLibPath(self, value):
-    self.__addToReservedTclTk('TCLLIBPATH', value)
-  #
-
-  """Append value to TKLIBPATH environment variable"""
-  def addToTkLibPath(self, value):
-    self.__addToReservedTclTk('TKLIBPATH', value)
+    self.addToEnviron('PYTHONPATH', value)
   #
 
   """Set environment variable to value"""
@@ -132,6 +123,20 @@ class SalomeRunner:
   def unsetEnviron(self, name):
     if os.environ.has_key(name):
       del os.environ[name]
+  #
+
+  """Append value to environment variable"""
+  def addToEnviron(self, name, value, separator=os.pathsep):
+    if value == '':
+      return
+
+    value = os.path.expandvars(value) # expand environment variables
+    self.getLogger().debug("Add to %s: %s", name, value)
+    env = os.getenv(name, None)
+    if env is None:
+      os.environ[name] = value
+    else:
+      os.environ[name] = value + separator + env
   #
 
   ###################################
@@ -197,8 +202,8 @@ class SalomeRunner:
       sys.exit(1)
   #
 
-  def __setEnvironmentFromConfigFile(self, filename):
-    unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH'])
+  def __setEnvironmentFromConfigFile(self, filename, reserved=[]):
+    unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
 
     # unset variables
     for var in unsetVars:
@@ -208,7 +213,7 @@ class SalomeRunner:
     for reserved in reservedDict:
       a = filter(None, reservedDict[reserved]) # remove empty elements
       reformattedVals = ':'.join(a)
-      self.__addToReserved(reserved, reformattedVals)
+      self.addToEnviron(reserved, reformattedVals)
       pass
 
     for key,val in configVars:
@@ -216,34 +221,6 @@ class SalomeRunner:
       pass
 
     sys.path[:0] = os.getenv('PYTHONPATH','').split(':')
-  #
-
-  def __addToReserved(self, name, value):
-    if value == '':
-      return
-
-    value = os.path.expandvars(value) # expand environment variables
-    self.getLogger().debug("Add to %s: %s", name, value)
-    env = os.getenv(name, None)
-    if env is None:
-      os.environ[name] = value
-    else:
-      os.environ[name] = value + os.pathsep + env
-  #
-
-  def __addToReservedTclTk(self, name, value):
-    if value == '':
-      return
-
-    value = os.path.expandvars(value) # expand environment variables
-    self.getLogger().debug("Add to %s: %s", name, value)
-    env = os.getenv(name, None)
-    #http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm
-    #Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.
-    if env is None:
-      os.environ[name] = value
-    else:
-      os.environ[name] = value + " " + env #explicitely whitespace
   #
 
   def _runAppli(self, args=[]):
