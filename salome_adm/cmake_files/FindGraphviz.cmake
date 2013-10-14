@@ -1,10 +1,10 @@
 # - Graphviz detection
 #
-# Output variable: GRAPHVIZ_EXECUTABLE
-# 
-# The executable 'dot' is looked for and returned in the above variable.
+# Output variables: GRAPHVIZ_EXECUTABLE   - where is executable 'dot' takes place.
+#		    GRAPHVIZ_INCLUDE_DIRS - where to find headers.
+# 		    GRAPHVIZ_LIBRARIES    - where to get libraries.
+# 		    GRAPHVIZ_FOUND        - True if Graphiz was found.
 #
-
 ###########################################################################
 # Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -31,7 +31,15 @@
 
 FIND_PROGRAM(GRAPHVIZ_EXECUTABLE dot)
 
+FIND_PATH(GRAPHVIZ_INCLUDE_DIR NAMES graphviz/graph.h)
+SET(GRAPHVIZ_INCLUDE_DIR ${GRAPHVIZ_INCLUDE_DIR}/graphviz)
+
+FIND_LIBRARY(GRAPHVIZ_graph_LIBRARY NAMES graph)
+SET(GRAPHVIZ_LIBRARIES ${GRAPHVIZ_graph_LIBRARY})
+
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(Graphviz REQUIRED_VARS GRAPHVIZ_EXECUTABLE)
-
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Graphviz REQUIRED_VARS 
+					   GRAPHVIZ_EXECUTABLE 
+					   GRAPHVIZ_LIBRARIES 
+					   GRAPHVIZ_INCLUDE_DIR)
