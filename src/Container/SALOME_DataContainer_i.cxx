@@ -31,8 +31,9 @@
 
 #include <fstream>
 #include <iostream>
+#ifndef WIN32
 #include <unistd.h>
-
+#endif
 using namespace std;
 
 Engines_DataContainer_i::Engines_DataContainer_i()
