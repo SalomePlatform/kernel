@@ -29,7 +29,7 @@
 #include <errno.h>
 #include <string.h>
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <winsock2.h>

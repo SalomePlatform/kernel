@@ -39,7 +39,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #define getpid _getpid
 #endif
@@ -553,7 +553,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
 
   //redirect stdout and stderr in a file
-#ifdef WNT
+#ifdef WIN32
   std::string logFilename=getenv("TEMP");
   logFilename += "\\";
   std::string user = getenv( "USERNAME" );
@@ -577,7 +577,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
   logFilename += tmp.str();
   logFilename += ".log" ;
   command += " > " + logFilename + " 2>&1";
-#ifdef WNT
+#ifdef WIN32
   command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
 #else
   command += " &";

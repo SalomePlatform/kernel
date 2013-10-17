@@ -26,7 +26,7 @@
 //
 #include <string>
 #include "DSC_interface.hxx"
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <sys/time.h>
 #endif
@@ -437,7 +437,7 @@ static void initTrace(const std::string& containerName)
     {
       //trace in file
       traceType=1;
-#ifdef WNT
+#ifdef WIN32
       std::string logFilename=getenv("TEMP");
       logFilename += "\\";
 #else
@@ -503,7 +503,7 @@ void Engines_DSC_interface::writeEvent(const char* request,const std::string& co
     initTrace(containerName);
   if(traceLevel == 0)return;
 
-#ifdef WNT
+#ifdef WIN32
 #else
   struct timeval tv;
   gettimeofday(&tv,0);

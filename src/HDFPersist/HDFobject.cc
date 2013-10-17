@@ -30,7 +30,7 @@
 #include <cstring>
 #include <stdlib.h>
 
-#ifdef WNT
+#ifdef WIN32
 #define strdup _strdup
 #endif
 

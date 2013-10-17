@@ -596,7 +596,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   std::string portNumber (::getenv ("NSPORT") );
   if ( !portNumber.empty() )
   {
-#ifdef WNT
+#ifdef WIN32
 #else
     std::string cmd ;
     cmd = std::string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")

@@ -33,12 +33,12 @@
 #include "SALOME_LoadRateManager.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <unistd.h>
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #pragma warning(disable:4290) // Warning Exception ...
 #endif

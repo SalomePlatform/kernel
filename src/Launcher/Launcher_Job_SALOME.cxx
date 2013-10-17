@@ -26,7 +26,7 @@
 #include <libbatch/Constants.hxx>
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #define _chmod chmod
 #endif

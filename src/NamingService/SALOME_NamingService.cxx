@@ -36,7 +36,7 @@
 #include <string>
 #include <cstdio>
 
-#ifdef WNT
+#ifdef WIN32
 #define strdup _strdup
 #endif
 

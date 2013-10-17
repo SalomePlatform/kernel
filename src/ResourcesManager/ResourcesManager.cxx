@@ -31,7 +31,7 @@
 #include <list>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <unistd.h>
 #endif

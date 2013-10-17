@@ -759,7 +759,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
             }
           else
             {
-#ifdef WNT
+#ifdef WIN32
               MESSAGE("Killer : ThreadId " << ThreadId.p << " pthread_canceled") ;
 #else
               MESSAGE("Killer : ThreadId " << ThreadId << " pthread_canceled") ;
@@ -775,7 +775,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
             }
           else 
             {
-#ifdef WNT
+#ifdef WIN32
               MESSAGE("Killer : ThreadId " << ThreadId.p << " pthread_killed(" << signum << ")") ;
 #else
               MESSAGE("Killer : ThreadId " << ThreadId << " pthread_killed(" << signum << ")") ;

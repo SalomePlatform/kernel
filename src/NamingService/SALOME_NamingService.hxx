@@ -41,7 +41,7 @@
 
 #include "SALOME_NamingService_defs.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4290) // Warning Exception ...
 #endif
 

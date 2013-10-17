@@ -40,7 +40,7 @@
 # define GENERICOBJ_EXPORT
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4275) // Disable warning interface non dll
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif

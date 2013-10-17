@@ -39,7 +39,7 @@
 
 #include <libxml/parser.h>
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
