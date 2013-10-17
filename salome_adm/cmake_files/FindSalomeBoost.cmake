@@ -27,7 +27,7 @@ SET(Boost_USE_STATIC_LIBS        OFF)
 SET(Boost_USE_MULTITHREADED      ON)
 SET(Boost_USE_STATIC_RUNTIME     OFF)
 SET(Boost_NO_BOOST_CMAKE         ON)
-SET(SalomeBoost_FIND_COMPONENTS  filesystem regex signals system thread)
+SET(SalomeBoost_FIND_COMPONENTS  filesystem regex signals system thread date_time chrono)
 
 IF(WIN32)
   # Under windows, one extra sub-directory in the boost installation hierarchy:
@@ -42,7 +42,7 @@ ENDIF()
 
 ## Specific definitions:
 IF(WIN32)
-  SET(BOOST_DEFINITIONS -DBOOST_DISABLE_ASSERTS)
+  SET(BOOST_DEFINITIONS -DBOOST_DISABLE_ASSERTS -DBOOST_ALL_DYN_LINK)
 ENDIF()
 
 SALOME_ACCUMULATE_HEADERS(Boost_INCLUDE_DIRS)
