@@ -117,14 +117,14 @@ MACRO(OMNIORB_ADD_MODULE module idlfiles incdirs)
 
     ADD_CUSTOM_COMMAND(OUTPUT ${_outputs}
       COMMAND ${OMNIORB_IDL_COMPILER} ${_cxx_flags} ${_input_cmd}
-      DEPENDS ${_input})
+      DEPENDS ${_input_cmd})
     
-    INSTALL(FILES ${_input} DESTINATION idl/salome)
+    INSTALL(FILES ${_input_cmd} DESTINATION idl/salome)
     INSTALL(FILES ${_inc}   DESTINATION include/salome)
 
     IF(OMNIORB_PYTHON_BACKEND)
       STRING(REPLACE ";" " " _tmp "${_py_flags}")
-      INSTALL(CODE "OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL( \"${OMNIORB_IDL_COMPILER}\" \"${_tmp}\" \"${_input}\" \"${CMAKE_INSTALL_PREFIX}/\${INSTALL_PYIDL_DIR}\" )")
+      INSTALL(CODE "OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL( \"${OMNIORB_IDL_COMPILER}\" \"${_tmp}\" \"${_input_cmd}\" \"${CMAKE_INSTALL_PREFIX}/\${INSTALL_PYIDL_DIR}\" )")
     ENDIF()
   ENDFOREACH()
 
