@@ -38,7 +38,10 @@ ENDMACRO(OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL)
 #
 # ARGUMENTS:
 #   module    : module name
-#   idlfiles  : list of IDL files to be compiled into module
+#   idlfiles  : list of IDL files to be compiled into module. If just a file name is given, the source
+#               tree is first inspected. If not found there, the macro assumes the file will be built
+#               in the build tree (CMAKE_CURRENT_BINARY_DIR) thanks to some ADD_CUSTOM_COMMAND() call
+#               (used in PARAVIS).
 #   incdirs   : additional include dirs for IDL staff
 #   linklibs  : additional libraries the module to be linked to (optional)
 #
@@ -95,7 +98,13 @@ MACRO(OMNIORB_ADD_MODULE module idlfiles incdirs)
     GET_FILENAME_COMPONENT(_base ${_input} NAME_WE)
     GET_FILENAME_COMPONENT(_path ${_input} PATH)
     IF(NOT _path)
-      SET(_input ${CMAKE_CURRENT_SOURCE_DIR}/${_input})
+      IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_input})
+        SET(_input_cmd ${CMAKE_CURRENT_SOURCE_DIR}/${_input})
+      ELSE()
+        SET(_input_cmd ${CMAKE_CURRENT_BINARY_DIR}/${_input})
+      ENDIF()
+    ELSE()
+      SET(_input_cmd ${_input})
     ENDIF()
 
     SET(_inc     ${CMAKE_CURRENT_BINARY_DIR}/${_base}.hh)
@@ -107,8 +116,8 @@ MACRO(OMNIORB_ADD_MODULE module idlfiles incdirs)
     SET(_outputs ${_inc} ${_src} ${_dynsrc})
 
     ADD_CUSTOM_COMMAND(OUTPUT ${_outputs}
-      COMMAND ${OMNIORB_IDL_COMPILER} ${_cxx_flags} ${_input}
-      MAIN_DEPENDENCY ${_input})
+      COMMAND ${OMNIORB_IDL_COMPILER} ${_cxx_flags} ${_input_cmd}
+      DEPENDS ${_input})
     
     INSTALL(FILES ${_input} DESTINATION idl/salome)
     INSTALL(FILES ${_inc}   DESTINATION include/salome)
