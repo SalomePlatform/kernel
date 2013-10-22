@@ -61,7 +61,10 @@ ENDMACRO(OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL)
 # - From FindOmniORBPy.cmake
 #     OMNIORB_IDLPYFLAGS     : the options to give to omniidl generator for Python backend
 #     OMNIORB_PYTHON_BACKEND : Python backend
-#
+# 
+# The macro automatically adds a target "omniorb_module_<module>" which can be used to set up 
+# dependencies on the generation of the files produced by omniidl (typically the header files).
+# 
 # TODO:
 #   1. Replace hardcoded dirpaths bin/salome, idl/salome, etc by corresponding configuration options.
 #   2. Revise/improve OMNIORB_COMPILE_IDL_FORPYTHON_ON_INSTALL macro usage.
@@ -77,6 +80,8 @@ MACRO(OMNIORB_ADD_MODULE module idlfiles incdirs)
   
   # module sources
   SET(_sources)
+  # module produced files
+  SET(_all_outputs)
   # type of the libraries: SHARED for Linux, STATIC for Windows
   SET(_type SHARED)
   IF(WIN32)
@@ -114,6 +119,7 @@ MACRO(OMNIORB_ADD_MODULE module idlfiles incdirs)
     LIST(APPEND _sources ${_src})
     LIST(APPEND _sources ${_dynsrc})
     SET(_outputs ${_inc} ${_src} ${_dynsrc})
+    LIST(APPEND _all_outputs ${_outputs})
 
     ADD_CUSTOM_COMMAND(OUTPUT ${_outputs}
       COMMAND ${OMNIORB_IDL_COMPILER} ${_cxx_flags} ${_input_cmd}
@@ -131,5 +137,5 @@ MACRO(OMNIORB_ADD_MODULE module idlfiles incdirs)
   ADD_LIBRARY(${module} ${_type} ${_sources})
   TARGET_LINK_LIBRARIES(${module} ${_linklibs})
   SET_TARGET_PROPERTIES(${module} PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS}")
-
+  ADD_CUSTOM_TARGET(omniorb_module_${module} DEPENDS ${_all_outputs})
 ENDMACRO(OMNIORB_ADD_MODULE)
