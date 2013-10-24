@@ -93,10 +93,14 @@ IF(WIN32)
     
   SET(PLATFORM_LIBS Ws2_32.lib)
   LIST(APPEND PLATFORM_LIBS Userenv.lib)      # At least for GEOM suit
-  
-  IF(MACHINE_IS_64)
+
+  # Disable iterator debugging on WINDOWS in Debug Mode
+  IF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     ADD_DEFINITIONS(-D_SECURE_SCL=0 -D_SECURE_SCL_THROWS=0)
     ADD_DEFINITIONS(-D_HAS_ITERATOR_DEBUGGING=0) # To avoid runtime error during checking iterators
+  ENDIF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+  
+  IF(MACHINE_IS_64)
     SET(SIZE_OF_LONG 4)                          # set sizeof(long) to 4 byte
   ELSE()
     SET(SIZE_OF_LONG ${CMAKE_SIZEOF_VOID_P})     # set sizeof(long) the same as size of pointers
