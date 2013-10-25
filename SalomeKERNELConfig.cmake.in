@@ -51,6 +51,9 @@ SET_AND_CHECK(KERNEL_INCLUDE_DIRS "${KERNEL_ROOT_DIR_EXP}/@SALOME_INSTALL_HEADER
 SET(KERNEL_INCLUDE_DIRS "${KERNEL_INCLUDE_DIRS};@_SalomeKERNEL_EXTRA_HEADERS@")
 SET(KERNEL_DEFINITIONS)
 
+# Package specific environment variables
+@_SalomeKERNEL_EXTRA_ENV_FULL@
+
 #### Now the specificities
 
 # Options exported by the package:
@@ -180,5 +183,3 @@ SET(KERNEL_TOOLSDS TOOLSDS)
 SET(KERNEL_UtilsTest UtilsTest)
 SET(KERNEL_with_loggerTraceCollector with_loggerTraceCollector)
 SET(KERNEL_SalomeKernelHelpers SalomeKernelHelpers)
-
-

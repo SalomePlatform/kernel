@@ -636,3 +636,40 @@ MACRO(SALOME_ACCUMULATE_HEADERS lst)
     ENDIF()
   ENDFOREACH()
 ENDMACRO(SALOME_ACCUMULATE_HEADERS)
+
+#########################################################################
+# SALOME_ACCUMULATE_ENVIRONMENT()
+# 
+# USAGE: SALOME_ACCUMULATE_ENVIRONMENT(var value)
+#
+# ARGUMENTS:
+#   var   [in] environment variable name, e.g. PATH
+#   value [in] value(s) to be added to environment variable
+#
+# This macro is called in the various FindSalomeXYZ.cmake modules to 
+# accumulate environment variables, to be used later to run some command
+# in proper environment.
+#
+# 1. Each envrironment variable is stored in specific CMake variable
+#      _${PROJECT_NAME}_EXTRA_ENV_<var>
+# where <var> is name of variable.
+# 2. Full list of environment variable names is stored in CMake variable
+# _${PROJECT_NAME}_EXTRA_ENV.
+#
+MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar val)
+  FOREACH(_item ${val})
+    LIST(FIND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item} _res)
+    IF(_res EQUAL -1)
+      LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item})
+    ENDIF()
+  ENDFOREACH()
+  LIST(FIND _${PROJECT_NAME}_EXTRA_ENV ${envvar} _res)
+  IF(_res EQUAL -1)
+    LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV ${envvar})
+  ENDIF()
+  SET(_${PROJECT_NAME}_EXTRA_ENV_FULL "SET\(${PROJECT_NAME}_EXTRA_ENV ${_${PROJECT_NAME}_EXTRA_ENV}\)")
+  FOREACH(_res ${_${PROJECT_NAME}_EXTRA_ENV})
+    SET(_${PROJECT_NAME}_EXTRA_ENV_FULL "${_${PROJECT_NAME}_EXTRA_ENV_FULL}\nSET\(${PROJECT_NAME}_EXTRA_ENV_${_res} ${_${PROJECT_NAME}_EXTRA_ENV_${_res}}\)")
+  ENDFOREACH()
+ENDMACRO(SALOME_ACCUMULATE_ENVIRONMENT)
+
