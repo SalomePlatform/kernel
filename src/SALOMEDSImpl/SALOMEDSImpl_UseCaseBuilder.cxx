@@ -330,21 +330,31 @@ bool SALOMEDSImpl_UseCaseBuilder::SortChildren(const SALOMEDSImpl_SObject& theOb
   SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
   if (!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
 
+  std::list<SALOMEDSImpl_SObject> aRefSOs;
   std::list<SALOMEDSImpl_SObject> aNodeSOs;
-  for (SALOMEDSImpl_AttributeTreeNode* aChildNode=aNode->GetFirst(); aChildNode; aChildNode=aChildNode->GetNext() ) {
-    SALOMEDSImpl_SObject aSO = SALOMEDSImpl_Study::SObject(aChildNode->Label());
-    if (aSO) {
-      aNodeSOs.push_back(aSO);
+  for ( SALOMEDSImpl_AttributeTreeNode* aChildNode=aNode->GetFirst(); aChildNode; aChildNode=aChildNode->GetNext() ) {
+    if ( SALOMEDSImpl_SObject aSO = SALOMEDSImpl_Study::SObject( aChildNode->Label() ) ) {
+      if ( aChildNode->FindAttribute( SALOMEDSImpl_AttributeReference::GetID() ) )
+	aRefSOs.push_back( aSO );      
+      else
+	aNodeSOs.push_back( aSO );
     }
   }
-  if (aNodeSOs.empty()) return false;
-  
-  //sort items by names in ascending/descending order
-  theAscendingOrder ? aNodeSOs.sort( AscSortSOs() ) : aNodeSOs.sort( DescSortSOs() );
+  if ( aRefSOs.empty() && aNodeSOs.empty() ) return false;
 
-  std::list<SALOMEDSImpl_SObject>::iterator it;
-  for (it=aNodeSOs.begin(); it!=aNodeSOs.end(); ++it) {
-    AppendTo(aNode->GetSObject(), *it);
+ //sort items by names in ascending/descending order
+  std::list<SALOMEDSImpl_SObject>::iterator it;  
+  if ( !aRefSOs.empty() ) {
+    theAscendingOrder ? aRefSOs.sort( AscSortSOs() ) : aRefSOs.sort( DescSortSOs() );
+    for ( it = aRefSOs.begin(); it != aRefSOs.end(); ++it ) {
+      AppendTo( theObject, *it );
+    }
+  }  
+  if ( !aNodeSOs.empty() ) {
+    theAscendingOrder ? aNodeSOs.sort( AscSortSOs() ) : aNodeSOs.sort( DescSortSOs() );
+    for ( it = aNodeSOs.begin(); it != aNodeSOs.end(); ++it ) {
+      AppendTo( theObject, *it );
+    }
   }
 
   return true;
