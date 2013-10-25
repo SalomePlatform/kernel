@@ -32,6 +32,7 @@ namespace Launcher
 {
   typedef struct _xmlNode xmlNode;
   typedef xmlNode *xmlNodePtr;
+  typedef unsigned char xmlChar;
 
   class LAUNCHER_EXPORT XML_Persistence
   {
@@ -52,7 +53,25 @@ namespace Launcher
     XML_Persistence() {}
 
     static void addJobToXmlDocument(xmlNodePtr root_node, const Job & job);
+    static Job * createJobFromXmlNode(xmlNodePtr job_node);
+    static void parseUserNode(Job * new_job, xmlNodePtr user_node);
+    static void parseRunNode(Job * new_job, xmlNodePtr run_node);
+    static resourceParams parseResourceNode(xmlNodePtr res_node);
 
+
+    // Useful wrappers around libxml2 functions
+
+    // Return the value of the attribute, or an empty string if it is not defined
+    static std::string getAttrValue(xmlNodePtr node, const std::string & attrName);
+    static inline std::string xmlStrToString(const xmlChar * xmlStr);
+    static std::string getNodeContent(xmlNodePtr node);
+    template<typename T> static T getNumericalNodeContent(xmlNodePtr node);
+    static xmlNodePtr addNode(xmlNodePtr father, const std::string & name,
+                              const std::string & content);
+    template<typename T> static xmlNodePtr addNumericalNode(xmlNodePtr father,
+                                                            const std::string & name,
+                                                            T content);
+    static void addAttr(xmlNodePtr node, const std::string & name, const std::string & value);
   };
 
 }

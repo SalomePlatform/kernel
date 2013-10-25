@@ -540,8 +540,17 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
 void
 SALOME_Launcher::loadJobs(const char* jobs_file)
 {
-  // Load the jobs in Launcher
-  list<int> new_jobs_id_list = _l.loadJobs(jobs_file);
+  list<int> new_jobs_id_list;
+  try
+  {
+    // Load the jobs in Launcher
+    new_jobs_id_list = _l.loadJobs(jobs_file);
+  }
+  catch (const LauncherException & ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(), SALOME::INTERNAL_ERROR);
+  }
 
   // Notify observers of the new jobs
   list<int>::const_iterator it_jobs_id;

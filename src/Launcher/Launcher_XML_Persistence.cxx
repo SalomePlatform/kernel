@@ -57,419 +57,15 @@ XML_Persistence::loadJobs(const char* jobs_file)
   // Step 3: Find jobs
   list<Job *> jobs_list;
   xmlNodePtr root_node = xmlDocGetRootElement(doc);
-  xmlNodePtr xmlCurrentNode = root_node->xmlChildrenNode;
-  if (!xmlStrcmp(root_node->name, xmlCharStrdup("jobs")))
+  if (xmlStrToString(root_node->name) == "jobs")
   {
+    xmlNodePtr xmlCurrentNode = root_node->xmlChildrenNode;
     while(xmlCurrentNode != NULL)
     {
-      if (!xmlStrcmp(xmlCurrentNode->name, xmlCharStrdup("job")))
+      if (xmlStrToString(xmlCurrentNode->name) == "job")
       {
         LAUNCHER_INFOS("A job is found");
-        Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
-        xmlNodePtr job_node = xmlCurrentNode;
-
-        // Begin Job
-        if (!xmlHasProp(job_node, xmlCharStrdup("type"))  ||
-            !xmlHasProp(job_node, xmlCharStrdup("name")))
-        {
-          LAUNCHER_INFOS("A bad job is found, type or name not found");
-          break;
-        }
-        xmlChar* type = xmlGetProp(job_node, xmlCharStrdup("type"));
-        xmlChar* name = xmlGetProp(job_node, xmlCharStrdup("name"));
-        std::string job_type((const char*) type);
-        if (job_type == "command")
-          new_job = new Launcher::Job_Command();
-        else if (job_type == "yacs_file")
-          new_job = new Launcher::Job_YACSFile();
-        else if (job_type == "python_salome")
-          new_job = new Launcher::Job_PythonSALOME();
-        new_job->setJobName(std::string((const char *)name));
-        xmlFree(type);
-        xmlFree(name);
-
-        xmlNodePtr user_node = xmlFirstElementChild(job_node);
-        xmlNodePtr run_node = xmlNextElementSibling(user_node);
-        if (user_node == NULL || run_node == NULL)
-        {
-          LAUNCHER_INFOS("A bad job is found, user_part or run_part not found");
-          delete new_job;
-          break;
-        }
-        if (xmlStrcmp(user_node->name, xmlCharStrdup("user_part")) ||
-            xmlStrcmp(run_node->name, xmlCharStrdup("run_part")))
-        {
-          LAUNCHER_INFOS("A bad job is found, cannot get a correct user_part or run_part node");
-          delete new_job;
-          break;
-        }
-
-        // Add user part
-
-        // Get job_file env_file work_directory local_directory result_directory
-        xmlNodePtr job_file_node         = xmlFirstElementChild(user_node);
-        xmlNodePtr env_file_node         = xmlNextElementSibling(job_file_node);
-        xmlNodePtr work_directory_node   = xmlNextElementSibling(env_file_node);
-        xmlNodePtr local_directory_node  = xmlNextElementSibling(work_directory_node);
-        xmlNodePtr result_directory_node = xmlNextElementSibling(local_directory_node);
-
-                // Parameters for COORM
-        xmlNodePtr launcher_file_node = xmlNextElementSibling(result_directory_node);
-
-        if (job_file_node         == NULL ||
-            env_file_node         == NULL ||
-            work_directory_node   == NULL ||
-            local_directory_node  == NULL ||
-            result_directory_node == NULL ||
-                        // For COORM
-            launcher_file_node    == NULL
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some user_part are not found");
-          delete new_job;
-          break;
-        }
-        if (xmlStrcmp(job_file_node->name,         xmlCharStrdup("job_file"))         ||
-            xmlStrcmp(env_file_node->name,         xmlCharStrdup("env_file"))         ||
-            xmlStrcmp(work_directory_node->name,   xmlCharStrdup("work_directory"))   ||
-            xmlStrcmp(local_directory_node->name,  xmlCharStrdup("local_directory"))  ||
-            xmlStrcmp(result_directory_node->name, xmlCharStrdup("result_directory")) ||
-                        // For COORM
-            xmlStrcmp(launcher_file_node->name, xmlCharStrdup("launcher_file"))
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some user part node are not in the rigth or does not have a correct name");
-          delete new_job;
-          break;
-        }
-        xmlChar* job_file         = xmlNodeGetContent(job_file_node);
-        try
-        {
-          new_job->setJobFile(std::string((const char *)job_file));
-        }
-        catch(const LauncherException &ex)
-        {
-          LAUNCHER_INFOS("Exception receice for job_file, cannot add the job" << ex.msg.c_str());
-          delete new_job;
-          xmlFree(job_file);
-          break;
-        }
-        xmlChar* env_file         = xmlNodeGetContent(env_file_node);
-        xmlChar* work_directory   = xmlNodeGetContent(work_directory_node);
-        xmlChar* local_directory  = xmlNodeGetContent(local_directory_node);
-        xmlChar* result_directory = xmlNodeGetContent(result_directory_node);
-
-                // Parameters for COORM
-        xmlChar* launcher_file = xmlNodeGetContent(launcher_file_node);
-
-        new_job->setEnvFile(std::string((const char *)env_file));
-        new_job->setWorkDirectory(std::string((const char *)work_directory));
-        new_job->setLocalDirectory(std::string((const char *)local_directory));
-        new_job->setResultDirectory(std::string((const char *)result_directory));
-
-                // Parameters for COORM
-        new_job->setLauncherFile(std::string((const char *)launcher_file));
-
-        xmlFree(job_file);
-        xmlFree(env_file);
-        xmlFree(work_directory);
-        xmlFree(local_directory);
-        xmlFree(result_directory);
-
-                // Parameters for COORM
-                xmlFree(launcher_file);
-
-        // Get in and out files
-        xmlNodePtr files_node = xmlNextElementSibling(launcher_file_node);
-        if (files_node == NULL)
-        {
-          LAUNCHER_INFOS("A bad job is found, user_part files is not found");
-          delete new_job;
-          break;
-        }
-        if (xmlStrcmp(files_node->name, xmlCharStrdup("files")))
-        {
-          LAUNCHER_INFOS("A bad job is found, files node are not in the rigth place or does not have a correct name or does not exist");
-          delete new_job;
-          break;
-        }
-        xmlNodePtr file_node = xmlFirstElementChild(files_node);
-        while (file_node != NULL)
-        {
-          if (!xmlStrcmp(file_node->name, xmlCharStrdup("in_file")))
-          {
-            xmlChar* in_file = xmlNodeGetContent(file_node);
-            new_job->add_in_file(std::string((const char *)in_file));
-            xmlFree(in_file);
-          }
-          else if (!xmlStrcmp(file_node->name, xmlCharStrdup("out_file")))
-          {
-            xmlChar* out_file = xmlNodeGetContent(file_node);
-            new_job->add_out_file(std::string((const char *)out_file));
-            xmlFree(out_file);
-          }
-          file_node = xmlNextElementSibling(file_node);
-        }
-
-        // Get resource part
-        xmlNodePtr res_node = xmlNextElementSibling(files_node);
-        xmlNodePtr maximum_duration_node = xmlNextElementSibling(res_node);
-        xmlNodePtr queue_node = xmlNextElementSibling(maximum_duration_node);
-        xmlNodePtr exclusive_node = xmlNextElementSibling(queue_node);
-        xmlNodePtr mem_per_cpu_node = xmlNextElementSibling(exclusive_node);
-        xmlNodePtr launcher_args_node = xmlNextElementSibling(mem_per_cpu_node);
-        if (res_node              == NULL ||
-            maximum_duration_node == NULL ||
-            queue_node            == NULL ||
-            exclusive_node        == NULL ||
-            mem_per_cpu_node      == NULL ||
-                        // For COORM
-            launcher_args_node    == NULL
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some user_part are not found");
-          delete new_job;
-          break;
-        }
-        if (xmlStrcmp(res_node->name,              xmlCharStrdup("resource_params"))  ||
-            xmlStrcmp(maximum_duration_node->name, xmlCharStrdup("maximum_duration")) ||
-            xmlStrcmp(queue_node->name,            xmlCharStrdup("queue")) ||
-            xmlStrcmp(exclusive_node->name,        xmlCharStrdup("exclusive")) ||
-            xmlStrcmp(mem_per_cpu_node->name,      xmlCharStrdup("mem_per_cpu")) ||
-                        // For COORM
-            xmlStrcmp(launcher_args_node->name,    xmlCharStrdup("launcher_args"))
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some user part node are not in the rigth or does not have a correct name");
-          delete new_job;
-          break;
-        }
-        xmlChar* maximum_duration = xmlNodeGetContent(maximum_duration_node);
-        try
-        {
-          new_job->setMaximumDuration(std::string((const char *)maximum_duration));
-        }
-        catch(const LauncherException &ex)
-        {
-          LAUNCHER_INFOS("Exception receice for maximum_duration, cannot add the job" << ex.msg.c_str());
-          delete new_job;
-          xmlFree(maximum_duration);
-          break;
-        }
-        xmlChar* queue            = xmlNodeGetContent(queue_node);
-        new_job->setQueue(std::string((const char *)queue));
-        xmlFree(maximum_duration);
-        xmlFree(queue);
-
-        xmlChar* exclusive = xmlNodeGetContent(exclusive_node);
-        try
-        {
-          new_job->setExclusiveStr(std::string((const char *)exclusive));
-        }
-        catch(const LauncherException &ex)
-        {
-          LAUNCHER_INFOS("Exception received for exclusive, cannot add the job. " << ex.msg.c_str());
-          delete new_job;
-          xmlFree(exclusive);
-          break;
-        }
-        xmlFree(exclusive);
-
-        xmlChar* mem_per_cpu_str = xmlNodeGetContent(mem_per_cpu_node);
-        std::istringstream mem_per_cpu_stream((const char *)mem_per_cpu_str);
-        unsigned long mem_per_cpu = 0;
-        if (!(mem_per_cpu_stream >> mem_per_cpu))
-        {
-          LAUNCHER_INFOS("A bad job is found, mem_per_cpu parameter is not correct");
-          delete new_job;
-          break;
-        }
-        else
-          new_job->setMemPerCpu(mem_per_cpu);
-
-                // For COORM
-        xmlChar* launcher_args           = xmlNodeGetContent(launcher_args_node);
-        new_job->setLauncherArgs(std::string((const char *)launcher_args));
-        xmlFree(launcher_args);
-
-        xmlNodePtr specific_node = xmlNextElementSibling(launcher_args_node);
-        if (specific_node == NULL)
-        {
-          LAUNCHER_INFOS("A bad job is found, specific_parameters part is not found");
-          delete new_job;
-          break;
-        }
-        xmlNodePtr parameter_node = xmlFirstElementChild(specific_node);
-        while (parameter_node != NULL)
-        {
-          if (!xmlStrcmp(parameter_node->name, xmlCharStrdup("specific_parameter")))
-          {
-            xmlNodePtr name_node = xmlFirstElementChild(parameter_node);
-            xmlNodePtr value_node = xmlNextElementSibling(name_node);
-            if (name_node == NULL ||
-                value_node == NULL)
-            {
-              LAUNCHER_INFOS("A bad job is found, specific_parameter parts are not found");
-              delete new_job;
-              break;
-            }
-            if (xmlStrcmp(name_node->name, xmlCharStrdup("name")) ||
-                xmlStrcmp(value_node->name, xmlCharStrdup("value")))
-            {
-              LAUNCHER_INFOS("A bad job is found, specific_parameter bad parts are found");
-              delete new_job;
-              break;
-            }
-
-            xmlChar* name  = xmlNodeGetContent(name_node);
-            xmlChar* value = xmlNodeGetContent(value_node);
-            try
-            {
-              new_job->addSpecificParameter(std::string((const char*)name), std::string((const char*)value));
-              xmlFree(name);
-              xmlFree(value);
-            }
-            catch(const LauncherException &ex)
-            {
-              LAUNCHER_INFOS("Exception receice for a specific parameter, cannot add the job" << ex.msg.c_str());
-              delete new_job;
-              xmlFree(name);
-              xmlFree(value);
-              break;
-            }
-          }
-          else
-          {
-            LAUNCHER_INFOS("A bad job is found, specific_parameters part is bad, a node that is not a specific parameter is found");
-            delete new_job;
-            break;
-          }
-          parameter_node = xmlNextElementSibling(parameter_node);
-        }
-
-        xmlNodePtr res_name_node             = xmlFirstElementChild(res_node);
-        xmlNodePtr res_hostname_node         = xmlNextElementSibling(res_name_node);
-        xmlNodePtr res_os_node               = xmlNextElementSibling(res_hostname_node);
-        xmlNodePtr res_nb_proc_node          = xmlNextElementSibling(res_os_node);
-        xmlNodePtr res_nb_node_node          = xmlNextElementSibling(res_nb_proc_node);
-        xmlNodePtr res_nb_proc_per_node_node = xmlNextElementSibling(res_nb_node_node);
-        xmlNodePtr res_cpu_clock_node        = xmlNextElementSibling(res_nb_proc_per_node_node);
-        xmlNodePtr res_mem_mb_node           = xmlNextElementSibling(res_cpu_clock_node);
-        if (res_name_node             == NULL ||
-            res_hostname_node         == NULL ||
-            res_os_node               == NULL ||
-            res_nb_proc_node          == NULL ||
-            res_nb_node_node          == NULL ||
-            res_nb_proc_per_node_node == NULL ||
-            res_cpu_clock_node        == NULL ||
-            res_mem_mb_node           == NULL
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some resource_params user_part are not found");
-          delete new_job;
-          break;
-        }
-        if (xmlStrcmp(res_name_node->name,             xmlCharStrdup("name"))             ||
-            xmlStrcmp(res_hostname_node->name,         xmlCharStrdup("hostname"))         ||
-            xmlStrcmp(res_os_node->name,               xmlCharStrdup("OS"))               ||
-            xmlStrcmp(res_nb_proc_node->name,          xmlCharStrdup("nb_proc"))          ||
-            xmlStrcmp(res_nb_node_node->name,          xmlCharStrdup("nb_node"))          ||
-            xmlStrcmp(res_nb_proc_per_node_node->name, xmlCharStrdup("nb_proc_per_node")) ||
-            xmlStrcmp(res_cpu_clock_node->name,        xmlCharStrdup("cpu_clock"))        ||
-            xmlStrcmp(res_mem_mb_node->name,           xmlCharStrdup("mem_mb"))
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some resource_params user_part node are not in the rigth or does not have a correct name");
-          delete new_job;
-          break;
-        }
-        xmlChar* res_name     = xmlNodeGetContent(res_name_node);
-        xmlChar* res_hostname = xmlNodeGetContent(res_hostname_node);
-        xmlChar* res_os       = xmlNodeGetContent(res_os_node);
-        resourceParams p;
-        p.name     = std::string((const char*) res_name);
-        p.hostname = std::string((const char*) res_hostname);
-        p.OS       = std::string((const char*) res_os);
-        xmlFree(res_name);
-        xmlFree(res_hostname);
-        xmlFree(res_os);
-        xmlChar* res_nb_proc          = xmlNodeGetContent(res_nb_proc_node);
-        xmlChar* res_nb_node          = xmlNodeGetContent(res_nb_node_node);
-        xmlChar* res_nb_proc_per_node = xmlNodeGetContent(res_nb_proc_per_node_node);
-        xmlChar* res_cpu_clock        = xmlNodeGetContent(res_cpu_clock_node);
-        xmlChar* res_mem_mb           = xmlNodeGetContent(res_mem_mb_node);
-        bool import_value = true;
-        std::istringstream nb_proc_stream((const char *) res_nb_proc);
-        if (!(nb_proc_stream >> p.nb_proc))
-          import_value = false;
-        std::istringstream nb_node_stream((const char *) res_nb_node);
-        if (!(nb_node_stream >> p.nb_node))
-          import_value = false;
-        std::istringstream nb_proc_per_node_stream((const char *) res_nb_proc_per_node);
-        if (!(nb_proc_per_node_stream >> p.nb_proc_per_node))
-          import_value = false;
-        std::istringstream cpu_clock_stream((const char *) res_cpu_clock);
-        if (!(cpu_clock_stream >> p.cpu_clock))
-          import_value = false;
-        std::istringstream mem_mb_stream((const char *) res_mem_mb);
-        if (!(mem_mb_stream >> p.mem_mb))
-          import_value = false;
-        xmlFree(res_nb_proc);
-        xmlFree(res_nb_node);
-        xmlFree(res_nb_proc_per_node);
-        xmlFree(res_cpu_clock);
-        xmlFree(res_mem_mb);
-        if (!import_value)
-        {
-          LAUNCHER_INFOS("A bad job is found, some resource_params value are not correct");
-          delete new_job;
-          break;
-        }
-        try
-        {
-          new_job->setResourceRequiredParams(p);
-        }
-        catch(const LauncherException &ex)
-        {
-          LAUNCHER_INFOS("A bad job is found, an error when inserting resource_params:" << ex.msg.c_str());
-          delete new_job;
-          break;
-        }
-
-        // We finally get run part to figure out what to do
-        xmlNodePtr job_state_node             = xmlFirstElementChild(run_node);
-        xmlNodePtr resource_choosed_name_node = xmlNextElementSibling(job_state_node);
-        xmlNodePtr job_reference_node         = xmlNextElementSibling(resource_choosed_name_node);
-        if (job_state_node             == NULL ||
-            resource_choosed_name_node == NULL ||
-            job_reference_node         == NULL
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some run_part are not found");
-          delete new_job;
-          break;
-        }
-        if (xmlStrcmp(job_state_node->name,             xmlCharStrdup("job_state"))             ||
-            xmlStrcmp(resource_choosed_name_node->name, xmlCharStrdup("resource_choosed_name")) ||
-            xmlStrcmp(job_reference_node->name,         xmlCharStrdup("job_reference"))
-           )
-        {
-          LAUNCHER_INFOS("A bad job is found, some run_part nodes are not in the rigth or does not have a correct name");
-          delete new_job;
-          break;
-        }
-        xmlChar* job_state_xml             = xmlNodeGetContent(job_state_node);
-        xmlChar* resource_choosed_name_xml = xmlNodeGetContent(resource_choosed_name_node);
-        xmlChar* job_reference_xml         = xmlNodeGetContent(job_reference_node);
-        std::string job_state((const char *) job_state_xml);
-        std::string resource_choosed_name((const char *) resource_choosed_name_xml);
-        std::string job_reference((const char *) job_reference_xml);
-        xmlFree(job_state_xml);
-        xmlFree(resource_choosed_name_xml);
-        xmlFree(job_reference_xml);
-        new_job->setState(job_state);
-        new_job->setReference(job_reference);
-
+        Job * new_job = createJobFromXmlNode(xmlCurrentNode);
         jobs_list.push_back(new_job);
       }
       xmlCurrentNode = xmlCurrentNode->next;
@@ -540,79 +136,362 @@ void
 XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
 {
   // Begin job
-  xmlNodePtr job_node = xmlNewChild(root_node, NULL, xmlCharStrdup("job"), NULL);
-  xmlNewProp(job_node, xmlCharStrdup("type"), xmlCharStrdup(job.getJobType().c_str()));
-  xmlNewProp(job_node, xmlCharStrdup("name"), xmlCharStrdup(job.getJobName().c_str()));
+  xmlNodePtr job_node = addNode(root_node, "job", "");
+  addAttr(job_node, "type", job.getJobType());
+  addAttr(job_node, "name", job.getJobName());
 
   // Add user part
-  xmlNodePtr node = xmlNewChild(job_node, NULL, xmlCharStrdup("user_part"), NULL);
+  xmlNodePtr node = addNode(job_node, "user_part", "");
 
-  xmlNewChild(node, NULL, xmlCharStrdup("job_file"),         xmlCharStrdup(job.getJobFile().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("env_file"),         xmlCharStrdup(job.getEnvFile().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("work_directory"),   xmlCharStrdup(job.getWorkDirectory().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("local_directory"),  xmlCharStrdup(job.getLocalDirectory().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("result_directory"), xmlCharStrdup(job.getResultDirectory().c_str()));
+  addNode(node, "job_file", job.getJobFile());
+  if (!job.getEnvFile().empty())
+    addNode(node, "env_file", job.getEnvFile());
+  if (!job.getWorkDirectory().empty())
+    addNode(node, "work_directory", job.getWorkDirectory());
+  if (!job.getLocalDirectory().empty())
+    addNode(node, "local_directory", job.getLocalDirectory());
+  if (!job.getResultDirectory().empty())
+    addNode(node, "result_directory", job.getResultDirectory());
 
   // Parameters for COORM
-  xmlNewChild(node, NULL, xmlCharStrdup("launcher_file"), xmlCharStrdup(job.getLauncherFile().c_str()));
+  if (!job.getLauncherFile().empty())
+    addNode(node, "launcher_file", job.getLauncherFile());
+  if (!job.getLauncherArgs().empty())
+    addNode(node, "launcher_args", job.getLauncherArgs());
 
   // Files
-  xmlNodePtr files_node = xmlNewChild(node, NULL, xmlCharStrdup("files"), NULL);
-  std::list<std::string> in_files  = job.get_in_files();
-  std::list<std::string> out_files = job.get_out_files();
-  for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
-    xmlNewChild(files_node, NULL, xmlCharStrdup("in_file"), xmlCharStrdup((*it).c_str()));
-  for(std::list<std::string>::iterator it = out_files.begin(); it != out_files.end(); it++)
-    xmlNewChild(files_node, NULL, xmlCharStrdup("out_file"), xmlCharStrdup((*it).c_str()));
+  if ( ! (job.get_in_files().empty() && job.get_out_files().empty()) )
+  {
+    xmlNodePtr files_node = addNode(node, "files", "");
+    list<string> in_files = job.get_in_files();
+    list<string> out_files = job.get_out_files();
+    for(list<string>::iterator it = in_files.begin(); it != in_files.end(); it++)
+      addNode(files_node, "in_file", *it);
+    for(list<string>::iterator it = out_files.begin(); it != out_files.end(); it++)
+      addNode(files_node, "out_file", *it);
+  }
 
   // Resource part
   resourceParams resource_params = job.getResourceRequiredParams();
-  xmlNodePtr res_node = xmlNewChild(node, NULL, xmlCharStrdup("resource_params"), NULL);
-  xmlNewChild(res_node, NULL, xmlCharStrdup("name"),   xmlCharStrdup(resource_params.name.c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("hostname"),   xmlCharStrdup(resource_params.hostname.c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("OS"),   xmlCharStrdup(resource_params.OS.c_str()));
-  std::ostringstream nb_proc_stream;
-  std::ostringstream nb_node_stream;
-  std::ostringstream nb_proc_per_node_stream;
-  std::ostringstream cpu_clock_stream;
-  std::ostringstream mem_mb_stream;
-  nb_proc_stream << resource_params.nb_proc;
-  nb_node_stream << resource_params.nb_node;
-  nb_proc_per_node_stream << resource_params.nb_proc_per_node;
-  cpu_clock_stream << resource_params.cpu_clock;
-  mem_mb_stream << resource_params.mem_mb;
-  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_proc"),            xmlCharStrdup(nb_proc_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_node"),            xmlCharStrdup(nb_node_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_proc_per_node"),   xmlCharStrdup(nb_proc_per_node_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("cpu_clock"),          xmlCharStrdup(cpu_clock_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("mem_mb"),             xmlCharStrdup(mem_mb_stream.str().c_str()));
+  xmlNodePtr res_node = addNode(node, "resource_params", "");
+  addNode(res_node, "name", resource_params.name);
+  if (!resource_params.hostname.empty())
+    addNode(res_node, "hostname", resource_params.hostname);
+  if (!resource_params.OS.empty())
+    addNode(res_node, "OS", resource_params.OS);
+  if (resource_params.nb_proc > 0)
+    addNumericalNode(res_node, "nb_proc", resource_params.nb_proc);
+  if (resource_params.nb_node > 0)
+    addNumericalNode(res_node, "nb_node", resource_params.nb_node);
+  if (resource_params.nb_proc_per_node > 0)
+    addNumericalNode(res_node, "nb_proc_per_node", resource_params.nb_proc_per_node);
+  if (resource_params.cpu_clock > 0)
+    addNumericalNode(res_node, "cpu_clock", resource_params.cpu_clock);
+  if (resource_params.mem_mb > 0)
+    addNumericalNode(res_node, "mem_mb", resource_params.mem_mb);
 
-  xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(job.getMaximumDuration().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(job.getQueue().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("exclusive"),        xmlCharStrdup(job.getExclusiveStr().c_str()));
-  std::ostringstream mem_per_cpu_stream;
-  mem_per_cpu_stream << job.getMemPerCpu();
-  xmlNewChild(node, NULL, xmlCharStrdup("mem_per_cpu"),      xmlCharStrdup(mem_per_cpu_stream.str().c_str()));
-
-  // For COORM
-  xmlNewChild(node, NULL, xmlCharStrdup("launcher_args"), xmlCharStrdup(job.getLauncherArgs().c_str()));
+  if (!job.getMaximumDuration().empty())
+    addNode(node, "maximum_duration", job.getMaximumDuration());
+  if (!job.getQueue().empty())
+    addNode(node, "queue", job.getQueue());
+  if (job.getExclusive())
+    addNode(node, "exclusive", job.getExclusiveStr());
+  if (job.getMemPerCpu() > 0)
+    addNumericalNode(res_node, "mem_per_cpu", job.getMemPerCpu());
 
   // Specific parameters part
-  xmlNodePtr specific_parameters_node = xmlNewChild(node, NULL, xmlCharStrdup("specific_parameters"), NULL);
-  std::map<std::string, std::string> specific_parameters = job.getSpecificParameters();
-  for(std::map<std::string, std::string>::iterator it = specific_parameters.begin(); it != specific_parameters.end(); it++)
+  map<string, string> specific_parameters = job.getSpecificParameters();
+  if (!specific_parameters.empty())
   {
-    xmlNodePtr specific_parameter_node = xmlNewChild(specific_parameters_node, NULL, xmlCharStrdup("specific_parameter"), NULL);
-    xmlNewChild(specific_parameter_node, NULL, xmlCharStrdup("name"), xmlCharStrdup((it->first).c_str()));
-    xmlNewChild(specific_parameter_node, NULL, xmlCharStrdup("value"), xmlCharStrdup((it->second).c_str()));
+    xmlNodePtr specific_parameters_node = addNode(node, "specific_parameters", "");
+    for(map<string, string>::iterator it = specific_parameters.begin();
+        it != specific_parameters.end();
+        it++)
+    {
+      xmlNodePtr specific_parameter_node = addNode(specific_parameters_node,
+                                                   "specific_parameter", "");
+      addNode(specific_parameter_node, "name", it->first);
+      addNode(specific_parameter_node, "value", it->second);
+    }
   }
 
   // Run part
-  xmlNodePtr run_node = xmlNewChild(job_node, NULL, xmlCharStrdup("run_part"), NULL);
-  xmlNewChild(run_node, NULL, xmlCharStrdup("job_state"), xmlCharStrdup(job.getState().c_str()));
-  ParserResourcesType resource_definition = job.getResourceDefinition();
-  xmlNewChild(run_node, NULL, xmlCharStrdup("resource_choosed_name"), xmlCharStrdup(resource_definition.Name.c_str()));
-  xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job.getReference().c_str()));
+  xmlNodePtr run_node = addNode(job_node, "run_part", "");
+  addNode(run_node, "job_state", job.getState());
+  addNode(run_node, "job_reference", job.getReference());
+}
+
+Job *
+XML_Persistence::createJobFromXmlNode(xmlNodePtr job_node)
+{
+  Launcher::Job * new_job;
+
+  // Begin Job
+  string job_name = getAttrValue(job_node, "name");
+  if (job_name.empty())
+    throw LauncherException("Invalid job: name is not defined");
+  string job_type = getAttrValue(job_node, "type");
+  if (job_type.empty())
+    throw LauncherException(string("Invalid job \"") + job_name + "\": type is not defined");
+  if (job_type == "command")
+    new_job = new Launcher::Job_Command();
+  else if (job_type == "yacs_file")
+    new_job = new Launcher::Job_YACSFile();
+  else if (job_type == "python_salome")
+    new_job = new Launcher::Job_PythonSALOME();
+  else
+  {
+    string error = string("Invalid job \"") + job_name + "\": invalid type \"" + job_type + "\"";
+    throw LauncherException(error);
+  }
+  new_job->setJobName(job_name);
+
+  try
+  {
+    xmlNodePtr current_node = xmlFirstElementChild(job_node);
+    bool user_ok = false;
+    bool run_ok = false;
+    while (current_node != NULL)
+    {
+      string node_name = xmlStrToString(current_node->name);
+      if (node_name == "user_part")
+      {
+        parseUserNode(new_job, current_node);
+        user_ok = true;
+      }
+      else if (node_name == "run_part")
+      {
+        parseRunNode(new_job, current_node);
+        run_ok = true;
+      }
+      else
+        throw LauncherException(string("invalid node \"") + node_name + "\"");
+      current_node = xmlNextElementSibling(current_node);
+    }
+    if (!user_ok) throw LauncherException("missing user part");
+    if (!run_ok) throw LauncherException("missing run part");
+  }
+  catch (const LauncherException & exc)
+  {
+    delete new_job;
+    string error = string("Invalid job \"") + job_name + "\": " + exc.msg;
+    throw LauncherException(error);
+  }
+
+  return new_job;
+}
+
+void
+XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
+{
+  xmlNodePtr current_node = xmlFirstElementChild(user_node);
+  bool job_file_ok = false;
+  while (current_node != NULL)
+  {
+    string node_name = xmlStrToString(current_node->name);
+    if (node_name == "job_file")
+    {
+      new_job->setJobFile(getNodeContent(current_node));
+      job_file_ok = true;
+    }
+    else if (node_name == "env_file")
+      new_job->setEnvFile(getNodeContent(current_node));
+    else if (node_name == "work_directory")
+      new_job->setWorkDirectory(getNodeContent(current_node));
+    else if (node_name == "local_directory")
+      new_job->setLocalDirectory(getNodeContent(current_node));
+    else if (node_name == "result_directory")
+      new_job->setResultDirectory(getNodeContent(current_node));
+    else if (node_name == "launcher_file") // For COORM
+      new_job->setLauncherFile(getNodeContent(current_node));
+    else if (node_name == "launcher_args") // For COORM
+      new_job->setLauncherArgs(getNodeContent(current_node));
+    else if (node_name == "files")
+    {
+      // Get in and out files
+      xmlNodePtr file_node = xmlFirstElementChild(current_node);
+      while (file_node != NULL)
+      {
+        string file_node_name = xmlStrToString(file_node->name);
+        if (file_node_name == "in_file")
+          new_job->add_in_file(getNodeContent(file_node));
+        else if (file_node_name == "out_file")
+          new_job->add_out_file(getNodeContent(file_node));
+        else
+          throw LauncherException(string("invalid node \"") + file_node_name + "\"");
+        file_node = xmlNextElementSibling(file_node);
+      }
+    }
+    else if (node_name == "resource_params")
+      new_job->setResourceRequiredParams(parseResourceNode(current_node));
+    else if (node_name == "maximum_duration")
+      new_job->setMaximumDuration(getNodeContent(current_node));
+    else if (node_name == "queue")
+      new_job->setQueue(getNodeContent(current_node));
+    else if (node_name == "exclusive")
+      new_job->setExclusiveStr(getNodeContent(current_node));
+    else if (node_name == "mem_per_cpu")
+      new_job->setMemPerCpu(getNumericalNodeContent<unsigned long>(current_node));
+    else if (node_name == "specific_parameters")
+    {
+      // Get specific parameters
+      xmlNodePtr parameter_node = xmlFirstElementChild(current_node);
+      while (parameter_node != NULL)
+      {
+        string parameter_node_name = xmlStrToString(parameter_node->name);
+        if (parameter_node_name == "specific_parameter")
+        {
+          xmlNodePtr inparam_node = xmlFirstElementChild(parameter_node);
+          string name;
+          string value;
+          while (inparam_node != NULL)
+          {
+            string inparam_node_name = xmlStrToString(inparam_node->name);
+            if (inparam_node_name == "name")
+              name = getNodeContent(inparam_node);
+            else if (inparam_node_name == "value")
+              value = getNodeContent(inparam_node);
+            else
+              throw LauncherException(string("invalid node \"") + inparam_node_name + "\"");
+            inparam_node = xmlNextElementSibling(inparam_node);
+          }
+          if (name.empty()) throw LauncherException("missing parameter name");
+          if (value.empty()) throw LauncherException("missing parameter value");
+          new_job->addSpecificParameter(name, value);
+        }
+        else
+          throw LauncherException(string("invalid node \"") + parameter_node_name + "\"");
+        parameter_node = xmlNextElementSibling(parameter_node);
+      }
+    }
+    else
+      throw LauncherException(string("invalid node \"") + node_name + "\"");
+    current_node = xmlNextElementSibling(current_node);
+  }
+  if (!job_file_ok) throw LauncherException("missing job file");
+}
+
+resourceParams
+XML_Persistence::parseResourceNode(xmlNodePtr res_node)
+{
+  resourceParams p;
+  xmlNodePtr current_node = xmlFirstElementChild(res_node);
+  while (current_node != NULL)
+  {
+    string node_name = xmlStrToString(current_node->name);
+    if (node_name == "name")
+      p.name = getNodeContent(current_node);
+    else if (node_name == "hostname")
+      p.hostname = getNodeContent(current_node);
+    else if (node_name == "OS")
+      p.OS = getNodeContent(current_node);
+    else if (node_name == "nb_proc")
+      p.nb_proc = getNumericalNodeContent<long>(current_node);
+    else if (node_name == "nb_node")
+      p.nb_node = getNumericalNodeContent<long>(current_node);
+    else if (node_name == "nb_proc_per_node")
+      p.nb_proc_per_node = getNumericalNodeContent<long>(current_node);
+    else if (node_name == "cpu_clock")
+      p.cpu_clock = getNumericalNodeContent<long>(current_node);
+    else if (node_name == "mem_mb")
+      p.mem_mb = getNumericalNodeContent<long>(current_node);
+    else
+      throw LauncherException(string("invalid node \"") + node_name + "\"");
+    current_node = xmlNextElementSibling(current_node);
+  }
+  return p;
+}
+
+void
+XML_Persistence::parseRunNode(Job * new_job, xmlNodePtr run_node)
+{
+  xmlNodePtr current_node = xmlFirstElementChild(run_node);
+  while (current_node != NULL)
+  {
+    string node_name = xmlStrToString(current_node->name);
+    if (node_name == "job_state")
+      new_job->setState(getNodeContent(current_node));
+    else if (node_name == "resource_choosed_name")
+    {
+      // This parameter was present in older versions of Salome. Now we just silently ignore it.
+    }
+    else if (node_name == "job_reference")
+      new_job->setReference(getNodeContent(current_node));
+    else
+      throw LauncherException(string("invalid node \"") + node_name + "\"");
+    current_node = xmlNextElementSibling(current_node);
+  }
+}
+
+string
+XML_Persistence::getAttrValue(xmlNodePtr node, const string & attrName)
+{
+  string attrValue;
+  xmlChar * xmlAttrName = xmlCharStrdup(attrName.c_str());
+  xmlChar * xmlAttrValue = xmlGetProp(node, xmlAttrName);
+  if (xmlAttrValue != NULL) attrValue = (const char *)xmlAttrValue;
+  xmlFree(xmlAttrName);
+  xmlFree(xmlAttrValue);
+  return attrValue;
+}
+
+inline string
+XML_Persistence::xmlStrToString(const xmlChar * xmlStr)
+{
+  return string((const char *)xmlStr);
+}
+
+string
+XML_Persistence::getNodeContent(xmlNodePtr node)
+{
+  string nodeContent;
+  xmlChar * xmlStrContent = xmlNodeGetContent(node);
+  if (xmlStrContent != NULL) nodeContent = (const char *)xmlStrContent;
+  xmlFree(xmlStrContent);
+  return nodeContent;
+}
+
+template<typename T>
+T
+XML_Persistence::getNumericalNodeContent(xmlNodePtr node)
+{
+  T result;
+  istringstream nodeContentStream(getNodeContent(node));
+  if (!(nodeContentStream >> result))
+    throw LauncherException(xmlStrToString(node->name) + " parameter is not correct");
+  return result;
+}
+
+xmlNodePtr
+XML_Persistence::addNode(xmlNodePtr father, const string & name, const string & content)
+{
+  xmlChar * xmlStrName = xmlCharStrdup(name.c_str());
+  xmlChar * xmlStrContent = NULL;
+  if (!content.empty())
+    xmlStrContent = xmlCharStrdup(content.c_str());
+  xmlNodePtr node = xmlNewChild(father, NULL, xmlStrName, xmlStrContent);
+  xmlFree(xmlStrName);
+  xmlFree(xmlStrContent);
+  return node;
+}
+
+template<typename T>
+xmlNodePtr
+XML_Persistence::addNumericalNode(xmlNodePtr father, const string & name, T content)
+{
+  ostringstream nodeContentStream;
+  nodeContentStream << content;
+  return addNode(father, name, nodeContentStream.str());
+}
+
+void
+XML_Persistence::addAttr(xmlNodePtr node, const string & name, const string & value)
+{
+  xmlChar * xmlStrName = xmlCharStrdup(name.c_str());
+  xmlChar * xmlStrValue = xmlCharStrdup(value.c_str());
+  xmlNewProp(node, xmlStrName, xmlStrValue);
+  xmlFree(xmlStrName);
+  xmlFree(xmlStrValue);
 }
 
 }
