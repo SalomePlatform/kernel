@@ -25,9 +25,7 @@
 #
 
 # List the required components:
-#   Seting the following variable is equivalent to having passed the components
-#   when calling the FIND_PACKAGE() command.
-SET(SalomeVTK_FIND_COMPONENTS 
+SET(SalomeVTK_COMPONENTS 
   vtkRenderingFreeTypeOpenGL
   vtkRenderingLOD 
   vtkRenderingAnnotation 
@@ -38,6 +36,10 @@ SET(SalomeVTK_FIND_COMPONENTS
   vtkIOXML
   vtkFiltersVerdict
 )
+
+#   Seting the following variable is equivalent to having passed the components
+#   when calling the FIND_PACKAGE() command.
+SET(SalomeVTK_FIND_COMPONENTS ${SalomeVTK_COMPONENTS})
 
 # If no VTK root dir is specified, try the ParaView root dir:
 SET(PARAVIEW_ROOT_DIR "$ENV{PARAVIEW_ROOT_DIR}" CACHE PATH "Path to the ParaView installation")

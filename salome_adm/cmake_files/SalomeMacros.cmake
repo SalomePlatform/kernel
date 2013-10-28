@@ -673,3 +673,53 @@ MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar val)
   ENDFOREACH()
 ENDMACRO(SALOME_ACCUMULATE_ENVIRONMENT)
 
+
+#########################################################################
+# SALOME_APPEND_LIST_OF_LIST()
+# 
+# USAGE: SALOME_APPEND_LIST_OF_LIST(result element_list)
+#
+# Build a list of lists. The element_list is first parsed to convert it 
+# from 
+#     a;b;c;d;e
+# to 
+#     a,b,c,d,e
+#
+# It is then added to the big list 'result'. Hence 'result' looks like:
+#     a,b,c,d,e;f,g,h; ...
+#
+MACRO(SALOME_APPEND_LIST_OF_LIST result element_list)
+  SET(_tmp_res)
+  STRING(REPLACE ";" "," _tmp_res "${${element_list}}")
+  LIST(APPEND ${result} ${_tmp_res})
+ENDMACRO(SALOME_APPEND_LIST_OF_LIST)
+
+#########################################################################
+# SALOME_CONFIGURE_PREPARE()
+# 
+# USAGE: SALOME_CONFIGURE_PREPARE(pkg1 pkg2 ...)
+#
+# Prepare the variable that will be used to configure the file Salome<MODULE>Config.cmake,
+# namely:
+#    - _PREREQ_LIST      : the list of level 1 external prerequisites
+#    - _PREREQ_DIR_LIST  : their corresponding CMake directories (i.e. where the CMake configuration
+#    file for this package can be found, if there is any!)
+#    - _PREREQ_COMPO_LIST: the list of components requested when this package was invoked
+#
+# All this information is built from the package_list, the list of level 1 packages for this module.
+# Only the packages found in CONFIG mode are retained.
+#
+MACRO(SALOME_CONFIGURE_PREPARE)
+  SET(_tmp_prereq "${ARGV}")
+  SET(_PREREQ_LIST)
+  SET(_PREREQ_DIR_LIST)
+  SET(_PREREQ_COMPO_LIST)
+  FOREACH(_prereq IN LISTS _tmp_prereq)
+    IF(${_prereq}_DIR)
+      SET(_PREREQ_LIST "${_PREREQ_LIST} ${_prereq}")
+      SET(_PREREQ_DIR_LIST "${_PREREQ_DIR_LIST} \"${${_prereq}_DIR}\"")
+      SALOME_APPEND_LIST_OF_LIST(_PREREQ_COMPO_LIST Salome${_prereq}_COMPONENTS)
+    ENDIF()
+  ENDFOREACH()
+ENDMACRO(SALOME_CONFIGURE_PREPARE)
+
