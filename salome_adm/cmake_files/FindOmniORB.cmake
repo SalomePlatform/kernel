@@ -94,10 +94,12 @@ ENDIF (WIN32)
 ##############################################################################
 IF (WIN32)
   FIND_PROGRAM( OMNIORB_IDL_COMPILER
-    NAMES omniidl PATHS bin/x86_win32
+    NAMES omniidl 
+    PATH_SUFFIXES x86_win32
     DOC "What is the path where omniidl (the idl compiler) can be found")
   FIND_PROGRAM( OMNIORB_OMNINAMES_COMMAND
-    NAMES omniNames PATHS bin/x86_win32 
+    NAMES omniNames 
+    PATH_SUFFIXES x86_win32
   DOC "What is the path where omniNames (the ORB server) can be found")
 ELSE(WIN32)
   FIND_PROGRAM(OMNIORB_IDL_COMPILER NAMES omniidl)
