@@ -640,24 +640,23 @@ ENDMACRO(SALOME_ACCUMULATE_HEADERS)
 #########################################################################
 # SALOME_ACCUMULATE_ENVIRONMENT()
 # 
-# USAGE: SALOME_ACCUMULATE_ENVIRONMENT(var value)
+# USAGE: SALOME_ACCUMULATE_ENVIRONMENT(envvar value [value ...])
 #
 # ARGUMENTS:
-#   var   [in] environment variable name, e.g. PATH
-#   value [in] value(s) to be added to environment variable
+#   envvar [in] environment variable name, e.g. PATH
+#   value  [in] value(s) to be added to environment variable
 #
 # This macro is called in the various FindSalomeXYZ.cmake modules to 
 # accumulate environment variables, to be used later to run some command
 # in proper environment.
 #
 # 1. Each envrironment variable is stored in specific CMake variable
-#      _${PROJECT_NAME}_EXTRA_ENV_<var>
-# where <var> is name of variable.
+#    _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable.
 # 2. Full list of environment variable names is stored in CMake variable
-# _${PROJECT_NAME}_EXTRA_ENV.
+#    _${PROJECT_NAME}_EXTRA_ENV.
 #
-MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar val)
-  FOREACH(_item ${val})
+MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar)
+  FOREACH(_item ${ARGN})
     LIST(FIND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item} _res)
     IF(_res EQUAL -1)
       LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item})
@@ -673,6 +672,58 @@ MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar val)
   ENDFOREACH()
 ENDMACRO(SALOME_ACCUMULATE_ENVIRONMENT)
 
+#########################################################################
+# SALOME_GENERATE_ENVIRONMENT_SCRIPT()
+# 
+# USAGE: SALOME_GENERATE_ENVIRONMENT_SCRIPT(output script cmd opts)
+#
+# ARGUMENTS:
+#   output [out] output command, e.g. for creation of target.
+#   script [in]  output environement script name
+#   cmd    [in]  input command, e.g. sphinx or python command.
+#   opts   [in]  options for input command (cmd).
+#
+# This macro is called when it's necessary to use given environment to run some command. 
+# Macro generates environement script using previously created variables
+# _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable and
+# _${PROJECT_NAME}_EXTRA_ENV (see marco SALOME_ACCUMULATE_ENVIRONMENT);
+# and puts generated command in proper environment into <output> argument.
+# 
+# Notes:
+# - If <script> is specified as relative path, it is computed from the current build
+#   directory.
+#
+MACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT output script cmd opts)
+  IF(IS_ABSOLUTE ${script})
+    SET(_script ${script})
+  ELSE()
+    SET(_script ${CMAKE_CURRENT_BINARY_DIR}/${script})
+  ENDIF()
+
+  SET(_env)
+  FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
+    FOREACH(_val ${_${PROJECT_NAME}_EXTRA_ENV_${_item}})
+      IF(WIN32)
+        IF(${_item} STREQUAL "LD_LIBRARY_PATH")
+          SET(_item PATH)
+        ENDIF()
+        STRING(REPLACE "/" "\\" _env "${_env} @SET ${_item}=${_val}\;%${_item}%\n")
+        SET(_ext "bat")
+        SET(_call_cmd "call")
+      ELSE(WIN32)
+        SET(_env "${_env} export ${_item}=${_val}:\${${_item}}\n")
+        SET(_ext "sh")
+        SET(_call_cmd ".")
+      ENDIF(WIN32)
+    ENDFOREACH()
+  ENDFOREACH()
+  
+  SET(_script ${_script}.${_ext})
+  FILE(WRITE ${_script} "${_env}")
+  
+  SET(${output} ${_call_cmd} ${_script} && ${cmd} ${opts})
+  
+ENDMACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT)
 
 #########################################################################
 # SALOME_APPEND_LIST_OF_LIST()
@@ -722,4 +773,3 @@ MACRO(SALOME_CONFIGURE_PREPARE)
     ENDIF()
   ENDFOREACH()
 ENDMACRO(SALOME_CONFIGURE_PREPARE)
-
