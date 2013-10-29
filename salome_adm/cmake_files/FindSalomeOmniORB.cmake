@@ -31,5 +31,6 @@ IF(OMNIORB_FOUND)
   SALOME_ACCUMULATE_ENVIRONMENT(PATH ${OMNIORB_ROOT_DIR}/bin)
   SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH ${OMNIORB_ROOT_DIR}/lib)
   SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH ${OMNIORB_ROOT_DIR}/lib 
-                                           ${OMNIORB_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+                                           ${OMNIORB_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
+                                           ${OMNIORB_ROOT_DIR}/lib64/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
 ENDIF()
