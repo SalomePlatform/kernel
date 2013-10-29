@@ -19,7 +19,7 @@
 # Author: Adrien Bruneton
 #
 
-# LibBatch detection dor Salome
+# LibBatch detection for Salome
 #
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
@@ -27,5 +27,7 @@
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(LibBatch LIBBATCH_ROOT_DIR_EXP 0)
 #MARK_AS_ADVANCED()
 
-SALOME_ACCUMULATE_HEADERS(LIBBATCH_INCLUDE_DIRS)
-
+IF(SALOMELIBBATCH_FOUND) 
+  SALOME_ACCUMULATE_HEADERS(LIBBATCH_INCLUDE_DIRS)
+  SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH ${LIBBATCH_ROOT_DIR}/lib)
+ENDIF()

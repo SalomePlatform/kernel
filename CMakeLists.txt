@@ -168,6 +168,12 @@ MARK_AS_ADVANCED(SALOME_INSTALL_APPLISKEL_SCRIPTS  SALOME_INSTALL_APPLISKEL_PYTH
 MARK_AS_ADVANCED(SALOME_INSTALL_PYTHON SALOME_INSTALL_PYTHON_SHARED SALOME_KERNEL_INSTALL_RES_DATA SALOME_KERNEL_INSTALL_RES_SCRIPTS SALOME_INSTALL_DOC)
 MARK_AS_ADVANCED(SALOME_INSTALL_AMCONFIG SALOME_INSTALL_AMCONFIG_LOCAL)
 
+# Accumulate environment variables for KERNEL module
+SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_BINS}
+                                         ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_PYTHON}
+                                         ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_PYTHON_SHARED})
+SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_LIBS})
+
 # Sources 
 # ========
 IF(NOT SALOME_LIGHT_ONLY)
@@ -193,7 +199,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # List of targets in this project we want to make visible to the rest of the world.
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
-# Temporary solution for pakage src\DSC on windows
+# Temporary solution for package src\DSC on windows
 IF(NOT WIN32)
   SET(DSC_TGS CalciumC SalomeCalcium SalomeDatastream 
   SalomePalm SalomeDSCSupervBasic SalomeDSCSuperv)
