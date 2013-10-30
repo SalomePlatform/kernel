@@ -656,18 +656,21 @@ ENDMACRO(SALOME_ACCUMULATE_HEADERS)
 #    _${PROJECT_NAME}_EXTRA_ENV.
 #
 # Notes:
-# - If in arguments is set keyword CHECK all argument after checked for directory, 
-#   else if NOT_CHECK macro accumulates arguments without checking.
-#   By default all arguments without keyword must be checked.
+# - The arguments list can include optional CHECK or NOCHECK keywords:
+#   * For all arguments following CHECK keyword the macro perform an
+#     additional check (see below); this is the default mode, it is suitable
+#     for path variables (PATH, LD_LIBRARY_PATH, etc).
+#   * For all arguments following NOCHECK keyword, no additional check is
+#     performed.
 #   Checking an argument means that we check:
-#    - that the path actually exists
-#    - that this is not a standard system path (starting with "/usr"). This avoids
+#    - That the path actually exists
+#    - That this is not a standard system path (starting with "/usr"); this avoids
 #   polluting LD_LIBRARY_PATH or PATH with things like "/usr/lib64" ...
 #
 MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar)
   SET(_is_check ON)
   FOREACH(_item ${ARGN})
-    IF(${_item} STREQUAL "NOT_CHECK")
+    IF(${_item} STREQUAL "NOCHECK")
       SET(_is_check OFF)
     ELSEIF(${_item} STREQUAL "CHECK")
       SET(_is_check ON)
