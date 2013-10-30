@@ -32,7 +32,7 @@ def __getConfigFileNamesDefault():
   return __listDirectory(envdDir)
 #
 
-def getConfigFileNames(args):
+def getConfigFileNames(args, checkExistence=False):
   # special case: configuration files are provided by user
   # Search for command-line argument(s) --config=file1,file2,..., filen
   # Search for command-line argument(s) --config=dir1,dir2,..., dirn
@@ -40,12 +40,13 @@ def getConfigFileNames(args):
   configArgs = [ str(x) for x in args if str(x).startswith(configOptionPrefix) ]
 
   if len(configArgs) == 0:
-    return __getConfigFileNamesDefault(), args
+    return __getConfigFileNamesDefault(), args, []
 
   args = [ x for x in args if not x.startswith(configOptionPrefix) ]
   allLists = [ x.replace(configOptionPrefix, '') for x in configArgs ]
 
   configFileNames = []
+  unexisting = []
   for currentList in allLists:
     elements = currentList.split(',')
     for elt in elements:
@@ -53,9 +54,12 @@ def getConfigFileNames(args):
       if os.path.isdir(elt):
         configFileNames += __listDirectory(elt)
       else:
-        configFileNames += [elt]
+        if checkExistence and not os.path.isfile(elt):
+          unexisting += [elt]
+        else:
+          configFileNames += [elt]
 
-  return configFileNames, args
+  return configFileNames, args, unexisting
 #
 
 # Return an array of dictionaries {script_name: [list_of_its_args]}
@@ -113,4 +117,30 @@ def formatScriptsAndArgs(scriptArgs=[]):
 
     command = "; ".join(["%s"%x for x in commands])
     return command
+#
+
+# Ensure OMNIORB_USER_PATH is defined. This variable refers to a the folder in which
+# SALOME will write omniOrb configuration files.
+# If OMNIORB_USER_PATH is already set, only checks write access to associated directory ;
+# an exception is raised if check fails. It allows users for choosing a specific folder.
+# Else the function sets OMNIORB_USER_PATH this way:
+# - If APPLI environment variable is set, OMNIORB_USER_PATH is set to ${APPLI}/USERS.
+#   The function does not check USERS folder existence or wrute access. This folder
+#   must exist ; this is the case if SALOME virtual application has been create using
+#   appli_gen.py script.
+# - Else OMNIORB_USER_PATH is set to user home directory.
+def setOmniOrbUserPath():
+  omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+  if omniorbUserPath:
+    if not os.access(omniorbUserPath, os.W_OK):
+      raise Exception("Unable to get write access to directory: %s"%omniorbUserPath)
+    pass
+  else:
+    homePath = os.path.realpath(os.path.expanduser('~'))
+    #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
+    defaultOmniorbUserPath = homePath
+    if os.getenv("APPLI"):
+      defaultOmniorbUserPath = os.path.join(homePath, os.getenv("APPLI"), "USERS")
+      pass
+    os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
 #

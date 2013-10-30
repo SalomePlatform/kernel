@@ -17,14 +17,15 @@ def __initialize():
   os.environ['APPLI'] = appliPath # needed to convert .sh environment files
   os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
 
-  # define folder to store omniorb config (initially in virtual application folder)
-  #omniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
-  omniorbUserPath = os.path.join(homePath, appliPath, "USERS")
-  os.environ['OMNIORB_USER_PATH'] = omniorbUserPath
-  if not os.path.exists(omniorbUserPath):
-    os.makedirs(omniorbUserPath)
-
   sys.path[:0] = [absoluteAppliPath+'/bin/salome']
+
+  # define folder to store omniorb config (initially in virtual application folder)
+  try:
+    from salomeLauncherUtils import setOmniOrbUserPath
+    setOmniOrbUserPath()
+  except Exception, e:
+    print e
+    sys.exit(1)
 # End of preliminary work
 
 def main(args):
@@ -36,20 +37,11 @@ def main(args):
     usage()
     sys.exit(0)
 
-
   from salomeLauncherUtils import getConfigFileNames
-  configFileNames, args = getConfigFileNames(args)
-
-  # WHY? Incorrect/Inexisting files are supposed to be ignored by SalomeRunner.
-  # Might simply need bug fix; please provide test case.
-  error=False
-  for aFile in configFileNames:
-    if not os.path.isfile(aFile):
-      print "ERROR: inexisting file: "+aFile
-      error=True
-  if error:
+  configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True)
+  if len(unexisting) > 0:
+    print "ERROR: unexisting configuration file(s): " + ', '.join(unexisting)
     sys.exit(1)
-
 
   # Create a SalomeRunner which parses configFileNames to initialize environment
   try:

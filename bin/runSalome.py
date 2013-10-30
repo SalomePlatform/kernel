@@ -32,7 +32,6 @@ import setenv
 from launchConfigureParser import verbose
 from server import process_id, Server
 import json
-from salomeLauncherUtils import formatScriptsAndArgs
 import subprocess
 
 # -----------------------------------------------------------------------------
@@ -677,7 +676,7 @@ def startSalome(args, modules_list, modules_root_dir):
             import readline
         except ImportError:
             pass
-    
+
     # siman session paramenters and checkout processing
     if simanStudyName(args):
         print '**********************************************'
@@ -698,7 +697,7 @@ def startSalome(args, modules_list, modules_root_dir):
             mySession = obj._narrow(SALOME.Session)
             mySession.emitMessage("simanCheckoutDone " + simanStudyName(args))
         print '**********************************************'
-        
+
     return clt
 
 # -----------------------------------------------------------------------------
@@ -779,6 +778,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 if not args['gui'] or not args['session_gui']:
                     toimport = args['pyscript']
 
+        from salomeLauncherUtils import formatScriptsAndArgs
         command = formatScriptsAndArgs(toimport)
         if command:
             proc = subprocess.Popen(command, shell=True)
@@ -830,16 +830,13 @@ def no_main():
 def main():
     """Salome launch as a main application"""
 
-    ### TEMP >>> ###
-    if not os.getenv("OMNIORB_USER_PATH"):
-        homePath = os.path.realpath(os.path.expanduser('~'))
-        #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
-        defaultOmniorbUserPath = homePath
-        if os.getenv("APPLI"):
-            defaultOmniorbUserPath = os.path.join(homePath, os.getenv("APPLI"), "USERS")
-        os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
-        pass
-    ### <<< TEMP ###
+    # define folder to store omniorb config (initially in virtual application folder)
+    try:
+        from salomeLauncherUtils import setOmniOrbUserPath
+        setOmniOrbUserPath()
+    except Exception, e:
+        print e
+        sys.exit(1)
 
     from salome_utils import getHostName
     print "runSalome running on %s" % getHostName()
