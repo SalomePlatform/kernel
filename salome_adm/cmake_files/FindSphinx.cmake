@@ -30,7 +30,7 @@
 #
 ###########################################################################
 
-FIND_PROGRAM(SPHINX_EXECUTABLE sphinx-build)
+FIND_PROGRAM(SPHINX_EXECUTABLE sphinx-build PATH_SUFFIXES Scripts)
 
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
