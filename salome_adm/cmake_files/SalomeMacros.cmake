@@ -659,6 +659,10 @@ ENDMACRO(SALOME_ACCUMULATE_HEADERS)
 # - If in arguments is set keyword CHECK all argument after checked for directory, 
 #   else if NOT_CHECK macro accumulates arguments without checking.
 #   By default all arguments without keyword must be checked.
+#   Checking an argument means that we check:
+#    - that the path actually exists
+#    - that this is not a standard system path (starting with "/usr"). This avoids
+#   polluting LD_LIBRARY_PATH or PATH with things like "/usr/lib64" ...
 #
 MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar)
   SET(_is_check ON)
