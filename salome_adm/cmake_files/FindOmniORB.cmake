@@ -7,6 +7,7 @@
 # OMNIORB_VERSION      - OmniORB4 version
 # OMNIORB_IDL_COMPILER - OmniORB4 idl compiler command (omniidl)
 # OMNIORB_NAMESERVER   - OmniORB4 CORBA naming service (omniNames)
+# OMNIORB_PYTHONPATH   - path to the OmniORB Python modules 
 # and many other mainly used in UseOmniORB.cmake  
 #
 # Detection is made through calls to 
@@ -126,6 +127,10 @@ ENDIF()
 IF(OMNIORB_LIBRARY_COSDynamic4)
     LIST(APPEND OMNIORB_LIBRARIES ${OMNIORB_LIBRARY_COSDynamic4})
 ENDIF()
+
+# Set path to the OmniORB Python modules
+GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${OMNIORB_LIBRARIES}" PATH) 
+SET(OMNIORB_PYTHONPATH "${_tmp_ROOT_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
 
 # Optionaly, extract the the version number from the acconfig.h file:
 # The version check is done at the very bottom of this file.
