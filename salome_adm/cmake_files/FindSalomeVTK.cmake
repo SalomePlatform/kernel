@@ -35,6 +35,8 @@ SET(SalomeVTK_COMPONENTS
   vtkWrappingPython
   vtkIOXML
   vtkFiltersVerdict
+  vtkRenderingLabel
+  vtkInteractionWidgets
 )
 
 #   Seting the following variable is equivalent to having passed the components
