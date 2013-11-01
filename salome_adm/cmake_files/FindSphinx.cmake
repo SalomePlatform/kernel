@@ -33,8 +33,11 @@ FIND_PROGRAM(SPHINX_EXECUTABLE sphinx-build PATH_SUFFIXES Scripts)
 # Get root dir locally, going up two levels from the exec:
 GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${SPHINX_EXECUTABLE}" PATH)
 GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${_tmp_ROOT_DIR}" PATH)
-SET(SPHINX_PYTHONPATH "${_tmp_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
-
+IF(WIN32)
+  SET(SPHINX_PYTHONPATH "${_tmp_ROOT_DIR}/lib/site-packages")
+ELSE()
+  SET(SPHINX_PYTHONPATH "${_tmp_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+ENDIF()
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Sphinx REQUIRED_VARS SPHINX_EXECUTABLE)
