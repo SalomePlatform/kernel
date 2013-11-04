@@ -245,8 +245,13 @@ SET(OMNIORB_ROOT_DIR "${OMNIORB_ROOT_DIR}")
 SET(OMNIORBPY_ROOT_DIR "${OMNIORBPY_ROOT_DIR}")
 SET(LIBBATCH_ROOT_DIR "${LIBBATCH_ROOT_DIR}")
 SET(SIMANIO_ROOT_DIR "${SIMANIO_ROOT_DIR}")
- 
+
 SET(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_BINARY_DIR}/include")
+
+# Build variables that will be expanded when configuring Salome<MODULE>Config.cmake:
+SALOME_CONFIGURE_PREPARE(CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch 
+                         PThread Boost HDF5 libXml2 Python SIMANIO HDF5)
+
 CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in 
     ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     INSTALL_DESTINATION "${SALOME_INSTALL_CMAKE}"

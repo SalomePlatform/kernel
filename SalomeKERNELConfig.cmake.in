@@ -105,20 +105,27 @@ SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
 # For all prerequisites, load the corresponding targets if the package was used 
 # in CONFIG mode. This ensures dependent projects link correctly
 # without having to set LD_LIBRARY_PATH:
-SET(_PREREQ CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch PThread Boost HDF5 libXml2 Python SIMANIO)
-SET(_PREREQ_CONFIG_DIR "@CppUnit_DIR@" "@Graphviz_DIR@" "@Doxygen_DIR@" "@Sphinx_DIR@" 
-      "@MPI_DIR@" "@omniORB_DIR@" "@LibBatch_DIR@" "@PThread_DIR@" "@Boost_DIR@" "@HDF5_DIR@"
-      "@libXml2_DIR@" "@Python_DIR@" "@SIMANIO_DIR@")
+SET(_PREREQ @_PREREQ_LIST@)
+SET(_PREREQ_CONFIG_DIR @_PREREQ_DIR_LIST@)
+SET(_PREREQ_COMPONENTS "@_PREREQ_COMPO_LIST@")
 LIST(LENGTH _PREREQ_CONFIG_DIR _list_len)
 # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
 MATH(EXPR _range "${_list_len}-1")
 FOREACH(_p RANGE ${_range})  
   LIST(GET _PREREQ            ${_p} _pkg    )
   LIST(GET _PREREQ_CONFIG_DIR ${_p} _pkg_dir)
-  IF(_pkg_dir)
-     MESSAGE(STATUS "===> Reloading targets from ${_pkg} ...")
-     FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE 
+  LIST(GET _PREREQ_COMPONENTS ${_p} _pkg_compo)
+  MESSAGE(STATUS "===> Reloading targets from ${_pkg} ...")
+  IF(NOT _pkg_compo)
+    FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE 
           PATHS "${_pkg_dir}" 
+          NO_DEFAULT_PATH)
+  ELSE()
+    STRING(REPLACE "," ";" _compo_lst "${_pkg_compo}")
+    MESSAGE(STATUS "===> (components: ${_pkg_compo})")
+    FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE
+          COMPONENTS ${_compo_lst} 
+          PATHS "${_pkg_dir}"
           NO_DEFAULT_PATH)
   ENDIF()
 ENDFOREACH()

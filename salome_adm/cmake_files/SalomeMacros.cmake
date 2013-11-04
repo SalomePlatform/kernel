@@ -778,7 +778,7 @@ ENDMACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT)
 MACRO(SALOME_APPEND_LIST_OF_LIST result element_list)
   SET(_tmp_res)
   STRING(REPLACE ";" "," _tmp_res "${${element_list}}")
-  LIST(APPEND ${result} ${_tmp_res})
+  SET(${result} "${${result}};${_tmp_res}")  # LIST(APPEND ...) doesn't handle well empty elements!?
 ENDMACRO(SALOME_APPEND_LIST_OF_LIST)
 
 #########################################################################
