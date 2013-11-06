@@ -762,6 +762,35 @@ MACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT output script cmd opts)
 ENDMACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT)
 
 #########################################################################
+# SALOME_GENERATE_TESTS_ENVIRONMENT()
+# 
+# USAGE: SALOME_GENERATE_TESTS_ENVIRONMENT(output)
+#
+# ARGUMENTS:
+#   output [out] output environement variable.
+#
+# This macro generates <output> variable to use given environment to run some tests. 
+# Macro generates environement variable using previously created variables
+# _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable and
+# _${PROJECT_NAME}_EXTRA_ENV (see marco SALOME_ACCUMULATE_ENVIRONMENT);
+# and puts this variable into <output> argument.
+#
+MACRO(SALOME_GENERATE_TESTS_ENVIRONMENT output)
+  SET(_env)
+  FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
+    FOREACH(_val ${_${PROJECT_NAME}_EXTRA_ENV_${_item}})
+      IF(WIN32)
+        SET(_env "${_val};${_env}")
+      ELSE()
+        SET(_env "${_val}:${_env}")
+      ENDIF()
+    ENDFOREACH()
+    SET(_env " ${_item}=${_env}")
+  ENDFOREACH() 
+  SET(${output} ${_env})  
+ENDMACRO(SALOME_GENERATE_TESTS_ENVIRONMENT)
+
+#########################################################################
 # SALOME_APPEND_LIST_OF_LIST()
 # 
 # USAGE: SALOME_APPEND_LIST_OF_LIST(result element_list)
