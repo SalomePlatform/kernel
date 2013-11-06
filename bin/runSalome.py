@@ -783,7 +783,7 @@ def useSalome(args, modules_list, modules_root_dir):
         if command:
             proc = subprocess.Popen(command, shell=True)
             res = proc.wait()
-            if not res: sys.exit(1) # if there's an error when executing script, we should explicitly exit
+            if res: sys.exit(1) # if there's an error when executing script, we should explicitly exit
 
     return clt
 
