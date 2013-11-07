@@ -21,9 +21,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ROOT_SRCDIR=@ROOT_SRCDIR@
+ROOT_SRCDIR=@CMAKE_SOURCE_DIR@
 export ROOT_SRCDIR
-ROOT_BUILDDIR=@ROOT_BUILDDIR@
+ROOT_BUILDDIR=@CMAKE_BINARY_DIR@
 export ROOT_BUILDDIR
 SRCDIR=${ROOT_SRCDIR}/src/ModuleGenerator
 export SRCDIR
