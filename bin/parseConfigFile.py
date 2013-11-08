@@ -167,7 +167,8 @@ def __processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
         pattern = re.compile('\${ ( [^}]* ) }', re.VERBOSE) # string enclosed in ${ and }
         expandedVal = pattern.sub(r'', expandedVal) # remove matching patterns
         # Trim colons
-        expandedVal = _trimColons(expandedVal)
+        if not "DLIM8VAR" in key: # special case: DISTENE licence key can contain double clons (::)
+          expandedVal = _trimColons(expandedVal)
 
         if key in reservedKeys:
           shortKey = key[len(ADD_TO_PREFIX):]
