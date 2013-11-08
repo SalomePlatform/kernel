@@ -595,6 +595,21 @@ MACRO(SALOME_ADD_MPI_TO_HDF5)
 ENDMACRO(SALOME_ADD_MPI_TO_HDF5)
 
 ####################################################################
+# SALOME_TOHEXA()
+# Convert a number (smaller than 16) into hexadecimal representation
+# with a leading 0.
+MACRO(SALOME_TOHEXA num result)
+  SET(_hexa_map a b c d e f)
+  IF(${num} LESS 10)
+    SET(${result} "0${num}")
+  ELSE()
+    MATH(EXPR _res "${num}-10" )
+    LIST(GET _hexa_map ${_res} _out)
+    SET(${result} "0${_out}")
+  ENDIF()
+ENDMACRO(SALOME_TOHEXA)
+
+####################################################################
 # SALOME_XVERSION()
 # 
 # Computes hexadecimal version of SALOME package
@@ -613,10 +628,16 @@ ENDMACRO(SALOME_ADD_MPI_TO_HDF5)
 MACRO(SALOME_XVERSION pkg)
   STRING(TOUPPER ${pkg} _pkg_UC)
   IF(${_pkg_UC}_VERSION)
-    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${${_pkg_UC}_VERSION}
-                    OUTPUT_VARIABLE ${_pkg_UC}_XVERSION)
+    SET(_major)
+    SET(_minor)
+    SET(_patch)
+    SALOME_TOHEXA(${${_pkg_UC}_MAJOR_VERSION} _major)
+    SALOME_TOHEXA(${${_pkg_UC}_MINOR_VERSION} _minor)
+    SALOME_TOHEXA(${${_pkg_UC}_PATCH_VERSION} _patch)
+    SET(${_pkg_UC}_XVERSION "0x${_major}${_minor}${_patch}")
   ENDIF()
 ENDMACRO(SALOME_XVERSION)
+
 
 #########################################################################
 # SALOME_ACCUMULATE_HEADERS()
