@@ -49,7 +49,7 @@ if rootContext is None:
 
 #resolve the name /Containers.dir/FactoryServerPy.object
 machineName=getShortHostName()
-containerName = "FactoryServerPy"
+containerName = "FactoryServer"
 name = [CosNaming.NameComponent("Containers","dir"),
         CosNaming.NameComponent(machineName,"dir"),
         CosNaming.NameComponent(containerName,"object")]
@@ -62,12 +62,10 @@ except CosNaming.NamingContext.NotFound, ex:
 
 container = obj._narrow(Engines.Container)
 print container.getHostName()
-comp = container.load_impl("SALOME_TestComponentPy","SALOME_TestComponentPy")
+comp = container.load_impl("SalomeTestComponent","SalomeTestComponent")
 print comp._get_instanceName()
 comp.ping()
 comptest = comp._narrow(Engines.TestComponent)
 if comptest is None:
     print "probleme cast"
 print comptest.Coucou(1)
-
-
