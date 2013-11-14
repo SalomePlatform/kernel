@@ -169,7 +169,7 @@ Considering the elements described above, a procedure that works to
 get the packaged python structure is:
 
 * Rename the file ``salome.py`` in ``__init__.py`` (and adapt the
-  Makefile.am). This is located in the source directory
+  CMakeLists.txt). This is located in the source directory
   ``src/KERNEL_PY``.
 * Copy the sources files of the kernel part in the source directory
   ``src/KERNEL_PY`` starting with a stage named ``kernel`` including

@@ -46,7 +46,7 @@ Summary
 First of all, you have to check (or install if needed) the dependant
 software programs on your system. These programs are:
 
-- common development tools as gcc, automake, autoconf and libtools.
+- common development tools as gcc, CMake tool.
 - third party softwares used in SALOME building or runtime process
   (python, OCC, VTK, ...)
 
@@ -62,12 +62,13 @@ The next step is to install the KERNEL (cf. [5] "Installing KERNEL"):
 
 $ mkdir <kernel_build>
 $ mkdir <kernel_install>
-$ cd <kernel_src>
-$ ./build_configure
 $ cd <kernel_build>
-$ <kernel_src>/configure --prefix=<kernel_install>
+$ cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=<kernel_install> ../<kernel_src>
 $ make
 $ make install
+
+Where <Mode> is build mode(Release or Debug), <kernel_install> 
+is a destination folder to install KERNEL module of SALOME.
 
 Then, the SALOME components GEOM, MED, VISU, ... can be installed
 with a similar procedure (cf. [6]).
@@ -92,13 +93,11 @@ If you have another platform, we suggest the following configuration
 for building process:
 
 - gcc-3.3.x or 3.4.x
-- automake-1.7 or more (only aclocal is used)
-- autoconf-2.59
-- libtool-1.5.6
+- CMake-2.8.8 or more
 
 remarks:
 
-- This is the minimum level of automake, autoconf and libtool, if you need
+- This is the minimum level of CMake, if you need
   to compile all the third party softwares (included OpenCascade 5.2.x).
 
 3. Third-party dependencies
@@ -206,63 +205,25 @@ STEP 1:
     $ mkdir <kernel_install>
 
 STEP 2:
-  build configure script
+  go to build directory
 
-  go to <kernel_src> directory and generate the "configure" script::
-
-    $ cd <kernel_src>
-    $ ./build_configure
-
-  If it doesn't work, check your system automake tools as specified in
-  section [2].
+    $ cd <kernel_build>
 
 STEP 3:
   configure the building process
-  go to the build directory and execute the configuration process::
+    $ cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=<kernel_install> ../<kernel_src>
 
-    $ cd <kernel_build>
-    $ <kernel_src>/configure --prefix=<kernel_install>
-
+  Where <Mode> is build mode(Release or Debug), <kernel_install> 
+  is a destination folder to install KERNEL module of SALOME.
   Note that <kernel_install> must be an absolute path.
 
-  When the configure process is complete, check the status of
-  third-party softwares detection. You should have a status like::
-
-    ---------------------------------------------
-    Summary
-    ---------------------------------------------
-    Configure
-           cc : yes
-        boost : yes
-     lex_yacc : yes
-       python : yes
-         swig : yes
-      threads : yes
-       OpenGL : yes
-           qt : yes
-          vtk : yes
-         hdf5 : yes
-         med2 : yes
-      omniORB : yes
-          occ : yes
-          sip : yes
-         pyqt : yes
-          qwt : yes
-      doxygen : yes
-     graphviz : no
-      openpbs : no
-          lsf : no
-    Default ORB   : omniORB
-    ----------------------------------------------
-
-If a software get a status "no", then it's not "seen" in the system:
+  When the configure process is complete, check the status of cmake build.
+  You should not have the errors and warnings. All included products and packages must be found.
+  
+  If a software get a status "not found", then it's not "seen" in the system:
 
 - the software is not installed, or
 - the shell environment is not set correctly. 
-
-In this example, the software programs graphviz, openpbs and lsf are not
-installed (optional for most usages).
-
 
 STEP 4 :
   Building the binary files
@@ -275,7 +236,7 @@ STEP 4 :
 STEP 5:
   Installing binary files, scripts and documentation
 
-  Execute install target in the <kernel_build> directory::
+  Execute install target in the <kernel_install> directory::
 
     $ make install
 
@@ -285,7 +246,7 @@ STEP 5:
 
 TInstalling a component <COMPONENT> is done by following the same
 instructions as given for the KERNEL, replacing KERNEL by
-<COMPONENT> (build_configure, configure, make, make install).
+<COMPONENT>.
 
 You just have to be aware of the dependencies between components:
 

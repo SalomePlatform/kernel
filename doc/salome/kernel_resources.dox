@@ -58,9 +58,9 @@ This file must be included in C++ source. Some
 macros are activated only in debug mode, others are 
 always activated. To activate the debug mode, _DEBUG_
 must be defined, which is the case when %SALOME 
-Makefiles are generated from configure, without 
+Makefiles are generated from CMake build system, without 
 options. When _DEBUG_ is undefined (release mode: 
-configure --disable-debug --enable-production), the 
+cmake -DCMAKE_BUILD_TYPE=Release ../KERNEL_SRC), the 
 debug mode macros are defined empty (they do nothing). 
 So, when switching from debug to release, it is 
 possible (and recommended) to let the macro calls 
