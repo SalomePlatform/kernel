@@ -846,7 +846,13 @@ ENDMACRO(SALOME_GENERATE_TESTS_ENVIRONMENT)
 MACRO(SALOME_APPEND_LIST_OF_LIST result element_list)
   SET(_tmp_res)
   STRING(REPLACE ";" "," _tmp_res "${${element_list}}")
-  SET(${result} "${${result}};${_tmp_res}")  # LIST(APPEND ...) doesn't handle well empty elements!?
+
+  LIST(LENGTH result _list_len)
+  IF(NOT _list_len EQUAL 0)
+    SET(${result} "${${result}};${_tmp_res}")  # LIST(APPEND ...) doesn't handle well empty elements!?
+  ELSE()
+    SET(${result} "${_tmp_res}")               # to avoid first excess ; at the beginning of the list
+  ENDIF()
 ENDMACRO(SALOME_APPEND_LIST_OF_LIST)
 
 #########################################################################
@@ -873,7 +879,9 @@ MACRO(SALOME_CONFIGURE_PREPARE)
     IF(${_prereq}_DIR)
       SET(_PREREQ_LIST "${_PREREQ_LIST} ${_prereq}")
       SET(_PREREQ_DIR_LIST "${_PREREQ_DIR_LIST} \"${${_prereq}_DIR}\"")
+      MESSAGE(STATUS "before _PREREQ_COMPO_LIST=${_PREREQ_COMPO_LIST}")
       SALOME_APPEND_LIST_OF_LIST(_PREREQ_COMPO_LIST Salome${_prereq}_COMPONENTS)
+      MESSAGE(STATUS "after _PREREQ_COMPO_LIST=${_PREREQ_COMPO_LIST}")     
     ENDIF()
   ENDFOREACH()
 ENDMACRO(SALOME_CONFIGURE_PREPARE)
