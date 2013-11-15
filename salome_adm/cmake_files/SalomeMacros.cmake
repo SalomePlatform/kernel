@@ -846,7 +846,14 @@ ENDMACRO(SALOME_GENERATE_TESTS_ENVIRONMENT)
 MACRO(SALOME_APPEND_LIST_OF_LIST result element_list)
   SET(_tmp_res)
   STRING(REPLACE ";" "," _tmp_res "${${element_list}}")
-  SET(${result} "${${result}};${_tmp_res}")  # LIST(APPEND ...) doesn't handle well empty elements!?
+
+  LIST(LENGTH result _list_len)
+  IF(NOT _list_len EQUAL 0)
+    SET(${result} "${${result}}${_tmp_res};")  # LIST(APPEND ...) doesn't handle well empty elements!?
+  ELSE()
+    SET(${result} "${_tmp_res};")              # to avoid redundant ';' at the beginning of the list
+  ENDIF()
+
 ENDMACRO(SALOME_APPEND_LIST_OF_LIST)
 
 #########################################################################
