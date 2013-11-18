@@ -238,7 +238,8 @@ Files to be added:
 * KERNEL: file ``src/KERNEL_PY/__init__.py`` (``salome.py`` renamed)
 * KERNEL: directory ``src/KERNEL_PY/kernel``
 * KERNEL: directory ``doc/docutils``
-* KERNEL: file ``salome_adm/unix/config_files/check_sphinx.m4``
+* KERNEL: file ``salome_adm/cmake_files/FindSalomeSphinx.cmake``
+* KERNEL: file ``salome_adm/cmake_files/FindSphinx.cmake``
 * GEOM  : directory ``src/GEOM_PY``
 * GEOM  : directory ``doc/docutils``
 * SMESH : directory ``src/SMESH_PY``
