@@ -171,15 +171,16 @@ print "======================================================================"
 print "           %d. Test Mesh " % step; step+=1
 print "======================================================================"
 
-import StdMeshers
+from salome.StdMeshers import StdMeshersBuilder
 import SMESH
+from salome.smesh import smeshBuilder
 
 smesh = salome.lcc.FindOrLoadComponent("FactoryServer", "SMESH")
 if salome.hasDesktop():
     smeshgui = salome.ImportComponentGUI("SMESH")
     smeshgui.Init(salome.myStudyId);
 else:
-    smesh.SetCurrentStudy(salome.myStudy)
+    smesh = smeshBuilder.New(salome.myStudy)
 
 # ---- create hypotheses 
 

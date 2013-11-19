@@ -222,10 +222,12 @@ def TEST_getComponentList():
 
 def TEST_createObject():
     """
-    WARNING: for this test, we need GEOM (used to create an object 
+    WARNING: for this test, we need GEOM (used to create an object) 
     """
-    import geompy
-    geompy.init_geom(salome.myStudy)
+    import GEOM
+    from salome.geom import geomBuilder
+    geompy = geomBuilder.New(salome.myStudy)
+
     box = geompy.MakeBoxDXDYDZ(200, 200, 200)
     id = geompy.addToStudy( box, 'box' )
     return id
