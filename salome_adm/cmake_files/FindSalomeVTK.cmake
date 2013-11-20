@@ -37,6 +37,7 @@ SET(SalomeVTK_COMPONENTS
   vtkFiltersVerdict
   vtkRenderingLabel
   vtkInteractionWidgets
+  vtkInfovisCore
 )
 
 #   Seting the following variable is equivalent to having passed the components
