@@ -4,6 +4,7 @@ import os
 import sys
 import glob
 import subprocess
+import re
 
 """
 Define a specific exception class to manage exceptions related to SalomeRunner
@@ -69,6 +70,7 @@ def getScriptsAndArgs(args=[]):
   currentKey = None
   argsPrefix = "args:"
   callPython = False
+  currentScript = None
 
   for i in range(len(args)):
     elt = args[i]
@@ -83,12 +85,14 @@ def getScriptsAndArgs(args=[]):
     elif elt.startswith("python"):
       callPython = True
     elif os.path.isfile(elt) or os.path.isfile(elt+".py"):
-      if elt[-3:] == ".py":
-        currentScript = os.path.abspath(elt)
-      else:
-        currentScript = None
-        if elt[-4:] != ".hdf":
+      if elt[-4:] != ".hdf":
+        if elt[-3:] == ".py":
+          currentScript = os.path.abspath(elt)
+        elif os.path.isfile(elt+".py"):
           currentScript = os.path.abspath(elt+".py")
+        else:
+          currentScript = os.path.abspath(elt) # python script not necessary has .py extension
+        pass
       if currentScript and callPython:
         currentKey = "python "+currentScript
         scriptArgs.append({currentKey:[]})
@@ -98,7 +102,23 @@ def getScriptsAndArgs(args=[]):
           currentKey = "python "+currentScript
           scriptArgs.append({currentKey:[]})
         else:
-          currentKey = currentScript
+          ispython = False
+          try:
+            fn = open(currentScript)
+            for i in xrange(10): # read only 10 first lines 
+              ln = fn.readline()
+              if re.search("#!.*python"): 
+                ispython = True
+                break
+              pass
+            fn.close()
+          except:
+            pass
+          if not ispython and currentScript[-3:] == ".py":
+            currentKey = "python "+currentScript
+          else:
+            currentKey = currentScript
+            pass
           scriptArgs.append({currentKey:[]})
   # end for loop
   return scriptArgs
