@@ -200,7 +200,7 @@ def install(prefix,config_file,verbose=0):
                'update_catalogs.py',
                '.bashrc',
                ):
-        virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))
+        virtual_salome.symlink( os.path.join( appliskel_dir, fn ), os.path.join( home_dir, fn) )
         pass
 
     if filename != os.path.join(home_dir,"config_appli.xml"):
