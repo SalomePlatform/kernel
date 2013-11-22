@@ -46,11 +46,11 @@ SET(GRAPHVIZ_LIBRARIES
   ${GRAPHVIZ_pathplan_LIBRARY}
   )
 
-# Don't detect cgraph on Windows
-IF(NOT WIN32)
-  FIND_LIBRARY(GRAPHVIZ_cgraph_LIBRARY   NAMES cgraph PATH_SUFFIXES bin)
-  SET(GRAPHVIZ_LIBRARIES ${GRAPHVIZ_cgraph_LIBRARY})
-ENDIF()
+## Don't detect cgraph on Windows
+#IF(NOT WIN32)
+#  FIND_LIBRARY(GRAPHVIZ_cgraph_LIBRARY   NAMES cgraph PATH_SUFFIXES bin)
+#  SET(GRAPHVIZ_LIBRARIES ${GRAPHVIZ_cgraph_LIBRARY})
+#ENDIF()
 
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
