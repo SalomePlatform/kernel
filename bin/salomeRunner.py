@@ -85,7 +85,7 @@ class SalomeRunner:
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    proc = subprocess.Popen(['python', absoluteAppliPath+'/bin/salome/salomeRunner.py', pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeRunner.py"), pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
     proc.wait()
   #
 
