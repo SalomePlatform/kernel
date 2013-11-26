@@ -5,7 +5,7 @@ import sys
 
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
-  currentPath = os.path.dirname(__file__)
+  currentPath = os.path.dirname( os.path.abspath( __file__ ) )
   homePath = os.path.realpath(os.path.expanduser('~'))
   appliPath = os.path.relpath(currentPath, homePath)
 
