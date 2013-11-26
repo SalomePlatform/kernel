@@ -167,7 +167,14 @@ IF (SALOMEPYTHON_FOUND)
   ELSE(NUMPY_FOUND)
     MESSAGE(STATUS "NumPy not found.")
   ENDIF(NUMPY_FOUND)
-
+  # SciPy detection
+  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import scipy ; import sys ; sys.stdout.write(scipy.version.version)" OUTPUT_VARIABLE SCIPY_VERSION ERROR_QUIET )
+  IF(SCIPY_VERSION)
+    SET(SCIPY_FOUND TRUE)
+  ENDIF(SCIPY_VERSION)
+  IF(SCIPY_FOUND)
+    MESSAGE(STATUS "Scipy found : Version ${SCIPY_VERSION}")
+  ENDIF(SCIPY_FOUND)
   ## None here    
 ELSE()
   MESSAGE(STATUS "Python was only partially (or not at all) found .")
