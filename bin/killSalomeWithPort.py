@@ -141,6 +141,12 @@ def shutdownMyPort(port, cleanup=True):
     """
     if not port: return
 
+    try:
+        from PortManager import releasePort
+        releasePort(port)
+    except ImportError:
+        pass
+
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
@@ -186,6 +192,12 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
+    try:
+        import PortManager
+        PortManager.releasePort(port)
+    except ImportError:
+        pass
+
     from salome_utils import getShortHostName, getHostName
 
     # try to shutdown session nomally
