@@ -74,6 +74,10 @@ SET(_found1 ${PYTHONINTERP_FOUND})
 IF (PYTHONINTERP_FOUND)
   # Now ensure we find the Python libraries matching the interpreter:
   # This uses the variable PYTHON_EXECUTABLE
+
+  GET_FILENAME_COMPONENT(_python_bin "${PYTHON_EXECUTABLE}" NAME )
+  SET(PYTHONBIN "${_python_bin}" CACHE STRING "Name of Python interpreter")
+
   GET_FILENAME_COMPONENT(_python_dir "${PYTHON_EXECUTABLE}" PATH)
   GET_FILENAME_COMPONENT(CMAKE_INCLUDE_PATH "${_python_dir}/../include/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" ABSOLUTE)
   GET_FILENAME_COMPONENT(CMAKE_LIBRARY_PATH "${_python_dir}/../lib" ABSOLUTE)

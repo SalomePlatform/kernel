@@ -94,12 +94,12 @@ def getScriptsAndArgs(args=[]):
           currentScript = os.path.abspath(elt) # python script not necessary has .py extension
         pass
       if currentScript and callPython:
-        currentKey = "python "+currentScript
+        currentKey = "@PYTHONBIN@ "+currentScript
         scriptArgs.append({currentKey:[]})
         callPython = False
       elif currentScript:
         if not os.access(currentScript, os.X_OK):
-          currentKey = "python "+currentScript
+          currentKey = "@PYTHONBIN@ "+currentScript
           scriptArgs.append({currentKey:[]})
         else:
           ispython = False
@@ -115,7 +115,7 @@ def getScriptsAndArgs(args=[]):
           except:
             pass
           if not ispython and currentScript[-3:] == ".py":
-            currentKey = "python "+currentScript
+            currentKey = "@PYTHONBIN@ "+currentScript
           else:
             currentKey = currentScript
             pass
