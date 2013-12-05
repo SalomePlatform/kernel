@@ -614,11 +614,6 @@ def startSalome(args, modules_list, modules_root_dir):
         else:
           clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
 
-    #
-    # Launch local Python Container (FactoryServerPy),
-    # and wait until it is registered in naming service
-    #
-
     if 'pyContainer' in args['standalone']:
         raise Exception('Python containers no longer supported')
 

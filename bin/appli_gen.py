@@ -300,7 +300,7 @@ MMGT_REENTRANT=1
     <parameter name="modules"    value="%s"/>
     <parameter name="pyModules"  value=""/>
     <parameter name="embedded"   value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
-    <parameter name="standalone" value="pyContainer"/>
+    <parameter name="standalone" value=""/>
   </section>
 </document>
 """
