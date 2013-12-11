@@ -614,19 +614,19 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   // NPAL 18309  (Kill Notifd)
 
   std::string python_exe;
+
+  python_exe = std::string("python");
 #ifdef WIN32
   #ifdef _DEBUG_
-    python_exe = std::string("python_d");
+    python_exe += std::string("_d");
   #endif
-#else
-  python_exe = std::string("python");
 #endif
 
   if ( !portNumber.empty() )
   {
     std::string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
     cmd += std::string("killNotifdAndClean(") + portNumber + "); ";
-    cmd  = python_exe + std::string(" -c \"") + cmd; // +"\" > /dev/null 2> /dev/null";
+    cmd  = python_exe + std::string(" -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     MESSAGE(cmd);
     system( cmd.c_str() );
   }
