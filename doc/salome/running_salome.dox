@@ -80,15 +80,14 @@ The servers open in separate terminal window and log messages are displayed in t
   <code>-e=registry,study,moduleCatalog,cppContainer</code>
 
 Run listed %SALOME servers in the GUI embedded mode (default value is
-<code>registry,study,moduleCatalog,cppContainer</code>). Note that logger,
-pyContainer, and supervContainer servers cannot be embedded to
-GUI. Note, that this option implies running %SALOME in GUI mode (\c -g
+<code>registry,study,moduleCatalog,cppContainer</code>). Note that logger
+server cannot be embedded to GUI. Note, that this option implies running %SALOME in GUI mode (\c -g
 option); in terminal mode all servers are running in standalone mode.
 
-- <code>--standalone=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer</code> or
-  <code>-s=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer</code>
+- <code>--standalone=registry,study,moduleCatalog,cppContainerr</code> or
+  <code>-s=registry,study,moduleCatalog,cppContainer</code>
 
-Standalone CORBA servers (default: <code>pyContainer,supervContainer</code>).
+Standalone CORBA servers (default: none).
 
 - \c --portkill or \c -p
 

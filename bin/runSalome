@@ -51,24 +51,23 @@ ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/
 #     - parameters for launching are taken from SalomeApp.xml;
 #     - if the config file does not exist, it is created with default values.
 #
+#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,MED --embedded=registry,study,moduleCatalog --standalone=cppContainer --xterm --killall
 #
-#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer --xterm --killall
+#     - parameters from command line supersede those from SalomeApp.xml
 #
-#     parameters from command line supersede those from SalomeApp.xml
-#
-# Some CORBA servers can be launched in the SALOME_Session_Server's process
-# (embedded = same process) or in a separate process (standalone):
-# --> registry,study,moduleCatalog,cppContainer
-# Other CORBA servers could only be launched in separate process (standalone):
-# --> pyContainer
+#     Some CORBA servers can be launched in the SALOME_Session_Server's process
+#     (embedded = same process) or in a separate process (standalone).
+#     In above example, Registry, Study and Module Catalog servers are started
+#     in the embedded mode; default C++ container (FactoryServer) is started in
+#     the standalone mode.
 #
 # $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome -h
-#    help
+#
+#    - print help on the runSalome command
 # -----------------------------------------------------------------------------
 #
-# l'option -i permet de garder l'interpreteur python ouvert :
-# par defaut, les differents serveurs ouvrent des fenêtres xterm
-# (cf. runSalome.py)
-# le serveur Logger n'est pas obligatoire (commenté dans runSalome.py)
+# The -i option starts Python interpreter after launching SALOME session
+# (see runSalome.py script).
+# Logger server is optional.
 #
 # -----------------------------------------------------------------------------

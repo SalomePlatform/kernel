@@ -923,6 +923,13 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
         from searchFreePort import searchFreePort
         searchFreePort({})
         print "port:%s"%(os.environ['NSPORT'])
+
+        try:
+            import PortManager
+            PortManager.releasePort(os.environ['NSPORT'])
+        except ImportError:
+            pass
+
         sys.exit(0)
         pass
 

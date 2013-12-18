@@ -103,13 +103,20 @@ def appliCleanOmniOrbConfig(port):
                                                extension="cfg",
                                                hidden=True)
         if os.access(last_running_config,os.F_OK):
-            pointedPath = os.readlink(last_running_config)
-            if pointedPath[0] != '/':
-                pointedPath=os.path.join(os.path.dirname(last_running_config), pointedPath)
-            if pointedPath == omniorb_config:
-                os.unlink(last_running_config)
+            if not sys.platform == 'win32':
+                pointedPath = os.readlink(last_running_config)
+                if pointedPath[0] != '/':
+                    pointedPath=os.path.join(os.path.dirname(last_running_config), pointedPath)
+                    pass
+                if pointedPath == omniorb_config:
+                    os.unlink(last_running_config)
+                    pass
                 pass
-            pass
+            else:
+                os.remove(last_running_config)  
+                pass
+            pass  
+
         if os.access(omniorb_config,os.F_OK):
             os.remove(omniorb_config)
             pass
@@ -126,8 +133,14 @@ def appliCleanOmniOrbConfig(port):
             current=stat.st_atime
             current_config=f
         if current_config:
-          os.symlink(os.path.normpath(current_config), last_running_config)
-
+          if sys.platform == "win32":
+            import shutil
+            shutil.copyfile(os.path.normpath(current_config), last_running_config)
+            pass
+          else:
+            os.symlink(os.path.normpath(current_config), last_running_config)
+            pass
+          pass
         pass
     pass
 
@@ -140,6 +153,12 @@ def shutdownMyPort(port, cleanup=True):
     - port - port number
     """
     if not port: return
+
+    try:
+        from PortManager import releasePort
+        releasePort(port)
+    except ImportError:
+        pass
 
     from salome_utils import generateFileName
 
@@ -186,6 +205,12 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
+    try:
+        import PortManager
+        PortManager.releasePort(port)
+    except ImportError:
+        pass
+
     from salome_utils import getShortHostName, getHostName
 
     # try to shutdown session nomally

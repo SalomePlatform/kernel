@@ -69,6 +69,7 @@ INSTALL(TARGETS TestLogger TestContainer EXPORT ${PROJECT_NAME}TargetGroup DESTI
 # Executable scripts to be installed
 SET(SCRIPTS
   SALOME_TestComponentPy.py
+  TestComponentPy.py
   TestLogger.py
 )
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})

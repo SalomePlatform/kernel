@@ -128,7 +128,12 @@ double ToDouble(const T &arg) {
 // Simple Logger macros (no dependency with SALOME)
 // =============================================================
 //
+#if defined(_DEBUG_) || defined(_DEBUG)
 #define STDLOG(msg) {std::cerr<<std::flush<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<std::endl<<std::flush;}
+#else
+#define STDLOG(msg)
+#endif
+
 #ifdef LOG
 #undef LOG
 #endif

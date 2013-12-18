@@ -22,17 +22,52 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-def searchFreePort(args={}, save_config=1, use_port=None):
-  """
-  Search free port for SALOME session.
-  Returns first found free port number.
-  """
-  import sys, os, re, shutil
+import os
+import sys
 
+def __setup_config(nsport, args, save_config):
+  #
+  from salome_utils import generateFileName, getHostName
+  hostname = getHostName()
+  #
+  omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+  kwargs={}
+  if omniorbUserPath is not None:
+    kwargs["with_username"]=True
+  #
+  from ORBConfigFile import writeORBConfigFile
+  omniorb_config, giopsize = writeORBConfigFile(omniorbUserPath, hostname, nsport, kwargs)
+  args['port'] = os.environ['NSPORT']
+  #
+  if save_config:
+    last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
+                                           suffix="last",
+                                           extension="cfg",
+                                           hidden=True,
+                                           **kwargs)
+    os.environ['LAST_RUNNING_CONFIG'] = last_running_config
+    try:
+      if sys.platform == "win32":
+        import shutil
+        shutil.copyfile(omniorb_config, last_running_config)
+      else:
+        try:
+          if os.access(last_running_config, os.F_OK):
+            os.remove(last_running_config)
+        except OSError:
+          pass
+        os.symlink(omniorb_config, last_running_config)
+        pass
+      pass
+    except:
+      pass
+  #
+#
+
+def searchFreePort_withoutPortManager(args={}, save_config=1, use_port=None):
   # :NOTE: Under windows:
   #        netstat options -l and -t are unavailable
   #        grep command is unavailable
-
   from subprocess import Popen, PIPE
   (stdout, stderr) = Popen(['netstat','-an'], stdout=PIPE).communicate()
   import StringIO
@@ -41,6 +76,7 @@ def searchFreePort(args={}, save_config=1, use_port=None):
 
   #
   def portIsUsed(port, data):
+    import re
     regObj = re.compile( ".*tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
     for item in data:
       try:
@@ -53,49 +89,11 @@ def searchFreePort(args={}, save_config=1, use_port=None):
     return False
   #
 
-  def setup_config(nsport):
-      #
-      from salome_utils import generateFileName, getHostName
-      hostname = getHostName()
-      #
-      omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
-      kwargs={}
-      if omniorbUserPath is not None:
-        kwargs["with_username"]=True
-      #
-      from ORBConfigFile import writeORBConfigFile
-      omniorb_config, giopsize = writeORBConfigFile(omniorbUserPath, hostname, nsport, kwargs)
-      args['port'] = os.environ['NSPORT']
-      #
-      if save_config:
-        last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
-                                               suffix="last",
-                                               extension="cfg",
-                                               hidden=True,
-                                               **kwargs)
-        os.environ['LAST_RUNNING_CONFIG'] = last_running_config
-        try:
-          if sys.platform == "win32":
-            import shutil
-            shutil.copyfile(omniorb_config, last_running_config)
-          else:
-            try:
-              if os.access(last_running_config, os.F_OK):
-                os.remove(last_running_config)
-            except OSError:
-              pass
-            os.symlink(omniorb_config, last_running_config)
-            pass
-          pass
-        except:
-          pass
-      #
-
   if use_port:
     print "Check if port can be used: %d" % use_port,
     if not portIsUsed(use_port, ports):
       print "- OK"
-      setup_config(use_port)
+      __setup_config(use_port, args, save_config)
       return
     else:
       print "- KO: port is busy"
@@ -112,7 +110,7 @@ def searchFreePort(args={}, save_config=1, use_port=None):
   while 1:
     if not portIsUsed(NSPORT, ports):
       print "%s - OK"%(NSPORT)
-      setup_config(NSPORT)
+      __setup_config(NSPORT, args, save_config)
       break
     print "%s"%(NSPORT),
     if NSPORT == limit:
@@ -123,5 +121,41 @@ def searchFreePort(args={}, save_config=1, use_port=None):
     NSPORT=NSPORT+1
     pass
   #
+#
 
-  return
+def searchFreePort_withPortManager(args={}, save_config=1, use_port=None):
+  from PortManager import getPort
+  port = getPort(use_port)
+
+  if use_port:
+    print "Check if port can be used: %d" % use_port,
+    if port == use_port and port != -1:
+      print "- OK"
+      __setup_config(use_port, args, save_config)
+      return
+    else:
+      print "- KO: port is busy"
+      pass
+  #
+  print "Searching for a free port for naming service:",
+  if port == -1: # try again
+    port = getPort(use_port)
+
+  if port != -1:
+    print "%s - OK"%(port)
+    __setup_config(port, args, save_config)
+  else:
+    print "Unable to obtain port"
+#
+
+def searchFreePort(args={}, save_config=1, use_port=None):
+  """
+  Search free port for SALOME session.
+  Returns first found free port number.
+  """
+  try:
+    import PortManager
+    searchFreePort_withPortManager(args, save_config, use_port)
+  except ImportError:
+    searchFreePort_withoutPortManager(args, save_config, use_port)
+#

@@ -114,8 +114,6 @@ void SALOMEDS_SimanStudy_i::CheckOut(SALOMEDS::Study_ptr theTarget)
       SimanIO_Configuration::ActivitiesIterator actIter(*_checkedOut);
       for(; actIter.More(); actIter.Next()) {
         Engines::EngineComponent_var aComp =
-          SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServerPy", actIter.Activity().Module());
-        if (CORBA::is_nil(aComp)) // it is not python container, try to find in C++ container
           SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServer", actIter.Activity().Module());
         if (CORBA::is_nil(aComp)) {
           MESSAGE("Checkout: component "<<actIter.Activity().Module()<<" is nil");
@@ -179,8 +177,6 @@ void SALOMEDS_SimanStudy_i::CheckIn(const char* theModuleName)
           continue;
         }
         Engines::EngineComponent_var aComp =
-          SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServerPy", actIter.Activity().Module());
-        if (CORBA::is_nil(aComp)) // it is not python container, try to find in C++ container
           SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServer", actIter.Activity().Module());
         if (CORBA::is_nil(aComp)) {
           MESSAGE("Checkin: component "<<actIter.Activity().Module()<<" is nil");
