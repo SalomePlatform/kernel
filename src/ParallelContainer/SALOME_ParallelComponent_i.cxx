@@ -825,9 +825,14 @@ void Engines_Parallel_Component_i::sendMessage(const char *event_type,
 
 std::string Engines_Parallel_Component_i::GetDynLibraryName(const char *componentName)
 {
+#ifndef WIN32
   std::string ret="lib";
   ret+=componentName;
   ret+="Engine.so";
+#else
+  std::string ret=componentName;
+  ret+="Engine.dll";
+#endif 
   return ret;
 }
 
