@@ -777,6 +777,7 @@ def useSalome(args, modules_list, modules_root_dir):
         command = formatScriptsAndArgs(toimport)
         if command:
             proc = subprocess.Popen(command, shell=True)
+            addToKillList(proc.pid, command, args['port'])
             res = proc.wait()
             if res: sys.exit(1) # if there's an error when executing script, we should explicitly exit
 
