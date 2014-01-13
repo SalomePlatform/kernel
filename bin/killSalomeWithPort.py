@@ -291,7 +291,7 @@ def killMyPort(port):
     - port - port number
     """
     from salome_utils import getShortHostName, getHostName
-    print "Terminating SALOME on port %d..."%(port)
+    print "Terminating SALOME on port %s..."%(port)
 
     # try to shutdown session normally
     import threading, time
@@ -305,7 +305,7 @@ def killMyPort(port):
         all_files = glob.glob("%s*"%filedict)
         for f in all_files:
             __killMyPort(port, f)
-    except:
+    except ImportError:
         # new-style dot-prefixed pidict file
         filedict = getPiDict(port, hidden=True)
         # provide compatibility with old-style pidict file (not dot-prefixed)
