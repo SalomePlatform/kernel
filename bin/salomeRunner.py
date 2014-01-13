@@ -86,7 +86,7 @@ class SalomeRunner:
     # according to current path (initialized from environment files).
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeRunner.py"), pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
-    proc.wait()
+    proc.communicate()
   #
 
   """Append value to PATH environment variable"""
@@ -244,7 +244,8 @@ class SalomeRunner:
     scriptArgs = getScriptsAndArgs(args)
     command = formatScriptsAndArgs(scriptArgs)
     if command:
-      proc = subprocess.Popen(command, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      command = command.split(' ')
+      proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
       return proc.communicate()
     else:
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
@@ -264,8 +265,27 @@ class SalomeRunner:
   #
 
   def _killAll(self, args=[]):
-    from killSalome import killAllPorts
-    killAllPorts()
+    absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
+    try:
+      import PortManager
+      ports = PortManager.getBusyPorts()
+
+      from multiprocessing import Process
+      from killSalomeWithPort import killMyPort
+      if ports:
+        import tempfile
+        for port in ports:
+          with tempfile.NamedTemporaryFile():
+            p = Process(target = killMyPort, args=(port,))
+            p.start()
+            p.join()
+    except ImportError:
+      pass
+
+    p = Process(target = killMyPort, args=(2809,))
+    p.start()
+    p.join()
+
   #
 
   def _showInfo(self, args=[]):

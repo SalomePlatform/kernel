@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -123,7 +123,7 @@ def searchFreePort_withoutPortManager(args={}, save_config=1, use_port=None):
   #
 #
 
-def searchFreePort_withPortManager(args={}, save_config=1, use_port=None):
+def searchFreePort_withPortManager(queue, args={}, save_config=1, use_port=None):
   from PortManager import getPort
   port = getPort(use_port)
 
@@ -146,6 +146,10 @@ def searchFreePort_withPortManager(args={}, save_config=1, use_port=None):
     __setup_config(port, args, save_config)
   else:
     print "Unable to obtain port"
+
+  queue.put([os.environ['OMNIORB_CONFIG'],
+             os.environ['NSPORT'],
+             os.environ['NSHOST']])
 #
 
 def searchFreePort(args={}, save_config=1, use_port=None):
@@ -154,8 +158,26 @@ def searchFreePort(args={}, save_config=1, use_port=None):
   Returns first found free port number.
   """
   try:
-    import PortManager
-    searchFreePort_withPortManager(args, save_config, use_port)
+    from multiprocessing import Process, Queue
+    queue = Queue()
+    p = Process(target = searchFreePort_withPortManager, args=(queue, args, save_config, use_port,))
+    p.start()
+    info = queue.get()
+
+    os.environ['OMNIORB_CONFIG'] = info[0]
+    os.environ['NSPORT'] = info[1]
+    os.environ['NSHOST'] = info[2]
+
+    # Save Naming service port name into
+    # the file args["ns_port_log_file"]
+    if args.has_key('ns_port_log_file'):
+      omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+      file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
+      f = open(file_name, "w")
+      f.write(os.environ['NSPORT'])
+      f.close()
+
+    p.join() # this blocks until the process terminates
   except ImportError:
     searchFreePort_withoutPortManager(args, save_config, use_port)
 #

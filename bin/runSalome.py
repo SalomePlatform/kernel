@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -490,15 +490,6 @@ def startSalome(args, modules_list, modules_root_dir):
         session.GetInterface()
         args["session_object"] = session
         return clt
-
-    # Save Naming service port name into
-    # the file args["ns_port_log_file"]
-    if args.has_key('ns_port_log_file'):
-      omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
-      file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
-      f = open(file_name, "w")
-      f.write(os.environ['NSPORT'])
-      f.close()
 
     # Launch Logger Server (optional)
     # and wait until it is registered in naming service
