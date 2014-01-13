@@ -253,6 +253,8 @@ class EnvFileConverter(object):
           line = ADD_TO_PREFIX + k + ": " + value
       # Update list of variable names
       # :TODO: define excludeBlock variable (similar to exclude) and provide method to extend it
+      if line.startswith("LOGNAME="):
+        return "\n"
       if "cleandup()" in line:
         print "WARNING: parseConfigFile.py: skip cleandup and look for '# PRODUCT environment'"
         while True:
