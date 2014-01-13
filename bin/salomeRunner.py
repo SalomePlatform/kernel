@@ -267,11 +267,11 @@ class SalomeRunner:
   def _killAll(self, args=[]):
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     try:
-      import PortManager
-      ports = PortManager.getBusyPorts()
-
+      import PortManager # mandatory
       from multiprocessing import Process
       from killSalomeWithPort import killMyPort
+      ports = PortManager.getBusyPorts()
+
       if ports:
         import tempfile
         for port in ports:
@@ -279,12 +279,14 @@ class SalomeRunner:
             p = Process(target = killMyPort, args=(port,))
             p.start()
             p.join()
-    except ImportError:
-      pass
 
-    p = Process(target = killMyPort, args=(2809,))
-    p.start()
-    p.join()
+      p = Process(target = killMyPort, args=(2809,))
+      p.start()
+      p.join()
+    except ImportError:
+      from killSalome import killAllPorts
+      killAllPorts()
+      pass
 
   #
 

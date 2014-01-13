@@ -158,6 +158,7 @@ def searchFreePort(args={}, save_config=1, use_port=None):
   Returns first found free port number.
   """
   try:
+    import PortManager # mandatory
     from multiprocessing import Process, Queue
     queue = Queue()
     p = Process(target = searchFreePort_withPortManager, args=(queue, args, save_config, use_port,))
