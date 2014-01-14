@@ -209,7 +209,7 @@ class EnvFileConverter(object):
     self.outputFile = outputFile
     self.allParsedVariableNames=[]
     # exclude line that begin with:
-    self.exclude = [ 'if', 'then', 'else', 'fi', '#', 'echo' ]
+    self.exclude = [ 'if', 'then', 'else', 'fi', '#', 'echo', 'exit' ]
     self.exclude.append('$gconfTool') # QUICK FIX :TODO: provide method to extend this variable
     # discard the following keywords if at the beginning of line:
     self.discard = [ 'export' ]
