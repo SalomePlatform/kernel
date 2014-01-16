@@ -152,11 +152,23 @@ def searchFreePort_withPortManager(queue, args={}, save_config=1, use_port=None)
              os.environ['NSHOST']])
 #
 
+def __savePortToFile(args):
+  # Save Naming service port name into
+  # the file args["ns_port_log_file"]
+  if args.has_key('ns_port_log_file'):
+    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+    file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
+    print file_name, os.environ['NSPORT']
+    with open(file_name, "w") as f:
+      f.write(os.environ['NSPORT'])
+#
+
 def searchFreePort(args={}, save_config=1, use_port=None):
   """
   Search free port for SALOME session.
   Returns first found free port number.
   """
+
   try:
     import PortManager # mandatory
     from multiprocessing import Process, Queue
@@ -168,17 +180,10 @@ def searchFreePort(args={}, save_config=1, use_port=None):
     os.environ['OMNIORB_CONFIG'] = info[0]
     os.environ['NSPORT'] = info[1]
     os.environ['NSHOST'] = info[2]
-
-    # Save Naming service port name into
-    # the file args["ns_port_log_file"]
-    if args.has_key('ns_port_log_file'):
-      omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
-      file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
-      f = open(file_name, "w")
-      f.write(os.environ['NSPORT'])
-      f.close()
+    __savePortToFile(args)
 
     p.join() # this blocks until the process terminates
   except ImportError:
     searchFreePort_withoutPortManager(args, save_config, use_port)
+    __savePortToFile(args)
 #
