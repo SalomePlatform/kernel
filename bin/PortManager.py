@@ -21,8 +21,6 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-from Singleton import Singleton
-
 import multiprocessing
 import time
 import socket
