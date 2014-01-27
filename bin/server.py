@@ -70,11 +70,7 @@ class Server:
         #print "command = ", command
         if sys.platform == "win32":
           import win32pm
-          #cmd_str = "\"" + string.join(command, " ") + "\""
-          #print cmd_str
-          #pid = win32pm.spawnpid( cmd_str )
-          pid = win32pm.spawnpid( string.join(command, " "), '-nc' )
-          #pid = win32pm.spawnpid( string.join(command, " ") )
+          pid = win32pm.spawnpid( command, '-nc' )
         elif Server.server_launch_mode == "fork":
           pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         else: # Server launch mode is daemon

@@ -110,7 +110,7 @@ class NamingServer(Server):
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames -start ' , aPort , ' -nohostname ', ' -logdir ' , '\"' + upath + '\"', ' -errlog', '\"' + upath+'/omniNameErrors.log' + '\"']
+          self.CMD=['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
