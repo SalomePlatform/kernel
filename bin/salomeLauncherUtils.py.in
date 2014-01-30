@@ -130,7 +130,7 @@ def formatScriptsAndArgs(scriptArgs=[]):
     commands = []
     for sc_dict in scriptArgs:
       for script, sc_args in sc_dict.items(): # single entry
-        cmd = "@PYTHONBIN@ " + script
+        cmd = script
         if sc_args:
           cmd = cmd + " " + " ".join(sc_args)
         commands.append(cmd)
@@ -138,9 +138,6 @@ def formatScriptsAndArgs(scriptArgs=[]):
     if sys.platform == "win32":    
       sep= " & "
     command = sep.join(["%s"%x for x in commands])
-
-
-    command = "; ".join(["%s"%x for x in commands])
     return command
 #
 

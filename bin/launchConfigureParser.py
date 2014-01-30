@@ -1069,7 +1069,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     # Python scripts
     args[script_nam] = getScriptsAndArgs(cmd_args)
     new_args = []
-    if args[gui_nam]:
+    if args[gui_nam] and args["session_gui"]:
         for d in args[script_nam]:
             for s, a in d.items():
                 v = re.sub(r'^python.*\s+', r'', s)
