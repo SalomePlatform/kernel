@@ -50,7 +50,7 @@ IF(EXISTS "${PARAVIEW_ROOT_DIR}" AND (NOT VTK_ROOT_DIR))
   MESSAGE(STATUS "Looking for VTK in the ParaView installation (PARAVIEW_ROOT_DIR exists and VTK_ROOT_DIR is not defined) ...")
   
   # Extract sub-directory "paraview-x.xx":
-  FILE(GLOB VTK_DIR "${PARAVIEW_ROOT_DIR}/lib/cmake/paraview-[1-9].[0-9]")
+  FILE(GLOB VTK_DIR "${PARAVIEW_ROOT_DIR}/lib/cmake/paraview-[1-9].[0-9]*")
   MESSAGE(STATUS "Setting VTK_DIR to: ${VTK_DIR}") 
 ENDIF()
 
