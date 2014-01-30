@@ -21,22 +21,13 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-import multiprocessing
-import time
-import socket
-
 import os
 import sys
-import threading
-import SocketServer
 
 try:
   import cPickle as pickle
 except:
   import pickle
-
-import struct
-import ctypes
 
 import logging
 def createLogger():
@@ -50,12 +41,6 @@ def createLogger():
   return logger
 #
 logger = createLogger()
-
-
-if sys.platform == 'win32':
-  import multiprocessing.reduction    # make sockets pickable/inheritable
-
-multiprocessing.freeze_support() # Add support for when a program which uses multiprocessing has been frozen to produce a Windows executable.
 
 #------------------------------------
 # A file locker (Linux only)

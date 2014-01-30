@@ -244,9 +244,21 @@ class SalomeRunner:
     scriptArgs = getScriptsAndArgs(args)
     command = formatScriptsAndArgs(scriptArgs)
     if command:
-      command = command.split(' ')
-      proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-      return proc.communicate()
+      sep = ";"
+      if sys.platform == "win32":
+        sep= "&"
+      command = command.split(sep)
+      outmsg = []
+      errmsg = []
+      for cmd in command:
+        cmd = cmd.strip().split(' ')
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdoutdata, stderrdata) = proc.communicate()
+        if stdoutdata or stderrdata:
+          outmsg.append(stdoutdata)
+          errmsg.append(stderrdata)
+
+      return ("".join(outmsg), "".join(errmsg))
     else:
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
       cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
@@ -342,7 +354,7 @@ class SalomeRunner:
       self._logger = logging.getLogger(__name__)
       #self._logger.setLevel(logging.DEBUG)
       self._logger.setLevel(logging.ERROR)
-    return self._logger;
+    return self._logger
   #
 
 ###
