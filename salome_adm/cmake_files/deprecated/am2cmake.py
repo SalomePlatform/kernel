@@ -816,9 +816,9 @@ class CMakeFile(object):
                 pass
             # --
             newlines.append("""
-            set(VERSION 7.3.0)
+            set(VERSION 7.3.1)
             set(SHORT_VERSION 7.3)
-            set(XVERSION 0x070300)
+            set(XVERSION 0x070301)
             set(VERSION_DEV 0)
             """)
             pass
