@@ -89,8 +89,8 @@ FIND_PACKAGE(SalomeBoost REQUIRED)
 # ======================
 
 IF(SALOME_USE_SIMAN)
-  FIND_PACKAGE(SalomeSIMANIO)
-  SALOME_LOG_OPTIONAL_PACKAGE(SIMANIO SALOME_USE_SIMAN)
+  FIND_PACKAGE(SalomeSimanIO)
+  SALOME_LOG_OPTIONAL_PACKAGE(SimanIO SALOME_USE_SIMAN)
   ADD_DEFINITIONS(-DWITH_SIMANIO)
 ENDIF()
 IF(NOT SALOME_LIGHT_ONLY)
@@ -254,7 +254,7 @@ SET(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_BINARY_DIR}/inc
 
 # Build variables that will be expanded when configuring Salome<MODULE>Config.cmake:
 SALOME_CONFIGURE_PREPARE(CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch 
-                         PThread Boost HDF5 libXml2 Python SIMANIO)
+                         PThread Boost HDF5 libXml2 Python SimanIO)
 
 CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in 
     ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake

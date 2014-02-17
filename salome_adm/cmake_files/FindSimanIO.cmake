@@ -1,9 +1,9 @@
-# - Find SIMANIO installation
+# - Find SimanIO installation
 #
 # The following variable are set:
-#   SIMANIO_FOUND       - TRUE if SIMANIO installation has been found
-#   SIMANIO_INCLUDE_DIR - SIMANIO headers path
-#   SIMANIO_LIBRARIES   - SIMANIO libraries
+#   SIMANIO_FOUND        - TRUE if SimanIO installation has been found
+#   SIMANIO_INCLUDE_DIRS - SimanIO headers path
+#   SIMANIO_LIBRARIES    - SimanIO libraries
 #
 #  The CMake (or environment) variable SIMANIO_ROOT_DIR can be set to
 #  guide the detection and indicate a root directory to look into.
@@ -36,19 +36,19 @@ ENDIF()
 
 # ------
 
-SET(SIMANIO_ROOT_DIR $ENV{SIMANIO_ROOT_DIR} CACHE PATH "Path to the SIMANIO.")
+SET(SIMANIO_ROOT_DIR $ENV{SIMANIO_ROOT_DIR} CACHE PATH "Path to the SimanIO.")
 IF(SIMANIO_ROOT_DIR)
   LIST(APPEND CMAKE_PREFIX_PATH "${SIMANIO_ROOT_DIR}")
 ENDIF()
 
-FIND_PATH(SIMANIO_INCLUDE_DIR SimanIO_Link.hxx)
+FIND_PATH(SIMANIO_INCLUDE_DIRS SimanIO_Link.hxx)
 FIND_LIBRARY(SIMANIO_LIBRARIES NAMES SimanIO)
 
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(SIMANIO REQUIRED_VARS SIMANIO_INCLUDE_DIR SIMANIO_LIBRARIES)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(SimanIO REQUIRED_VARS SIMANIO_INCLUDE_DIRS SIMANIO_LIBRARIES)
 
 IF(SIMANIO_FOUND)
   IF(NOT SIMANIO_FIND_QUIETLY)
-    MESSAGE(STATUS "SIMANIO library: ${SIMANIO_LIBRARIES}")
+    MESSAGE(STATUS "SimanIO library: ${SIMANIO_LIBRARIES}")
   ENDIF()
 ENDIF()
