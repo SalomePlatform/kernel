@@ -31,8 +31,8 @@ SET(SalomeVTK_COMPONENTS
   vtkRenderingAnnotation 
   vtkFiltersParallel
   vtkIOExport
-  #vtkWrappingPythonCore  ## ParaView 4.0.1
-  vtkWrappingPython
+  vtkWrappingPythonCore  ## ParaView 4.0.1
+  #vtkWrappingPython
   vtkIOXML
   vtkFiltersVerdict
   vtkRenderingLabel
