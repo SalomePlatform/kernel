@@ -389,7 +389,7 @@ if salome.hasDesktop(): # in gui mode
         print "OK"
     
     print "Creating Scalar Map.......",
-    scalarmap = ScalarMapOnField(med_reader, node_entity, 'vitesse', 1)
+    scalarmap = ScalarMapOnField(med_reader, node_entity, 'vitesse', 2)
     if scalarmap is None:
         print "FAILED"
     else:
@@ -405,7 +405,7 @@ if salome.hasDesktop(): # in gui mode
     view.ResetCamera()
     
     print "Creating Vectors..........",
-    vectors = VectorsOnField(med_reader, node_entity, 'vitesse', 1)
+    vectors = VectorsOnField(med_reader, node_entity, 'vitesse', 2)
     if vectors is None:
         print "FAILED"
     else:
@@ -413,7 +413,7 @@ if salome.hasDesktop(): # in gui mode
         print "OK"
     
     print "Creating Iso Surfaces.....",
-    isosurfaces = IsoSurfacesOnField(med_reader, node_entity, 'vitesse', 1)
+    isosurfaces = IsoSurfacesOnField(med_reader, node_entity, 'vitesse', 2)
     if isosurfaces is None:
         print "FAILED"
     else:
@@ -421,7 +421,7 @@ if salome.hasDesktop(): # in gui mode
         print "OK"
     
     print "Creating Cut Planes.......",
-    cutplanes = CutPlanesOnField(med_reader, node_entity, 'vitesse', 1,
+    cutplanes = CutPlanesOnField(med_reader, node_entity, 'vitesse', 2,
                                  nb_planes=30, orientation=Orientation.YZ)
     if cutplanes is None:
         print "FAILED"
@@ -432,7 +432,7 @@ if salome.hasDesktop(): # in gui mode
     print "Creating Scalar Map On Deformed Shape.......",
     scalarmapondefshape = DeformedShapeAndScalarMapOnField(med_reader,
                                                            node_entity,
-                                                           'vitesse', 1,
+                                                           'vitesse', 2,
                                                            None,
                                                            cell_entity,
                                                            'pression')
