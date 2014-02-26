@@ -51,3 +51,13 @@ ENDIF()
 FOREACH(_res ${SalomeKERNEL_EXTRA_ENV})
   SALOME_ACCUMULATE_ENVIRONMENT(${_res} "${SalomeKERNEL_EXTRA_ENV_${_res}}")
 ENDFOREACH()
+
+#----------------------------------------------------------------------------
+# KERNEL_WITH_CORBA is a macro useful for determining whether a KERNEL module 
+# builded in not light mode(with CORBA)
+#----------------------------------------------------------------------------
+MACRO(KERNEL_WITH_CORBA)
+  IF(SALOME_KERNEL_LIGHT_ONLY)
+    MESSAGE(FATAL_ERROR "\nWe absolutely need a Salome KERNEL module with CORBA.\nPlease set option SALOME_LIGHT_ONLY to OFF when building KERNEL module.")
+  ENDIF()
+ENDMACRO(KERNEL_WITH_CORBA)

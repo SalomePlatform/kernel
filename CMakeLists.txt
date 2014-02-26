@@ -52,8 +52,6 @@ SET(LONG_OR_INT int)
 
 # User options
 # ============
-CMAKE_DEPENDENT_OPTION(SALOME_USE_MPI "Use MPI containers" OFF
-                       "NOT SALOME_PACO_PARALLEL" ON)
 OPTION(SALOME_BUILD_DOC "Generate SALOME KERNEL documentation" ON)
 OPTION(SALOME_BUILD_TESTS "Build SALOME tests" ON)
 
@@ -61,10 +59,15 @@ OPTION(SALOME_BUILD_TESTS "Build SALOME tests" ON)
 OPTION(SALOME_LIGHT_ONLY "Build SALOME Light only (no CORBA)" OFF)
 OPTION(SALOME_USE_LIBBATCH "Use LibBatch in KERNEL" OFF)
 OPTION(SALOME_USE_SIMAN "Add SIMAN support" OFF)
-OPTION(SALOME_PACO_PARALLEL "Build with PACO (implies SALOME_USE_MPI)" OFF)
-OPTION(SALOME_LAUNCHER_ONLY "Build only the Launcher part" OFF)
+CMAKE_DEPENDENT_OPTION(SALOME_PACO_PARALLEL "Build with PACO (implies SALOME_USE_MPI)" OFF
+                       "NOT SALOME_LIGHT_ONLY" OFF)
 OPTION(SALOME_USE_PORTMANAGER "Add PortManager support" OFF)
-MARK_AS_ADVANCED(SALOME_LIGHT_ONLY SALOME_USE_LIBBATCH SALOME_USE_SIMAN SALOME_PACO_PARALLEL SALOME_LAUNCHER_ONLY SALOME_USE_PORTMANAGER)
+CMAKE_DEPENDENT_OPTION(SALOME_USE_MPI "Use MPI containers" OFF
+                       "NOT SALOME_PACO_PARALLEL" ON)
+CMAKE_DEPENDENT_OPTION(SALOME_USE_MPI "Use MPI containers" ${SALOME_USE_MPI}
+                       "NOT SALOME_LIGHT_ONLY" OFF)
+MARK_AS_ADVANCED(SALOME_LIGHT_ONLY SALOME_USE_LIBBATCH SALOME_USE_SIMAN SALOME_PACO_PARALLEL SALOME_USE_PORTMANAGER)
+SET(SALOME_LAUNCHER_ONLY OFF) # deprecated option: Build only the Launcher part
 
 # Required prerequisites
 #   Find "big" prerequisites first - they reference themselves many others
@@ -203,35 +206,61 @@ INCLUDE(CMakePackageConfigHelpers)
 # List of targets in this project we want to make visible to the rest of the world.
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
-# Temporary solution for package src\DSC on windows
-IF(NOT WIN32)
-  SET(DSC_TGS CalciumC SalomeCalcium SalomeDatastream 
-  SalomePalm SalomeDSCSupervBasic SalomeDSCSuperv)
-ENDIF()
-
-SET(_${PROJECT_NAME}_exposed_targets
-  ${DSC_TGS} DF Launcher OpUtil Registry ResourcesManager 
-  SALOMEBasics SalomeCatalog SalomeCommunication SalomeContainer 
-  SalomeDSCContainer SalomeDSClient SalomeDSImpl 
-  SalomeDS SalomeGenericObj SalomeHDFPersist SalomeIDLKernel
-  SalomeLauncher SalomeLifeCycleCORBA SALOMELocalTrace 
-  SalomeLoggerServer SalomeNotification SalomeNS
-  SalomeResourcesManager TOOLSDS with_loggerTraceCollector 
-  SalomeKernelHelpers)
+IF(SALOME_LAUNCHER_ONLY)
+  SET(_${PROJECT_NAME}_exposed_targets 
+    SALOMEBasics ResourcesManager Launcher)
+ELSE()
+  SET(_${PROJECT_NAME}_exposed_targets 
+    SALOMEBasics SALOMELocalTrace SalomeHDFPersist OpUtil)
+    
+  # CORBA specific targets:
+  IF(NOT SALOME_LIGHT_ONLY)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+      DF SalomeLoggerServer with_loggerTraceCollector SalomeNS SalomeGenericObj 
+      Registry SalomeCatalog ResourcesManager SalomeResourcesManager
+      SalomeNotification SalomeContainer Launcher SalomeLauncher
+      SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers
+      SalomeDSImpl SalomeDS SalomeCommunication SalomeDSCContainer)
+    # Temporary solution for package src\DSC on windows
+    IF(NOT WIN32)
+      LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+        CalciumC SalomeCalcium SalomeDatastream SalomePalm SalomeDSCSupervBasic 
+        SalomeDSCSuperv)
+      IF(SALOME_PACO_PARALLEL)
+        LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelDSCContainer)
+      ENDIF()
+    ENDIF()
+  ENDIF()
   
-# MPI specific targets:
-IF(SALOME_USE_MPI)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-       SalomeMPIContainer SalomeTestMPIComponentEngine)
-ENDIF()
+  # MPI specific targets:
+  IF(SALOME_USE_MPI)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+      SalomeMPIContainer SalomeTestMPIComponentEngine)
+  ENDIF()
+      
+  # Test targets:
+  IF(SALOME_BUILD_TESTS)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets SALOMELocalTraceTest UnitTests)
+    IF(NOT SALOME_LIGHT_ONLY)
+      LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+        SALOMETraceCollectorTest UtilsTest NamingServiceTest SalomeTestComponentEngine 
+        LifeCycleCORBATest SalomeKernelHelpersTest SALOMEDSImplTest SALOMEDSTest)
+    ENDIF()
+  ENDIF()
 
-# Test targets:
-IF(SALOME_BUILD_TESTS)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-      LifeCycleCORBATest NamingServiceTest SALOMEDSImplTest SALOMEDSTest SALOMELocalTraceTest
-      SalomeTestComponentEngine SALOMETraceCollectorTest UtilsTest )
+  # PACO specific targets:
+  IF(SALOME_PACO_PARALLEL)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelContainer)
+  ENDIF()
 ENDIF()
-
+             
+IF(NOT SALOME_LIGHT_ONLY)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeIDLKernel)
+  IF(SALOME_PACO_PARALLEL)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelIDLKernel)
+  ENDIF()
+ENDIF()
+     
 # Add all targets to the build-tree export set
 EXPORT(TARGETS ${_${PROJECT_NAME}_exposed_targets}
   FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake)
