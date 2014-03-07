@@ -221,7 +221,7 @@ def salome_init(theStudyId=0,embedded=0):
             salome_initial=0
             sg = salome_iapp_init(embedded)
             orb, lcc, naming_service, cm = salome_kernel_init()
-            myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
+            myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init()
             pass
         pass
     except RuntimeError, inst:
