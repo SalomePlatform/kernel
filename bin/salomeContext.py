@@ -70,7 +70,7 @@ class SalomeContext:
   to .cfg format before setting the environment.
   """
   def __init__(self, configFileNames=[]):
-    #it could be None explicitely (if user use multiples setEnviron...for standalone)
+    #it could be None explicitely (if user use multiples setVariable...for standalone)
     if configFileNames==None:
        return
 
@@ -100,7 +100,7 @@ class SalomeContext:
         self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
   #
 
-  def go(self, args):
+  def runSalome(self, args):
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
     kill = False
@@ -118,21 +118,21 @@ class SalomeContext:
 
   """Append value to PATH environment variable"""
   def addToPath(self, value):
-    self.addToEnviron('PATH', value)
+    self.addToVariable('PATH', value)
   #
 
   """Append value to LD_LIBRARY_PATH environment variable"""
   def addToLdLibraryPath(self, value):
-    self.addToEnviron('LD_LIBRARY_PATH', value)
+    self.addToVariable('LD_LIBRARY_PATH', value)
   #
 
   """Append value to PYTHONPATH environment variable"""
   def addToPythonPath(self, value):
-    self.addToEnviron('PYTHONPATH', value)
+    self.addToVariable('PYTHONPATH', value)
   #
 
   """Set environment variable to value"""
-  def setEnviron(self, name, value, overwrite=False):
+  def setVariable(self, name, value, overwrite=False):
     env = os.getenv(name, '')
     if env and not overwrite:
       self.getLogger().warning("Environment variable already existing (and not overwritten): %s=%s", name, value)
@@ -147,13 +147,13 @@ class SalomeContext:
   #
 
   """Unset environment variable"""
-  def unsetEnviron(self, name):
+  def unsetVariable(self, name):
     if os.environ.has_key(name):
       del os.environ[name]
   #
 
   """Append value to environment variable"""
-  def addToEnviron(self, name, value, separator=os.pathsep):
+  def addToVariable(self, name, value, separator=os.pathsep):
     if value == '':
       return
 
@@ -199,7 +199,7 @@ class SalomeContext:
   Args consist in a mandatory command followed by optionnal parameters.
   See usage for details on commands.
   """
-  def _getStarted(self, args):
+  def _startSalome(self, args):
     command, options = self.__parseArguments(args)
     sys.argv = options
 
@@ -234,17 +234,17 @@ class SalomeContext:
 
     # unset variables
     for var in unsetVars:
-      self.unsetEnviron(var)
+      self.unsetVariable(var)
 
     # set environment
     for reserved in reservedDict:
       a = filter(None, reservedDict[reserved]) # remove empty elements
       reformattedVals = ':'.join(a)
-      self.addToEnviron(reserved, reformattedVals)
+      self.addToVariable(reserved, reformattedVals)
       pass
 
     for key,val in configVars:
-      self.setEnviron(key, val, overwrite=True)
+      self.setVariable(key, val, overwrite=True)
       pass
 
     sys.path[:0] = os.getenv('PYTHONPATH','').split(':')
@@ -390,7 +390,7 @@ if __name__ == "__main__":
   if len(sys.argv) == 3:
     context = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
-    (out, err) = context._getStarted(args)
+    (out, err) = context._startSalome(args)
     if out:
       sys.stdout.write(out)
     if err:

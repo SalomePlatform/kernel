@@ -71,10 +71,10 @@ def main(args):
     # context.addToPath('mypath')
     # context.addToLdLibraryPath('myldlibrarypath')
     # context.addToPythonPath('mypythonpath')
-    # context.setEnviron('myvarname', 'value')
+    # context.setVariable('myvarname', 'value')
 
     # Start SALOME, parsing command line arguments
-    context.go(args)
+    context.runSalome(args)
     #print 'Thank you for using SALOME!'
 
   except SalomeContextException, e:
