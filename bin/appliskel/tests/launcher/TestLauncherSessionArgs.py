@@ -30,6 +30,7 @@ logger.level = logging.DEBUG
 logger.addHandler(logging.StreamHandler())
 
 class TestSessionArgs(unittest.TestCase):
+  # setUpClass appears in Python 2.7
   @classmethod
   def setUpClass(cls):
     # Initialize path to SALOME application
@@ -58,9 +59,9 @@ class TestSessionArgs(unittest.TestCase):
     cls.lines0 = ["lines.py", "args:outfile="+cls.logFile]
     cls.lines0Msg = "No files given"
     cls.lines2 = ["lines.py", "args:hello.py,add.py,outfile="+cls.logFile]
-    cls.lines2Msg = "hello.py is 16 lines longadd.py is 18 lines long"
+    cls.lines2Msg = "hello.py is 35 lines longadd.py is 37 lines long"
     cls.linesUnreadable = ["lines.py", "args:hello.py,add.py,1,2,outfile="+cls.logFile]
-    cls.linesUnreadableMsg = "hello.py is 16 lines longadd.py is 18 lines longFile '1' cannot be readFile '2' cannot be read"
+    cls.linesUnreadableMsg = "hello.py is 35 lines longadd.py is 37 lines longFile '1' cannot be readFile '2' cannot be read"
   #
   @classmethod
   def tearDownClass(cls):
@@ -85,9 +86,7 @@ class TestSessionArgs(unittest.TestCase):
     with open(self.logFile, "r") as f:
       contents = f.read().replace('\n', '')
 
-    #sys.stderr.write("Generated contents :%s\n"%contents)
-    #sys.stderr.write("Expected contents :%s\n"%message)
-    self.assertTrue(contents==message)
+    self.assertTrue(contents==message, "Contents differ!\n\tGenerated contents: %s\n\tExpected contents: %s"%(contents, message))
   #
   def testHello0(self):
     self.session(self.hello0)
