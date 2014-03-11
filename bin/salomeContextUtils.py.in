@@ -82,8 +82,23 @@ def getConfigFileNames(args, checkExistence=False):
   return configFileNames, args, unexisting
 #
 
+def __getScriptPath(scriptName, searchPathList):
+  if searchPathList is None or len(searchPathList) == 0:
+    return None
+
+  for path in searchPathList:
+    fullName = os.path.join(path, scriptName)
+    if os.path.isfile(fullName) or os.path.isfile(fullName+".py"):
+      return fullName
+
+  return None
+#
+
 # Return an array of dictionaries {script_name: [list_of_its_args]}
-def getScriptsAndArgs(args=[]):
+def getScriptsAndArgs(args=[], searchPathList=None):
+  if searchPathList is None:
+    searchPathList = sys.path
+
   # Syntax of args: script.py [args:a1,a2=val,an] ... script.py [args:a1,a2=val,an]
   scriptArgs = []
   currentKey = None
@@ -103,7 +118,13 @@ def getScriptsAndArgs(args=[]):
       callPython = False
     elif elt.startswith("python"):
       callPython = True
-    elif os.path.isfile(elt) or os.path.isfile(elt+".py"):
+    else:
+      if not os.path.isfile(elt) and not os.path.isfile(elt+".py"):
+        eltInSearchPath = __getScriptPath(elt, searchPathList)
+        if eltInSearchPath is None or (not os.path.isfile(eltInSearchPath) and not os.path.isfile(eltInSearchPath+".py")):
+          raise SalomeContextException("Script not found: %s"%elt)
+        elt = eltInSearchPath
+
       if elt[-4:] != ".hdf":
         if elt[-3:] == ".py":
           currentScript = os.path.abspath(elt)
