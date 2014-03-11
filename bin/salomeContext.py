@@ -30,8 +30,8 @@ import pickle
 import subprocess
 import platform
 
-from salomeLauncherUtils import SalomeRunnerException
-from salomeLauncherUtils import getScriptsAndArgs, formatScriptsAndArgs
+from salomeContextUtils import SalomeContextException
+from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs
 
 def usage():
   #exeName = os.path.splitext(os.path.basename(__file__))[0]
@@ -56,17 +56,17 @@ to show help on start and shell commands.
 #
 
 """
-The SalomeRunner class in an API to configure SALOME environment then
+The SalomeContext class in an API to configure SALOME environment then
 start SALOME using a single python command.
 
 """
-class SalomeRunner:
+class SalomeContext:
   """
   Initialize environment from a list of configuration files
   identified by their names.
   These files should be in appropriate (new .cfg) format.
   However you can give old .sh environment files; in this case,
-  the SalomeRunner class will try to automatically convert them
+  the SalomeContext class will try to automatically convert them
   to .cfg format before setting the environment.
   """
   def __init__(self, configFileNames=[]):
@@ -75,7 +75,7 @@ class SalomeRunner:
        return
 
     if len(configFileNames) == 0:
-      raise SalomeRunnerException("No configuration files given")
+      raise SalomeContextException("No configuration files given")
 
     reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'PV_PLUGIN_PATH']
     for filename in configFileNames:
@@ -108,9 +108,9 @@ class SalomeRunner:
       if "--shutdown-server" in e:
         kill = True
         args.remove(e)
-    
+
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeRunner.py"), pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
     proc.communicate()
     if kill:
       self._killAll(args)
@@ -224,7 +224,7 @@ class SalomeRunner:
       import traceback
       traceback.print_exc()
       sys.exit(1)
-    except SalomeRunnerException, e:
+    except SalomeContextException, e:
       self.getLogger().error(e)
       sys.exit(1)
   #
@@ -388,9 +388,9 @@ class SalomeRunner:
 import pickle
 if __name__ == "__main__":
   if len(sys.argv) == 3:
-    runner = pickle.loads(sys.argv[1])
+    context = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
-    (out, err) = runner._getStarted(args)
+    (out, err) = context._getStarted(args)
     if out:
       sys.stdout.write(out)
     if err:

@@ -26,10 +26,10 @@ import subprocess
 import re
 
 """
-Define a specific exception class to manage exceptions related to SalomeRunner
+Define a specific exception class to manage exceptions related to SalomeContext
 """
-class SalomeRunnerException(Exception):
-  """Report error messages to the user interface of SalomeRunner."""
+class SalomeContextException(Exception):
+  """Report error messages to the user interface of SalomeContext."""
 #
 
 def __listDirectory(path):
@@ -96,7 +96,7 @@ def getScriptsAndArgs(args=[]):
 
     if elt.startswith(argsPrefix):
       if not currentKey or callPython:
-        raise SalomeRunnerException("args list must follow corresponding script file in command line.")
+        raise SalomeContextException("args list must follow corresponding script file in command line.")
       elt = elt.replace(argsPrefix, '')
       scriptArgs[len(scriptArgs)-1][currentKey] = elt.split(",")
       currentKey = None
@@ -124,9 +124,9 @@ def getScriptsAndArgs(args=[]):
           ispython = False
           try:
             fn = open(currentScript)
-            for i in xrange(10): # read only 10 first lines 
+            for i in xrange(10): # read only 10 first lines
               ln = fn.readline()
-              if re.search("#!.*python"): 
+              if re.search("#!.*python"):
                 ispython = True
                 break
               pass
@@ -153,8 +153,8 @@ def formatScriptsAndArgs(scriptArgs=[]):
         if sc_args:
           cmd = cmd + " " + " ".join(sc_args)
         commands.append(cmd)
-    sep = " ; " 
-    if sys.platform == "win32":    
+    sep = " ; "
+    if sys.platform == "win32":
       sep= " & "
     command = sep.join(["%s"%x for x in commands])
     return command

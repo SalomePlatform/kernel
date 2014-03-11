@@ -40,7 +40,7 @@ def __initialize():
 
   # define folder to store omniorb config (initially in virtual application folder)
   try:
-    from salomeLauncherUtils import setOmniOrbUserPath
+    from salomeContextUtils import setOmniOrbUserPath
     setOmniOrbUserPath()
   except Exception, e:
     print e
@@ -52,32 +52,32 @@ def main(args):
   __initialize()
 
   if args == ['--help']:
-    from salomeRunner import usage
+    from salomeContext import usage
     usage()
     sys.exit(0)
 
-  from salomeLauncherUtils import getConfigFileNames
+  from salomeContextUtils import getConfigFileNames
   configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True)
   if len(unexisting) > 0:
     print "ERROR: unexisting configuration file(s): " + ', '.join(unexisting)
     sys.exit(1)
 
-  # Create a SalomeRunner which parses configFileNames to initialize environment
+  # Create a SalomeContext which parses configFileNames to initialize environment
   try:
-    from salomeRunner import SalomeRunner, SalomeRunnerException
-    runner = SalomeRunner(configFileNames)
+    from salomeContext import SalomeContext, SalomeContextException
+    context = SalomeContext(configFileNames)
 
     # Here set specific variables, if needed
-    # runner.addToPath('mypath')
-    # runner.addToLdLibraryPath('myldlibrarypath')
-    # runner.addToPythonPath('mypythonpath')
-    # runner.setEnviron('myvarname', 'value')
+    # context.addToPath('mypath')
+    # context.addToLdLibraryPath('myldlibrarypath')
+    # context.addToPythonPath('mypythonpath')
+    # context.setEnviron('myvarname', 'value')
 
     # Start SALOME, parsing command line arguments
-    runner.go(args)
-    print 'Thank you for using SALOME!'
+    context.go(args)
+    #print 'Thank you for using SALOME!'
 
-  except SalomeRunnerException, e:
+  except SalomeContextException, e:
     import logging
     logging.getLogger("salome").error(e)
     sys.exit(1)
