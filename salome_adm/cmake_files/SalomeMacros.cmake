@@ -381,13 +381,13 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
       IF(${englobPkg}_FIND_COMPONENTS)
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS}
-              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
+              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files" "adm/cmake"
               NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH
                 NO_SYSTEM_ENVIRONMENT_PATH)
       ELSE()
         FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
               NO_MODULE ${_tmp_quiet} ${_tmp_req}
-              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
+              PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files" "adm/cmake"
               NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH
                  NO_SYSTEM_ENVIRONMENT_PATH)
       ENDIF()
