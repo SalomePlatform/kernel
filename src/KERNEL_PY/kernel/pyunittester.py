@@ -18,6 +18,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup pyunittester pyunittester
+#  \{ 
+#  \details Simple wrapper of the pyunit framework
+#  \}
+
 import sys
 from salome.kernel import termcolor
 def printfile(filename):
@@ -36,10 +41,12 @@ import unittest
 from unittest import TestCase
 from uiexception import DevelException
 
+## This class is a simple wrapper of the pyunit framework.
+#  \ingroup pyunittester
 class PyUnitTester():
-    '''
+    """
     This class is a simple wrapper of the pyunit framework.
-    '''
+    """
     def __init__(self):
         self.__listTestSuite=[]
         self.setLogFilename("testlog.txt")
@@ -75,6 +82,10 @@ class PyUnitTester():
     def printreport(self):
         printfile(self.__logfilename)
 
+## This can be used to just execute a test function that is
+#  considered as OK simply if no exception is raised (can be test by
+#  an assertTrue).
+#  \ingroup pyunittester
 def execAndConvertExceptionToBoolean(function):
     """
     This can be used to just execute a test function that is
@@ -92,6 +103,8 @@ def execAndConvertExceptionToBoolean(function):
 
 # Simple helper function for most cases where there is only one
 # TestCase classe.
+## Run the test suite provided by the specified TestCase class.
+#  \ingroup pyunittester
 def run(testCaseClass):
     """
     Run the test suite provided by the specified TestCase class.

@@ -61,8 +61,7 @@ specific points of %SALOME Kernel :
 - \subpage kernel_salome 
 - \subpage dsc_page : DSC documentation page.
 - \subpage salome_file_page : Salome_file documentation page.
-- <a class="el" href="../../tui/KERNEL/docutils/index.html" target="_new">
-  Documentation of the KERNEL python package</a> : The package salome.kernel provides
+- \subpage python_documentation : The package salome.kernel provides
   logging tools, high-level functions to handle items in Salome study, and other utilities.
 
 */

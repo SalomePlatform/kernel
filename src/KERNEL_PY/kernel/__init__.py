@@ -18,6 +18,22 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup salome_kernel salome.kernel
+#  \{ 
+#  \details Package containing the KERNEL python utilities
+#  \defgroup deprecation
+#  \defgroup termcolor
+#  \defgroup logger
+#  \defgroup enumerate
+#  \defgroup uiexception
+#  \defgroup datamodeler
+#  \defgroup diclookup
+#  \defgroup service
+#  \defgroup studyedit
+#  \defgroup unittester
+#  \defgroup pyunittester
+#  \}
+
 __all__ = [ "deprecation", "logger", "termcolor", "logconfig" ]
 
 # WARN: This file SHOULD NOT import salome stuff so that modules of the

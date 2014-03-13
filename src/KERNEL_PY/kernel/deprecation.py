@@ -18,6 +18,21 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+## \defgroup deprecation deprecation
+#  \{ 
+#  \details
+#  This module provides several functions to indicate the deprecation of a
+#  module, a method or a function.
+#  \code
+#  from salome.kernel.deprecation import deprecated
+#  deprecated("Deprecated since version 6.3.0. Consider replacement with 
+#              newFunction()")
+#  def oldFunction():
+#  ...
+#  \endcode
+#  \}
+
 """
 This module provides several functions to indicate the deprecation of a
 module, a method or a function.
@@ -63,6 +78,13 @@ def __deprecated_with_msg(func, msg):
         return func(*args, **kwargs)
     return new_func
 
+## This is a decorator which can be used to mark functions
+#  as deprecated. It will result in a warning being emitted
+#  when the function is used. The message in parameter will
+#  be displayed and should indicate how this function can be
+#  replaced. If the terminal can display colors, the warning
+#  messages will appear in blue.
+#  \ingroup deprecation
 def deprecated(msg = msg_seedoc):
     """
     This is a decorator which can be used to mark functions
@@ -83,6 +105,13 @@ def deprecated(msg = msg_seedoc):
             return g
     return make_dep
 
+## This function can be used to mark a module as deprecated.
+#  It must be called explicitly at the beginning of the deprecated
+#  module. It will result in a warning being emitted. The message
+#  in parameter will be displayed and should indicate how this
+#  module can be replaced. If the terminal can display colors,
+#  the warning messages will appear in blue.
+#  \ingroup deprecation
 def deprecated_module(msg = msg_seedoc):
     """
     This function can be used to mark a module as deprecated.
@@ -102,6 +131,11 @@ def deprecated_module(msg = msg_seedoc):
             stacklevel = 5
         )
 
+## Determine if the calling code is ultimately called by sphinx to generate
+#  documentation. The result can be used to conditionally inhibit the
+#  decorators or some Salome-related imports that fail when called outside
+#  Salome.
+#  \ingroup deprecation
 def is_called_by_sphinx():
     """
     Determine if the calling code is ultimately called by sphinx to generate

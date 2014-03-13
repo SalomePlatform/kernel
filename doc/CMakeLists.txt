@@ -18,4 +18,3 @@
 #
 
 ADD_SUBDIRECTORY(salome)
-ADD_SUBDIRECTORY(docutils)

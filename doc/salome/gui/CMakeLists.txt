@@ -17,10 +17,42 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
+
 SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
-ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE})
+SET(gen_doc "${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/prepare_generating_doc.py")
+IF(WIN32)
+  STRING(REPLACE "/" "\\" gen_doc ${gen_doc})
+ENDIF(WIN32)
+SET(kernel_py ${CMAKE_SOURCE_DIR}/src/KERNEL_PY)
+
+ADD_CUSTOM_TARGET(usr_docs ${CMAKE_COMMAND} -E make_directory tmp
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/kernel.py ${kernel_py}/kernel/__init__.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/deprecation.py ${kernel_py}/kernel/deprecation.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/termcolor.py ${kernel_py}/kernel/termcolor.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/logger.py ${kernel_py}/kernel/logger.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/enumerate.py ${kernel_py}/kernel/enumerate.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/uiexception.py ${kernel_py}/kernel/uiexception.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/datamodeler.py ${kernel_py}/kernel/datamodeler.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/diclookup.py ${kernel_py}/kernel/diclookup.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/services.py ${kernel_py}/kernel/services.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/studyedit.py ${kernel_py}/kernel/studyedit.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/unittester.py ${kernel_py}/kernel/unittester.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/pyunittester.py ${kernel_py}/kernel/pyunittester.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/parametric.py ${kernel_py}/kernel/parametric/__init__.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/study_exchange_vars.py ${kernel_py}/kernel/parametric/study_exchange_vars.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/compo_utils.py ${kernel_py}/kernel/parametric/compo_utils.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/pyscript_utils.py ${kernel_py}/kernel/parametric/pyscript_utils.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/salome.py ${kernel_py}/__init__.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/salome_iapp.py ${kernel_py}/salome_iapp.py
+  COMMAND ${PYTHON_EXECUTABLE} ${gen_doc} -o tmp/SALOME_DriverPy.py ${CMAKE_SOURCE_DIR}/src/SALOMEDS/SALOME_DriverPy.py
+  COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
+  COMMAND  ${CMAKE_COMMAND} -E remove_directory tmp
+  VERBATIM 
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
+)
 
 ADD_DEPENDENCIES(usr_docs html_docs)
 

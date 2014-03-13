@@ -21,6 +21,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup diclookup diclookup
+#  \{ 
+#  \details Smart dictionnary with key/value lookup
+#  \}
+
 __author__="gboulant"
 __date__ ="$21 mai 2010 18:00:23$"
 
@@ -29,26 +34,36 @@ __date__ ="$21 mai 2010 18:00:23$"
 # using named functions or a class
 # tested with Python25   by Ene Uran    01/19/2008
 
+## return the key of dictionary dic given the value
+#  \ingroup diclookup
 def find_key(dic, val):
     """return the key of dictionary dic given the value"""
     return [k for k, v in dic.iteritems() if v == val][0]
 
+## return the value of dictionary dic given the key
+#  \ingroup diclookup
 def find_value(dic, key):
     """return the value of dictionary dic given the key"""
     return dic[key]
 
+## a dictionary which can lookup value by key, or keys by value
+#  \ingroup diclookup
 class Lookup(dict):
     """
     a dictionary which can lookup value by key, or keys by value
     """
+    ## items can be a list of pair_lists or a dictionary
     def __init__(self, items=[]):
         """items can be a list of pair_lists or a dictionary"""
         dict.__init__(self, items)
 
+    ## find the key(s) as a list given a value
     def get_keys(self, value):
         """find the key(s) as a list given a value"""
         return [item[0] for item in self.items() if item[1] == value]
 
+    ## find the key associated to the given a value. If several keys exist,
+    #  only the first is given. To get the whole list, use get_keys instead.
     def get_key(self, value):
         """
         find the key associated to the given a value. If several keys exist,
@@ -59,6 +74,7 @@ class Lookup(dict):
             return None
         return list[0]
 
+    ## find the value given a key
     def get_value(self, key):
         """find the value given a key"""
         return self[key]
