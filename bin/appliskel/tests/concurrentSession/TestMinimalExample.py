@@ -18,33 +18,34 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from PortManager import getPort, releasePort, stopServer
+import os
 import sys
 import multiprocessing
 import unittest
 
-def port_reservation(prefered=None, test=None, expected=None):
+def port_reservation(obtained_ports, prefered=None, test=None, expected=None):
+  from PortManager import getPort
   if prefered:
     port = getPort(prefered)
   else:
     port = getPort()
-  print "port = %s"%port
+  print "obtained port = %s"%port
+
+  obtained_ports.put(port)
 
   if expected:
-    print "expected = %s"%expected
-    test.assertTrue(port == expected)
+    test.assertTrue(port == expected, "used = %s, expected = %s"%(port, expected))
 #
 
 class TestMinimalExample(unittest.TestCase):
-  @classmethod
-  def tearDownClass(cls):
-    stopServer()
-    stopServer() # no effect
-  #
   def testSequential(self):
-    print "BEGIN testSequential"
+    from PortManager import releasePort, getBusyPorts
+    print "\nBEGIN testSequential"
+    print "Busy ports", getBusyPorts()
+    obtained_ports = multiprocessing.Queue()
+
     processes = [
-      multiprocessing.Process(target=port_reservation)
+      multiprocessing.Process(target=port_reservation, args=(obtained_ports,))
       for i in range(3)
       ]
 
@@ -54,61 +55,98 @@ class TestMinimalExample(unittest.TestCase):
     for p in processes:
       p.join()
 
+    print "Busy ports", getBusyPorts()
     # Try to get specific port number
-    expected = 2872
-    p = multiprocessing.Process(target=port_reservation, args=(2872, self,expected,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, self, 2872,))
     p.start()
     p.join()
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(2812, self,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812, self,))
+    p.start()
+    p.join()
+
+    # Try to get specific port number
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812, self,))
     p.start()
     p.join()
 
     # Release port
+    print "release port 2812"
     p = multiprocessing.Process(target=releasePort, args=(2812,))
     p.start()
     p.join()
 
     # Try to get specific port number
-    expected = 2812
-    p = multiprocessing.Process(target=port_reservation, args=(2812, self,expected,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812, self, 2812,))
     p.start()
     p.join()
 
+    # Release ports
+    print "Busy ports", getBusyPorts()
+    while not obtained_ports.empty():
+      port = obtained_ports.get()
+      print "release port", port
+      p = multiprocessing.Process(target=releasePort, args=(port,))
+      p.start()
+      p.join()
+
     print "END testSequential"
   #
+
   def testConcurrent(self):
-    print "BEGIN testConcurrent"
+    from PortManager import releasePort, getBusyPorts
+    print "\nBEGIN testConcurrent"
+    print "Busy ports", getBusyPorts()
+    obtained_ports = multiprocessing.Queue()
     processes = [
-      multiprocessing.Process(target=port_reservation)
+      multiprocessing.Process(target=port_reservation, args=(obtained_ports,))
+
       for i in range(3)
       ]
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(2852,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, self, 2872,))
     processes.append(p)
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(2812,))
-    processes.append(p)
-
-    # Release port
-    p = multiprocessing.Process(target=releasePort, args=(2812,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812,))
     processes.append(p)
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(2812,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812,))
     processes.append(p)
 
     for p in processes:
       p.start()
 
     for p in processes:
+      p.join()
+
+    # Release ports
+    print "Busy ports", getBusyPorts()
+    while not obtained_ports.empty():
+      port = obtained_ports.get()
+      print "release port", port
+      p = multiprocessing.Process(target=releasePort, args=(port,))
+      p.start()
       p.join()
 
     print "END testConcurrent"
   #
 #
 
-unittest.main()
+if __name__ == "__main__":
+  omniorb_user_path = os.getenv("OMNIORB_USER_PATH")
+  if not omniorb_user_path:
+    msg = "Error: please set OMNIORB_USER_PATH variable to the salome KERNEL install folder."
+    raise Exception(msg)
+
+  try:
+    import PortManager
+  except ImportError:
+    msg = "Error: can't import PortManager; please check PYTHONPATH variable."
+    raise Exception(msg)
+
+  unittest.main()
+#

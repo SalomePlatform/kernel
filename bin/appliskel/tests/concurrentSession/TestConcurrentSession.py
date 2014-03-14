@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Copyright (C) 2013-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
@@ -18,48 +17,68 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import unittest
+import tempfile
+
 import os
 import sys
-import unittest
-import multiprocessing
 import imp
+from cStringIO import StringIO
+import multiprocessing
 
-def unwrap_self_session(arg, **kwarg):
-  return TestConcurrentLaunch.session(*arg, **kwarg)
-#
 
 class TestConcurrentLaunch(unittest.TestCase):
-  @classmethod
-  def setUpClass(cls):
+  def setUp(self):
     # Initialize path to SALOME application
     path_to_launcher = os.getenv("SALOME_LAUNCHER")
     appli_dir = os.path.dirname(path_to_launcher)
-    cls.envd_dir = os.path.join(appli_dir, "env.d")
 
     # Configure session startup
-    cls.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
-    #cls.SALOME_args = ["shell", "--config="+cls.envd_dir]
-    cls.SALOME_args = ["--config="+cls.envd_dir]
+    self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
+    self.SALOME_appli_args = ["start", "-t"]
+    self.SALOME_shell_args = ["shell"]
   #
-  @classmethod
-  def tearDownClass(cls):
-    args = ["killall", "--config="+cls.envd_dir]
-    cls.SALOME.main(args)
+  def tearDown(self):
     pass
   #
+  def appli(self, args=[]):
+    self.SALOME.main(self.SALOME_appli_args + args)
+  #
   def session(self, args=[]):
-    self.SALOME.main(self.SALOME_args + args)
+    self.SALOME.main(self.SALOME_shell_args + args)
   #
   def test01_SingleSession(self):
     print "** Testing single session **"
-    self.session()
+    self.session(["hello.py"])
   #
   def test02_MultiSession(self):
     print "** Testing multi sessions **"
-
     jobs = []
     for i in range(3):
-      p = multiprocessing.Process(target=unwrap_self_session, args=([self],))
+      p = multiprocessing.Process(target=self.session, args=(["hello.py"],))
+      jobs.append(p)
+      p.start()
+
+    for j in jobs:
+      j.join()
+  #
+  def test03_SingleAppli(self):
+    print "** Testing single appli **"
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    session_log = tempfile.NamedTemporaryFile(prefix='session_', suffix='.log')
+    self.appli(["--ns-port-log=%s"%session_log.name])
+    port_number = None
+    with open(session_log.name, "r") as f:
+      port_number = f.readline()
+    self.session(["hello.py"])
+    self.session(["-p", port_number, "killSalomeWithPort.py", "args:%s"%port_number])
+    session_log.close()
+  #
+  def test04_MultiAppli(self):
+    print "** Testing multi appli **"
+    jobs = []
+    for i in range(3):
+      p = multiprocessing.Process(target=self.test03_SingleAppli)
       jobs.append(p)
       p.start()
 
@@ -68,12 +87,15 @@ class TestConcurrentLaunch(unittest.TestCase):
   #
 #
 
-
 if __name__ == "__main__":
   path_to_launcher = os.getenv("SALOME_LAUNCHER")
   if not path_to_launcher:
     msg = "Error: please set SALOME_LAUNCHER variable to the salome command of your application folder."
     raise Exception(msg)
+
+  if not os.path.isfile("hello.py"):
+    with open("hello.py", "w") as f:
+      f.write("print 'Hello!'")
 
   unittest.main()
 #
