@@ -122,7 +122,9 @@ def getScriptsAndArgs(args=[], searchPathList=None):
       if not os.path.isfile(elt) and not os.path.isfile(elt+".py"):
         eltInSearchPath = __getScriptPath(elt, searchPathList)
         if eltInSearchPath is None or (not os.path.isfile(eltInSearchPath) and not os.path.isfile(eltInSearchPath+".py")):
-          raise SalomeContextException("Script not found: %s"%elt)
+          if elt[-3:] == ".py":
+            raise SalomeContextException("Script not found: %s"%elt)
+          continue
         elt = eltInSearchPath
 
       if elt[-4:] != ".hdf":
