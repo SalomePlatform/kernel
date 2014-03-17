@@ -44,34 +44,22 @@ logger = createLogger()
 
 #------------------------------------
 # A file locker (Linux only)
-import fcntl
-class PortManagerLock:
-  def __init__(self, filename, readonly=False, blocking=True):
-    # This will create it if it does not exist already
-    logger.debug("Create lock on %s"%filename)
-    self.__readonly = readonly
-    self.__blocking = blocking
-    self.__filename = filename
-    flag = 'w'
-    if self.__readonly:
-      flag = 'r'
-    self.handle = open(self.__filename, 'a+')
-
-  def acquire(self):
-    mode = fcntl.LOCK_EX
-    if not self.__blocking: # Raise an IOError exception if file has already been locked
-      mode = mode | fcntl.LOCK_NB
-    fcntl.flock(self.handle, mode)
-    logger.debug("lock acquired %s"%self.__blocking)
-
-  def release(self):
-    fcntl.flock(self.handle, fcntl.LOCK_UN)
-    logger.debug("lock released")
-
-  def __del__(self):
-    logger.debug("Close lock file")
-    self.handle.close()
-    os.remove(self.__filename)
+def __acquire_lock(lock):
+  if sys.platform == "win32":
+    import msvcrt
+    # lock 1 byte: file is supposed to be zero-byte long
+    msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+  else:
+    import fcntl
+    fcntl.flock(lock, fcntl.LOCK_EX)
+#
+def __release_lock(lock):
+  if sys.platform == "win32":
+    import msvcrt
+    msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+  else:
+    import fcntl
+    fcntl.flock(lock, fcntl.LOCK_UN)
 #
 
 def _getConfigurationFilename():
@@ -117,7 +105,7 @@ def getPort(preferedPort=None):
   config_file, lock_file = _getConfigurationFilename()
   with open(lock_file, 'w') as lock:
     # acquire lock
-    fcntl.flock(lock, fcntl.LOCK_EX)
+    __acquire_lock(lock)
 
     # read config
     config = {'busy_ports':[]}
@@ -154,7 +142,7 @@ def getPort(preferedPort=None):
       pass
 
     # release lock
-    fcntl.flock(lock, fcntl.LOCK_UN)
+    __release_lock(lock)
 
     logger.debug("get port: %s"%str(port))
     return port
@@ -167,7 +155,7 @@ def releasePort(port):
   config_file, lock_file = _getConfigurationFilename()
   with open(lock_file, 'w') as lock:
     # acquire lock
-    fcntl.flock(lock, fcntl.LOCK_EX)
+    __acquire_lock(lock)
 
     # read config
     config = {'busy_ports':[]}
@@ -196,7 +184,7 @@ def releasePort(port):
       pass
 
     # release lock
-    fcntl.flock(lock, fcntl.LOCK_UN)
+    __release_lock(lock)
 
     logger.debug("released port port: %s"%str(port))
 #
@@ -205,7 +193,7 @@ def getBusyPorts():
   config_file, lock_file = _getConfigurationFilename()
   with open(lock_file, 'w') as lock:
     # acquire lock
-    fcntl.flock(lock, fcntl.LOCK_EX)
+    __acquire_lock(lock)
 
     # read config
     config = {'busy_ports':[]}
@@ -220,7 +208,7 @@ def getBusyPorts():
 
     busy_ports = config["busy_ports"]
     # release lock
-    fcntl.flock(lock, fcntl.LOCK_UN)
+    __release_lock(lock)
 
     return busy_ports
 #
