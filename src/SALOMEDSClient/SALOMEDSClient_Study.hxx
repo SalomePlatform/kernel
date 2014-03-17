@@ -126,7 +126,7 @@ public:
   virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars) = 0;
 
   virtual void attach(SALOMEDS::Observer_ptr theObserver,bool modify) = 0;
-
+  virtual void detach(SALOMEDS::Observer_ptr theObserver) = 0;
 };
 
 

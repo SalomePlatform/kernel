@@ -351,6 +351,6 @@ public:
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 
   virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
-
+  virtual void detach(SALOMEDS::Observer_ptr theObs);
 };
 #endif
