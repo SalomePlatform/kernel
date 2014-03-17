@@ -180,3 +180,10 @@ def salome_iapp_init(embedded):
             sg=SalomeOutsideGUI()
             IN_SALOME_GUI=0
     return sg
+
+def salome_iapp_close():
+    global salome_iapp_initial
+    salome_iapp_initial=1
+    pass
+
+
