@@ -35,8 +35,15 @@ class SalomeContextException(Exception):
 def __listDirectory(path):
   allFiles = []
   for root, dirs, files in os.walk(path):
-    configFileNames = glob.glob(os.path.join(root,'*.cfg')) + glob.glob(os.path.join(root,'*.sh'))
-    allFiles += configFileNames
+    cfgFiles = glob.glob(os.path.join(root,'*.cfg'))
+    allFiles += cfgFiles
+
+    shFiles = glob.glob(os.path.join(root,'*.sh'))
+    for f in shFiles:
+      no_ext = os.path.splitext(f)[0]
+      if not os.path.isfile(no_ext+".cfg"):
+        allFiles.append(f)
+
   return allFiles
 #
 
