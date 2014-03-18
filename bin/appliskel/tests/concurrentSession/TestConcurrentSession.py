@@ -54,7 +54,7 @@ class TestConcurrentLaunch(unittest.TestCase):
   def test02_MultiSession(self):
     print "** Testing multi sessions **"
     jobs = []
-    for i in range(3):
+    for i in range(9):
       p = multiprocessing.Process(target=self.session, args=(["hello.py"],))
       jobs.append(p)
       p.start()
@@ -77,7 +77,7 @@ class TestConcurrentLaunch(unittest.TestCase):
   def test04_MultiAppli(self):
     print "** Testing multi appli **"
     jobs = []
-    for i in range(3):
+    for i in range(9):
       p = multiprocessing.Process(target=self.test03_SingleAppli)
       jobs.append(p)
       p.start()
@@ -90,7 +90,7 @@ class TestConcurrentLaunch(unittest.TestCase):
 if __name__ == "__main__":
   path_to_launcher = os.getenv("SALOME_LAUNCHER")
   if not path_to_launcher:
-    msg = "Error: please set SALOME_LAUNCHER variable to the salome command of your application folder."
+    msg = "Error: please set SALOME_LAUNCHER variable to the salome command in your application folder."
     raise Exception(msg)
 
   if not os.path.isfile("hello.py"):

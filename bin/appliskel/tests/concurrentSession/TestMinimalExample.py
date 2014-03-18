@@ -139,7 +139,7 @@ class TestMinimalExample(unittest.TestCase):
 if __name__ == "__main__":
   omniorb_user_path = os.getenv("OMNIORB_USER_PATH")
   if not omniorb_user_path:
-    msg = "Error: please set OMNIORB_USER_PATH variable to the salome KERNEL install folder."
+    msg = "Error: please set OMNIORB_USER_PATH variable."
     raise Exception(msg)
 
   try:

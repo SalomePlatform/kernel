@@ -196,8 +196,8 @@ def formatScriptsAndArgs(scriptArgs=[]):
 # an exception is raised if check fails. It allows users for choosing a specific folder.
 # Else the function sets OMNIORB_USER_PATH this way:
 # - If APPLI environment variable is set, OMNIORB_USER_PATH is set to ${APPLI}/USERS.
-#   The function does not check USERS folder existence or wrute access. This folder
-#   must exist ; this is the case if SALOME virtual application has been create using
+#   The function does not check USERS folder existence or write access. This folder
+#   must exist ; this is the case if SALOME virtual application has been created using
 #   appli_gen.py script.
 # - Else OMNIORB_USER_PATH is set to user home directory.
 def setOmniOrbUserPath():
