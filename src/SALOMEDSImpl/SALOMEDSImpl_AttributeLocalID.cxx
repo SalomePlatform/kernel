@@ -25,6 +25,7 @@
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeLocalID.hxx"
+#include <stdlib.h>
 
 //=======================================================================
 //function : GetID

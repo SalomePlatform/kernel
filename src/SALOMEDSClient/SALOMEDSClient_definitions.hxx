@@ -45,12 +45,12 @@ public:
       {
         boost::shared_ptr<T>::reset(p);
       }
-  
+
   template<class Y>
     clt_shared_ptr(clt_shared_ptr<Y> const & r):
-      boost::shared_ptr<T>(r,boost::detail::dynamic_cast_tag())
+      boost::shared_ptr<T>(boost::dynamic_pointer_cast<T,Y>(r))
         {}
-  
+
   template<class Y>
     clt_shared_ptr & operator=(clt_shared_ptr<Y> const & r)
       {

@@ -26,6 +26,7 @@
 //
 #include "SALOMEDSImpl_AttributeSequenceOfInteger.hxx"
 #include <string.h>
+#include <stdlib.h>
 
 //=======================================================================
 //function : GetID

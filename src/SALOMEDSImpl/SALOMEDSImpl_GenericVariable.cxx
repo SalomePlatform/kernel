@@ -26,6 +26,7 @@
 #include "SALOMEDSImpl_Study.hxx"
 
 #include <string>
+#include <stdlib.h>
 
 
 //============================================================================

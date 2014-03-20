@@ -26,6 +26,7 @@
 //
 #include "SALOMEDSImpl_AttributeSequenceOfReal.hxx"
 #include <string.h>
+#include <stdlib.h>
 
 //=======================================================================
 //function : GetID

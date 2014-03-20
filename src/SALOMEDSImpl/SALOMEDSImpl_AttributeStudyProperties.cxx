@@ -26,6 +26,7 @@
 //
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include <string.h>
+#include <stdlib.h>
 
 const std::string& SALOMEDSImpl_AttributeStudyProperties::GetID()
 {
