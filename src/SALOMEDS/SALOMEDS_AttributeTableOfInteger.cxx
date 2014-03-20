@@ -226,7 +226,7 @@ void SALOMEDS_AttributeTableOfInteger::SetRowUnits(const std::vector<std::string
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theUnits[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theUnits[i].c_str();
     SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetRowUnits(aSeq);
   }
 }
