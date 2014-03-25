@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,16 +30,15 @@
 #include <vector>
 #include <list>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <unistd.h>
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #pragma warning(disable:4290) // Warning Exception ...
 #endif
@@ -53,6 +52,8 @@ struct resourceParams
 {
   std::string name;
   std::string hostname;
+  bool can_launch_batch_jobs;
+  bool can_run_containers;
   std::string OS;
   long nb_proc;
   long nb_node;
@@ -87,7 +88,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     std::string Find(const std::string& policy, 
                      const std::vector<std::string>& listOfResources);
 
-    void AddResourceInCatalog (const ParserResourcesType & new_resource) throw(ResourcesException);
+    void AddResourceInCatalog (const ParserResourcesType & new_resource);
 
     void DeleteResourceInCatalog(const char * name);
 
@@ -106,6 +107,11 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     void KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
                                         const std::vector<std::string>& componentList);
 
+    /**
+     * Add the default local resource in the catalog
+     */
+    void AddDefaultResourceInCatalog();
+
     //! will contain the path to the ressources catalog
     std::list<std::string> _path_resources;
     std::list<std::string>::iterator _path_resources_it;
@@ -118,6 +124,9 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     //! contain the time where resourcesList was created
     time_t _lasttime;
+
+    //! the name of the default local resource
+    static const std::string DEFAULT_RESOURCE_NAME;
   };
 
 #endif // __RESOURCESMANAGER_HXX__

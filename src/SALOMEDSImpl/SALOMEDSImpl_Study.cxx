@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -73,6 +73,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
   _builder = new SALOMEDSImpl_StudyBuilder(this);
   _cb = new SALOMEDSImpl_Callback(_useCaseBuilder);
   _notifier=0;
+  _genObjRegister=0;
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by DF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
@@ -296,7 +297,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::CreateObjectID(const std::string& anObj
  */
 //============================================================================
 std::vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const std::string& anObjectName,
-								       const std::string& aComponentName)
+                                                                       const std::string& aComponentName)
 {
   _errorCode = "";
 
@@ -825,8 +826,8 @@ void SALOMEDSImpl_Study::URL(const std::string& url)
  */
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject& SO,
-						     const std::string& theObjectName,
-						     bool& _find)
+                                                     const std::string& theObjectName,
+                                                     bool& _find)
 {
   SALOMEDSImpl_SObject RefSO;
   if(!SO) return RefSO;
@@ -940,11 +941,10 @@ std::string SALOMEDSImpl_Study::_GetStudyVariablesScript()
  *  Purpose  :
  */
 //============================================================================
-std::string SALOMEDSImpl_Study::_GetNoteBookAccess()
+std::string SALOMEDSImpl_Study::_GetNoteBookAccess(const std::string& theStudyVar)
 {
-  std::string accessor = _GetNoteBookAccessor();
   std::string notebook = "import salome_notebook\n";
-  notebook += accessor+" = salome_notebook."+accessor + "\n";
+  notebook += _GetNoteBookAccessor() + " = salome_notebook.NoteBook(" + theStudyVar + ")" ;
   return notebook;
 }
 
@@ -1093,6 +1093,7 @@ SALOMEDSImpl_UseCaseBuilder* SALOMEDSImpl_Study::GetUseCaseBuilder()
 void SALOMEDSImpl_Study::Close()
 {
   _errorCode = "";
+  _notifier = 0;
   _doc->GetApplication()->Close(_doc);
   _doc = NULL;
   _mapOfSO.clear();
@@ -1269,13 +1270,15 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   sfp << "import sys" << std::endl;
   sfp << "import " << aBatchModeScript << std::endl << std::endl;
 
+  std::string aStudyVar = "salome.myStudy";
   // initialization function
   sfp << aBatchModeScript << ".salome_init()" << std::endl;
-  if ( !isMultiFile )
-    sfp << "theStudy = salome.myStudy" <<std::endl << std::endl;
-
+  if ( !isMultiFile ) {
+    sfp << "theStudy = " << aStudyVar << std::endl << std::endl;
+    aStudyVar = "theStudy";
+  }
   // notebook initialization
-  sfp << _GetNoteBookAccess();
+  sfp << _GetNoteBookAccess(aStudyVar) << std::endl;
 
   // extend sys.path with the directory where the script is being dumped to
   sfp << "sys.path.insert( 0, r\'" << thePath << "\')" << std::endl << std::endl;
@@ -1371,9 +1374,9 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 #endif
       
       if(!isOpened) {
-	_errorCode = std::string("Can't create a file ")+aFileName;
-	SALOMEDSImpl_Tool::RemoveTemporaryFiles(thePath, aSeqOfFileNames, false);
-	return false;
+        _errorCode = std::string("Can't create a file ")+aFileName;
+        SALOMEDSImpl_Tool::RemoveTemporaryFiles(thePath, aSeqOfFileNames, false);
+        return false;
       }
      
       // replace '\t' symbols
@@ -1680,8 +1683,8 @@ void SALOMEDSImpl_Study::SetVariable(const std::string& theVarName,
  */
 //============================================================================
 void SALOMEDSImpl_Study::SetStringVariable(const std::string& theVarName,
-					   const std::string& theValue,
-					   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+                                           const std::string& theValue,
+                                           const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
   bool modified = false;
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
@@ -1710,8 +1713,8 @@ void SALOMEDSImpl_Study::SetStringVariable(const std::string& theVarName,
  */
 //============================================================================
 void SALOMEDSImpl_Study::SetStringVariableAsDouble(const std::string& theVarName,
-						   const double theValue,
-						   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+                                                   const double theValue,
+                                                   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
@@ -2098,4 +2101,47 @@ bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theS
 void SALOMEDSImpl_Study::setNotifier(SALOMEDSImpl_AbstractCallback* notifier) 
 {
   _notifier=notifier;
+}
+
+static SALOMEDSImpl_AbstractCallback* & getGenObjRegister( DF_Document* doc )
+{
+  static std::vector< SALOMEDSImpl_AbstractCallback* > _genObjRegVec;
+  if ( doc->GetDocumentID() >= (int)_genObjRegVec.size() )
+    _genObjRegVec.resize( doc->GetDocumentID() + 1, 0 );
+  return _genObjRegVec[ doc->GetDocumentID() ];
+}
+
+//================================================================================
+/*!
+ * \brief Stores theRegister
+ */
+//================================================================================
+
+void SALOMEDSImpl_Study::setGenObjRegister(SALOMEDSImpl_AbstractCallback* theRegister)
+{
+  getGenObjRegister( _doc ) = theRegister;
+}
+
+//================================================================================
+/*!
+ * \brief Indirectly invokes GenericObj_i::Register()
+ */
+//================================================================================
+
+void SALOMEDSImpl_Study::RegisterGenObj  (const std::string& theIOR, DF_Label label)
+{
+  if ( SALOMEDSImpl_AbstractCallback* goRegister = getGenObjRegister( label.GetDocument() ))
+    goRegister->RegisterGenObj( theIOR );
+}
+
+//================================================================================
+/*!
+ * \brief Indirectly invokes GenericObj_i::UnRegister()
+ */
+//================================================================================
+
+void SALOMEDSImpl_Study::UnRegisterGenObj(const std::string& theIOR, DF_Label label)
+{
+  if ( SALOMEDSImpl_AbstractCallback* goRegister = getGenObjRegister( label.GetDocument() ))
+    goRegister->UnRegisterGenObj( theIOR );
 }

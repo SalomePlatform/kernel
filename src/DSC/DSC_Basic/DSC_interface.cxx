@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,7 +26,7 @@
 //
 #include <string>
 #include "DSC_interface.hxx"
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <sys/time.h>
 #endif
@@ -437,7 +437,7 @@ static void initTrace(const std::string& containerName)
     {
       //trace in file
       traceType=1;
-#ifdef WNT
+#ifdef WIN32
       std::string logFilename=getenv("TEMP");
       logFilename += "\\";
 #else
@@ -503,7 +503,7 @@ void Engines_DSC_interface::writeEvent(const char* request,const std::string& co
     initTrace(containerName);
   if(traceLevel == 0)return;
 
-#ifdef WNT
+#ifdef WIN32
 #else
   struct timeval tv;
   gettimeofday(&tv,0);

@@ -32,7 +32,7 @@ the unit tests.
    Interfaces definitions for KERNEL test components.
 
 - KERNEL_SRC/salome_adm :\n
-   Configuration files used by autotools (M4 macros & co.)
+   Configuration files used by CMake (*.cmake files)
 
 - KERNEL_SRC/src :\n
    The source code (C++ and Python)

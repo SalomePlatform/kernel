@@ -1,4 +1,4 @@
-dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
 dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@ dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public
 dnl License as published by the Free Software Foundation; either
-dnl version 2.1 of the License.
+dnl version 2.1 of the License, or (at your option) any later version.
 dnl
 dnl This library is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -64,6 +64,10 @@ AC_DEFUN([CHECK_PYTHON],
   AC_SUBST(PYTHON_VERSION)
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
+  if test ! -f "$PY_MAKEFILE"; then
+    # For Ubuntu >= 13.04
+    PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${build_cpu}-${build_os}/Makefile
+  fi
   if test ! -f "$PY_MAKEFILE"; then
     if test "${build_cpu::6}" = "x86_64" ; then
       PY_MAKEFILE=${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/Makefile

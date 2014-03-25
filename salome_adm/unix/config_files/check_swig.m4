@@ -1,4 +1,4 @@
-dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
 dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@ dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public
 dnl License as published by the Free Software Foundation; either
-dnl version 2.1 of the License.
+dnl version 2.1 of the License, or (at your option) any later version.
 dnl
 dnl This library is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -61,7 +61,7 @@ fi
 numpydir=`$PYTHON -c "import numpy;print numpy.get_include()" 2>/dev/null`
 if test -d "$numpydir"; then
    numpy_ok=yes
-   PYTHON_INCLUDES="$PYTHON_INCLUDES -I$numpydir"
+   PYTHON_INCLUDES="-I$numpydir $PYTHON_INCLUDES"
    SWIG_FLAGS="$SWIG_FLAGS -DWITH_NUMPY=WITH_NUMPY "
    AC_DEFINE([WITH_NUMPY], [], [Python has numpy extension])
 fi

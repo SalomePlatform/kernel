@@ -1,4 +1,4 @@
-dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
 dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@ dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public
 dnl License as published by the Free Software Foundation; either
-dnl version 2.1 of the License.
+dnl version 2.1 of the License, or (at your option) any later version.
 dnl
 dnl This library is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -120,7 +120,7 @@ if test "x${boost_headers_ok}" = "xyes" ; then
     done
   fi
   if test "x${boost_lib_dir_ok}" = "xyes" ; then
-    LIBS="${LIBS_old} ${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}"
+    LIBS="${LIBS_old} ${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX} -lboost_system${BOOST_LIBSUFFIX}"
     AC_TRY_LINK([#include <boost/thread/thread.hpp>],
                 [struct TBody{ void operator()(){} }; boost::thread(TBody())],
                 boost_binaries_ok=yes,
@@ -138,7 +138,7 @@ else
   AC_MSG_RESULT(\$BOOST_LIBSUFFIX = ${BOOST_LIBSUFFIX})
   AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
-                BOOST_LIB_THREAD="${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}",
+                BOOST_LIB_THREAD="${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX} -lboost_system${BOOST_LIBSUFFIX}",
                 BOOST_LIB_THREAD="")
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_signals${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_SIGNALS="${BOOST_LIBS} -lboost_signals${BOOST_LIBSUFFIX}",
@@ -149,6 +149,9 @@ else
   AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_regex${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_REGEX="${BOOST_LIBS} -lboost_regex${BOOST_LIBSUFFIX}",
                 BOOST_LIB_REGEX="")
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_filesystem${BOOST_LIBSUFFIX}.so,
+                BOOST_LIB_FILESYSTEM="${BOOST_LIBS} -lboost_filesystem${BOOST_LIBSUFFIX}",
+                BOOST_LIB_FILESYSTEM="")
 fi
 AC_MSG_RESULT(for boost binaries: $boost_binaries_ok)
 
@@ -170,6 +173,7 @@ AC_SUBST(BOOST_LIB_THREAD)
 AC_SUBST(BOOST_LIB_SIGNALS)
 AC_SUBST(BOOST_LIB_SYSTEM)
 AC_SUBST(BOOST_LIB_REGEX)
+AC_SUBST(BOOST_LIB_FILESYSTEM)
 AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB)
 
 AC_LANG_RESTORE

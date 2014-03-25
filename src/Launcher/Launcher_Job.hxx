@@ -1,9 +1,9 @@
-// Copyright (C) 2009-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -38,13 +38,10 @@
 #include <exception>
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Job.hxx>
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_JobId.hxx>
-#include <Batch/Batch_EmulationException.hxx>
+#include <libbatch/Job.hxx>
+#include <libbatch/JobId.hxx>
+#include <libbatch/GenericException.hxx>
 #endif
-
-#include <libxml/parser.h>
 
 namespace Launcher
 {
@@ -57,13 +54,15 @@ namespace Launcher
       // Launcher managing parameters
       // State of a Job: CREATED, IN_PROCESS, QUEUED, RUNNING, PAUSED, FINISHED, ERROR
       void setState(const std::string & state);
-      std::string getState();
+      std::string getState() const;
+	  // Get names or ids of hosts assigned to the job
+      std::string getAssignedHostnames();
 
       void setNumber(const int & number);
       int getNumber();
 
       virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
-      ParserResourcesType getResourceDefinition();
+      ParserResourcesType getResourceDefinition() const;
 
       // Common parameters
       void setJobName(const std::string & job_name);
@@ -77,25 +76,40 @@ namespace Launcher
       void setResourceRequiredParams(const resourceParams & resource_required_params);
       void setQueue(const std::string & queue);
       void setEnvFile(const std::string & env_file);
+      void setExclusive(bool exclusive);
+      void setExclusiveStr(const std::string & exclusiveStr);
+      void setMemPerCpu(unsigned long mem_per_cpu);
+      void setReference(const std::string & reference);
+	  // For COORM
+	  void setLauncherFile(const std::string & launcher_file);
+	  void setLauncherArgs(const std::string & launcher_args);
 
-      std::string getJobName();
-      std::string getJobFile();
-      std::string getWorkDirectory();
-      std::string getLocalDirectory();
-      std::string getResultDirectory();
-      const std::list<std::string> & get_in_files();
-      const std::list<std::string> & get_out_files();
-      std::string getMaximumDuration();
-      resourceParams getResourceRequiredParams();
-      std::string getQueue();
-      std::string getEnvFile();
-      std::string getJobType();
+      std::string getJobName() const;
+      std::string getJobFile() const;
+      std::string getWorkDirectory() const;
+      std::string getLocalDirectory() const;
+      std::string getResultDirectory() const;
+      const std::list<std::string> & get_in_files() const;
+      const std::list<std::string> & get_out_files() const;
+      std::string getMaximumDuration() const;
+      resourceParams getResourceRequiredParams() const;
+      std::string getQueue() const;
+      std::string getEnvFile() const;
+      std::string getJobType() const;
+      bool getExclusive() const;
+      std::string getExclusiveStr() const;
+      unsigned long getMemPerCpu() const;
+      std::string getReference() const;
+
+	  // For COORM
+	  std::string getLauncherFile() const;
+	  std::string getLauncherArgs() const;
 
       std::string updateJobState();
 
       void addSpecificParameter(const std::string & name,
                                   const std::string & value);
-      const std::map<std::string, std::string> & getSpecificParameters();
+      const std::map<std::string, std::string> & getSpecificParameters() const;
       virtual void checkSpecificParameters();
 
       // Checks
@@ -104,10 +118,7 @@ namespace Launcher
 
       // Helps
       long convertMaximumDuration(const std::string & maximum_duration);
-      std::string getLaunchDate();
-
-      // Xml method
-      void addToXmlDocument(xmlNodePtr root_node);
+      std::string getLaunchDate() const;
 
       void stopJob();
       void removeJob();
@@ -121,6 +132,7 @@ namespace Launcher
       std::string _job_type;
 
       std::string _state;
+      std::string _assigned_hostnames; // Assigned hostnames
       std::string _launch_date;
       std::string _env_file;
 
@@ -141,6 +153,13 @@ namespace Launcher
       long _maximum_duration_in_second;
       resourceParams _resource_required_params;
       std::string _queue;
+      bool _exclusive;
+      unsigned long _mem_per_cpu;
+      std::string _reference; //! Reference of the job for the batch manager
+
+	  // Parameters for COORM
+	  std::string _launcher_file;
+	  std::string _launcher_args;
 
 #ifdef WITH_LIBBATCH
     // Connection with LIBBATCH
@@ -148,7 +167,7 @@ namespace Launcher
       Batch::Job * getBatchJob();
       Batch::Parametre common_job_params();
       void setBatchManagerJobId(Batch::JobId batch_manager_job_id);
-      Batch::JobId getBatchManagerJobId();
+      Batch::JobId getBatchManagerJobId() const;
 
     protected:
       Batch::Job * _batch_job;
@@ -158,4 +177,3 @@ namespace Launcher
 }
 
 #endif
-

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -45,6 +45,8 @@
 #include "utilities.h"
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
+
+using namespace std;
 
 const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesManager";
 
@@ -148,6 +150,8 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& 
   resourceParams p;
   p.name = params.name;
   p.hostname = params.hostname;
+  p.can_launch_batch_jobs = params.can_launch_batch_jobs;
+  p.can_run_containers = params.can_run_containers;
   p.OS = params.OS;
   p.nb_proc = params.nb_proc;
   p.nb_node = params.nb_node;
@@ -209,55 +213,35 @@ SALOME_ResourcesManager::Find(const char* policy, const Engines::ResourceList& l
 Engines::ResourceDefinition* 
 SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 {
-  ParserResourcesType resource = _rm.GetResourcesDescr(name);
-  Engines::ResourceDefinition *p_ptr = new Engines::ResourceDefinition;
+  Engines::ResourceDefinition * p_ptr = NULL;
+  try {
+    ParserResourcesType resource = _rm.GetResourcesDescr(name);
+    p_ptr = new Engines::ResourceDefinition;
 
-  p_ptr->name = CORBA::string_dup(resource.Name.c_str());
-  p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
-  p_ptr->protocol = ParserResourcesType::protocolToString(resource.Protocol).c_str();
-  p_ptr->iprotocol = ParserResourcesType::protocolToString(resource.ClusterInternalProtocol).c_str();
-  p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
-  p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
-  p_ptr->componentList.length(resource.ComponentsList.size());
-  for(unsigned int i=0;i<resource.ComponentsList.size();i++)
-    p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
-  p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
-  p_ptr->mem_mb = resource.DataForSort._memInMB;
-  p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
-  p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
-  p_ptr->nb_node = resource.DataForSort._nbOfNodes;
-  p_ptr->is_cluster_head = resource.is_cluster_head;
-  p_ptr->working_directory = CORBA::string_dup(resource.working_directory.c_str());
-
-  if( resource.mpi == lam )
-    p_ptr->mpiImpl = "lam";
-  else if( resource.mpi == mpich1 )
-    p_ptr->mpiImpl = "mpich1";
-  else if( resource.mpi == mpich2 )
-    p_ptr->mpiImpl = "mpich2";
-  else if( resource.mpi == openmpi )
-    p_ptr->mpiImpl = "openmpi";
-  else if( resource.mpi == slurmmpi )
-    p_ptr->mpiImpl = "slurmmpi";
-  else if( resource.mpi == prun )
-    p_ptr->mpiImpl = "prun";
-
-  if( resource.Batch == pbs )
-    p_ptr->batch = "pbs";
-  else if( resource.Batch == lsf )
-    p_ptr->batch = "lsf";
-  else if( resource.Batch == sge )
-    p_ptr->batch = "sge";
-  else if( resource.Batch == ccc )
-    p_ptr->batch = "ccc";
-  else if( resource.Batch == slurm )
-    p_ptr->batch = "slurm";
-  else if( resource.Batch == ssh_batch )
-    p_ptr->batch = "ssh";
-  else if( resource.Batch == ll )
-    p_ptr->batch = "ll";
-  else if( resource.Batch == vishnu )
-    p_ptr->batch = "vishnu";
+    p_ptr->name = CORBA::string_dup(resource.Name.c_str());
+    p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
+    p_ptr->type = CORBA::string_dup(resource.getResourceTypeStr().c_str());
+    p_ptr->protocol = CORBA::string_dup(resource.getAccessProtocolTypeStr().c_str());
+    p_ptr->iprotocol = CORBA::string_dup(resource.getClusterInternalProtocolStr().c_str());
+    p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
+    p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
+    p_ptr->componentList.length(resource.ComponentsList.size());
+    for(unsigned int i=0;i<resource.ComponentsList.size();i++)
+      p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
+    p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
+    p_ptr->mem_mb = resource.DataForSort._memInMB;
+    p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
+    p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
+    p_ptr->nb_node = resource.DataForSort._nbOfNodes;
+    p_ptr->can_launch_batch_jobs = resource.can_launch_batch_jobs;
+    p_ptr->can_run_containers = resource.can_run_containers;
+    p_ptr->working_directory = CORBA::string_dup(resource.working_directory.c_str());
+    p_ptr->mpiImpl = CORBA::string_dup(resource.getMpiImplTypeStr().c_str());
+    p_ptr->batch = CORBA::string_dup(resource.getBatchTypeStr().c_str());
+  } catch (const exception & ex) {
+    INFOS("Caught exception in GetResourceDefinition: " << ex.what());
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::BAD_PARAM);
+  }
 
   return p_ptr;
 }
@@ -267,116 +251,41 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
                                      CORBA::Boolean write,
                                      const char * xml_file)
 {
-  ParserResourcesType resource;
-  resource.Name = new_resource.name.in();
-  resource.HostName = new_resource.hostname.in();
-  resource.OS = new_resource.OS.in();
-  resource.AppliPath = new_resource.applipath.in();
-  resource.DataForSort._memInMB = new_resource.mem_mb;
-  resource.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
-  resource.DataForSort._nbOfNodes = new_resource.nb_node;
-  resource.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
-  resource.UserName = new_resource.username.in();
-  resource.is_cluster_head = new_resource.is_cluster_head;
-  resource.working_directory = new_resource.working_directory.in();
-
-  std::string aBatch = new_resource.batch.in();
-  if (aBatch == "pbs")
-    resource.Batch = pbs;
-  else if  (aBatch == "lsf")
-    resource.Batch = lsf;
-  else if  (aBatch == "sge")
-    resource.Batch = sge;
-  else if  (aBatch == "slurm")
-    resource.Batch = slurm;
-  else if  (aBatch == "ccc")
-    resource.Batch = ccc;
-  else if  (aBatch == "ssh_batch")
-    resource.Batch = ssh_batch;
-  else if  (aBatch == "ll")
-    resource.Batch = ll;
-  else if  (aBatch == "vishnu")
-    resource.Batch = vishnu;
-  else if (aBatch == "")
-    resource.Batch = none;
-  else {
-    INFOS("Bad Batch definition in AddResource: " << aBatch);
-    std::string message("Bad Batch definition in AddResource: ");
-    message += aBatch;
-    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
-  }
-
-  std::string anMpi = new_resource.mpiImpl.in();
-  if (anMpi == "lam")
-    resource.mpi = lam;
-  else if (anMpi == "mpich1")
-    resource.mpi = mpich1;
-  else if (anMpi == "mpich2")
-    resource.mpi = mpich2;
-  else if (anMpi == "openmpi")
-    resource.mpi = openmpi;
-  else if  (anMpi == "slurmmpi")
-    resource.mpi = slurmmpi;
-  else if  (anMpi == "prun")
-    resource.mpi = prun;
-  else if (anMpi == "")
-    resource.mpi = nompi;
-  else {
-    INFOS("Bad MPI definition in AddResource: " << anMpi);
-    std::string message("Bad MPI definition in AddResource: ");
-    message += anMpi;
-    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
-  }
-
-  std::string mode_str = new_resource.mode.in();
-  if (mode_str == "interactive")
-    resource.Mode = interactive;
-  else if (mode_str == "batch")
-    resource.Mode = batch;
-  else if (mode_str == "")
-    resource.Mode = interactive;
-  else {
-    INFOS("Bad mode definition in AddResource: " << mode_str);
-    std::string message("Bad mode definition in AddResource: ");
-    message += mode_str;
-    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
-  }
-  
-  std::string protocol = new_resource.protocol.in();
   try
   {
-    resource.Protocol = ParserResourcesType::stringToProtocol(protocol);
-  }
-  catch (SALOME_Exception e)
-  {
-    INFOS("Bad protocol definition in AddResource: " << protocol);
-    std::string message("Bad protocol definition in AddResource: ");
-    message += protocol;
-    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
-  }
+    ParserResourcesType resource;
+    resource.Name = new_resource.name.in();
+    resource.HostName = new_resource.hostname.in();
+    resource.setResourceTypeStr(new_resource.type.in());
+    resource.OS = new_resource.OS.in();
+    resource.AppliPath = new_resource.applipath.in();
+    resource.DataForSort._memInMB = new_resource.mem_mb;
+    resource.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
+    resource.DataForSort._nbOfNodes = new_resource.nb_node;
+    resource.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
+    resource.UserName = new_resource.username.in();
+    resource.can_launch_batch_jobs = new_resource.can_launch_batch_jobs;
+    resource.can_run_containers = new_resource.can_run_containers;
+    resource.working_directory = new_resource.working_directory.in();
+    resource.setBatchTypeStr(new_resource.batch.in());
+    resource.setMpiImplTypeStr(new_resource.mpiImpl.in());
+    resource.setAccessProtocolTypeStr(new_resource.protocol.in());
+    resource.setClusterInternalProtocolStr(new_resource.iprotocol.in());
+    for (CORBA::ULong i = 0; i < new_resource.componentList.length(); i++)
+      resource.ComponentsList.push_back(new_resource.componentList[i].in());
 
-  std::string iprotocol = new_resource.iprotocol.in();
-  try
-  {
-    resource.ClusterInternalProtocol = ParserResourcesType::stringToProtocol(iprotocol);
+    _rm.AddResourceInCatalog(resource);
+
+    if (write)
+    {
+      _rm.WriteInXmlFile(std::string(xml_file));
+      _rm.ParseXmlFiles();
+    }
   }
-  catch (SALOME_Exception e)
+  catch (const SALOME_Exception & e)
   {
-    INFOS("Bad iprotocol definition in AddResource: " << iprotocol);
-    std::string message("Bad iprotocol definition in AddResource: ");
-    message += iprotocol;
-    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
-  }
-
-  for (CORBA::ULong i = 0; i < new_resource.componentList.length(); i++)
-    resource.ComponentsList.push_back(new_resource.componentList[i].in());
-
-  _rm.AddResourceInCatalog(resource);
-
-  if (write)
-  {
-    _rm.WriteInXmlFile(std::string(xml_file));
-    _rm.ParseXmlFiles();
+    INFOS("Error in AddResourceInCatalog: " << e);
+    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
   }
 }
 
@@ -385,7 +294,16 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
                                         CORBA::Boolean write,
                                         const char * xml_file)
 {
-  _rm.DeleteResourceInCatalog(resource_name);
+  try
+  {
+    _rm.DeleteResourceInCatalog(resource_name);
+  }
+  catch (const SALOME_Exception & e)
+  {
+    INFOS("Error in DeleteResourceInCatalog: " << e);
+    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
+  }
+
   if (write)
   {
     _rm.WriteInXmlFile(std::string(xml_file));
@@ -412,7 +330,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
       if (resource.ClusterMembersList.empty())
       {
         //It is not a cluster so we create a cluster with one machine
-        ParserResourcesClusterMembersType fake_node;
+        ParserResourcesType fake_node;
         fake_node.HostName = resource.HostName;
         fake_node.Protocol = resource.Protocol;
         fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
@@ -425,7 +343,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
 
       // Creating list of machines for creating the machine file
       std::list<std::string> list_of_machines;
-      std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
+      std::list<ParserResourcesType>::iterator cluster_it =
         resource.ClusterMembersList.begin();
       while (cluster_it != resource.ClusterMembersList.end())
       {
@@ -470,7 +388,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
       if (resource.ClusterMembersList.empty())
       {
         //It is not a cluster so we create a cluster with one machine
-        ParserResourcesClusterMembersType fake_node;
+        ParserResourcesType fake_node;
         fake_node.HostName = resource.HostName;
         fake_node.Protocol = resource.Protocol;
         fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
@@ -489,7 +407,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
         std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
         // We add all cluster machines to the file
-        std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
+        std::list<ParserResourcesType>::iterator cluster_it =
           resource.ClusterMembersList.begin();
         while (cluster_it != resource.ClusterMembersList.end())
         {
@@ -499,14 +417,14 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
           cluster_it++;
         }
       }
-      else if (resource.mpi == openmpi)
+      else if ((resource.mpi == openmpi) || (resource.mpi == ompi))
       {
         // Creating machine file
         machine_file_name = tmpnam(NULL);
         std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
         // We add all cluster machines to the file
-        std::list<ParserResourcesClusterMembersType>::iterator cluster_it =
+        std::list<ParserResourcesType>::iterator cluster_it =
           resource.ClusterMembersList.begin();
         while (cluster_it != resource.ClusterMembersList.end())
         {

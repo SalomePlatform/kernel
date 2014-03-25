@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -143,6 +143,7 @@ def link_module(options):
     module_sharedoc_dir=os.path.join(module_dir,'share','doc','salome')
     module_sharedoc_gui_dir=os.path.join(module_dir,'share','doc','salome','gui')
     module_sharedoc_tui_dir=os.path.join(module_dir,'share','doc','salome','tui')
+    module_sharedoc_examples=os.path.join(module_dir,'share','doc','salome','examples')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
     idl_dir=os.path.join(home_dir,'idl','salome')
@@ -157,6 +158,7 @@ def link_module(options):
     sharedoc_dir=os.path.join(home_dir,'share','doc','salome')
     sharedoc_gui_dir=os.path.join(home_dir,'share','doc','salome','gui')
     sharedoc_tui_dir=os.path.join(home_dir,'share','doc','salome','tui')
+    sharedoc_examples_dir=os.path.join(home_dir,'share','doc','salome','examples')
 
     if options.clear:
         rmtree(bin_dir)
@@ -236,6 +238,7 @@ def link_module(options):
         for fn in os.listdir(module_sharedoc_dir):
             if fn == 'gui':continue
             if fn == 'tui':continue
+            if fn == 'examples':continue
             symlink(os.path.join(module_sharedoc_dir, fn), os.path.join(sharedoc_dir, fn))
             pass
         pass
@@ -253,6 +256,14 @@ def link_module(options):
         mkdir(sharedoc_tui_dir)
         for fn in os.listdir(module_sharedoc_tui_dir):
             symlink(os.path.join(module_sharedoc_tui_dir, fn), os.path.join(sharedoc_tui_dir, fn))
+            pass
+        pass
+      
+    #directory share/doc/salome/examples : create it and link content
+    if os.path.exists(module_sharedoc_examples):
+        mkdir(sharedoc_examples_dir)
+        for fn in os.listdir(module_sharedoc_examples):
+            symlink(os.path.join(module_sharedoc_examples, fn), os.path.join(sharedoc_examples_dir, fn))
             pass
         pass
 

@@ -1,10 +1,10 @@
 # -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,6 +19,11 @@
 #
 
 # Author: Guillaume Boulant (EDF/R&D)
+
+## \defgroup service service
+#  \{ 
+#  \details Helper for using %SALOME kernel services
+#  \}
 
 #
 # WARNING: development notes
@@ -64,26 +69,27 @@ if not is_called_by_sphinx() and salome.lcc is None:
 # ==============================================================================
 #
 
+## Get a %SALOME CORBA component from its name
+#  \param componentName is the name of the component as declared in the XML
+#  %SALOME catalog. %A loadable library with name lib<componentName>Engine.so
+#  is supposed to be reachable. This library is supposed to provide a
+#  factory function with the prototype:
 #
-# componentName is the name of the component as declared in the XML
-# SALOME catalog. A loadable library with name lib<componentName>Engine.so
-# is supposed to be reachable. This library is supposed to provide a
-# factory function with the prototype:
+#  \code
+#  PortableServer::ObjectId * <componentName>Engine_factory( CORBA::ORB_ptr orb,
+#                                                            PortableServer::POA_ptr poa,
+#                                                            PortableServer::ObjectId* contId,
+#                                                            const char *instanceName,
+#                                                            const char *interfaceName );
+#  \endcode
 #
-#   PortableServer::ObjectId * <componentName>Engine_factory(
-#                                             CORBA::ORB_ptr orb,
-#    	                                      PortableServer::POA_ptr poa,
-#					      PortableServer::ObjectId * contId,
-#					      const char *instanceName,
-#					      const char *interfaceName);
+#  \param corbaModule is the name of the IDL module that contains the
+#  definition of the interface of the component. This name corresponds
+#  to the namespace of the servant classes.
 #
-# corbaModule is the name of the IDL module that contains the
-# definition of the interface of the component. This name corresponds
-# to the namespace of the servant classes.
-#
-# containerType specified the container in which the servants are
-# executed.
-#
+#  \param containerType specified the container in which the servants are
+#  executed.
+#  \ingroup service
 def getComponent(componentName = "SalomeTestComponent",
                  corbaModule   = "Engines",
                  containerType = "FactoryServer"):
@@ -102,6 +108,10 @@ def getComponent(componentName = "SalomeTestComponent",
 # is to use the module catalog. Here, we just use the catalog to get
 # the list of components defined in the current session.
 import SALOME_ModuleCatalog
+
+## Get the list of names of all %SALOME componenents register in
+#  the catalog.
+#  \ingroup service
 def getComponentList():
     """
     Get the list of names of all SALOME componenents register in
@@ -113,11 +123,17 @@ def getComponentList():
         raise RuntimeError, "Can't accesss module catalog"
     return catalog.GetComponentList()
 
+## Get a study manager to create and manage %SALOME studies
+#  \ingroup service
 def getStudyManager():
     """Get a study manager to create and manage SALOME studies"""
     return salome.myStudyManager
 
 import SALOMEDS
+## Get a study manager to create and manage SALOME studies. 
+#  \warning you should use instead the variable salome.myStudyManager. 
+#  This function is given for illustration of usage of the naming service
+#  \ingroup service
 def __getStudyManager_demo():
     """
     Get a study manager to create and manage SALOME studies. WARN: you
@@ -222,10 +238,12 @@ def TEST_getComponentList():
 
 def TEST_createObject():
     """
-    WARNING: for this test, we need GEOM (used to create an object 
+    WARNING: for this test, we need GEOM (used to create an object) 
     """
-    import geompy
-    geompy.init_geom(salome.myStudy)
+    import GEOM
+    from salome.geom import geomBuilder
+    geompy = geomBuilder.New(salome.myStudy)
+
     box = geompy.MakeBoxDXDYDZ(200, 200, 200)
     id = geompy.addToStudy( box, 'box' )
     return id

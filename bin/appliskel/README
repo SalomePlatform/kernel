@@ -1,4 +1,4 @@
-Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 
 Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@ CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
-version 2.1 of the License.
+version 2.1 of the License, or (at your option) any later version.
 
 This library is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -44,26 +44,27 @@ User run scripts
 
 The SALOME user can use the following scripts:
 
-runAppli
+runAppli [DEPRECATED]
    Launches a SALOME Session
    (similar to ${KERNEL_ROOT_DIR}/bin/salome/runSalome but with a different
    name to avoid confusions).
 
-runSession
+runSession [DEPRECATED]
    Launches a shell script in the SALOME application environment, with access
    to the current SALOME session (naming service), if any.
    Without arguments, the script is interactive. With arguments, the script
    executes the command in the SALOME application environment.
 
-runConsole
+runConsole [DEPRECATED]
    Gives a python console connected to the current SALOME Session.
    It is also possible to use runSession, then python.
 
-runTests
-   Similar to runSession, used for unit testing. runTests defines a new 
-   configuration for naming service (new port number) to avoid interferences
-   with a running SALOME session. runSession tries to use an already existing
-   naming service definition from a running session (hostname & port number).
+salome [NEW]
+   A single Python command to start SALOME:
+   salome [start]:  replace runAppli
+   salome shell:    replace runSession
+   salome console:  replace runConsole
+
 
 SALOME internal run scripts
 ---------------------------
@@ -73,9 +74,6 @@ envd
 
 getAppliPath.py
    Used by other scripts to define the Application Path.
-
-searchFreePort.sh
-   Used by other scripts to find a free port for naming service.
 
 For remote calls, SALOME uses one script.
 
@@ -123,6 +121,6 @@ configGUI.sh
 
       export SalomeAppConfig=${HOME}/${APPLI}
 
-    where SalomeAppConfig designates the directory containing SalomeApp.xml. 
-    Note that ${APPLI} is already defined by the calling scripts when 
+    where SalomeAppConfig designates the directory containing SalomeApp.xml.
+    Note that ${APPLI} is already defined by the calling scripts when
     env.d/configGUI.sh is sourced.

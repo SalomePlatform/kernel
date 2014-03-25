@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,10 +37,9 @@ try :
     obj=lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent")
     comp=obj._narrow(Engines.TestComponent)
     comp.Coucou(1)
-    param={}
-    #param['hostname']='cli76cc'
-    param['hostname']=host
-    param['container_name']='FactoryServer'
+    param = LifeCycleCORBA.ContainerParameters()
+    param.resource_params.hostname = host
+    param.container_name = 'FactoryServer'
     comp=lcc.FindOrLoad_Component(param,'SalomeTestComponent')
     engine=lcc.FindComponent(param,'SalomeTestComponent')
     engine.Coucou(1)
@@ -58,31 +57,32 @@ context_name.append(CosNaming.NameComponent( 'ContainerManager' , 'object' ) )
 ContainerManager = rootContext.resolve( context_name )
 
 try :
-    myContainerparamsCPP = Engines.MachineParameters( 'myContainer' , host , 'osf' , 0 , 0 , 0 , 0 , 0 )
+    myContainerparamsCPP = LifeCycleCORBA.ContainerParameters()
+    param.resource_params.hostname = host
+    param.container_name = 'myContainer'
     computerlistCPP = [host]
     containerCPP = ContainerManager.FindOrStartContainer( myContainerparamsCPP , computerlistCPP )
     containerCPP.ping()
     ComponentparamsCPP={}
     ComponentparamsCPP['hostname']=host
     ComponentparamsCPP['container_name']='myContainer'
-    compCPP=lcc.FindOrLoad_Component(ComponentparamsCPP,'SalomeTestComponent')
+    compCPP=lcc.FindOrLoad_Component(myContainerparamsCPP,'SalomeTestComponent')
     compCPP.Coucou(1)
-    engineCPP=lcc.FindComponent(ComponentparamsCPP,'SalomeTestComponent')
+    engineCPP=lcc.FindComponent(myContainerparamsCPP,'SalomeTestComponent')
     engineCPP.Coucou(1)
 except :
     print 'ContainerManager.FindOrStartContainer( myContainerparams , computerlist ) C++ failed'
 
 try :
-    myContainerparamsPy = Engines.MachineParameters( 'myContainerPy' , host , 'osf' , 0 , 0 , 0 , 0 , 0 )
+    myContainerparamsPy = LifeCycleCORBA.ContainerParameters()
+    param.resource_params.hostname = host
+    param.container_name = 'myContainerPy'
     computerlistPy = [host]
     containerPy = ContainerManager.FindOrStartContainer( myContainerparamsPy , computerlistPy )
     containerPy.ping()
-    ComponentparamsPy={}
-    ComponentparamsPy['hostname']=host
-    ComponentparamsPy['container_name']='myContainerPy'
-    compPy=lcc.FindOrLoad_Component(ComponentparamsPy,'SALOME_TestComponentPy')
+    compPy=lcc.FindOrLoad_Component(myContainerparamsPy,'SALOME_TestComponentPy')
     compPy.Coucou(1)
-    enginePy=lcc.FindComponent(ComponentparamsPy,'SALOME_TestComponentPy')
+    enginePy=lcc.FindComponent(myContainerparamsPy,'SALOME_TestComponentPy')
     enginePy.Coucou(1)
 except :
     print 'ContainerManager.FindOrStartContainer( myContainerparams , computerlist ) Python failed'

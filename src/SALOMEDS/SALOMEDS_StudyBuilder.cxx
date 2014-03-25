@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -194,12 +194,13 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
 
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
+  Engines::EngineComponent_var anEngine = Engines::EngineComponent::_narrow(obj);
   SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
   
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    SALOMEDS_Driver_i* drv = new SALOMEDS_Driver_i(aDriver, _orb);    
+    SALOMEDS_Driver_i* drv = new SALOMEDS_Driver_i(anEngine, _orb);    
     SALOMEDSImpl_SComponent aSCO_impl = *(dynamic_cast<SALOMEDSImpl_SComponent*>(aSCO->GetLocalImpl()));
     bool isDone = _local_impl->LoadWith(aSCO_impl, drv);
     delete drv;

@@ -1,9 +1,9 @@
-// Copyright (C) 2009-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,12 +20,13 @@
 // Author: André RIBES - EDF R&D
 //
 #include "Launcher_Job_SALOME.hxx"
+#include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Constants.hxx>
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #define _chmod chmod
 #endif
@@ -52,7 +53,6 @@ Launcher::Job_SALOME::update_job()
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
   params[Batch::EXECUTABLE] = buildSalomeScript(params);
-  params[Batch::EXCLUSIVE] = true;
   _batch_job->setParametre(params);
 #endif
 }
@@ -64,7 +64,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // parameters
   std::string work_directory = params[Batch::WORKDIR].str();
 
-  std::string launch_script = "/tmp/runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), 
                             std::ofstream::out
@@ -86,7 +86,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "export SALOME_TMP_DIR=" << work_directory << "/logs" << std::endl;
 
   // -- Generates Catalog Resources
-  std::string resource_protocol = ParserResourcesType::protocolToString(_resource_definition.ClusterInternalProtocol);
+  std::string resource_protocol = _resource_definition.getClusterInternalProtocolStr();
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << "CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
@@ -94,13 +94,18 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
   launch_script_stream << "cat $LIBBATCH_NODEFILE | sort | uniq -c | while read nbproc host"  << std::endl;
   launch_script_stream << "do"                                                  << std::endl;
-  launch_script_stream << "echo '<machine hostname='\\\"$host\\\"			          >> $CATALOG_FILE" << std::endl;
+  // Full name doesn't work. eg: sagittaire-7 instead of sagittaire-7.lyon.grid5000.fr
+  launch_script_stream << "host_basename=$(echo $host | cut -f1 -d.)"                                                  << std::endl;
+  launch_script_stream << "echo '<machine name='\\\"$host_basename\\\" >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         hostname='\\\"$host_basename\\\" >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         type=\"single_machine\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         mpi=\"" << _resource_definition.PrintMpiImplType() << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '	  nbOfNodes='\\\"$nbproc\\\"			          >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '	  nbOfProcPerNode=\"1\"'			                  >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         mpi=\"" << _resource_definition.getMpiImplTypeStr() << "\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         nbOfNodes='\\\"$nbproc\\\" >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         nbOfProcPerNode=\"1\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         canRunContainers=\"true\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '/>'                                                              >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "done"                                 << std::endl;
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;

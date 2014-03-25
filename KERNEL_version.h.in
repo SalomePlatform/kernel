@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,12 +27,22 @@
 #if !defined(__KERNEL_VERSION_H__)
 #define __KERNEL_VERSION_H__
 
-/*
-  KERNEL_VERSION is (major << 16) + (minor << 8) + patch.
+/*!
+  Specify version of SALOME KERNEL module, as follows
+
+  KERNEL_VERSION_MAJOR       : (integer) number identifying major version
+  KERNEL_VERSION_MINOR       : (integer) number identifying minor version
+  KERNEL_VERSION_MAINTENANCE : (integer) number identifying maintenance version
+  KERNEL_VERSION_STR         : (string)  complete version number "major.minor.maintenance"
+  KERNEL_VERSION             : (hex)     complete version number (major << 16) + (minor << 8) + maintenance
+  KERNEL_DEVELOPMENT         : (integer) indicates development version when set to 1
 */
 
-#define KERNEL_VERSION_STR "@VERSION@"
-#define KERNEL_VERSION     @XVERSION@
-#define KERNEL_DEVELOPMENT @VERSION_DEV@
+#define KERNEL_VERSION_MAJOR       @SALOMEKERNEL_MAJOR_VERSION@
+#define KERNEL_VERSION_MINOR       @SALOMEKERNEL_MINOR_VERSION@
+#define KERNEL_VERSION_MAINTENANCE @SALOMEKERNEL_PATCH_VERSION@
+#define KERNEL_VERSION_STR         "@SALOMEKERNEL_VERSION@"
+#define KERNEL_VERSION             @SALOMEKERNEL_XVERSION@
+#define KERNEL_DEVELOPMENT         @SALOMEKERNEL_VERSION_DEV@
 
 #endif // __KERNEL_VERSION_H__

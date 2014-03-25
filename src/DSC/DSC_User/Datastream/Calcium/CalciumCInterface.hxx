@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -80,6 +80,9 @@ CALCIUM_C2CPP_INTERFACE_HXX_(long2integer,integer, long,);
 
 CALCIUM_C2CPP_INTERFACE_HXX_(float,float,float, );
 CALCIUM_C2CPP_INTERFACE_HXX_(double,double,double,);
+
+CALCIUM_C2CPP_INTERFACE_HXX_(float2double,double,float, );
+
 /*  Fonctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);*/
 CALCIUM_C2CPP_INTERFACE_HXX_(bool,bool,int,);
 CALCIUM_C2CPP_INTERFACE_HXX_(cplx,cplx,float,);

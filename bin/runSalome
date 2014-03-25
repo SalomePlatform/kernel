@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +21,27 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
+
+###############################################
+############### IMPORTANT NOTE ################
+###############################################
+# The runSalome script is obsolete.           #
+# Please consider the new salome launcher.    #
+###############################################
+
+
+# **********************************************************
+# This file is used by m4 files in many modules to detect SALOME KERNEL.
+# Its initial purpose (starting salome) can be replaced by new salome command.
+# When definitively switching from autotools to Cmake, this file may be removed.
+# **********************************************************
+
+
+
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
+
+
+
 
 # -----------------------------------------------------------------------------
 # examples:
@@ -31,24 +51,23 @@ ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/
 #     - parameters for launching are taken from SalomeApp.xml;
 #     - if the config file does not exist, it is created with default values.
 #
-#  
-#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer --xterm --killall
+#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,MED --embedded=registry,study,moduleCatalog --standalone=cppContainer --xterm --killall
 #
-#     parameters from command line supersede those from SalomeApp.xml
+#     - parameters from command line supersede those from SalomeApp.xml
 #
-# Some CORBA servers can be launched in the SALOME_Session_Server's process
-# (embedded = same process) or in a separate process (standalone):
-# --> registry,study,moduleCatalog,cppContainer
-# Other CORBA servers could only be launched in separate process (standalone):
-# --> pyContainer
+#     Some CORBA servers can be launched in the SALOME_Session_Server's process
+#     (embedded = same process) or in a separate process (standalone).
+#     In above example, Registry, Study and Module Catalog servers are started
+#     in the embedded mode; default C++ container (FactoryServer) is started in
+#     the standalone mode.
 #
 # $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome -h
-#    help
+#
+#    - print help on the runSalome command
 # -----------------------------------------------------------------------------
 #
-# l'option -i permet de garder l'interpreteur python ouvert :
-# par defaut, les differents serveurs ouvrent des fenêtres xterm
-# (cf. runSalome.py)
-# le serveur Logger n'est pas obligatoire (commenté dans runSalome.py)
-# 
+# The -i option starts Python interpreter after launching SALOME session
+# (see runSalome.py script).
+# Logger server is optional.
+#
 # -----------------------------------------------------------------------------

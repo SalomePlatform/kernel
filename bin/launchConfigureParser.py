@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,6 +27,8 @@ import optparse
 import types
 
 from salome_utils import verbose, setVerbose, getPortNumber, getHomeDir
+
+from salomeLauncherUtils import getScriptsAndArgs
 
 # names of tags in XML configuration file
 doc_tag = "document"
@@ -66,6 +68,10 @@ valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
 foreground_nam = "foreground"
 wake_up_session_nam = "wake_up_session"
+siman_nam = "siman"
+siman_study_nam = "siman_study"
+siman_scenario_nam = "siman_scenario"
+siman_user_nam = "siman_user"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -74,13 +80,14 @@ plugins_nam    = "plugins"
 # values passed as arguments, NOT read from XML config file, but set from within this script
 appname_nam    = "appname"
 port_nam       = "port"
+useport_nam    = "useport"
 salomecfgname  = "salome"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
 
 # possible choices for the "embedded" and "standalone" parameters
 embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
-standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer", "pyContainer"]
+standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer"]
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
@@ -122,11 +129,18 @@ def version_id(fname):
     if len(vers) > 0: major = int(vers[0])
     if len(vers) > 1: minor = int(vers[1])
     if len(vers) > 2:
-        mr = re.search(r'^([0-9]+)([A-Za-z]?)([0-9]*)',vers[2])
+        mr = re.search(r'^([0-9]+)([A-Z]|RC)?([0-9]*)',vers[2], re.I)
         if mr:
             release = int(mr.group(1))
-            if mr.group(2).strip(): dev1 = ord(mr.group(2).strip())
-            if mr.group(3).strip(): dev2 = int(mr.group(3).strip())
+            if mr.group(2):
+                tag = mr.group(2).strip().lower()
+                if tag == "rc":
+                    dev1 = 49 # release candidate
+                elif tag:
+                    dev1 = ord(tag)-ord('a')+1
+                pass
+            if mr.group(3):
+                dev2 = int(mr.group(3).strip())
             pass
         pass
     dev = dev1 * 100 + dev2
@@ -134,15 +148,15 @@ def version_id(fname):
     ver = ver * 100 + minor
     ver = ver * 100 + release
     ver = ver * 10000
-    if dev > 0: ver = ver - 10000 + dev
+    if dev > 0: ver = ver - dev
     return ver
 
 ###
 # Get default user configuration file name
 # For SALOME, it is:
-# - on Linux:   ~/.config/salome/.SalomeApprc.[version]
-# - on Windows: ~/SalomeApp.xml.[version]
-# where [version] is a version number
+# - on Linux:   ~/.config/salome/SalomeApprc[.<version>]
+# - on Windows: ~/SalomeApp.xml[.<version>]
+# where <version> is an optional version number
 ###
 def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
     v = version()
@@ -151,7 +165,7 @@ def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
       filename = os.path.join(getHomeDir(), "%s.xml%s" % (appname, v))
     else:
         if cfgname:
-            filename = os.path.join(getHomeDir(), ".config", cfgname, ".%src%s" % (appname, v))
+            filename = os.path.join(getHomeDir(), ".config", cfgname, "%src%s" % (appname, v))
             pass
         else:
             filename = os.path.join(getHomeDir(), ".%src%s" % (appname, v))
@@ -166,11 +180,11 @@ def userFile(appname, cfgname):
     # get app version
     v = version()
     if not v: return None                        # unknown version
-    
+
     # get default user file name
     filename = defaultUserFile(appname, cfgname)
     if not filename: return None                 # default user file name is bad
-    
+
     # check that default user file exists
     if os.path.exists(filename): return filename # user file is found
 
@@ -179,30 +193,40 @@ def userFile(appname, cfgname):
     # ... calculate default version id
     id0 = version_id(v)
     if not id0: return None                      # bad version id -> can't detect appropriate file
-    
+
     # ... get all existing user preferences files
     if sys.platform == "win32":
         files = glob.glob(os.path.join(getHomeDir(), "%s.xml.*" % appname))
     else:
         files = []
-        if cfgname: files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".%src.*" % appname))
-        files             += glob.glob(os.path.join(getHomeDir(), ".%src.*" % appname))
+        if cfgname:
+            # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, "%src.*" % appname))
+            # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".%src.*" % appname))
+            pass
+        # old style (before v6.5.0) - in ~ directory, dot-prefixed
+        files += glob.glob(os.path.join(getHomeDir(), ".%src.*" % appname))
         pass
 
     # ... loop through all files and find most appopriate file (with closest id)
     appr_id   = -1
     appr_file = ""
     for f in files:
+        ff = os.path.basename( f )
         if sys.platform == "win32":
-            match = re.search( r'%s\.xml\.([a-zA-Z0-9.]+)$'%appname, f )
+            match = re.search( r'^%s\.xml\.([a-zA-Z0-9.]+)$'%appname, ff )
         else:
-            match = re.search( r'\.%src\.([a-zA-Z0-9.]+)$'%appname, f )
+            match = re.search( r'^\.?%src\.([a-zA-Z0-9.]+)$'%appname, ff )
         if match:
             ver = version_id(match.group(1))
             if not ver: continue                 # bad version id -> skip file
             if appr_id < 0 or abs(appr_id-id0) > abs(ver-id0):
                 appr_id   = ver
                 appr_file = f
+                pass
+            elif abs(appr_id-id0) == abs(ver-id0):
+                if not os.path.basename(f).startswith("."): appr_file = f
                 pass
             pass
         pass
@@ -234,7 +258,8 @@ def process_containers_params( standalone, embedded ):
 section_to_skip = ""
 
 class xml_parser:
-    def __init__(self, fileName, _opts, _importHistory=[] ):
+    def __init__(self, fileName, _opts, _importHistory):
+        #warning _importHistory=[] is NOT good: is NOT empty,reinitialized after first call
         if verbose(): print "Configure parser: processing %s ..." % fileName
         self.fileName = os.path.abspath(fileName)
         self.importHistory = _importHistory
@@ -284,11 +309,11 @@ class xml_parser:
     def startElement(self, name, attrs):
         self.space.append(name)
         self.current = None
-        
+
         # if we are importing file
         if self.space == [doc_tag, import_tag] and nam_att in attrs.getNames():
             self.importFile( attrs.getValue(nam_att) )
-        
+
         # if we are analyzing "section" element and its "name" attribute is
         # either "launch" or module name -- set section_name
         if self.space == [doc_tag, sec_tag] and nam_att in attrs.getNames():
@@ -349,14 +374,14 @@ class xml_parser:
     def endDocument(self):
         self.read = None
         pass
-    
+
     def importFile(self, fname):
         # get absolute name
         if os.path.isabs (fname) :
             absfname = fname
         else:
             absfname = os.path.join(os.path.dirname(self.fileName), fname)
-        
+
         # check existing and registry file
         for ext in ["", ".xml", ".XML"] :
             if os.path.exists(absfname + ext) :
@@ -369,7 +394,7 @@ class xml_parser:
         else:
             if verbose(): print "Configure parser: Error : file %s does not exist" % absfname
             return
-         
+
         # importing file
         try:
             # copy current options
@@ -387,7 +412,7 @@ class xml_parser:
         except:
             if verbose(): print "Configure parser: Error : can not read configuration file %s" % absfname
         pass
-      
+
 
 # -----------------------------------------------------------------------------
 
@@ -516,21 +541,6 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           type="string",
                           action="store",
                           dest="log_file",
-                          help=help_str)
-
-    # Execute python scripts. Default: None.
-    help_str  = "Python script(s) to be imported. Python scripts are imported "
-    help_str += "in the order of their appearance. In GUI mode python scripts "
-    help_str += "are imported in the embedded python interpreter of current study, "
-    help_str += "otherwise in an external python interpreter. "
-    help_str += "Note: this option is obsolete. Instead you can pass Python script(s) "
-    help_str += "directly as positional parameter."
-    o_u = optparse.Option("-u",
-                          "--execute",
-                          metavar="<script1,script2,...>",
-                          type="string",
-                          action="append",
-                          dest="py_scripts",
                           help=help_str)
 
     # Configuration XML file. Default: see defaultUserFile() function
@@ -756,12 +766,56 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             dest="server_launch_mode",
                             help=help_str)
 
+    # use port
+    help_str  = "Preferable port SALOME to be started on. "
+    help_str += "If specified port is not busy, SALOME session will start on it; "
+    help_str += "otherwise, any available port will be searched and used."
+    o_port = optparse.Option("--port",
+                             metavar="<port>",
+                             type="int",
+                                   action="store",
+                             dest="use_port",
+                                   help=help_str)
+
+    # SIMAN launch mode
+    help_str = "Special mode for interacting with SIMAN."
+    o_siman = optparse.Option("--siman",
+                              action="store_true",
+                              dest="siman",
+                              help=help_str)
+
+    # SIMAN study
+    help_str = "SIMAN study identifier."
+    o_siman_study = optparse.Option("--siman-study",
+                                    metavar="<id>",
+                                    type="string",
+                                    action="store",
+                                    dest="siman_study",
+                                    help=help_str)
+
+    # SIMAN scenario
+    help_str = "SIMAN scenario identifier."
+    o_siman_scenario = optparse.Option("--siman-scenario",
+                                       metavar="<id>",
+                                       type="string",
+                                       action="store",
+                                       dest="siman_scenario",
+                                       help=help_str)
+
+    # SIMAN user
+    help_str = "SIMAN user identifier."
+    o_siman_user = optparse.Option("--siman-user",
+                                   metavar="<id>",
+                                   type="string",
+                                   action="store",
+                                   dest="siman_user",
+                                   help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
                 o_b,     # Batch
                 o_l,o_f, # Use logger or log-file
-                o_u,     # Execute python scripts
                 o_r,     # Configuration XML file
                 o_x,     # xterm
                 o_m,     # Modules
@@ -785,16 +839,23 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_foreground,
                 o_wake_up,
                 o_slm,   # Server launch mode
+                o_port,  # Use port
+                o_siman,         # Siman launch mode
+                o_siman_study,   # Siman study
+                o_siman_scenario,# Siman scenario
+                o_siman_user,    # Siman user
                 ]
 
-    #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
+    #std_options = ["gui", "desktop", "log_file", "resources",
     #               "xterm", "modules", "embedded", "standalone",
     #               "portkill", "killall", "interp", "splash",
     #               "catch_exceptions", "print_port", "save_config", "ns_port_log_file"]
 
     opt_list += theAdditionalOptions
 
-    a_usage = "%prog [options] [STUDY_FILE] [PYTHON_FILE [PYTHON_FILE ...]]"
+    a_usage = """%prog [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
+"""
     version_str = "Salome %s" % version()
     pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
 
@@ -859,9 +920,16 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
 
     # Process --print-port option
     if cmd_opts.print_port:
-        from runSalome import searchFreePort
+        from searchFreePort import searchFreePort
         searchFreePort({})
         print "port:%s"%(os.environ['NSPORT'])
+
+        try:
+            import PortManager
+            PortManager.releasePort(os.environ['NSPORT'])
+        except ImportError:
+            pass
+
         sys.exit(0)
         pass
 
@@ -900,7 +968,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
             if verbose(): print "Configure parser: Warning : can not find configuration file %s" % filename
         else:
             try:
-                p = xml_parser(filename, _opts)
+                p = xml_parser(filename, _opts, [])
                 _opts = p.opts
             except:
                 if verbose(): print "Configure parser: Error : can not read configuration file %s" % filename
@@ -918,7 +986,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
         if verbose(): print "Configure parser: Warning : can not find user configuration file"
     else:
         try:
-            p = xml_parser(user_config, _opts)
+            p = xml_parser(user_config, _opts, [])
             _opts = p.opts
         except:
             if verbose(): print 'Configure parser: Error : can not read user configuration file'
@@ -953,7 +1021,7 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     # apply command-line options to the arguments
     # each option given in command line overrides the option from xml config file
     #
-    # Options: gui, desktop, log_file, py_scripts, resources,
+    # Options: gui, desktop, log_file, resources,
     #          xterm, modules, embedded, standalone,
     #          portkill, killall, interp, splash,
     #          catch_exceptions, pinter
@@ -993,22 +1061,21 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     if cmd_opts.ns_port_log_file is not None:
       args["ns_port_log_file"] = cmd_opts.ns_port_log_file
 
-    # Python scripts
-    args[script_nam] = []
-    if cmd_opts.py_scripts is not None:
-        listlist = cmd_opts.py_scripts
-        for listi in listlist:
-            if os.sys.platform == 'win32':
-                args[script_nam] += re.split( "[;,]", listi)
-            else:
-                args[script_nam] += re.split( "[:;,]", listi)
+    # Study files
     for arg in cmd_args:
-        if arg[-3:] == ".py":
-            args[script_nam].append(arg)
-        elif not args["study_hdf"]:
+        if arg[-4:] == ".hdf" and not args["study_hdf"]:
             args["study_hdf"] = arg
-            pass
-        pass
+
+    # Python scripts
+    args[script_nam] = getScriptsAndArgs(cmd_args)
+    new_args = []
+    if args[gui_nam] and args["session_gui"]:
+        for d in args[script_nam]:
+            for s, a in d.items():
+                v = re.sub(r'^python.*\s+', r'', s)
+                new_args.append({v:a})
+        #
+        args[script_nam] = new_args
 
     # xterm
     if cmd_opts.xterm is not None: args[xterm_nam] = cmd_opts.xterm
@@ -1092,6 +1159,16 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     if cmd_opts.wake_up_session is not None:
         args[wake_up_session_nam] = cmd_opts.wake_up_session
 
+    # siman options
+    if cmd_opts.siman is not None:
+        args[siman_nam] = cmd_opts.siman
+    if cmd_opts.siman_study is not None:
+        args[siman_study_nam] = cmd_opts.siman_study
+    if cmd_opts.siman_scenario is not None:
+        args[siman_scenario_nam] = cmd_opts.siman_scenario
+    if cmd_opts.siman_user is not None:
+        args[siman_user_nam] = cmd_opts.siman_user
+
     ####################################################
     # Add <theAdditionalOptions> values to args
     for add_opt in theAdditionalOptions:
@@ -1120,6 +1197,9 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
             #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
             elif os.path.exists( "%s/%s.xml"%(d2, salomeappname) ):
                 dirs.append( d2 )
+        else:
+            #print "* '"+m+"' should be deleted from ",args[modules_nam]
+            pass
 
     # Test
     if cmd_opts.test_script_file is not None:
@@ -1135,7 +1215,16 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
 
     # Server launch command
     if cmd_opts.server_launch_mode is not None:
-      args["server_launch_mode"] = cmd_opts.server_launch_mode
+        args["server_launch_mode"] = cmd_opts.server_launch_mode
+
+    # Server launch command
+    if cmd_opts.use_port is not None:
+        min_port = 2810
+        max_port = min_port + 100
+        if cmd_opts.use_port not in xrange(min_port, max_port+1):
+            print "Error: port number should be in range [%d, %d])" % (min_port, max_port)
+            sys.exit(1)
+        args[useport_nam] = cmd_opts.use_port
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)

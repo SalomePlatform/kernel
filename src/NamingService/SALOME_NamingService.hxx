@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -41,7 +41,7 @@
 
 #include "SALOME_NamingService_defs.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4290) // Warning Exception ...
 #endif
 
@@ -74,11 +74,6 @@ public:
   BuildContainerNameForNS(const Engines::ContainerParameters& params,
                           const char *hostname);
 
-  // Will Be deleted on SALOME 6
-  std::string ContainerName(const Engines::MachineParameters& params);
-  std::string 
-  BuildContainerNameForNS(const Engines::MachineParameters& params,
-                          const char *hostname);
   int Find(const char* name)
     throw(ServiceUnreachable);
   bool Create_Directory(const char* Path)

@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -40,14 +40,6 @@ class LifeCycleCORBA (SALOME_LifeCycleCORBA):
                                                           containerName,
                                                           componentName)
 
-class MachineParameters (Engines.MachineParameters):
-  def __init__(self, container_name='', hostname='', componentList=[], computerList=[], OS='',
-                     mem_mb=0, cpu_clock=0, nb_proc_per_node=0, nb_node=0, isMPI=False, workingdir='',
-                     mode='start', policy='altcycl', parallelLib='', nb_component_nodes=0):
-    Engines.MachineParameters.__init__(self,container_name, hostname, componentList, computerList, OS,
-                                            mem_mb, cpu_clock, nb_proc_per_node, nb_node, isMPI, workingdir,
-                                            mode, policy, parallelLib, nb_component_nodes)
-
 class ContainerParameters (Engines.ContainerParameters):
   def __init__(self, container_name='', mode='start', workingdir='', nb_proc=0, isMPI=False, parallelLib='',resource_params=None):
     if resource_params is None:resource_params=ResourceParameters()
@@ -56,23 +48,27 @@ class ContainerParameters (Engines.ContainerParameters):
 class ResourceParameters (Engines.ResourceParameters):
   def __init__(self, name="", hostname="", OS="", componentList=[],
                      nb_proc=0, mem_mb=0, cpu_clock=0, nb_node=0, nb_proc_per_node=0,
-                     policy="", resList=[]):
-    Engines.ResourceParameters.__init__(self, name, hostname, OS, componentList,
-                                              nb_proc, mem_mb, cpu_clock, nb_node, nb_proc_per_node,
-                                              policy, resList)
+                     policy="", resList=[], can_launch_batch_jobs = False, can_run_containers = False):
+    Engines.ResourceParameters.__init__(self, name, hostname, can_launch_batch_jobs, can_run_containers,
+                                        OS, componentList, nb_proc, mem_mb, cpu_clock, nb_node,
+                                        nb_proc_per_node, policy, resList)
 
 class JobParameters (Engines.JobParameters):
   def __init__(self, job_name="", job_type="", job_file="", env_file="", in_files=[], out_files=[],
                      work_directory="", local_directory="", result_directory="", maximum_duration="",
-                     resource_required=None, queue="", specific_parameters=[]):
+                     resource_required=None, queue="", exclusive = False, mem_per_cpu = 0,
+                     specific_parameters=[], launcher_file = "", launcher_args = ""):
     Engines.JobParameters.__init__(self, job_name, job_type, job_file, env_file, in_files, out_files,
                                          work_directory, local_directory, result_directory, maximum_duration,
-                                         resource_required, queue, specific_parameters)
+                                         resource_required, queue, exclusive, mem_per_cpu,
+                                         specific_parameters, launcher_file, launcher_args)
 
 class ResourceDefinition(Engines.ResourceDefinition):
   def __init__(self, name="", hostname="", protocol="rsh", username="", applipath="", componentList=[],
                mode="interactive", OS="", mem_mb=1, cpu_clock=1, nb_node=1, nb_proc_per_node=1,
-               batch="", mpiImpl="", iprotocol="rsh"):
-    Engines.ResourceDefinition.__init__(self, name, hostname, protocol, username, applipath, componentList,
-                               mode, OS, mem_mb, cpu_clock, nb_node, nb_proc_per_node, batch,
-                               mpiImpl, iprotocol)
+               batch="", mpiImpl="", iprotocol="rsh", type = "single_machine",
+               can_launch_batch_jobs = False, can_run_containers = False, working_directory = ""):
+    Engines.ResourceDefinition.__init__(self, name, hostname, type, protocol, username, applipath,
+                                        componentList, OS, mem_mb, cpu_clock, nb_node, nb_proc_per_node,
+                                        batch, mpiImpl, iprotocol, can_launch_batch_jobs,
+                                        can_run_containers, working_directory)

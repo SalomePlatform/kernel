@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -8,7 +8,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +23,12 @@
 #
 
 import os
+import sys
 
+######
+# Warning: relpath might be replaced by equivalent os.relpath introduced in
+# Python 2.6 (Calibre 7).
+# It is still here to ensure compatibility with Calibre 6 (Python 2.5)
 def relpath(target, base):
     """ Find relative path from base to target
         if target== "/local/chris/appli" and base== "/local/chris" the result is appli
@@ -40,16 +45,21 @@ def relpath(target, base):
     if p == []:
       return '.'
     return os.path.join( *p )
+#
 
-def set_var(VAR, strpath):
-    """Set VAR environment variable """
-    value = "%r" % strpath
-    shell = os.getenv('SHELL')
-    if shell and shell.endswith('csh'):
-        return "setenv %s %s" % (VAR, value)
-    else:
-        return "export %s=%s" % (VAR, value)
+def get_appli_path(filePath=None):
+    if filePath is None:
+        filePath = os.path.realpath(os.path.dirname(__file__))
+
+    homePath = os.path.realpath(os.getenv('HOME'))
+    applipath = os.path.relpath(filePath, homePath)
+    return applipath
+#
 
 if __name__ == "__main__":
-  applipath=relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
-  print applipath
+    if sys.hexversion < 0x02060000: # Python older than 2.6.0
+        applipath = relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
+    else:
+        applipath = get_appli_path()
+    print applipath
+#

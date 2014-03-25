@@ -1,0 +1,198 @@
+# - Config file for the @PROJECT_NAME@ package
+# It defines the following variables. 
+# Specific to the pacakge @PROJECT_NAME@ itself:
+#  @PROJECT_NAME_UC@_ROOT_DIR_EXP - the root path of the installation providing this CMake file
+#
+# Other stuff specific to this package:
+#  SALOME_USE_MPI            - ON if KERNEL is built with MPI support
+#  SALOME_KERNEL_BUILD_DOC   - ON if documentation for KERNEL module has been built
+#  SALOME_KERNEL_BUILD_TESTS - ON if tests for KERNEL module has been built
+#  SALOME_LIGHT_ONLY         - ON if SALOME is built in Light mode (no CORBA)
+
+###############################################################
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+### Initialisation performed by CONFIGURE_PACKAGE_CONFIG_FILE:
+@PACKAGE_INIT@
+
+# Load the dependencies for the libraries of @PROJECT_NAME@ 
+# (contains definitions for IMPORTED targets). This is only 
+# imported if we are not built as a subproject (in this case targets are already there)
+IF(NOT TARGET SALOMEBasics AND NOT @PROJECT_NAME@_BINARY_DIR)
+  INCLUDE("@PACKAGE_SALOME_INSTALL_CMAKE@/@PROJECT_NAME@Targets.cmake")
+ENDIF()   
+
+# Package root dir:
+SET_AND_CHECK(KERNEL_ROOT_DIR_EXP "@PACKAGE_CMAKE_INSTALL_PREFIX@")
+
+# Include directories and definitions
+SET_AND_CHECK(KERNEL_INCLUDE_DIRS "${KERNEL_ROOT_DIR_EXP}/@SALOME_INSTALL_HEADERS@")
+SET(KERNEL_INCLUDE_DIRS "${KERNEL_INCLUDE_DIRS};@_SalomeKERNEL_EXTRA_HEADERS@")
+SET(KERNEL_DEFINITIONS)
+
+# Package specific environment variables
+@_SalomeKERNEL_EXTRA_ENV_FULL@
+
+#### Now the specificities
+
+# Options exported by the package:
+SET(SALOME_USE_MPI     @SALOME_USE_MPI@)
+IF(SALOME_USE_MPI)
+  LIST(APPEND KERNEL_INCLUDE_DIRS "@MPI_INCLUDE_DIRS@")
+  LIST(APPEND KERNEL_DEFINITIONS "@MPI_DEFINITIONS@")
+ENDIF()
+
+SET(SALOME_KERNEL_BUILD_DOC   @SALOME_BUILD_DOC@)
+SET(SALOME_KERNEL_BUILD_TESTS @SALOME_BUILD_TESTS@)
+SET(SALOME_KERNEL_LIGHT_ONLY  @SALOME_LIGHT_ONLY@)
+SET(SALOME_USE_LIBBATCH       @SALOME_USE_LIBBATCH@)
+
+SET(SALOME_USE_SIMAN     @SALOME_USE_SIMAN@)
+IF(SALOME_USE_SIMAN)
+  LIST(APPEND KERNEL_DEFINITIONS "-DWITH_SIMANIO")
+ENDIF()
+
+SET(SALOME_USE_PORTMANAGER     @SALOME_USE_PORTMANAGER@)
+IF(SALOME_USE_PORTMANAGER)
+  LIST(APPEND KERNEL_DEFINITIONS "-DWITH_PORTMANAGER")
+ENDIF()
+
+# Prerequisites:
+IF(SALOME_KERNEL_BUILD_TESTS)
+  SET_AND_CHECK(CPPUNIT_ROOT_DIR_EXP  "@PACKAGE_CPPUNIT_ROOT_DIR@")
+ENDIF()
+IF(SALOME_KERNEL_BUILD_DOC)
+  SET_AND_CHECK(GRAPHVIZ_ROOT_DIR_EXP "@PACKAGE_GRAPHVIZ_ROOT_DIR@")
+  SET_AND_CHECK(DOXYGEN_ROOT_DIR_EXP  "@PACKAGE_DOXYGEN_ROOT_DIR@")
+  SET_AND_CHECK(SPHINX_ROOT_DIR_EXP   "@PACKAGE_SPHINX_ROOT_DIR@")
+ENDIF()
+IF(SALOME_USE_MPI)
+  SET_AND_CHECK(MPI_ROOT_DIR_EXP      "@PACKAGE_MPI_ROOT_DIR@")
+ENDIF()
+IF(NOT SALOME_LIGHT_ONLY)
+  SET_AND_CHECK(OMNIORB_ROOT_DIR_EXP  "@PACKAGE_OMNIORB_ROOT_DIR@")
+  SET_AND_CHECK(OMNIORBPY_ROOT_DIR_EXP "@PACKAGE_OMNIORBPY_ROOT_DIR@")
+ENDIF()
+IF(SALOME_USE_LIBBATCH)
+  SET_AND_CHECK(LIBBATCH_ROOT_DIR_EXP "@PACKAGE_LIBBATCH_ROOT_DIR@")
+ENDIF()
+IF(SALOME_USE_SIMAN)
+  SET_AND_CHECK(SIMANIO_ROOT_DIR_EXP "@PACKAGE_SIMANIO_ROOT_DIR@")
+ENDIF()
+
+SET_AND_CHECK(PTHREAD_ROOT_DIR_EXP  "@PACKAGE_PTHREAD_ROOT_DIR@")
+SET_AND_CHECK(HDF5_ROOT_DIR_EXP     "@PACKAGE_HDF5_ROOT_DIR@")
+SET_AND_CHECK(LIBXML2_ROOT_DIR_EXP  "@PACKAGE_LIBXML2_ROOT_DIR@")
+SET_AND_CHECK(PYTHON_ROOT_DIR_EXP   "@PACKAGE_PYTHON_ROOT_DIR@")
+SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
+
+# For all prerequisites, load the corresponding targets if the package was used 
+# in CONFIG mode. This ensures dependent projects link correctly
+# without having to set LD_LIBRARY_PATH:
+SET(_PREREQ @_PREREQ_LIST@)
+SET(_PREREQ_CONFIG_DIR @_PREREQ_DIR_LIST@)
+SET(_PREREQ_COMPONENTS "@_PREREQ_COMPO_LIST@")
+LIST(LENGTH _PREREQ_CONFIG_DIR _list_len)
+IF(NOT _list_len EQUAL 0)
+  # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
+  MATH(EXPR _range "${_list_len}-1")
+  FOREACH(_p RANGE ${_range})  
+    LIST(GET _PREREQ            ${_p} _pkg    )
+    LIST(GET _PREREQ_CONFIG_DIR ${_p} _pkg_dir)
+    LIST(GET _PREREQ_COMPONENTS ${_p} _pkg_compo)
+    MESSAGE(STATUS "===> Reloading targets from ${_pkg} ...")
+    IF(NOT _pkg_compo)
+      FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE 
+          PATHS "${_pkg_dir}" 
+          NO_DEFAULT_PATH)
+    ELSE()
+      STRING(REPLACE "," ";" _compo_lst "${_pkg_compo}")
+      MESSAGE(STATUS "===> (components: ${_pkg_compo})")
+      FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE
+          COMPONENTS ${_compo_lst} 
+          PATHS "${_pkg_dir}"
+          NO_DEFAULT_PATH)
+    ENDIF()
+  ENDFOREACH()
+ENDIF()
+
+# Installation directories
+SET(SALOME_INSTALL_BINS "@SALOME_INSTALL_BINS@")
+SET(SALOME_INSTALL_LIBS "@SALOME_INSTALL_LIBS@")
+SET(SALOME_INSTALL_IDLS "@SALOME_INSTALL_IDLS@")
+SET(SALOME_INSTALL_HEADERS "@SALOME_INSTALL_HEADERS@")
+SET(SALOME_INSTALL_SCRIPT_SCRIPTS "@SALOME_INSTALL_SCRIPT_SCRIPTS@")
+SET(SALOME_INSTALL_SCRIPT_DATA "@SALOME_INSTALL_SCRIPT_DATA@")
+SET(SALOME_INSTALL_SCRIPT_PYTHON "@SALOME_INSTALL_SCRIPT_PYTHON@")
+SET(SALOME_INSTALL_APPLISKEL_SCRIPTS "@SALOME_INSTALL_APPLISKEL_SCRIPTS@")
+SET(SALOME_INSTALL_APPLISKEL_PYTHON "@SALOME_INSTALL_APPLISKEL_PYTHON@") 
+SET(SALOME_INSTALL_CMAKE "@SALOME_INSTALL_CMAKE@")
+SET(SALOME_INSTALL_CMAKE_LOCAL "@SALOME_INSTALL_CMAKE_LOCAL@")
+SET(SALOME_INSTALL_PYTHON "@SALOME_INSTALL_PYTHON@")
+SET(SALOME_INSTALL_PYTHON_SHARED "@SALOME_INSTALL_PYTHON_SHARED@")
+SET(SALOME_INSTALL_RES "@SALOME_INSTALL_RES@")
+SET(SALOME_INSTALL_DOC "@SALOME_INSTALL_DOC@")
+SET(SALOME_INSTALL_AMCONFIG "@SALOME_INSTALL_AMCONFIG@") # to be removed
+SET(SALOME_INSTALL_AMCONFIG_LOCAL "@SALOME_INSTALL_AMCONFIG_LOCAL@") # to be removed
+
+# Exposed targets:
+SET(KERNEL_CalciumC CalciumC)
+SET(KERNEL_DF DF)
+SET(KERNEL_Launcher Launcher)
+SET(KERNEL_LifeCycleCORBATest LifeCycleCORBATest)
+SET(KERNEL_NamingServiceTest NamingServiceTest)
+SET(KERNEL_OpUtil OpUtil)
+SET(KERNEL_Registry Registry)
+SET(KERNEL_ResourcesManager ResourcesManager)
+SET(KERNEL_SALOMEBasics SALOMEBasics)
+SET(KERNEL_SalomeCatalog SalomeCatalog)
+SET(KERNEL_SalomeCommunication SalomeCommunication)
+SET(KERNEL_SalomeContainer SalomeContainer)
+SET(KERNEL_SalomeDatastream SalomeDatastream)
+SET(KERNEL_SalomeDSCContainer SalomeDSCContainer)
+SET(KERNEL_SalomeDSClient SalomeDSClient)
+SET(KERNEL_SalomeDSCSupervBasic SalomeDSCSupervBasic)
+SET(KERNEL_SalomeDSCSuperv SalomeDSCSuperv)
+SET(KERNEL_SalomeDSImpl SalomeDSImpl)
+SET(KERNEL_SALOMEDSImplTest SALOMEDSImplTest)
+SET(KERNEL_SalomeDS SalomeDS)
+SET(KERNEL_SALOMEDSTest SALOMEDSTest)
+SET(KERNEL_SalomeGenericObj SalomeGenericObj)
+SET(KERNEL_SalomeHDFPersist SalomeHDFPersist)
+SET(KERNEL_SalomeIDLKernel SalomeIDLKernel)
+SET(KERNEL_SalomeLauncher SalomeLauncher)
+SET(KERNEL_SalomeLifeCycleCORBA SalomeLifeCycleCORBA)
+SET(KERNEL_SALOMELocalTrace SALOMELocalTrace)
+SET(KERNEL_SALOMELocalTraceTest SALOMELocalTraceTest)
+SET(KERNEL_SalomeLoggerServer SalomeLoggerServer)
+SET(KERNEL_SalomeMPIContainer SalomeMPIContainer)
+SET(KERNEL_SalomeNotification SalomeNotification)
+SET(KERNEL_SalomeNS SalomeNS)
+SET(KERNEL_SalomeResourcesManager SalomeResourcesManager)
+SET(KERNEL_SalomeTestComponentEngine SalomeTestComponentEngine)
+SET(KERNEL_SalomeTestMPIComponentEngine SalomeTestMPIComponentEngine)
+SET(KERNEL_SALOMETraceCollectorTest SALOMETraceCollectorTest)
+SET(KERNEL_TOOLSDS TOOLSDS)
+SET(KERNEL_UtilsTest UtilsTest)
+SET(KERNEL_with_loggerTraceCollector with_loggerTraceCollector)
+SET(KERNEL_SalomeKernelHelpers SalomeKernelHelpers)

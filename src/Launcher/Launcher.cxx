@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,11 +20,16 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include <list>
+#include <iostream>
+#include <sstream>
+#include <sys/stat.h>
+#include <time.h>
+
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_BatchManagerCatalog.hxx>
-#include <Batch/Batch_FactBatchManager_eClient.hxx>
-#include <Batch/Batch_BatchManager_eClient.hxx>
+#include <libbatch/BatchManagerCatalog.hxx>
+#include <libbatch/FactBatchManager.hxx>
+#include <libbatch/BatchManager.hxx>
 #endif
 
 #include "Basics_Utils.hxx"
@@ -32,10 +37,9 @@
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include "Launcher_Job_Command.hxx"
-#include <iostream>
-#include <sstream>
-#include <sys/stat.h>
-#include <time.h>
+#include "Launcher_XML_Persistence.hxx"
+
+using namespace std;
 
 //=============================================================================
 /*! 
@@ -65,7 +69,7 @@ Launcher_cpp::~Launcher_cpp()
   std::map<int, Launcher::Job *>::const_iterator it_job;
   for(it_job = _launcher_job_map.begin(); it_job != _launcher_job_map.end(); it_job++)
     delete it_job->second;
-  std::map <int, Batch::BatchManager_eClient * >::const_iterator it1;
+  std::map <int, Batch::BatchManager * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
 #endif
@@ -131,7 +135,7 @@ Launcher_cpp::launchJob(int job_id)
 
   // Third step search batch manager for the job into the map -> instanciate one if does not exist
 #ifdef WITH_LIBBATCH
-  std::map<int, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(job_id);
+  std::map<int, Batch::BatchManager *>::const_iterator it = _batchmap.find(job_id);
   if(it == _batchmap.end())
   {
     createBatchManagerForJob(job);
@@ -142,8 +146,9 @@ Launcher_cpp::launchJob(int job_id)
     Batch::JobId batch_manager_job_id = _batchmap[job_id]->submitJob(*(job->getBatchJob()));
     job->setBatchManagerJobId(batch_manager_job_id);
     job->setState("QUEUED");
+    job->setReference(batch_manager_job_id.getReference());
   }
-  catch(const Batch::EmulationException &ex)
+  catch(const Batch::GenericException &ex)
   {
     LAUNCHER_INFOS("Job is not launched, exception in submitJob: " << ex.message);
     throw LauncherException(ex.message.c_str());
@@ -176,18 +181,37 @@ Launcher_cpp::getJobState(int job_id)
   {
     state = job->updateJobState();
   }
-  catch(const Batch::EmulationException &ex)
-  {
-    LAUNCHER_INFOS("getJobState failed, exception: " << ex.message);
-    throw LauncherException(ex.message.c_str());
-  }
-  catch(const Batch::RunTimeException &ex)
+  catch(const Batch::GenericException &ex)
   {
     LAUNCHER_INFOS("getJobState failed, exception: " << ex.message);
     throw LauncherException(ex.message.c_str());
   }
 
   return state.c_str();
+}
+
+//=============================================================================
+/*!
+ * Get job assigned hostnames
+ */
+//=============================================================================
+const char *
+Launcher_cpp::getAssignedHostnames(int job_id)
+{
+  LAUNCHER_MESSAGE("Get job assigned hostnames");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+  std::string assigned_hostnames = job->getAssignedHostnames();
+
+  return assigned_hostnames.c_str();
 }
 
 //=============================================================================
@@ -217,7 +241,7 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
     else
       _batchmap[job_id]->importOutputFiles(*(job->getBatchJob()), job->getResultDirectory());
   }
-  catch(const Batch::EmulationException &ex)
+  catch(const Batch::GenericException &ex)
   {
     LAUNCHER_INFOS("getJobResult is maybe incomplete, exception: " << ex.message);
     throw LauncherException(ex.message.c_str());
@@ -253,7 +277,7 @@ Launcher_cpp::getJobDumpState(int job_id, std::string directory)
     else
       rtn = _batchmap[job_id]->importDumpStateFile(*(job->getBatchJob()), job->getResultDirectory());
   }
-  catch(const Batch::EmulationException &ex)
+  catch(const Batch::GenericException &ex)
   {
     LAUNCHER_INFOS("getJobResult is maybe incomplete, exception: " << ex.message);
     throw LauncherException(ex.message.c_str());
@@ -366,18 +390,20 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
  *  Factory to instanciate the good batch manager for choosen cluster.
  */ 
 //=============================================================================
-Batch::BatchManager_eClient *
+Batch::BatchManager *
 Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
 {
   std::string mpi;
   Batch::CommunicationProtocolType protocol;
-  Batch::FactBatchManager_eClient* fact;
+  Batch::FactBatchManager * fact;
 
-  int nb_proc_per_node = params.DataForSort._nbOfProcPerNode;
   std::string hostname = params.HostName;
 
   switch(params.Protocol)
   {
+    case sh:
+      protocol = Batch::SH;
+      break;
     case rsh:
       protocol = Batch::RSH;
       break;
@@ -403,6 +429,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case openmpi:
       mpi = "openmpi";
       break;
+    case ompi:
+      mpi = "ompi";
+      break;
     case slurmmpi:
       mpi = "slurmmpi";
       break;
@@ -417,42 +446,48 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
   switch( params.Batch )
   {
     case pbs:
-      bmType = "ePBS";
+      bmType = "PBS";
       break;
     case lsf:
-      bmType = "eLSF";
+      bmType = "LSF";
       break;
     case sge:
-      bmType = "eSGE";
+      bmType = "SGE";
       break;
     case ccc:
-      bmType = "eCCC";
+      bmType = "CCC";
       break;
     case slurm:
-      bmType = "eSLURM";
+      bmType = "SLURM";
       break;
-    case ssh_batch:
-      bmType = "eSSH";
+    case none:
+      bmType = "LOCAL";
       break;
     case ll:
-      bmType = "eLL";
+      bmType = "LL";
       break;
     case vishnu:
-      bmType = "eVISHNU";
+      bmType = "VISHNU";
+      break;
+    case oar:
+      bmType = "OAR";
+      break;
+    case coorm:
+      bmType = "COORM";
       break;
     default:
       LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.Batch);
       throw LauncherException("No batchmanager for that cluster - Bad batch description of the resource");
   }
   Batch::BatchManagerCatalog & cata = Batch::BatchManagerCatalog::getInstance();
-  fact = dynamic_cast<Batch::FactBatchManager_eClient*>(cata(bmType));
+  fact = dynamic_cast<Batch::FactBatchManager*>(cata(bmType));
   if (fact == NULL) {
     LAUNCHER_MESSAGE("Cannot find batch manager factory for " << bmType << ". Check your version of libBatch.");
     throw LauncherException("Cannot find batch manager factory");
   }
   LAUNCHER_MESSAGE("Instanciation of batch manager of type: " << bmType);
-  Batch::BatchManager_eClient * batch_client = (*fact)(hostname.c_str(), params.UserName.c_str(),
-                                                       protocol, mpi.c_str(), nb_proc_per_node);
+  Batch::BatchManager * batch_client = (*fact)(hostname.c_str(), params.UserName.c_str(),
+                                               protocol, mpi.c_str());
   return batch_client;
 }
 
@@ -483,6 +518,14 @@ Launcher_cpp::getJobState(int job_id)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job state!!!");
   throw LauncherException("Method Launcher_cpp::getJobState is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
+const char *
+Launcher_cpp::getAssignedHostnames(int job_id)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job assigned hostnames!!!");
+  throw LauncherException("Method Launcher_cpp::getAssignedHostnames is not available "
                           "(libBatch was not present at compilation time)");
 }
 
@@ -578,6 +621,8 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
   // Select a ressource for the job
   std::vector<std::string> ResourceList;
   resourceParams params = job->getResourceRequiredParams();
+  // Consider only resources that can launch batch jobs
+  params.can_launch_batch_jobs = true;
   try
   {
     ResourceList = _ResManager->GetFittingResources(params);
@@ -611,7 +656,7 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
 
   // Step 2: We can now add a Factory if the resource is correctly define
 #ifdef WITH_LIBBATCH
-  std::map<int, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(job_id);
+  std::map<int, Batch::BatchManager *>::const_iterator it = _batchmap.find(job_id);
   if(it == _batchmap.end())
   {
     try
@@ -619,7 +664,7 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
       // Warning cannot write on one line like this, because map object is constructed before
       // the method is called...
       //_batchmap[job_id] = FactoryBatchManager(resource_definition);
-      Batch::BatchManager_eClient * batch_client = FactoryBatchManager(resource_definition);
+      Batch::BatchManager * batch_client = FactoryBatchManager(resource_definition);
       _batchmap[job_id] = batch_client;
     }
     catch(const LauncherException &ex)
@@ -627,12 +672,7 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
       LAUNCHER_INFOS("Error during creation of the batch manager of the job, mess: " << ex.msg);
       throw ex;
     }
-    catch(const Batch::EmulationException &ex)
-    {
-      LAUNCHER_INFOS("Error during creation of the batch manager of the job, mess: " << ex.message);
-      throw LauncherException(ex.message);
-    }
-    catch(const Batch::InvalidArgumentException &ex)
+    catch(const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("Error during creation of the batch manager of the job, mess: " << ex.message);
       throw LauncherException(ex.message);
@@ -642,7 +682,7 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
 }
 
 void 
-Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference)
+Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
 {
   // Step 0: Calculated job_id
   pthread_mutex_lock(_job_cpt_mutex);
@@ -659,10 +699,10 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
   try
   {
     Batch::JobId batch_manager_job_id = _batchmap[job_id]->addJob(*(new_job->getBatchJob()),
-                                                                  job_reference);
+                                                                  new_job->getReference());
     new_job->setBatchManagerJobId(batch_manager_job_id);
   }
-  catch(const Batch::EmulationException &ex)
+  catch(const Batch::GenericException &ex)
   {
     LAUNCHER_INFOS("Job cannot be added, exception in addJob: " << ex.message);
     throw LauncherException(ex.message.c_str());
@@ -680,4 +720,85 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
   }
   LAUNCHER_MESSAGE("New job added");
 #endif
+}
+
+list<int>
+Launcher_cpp::loadJobs(const char* jobs_file)
+{
+  list<int> new_jobs_id_list;
+
+  // Load the jobs from XML file
+  list<Launcher::Job *> jobs_list = Launcher::XML_Persistence::loadJobs(jobs_file);
+
+  // Create each job in the launcher
+  list<Launcher::Job *>::const_iterator it_job;
+  for (it_job = jobs_list.begin(); it_job != jobs_list.end(); it_job++)
+  {
+    Launcher::Job * new_job = *it_job;
+    string job_state = new_job->getState();
+
+    try
+    {
+      if (job_state == "CREATED")
+      {
+        // In this case, we ignore run_part informations
+        createJob(new_job);
+        new_jobs_id_list.push_back(new_job->getNumber());
+      }
+      else if (job_state == "QUEUED"     ||
+               job_state == "RUNNING"    ||
+               job_state == "IN_PROCESS" ||
+               job_state == "PAUSED")
+      {
+        addJobDirectlyToMap(new_job);
+        new_jobs_id_list.push_back(new_job->getNumber());
+
+        // Step 4: We check that the BatchManager could resume
+        // the job
+#ifdef WITH_LIBBATCH
+        if (new_job->getBatchManagerJobId().getReference() != new_job->getReference())
+        {
+          LAUNCHER_INFOS("BatchManager type cannot resume a job - job state is set to ERROR");
+          new_job->setState("ERROR");
+        }
+#endif
+      }
+      else if (job_state == "FINISHED" ||
+               job_state == "FAILED"   ||
+               job_state == "ERROR")
+      {
+        // Step 2: We add run_part informations
+        addJobDirectlyToMap(new_job);
+        new_jobs_id_list.push_back(new_job->getNumber());
+      }
+      else
+      {
+        LAUNCHER_INFOS("A bad job is found, state unknown " << job_state);
+        delete new_job;
+      }
+    }
+    catch(const LauncherException &ex)
+    {
+      LAUNCHER_INFOS("Cannot load the job. Exception: " << ex.msg.c_str());
+      delete new_job;
+    }
+  }
+
+  return new_jobs_id_list;
+}
+
+void
+Launcher_cpp::saveJobs(const char* jobs_file)
+{
+  // Create a sorted list from the internal job map
+  list<const Launcher::Job *> jobs_list;
+  for (int i=0; i<_job_cpt; i++)
+  {
+    map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(i);
+    if (it_job != _launcher_job_map.end())
+      jobs_list.push_back(it_job->second);
+  }
+
+  // Save the jobs in XML file
+  Launcher::XML_Persistence::saveJobs(jobs_file, jobs_list);
 }

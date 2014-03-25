@@ -15,7 +15,7 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = YES
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = @top_builddir@ @top_srcdir@
+STRIP_FROM_PATH        = @PROJECT_BINARY_DIR@ @PROJECT_SOURCE_DIR@
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
@@ -76,28 +76,26 @@ WARN_LOGFILE           = log.txt
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = \
-		       @top_srcdir@/doc/salome \
-		       @top_srcdir@/bin \
-		       @top_srcdir@/idl \
-		       @top_srcdir@/src/Container \
-		       @top_srcdir@/src/LifeCycleCORBA \
-		       @top_srcdir@/src/NamingService \
-		       @top_srcdir@/src/Notification \
-		       @top_srcdir@/src/SALOMEDS/SALOME_DriverPy.py \
-		       @top_srcdir@/src/KERNEL_PY/salome.py \
-		       @top_srcdir@/src/KERNEL_PY/salome_iapp.py \
-		       @top_srcdir@/src/Utils \
-		       @top_srcdir@/src/DSC
+               @CMAKE_CURRENT_BINARY_DIR@/tmp \
+		       @PROJECT_SOURCE_DIR@/doc/salome \
+		       @PROJECT_SOURCE_DIR@/bin \
+		       @PROJECT_SOURCE_DIR@/idl \
+		       @PROJECT_SOURCE_DIR@/src/Container \
+		       @PROJECT_SOURCE_DIR@/src/LifeCycleCORBA \
+		       @PROJECT_SOURCE_DIR@/src/NamingService \
+		       @PROJECT_SOURCE_DIR@/src/Notification \
+		       @PROJECT_SOURCE_DIR@/src/Utils \
+		       @PROJECT_SOURCE_DIR@/src/DSC
 
 FILE_PATTERNS          = *.dox *.idl *.hxx *.cxx *.py
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
-EXAMPLE_PATH           = @top_srcdir@/doc/salome/examples
+EXAMPLE_PATH           = @PROJECT_SOURCE_DIR@/doc/salome/examples
 EXAMPLE_PATTERNS       = 
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = @srcdir@/images
+IMAGE_PATH             = @CMAKE_CURRENT_SOURCE_DIR@/images
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO
@@ -126,9 +124,9 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = .
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = @builddir@/static/header.html
-HTML_FOOTER            = @srcdir@/static/footer.html
-HTML_STYLESHEET        = @srcdir@/static/doxygen.css
+HTML_HEADER            = @CMAKE_CURRENT_BINARY_DIR@/static/header.html
+HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/static/footer.html
+HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/static/salome_extra.css
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
 CHM_FILE               = 

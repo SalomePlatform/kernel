@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,6 +53,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 
+#ifdef WIN32
+#define setenv Kernel_Utils::setenv
+#endif 
 
 // ============================================================================
 /*!
@@ -84,8 +87,13 @@ int main(int argc, char* argv[])
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_var orb = init(argc , argv ) ;
-
-  sleep(15);
+  
+  #ifndef WIN32
+    sleep(15);
+  #else
+    Sleep(15000);
+  #endif
+  
 
   std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");

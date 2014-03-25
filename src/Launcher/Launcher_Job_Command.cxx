@@ -1,9 +1,9 @@
-// Copyright (C) 2009-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,12 +20,13 @@
 // Author: André RIBES - EDF R&D
 //
 #include "Launcher_Job_Command.hxx"
+#include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Constants.hxx>
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #define _chmod chmod
 #endif
@@ -40,7 +41,6 @@ Launcher::Job_Command::update_job()
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
   params[Batch::EXECUTABLE] = buildCommandScript(params, _launch_date);
-  params[Batch::EXCLUSIVE] = false;
   _batch_job->setParametre(params);
 #endif
 }
@@ -54,7 +54,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
 
   // File name
   std::string launch_date_port_file = launch_date;
-  std::string launch_script = "/tmp/runCommand_" + _job_file_name + "_" + launch_date + ".sh";
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_" + _job_file_name + "_" + launch_date + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
    

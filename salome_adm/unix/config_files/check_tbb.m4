@@ -1,4 +1,4 @@
-dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
 dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@ dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public
 dnl License as published by the Free Software Foundation; either
-dnl version 2.1 of the License.
+dnl version 2.1 of the License, or (at your option) any later version.
 dnl
 dnl This library is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -70,19 +70,26 @@ if test "x$TBBHOME" != "xno"; then
         TBBKERNEL='cc4.1.0_libc2.4_kernel2.6.16.21'
         LOCAL_INCLUDES="-I$TBBHOME/include"
         if test "x$TBBHOME" != "x/usr"; then
+	    INTEL_LOCAL_LIB=""
             if test `uname -m` = "x86_64" ; then
-                LOCAL_LIBS="-L$TBBHOME/lib/intel64/$TBBKERNEL $LOCAL_LIBS"
+                INTEL_LOCAL_LIB="$TBBHOME/lib/intel64/$TBBKERNEL"
             else
-                LOCAL_LIBS="-L$TBBHOME/lib/ia32/$TBBKERNEL $LOCAL_LIBS"
+                INTEL_LOCAL_LIB="$TBBHOME/lib/ia32/$TBBKERNEL"
             fi
+	    if test ! -d ${INTEL_LOCAL_LIB} ; then
+	        INTEL_LOCAL_LIB="${TBBHOME}/lib"
+	    fi
+	    if test -d ${INTEL_LOCAL_LIB} ; then
+                LOCAL_LIBS="-L${INTEL_LOCAL_LIB} $LOCAL_LIBS"
+	    fi
         fi
     fi
 
 dnl check tbb header
 
-    CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES/tbb"
+    CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
 
-    AC_CHECK_HEADER(tbb.h,tbb_ok=yes ,tbb_ok=no)
+    AC_CHECK_HEADER(tbb/tbb.h,tbb_ok=yes ,tbb_ok=no)
 fi
 
 if  test "x$tbb_ok" = "xyes"
@@ -92,7 +99,7 @@ dnl check TBB library
 
   LIBS_old="$LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
-  AC_TRY_LINK([#include <tbb.h>],
+  AC_TRY_LINK([#include <tbb/tbb.h>],
               [tbb::simple_partitioner()],
               tbb_ok=yes,tbb_ok=no)
 

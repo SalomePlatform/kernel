@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,13 +23,13 @@
 
 #clean appli
 
-DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml runSalomeScript update_catalogs.py kill_remote_containers.py *.pyc *~ .bashrc"
+DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py runAppli runConsole runSession runRemote.sh SalomeApp.xml runSalomeScript update_catalogs.py kill_remote_containers.py salome *.pyc *~ .bashrc"
 DOIT="false"
 
 if [ $# -gt 0 ]
 then
   if [ "x$1" == "x-f" ]
-  then 
+  then
      DOIT="true"
   fi
 fi
@@ -47,7 +47,7 @@ then
   fi
 fi
 
-if [ $DOIT == "true" ] 
+if [ $DOIT == "true" ]
 then
   $DELCOM
 fi

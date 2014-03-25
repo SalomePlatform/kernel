@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -759,7 +759,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
             }
           else
             {
-#ifdef WNT
+#ifdef WIN32
               MESSAGE("Killer : ThreadId " << ThreadId.p << " pthread_canceled") ;
 #else
               MESSAGE("Killer : ThreadId " << ThreadId << " pthread_canceled") ;
@@ -775,7 +775,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
             }
           else 
             {
-#ifdef WNT
+#ifdef WIN32
               MESSAGE("Killer : ThreadId " << ThreadId.p << " pthread_killed(" << signum << ")") ;
 #else
               MESSAGE("Killer : ThreadId " << ThreadId << " pthread_killed(" << signum << ")") ;
@@ -891,9 +891,14 @@ void Engines_Component_i::sendMessage(const char *event_type,
 
 std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
 {
+#ifndef WIN32
   std::string ret="lib";
   ret+=componentName;
   ret+="Engine.so";
+#else
+  std::string ret=componentName;
+  ret+="Engine.dll";
+#endif 
   return ret;
 }
 
@@ -1079,6 +1084,38 @@ Engines_Component_i::configureSalome_file(std::string service_name,
 
 //=============================================================================
 /*! 
+ *  C++ method: allows to import data file into the Component internal data 
+    structure (like import operation of BRep file in GEOM module).
+ *  \param studyId identifier of the working study
+ *  \param data container of the file content
+ *  \param options additional options for import (if needed)
+ */
+//=============================================================================
+Engines::ListOfIdentifiers* Engines_Component_i::importData(CORBA::Long studyId,
+                                     Engines::DataContainer_ptr data,
+                                     const Engines::ListOfOptions& options)
+{
+  // By default this method does nothing
+  Engines::ListOfIdentifiers_var aList = new Engines::ListOfIdentifiers;
+  return aList._retn();
+}
+
+//=============================================================================
+/*! 
+ *  C++ method: allows to export data files from the Component internal data 
+    structure (like Export operation of Step file in GEOM module).
+ *  \param studyId identifier of the working study
+ */
+//=============================================================================
+Engines::ListOfData* Engines_Component_i::getModifiedData(CORBA::Long studyId)
+{
+  // By default this method does nothing
+  Engines::ListOfData_var aList = new Engines::ListOfData;
+  return aList._retn();
+}
+
+//=============================================================================
+/*! 
  *  C++ method: return the name of the container associated with this component
  *  This name does not contains the "/Containers" string and all "/" are replaced by "_"
  *  \return the container name (reformatted)
@@ -1104,4 +1141,21 @@ void Engines_Component_i::setContainerName()
   if(slash != std::string::npos)
     name[slash]='_';
   _containerName=name;
+}
+
+//=============================================================================
+/*!
+  \brief Get version of the component
+
+  This method is supposed to be implemented in all derived classes; default implementation
+  returns empty string that means that no version information about the component is available.
+
+  \note The version of the component is stored to the study, as a part of general persistence
+  mechanism; once stored, version information in the study cannot be changed.
+  
+  \return string containing component's version, e.g. "1.0"
+*/
+char* Engines_Component_i::getVersion()
+{
+  return CORBA::string_dup( "" );
 }

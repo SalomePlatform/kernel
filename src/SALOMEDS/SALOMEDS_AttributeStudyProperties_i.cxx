@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -218,3 +218,34 @@ char* SALOMEDS_AttributeStudyProperties_i::GetUnits()
   return c_s._retn();
 }
 
+SALOMEDS::StringSeq* SALOMEDS_AttributeStudyProperties_i::GetStoredComponents()
+{
+  SALOMEDS::Locker lock;
+  std::vector<std::string> components = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetStoredComponents();
+  SALOMEDS::StringSeq_var c_components = new SALOMEDS::StringSeq();
+  c_components->length(components.size());
+  for (int i = 0; i < components.size(); i++) {
+    c_components[i] = CORBA::string_dup(components[i].c_str());
+  }
+  return c_components._retn();
+}
+
+char* SALOMEDS_AttributeStudyProperties_i::GetComponentVersion(const char* theComponent)
+{
+  SALOMEDS::Locker lock;
+  std::string version = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetComponentVersion(theComponent);
+  CORBA::String_var c_version = CORBA::string_dup(version.c_str());
+  return c_version._retn();
+}
+
+SALOMEDS::StringSeq* SALOMEDS_AttributeStudyProperties_i::GetComponentVersions(const char* theComponent)
+{
+  SALOMEDS::Locker lock;
+  std::vector<std::string> versions = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetComponentVersions(theComponent);
+  SALOMEDS::StringSeq_var c_versions = new SALOMEDS::StringSeq();
+  c_versions->length(versions.size());
+  for (int i = 0; i < versions.size(); i++) {
+    c_versions[i] = CORBA::string_dup(versions[i].c_str());
+  }
+  return c_versions._retn();
+}

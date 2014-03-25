@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -61,6 +61,10 @@ namespace Kernel_Utils
   BASICS_EXPORT std::string GetGUID( GUIDtype );
 #ifndef WIN32
   BASICS_EXPORT void print_traceback();
+#else
+#if (_MSC_VER >= 1400) // Visual Studio 2005
+  BASICS_EXPORT int setenv(const char*, const char*, int);
+#endif
 #endif
 }
 
@@ -124,7 +128,12 @@ double ToDouble(const T &arg) {
 // Simple Logger macros (no dependency with SALOME)
 // =============================================================
 //
+#if defined(_DEBUG_) || defined(_DEBUG)
 #define STDLOG(msg) {std::cerr<<std::flush<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<std::endl<<std::flush;}
+#else
+#define STDLOG(msg)
+#endif
+
 #ifdef LOG
 #undef LOG
 #endif

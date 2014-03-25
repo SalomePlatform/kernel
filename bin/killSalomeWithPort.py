@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -8,7 +8,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -33,10 +33,9 @@
 
 import os, sys, pickle, signal, commands,glob
 from salome_utils import verbose
-import Utils_Identity
 import salome_utils
 
-def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
+def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None, with2809pid=False):
     """
     Get file with list of SALOME processes.
     This file is located in the user's home directory
@@ -71,8 +70,12 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
             dir = os.getenv("HOME")
             pass
         pass
+
+    suffix = "pidict"
+    if port == 2809 and with2809pid:
+        suffix = suffix + "-%s"%(os.getpid())
     return generateFileName(dir,
-                            suffix="pidict",
+                            suffix=suffix,
                             hidden=hidden,
                             with_username=True,
                             with_hostname=hostname or True,
@@ -82,46 +85,50 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
 def appliCleanOmniOrbConfig(port):
     """
     Remove omniorb config files related to the port in SALOME application:
-    - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_${HOSTNAME}_${NSPORT}.cfg
-    - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+    - ${OMNIORB_USER_PATH}/.omniORB_${USER}_${HOSTNAME}_${NSPORT}.cfg
+    - ${OMNIORB_USER_PATH}/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
     """
     from salome_utils import generateFileName, getUserName
-    home  = os.getenv("HOME")
-    appli = os.getenv("APPLI")
-    if appli is None:
+    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+    if omniorbUserPath is None:
         #Run outside application context
         pass
     else:
-        dir = os.path.join(os.path.realpath(home), appli,"USERS")
-        omniorb_config      = generateFileName(dir, prefix="omniORB",
+        omniorb_config      = generateFileName(omniorbUserPath, prefix="omniORB",
                                                extension="cfg",
                                                hidden=True,
                                                with_username=True,
                                                with_hostname=True,
                                                with_port=port)
-        last_running_config = generateFileName(dir, prefix="omniORB",
+        last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                                with_username=True,
                                                suffix="last",
                                                extension="cfg",
                                                hidden=True)
         if os.access(last_running_config,os.F_OK):
-            pointedPath = os.readlink(last_running_config)
-            if pointedPath[0] != '/':
-                pointedPath=os.path.join(os.path.dirname(last_running_config), pointedPath)
-            if pointedPath == omniorb_config:
-                os.unlink(last_running_config)
+            if not sys.platform == 'win32':
+                pointedPath = os.readlink(last_running_config)
+                if pointedPath[0] != '/':
+                    pointedPath=os.path.join(os.path.dirname(last_running_config), pointedPath)
+                    pass
+                if pointedPath == omniorb_config:
+                    os.unlink(last_running_config)
+                    pass
+                pass
+            else:
+                os.remove(last_running_config)
                 pass
             pass
+
         if os.access(omniorb_config,os.F_OK):
             os.remove(omniorb_config)
             pass
 
-        if os.path.lexists(last_running_config):return 
+        if os.path.lexists(last_running_config):return
 
         #try to relink last.cfg to an existing config file if any
-        files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
-                                       "USERS",".omniORB_"+getUserName()+"_*.cfg"))
+        files = glob.glob(os.path.join(omniorbUserPath,".omniORB_"+getUserName()+"_*.cfg"))
         current_config=None
         current=0
         for f in files:
@@ -130,144 +137,137 @@ def appliCleanOmniOrbConfig(port):
             current=stat.st_atime
             current_config=f
         if current_config:
-          os.symlink(os.path.normpath(current_config), last_running_config)
-
+          if sys.platform == "win32":
+            import shutil
+            shutil.copyfile(os.path.normpath(current_config), last_running_config)
+            pass
+          else:
+            os.symlink(os.path.normpath(current_config), last_running_config)
+            pass
+          pass
         pass
     pass
 
 ########## kills all salome processes with the given port ##########
 
-def shutdownMyPort(port):
+def shutdownMyPort(port, cleanup=True):
     """
     Shutdown SALOME session running on the specified port.
     Parameters:
     - port - port number
     """
     if not port: return
-    
+
+    try:
+        from PortManager import releasePort
+        releasePort(port)
+    except ImportError:
+        pass
+
     from salome_utils import generateFileName
 
     # set OMNIORB_CONFIG variable to the proper file
-    home  = os.getenv("HOME")
-    appli = os.getenv("APPLI")
+    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
     kwargs = {}
-    if appli is not None: 
-        home = os.path.join(os.path.realpath(home), appli,"USERS")
+    if omniorbUserPath is not None:
         kwargs["with_username"]=True
-        pass
-    omniorb_config = generateFileName(home, prefix="omniORB",
+    else:
+        omniorbUserPath = os.path.realpath(os.path.expanduser('~'))
+    omniorb_config = generateFileName(omniorbUserPath, prefix="omniORB",
                                       extension="cfg",
                                       hidden=True,
                                       with_hostname=True,
                                       with_port=port,
                                       **kwargs)
     os.environ['OMNIORB_CONFIG'] = omniorb_config
+    os.environ['NSPORT'] = str(port)
 
     # give the chance to the servers to shutdown properly
     try:
         import time
-        import salome_kernel
-        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        from omniORB import CORBA
+        from LifeCycleCORBA import LifeCycleCORBA
         # shutdown all
+        orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+        lcc = LifeCycleCORBA(orb)
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
         # shutdown omniNames and notifd
-        salome_kernel.LifeCycleCORBA.killOmniNames()
+        if cleanup:
+            lcc.killOmniNames()
+            time.sleep(1)
+            pass
+        pass
     except:
         pass
     pass
-    
-def killMyPort(port):
-    """
-    Kill SALOME session running on the specified port.
-    Parameters:
-    - port - port number
-    """
-    from salome_utils import getShortHostName, getHostName
-    
-    # try to shutdown session nomally
-    import threading, time
-    threading.Thread(target=shutdownMyPort, args=(port,)).start()
-    time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
-    
-    # new-style dot-prefixed pidict file
-    filedict = getPiDict(port, hidden=True)
-    # provide compatibility with old-style pidict file (not dot-prefixed)
-    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
-    # provide compatibility with old-style pidict file (short hostname)
-    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getShortHostName())
-    # provide compatibility with old-style pidict file (not dot-prefixed, short hostname)
-    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getShortHostName())
-    # provide compatibility with old-style pidict file (long hostname)
-    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getHostName())
-    # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
-    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getHostName())
-    #
+
+def __killMyPort(port, filedict):
     try:
-        fpid = open(filedict, 'r')
-        #
-        from salome_utils import generateFileName
-        if sys.platform == "win32":
-            username = os.getenv( "USERNAME" )
-        else:
-            username = os.getenv('USER')
-        path = os.path.join('/tmp/logs', username)
-        fpidomniNames = generateFileName(path,
-                                         prefix="",
-                                         suffix="Pid_omniNames",
-                                         extension="log",
-                                         with_port=port)
-        if not sys.platform == 'win32':        
-            cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start %s"` ; echo $pid > %s' % ( str(port), fpidomniNames )
-            a = os.system(cmd)
-            pass
-        try:
-            fpidomniNamesFile = open(fpidomniNames)
-            lines = fpidomniNamesFile.readlines()
-            fpidomniNamesFile.close()
-            os.remove(fpidomniNames)
-            for l in lines:
-                try:
-                    pidfield = l.split()[0] # pid should be at the first position
-                    if sys.platform == "win32":
-                        import win32pm
-                        if verbose(): print 'stop process '+pidfield+' : omniNames'
-                        win32pm.killpid(int(pidfield),0)
-                    else:
-                        if verbose(): print 'stop process '+pidfield+' : omniNames'
-                        os.kill(int(pidfield),signal.SIGKILL)
-                        pass
-                    pass
-                except:
-                    pass
+        with open(filedict, 'r') as fpid:
+            #
+            from salome_utils import generateFileName
+            if sys.platform == "win32":
+                username = os.getenv( "USERNAME" )
+            else:
+                username = os.getenv('USER')
+            path = os.path.join('/tmp/logs', username)
+            fpidomniNames = generateFileName(path,
+                                             prefix="",
+                                             suffix="Pid_omniNames",
+                                             extension="log",
+                                             with_port=port)
+            if not sys.platform == 'win32':
+                cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start %s"` ; echo $pid > %s' % ( str(port), fpidomniNames )
+                a = os.system(cmd)
                 pass
-            pass
-        except:
-            pass
-        #
-        try:
-            process_ids=pickle.load(fpid)
-            fpid.close()
-            for process_id in process_ids:
-                for pid, cmd in process_id.items():
-                    if verbose(): print "stop process %s : %s"% (pid, cmd[0])
+            try:
+                with open(fpidomniNames) as fpidomniNamesFile:
+                    lines = fpidomniNamesFile.readlines()
+
+                os.remove(fpidomniNames)
+                for l in lines:
                     try:
+                        pidfield = l.split()[0] # pid should be at the first position
                         if sys.platform == "win32":
                             import win32pm
-                            win32pm.killpid(int(pid),0)                            
+                            if verbose(): print 'stop process '+pidfield+' : omniNames'
+                            win32pm.killpid(int(pidfield),0)
                         else:
-                            os.kill(int(pid),signal.SIGKILL)
+                            if verbose(): print 'stop process '+pidfield+' : omniNames'
+                            os.kill(int(pidfield),signal.SIGKILL)
                             pass
                         pass
                     except:
-                        if verbose(): print "  ------------------ process %s : %s not found"% (pid, cmd[0])
                         pass
-                    pass # for pid, cmd ...
-                pass # for process_id ...
-            pass # try...
-        except:
-            pass
+                    pass
+                pass
+            except:
+                pass
+            #
+            try:
+                process_ids=pickle.load(fpid)
+                for process_id in process_ids:
+                    for pid, cmd in process_id.items():
+                        if verbose(): print "stop process %s : %s"% (pid, cmd[0])
+                        try:
+                            if sys.platform == "win32":
+                                import win32pm
+                                win32pm.killpid(int(pid),0)
+                            else:
+                                os.kill(int(pid),signal.SIGKILL)
+                                pass
+                            pass
+                        except:
+                            if verbose(): print "  ------------------ process %s : %s not found"% (pid, cmd[0])
+                            pass
+                        pass # for pid, cmd ...
+                    pass # for process_id ...
+                pass # try...
+            except:
+                pass
+        # end with
         #
         os.remove(filedict)
         cmd='ps -eo pid,command | egrep "[0-9] omniNames -start '+str(port)+'" | sed -e "s%[^0-9]*\([0-9]*\) .*%\\1%g"'
@@ -276,16 +276,53 @@ def killMyPort(port):
         while pid and len(a.split()) < 2:
             a = commands.getoutput("kill -9 " + pid)
             pid = commands.getoutput(cmd)
-            #print pid
             pass
         pass
     except:
         print "Cannot find or open SALOME PIDs file for port", port
         pass
     #
+#
+
+def killMyPort(port):
+    """
+    Kill SALOME session running on the specified port.
+    Parameters:
+    - port - port number
+    """
+    from salome_utils import getShortHostName, getHostName
+    print "Terminating SALOME on port %s..."%(port)
+
+    # try to shutdown session normally
+    import threading, time
+    threading.Thread(target=shutdownMyPort, args=(port,False)).start()
+    time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
+
+    try:
+        import PortManager
+        filedict = getPiDict(port, hidden=True, with2809pid=False)
+        import glob
+        all_files = glob.glob("%s*"%filedict)
+        for f in all_files:
+            __killMyPort(port, f)
+    except ImportError:
+        # new-style dot-prefixed pidict file
+        filedict = getPiDict(port, hidden=True)
+        # provide compatibility with old-style pidict file (not dot-prefixed)
+        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
+        # provide compatibility with old-style pidict file (short hostname)
+        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getShortHostName())
+        # provide compatibility with old-style pidict file (not dot-prefixed, short hostname)
+        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getShortHostName())
+        # provide compatibility with old-style pidict file (long hostname)
+        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getHostName())
+        # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
+        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getHostName())
+        __killMyPort(port, filedict)
+    #
     appliCleanOmniOrbConfig(port)
     pass
-            
+
 def killNotifdAndClean(port):
     """
     Kill notifd daemon and clean application running on the specified port.
@@ -293,15 +330,15 @@ def killNotifdAndClean(port):
     - port - port number
     """
     try:
-      filedict=getPiDict(port)
-      f=open(filedict, 'r')
-      pids=pickle.load(f)
-      for d in pids:
-        for pid,process in d.items():
-          if 'notifd' in process:
-            cmd='kill -9 %d'% pid
-            os.system(cmd)
-      os.remove(filedict)
+        filedict=getPiDict(port)
+        with open(filedict, 'r') as f:
+            pids=pickle.load(f)
+            for d in pids:
+                for pid,process in d.items():
+                    if 'notifd' in process:
+                        cmd='kill -9 %d'% pid
+                        os.system(cmd)
+        os.remove(filedict)
     except:
       #import traceback
       #traceback.print_exc()
@@ -355,10 +392,19 @@ def killMyPortSpy(pid, port):
     return
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Usage: "
+        print "  %s <port>" % os.path.basename(sys.argv[0])
+        print
+        print "Kills SALOME session running on specified <port>."
+        sys.exit(1)
+        pass
     if sys.argv[1] == "--spy":
-        pid = sys.argv[2]
-        port = sys.argv[3]
-        killMyPortSpy(pid, port)
+        if len(sys.argv) > 3:
+            pid = sys.argv[2]
+            port = sys.argv[3]
+            killMyPortSpy(pid, port)
+            pass
         sys.exit(0)
         pass
     for port in sys.argv[1:]:

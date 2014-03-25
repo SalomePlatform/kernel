@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -101,7 +101,7 @@ void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>&
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theTitles[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitles(aSeq);
   }
 }
@@ -161,7 +161,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::strin
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theTitles[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitles(aSeq);
   }
 }
@@ -221,7 +221,7 @@ void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& 
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theUnits[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theUnits[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnits(aSeq);
   }
 }

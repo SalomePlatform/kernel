@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -125,15 +125,12 @@ std::string SALOME_FileTransferCORBA::getLocalFile(std::string localFile)
       Engines::ContainerManager_var contManager = LCC.getContainerManager();
       Engines::ResourcesManager_var resManager = LCC.getResourcesManager();
 
-      Engines::MachineParameters params;
+      Engines::ContainerParameters params;
       LCC.preSet(params);
       params.container_name = _containerName.c_str();
-      params.hostname = _refMachine.c_str();
-
-      Engines::ContainerParameters new_params;
-      LCC.convert(params, new_params);
-      new_params.mode = CORBA::string_dup("findorstart");
-      container = contManager->GiveContainer(new_params);
+      params.resource_params.hostname = _refMachine.c_str();
+      params.mode = CORBA::string_dup("findorstart");
+      container = contManager->GiveContainer(params);
       if (CORBA::is_nil(container))
         {
           INFOS("machine " << _refMachine << " unreachable");

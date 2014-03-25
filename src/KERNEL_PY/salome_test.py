@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,7 +22,7 @@
 #
 
 print
-print "Perform quick test of the application by loading of the GEOM, SMESH, VISU, MED"
+print "Perform quick test of the application by loading of the GEOM, SMESH, MED, PARAVIS"
 print "components and doing some operation within the components."
 print
 
@@ -63,33 +63,14 @@ print "======================================================================"
 print "           %d. Check modules availability in the module catalog " % step; step+=1
 print "======================================================================"
 
-print
-print "--- Check GEOM ..."
-comp = catalog.GetComponent("GEOM")
-if not comp:
-    raise RuntimeError, "Component GEOM is not found in Module Catalog."
-print "OK"
-
-print
-print "--- Check SMESH ..."
-comp = catalog.GetComponent("SMESH")
-if not comp:
-    raise RuntimeError, "Component SMESH is not found in Module Catalog."
-print "OK"
-
-print
-print "--- Check MED ..."
-comp = catalog.GetComponent("MED")
-if not comp:
-    raise RuntimeError, "Component MED is not found in Module Catalog."
-print "OK"
-
-print
-print "--- Check VISU ..."
-comp = catalog.GetComponent("VISU")
-if not comp:
-    raise RuntimeError, "Component VISU is not found in Module Catalog."
-print "OK"
+for module in [ "GEOM", "SMESH", "MEDOPFactory", "PARAVIS"]:
+    print
+    print "--- Check %s ..." % module
+    comp = catalog.GetComponent(module)
+    if not comp:
+        raise RuntimeError, "Component %s is not found in Module Catalog." % module
+    print "OK"
+    pass
 
 print
 
@@ -130,7 +111,8 @@ print "======================================================================"
 print "           %d. Test Geometry " % step; step+=1
 print "======================================================================"
 
-import geompy
+from salome.geom import geomBuilder
+geompy = geomBuilder.New(salome.myStudy)
 
 ShapeTypeCompSolid = 1
 ShapeTypeSolid = 2
@@ -189,15 +171,16 @@ print "======================================================================"
 print "           %d. Test Mesh " % step; step+=1
 print "======================================================================"
 
-import StdMeshers
+from salome.StdMeshers import StdMeshersBuilder
 import SMESH
+from salome.smesh import smeshBuilder
 
 smesh = salome.lcc.FindOrLoadComponent("FactoryServer", "SMESH")
 if salome.hasDesktop():
     smeshgui = salome.ImportComponentGUI("SMESH")
     smeshgui.Init(salome.myStudyId);
 else:
-    smesh.SetCurrentStudy(salome.myStudy)
+    smesh = smeshBuilder.New(salome.myStudy)
 
 # ---- create hypotheses 
 
@@ -328,115 +311,143 @@ print "======================================================================"
 print "           %d. Test Med " % step; step+=1
 print "======================================================================"
 
-import SALOME_MED
+import xmed
+from xmed import properties
+from xmed.fieldproxy import FieldProxy
 
-medFileName = "pointe.med"
-medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
+xmed.setConsoleGlobals(globals())
 
-med_comp = salome.myStudy.FindComponent("MED")
+# Load some test data in the MedDataManager
+filepath  = properties.testFilePath
+xmed.dataManager.addDatasource(filepath)
+fieldHandlerList = xmed.dataManager.getFieldHandlerList()
 
-if not med_comp:
-    med  = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
+fieldHandler0 = fieldHandlerList[0]
+print "---Field Handler 0:\n%s" % fieldHandler0
+fieldHandler1 = fieldHandlerList[1]
+print "---Field Handler 1:\n%s" % fieldHandler1
 
-    print
-    print "--- Read med file structure from %s ..." % medFile
-    med.readStructFileWithFieldType(medFile, salome.myStudyName)
-    print "OK"
-    pass
+print "--- The addition of two fields can be done using field handler directly."
+addFieldHandler = xmed.calculator.add(fieldHandler0, fieldHandler1)
+print "--- Result handler:\n%s" % addFieldHandler
+
+print "--- Or with a field proxy that easy the writing of operations."
+fieldProxy0 = FieldProxy(fieldHandler0)
+fieldProxy1 = FieldProxy(fieldHandler1)
+
+resHandler = fieldProxy0 + fieldProxy1
+if resHandler is None:
+    print "Error: result handler is None!"
 else:
-    print
-    print "This script cannot work properly, because there is"
-    print "some MED component data already existing in the study."
-    print "Execution aborted."
-    print
-    print "Skipping test for MED..."
-    pass
+    print "--- Result handler:\n%s" % resHandler
+    print "OK"
 
 print
 
-print "======================================================================"
-print "           %d. Test Post-Pro " % step; step+=1
-print "======================================================================"
 
-import VISU
-
-aMeshName = "maa1"
-anEntity = VISU.NODE
-field_name = "fieldnodedouble"
+print "======================================================================"
+print "           %d. Test Paravis " % step; step+=1
+print "======================================================================"
 
 if salome.hasDesktop(): # in gui mode
-    
-    import visu_gui
-    visu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
 
-    if not med_comp:
+    print "**** Importing paravis... It can take some time."
+    from presentations import *
+    import paravis
+    import pvsimple
+    
+    my_paravis = paravis.myParavis
+    
+    #====================Stage1: Importing MED file====================
+    
+    print "**** Stage1: Importing MED file"
+    
+    print 'Import "ResOK_0000.med"...............',
+    medFileName = "ResOK_0000.med"
+    medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
+    my_paravis.ImportFile(medFile)
+    med_reader = pvsimple.GetActiveSource()
+    
+    if med_reader is None:
+        print "FAILED"
+    else:
+        print "OK"
+    
+    cell_entity = EntityType.CELL
+    node_entity = EntityType.NODE
+    
+    #====================Stage2: Displaying vector field===============
+    
+    print "**** Stage3: Displaying vector field"
+    
+    print 'Get view...................',
+    view = pvsimple.GetRenderView()
+    if view is None:
+        print "FAILED"
+    else:
+        reset_view(view)
+        print "OK"
+    
+    print "Creating Scalar Map.......",
+    scalarmap = ScalarMapOnField(med_reader, node_entity, 'vitesse', 2)
+    if scalarmap is None:
+        print "FAILED"
+    else:
+        bar = get_bar()
+        bar.Orientation = 'Horizontal'
+        bar.Position = [0.1, 0.1]
+        bar.Position2 = [0.1, 0.25]
+        bar.AspectRatio = 3
         
-        print
-        print "--- Get med object from study ..."
-        med_obj = visu_gui.visu.getMedObjectFromStudy()
-        if not med_obj:
-            raise RuntimeError, "Med object is not found in the study"
+        display_only(scalarmap, view)
+        print "OK"
+    
+    view.ResetCamera()
+    
+    print "Creating Vectors..........",
+    vectors = VectorsOnField(med_reader, node_entity, 'vitesse', 2)
+    if vectors is None:
+        print "FAILED"
+    else:
+        display_only(vectors, view)
+        print "OK"
+    
+    print "Creating Iso Surfaces.....",
+    isosurfaces = IsoSurfacesOnField(med_reader, node_entity, 'vitesse', 2)
+    if isosurfaces is None:
+        print "FAILED"
+    else:
+        display_only(isosurfaces, view)
+        print "OK"
+    
+    print "Creating Cut Planes.......",
+    cutplanes = CutPlanesOnField(med_reader, node_entity, 'vitesse', 2,
+                                 nb_planes=30, orientation=Orientation.YZ)
+    if cutplanes is None:
+        print "FAILED"
+    else:
+        display_only(cutplanes, view)
+        print "OK"
+    
+    print "Creating Scalar Map On Deformed Shape.......",
+    scalarmapondefshape = DeformedShapeAndScalarMapOnField(med_reader,
+                                                           node_entity,
+                                                           'vitesse', 2,
+                                                           None,
+                                                           cell_entity,
+                                                           'pression')
+    if scalarmapondefshape is None:
+        print "FAILED"
+    else:
+        display_only(scalarmapondefshape, view)
         print "OK"
 
-        print
-        print "--- Get field from study ..."
-        field = visu_gui.visu.getFieldObjectFromStudy(3,1)
-        if not field:
-            raise RuntimeError, "Field object is not found in the study"
-        print "OK"
-
-        print
-        print "--- Import field to the VISU ..."
-        aTimeStampId = -1
-        result1 = visu.ImportMedField(field)
-        if not result1:
-            raise RuntimeError, "Can't import field"
-        print "OK"
-
-        print
-        print "--- Create mesh presentation ..."
-        mesh1 = visu.MeshOnEntity(result1, aMeshName, anEntity);
-        if not mesh1:
-            raise RuntimeError, "Can't create mesh presentation"
-        print "OK"
-
-        print
-        print "--- Create scalar map ..."
-        scalarMap1 = visu.ScalarMapOnField(result1, aMeshName, anEntity, field_name, aTimeStampId)
-        if not scalarMap1:
-            raise RuntimeError, "Can't create scalar map"
-        print "OK"
-
-        pass # if not med_comp
-
-    print
-    print "--- Import med file %s to the VISU ..." % medFile
-    result2 = visu.ImportFile(medFile);
-    if not result2:
-        raise RuntimeError, "Can't import file"
-    print "OK"
-
-    print
-    print "--- Create mesh presentation ..."
-    mesh2 = visu.MeshOnEntity(result2, aMeshName, anEntity);
-    if not mesh2:
-        raise RuntimeError, "Can't create mesh presentation"
-    print "OK"
-
-    print
-    print "--- Create scalar map ..."
-    scalarMap2 = visu.ScalarMapOnField(result2, aMeshName, anEntity, field_name, 3)
-    if not scalarMap2:
-        raise RuntimeError, "Can't create scalar map"
-    print "OK"
-    pass
-
-else: # not in gui mode, visu can not be tested
+else: # not in gui mode, Paravis can not be tested
     
     print
-    print "VISU module requires SALOME to be running in GUI mode."
+    print "PARAVIS module requires SALOME to be running in GUI mode."
     print
-    print "Skipping test for VISU..."
+    print "Skipping test for PARAVIS..."
     pass
 
 # ---- update object browser

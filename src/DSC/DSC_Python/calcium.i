@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -146,7 +146,7 @@ const char* pytype_string(PyObject* py_obj) {
   if (PyModule_Check(  py_obj)) return "module"      ;
   if (PyInstance_Check(py_obj)) return "instance"    ;
 
-  return "unkown type";
+  return "unknown type";
 }
 
 /*
@@ -888,6 +888,7 @@ int  cp_cd(Superv_Component_i *component,char *instanceName);
 int cp_een(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
 int cp_edb(Superv_Component_i *component,int dep,double t,int n,char *nom,int nval,double *eval);
 int cp_ere(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
+int cp_erd(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
 int cp_ecp(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *ecpval);
 int cp_elo(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
 int cp_ech(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,char** eval,int strSize);
@@ -898,6 +899,7 @@ int cp_eln(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nv
 int cp_len(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
 int cp_ldb(Superv_Component_i *component,int dep,double *ti,double *tf,int *niter,char *nom,int nmax,int *nval,double *lval);
 int cp_lre(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
+int cp_lrd(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
 int cp_lcp(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lcpval);
 int cp_llo(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
 int cp_lch(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,char** lval,int strSize);

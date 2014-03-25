@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -62,7 +62,8 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Append(SALOMEDS::SObject_ptr theObject
 {
   SALOMEDS::Locker lock;
   if(!_impl || theObject->_is_nil()) return 0;
-  return _impl->Append(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  return _impl->Append(_impl->GetSObject(  id.in() ));
 }
 
  //============================================================================
@@ -74,7 +75,8 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Remove(SALOMEDS::SObject_ptr theObject
 {
   SALOMEDS::Locker lock;
   if(!_impl || theObject->_is_nil()) return 0;
-  return _impl->Remove(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  return _impl->Remove(_impl->GetSObject( id.in() ));
 }
 
 
@@ -88,7 +90,9 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFath
 {
   SALOMEDS::Locker lock;
   if(!_impl || theFather->_is_nil() || theObject->_is_nil()) return 0;
-  return _impl->AppendTo(_impl->GetSObject(theFather->GetID()), _impl->GetSObject(theObject->GetID()));
+  CORBA::String_var idF = theFather->GetID();
+  CORBA::String_var idO = theObject->GetID();
+  return _impl->AppendTo(_impl->GetSObject(idF.in()), _impl->GetSObject( idO.in()));
 }
 
 //============================================================================
@@ -101,7 +105,9 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::InsertBefore(SALOMEDS::SObject_ptr the
 {
   SALOMEDS::Locker lock;
   if(!_impl || theFirst->_is_nil() || theNext->_is_nil()) return 0;
-  return _impl->InsertBefore(_impl->GetSObject(theFirst->GetID()), _impl->GetSObject(theNext->GetID()));
+  CORBA::String_var idF = theFirst->GetID();
+  CORBA::String_var idN = theNext->GetID();
+  return _impl->InsertBefore(_impl->GetSObject(idF.in()), _impl->GetSObject(idN.in()));
 }
 
 
@@ -114,7 +120,8 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetCurrentObject(SALOMEDS::SObject_ptr
 {
   SALOMEDS::Locker lock;
   if(!_impl || theObject->_is_nil()) return 0;
-  return _impl->SetCurrentObject(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  return _impl->SetCurrentObject(_impl->GetSObject( id.in()));
 }
 
 //============================================================================
@@ -138,7 +145,21 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::HasChildren(SALOMEDS::SObject_ptr theO
 {
   SALOMEDS::Locker lock;
   if(!_impl) return 0;
-  return _impl->HasChildren(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  return _impl->HasChildren(_impl->GetSObject( id.in()));
+}
+
+//============================================================================
+/*! Function : SortChildren
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SortChildren(SALOMEDS::SObject_ptr theObject, CORBA::Boolean theAscendingOrder)
+{
+  SALOMEDS::Locker lock;
+  if(!_impl) return 0;
+  CORBA::String_var id = theObject->GetID();
+  return _impl->SortChildren(_impl->GetSObject( id.in()), theAscendingOrder);
 }
 
 //============================================================================
@@ -151,7 +172,8 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetFather(SALOMEDS::SObject_ptr
   SALOMEDS::Locker lock; 
 
   if(!_impl) return NULL;
-  SALOMEDSImpl_SObject aSO = _impl->GetFather(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  SALOMEDSImpl_SObject aSO = _impl->GetFather(_impl->GetSObject( id.in()));
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
@@ -165,7 +187,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetName(const char* theName)
 {
   SALOMEDS::Locker lock;
   if(!_impl) return 0;
-  return _impl->SetName((char*)theName);
+  return _impl->SetName(theName);
 }
 
 
@@ -205,7 +227,8 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCase(SALOMEDS::SObject_ptr theObj
   SALOMEDS::Locker lock;
   
   if(!_impl || theObject->_is_nil()) return false;
-  return _impl->IsUseCase(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  return _impl->IsUseCase(_impl->GetSObject( id.in() ));
 }
 
 //============================================================================ 
@@ -218,7 +241,8 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCaseNode(SALOMEDS::SObject_ptr th
   SALOMEDS::Locker lock;
   
   if(!_impl || theObject->_is_nil()) return false;
-  return _impl->IsUseCaseNode(_impl->GetSObject(theObject->GetID()));
+  CORBA::String_var id = theObject->GetID();
+  return _impl->IsUseCaseNode(_impl->GetSObject( id.in() ));
 }
 
 //============================================================================ 
@@ -247,9 +271,12 @@ SALOMEDS::UseCaseIterator_ptr SALOMEDS_UseCaseBuilder_i::GetUseCaseIterator(SALO
   
   if(!_impl) return SALOMEDS::UseCaseIterator::_nil();
   SALOMEDSImpl_UseCaseIterator anItr;
-  if(!CORBA::is_nil(theObject)) anItr = _impl->GetUseCaseIterator(_impl->GetSObject(theObject->GetID()));
+  if(!CORBA::is_nil(theObject)) {
+    CORBA::String_var id = theObject->GetID();
+    anItr = _impl->GetUseCaseIterator(_impl->GetSObject( id.in()));
+  }
   else anItr = _impl->GetUseCaseIterator(SALOMEDSImpl_SObject());
   SALOMEDS_UseCaseIterator_i* aServant = new SALOMEDS_UseCaseIterator_i(anItr, _orb);
-  SALOMEDS::UseCaseIterator_var anIterator = SALOMEDS::UseCaseIterator::_narrow(aServant->_this());
+  SALOMEDS::UseCaseIterator_var anIterator = aServant->_this();
   return anIterator._retn(); 
 }

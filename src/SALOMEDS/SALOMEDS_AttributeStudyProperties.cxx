@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -318,4 +318,50 @@ std::string SALOMEDS_AttributeStudyProperties::GetUnits()
   else 
     anUnits = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUnits();
   return anUnits;
+}
+
+std::vector<std::string> SALOMEDS_AttributeStudyProperties::GetStoredComponents()
+{
+  std::vector<std::string> aComponents;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aComponents = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetStoredComponents();
+  }
+  else {
+    SALOMEDS::StringSeq_var components = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetStoredComponents();
+    int length = components->length();
+    for (int i = 0; i < length; i++) {
+      aComponents.push_back(components[i].in());
+    }
+  }
+  return aComponents;
+}
+
+std::string SALOMEDS_AttributeStudyProperties::GetComponentVersion( const std::string& theComponent )
+{
+  std::string aVersion;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aVersion = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetComponentVersion(theComponent);
+  }
+  else 
+    aVersion = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetComponentVersion(theComponent.c_str());
+  return aVersion;
+}
+
+std::vector<std::string> SALOMEDS_AttributeStudyProperties::GetComponentVersions( const std::string& theComponent )
+{
+  std::vector<std::string> aVersions;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aVersions = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetComponentVersions(theComponent);
+  }
+  else {
+    SALOMEDS::StringSeq_var versions = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetComponentVersions(theComponent.c_str());
+    int length = versions->length();
+    for (int i = 0; i < length; i++) {
+      aVersions.push_back(versions[i].in());
+    }
+  }
+  return aVersions;
 }

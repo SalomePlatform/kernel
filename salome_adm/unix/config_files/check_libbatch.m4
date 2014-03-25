@@ -1,9 +1,12 @@
-dnl Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl
+dnl Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+dnl CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public
 dnl License as published by the Free Software Foundation; either
-dnl version 2.1 of the License.
+dnl version 2.1 of the License, or (at your option) any later version.
 dnl
 dnl This library is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,14 +21,14 @@ dnl See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.
 dnl
 
 # CHECK_LIBBATCH
-# This macro can be used to find libBatch and set the associated variables in
+# This macro can be used to find libbatch and set the associated variables in
 # a project based on autoconf. You can copy this file in your own project and
 # eventually modify it according to your own needs.
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([CHECK_LIBBATCH],[
 
-AC_MSG_NOTICE(Checking for libBatch library)
+AC_MSG_NOTICE(Checking for libbatch library)
 
 AC_SUBST(LIBBATCH_INCLUDES)
 AC_SUBST(LIBBATCH_LIBS)
@@ -55,27 +58,27 @@ LOCAL_LIBS=""
 if test "x$LIBBATCH_DIR" != "x" ; then
   LOCAL_INCLUDES="-I$LIBBATCH_DIR/include"
   if test "x$LIBBATCH_DIR" = "x/usr" ; then
-    LOCAL_LIBS="-lBatch"
+    LOCAL_LIBS="-lbatch"
   else
-    LOCAL_LIBS="-L$LIBBATCH_DIR/lib -lBatch"
+    LOCAL_LIBS="-L$LIBBATCH_DIR/lib -lbatch"
   fi
 else
   LOCAL_INCLUDES="-I/usr/include"
-  LOCAL_LIBS="-lBatch"
+  LOCAL_LIBS="-lbatch"
 fi
 
-# libBatch headers
+# libbatch headers
 
 CPPFLAGS_old="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
-AC_CHECK_HEADER(Batch/Batch_BatchManager.hxx,
+AC_CHECK_HEADER(libbatch/BatchManager.hxx,
 				libbatch_ok="yes",
 				libbatch_ok="no")
 CPPFLAGS="$CPPFLAGS_old"
 
 
 if  test "x$libbatch_ok" = "xyes" ; then
-  # libBatch library
+  # libbatch library
 
   LIBS_old=$LIBS
   LIBS="$LIBS $LOCAL_LIBS"
@@ -106,6 +109,6 @@ if test "x$libbatch_ok" = "xyes" ; then
   LIBBATCH_LIBS="$LOCAL_LIBS"
 fi
 
-AC_MSG_RESULT(for libBatch: $libbatch_ok)
+AC_MSG_RESULT(for libbatch: $libbatch_ok)
 
 ])

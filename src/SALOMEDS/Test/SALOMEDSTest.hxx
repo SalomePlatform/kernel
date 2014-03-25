@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,7 +28,17 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDSTest : public CppUnit::TestFixture
+#ifdef WIN32
+# if defined SALOMEDSTEST_EXPORTS || defined SALOMEDSTest_EXPORTS
+#  define SALOMEDSTEST_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSTEST_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSTEST_EXPORT
+#endif
+
+class SALOMEDSTEST_EXPORT SALOMEDSTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( SALOMEDSTest );
 
@@ -130,7 +140,7 @@ CORBA::ORB_var             _orb;
 
 
 
-class SALOMEDSTest_Embedded : public SALOMEDSTest
+class SALOMEDSTEST_EXPORT SALOMEDSTest_Embedded : public SALOMEDSTest
 {
   CPPUNIT_TEST_SUITE( SALOMEDSTest_Embedded );
 

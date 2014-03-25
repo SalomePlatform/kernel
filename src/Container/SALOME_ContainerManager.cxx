@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -36,7 +36,10 @@
 #include <sstream>
 #include <string>
 
-#ifdef WNT
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_Session)
+
+#ifdef WIN32
 #include <process.h>
 #define getpid _getpid
 #endif
@@ -187,6 +190,17 @@ void SALOME_ContainerManager::Shutdown()
 void SALOME_ContainerManager::ShutdownContainers()
 {
   MESSAGE("ShutdownContainers");
+
+  SALOME::Session_var session = SALOME::Session::_nil();
+  CORBA::Long pid = 0;
+  CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
+  if (!CORBA::is_nil(objS))
+  {
+    session = SALOME::Session::_narrow(objS);
+    if (!CORBA::is_nil(session))
+      pid = session->getPID();
+  }
+
   bool isOK;
   isOK = _NS->Change_Directory("/Containers");
   if( isOK ){
@@ -199,7 +213,7 @@ void SALOME_ContainerManager::ShutdownContainers()
         try
           {
             Engines::Container_var cont=Engines::Container::_narrow(obj);
-            if(!CORBA::is_nil(cont))
+            if(!CORBA::is_nil(cont) && pid != cont->getPID())
               lstCont.push_back((*iter));
           }
         catch(const CORBA::Exception& e)
@@ -283,6 +297,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
 
   // Step 2: Get all possibleResources from the parameters
+  // Consider only resources that can run containers
+  local_params.resource_params.can_run_containers = true;
   Engines::ResourceList_var possibleResources = _ResManager->GetFittingResources(local_params.resource_params);
   MESSAGE("[GiveContainer] - length of possible resources " << possibleResources->length());
   std::vector<std::string> local_resources;
@@ -499,7 +515,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     command += " ";
     ASSERT(getenv("NSPORT"));
     command += getenv("NSPORT"); // port of CORBA name server
-    command += " ls /tmp";
+    command += " \"ls /tmp >/dev/null 2>&1\"";
 
     // Launch remote command
     int status = system(command.c_str());
@@ -537,7 +553,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
 
   //redirect stdout and stderr in a file
-#ifdef WNT
+#ifdef WIN32
   std::string logFilename=getenv("TEMP");
   logFilename += "\\";
   std::string user = getenv( "USERNAME" );
@@ -561,7 +577,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
   logFilename += tmp.str();
   logFilename += ".log" ;
   command += " > " + logFilename + " 2>&1";
-#ifdef WNT
+#ifdef WIN32
   command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
 #else
   command += " &";
@@ -690,6 +706,7 @@ bool isPythonContainer(const char* ContainerName);
 //=============================================================================
 bool isPythonContainer(const char* ContainerName)
 {
+  return false; // VSR 02/08/2013: Python containers are no more supported
   bool ret = false;
   int len = strlen(ContainerName);
 
@@ -1293,7 +1310,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
     command << "pbsdsh -o -h " << hostname << " ";
     break;
   case blaunch:
-    command << "blaunch " << hostname << " ";
+    command << "blaunch -no-shell " << hostname << " ";
     break;
   default:
     throw SALOME_Exception("Unknown protocol");

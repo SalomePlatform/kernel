@@ -1,9 +1,9 @@
-# Copyright (C) 2011-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2011-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,6 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup pyscript_utils pyscript_utils
+#  \{ 
+#  \details
+#  This module provides utility functions for the computation codes intended for
+#  use in parametric studies. The computation codes must be implemented as a
+#  Python script or function to use these functions. If the computation code is
+#  implemented as a %SALOME component, use module 
+#  <a href="group__compo__utils.html">salome.kernel.parametric.compo_utils</a> instead. 
+#  \}
+
 """
 This module provides utility functions for the computation codes intended for
 use in parametric studies. The computation codes must be implemented as a
@@ -25,6 +35,17 @@ implemented as a SALOME component, use module
 :mod:`salome.kernel.parametric.compo_utils` instead. 
 """
 
+## This function returns a dictionary containing the input values to be used
+#  in the computation code.
+#
+#  \param deterministic_dict (dict) dictionary containing the fixed values (i.e.
+#  non-parametric). This dictionary can be empty if all variables are parametric.
+#
+#  \param parametric_input (dict) dictionary containing the description and values
+#  of the parametric variables.
+#
+#  \return a dictionary containing the input values for the computation code.
+#  \ingroup pyscript_utils
 def create_input_dict(deterministic_dict, parametric_input):
     """
     This function returns a dictionary containing the input values to be used
@@ -53,6 +74,19 @@ def create_input_dict(deterministic_dict, parametric_input):
 
     return input_dict
 
+## This function returns a dictionary describing the output of the
+#  computation code in parametric studies.
+#
+#  \param output_dict (dict) dictionary containing the output values of the
+#  computation code (the keys are the variable names, the
+#  values are the variable values).
+#
+#  \param parametric_input (dict) dictionary containing the description and values
+#  of the parametric variables.
+#
+#  \return a dictionary containing the representation of the output of the
+#  computation code.
+#  \ingroup pyscript_utils
 def create_normal_parametric_output(output_dict, parametric_input):
     """
     This function returns a dictionary describing the output of the
@@ -78,6 +112,13 @@ def create_normal_parametric_output(output_dict, parametric_input):
             "returnCode" : 0,
             "errorMessage" : ""}
 
+## This function returns a dictionary describing the output of the
+#  computation code in parametric studies in case of error.
+#
+#  \param error_message (string) the error message.
+#
+#  \return a dictionary describing the error.
+#  \ingroup pyscript_utils
 def create_error_parametric_output(error_message):
     """
     This function returns a dictionary describing the output of the

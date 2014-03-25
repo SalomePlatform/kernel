@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,41 +32,6 @@
 
 #include <iostream> 
 #include <stdio.h>
-#include <boost/shared_ptr.hpp> 
-
-template<class T> class df_shared_ptr: public boost::shared_ptr<T>
-{
-public:
-  df_shared_ptr() {}
-  
-  template<class Y>
-    explicit df_shared_ptr(Y * p)
-      {
-        boost::shared_ptr<T>::reset(p);
-      }
-  
-  template<class Y>
-    df_shared_ptr(df_shared_ptr<Y> const & r):
-      boost::shared_ptr<T>(r,boost::detail::dynamic_cast_tag())
-        {}
-  
-  template<class Y>
-    df_shared_ptr & operator=(df_shared_ptr<Y> const & r)
-      {
-        df_shared_ptr<T>(r).swap(*this);
-        return *this;
-      }
-  
-  template<class Y> df_shared_ptr& operator()(Y * p) // Y must be complete
-    {
-      if(T* pt = dynamic_cast<T*>(p))
-        boost::shared_ptr<T>::reset(pt);
-      else
-        boost::throw_exception(std::bad_cast());
-      return *this;
-    }
-    
-};
 
 # if defined(WIN32) && !defined(HAVE_NO_DLL)
 

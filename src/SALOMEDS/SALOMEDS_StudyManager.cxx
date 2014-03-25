@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,8 +29,8 @@
 #include "SALOMEDS.hxx"
 #include "SALOMEDS_Study.hxx"
 #include "SALOMEDS_SObject.hxx"
-
 #include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDS_SimanStudy.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
 
@@ -317,10 +317,31 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
     std::string IOREngine = aSCO.GetIOR();
     if(!IOREngine.empty()) {
       CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
-      SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
+      Engines::EngineComponent_var Engine = Engines::EngineComponent::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }
   }
 
   return driver;
+}
+
+_PTR(SimanStudy) SALOMEDS_StudyManager::GetSimanStudy()
+{
+  SALOMEDSClient_SimanStudy* aSiman = NULL;
+  /*if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    SALOMEDSImpl_SimanStudy* aSiman_impl = _local_impl->GetSimanStudy();
+    if(!aSiman_impl) return _PTR(SimanStudy)(aSiman);
+    aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
+  }
+  else { 
+    SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
+    if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
+    aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
+  }*/
+  SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
+  if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
+  aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
+  return _PTR(SimanStudy)(aSiman);
 }

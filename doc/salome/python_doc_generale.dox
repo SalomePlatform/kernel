@@ -1,0 +1,45 @@
+/*!
+
+\page python_doc_generale General presentation of the KERNEL python package
+
+The KERNEL python package essentially contains:
+
+- Helper functions to manipulate KERNEL objects from python. For
+  example, the <b>studyedit.py</b> module facilitates the
+  manipulation of components and items in %SALOME study.
+- General purpose functions for logging and other recurrent
+  stuff in python programming.
+
+Note that these functions either encapsulate the python programming
+interface of KERNEL core (the CORBA or SWIG interfaces for example) or
+extend existing utilities as the <b>salome*.py</b> modules.
+
+The functions are distributed in the python package
+<a href="group__salome__kernel.html">salome.kernel</a>. For example, the usage 
+of the study editor to manipulate some objects can be done with a set 
+of instructions as:
+
+\code
+from salome.kernel.studyedit import getStudyEditor
+
+studyEditor = getStudyEditor()  # Get an editor for the current study
+ 
+myStudyComponent = studyEditor.findOrCreateComponent( moduleName,
+                                                      componentName,
+                                                      componentIcon )
+myStudyItem = studyEditor.createItem( myStudyComponent,
+                                      itemName,
+                                      comment = itemComment,
+                                      icon = itemIcon )
+\endcode
+
+The specification of the programming interface of this package is
+detailed in the part \ref python_doc_api of this documentation.
+
+\note 
+The main package \b salome contains other sub-packages that are
+distributed with the other %SALOME modules. For example, the GEOM
+module provides the python package \b salome.geom and SMESH the
+package \b salome.smesh.
+
+*/

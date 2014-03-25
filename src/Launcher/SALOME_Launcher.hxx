@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,7 +26,7 @@
 #include "SALOME_Launcher_defs.hxx"
 
 #include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include CORBA_CLIENT_HEADER(SALOME_Launcher)
 #include "Launcher.hxx"
 
 #include <string>
@@ -49,6 +49,7 @@ public:
   CORBA::Long createJob    (const Engines::JobParameters & job_parameters);
   void        launchJob    (CORBA::Long job_id);
   char *      getJobState  (CORBA::Long job_id);
+  char *      getAssignedHostnames  (CORBA::Long job_id); // Get names or ids of hosts assigned to the job
   void        getJobResults(CORBA::Long job_id, const char * directory);
   CORBA::Boolean getJobDumpState(CORBA::Long job_id, const char * directory);
   void        stopJob      (CORBA::Long job_id);

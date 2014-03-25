@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -376,10 +376,10 @@ during each working session.
 
 /*! \brief Get a default Python script to restore visual parameters for given %theModuleName.
 
-    \param theID identifies a common parameters set (Example: "Interface Applicative")
     \param theModuleName is a name of the module (Example: "Geometry")
+    \param indent is a string to use for script indentation
 */
-    string GetDefaultScript(in string theID, in string theModuleName);
+    string GetDefaultScript(in string theModuleName, in string indent);
 
 /*!
     Private method, returns an implementation of this Study.
@@ -552,10 +552,81 @@ during each working session.
 /*!
      Attach an observer to the Study
 
-    \param theObserver
+    \param theObserver observer being attached
+    \param modify when \c true, observer receives any object's modification events;
+           otherwise observer receives object's creation events only
 */
      void attach(in SALOMEDS::Observer theObserver, in boolean modify);   
+/*!
+     Detach an observer from the Study
+
+    \param theObserver observer to be detached
+*/
+     void detach(in SALOMEDS::Observer theObserver);   
   };
+
+  //===========================================================================
+ /*! \brief %SimanStudy Interface
+
+    The Siman (simulation management) study is an interface extension to the %Study
+    with functions for working with SIMAN server. Is allows to get data from SIMAN (check-out operation)
+    and to store it back (check-in operation).
+    This interface is correctly working if SALOME is compiled with SimanIO library, launched with siman
+    option and  connection to SIMAN server is established and alive. Only one study per application,
+    checked out from the SIMAN is SimanStudy. For other studies all functionality is unaccessible.
+*/
+
+  interface SimanStudy
+  {
+
+//! No connection with SIMAN server
+    exception SimanStudyNoConnection {};
+//! There is no SimanStudy with: study with checked out data.
+    exception SimanStudyNotExists {};
+
+/*! \brief The ID of the study in SIMAN server
+
+   This is equivalent to the methods setStudyId() & getStudyId()
+*/
+    attribute string      StudyId;
+    
+/*! \brief The ID of the scenario in SIMAN server
+
+   This is equivalent to the methods setScenarioId() & getScenarioId()
+*/
+    attribute string      ScenarioId;
+/*! \brief The ID of the user in SIMAN server
+
+   This is equivalent to the methods setUserId() & getUserId()
+*/
+    attribute string      UserId;
+
+/*! \brief Get data from SIMAN and put it to the given study
+
+   This method is called for just created study to make it referenced
+   by this Siman study. Also it fills this study by the checked out
+   data from SIMAN server.
+   Warning: StudyID, ScenarioID and User Id must be set before calling of this method!
+
+   \param theTarget referenced study for checking out
+*/
+    void CheckOut(in Study theTarget);
+
+/*! \brief Get data from the source study and store in SIMAN
+    
+    It works only with already checked out study.
+    \param theModuleName name of the module the check in must be perfrormed for. If empty, check in is performed for all modules.
+*/
+    void CheckIn(in string theModuleName);
+
+/*! \brief Returns the %Study with checked out data
+
+   If study is null, there is no such study in this application instance, or Salome was
+   launched without siman option.
+*/
+    Study getReferencedStudy();
+
+};
 
   //==========================================================================
 /*! \brief %Study Builder Interface
@@ -985,6 +1056,12 @@ Gets the list of open studies
 */
     long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
 
+/*! \brief Returns the siman study based on the given study.
+	    
+    Creates a new Siman study, or returns just a previously created.
+    \return Siman study, or none if it is not siman mode
+*/
+    SimanStudy GetSimanStudy();
 
   };
 
@@ -1319,6 +1396,10 @@ Activates the %UseCaseIterator.
    Returns True if the given object <VAR>theObject</VAR> of the use case has child objects.
 */
     boolean HasChildren(in SObject theObject);
+/*!
+   Returns True if children of the given object <VAR>theObject</VAR> of the use case tree were sorted successfully.
+*/
+    boolean SortChildren(in SObject theObject, in boolean theAscendingOrder);
 /*!
    Gets father object of the given object <VAR>theObject</VAR> in the use cases tree.
 */

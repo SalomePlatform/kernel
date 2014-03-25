@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -8,7 +8,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,38 +37,40 @@ def getNSparams(info=""):
     from salome_utils import getORBcfgInfo
     my_version, my_host, my_port = getORBcfgInfo()
     if info=='host':
-        # keep print, stdout used in shell
-        print my_host
         os.environ['NSHOST']=my_host
         return my_host
         pass
     elif info=='port':
-        # keep print, stdout used in shell
-        print my_port
         os.environ['NSPORT']=my_port
         return my_port
         pass
     else:
-        # keep print, stdout used in shell
-        print  my_host, my_port
         return my_host, my_port
     pass
+#
 
 # ------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    if len(sys.argv) >1:        
+    if len(sys.argv) >1:
         if sys.argv[1]=='host':
-            getNSparams('host')
+            my_host = getNSparams('host')
+            # keep print, stdout used in shell
+            print my_host
             pass
         elif sys.argv[1]=='port':
-            getNSparams('port')
+            my_port = getNSparams('port')
+            # keep print, stdout used in shell
+            print my_port
             pass
         else:
-            getNSparams()
+            my_host, my_port = getNSparams()
             pass
         pass
     else:
         getNSparams()
+        # keep print, stdout used in shell
+        print my_host, my_port
         pass
     pass
+#

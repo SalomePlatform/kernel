@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -33,7 +33,6 @@ from launchConfigureParser import verbose
 
 # Import the stubs for the Naming service
 import CosNaming
-#from runNS import *
 
 # -----------------------------------------------------------------------------
 
@@ -41,10 +40,9 @@ class client:
    """Client for SALOME"""
 
    def __init__(self,args=None):
-      #set GIOP message size for bug 10560: impossible to get field values in TUI mode
-      sys.argv.extend(["-ORBgiopMaxMsgSize", "104857600"]) ## = 100 * 1024 * 1024
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
+
       # Initialise the Naming Service
       self.initNS(args or {})
 
@@ -59,7 +57,7 @@ class client:
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           self.rootContext = None
           if verbose(): print "Launch Naming Service++",
-          
+
       # On lance le Naming Server (doit etre dans le PATH)
       test = True
       if args['wake_up_session']:
@@ -142,14 +140,14 @@ class client:
           count += 1
           if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
           obj=self.Resolve(name)
-          if obj : 
+          if obj :
               print " found in %s seconds " % ((count-1)*delta)
               break
           else:
               sys.stdout.write('+')
               sys.stdout.flush()
               time.sleep(delta)
- 
+
       if typobj is None:return obj
 
       nobj = obj._narrow(typobj)
@@ -170,7 +168,7 @@ class client:
            raise RuntimeError, "Process %d for %s not found" % (thePID,theName)
          aCount += 1
          anObj = self.Resolve(theName)
-         if anObj: 
+         if anObj:
             print " found in %s seconds " % ((aCount-1)*aDelta)
             break
          else:
@@ -179,7 +177,7 @@ class client:
             time.sleep(aDelta)
             pass
          pass
-      
+
       if theTypObj is None:
          return anObj
 
@@ -206,7 +204,7 @@ class client:
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
       return obj
-   
+
    # --------------------------------------------------------------------------
 
    def waitLogger(self,name,typobj=None,maxcount=40):
@@ -217,18 +215,17 @@ class client:
           count += 1
           if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
           obj=self.ResolveLogger(name)
-          if obj : 
+          if obj :
               print " found in %s seconds " % ((count-1)*delta)
               break
           else:
               sys.stdout.write('+')
               sys.stdout.flush()
               time.sleep(delta)
- 
+
       if typobj is None:return obj
 
       nobj = obj._narrow(typobj)
       if nobj is None:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
-

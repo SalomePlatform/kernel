@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,6 +30,7 @@
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDS_SimanStudy_i.hxx"
 #include "SALOMEDS.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
@@ -89,6 +90,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
   delete _name_service;
   delete _factory;
   delete _impl;
+  delete SALOMEDS_SimanStudy_i::GetSimanServant(_orb);
 }
 
 //============================================================================
@@ -176,7 +178,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
-  else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
+  else _name_service->Register(Study, aStudyImpl->Name().c_str());
 
   return Study._retn();
 }
@@ -451,7 +453,7 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
     std::string IOREngine = aSCO.GetIOR();
     if(!IOREngine.empty()) {
       CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
-      SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
+      Engines::EngineComponent_var Engine = Engines::EngineComponent::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }
   }
@@ -476,6 +478,19 @@ CORBA::Long SALOMEDS_StudyManager_i::getPID()
 void SALOMEDS_StudyManager_i::ShutdownWithExit()
 {
   exit( EXIT_SUCCESS );
+}
+
+//============================================================================
+/*! Function : GetSimanStudy
+ *  Purpose  : Retruns the created or cashed SimanStudy
+ */
+//============================================================================
+SALOMEDS::SimanStudy_ptr SALOMEDS_StudyManager_i::GetSimanStudy()
+{
+  SALOMEDS::Locker lock;
+
+  SALOMEDS_SimanStudy_i* aSiman_servant = SALOMEDS_SimanStudy_i::GetSimanServant(_orb);
+  return aSiman_servant->_this();
 }
 
 //===========================================================================

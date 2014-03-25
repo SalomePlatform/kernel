@@ -1,0 +1,7 @@
+/*!
+  \page python_documentation Documentation of the KERNEL python package
+
+  - \subpage python_doc_generale
+  - \subpage python_doc_api
+  - \subpage python_doc_compl
+*/

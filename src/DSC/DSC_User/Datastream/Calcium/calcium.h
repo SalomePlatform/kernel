@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -168,6 +168,29 @@ extern int      cp_lre(
                 /*     valeurs lues                             */
 #endif
 );
+
+extern int      cp_lrd(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance ou de lecture         */
+                /*     CP_TEMPS, CP_ITERATION, CP_SEQUENTIEL    */,
+        float * /* E/S Borne inf de l'intervalle de lecture     */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        float * /* E   Borne Sup de l'intervalle de lecture     */,
+        int   * /* E/S Pas d'iteration a lire                   */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        char  * /* E   Nom de la variable a lire                */,
+        int     /* E   Nombre max de valeurs a lire             */,
+        int   * /* S   Nombre de valeurs rellement lues         */,
+        float * /* S   Tableau de flottants pour stocker les    */
+                /*     valeurs lues                             */
+#endif
+);
+
 
 extern int      cp_ldb(
 /*              ------                                          */
@@ -469,6 +492,22 @@ extern int      cp_ere(
         float * /* E   Tableau de flottants a ecrire            */
 #endif
 );
+
+extern int      cp_erd(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance                       */
+                /*     CP_TEMPS, CP_ITERATION                   */,
+        float   /* E   Pas de temps a ecrire                    */,
+        int     /* E   Pas d'iteration a ecrire                 */,
+        char  * /* E   Nom de la variable a ecrire              */,
+        int     /* E   Nombre de valeurs a ecrire               */,
+        float * /* E   Tableau de flottants a ecrire            */
+#endif
+);
+
 
 extern int      cp_edb(
 /*              ------                                          */

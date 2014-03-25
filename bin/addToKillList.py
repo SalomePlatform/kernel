@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -8,7 +8,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -36,7 +36,7 @@ def findFileDict():
     port = getPortNumber()
     if verbose(): print "myport = ", port
     return port
-    
+
 def addToKillList(command_pid, command, port=None):
     """
     Add the process to the SALOME processes dictionary file.
@@ -49,11 +49,15 @@ def addToKillList(command_pid, command, port=None):
     # retrieve current processes dictionary
     from killSalomeWithPort import getPiDict
     if port is None: port=findFileDict()
-    filedict=getPiDict(port)
     try:
-        fpid=open(filedict, 'r')
-        process_ids=pickle.load(fpid)
-        fpid.close()
+        import PortManager
+        filedict = getPiDict(port, hidden=True, with2809pid=True)
+    except:
+        filedict=getPiDict(port)
+
+    try:
+        with open(filedict, 'r') as fpid:
+            process_ids=pickle.load(fpid)
     except:
         process_ids=[]
         pass
@@ -77,9 +81,8 @@ def addToKillList(command_pid, command, port=None):
             process_ids.append({int(command_pid): [command]})
             dir = os.path.dirname(filedict)
             if not os.path.exists(dir): os.makedirs(dir, 0777)
-            fpid = open(filedict,'w')
-            pickle.dump(process_ids, fpid)
-            fpid.close()
+            with open(filedict,'w') as fpid:
+                pickle.dump(process_ids, fpid)
         except:
             if verbose(): print "addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command )
             pass
@@ -100,9 +103,8 @@ def killList(port=None):
     # provide compatibility with old-style pidict file (not dot-prefixed)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
     try:
-        fpid=open(filedict, 'r')
-        process_ids=pickle.load(fpid)
-        fpid.close()
+        with open(filedict, 'r') as fpid:
+            process_ids=pickle.load(fpid)
     except:
         process_ids=[]
         pass
@@ -110,7 +112,6 @@ def killList(port=None):
     for process_id in process_ids:
         #print process_id
         for pid, cmd in process_id.items():
-            print "stop process %s : %s"% (pid, cmd[0])
             try:
                 os.kill(int(pid),signal.SIGKILL)
             except:

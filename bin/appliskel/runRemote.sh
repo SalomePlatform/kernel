@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -50,15 +50,12 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
+export NSHOST=$1
+export NSPORT=$2
 
-OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_$1_$2.cfg
-export OMNIORB_CONFIG
-NSHOST=$1
-export NSHOST
-NSPORT=$2
-export NSPORT
-initref="NameService=corbaname::"$1":$2"
-echo "InitRef = $initref" > $OMNIORB_CONFIG
+# Get (in bash) the configuration filename from (Python) ORBConfigFile return values
+RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${OMNIORB_USER_PATH} ${NSHOST} ${NSPORT} with_username=${USER})
+export OMNIORB_CONFIG=$(echo ${RETURN_VALUES} | cut -d' ' -f1)
 
 #go to the requested working directory if any
 if test "x$3" == "xWORKINGDIR"; then

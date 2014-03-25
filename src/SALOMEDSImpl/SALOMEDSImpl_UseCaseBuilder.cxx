@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,9 +32,42 @@
 
 #include "DF_ChildIterator.hxx"
 
+#include <list>
+
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"
 
+namespace {
+  // comparator to sort use case nodes in ascending order
+  struct AscSortSOs {
+    bool operator()( SALOMEDSImpl_SObject firstSO, SALOMEDSImpl_SObject secondSO ) const {
+      std::string firstName, secondName;
+      SALOMEDSImpl_SObject refSO;
+      firstSO.ReferencedObject(refSO) ? 
+	firstName = refSO.GetName() : 
+	firstName = firstSO.GetName();
+      secondSO.ReferencedObject(refSO) ? 
+	secondName = refSO.GetName() : 
+	secondName = secondSO.GetName();
+      return firstName < secondName;
+    }
+  };
+
+  // comparator to sort use case nodes in descending order
+  struct DescSortSOs {
+    bool operator()( SALOMEDSImpl_SObject firstSO, SALOMEDSImpl_SObject secondSO ) const {
+      std::string firstName, secondName;
+      SALOMEDSImpl_SObject refSO;
+      firstSO.ReferencedObject(refSO) ? 
+	firstName = refSO.GetName() : 
+	firstName = firstSO.GetName();
+      secondSO.ReferencedObject(refSO) ? 
+	secondName = refSO.GetName() : 
+	secondName = secondSO.GetName();
+      return firstName > secondName;
+    }
+  };
+}
 
 //============================================================================
 /*! Function : constructor
@@ -160,7 +193,7 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
   DF_Label aFatherLabel = theFather.GetLabel(), aLabel = theObject.GetLabel();
   if(aFatherLabel == aLabel) return false;
 
-  SALOMEDSImpl_AttributeTreeNode *aFather = false, *aNode = false;
+  SALOMEDSImpl_AttributeTreeNode *aFather = NULL, *aNode = NULL;
   
   if(aFatherLabel.IsNull()) return false;
   if(!(aFather=(SALOMEDSImpl_AttributeTreeNode*)aFatherLabel.FindAttribute(_root->ID()))) return false;
@@ -277,6 +310,54 @@ bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const SALOMEDSImpl_SObject& theObj
   if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false; 
   
   return (aNode->GetFirst());
+}
+
+//============================================================================
+/*! Function : SortChildren
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_UseCaseBuilder::SortChildren(const SALOMEDSImpl_SObject& theObject, bool theAscendingOrder)
+{
+  if(!_root) return false;
+
+  DF_Label aLabel;
+  if (!theObject) aLabel = _root->Label();
+  else 
+    aLabel = theObject.GetLabel(); 
+  if(aLabel.IsNull()) return false;
+
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if (!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
+
+  std::list<SALOMEDSImpl_SObject> aRefSOs;
+  std::list<SALOMEDSImpl_SObject> aNodeSOs;
+  for ( SALOMEDSImpl_AttributeTreeNode* aChildNode=aNode->GetFirst(); aChildNode; aChildNode=aChildNode->GetNext() ) {
+    if ( SALOMEDSImpl_SObject aSO = SALOMEDSImpl_Study::SObject( aChildNode->Label() ) ) {
+      if ( aChildNode->FindAttribute( SALOMEDSImpl_AttributeReference::GetID() ) )
+	aRefSOs.push_back( aSO );      
+      else
+	aNodeSOs.push_back( aSO );
+    }
+  }
+  if ( aRefSOs.empty() && aNodeSOs.empty() ) return false;
+
+ //sort items by names in ascending/descending order
+  std::list<SALOMEDSImpl_SObject>::iterator it;  
+  if ( !aRefSOs.empty() ) {
+    theAscendingOrder ? aRefSOs.sort( AscSortSOs() ) : aRefSOs.sort( DescSortSOs() );
+    for ( it = aRefSOs.begin(); it != aRefSOs.end(); ++it ) {
+      AppendTo( theObject, *it );
+    }
+  }  
+  if ( !aNodeSOs.empty() ) {
+    theAscendingOrder ? aNodeSOs.sort( AscSortSOs() ) : aNodeSOs.sort( DescSortSOs() );
+    for ( it = aNodeSOs.begin(); it != aNodeSOs.end(); ++it ) {
+      AppendTo( theObject, *it );
+    }
+  }
+
+  return true;
 }
 
 //============================================================================

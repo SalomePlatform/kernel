@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,6 +21,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+
+###############################################
+############### IMPORTANT NOTE ################
+###############################################
+# The runConsole script is obsolete.          #
+# Please consider the new salome launcher.    #
+###############################################
+
+
 APPLI_HOME=`dirname $0`
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
@@ -30,6 +39,9 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+#export OMNIORB_USER_PATH="${HOME}/.salomeConfig/USERS"
+export OMNIORB_USER_PATH="${HOME}/${APPLI}/USERS"
 
 # --- open a Python interpreter with SALOME environment
 

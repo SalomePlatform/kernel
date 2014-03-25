@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -46,8 +46,6 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
-class Notifier;
-
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
@@ -55,7 +53,8 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
-  Notifier*                      _notifier;
+  SALOMEDSImpl_AbstractCallback* _notifier;
+  SALOMEDSImpl_AbstractCallback* _genObjRegister;
 
 public:
 
@@ -352,6 +351,6 @@ public:
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 
   virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
-
+  virtual void detach(SALOMEDS::Observer_ptr theObs);
 };
 #endif

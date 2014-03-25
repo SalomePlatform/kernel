@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,6 +32,7 @@
 #include "DF_Label.hxx"
 #include <string>
 #include <vector>
+#include <map>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeStudyProperties : public SALOMEDSImpl_GenericAttribute
@@ -73,10 +74,10 @@ public:
   void ChangeCreatorName(const std::string& theUserName);
 
   void SetUnits(const std::string& theUnits);
-  std::string GetUnits();
+  std::string GetUnits() const;
 
   void SetComment(const std::string& theComment);
-  std::string GetComment();
+  std::string GetComment() const;
 
   void SetCreationMode(const int theMode);
   int GetCreationMode() const;
@@ -89,11 +90,20 @@ public:
   bool IsLocked() const;
   bool IsLockChanged(const bool theErase);
 
+  void SetComponentsVersions( const std::map< std::string, std::vector<std::string> >& theVersions );
+  void SetComponentVersion(const std::string& theComponent, const std::string& theVersion);
+  std::vector<std::string> GetStoredComponents() const;
+  std::string GetComponentVersion(const std::string& theComponent) const;
+  std::vector<std::string> GetComponentVersions(const std::string& theComponent) const;
+  std::map< std::string, std::vector<std::string> > GetComponentsVersions() const;
+
   void Restore(DF_Attribute* with);
   DF_Attribute* NewEmpty() const;
   void Paste(DF_Attribute* into);
 
 private:
+  typedef std::vector<std::string> versionList;
+  typedef std::map<std::string, versionList> versionMap;
 
   std::vector<std::string> myUserName;
   std::vector<int> myMinute;
@@ -103,11 +113,11 @@ private:
   std::vector<int> myYear;
   std::string      myUnits;
   std::string      myComment;
-  int myMode;
-  int myModified;
-  bool myLocked;
-  bool myLockChanged;
-
+  int              myMode;
+  int              myModified;
+  bool             myLocked;
+  bool             myLockChanged;
+  versionMap       myComponentVersions;
 };
 
 #endif

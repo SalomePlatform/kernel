@@ -1,10 +1,10 @@
 # -*- coding: iso-8859-1 -*-
-# Copyright (C) 2010-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2010-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,11 +17,22 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+## \defgroup unittester unittester
+#  \{ 
+#  \details Run very basic unit tests
+#  \}
+
 __author__="gboulant"
 __date__ ="$1 avr. 2010 09:45:21$"
 
 import sys
 
+## This function should be used for very basic unit tests and only for a
+#  rapid development. %A better way should be the pyunit framework.
+#  The function functionName is supposed here to return a boolean value
+#  indicating if the test is OK (True) or NOT OK (False)
+#  \ingroup unittester
 def run(modulePath, functionName):
     """
     This function should be used for very basic unit tests and only for a
@@ -41,6 +52,11 @@ def run(modulePath, functionName):
     else:
         print "[TEST] %s.%s %s NOT OK" % (moduleName, functionName,"."*tabsize)
 
+## This function is for debug only. It executes the specified function with the
+#  specified arguments in a try/except bloc so that to display the exception in
+#  the case where an exception is raised (usefull to debug server side of a CORBA
+#  process).
+#  \ingroup unittester
 def tryfunction(function,*argv):
     """
     This function is for debug only. It executes the specified function with the

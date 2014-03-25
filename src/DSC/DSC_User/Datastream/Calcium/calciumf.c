@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,6 +24,7 @@
 #include "calciumf.h"
 #include "CalciumFortranInt.h"
 #include <stdio.h>
+#include <omniconfig.h>   // to get SIZEOF_LONG
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,6 +156,8 @@ void F_FUNC(cpldb,CPLDB)(long *compo,cal_int *dep,double *ti,double *tf,cal_int 
             cal_int *max,cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cplre,CPLRE)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
             cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cplrd,CPLRD)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cplcp,CPLCP)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
             cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cplch,CPLCH)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
@@ -241,6 +244,14 @@ void F_FUNC(cplre,CPLRE)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
   free_str1(cnom);
 }
 
+void F_FUNC(cplrd,CPLRD)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
+            cal_int *max,cal_int *n, double *tab,cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_lrd_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,(float *)tab);
+  free_str1(cnom);
+}
+
 void F_FUNC(cplcp,CPLCP)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
             cal_int *max,cal_int *n, float *tab,cal_int *err STR_PLEN(nom))
 {
@@ -289,6 +300,7 @@ void F_FUNC(cpech,CPECH)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
                          STR_PLEN(nom) STR_PLEN(tab));
 void F_FUNC(cpedb,CPEDB)(long *compo,cal_int *dep,double *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpere,CPERE)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
+void F_FUNC(cperd,CPERD)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpecp,CPECP)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpein,CPEIN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpelg,CPELG)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, long *tab,cal_int *err STR_PLEN(nom));
@@ -344,6 +356,15 @@ void F_FUNC(cpere,CPERE)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
   *err=cp_ere_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
+  free_str1(cnom);
+}
+
+void F_FUNC(cperd,CPERD)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, double *tab,cal_int *err STR_PLEN(nom))
+{
+  float tti=0.;
+  if(*dep == CP_TEMPS)tti=*ti;
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_erd_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,(float *)tab);
   free_str1(cnom);
 }
 

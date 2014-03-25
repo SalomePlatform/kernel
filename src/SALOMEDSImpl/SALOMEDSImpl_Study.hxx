@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -70,7 +70,8 @@ private:
   SALOMEDSImpl_Callback*   _cb;
   SALOMEDSImpl_StudyBuilder*   _builder;
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
-  SALOMEDSImpl_AbstractCallback*   _notifier;
+  SALOMEDSImpl_AbstractCallback* _notifier;
+  SALOMEDSImpl_AbstractCallback* _genObjRegister;
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
@@ -87,7 +88,7 @@ private:
 
   std::string _GetStudyVariablesScript();
   std::string _GetNoteBookAccessor();
-  std::string _GetNoteBookAccess();
+  std::string _GetNoteBookAccess(const std::string& theStudyVar);
 
 public:
 
@@ -321,6 +322,9 @@ public:
   virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason);
   virtual void setNotifier(SALOMEDSImpl_AbstractCallback* notifier);
 
+  static void RegisterGenObj  (const std::string& theIOR, DF_Label label);
+  static void UnRegisterGenObj(const std::string& theIOR, DF_Label label);
+  void setGenObjRegister(SALOMEDSImpl_AbstractCallback* theRegister);
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;

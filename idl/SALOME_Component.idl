@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -60,12 +60,17 @@ module Engines
   };
 
   typedef sequence<KeyValuePair> FieldsDict;
+  typedef sequence<string> ListOfOptions;
+  typedef sequence<string> ListOfIdentifiers;
 
   interface EngineComponent ;
   interface fileRef ;
   interface fileTransfer ;
   interface Salome_file;
+  interface DataContainer;
 
+  typedef sequence<DataContainer> ListOfData;
+  
   /*! \brief Interface of the %Container.
   This interface defines the process of loading and registration
   of new components in %SALOME application
@@ -224,6 +229,32 @@ module Engines
      */
     PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
   };
+
+  /*! \brief Interface to pass data files from the client side to the SALOME Container.
+    Passes data from client side to the SALOME container (where component engine is running)
+    size via the CORBA bus as a stream of bytes.
+  */
+
+  interface DataContainer
+  {
+    //! This operation returns the stream with the data file content.
+    TMPFile get();
+    
+    //! Returns the name of the document corresponding to this data container.                                                                                  
+    string name();
+    
+    //! Returns the identifier of the document corresponding to this data container.
+    string identifier();
+
+    //! Returns the extension (type) of the document corresponding to this data container.
+    //! It is taked from the SIMAN URL.
+    string extension();
+
+    //! Defines the extension. It is required is extension of the file is not
+    //! matched with a read extension: archived file, for example.
+    void setExtension(in string extension);
+  };
+                                      
 
   /*! \brief Interface of the %component.
   This interface is used for interaction between the %container and the
@@ -453,7 +484,33 @@ module Engines
       \return an information about the given object.
     */
     string getObjectInfo(in long studyId, in string entry);
-  } ;
+
+    //! Get version of the component
+    /*!
+      This method is supposed to be implemented in all derived classes; default implementation
+      returns "unknown" string that means that no version information about the component is available.
+      \note The version of the component is stored to the study, as a part of general persistence
+      mechanism; once stored, version information in the study cannot be changed.
+
+      \return string containing component's version, e.g. "1.0"
+    */
+    string getVersion();
+
+    //! Generic Import operation to let the component to import data, corresponding to it.
+    /*!
+      \param studyId indentifier of the study where the data must be placed
+      \param data data for import: usually this is just imported file content
+      \param options additional options for Importat operation
+      \return the sequence of identifiers of the importedData in the component (to use later in the export function)
+    */
+    ListOfIdentifiers importData(in long studyId, in DataContainer data, in ListOfOptions options);
+    
+    //! Generic Export operation to ket the component export all modified data corresponding to it.
+    /*!
+      \param studyId identifier of the study that contains the exported data
+     */
+    ListOfData getModifiedData(in long studyId);
+  };
 
   /*!
     \brief Base interface of the %component that supports exporting data.

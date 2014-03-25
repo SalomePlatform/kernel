@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -120,10 +120,14 @@ void ecp_lch_free (char* * data) {                              \
 /*REVERIFIER MAINTENANT 0 COPY avec int2integer*/
 CALCIUM_EXT_LECT_INTERFACE_C_(len,float,int,int2integer,);
 CALCIUM_EXT_LECT_INTERFACE_C_(lre,float,float,float,);
+/*Permet d'envoyer/recevoir des réels sur un port Double  */
+CALCIUM_EXT_LECT_INTERFACE_C_(lrd,float ,float  ,float2double,);
 CALCIUM_EXT_LECT_INTERFACE_C_(ldb,double,double,double,);
+
 CALCIUM_EXT_LECT_INTERFACE_C_(llo,float,int,bool,);
 CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 /* CALCIUM_EXT_LECT_INTERFACE_C_(lch,float,char,STAR[]);  */
+
 
 
 /**************************************/
@@ -204,7 +208,10 @@ CALCIUM_LECT_INTERFACE_C_(llg,float ,int,long   ,long2integer,,);
 CALCIUM_LECT_INTERFACE_C_(lln,float ,int,long   ,long,,);
 
 CALCIUM_LECT_INTERFACE_C_(lre,float ,int,float  ,float,,);
+/*Permet d'envoyer/recevoir des réels sur un port Double  */
+CALCIUM_LECT_INTERFACE_C_(lrd,float ,int,float  ,float2double,,);
 CALCIUM_LECT_INTERFACE_C_(ldb,double,int,double ,double,,);
+
 CALCIUM_LECT_INTERFACE_C_(llo,float ,int,int    ,bool,,);
 CALCIUM_LECT_INTERFACE_C_(lcp,float ,int,float  ,cplx,,);
 #define STAR *
@@ -222,6 +229,7 @@ CALCIUM_LECT_INTERFACE_C_(lin_fort_,float ,cal_int,int     ,int2integer,,);
 CALCIUM_LECT_INTERFACE_C_(llg_fort_,float ,cal_int,long    ,long2integer,,);
 
 CALCIUM_LECT_INTERFACE_C_(lre_fort_,float ,cal_int,float   ,float,,);
+CALCIUM_LECT_INTERFACE_C_(lrd_fort_,float ,cal_int,float   ,float2double,,);
 CALCIUM_LECT_INTERFACE_C_(ldb_fort_,double,cal_int,double  ,double,,);
 CALCIUM_LECT_INTERFACE_C_(llo_fort_,float ,cal_int,int     ,bool,,);   /*int pour bool ou cal_int */
 CALCIUM_LECT_INTERFACE_C_(lcp_fort_,float ,cal_int,float   ,cplx,,);
@@ -305,7 +313,10 @@ CALCIUM_ECR_INTERFACE_C_(een,float ,int,int   ,int2integer,,);
   sinon problème de conversion de 64bits vers 32bits */
 CALCIUM_ECR_INTERFACE_C_(elg,float ,int,long  ,long2integer,,);
 CALCIUM_ECR_INTERFACE_C_(ere,float ,int,float ,float,,);
+/*Permet d'envoyer/recevoir des réels sur un port Double  */
+CALCIUM_ECR_INTERFACE_C_(erd,float ,int,float ,float2double,,);
 CALCIUM_ECR_INTERFACE_C_(edb,double,int,double,double,,);
+
 CALCIUM_ECR_INTERFACE_C_(elo,float ,int,int   ,bool,,);
 CALCIUM_ECR_INTERFACE_C_(ecp,float ,int,float ,cplx,,);
 CALCIUM_ECR_INTERFACE_C_(ech,float ,int,char  ,str,STAR,LCH_LAST_PARAM );
@@ -321,6 +332,7 @@ CALCIUM_ECR_INTERFACE_C_(een_fort_,float ,cal_int,cal_int,integer,,);
 CALCIUM_ECR_INTERFACE_C_(elg_fort_,float ,cal_int,long   ,long2integer,,);
 CALCIUM_ECR_INTERFACE_C_(ein_fort_,float ,cal_int,int    ,int2integer,,);
 CALCIUM_ECR_INTERFACE_C_(ere_fort_,float ,cal_int,float ,float,,);
+CALCIUM_ECR_INTERFACE_C_(erd_fort_,float ,cal_int,float ,float2double,,);
 CALCIUM_ECR_INTERFACE_C_(edb_fort_,double,cal_int,double,double,,);
 CALCIUM_ECR_INTERFACE_C_(elo_fort_,float ,cal_int,int   ,bool,,);
 CALCIUM_ECR_INTERFACE_C_(ecp_fort_,float ,cal_int,float ,cplx,,);

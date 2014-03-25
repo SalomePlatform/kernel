@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -50,7 +50,7 @@
 #endif
 
 
-bool Exists(const std::string thePath) 
+bool SALOMEDS_Exists(const std::string thePath)
 {
 #ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
@@ -106,8 +106,8 @@ std::string SALOMEDSImpl_Tool::GetTmpDir()
 
   std::string aDir = aTmpDir;
   
-  if(Exists(aDir)) {
-    for(aRND = 0; Exists(aDir); aRND++) {
+  if(SALOMEDS_Exists(aDir)) {
+    for(aRND = 0; SALOMEDS_Exists(aDir); aRND++) {
       sprintf(buffer, "%d", aRND);
       aDir = aTmpDir+buffer;  //Build a unique directory name
     }
@@ -143,7 +143,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   for(i=1; i<=aLength; i++) {
     std::string aFile(aDirName);
     aFile += theFiles[i-1];
-    if(!Exists(aFile)) continue;
+    if(!SALOMEDS_Exists(aFile)) continue;
 
 #ifdef WIN32
     DeleteFile(aFile.c_str());
@@ -153,7 +153,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   }
 
   if(IsDirDeleted) {
-    if(Exists(aDirName)) {
+    if(SALOMEDS_Exists(aDirName)) {
 #ifdef WIN32
       RemoveDirectory(aDirName.c_str());
 #else

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,8 +24,7 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_MpiImpl.hxx>
+#include <libbatch/MpiImpl.hxx>
 #endif
 
 #include "utilities.h"
@@ -42,24 +41,16 @@ BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr)
   _batch_descr = batch_descr;
 
   // Getting date
-  Batch::Date date = Batch::Date(time(0));
-  _date = date.str();
-  int lend = _date.size() ;
-  int i = 0 ;
-  while (i < lend) 
-  {
-    if (_date[i] == '/' || _date[i] == '-' || _date[i] == ':' ) 
-    {
-      _date[i] = '_' ;
-    }
-    i++ ;
-  }
-  
+  const size_t BUFSIZE = 32;
+  char date[BUFSIZE];
+  time_t curtime = time(NULL);
+  strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
+
   // Creating test temporary file
   _test_filename =  "/tmp/";
-  _test_filename +=  _date + "_test_cluster_file_";
+  _test_filename += std::string(date) + "_test_cluster_file_";
   _test_filename += _batch_descr.hostname.in();
-  _base_filename = _date + "_test_cluster_file_" + _batch_descr.hostname.in();
+  _base_filename = std::string(date) + "_test_cluster_file_" + _batch_descr.hostname.in();
 #endif
 }
 
@@ -316,6 +307,18 @@ BatchTest::test_jobsubmit_simple()
     result = "OK";
     return result;
   }
+  if (batch_type == "oar")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for oar... return OK");
+    result = "OK";
+    return result;
+  }
+  if (batch_type == "coorm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for coorm... return OK");
+    result = "OK";
+    return result;
+  }
   if (batch_type != "pbs")
   {
     result += "Batch type unknown ! : " + batch_type;
@@ -478,6 +481,8 @@ BatchTest::test_jobsubmit_mpi()
     mpiImpl = new MpiImpl_MPICH2();
   else if(mpi_type == "openmpi")
     mpiImpl = new MpiImpl_OPENMPI();
+  else if(mpi_type == "ompi")
+    mpiImpl = new MpiImpl_OMPI();
   else if(mpi_type == "slurmmpi")
     mpiImpl = new MpiImpl_SLURM();
   else

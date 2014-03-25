@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -409,7 +409,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       if (aLocked) _study->GetProperties()->SetLocked(true);
 
       if (!hasModuleData)
-	return true;
+        return true;
 
       _errorCode = "No persistent file";   
       return false;
@@ -1008,13 +1008,14 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
       std::string persist_ref = Att->Value();
       SALOMEDSImpl_SObject so = SALOMEDSImpl_Study::SObject(current);
       std::string ior_string = driver->LocalPersistentIDToIOR(so, 
-                                                         persist_ref, 
-                                                         isMultiFile, 
-                                                         isASCII);
-      SALOMEDSImpl_AttributeIOR::Set (current, ior_string); 
-     
+                                                              persist_ref, 
+                                                              isMultiFile, 
+                                                              isASCII);
+      SALOMEDSImpl_AttributeIOR* iorAttr = SALOMEDSImpl_AttributeIOR::Set (current, ior_string);
+
+      // make myRefCounter of a loaded GenericObj == 1
+      SALOMEDSImpl_Study::UnRegisterGenObj( ior_string, iorAttr->Label());
     }
     Translate_persistentID_to_IOR (current, driver, isMultiFile, isASCII);
   }
 }
-

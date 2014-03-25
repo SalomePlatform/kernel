@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -8,7 +8,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -41,6 +41,7 @@ import virtual_salome
 # --- names of tags in XML configuration file
 appli_tag   = "application"
 prereq_tag  = "prerequisites"
+system_conf_tag  = "system_conf"
 modules_tag = "modules"
 module_tag  = "module"
 samples_tag = "samples"
@@ -82,6 +83,10 @@ class xml_parser:
         # --- if we are analyzing "prerequisites" element then store its "path" attribute
         if self.space == [appli_tag, prereq_tag] and path_att in attrs.getNames():
             self.config["prereq_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "system_conf" element then store its "path" attribute
+        if self.space == [appli_tag, system_conf_tag] and path_att in attrs.getNames():
+            self.config["system_conf_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "resources" element then store its "path" attribute
         if self.space == [appli_tag, resources_tag] and path_att in attrs.getNames():
@@ -185,18 +190,17 @@ def install(prefix,config_file,verbose=0):
 
     for fn in ('envd',
                'getAppliPath.py',
-               'searchFreePort.sh',
-               'runRemote.sh',
-               'runAppli',
-               'runConsole',
-               'runSession',
-               'runSalomeScript',
-               'runTests',
-               'update_catalogs.py',
                'kill_remote_containers.py',
+               'runAppli',           # OBSOLETE (replaced by salome)
+               'runConsole',         # OBSOLETE (replaced by salome)
+               'runRemote.sh',
+               'runSalomeScript',
+               'runSession',         # OBSOLETE (replaced by salome)
+               'salome',
+               'update_catalogs.py',
                '.bashrc',
                ):
-        virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))
+        virtual_salome.symlink( os.path.join( appliskel_dir, fn ), os.path.join( home_dir, fn) )
         pass
 
     if filename != os.path.join(home_dir,"config_appli.xml"):
@@ -204,6 +208,7 @@ def install(prefix,config_file,verbose=0):
         os.system(command)
         pass
 
+    # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
     if os.path.isfile(_config["prereq_path"]):
         command='cp -p ' + _config["prereq_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.sh')
@@ -212,8 +217,16 @@ def install(prefix,config_file,verbose=0):
     else:
         print "WARNING: prerequisite file does not exist"
         pass
+    # :NOTE: For the new launch procedure, we do not use a "physical" .cfg
+    # file for prerequisites; the launch procedure automatically reads and
+    # converts the envProducts.sh file.
 
-    #environment file: configSalome.sh
+    if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
+        command='cp -p ' + _config["system_conf_path"] + ' ' + os.path.join(home_dir,'env.d','envConfSystem.sh')
+        os.system(command)
+        pass
+
+    # Create environment file: configSalome.sh
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
     for module in _config["modules"]:
         command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
@@ -229,13 +242,42 @@ def install(prefix,config_file,verbose=0):
 
     f.close()
 
+    # Create configuration file: configSalome.cfg
+    f =open(os.path.join(home_dir,'env.d','configSalome.cfg'),'w')
+    command = "[SALOME ROOT_DIR (modules) Configuration]\n"
+    f.write(command)
+    for module in _config["modules"]:
+        command=module + '_ROOT_DIR=${HOME}/${APPLI}\n'
+        f.write(command)
+        pass
+    if _config.has_key("samples_path"):
+        command='DATA_DIR=' + _config["samples_path"] +'\n'
+        f.write(command)
+        pass
+    if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+        command='USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
+        f.write(command)
 
-    #environment file: configGUI.sh
+    f.close()
+
+
+    # Create environment file: configGUI.sh
     f =open(os.path.join(home_dir,'env.d','configGUI.sh'),'w')
     command = """export SalomeAppConfig=${HOME}/${APPLI}
 export SUITRoot=${HOME}/${APPLI}/share/salome
 export DISABLE_FPE=1
 export MMGT_REENTRANT=1
+"""
+    f.write(command)
+    f.close()
+
+    # Create configuration file: configGUI.cfg
+    f =open(os.path.join(home_dir,'env.d','configGUI.cfg'),'w')
+    command = """[SALOME GUI Configuration]
+SalomeAppConfig=${HOME}/${APPLI}
+SUITRoot=${HOME}/${APPLI}/share/salome
+DISABLE_FPE=1
+MMGT_REENTRANT=1
 """
     f.write(command)
     f.close()
@@ -258,7 +300,7 @@ export MMGT_REENTRANT=1
     <parameter name="modules"    value="%s"/>
     <parameter name="pyModules"  value=""/>
     <parameter name="embedded"   value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
-    <parameter name="standalone" value="pyContainer"/>
+    <parameter name="standalone" value=""/>
   </section>
 </document>
 """
@@ -268,17 +310,6 @@ export MMGT_REENTRANT=1
       if m in ("KERNEL","GUI"):continue
       mods.append(m)
     f.write(command % ",".join(mods))
-    f.close()
-
-    #Add default CatalogResources.xml file
-    f =open(os.path.join(home_dir,'CatalogResources.xml'),'w')
-    command="""<!DOCTYPE ResourcesCatalog>
-<resources>
-   <machine name="localhost"
-            hostname="localhost" />
-</resources>
-"""
-    f.write(command)
     f.close()
 
     #Add USERS directory with 777 permission to store users configuration files

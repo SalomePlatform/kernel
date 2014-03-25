@@ -1,9 +1,9 @@
-// Copyright (C) 2009-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,8 +23,10 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Constants.hxx>
 #endif
+
+using namespace std;
 
 Launcher::Job::Job()
 {
@@ -52,6 +54,12 @@ Launcher::Job::Job()
   _resource_required_params.mem_mb = -1;
   _queue = "";
   _job_type = "";
+  _exclusive = false;
+  _mem_per_cpu = 0;
+
+  // Parameters for COORM
+  _launcher_file = "";
+  _launcher_args = "";
 
 #ifdef WITH_LIBBATCH
   _batch_job = new Batch::Job();
@@ -79,7 +87,7 @@ Launcher::Job::stopJob()
     {
       _batch_job_id.deleteJob();
     }
-    catch (const Batch::EmulationException &ex)
+    catch (const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("WARNING: exception when stopping the job: " << ex.message);
     }
@@ -99,7 +107,7 @@ Launcher::Job::removeJob()
     {
       _batch_job_id.deleteJob();
     }
-    catch (const Batch::EmulationException &ex)
+    catch (const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("WARNING: exception when removing the job: " << ex.message);
     }
@@ -108,7 +116,7 @@ Launcher::Job::removeJob()
 }
 
 std::string
-Launcher::Job::getJobType()
+Launcher::Job::getJobType() const
 {
   return _job_type;
 }
@@ -120,7 +128,7 @@ Launcher::Job::setJobName(const std::string & job_name)
 }
 
 std::string
-Launcher::Job::getJobName()
+Launcher::Job::getJobName() const
 {
   return _job_name;
 }
@@ -144,9 +152,16 @@ Launcher::Job::setState(const std::string & state)
 }
 
 std::string 
-Launcher::Job::getState()
+Launcher::Job::getState() const
 {
   return _state;
+}
+
+// Get names or ids of hosts assigned to the job
+std::string
+Launcher::Job::getAssignedHostnames()
+{
+  return _assigned_hostnames;
 }
 
 void 
@@ -185,7 +200,7 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
 }
 
 ParserResourcesType 
-Launcher::Job::getResourceDefinition()
+Launcher::Job::getResourceDefinition() const
 {
   return _resource_definition;
 }
@@ -208,7 +223,7 @@ Launcher::Job::setJobFile(const std::string & job_file)
 }
 
 std::string
-Launcher::Job::getJobFile()
+Launcher::Job::getJobFile() const
 {
   return _job_file;
 }
@@ -219,7 +234,7 @@ Launcher::Job::setEnvFile(const std::string & env_file)
 }
 
 std::string
-Launcher::Job::getEnvFile()
+Launcher::Job::getEnvFile() const
 {
   return _env_file;
 }
@@ -270,6 +285,18 @@ Launcher::Job::setMaximumDuration(const std::string & maximum_duration)
   _maximum_duration = maximum_duration;
 }
 
+// For COORM
+void
+Launcher::Job::setLauncherFile(const std::string & launcher_file)
+{
+	_launcher_file = launcher_file;
+}
+void
+Launcher::Job::setLauncherArgs(const std::string & launcher_args)
+{
+	_launcher_args = launcher_args;
+}
+
 void 
 Launcher::Job::setResourceRequiredParams(const resourceParams & resource_required_params)
 {
@@ -283,52 +310,117 @@ Launcher::Job::setQueue(const std::string & queue)
   _queue = queue;
 }
 
+void
+Launcher::Job::setExclusive(bool exclusive)
+{
+  _exclusive = exclusive;
+}
+
+void
+Launcher::Job::setExclusiveStr(const std::string & exclusiveStr)
+{
+  if (exclusiveStr == "true")
+    _exclusive = true;
+  else if (exclusiveStr == "false")
+    _exclusive = false;
+  else
+    throw LauncherException(std::string("Invalid boolean value for exclusive: ") + exclusiveStr);
+}
+
+void
+Launcher::Job::setMemPerCpu(unsigned long mem_per_cpu)
+{
+  _mem_per_cpu = mem_per_cpu;
+}
+
+void
+Launcher::Job::setReference(const std::string & reference)
+{
+  _reference = reference;
+}
+
 std::string 
-Launcher::Job::getWorkDirectory()
+Launcher::Job::getWorkDirectory() const
 {
   return _work_directory;
 }
 
 std::string 
-Launcher::Job::getLocalDirectory()
+Launcher::Job::getLocalDirectory() const
 {
   return _local_directory;
 }
 
 std::string
-Launcher::Job::getResultDirectory()
+Launcher::Job::getResultDirectory() const
 {
   return _result_directory;
 }
 
 const std::list<std::string> & 
-Launcher::Job::get_in_files()
+Launcher::Job::get_in_files() const
 {
   return _in_files;
 }
 
 const std::list<std::string> & 
-Launcher::Job::get_out_files()
+Launcher::Job::get_out_files() const
 {
   return _out_files;
 }
 
 std::string 
-Launcher::Job::getMaximumDuration()
+Launcher::Job::getMaximumDuration() const
 {
   return _maximum_duration;
 }
 
+// For COORM
+std::string
+Launcher::Job::getLauncherFile() const
+{
+	return _launcher_file;
+}
+std::string
+Launcher::Job::getLauncherArgs() const
+{
+	return _launcher_args;
+}
+
 resourceParams 
-Launcher::Job::getResourceRequiredParams()
+Launcher::Job::getResourceRequiredParams() const
 {
   return _resource_required_params;
 }
 
 std::string 
-Launcher::Job::getQueue()
+Launcher::Job::getQueue() const
 {
   return _queue;
+}
+
+bool
+Launcher::Job::getExclusive() const
+{
+  return _exclusive;
+}
+
+std::string
+Launcher::Job::getExclusiveStr() const
+{
+  return _exclusive ? "true" : "false";
+}
+
+unsigned long
+Launcher::Job::getMemPerCpu() const
+{
+  return _mem_per_cpu;
+}
+
+std::string
+Launcher::Job::getReference() const
+{
+  return _reference;
 }
 
 void 
@@ -402,7 +494,7 @@ Launcher::Job::convertMaximumDuration(const std::string & edt)
 }
 
 std::string 
-Launcher::Job::getLaunchDate()
+Launcher::Job::getLaunchDate() const
 {
   time_t rawtime;
   time(&rawtime);
@@ -434,6 +526,8 @@ Launcher::Job::updateJobState()
       Batch::JobInfo job_info = _batch_job_id.queryJob();
       Batch::Parametre par = job_info.getParametre();
       _state = par[Batch::STATE].str();
+      _assigned_hostnames = (par.find(Batch::ASSIGNEDHOSTNAMES) == par.end())?
+                            "" : par[Batch::ASSIGNEDHOSTNAMES].str();
       LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
     }
 #endif
@@ -455,34 +549,34 @@ Launcher::Job::common_job_params()
   Batch::Parametre params;
 
   params[Batch::NAME] = getJobName();
-  params[Batch::USER] = _resource_definition.UserName;
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
+  params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
   // Memory in megabytes
   if (_resource_required_params.mem_mb > 0)
   {
     params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb;
   }
+  else if (_mem_per_cpu > 0)
+  {
+    params[Batch::MEMPERCPU] = (long)_mem_per_cpu;
+  }
 
   // We define a default directory based on user time
   if (_work_directory == "")
   {
-    std::string thedate;
-    Batch::Date date = Batch::Date(time(0));
-    thedate = date.str();
-    int lend = thedate.size() ;
-    int i = 0 ;
-    while ( i < lend ) {
-      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
-        thedate[i] = '_' ;
-      }
-      i++ ;
-    }
-    _work_directory = std::string("$HOME/Batch/");
-    _work_directory += thedate;
+    const size_t BUFSIZE = 32;
+    char date[BUFSIZE];
+    time_t curtime = time(NULL);
+    strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
+    _work_directory = std::string("$HOME/Batch/workdir_");
+    _work_directory += date;
   }
   params[Batch::WORKDIR] = _work_directory;
-  params[Batch::TMPDIR] = _work_directory; // To Compatibility -- remove ??? TODO
+
+  // Parameters for COORM
+  params[Batch::LAUNCHER_FILE] = _launcher_file;
+  params[Batch::LAUNCHER_ARGS] = _launcher_args;
 
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
@@ -542,6 +636,10 @@ Launcher::Job::common_job_params()
   if (_queue != "")
     params[Batch::QUEUE] = _queue;
 
+  // Exclusive
+  if (getExclusive())
+    params[Batch::EXCLUSIVE] = true;
+
   // Specific parameters
   std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
   if (it != _specific_parameters.end())
@@ -556,84 +654,11 @@ Launcher::Job::setBatchManagerJobId(Batch::JobId batch_manager_job_id)
 }
 
 Batch::JobId 
-Launcher::Job::getBatchManagerJobId()
+Launcher::Job::getBatchManagerJobId() const
 {
   return _batch_job_id;
 }
 #endif
-
-void
-Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
-{
-  // Begin job
-  xmlNodePtr job_node = xmlNewChild(root_node, NULL, xmlCharStrdup("job"), NULL);
-  xmlNewProp(job_node, xmlCharStrdup("type"), xmlCharStrdup(getJobType().c_str()));
-  xmlNewProp(job_node, xmlCharStrdup("name"), xmlCharStrdup(getJobName().c_str()));
-
-  // Add user part
-  xmlNodePtr node = xmlNewChild(job_node, NULL, xmlCharStrdup("user_part"), NULL);
-
-  xmlNewChild(node, NULL, xmlCharStrdup("job_file"),         xmlCharStrdup(getJobFile().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("env_file"),         xmlCharStrdup(getEnvFile().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("work_directory"),   xmlCharStrdup(getWorkDirectory().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("local_directory"),  xmlCharStrdup(getLocalDirectory().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("result_directory"), xmlCharStrdup(getResultDirectory().c_str()));
-
-  // Files
-  xmlNodePtr files_node = xmlNewChild(node, NULL, xmlCharStrdup("files"), NULL);
-  std::list<std::string> in_files  = get_in_files();
-  std::list<std::string> out_files = get_out_files();
-  for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
-    xmlNewChild(files_node, NULL, xmlCharStrdup("in_file"), xmlCharStrdup((*it).c_str()));
-  for(std::list<std::string>::iterator it = out_files.begin(); it != out_files.end(); it++)
-    xmlNewChild(files_node, NULL, xmlCharStrdup("out_file"), xmlCharStrdup((*it).c_str()));
-
-  // Resource part
-  resourceParams resource_params = getResourceRequiredParams();
-  xmlNodePtr res_node = xmlNewChild(node, NULL, xmlCharStrdup("resource_params"), NULL);
-  xmlNewChild(res_node, NULL, xmlCharStrdup("name"),   xmlCharStrdup(resource_params.name.c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("hostname"),   xmlCharStrdup(resource_params.hostname.c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("OS"),   xmlCharStrdup(resource_params.OS.c_str()));
-  std::ostringstream nb_proc_stream;
-  std::ostringstream nb_node_stream;
-  std::ostringstream nb_proc_per_node_stream;
-  std::ostringstream cpu_clock_stream;
-  std::ostringstream mem_mb_stream;
-  nb_proc_stream << resource_params.nb_proc;
-  nb_node_stream << resource_params.nb_node;
-  nb_proc_per_node_stream << resource_params.nb_proc_per_node;
-  cpu_clock_stream << resource_params.cpu_clock;
-  mem_mb_stream << resource_params.mem_mb;
-  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_proc"),            xmlCharStrdup(nb_proc_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_node"),            xmlCharStrdup(nb_node_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_proc_per_node"),   xmlCharStrdup(nb_proc_per_node_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("cpu_clock"),          xmlCharStrdup(cpu_clock_stream.str().c_str()));
-  xmlNewChild(res_node, NULL, xmlCharStrdup("mem_mb"),             xmlCharStrdup(mem_mb_stream.str().c_str()));
-
-  xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(getMaximumDuration().c_str()));
-  xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(getQueue().c_str()));
-
-  // Specific parameters part
-  xmlNodePtr specific_parameters_node = xmlNewChild(node, NULL, xmlCharStrdup("specific_parameters"), NULL);
-  std::map<std::string, std::string> specific_parameters = getSpecificParameters();
-  for(std::map<std::string, std::string>::iterator it = specific_parameters.begin(); it != specific_parameters.end(); it++)
-  {
-    xmlNodePtr specific_parameter_node = xmlNewChild(specific_parameters_node, NULL, xmlCharStrdup("specific_parameter"), NULL);
-    xmlNewChild(specific_parameter_node, NULL, xmlCharStrdup("name"), xmlCharStrdup((it->first).c_str()));
-    xmlNewChild(specific_parameter_node, NULL, xmlCharStrdup("value"), xmlCharStrdup((it->second).c_str()));
-  }
-
-  // Run part
-  xmlNodePtr run_node = xmlNewChild(job_node, NULL, xmlCharStrdup("run_part"), NULL);
-  xmlNewChild(run_node, NULL, xmlCharStrdup("job_state"), xmlCharStrdup(getState().c_str()));
-  ParserResourcesType resource_definition = getResourceDefinition();
-  xmlNewChild(run_node, NULL, xmlCharStrdup("resource_choosed_name"), xmlCharStrdup(resource_definition.Name.c_str()));
-
-#ifdef WITH_LIBBATCH
-  Batch::JobId job_id = getBatchManagerJobId();
-  xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job_id.getReference().c_str()));
-#endif
-}
 
 void 
 Launcher::Job::addSpecificParameter(const std::string & name,
@@ -643,7 +668,7 @@ Launcher::Job::addSpecificParameter(const std::string & name,
 }
 
 const std::map<std::string, std::string> &
-Launcher::Job::getSpecificParameters()
+Launcher::Job::getSpecificParameters() const
 {
   return _specific_parameters;
 }

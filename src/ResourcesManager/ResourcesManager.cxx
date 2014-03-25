@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -6,7 +6,7 @@
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,6 +21,7 @@
 //
 
 #include "ResourcesManager.hxx" 
+#include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <Basics_Utils.hxx>
 #include <fstream>
 #include <iostream>
@@ -30,7 +31,7 @@
 #include <list>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <unistd.h>
 #endif
@@ -38,7 +39,13 @@
 
 #include <algorithm>
 
+#include "Utils_SALOME_Exception.hxx"
+
 #define MAX_SIZE_FOR_HOSTNAME 256;
+
+using namespace std;
+
+const string ResourcesManager_cpp::DEFAULT_RESOURCE_NAME = "localhost";
 
 static LoadRateManagerFirst first;
 static LoadRateManagerCycl cycl;
@@ -61,6 +68,8 @@ ResourcesManager_cpp(const char *xmlFilePath)
   _resourceManagerMap["altcycl"]=&altcycl;
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
+
+  AddDefaultResourceInCatalog();
 }
 
 //=============================================================================
@@ -83,6 +92,8 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
   _resourceManagerMap["altcycl"]=&altcycl;
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
+
+  AddDefaultResourceInCatalog();
 
   bool default_catalog_resource = true;
   if (getenv("USER_CATALOG_RESOURCES_FILE") != 0)
@@ -266,12 +277,24 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
 
   // Step 5
   SelectOnlyResourcesWithOS(vec, params.OS.c_str());
-    
+
   // Step 6
   std::vector<std::string> vec_save(vec);
   KeepOnlyResourcesWithComponent(vec, params.componentList);
   if (vec.size() == 0)
     vec = vec_save;
+
+  // Step 7 : Filter on possible usage
+  vector<string> prev_list(vec);
+  vec.clear();
+  for (vector<string>::iterator iter = prev_list.begin() ; iter != prev_list.end() ; iter++)
+  {
+    MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
+    if (it != _resourcesList.end() &&
+        (!params.can_launch_batch_jobs || it->second.can_launch_batch_jobs) &&
+        (!params.can_run_containers || it->second.can_run_containers))
+      vec.push_back(*iter);
+  }
 
   // End
   // Send an exception if return list is empty...
@@ -291,8 +314,11 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
 //=============================================================================
 
 void
-ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resource) throw(ResourcesException)
+ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resource)
 {
+  if (new_resource.Name == DEFAULT_RESOURCE_NAME)
+    throw SALOME_Exception((string("Cannot modify default local resource \"") +
+                            DEFAULT_RESOURCE_NAME + "\"").c_str());
   // TODO - Add minimal check
   _resourcesList[new_resource.Name] = new_resource;
 }
@@ -305,6 +331,9 @@ ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resou
 
 void ResourcesManager_cpp::DeleteResourceInCatalog(const char * name)
 {
+  if (DEFAULT_RESOURCE_NAME == name)
+    throw SALOME_Exception((string("Cannot delete default local resource \"") +
+                            DEFAULT_RESOURCE_NAME + "\"").c_str());
   MapOfParserResourcesType_it it = _resourcesList.find(name);
   if (it != _resourcesList.end())
     _resourcesList.erase(name);
@@ -321,6 +350,16 @@ void ResourcesManager_cpp::DeleteResourceInCatalog(const char * name)
 void ResourcesManager_cpp::WriteInXmlFile(std::string xml_file)
 {
   RES_MESSAGE("WriteInXmlFile : start");
+
+  MapOfParserResourcesType resourceListToSave(_resourcesList);
+  // We do not save default local resource because it is automatically created at startup
+  resourceListToSave.erase(DEFAULT_RESOURCE_NAME);
+  if (resourceListToSave.empty())
+  {
+    RES_MESSAGE("WriteInXmlFile: nothing to do, no resource except default \"" <<
+                DEFAULT_RESOURCE_NAME << "\"");
+    return;
+  }
 
   if (xml_file == "")
   {
@@ -341,7 +380,7 @@ void ResourcesManager_cpp::WriteInXmlFile(std::string xml_file)
   xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
 
   SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
+    new SALOME_ResourcesCatalog_Handler(resourceListToSave);
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
@@ -371,7 +410,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
     int result = stat((*_path_resources_it).c_str(), &statinfo);
     if (result < 0)
     {
-      std::cerr << "Error in method stat for file : " << (*_path_resources_it).c_str() << " no new xml file is parsed" << std::endl;
+      RES_MESSAGE("Resource file " << *_path_resources_it << " does not exist");
       return _resourcesList;
     }
 
@@ -385,6 +424,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
   if (to_parse)
   {
     _resourcesList.clear();
+    AddDefaultResourceInCatalog();
     // On parse tous les fichiers
     for(_path_resources_it = _path_resources.begin(); _path_resources_it != _path_resources.end(); ++_path_resources_it)
     {
@@ -406,13 +446,19 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
           for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
           {
             MapOfParserResourcesType_it j = _resourcesList.find(i->first);
-            if (j == _resourcesList.end())
+            if (i->second.HostName == "localhost" || i->second.HostName == Kernel_Utils::GetHostname())
             {
-              _resourcesList[i->first] = i->second;
+              RES_MESSAGE("Resource " << i->first << " is not added because it is the same "
+                          "machine as default local resource \"" << DEFAULT_RESOURCE_NAME << "\"");
+            }
+            else if (j != _resourcesList.end())
+            {
+              cerr << "ParseXmlFiles Warning, two resources with the same name were found, "
+                      "taking the first declaration : " << i->first << endl;
             }
             else
             {
-              std::cerr << "ParseXmlFiles Warning, two resources with the same name were found, taking the first declaration : " << i->first << std::endl;
+              _resourcesList[i->first] = i->second;
             }
           }
         }
@@ -524,4 +570,24 @@ ResourcesManager_cpp::GetResourcesDescr(const std::string & name)
     error += name;
     throw ResourcesException(error);
   }
+}
+
+void ResourcesManager_cpp::AddDefaultResourceInCatalog()
+{
+  ParserResourcesType resource;
+  resource.Name = DEFAULT_RESOURCE_NAME;
+  // We can't use "localhost" for parameter hostname because the containers are registered in the
+  // naming service with the real hostname, not "localhost"
+  resource.HostName = Kernel_Utils::GetHostname();
+  resource.DataForSort._Name = DEFAULT_RESOURCE_NAME;
+  resource.Protocol = sh;
+  resource.Batch = none;
+  if (getenv("HOME") != NULL && getenv("APPLI") != NULL)
+  {
+    resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
+  }
+  resource.working_directory = "/tmp/salome_localres_workdir";
+  resource.can_launch_batch_jobs = true;
+  resource.can_run_containers = true;
+  _resourcesList[resource.Name] = resource;
 }
