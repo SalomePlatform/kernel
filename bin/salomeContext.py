@@ -111,9 +111,10 @@ class SalomeContext:
 
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True)
-    proc.communicate()
+    msg = proc.communicate()
     if kill:
       self._killAll(args)
+    return msg
   #
 
   """Append value to PATH environment variable"""
@@ -291,7 +292,7 @@ class SalomeContext:
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
       cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
       proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-      proc.wait()
+      return proc.communicate()
   #
 
   def _runConsole(self, args=[]):
@@ -302,7 +303,7 @@ class SalomeContext:
 
     cmd = ["python", "-c", "import runConsole\nrunConsole.connect()" ]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-    proc.wait()
+    return proc.communicate()
   #
 
   def _killAll(self, args=[]):
