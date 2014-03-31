@@ -110,7 +110,7 @@ class SalomeContext:
         args.remove(e)
 
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True)
     proc.communicate()
     if kill:
       self._killAll(args)
@@ -279,7 +279,8 @@ class SalomeContext:
       errmsg = []
       for cmd in command:
         cmd = cmd.strip().split(' ')
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd)
         (stdoutdata, stderrdata) = proc.communicate()
         if stdoutdata or stderrdata:
           outmsg.append(stdoutdata)
@@ -299,8 +300,9 @@ class SalomeContext:
     import setenv
     setenv.main(True)
 
-    import runConsole
-    runConsole.connect()
+    cmd = ["python", "-c", "import runConsole\nrunConsole.connect()" ]
+    proc = subprocess.Popen(cmd, shell=False, close_fds=True)
+    proc.wait()
   #
 
   def _killAll(self, args=[]):
