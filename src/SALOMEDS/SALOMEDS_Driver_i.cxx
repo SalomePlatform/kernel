@@ -29,6 +29,8 @@
 #include "SALOMEDS.hxx"
 #include <stdlib.h>
 
+#include CORBA_CLIENT_HEADER(SALOME_Session)
+
 SALOMEDS_Driver_i::SALOMEDS_Driver_i(Engines::EngineComponent_ptr theEngine, CORBA::ORB_ptr theORB)
 {
   // engine should not be null - component is supposed to be inherited from Engines::EngineComponent
@@ -355,26 +357,28 @@ SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i()
 
 SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const std::string& theComponentType)
 {
-  CORBA::Object_var obj;
+  SALOMEDSImpl_Driver* driver = 0;
 
-  std::string aFactoryType;
-  if (theComponentType == "SUPERV") aFactoryType = "SuperVisionContainer";
-  else aFactoryType = "FactoryServer";
-
-  SALOMEDS::unlock();
-  obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component(aFactoryType.c_str(), theComponentType.c_str());
-  SALOMEDS::lock();
-
-  if (CORBA::is_nil(obj)) {
-    obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServer", theComponentType.c_str());
-  }
+  CORBA::Object_var obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServer", theComponentType.c_str());
 
   if (!CORBA::is_nil(obj)) {
     Engines::EngineComponent_var anEngine = Engines::EngineComponent::_narrow(obj);
-    return new SALOMEDS_Driver_i(anEngine, _orb);
+    driver = new SALOMEDS_Driver_i(anEngine, _orb);
+  }
+  else {
+    // It can be "light" module
+    obj = _name_service->Resolve("/Kernel/Session");
+    if (!CORBA::is_nil(obj)) {
+      SALOME::Session_var session = SALOME::Session::_narrow(obj);
+      if (!CORBA::is_nil(session)) {
+	Engines::EngineComponent_var anEngine = session->GetComponent(theComponentType.c_str());
+	if (!CORBA::is_nil(anEngine))
+	  driver = new SALOMEDS_Driver_i(anEngine, _orb);
+      }
+    }
   }
 
-  return NULL;
+  return driver;
 }
 
 SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByIOR(const std::string& theIOR)
