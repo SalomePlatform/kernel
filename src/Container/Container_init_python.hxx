@@ -53,27 +53,14 @@
 
 
 #define Py_ACQUIRE_NEW_THREAD \
-  PyEval_AcquireLock(); \
-  PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp); \
-  PyThreadState_Swap(myTstate);
+  PyGILState_STATE gil_state = PyGILState_Ensure();
 
 #define Py_RELEASE_NEW_THREAD \
-  PyEval_ReleaseThread(myTstate); \
-  PyThreadState_Delete(myTstate);
+  PyGILState_Release(gil_state);
 
 struct CONTAINER_EXPORT KERNEL_PYTHON
 {
-#ifdef WIN32
-  static PyThreadState *get_gtstate() { return KERNEL_PYTHON::_gtstate; }
-  static PyObject *getsalome_shared_modules_module() { return KERNEL_PYTHON::salome_shared_modules_module; }
-  static PyInterpreterState *get_interp() { return KERNEL_PYTHON::_interp; }
-#endif
-  static PyThreadState *_gtstate;
-  static PyObject *salome_shared_modules_module;
-  static PyInterpreterState *_interp;
-
   static void init_python(int argc, char **argv);
-
 };
 
 #endif

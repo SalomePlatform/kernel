@@ -20,8 +20,6 @@
 ADD_SUBDIRECTORY(kernel)
 
 SET(salomepython_PYTHON
-  salome_shared_modules.py
-  import_hook.py
   omnipatch.py
 )
 
@@ -43,5 +41,4 @@ SET(salomepython_PYTHON
   )
 
 SALOME_INSTALL_SCRIPTS("${salomepython_PYTHON}" ${SALOME_INSTALL_PYTHON})
-SALOME_INSTALL_SCRIPTS(kernel_shared_modules.py ${SALOME_INSTALL_PYTHON_SHARED})
 SALOME_INSTALL_SCRIPTS(__init__.py ${SALOME_INSTALL_PYTHON}/salome)

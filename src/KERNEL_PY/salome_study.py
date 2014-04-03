@@ -269,7 +269,7 @@ def FindFileInDataDir(filename):
 
 salome_study_ID = -1
 
-def getActiveStudy(theStudyId=0):
+def getActiveStudy():
     global salome_study_ID
 
     if verbose(): print "getActiveStudy"
@@ -279,13 +279,20 @@ def getActiveStudy(theStudyId=0):
             salome_study_ID = salome_iapp.sg.getActiveStudyId()
         else:
             if verbose(): print "---outside gui"
-            if theStudyId:
-                aStudy=myStudyManager.GetStudyByID(theStudyId)
-                if aStudy:
-                    if verbose(): print "connection to existing study ", theStudyId
-                    salome_study_ID = theStudyId
             if salome_study_ID == -1:
+              listOpenStudies = myStudyManager.GetOpenStudies()
+              if len(listOpenStudies) == 0:
                 salome_study_ID = createNewStudy()
+              else:
+                s = myStudyManager.GetStudyByName(listOpenStudies[0])
+                salome_study_ID = s._get_StudyId()
+            else:
+              pass
+            #if theStudyId:
+                #aStudy=myStudyManager.GetStudyByID(theStudyId)
+                #if aStudy:
+                    #if verbose(): print "connection to existing study ", theStudyId
+                    #salome_study_ID = theStudyId
             if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
 
@@ -332,6 +339,8 @@ def createNewStudy():
     aStudyName = "noName"
     nameAlreadyInUse = 1
     listOfOpenStudies = myStudyManager.GetOpenStudies()
+    if len(listOfOpenStudies) != 0:
+      raise ValueError("There is already an opened study: %s" % listOfOpenStudies[0])
     print listOfOpenStudies
     while nameAlreadyInUse:
         aStudyName = "extStudy_%d"%i
@@ -349,7 +358,7 @@ def createNewStudy():
 
 salome_study_initial = 1
 
-def salome_study_init(theStudyId=0):
+def salome_study_init():
     """
     Performs only once study creation or connection.
     optional argument : theStudyId
@@ -376,7 +385,7 @@ def salome_study_init(theStudyId=0):
         if verbose(): print "studyManager found"
 
         # get active study Id, ref and name
-        myStudyId = getActiveStudy(theStudyId)
+        myStudyId = getActiveStudy()
         if verbose(): print "myStudyId",myStudyId
         myStudy = myStudyManager.GetStudyByID(myStudyId)
         myStudyName = myStudy._get_Name()

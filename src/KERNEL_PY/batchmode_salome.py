@@ -23,8 +23,7 @@
 
 #  File   : batchmode_salome.py
 #  Module : SALOME
-#import salome_shared_modules
-#
+
 from omniORB import CORBA
 from LifeCycleCORBA import *
 import SALOME

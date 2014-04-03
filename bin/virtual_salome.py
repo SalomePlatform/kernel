@@ -135,7 +135,7 @@ def link_module(options):
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
     module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
     module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
-                                          'site-packages','salome','shared_modules')
+                                          'site-packages','salome')
     module_share_dir=os.path.join(module_dir,'share','salome')
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
     module_doc_tui_dir=os.path.join(module_dir,'doc','salome','tui')
@@ -150,7 +150,7 @@ def link_module(options):
     lib_dir=os.path.join(home_dir,'lib','salome')
     lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
     lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
-                                   'site-packages','salome','shared_modules')
+                                   'site-packages','salome')
     share_dir=os.path.join(home_dir,'share','salome')
     doc_gui_dir=os.path.join(home_dir,'doc','salome','gui')
     doc_tui_dir=os.path.join(home_dir,'doc','salome','tui')
@@ -213,7 +213,6 @@ def link_module(options):
         mkdir(lib_pypkg_dir)
         mkdir(lib_py_shared_dir)
         for fn in os.listdir(module_lib_py_dir):
-            if fn == "shared_modules": continue
             if fn == "salome": continue
             symlink(os.path.join(module_lib_py_dir, fn), os.path.join(lib_py_dir, fn))
             pass
