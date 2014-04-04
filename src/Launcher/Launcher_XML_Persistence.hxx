@@ -56,7 +56,7 @@ namespace Launcher
     static Job * createJobFromXmlNode(xmlNodePtr job_node);
     static void parseUserNode(Job * new_job, xmlNodePtr user_node);
     static void parseRunNode(Job * new_job, xmlNodePtr run_node);
-    static resourceParams parseResourceNode(xmlNodePtr res_node);
+    static void parseResourceNode(Job * new_job, xmlNodePtr res_node);
 
 
     // Useful wrappers around libxml2 functions
