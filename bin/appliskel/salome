@@ -22,16 +22,40 @@
 import os
 import sys
 
+def __detectAppliPath(fromPath):
+  detection_criterion = "USERS" # the application folder is found if it contains a USERS subfolder
+
+  users_folder = os.path.join(fromPath, detection_criterion)
+  if os.path.isdir(users_folder):
+    return fromPath
+
+  pattern = "/bin/salome/appliskel"
+  if fromPath.endswith(pattern):
+    currentPath = __detectAppliPath(fromPath[:-len(pattern)])
+    if not currentPath is None:
+      return currentPath
+
+  if sys.platform.startswith("linux"):
+    filename = os.path.basename(__file__)
+    link_target = os.readlink(os.path.join(fromPath,filename)) # LINUX ONLY
+    currentPath = os.path.dirname(os.path.abspath(link_target))
+    return __detectAppliPath(currentPath)
+
+  return None
+#
+
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
   currentPath = os.path.dirname( os.path.abspath( __file__ ) )
   homePath = os.path.realpath(os.path.expanduser('~'))
-  appliPath = os.path.relpath(currentPath, homePath)
 
-  pattern = "/bin/salome/appliskel"
-  if appliPath.endswith(pattern):
-    appliPath = appliPath[:-len(pattern)]
+  appliPath = __detectAppliPath(currentPath)
 
+  if appliPath is None:
+    print "ERROR: Unable to find application folder"
+    sys.exit(0)
+
+  appliPath = os.path.relpath(appliPath, homePath)
   absoluteAppliPath = os.path.join(homePath, appliPath)
   os.environ['APPLI'] = appliPath # needed to convert .sh environment files
   os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
@@ -40,7 +64,7 @@ def __initialize():
 
   # define folder to store omniorb config (initially in virtual application folder)
   try:
-    from salomeLauncherUtils import setOmniOrbUserPath
+    from salomeContextUtils import setOmniOrbUserPath
     setOmniOrbUserPath()
   except Exception, e:
     print e
@@ -52,32 +76,32 @@ def main(args):
   __initialize()
 
   if args == ['--help']:
-    from salomeRunner import usage
+    from salomeContext import usage
     usage()
     sys.exit(0)
 
-  from salomeLauncherUtils import getConfigFileNames
+  from salomeContextUtils import getConfigFileNames
   configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True)
   if len(unexisting) > 0:
     print "ERROR: unexisting configuration file(s): " + ', '.join(unexisting)
     sys.exit(1)
 
-  # Create a SalomeRunner which parses configFileNames to initialize environment
+  # Create a SalomeContext which parses configFileNames to initialize environment
   try:
-    from salomeRunner import SalomeRunner, SalomeRunnerException
-    runner = SalomeRunner(configFileNames)
+    from salomeContext import SalomeContext, SalomeContextException
+    context = SalomeContext(configFileNames)
 
     # Here set specific variables, if needed
-    # runner.addToPath('mypath')
-    # runner.addToLdLibraryPath('myldlibrarypath')
-    # runner.addToPythonPath('mypythonpath')
-    # runner.setEnviron('myvarname', 'value')
+    # context.addToPath('mypath')
+    # context.addToLdLibraryPath('myldlibrarypath')
+    # context.addToPythonPath('mypythonpath')
+    # context.setVariable('myvarname', 'value')
 
     # Start SALOME, parsing command line arguments
-    runner.go(args)
-    print 'Thank you for using SALOME!'
+    context.runSalome(args)
+    #print 'Thank you for using SALOME!'
 
-  except SalomeRunnerException, e:
+  except SalomeContextException, e:
     import logging
     logging.getLogger("salome").error(e)
     sys.exit(1)

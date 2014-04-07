@@ -20,7 +20,7 @@
 ADD_SUBDIRECTORY(appliskel)
 
 SALOME_CONFIGURE_FILE(VERSION.in VERSION INSTALL ${SALOME_INSTALL_BINS})
-SALOME_CONFIGURE_FILE(salomeLauncherUtils.py.in salomeLauncherUtils.py)
+SALOME_CONFIGURE_FILE(salomeContextUtils.py.in salomeContextUtils.py)
 
 # ===============================================================
 # Files to be installed
@@ -49,8 +49,8 @@ SET(SCRIPTS
   runSession.py
   runConsole.py
   salomeConsole.py
-  ${CMAKE_CURRENT_BINARY_DIR}/salomeLauncherUtils.py
-  salomeRunner.py
+  ${CMAKE_CURRENT_BINARY_DIR}/salomeContextUtils.py
+  salomeContext.py
   salome_session.py
   salome_utils.py
   searchFreePort.py

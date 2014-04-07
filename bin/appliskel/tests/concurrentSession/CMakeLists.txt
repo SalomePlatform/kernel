@@ -17,24 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-include(CTest)
-ENABLE_TESTING()
+FILE(GLOB py_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
+FILE(GLOB sh_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.sh")
 
-# define environment for running tests
-SET(PYTHON_VERSION ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+LIST(APPEND scripts ${py_scripts} ${sh_scripts})
 
-SET(THIS_PYTHONPATH ${CMAKE_SOURCE_DIR}/bin:$ENV{PYTHONPATH})
-#SET(THIS_LD_LIBRARY_PATH $ENV{LD_LIBRARY_PATH})
-
-# add tests (use make test to run)
-FILE(GLOB tests "${CMAKE_CURRENT_SOURCE_DIR}/Test*.py")
-FOREACH(file ${tests})
-  GET_FILENAME_COMPONENT(testname ${file} NAME_WE)
-  ADD_TEST(${testname} ${PYTHON_EXECUTABLE} "${file}")
-#  SET_PROPERTY(TEST ${testname} APPEND PROPERTY ENVIRONMENT PYTHONPATH=${THIS_PYTHONPATH} LD_LIBRARY_PATH=${THIS_LD_LIBRARY_PATH})
-  SET_PROPERTY(TEST ${testname} APPEND PROPERTY ENVIRONMENT PYTHONPATH=${THIS_PYTHONPATH})
-ENDFOREACH()
-
-# install Python scripts
-FILE(GLOB scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
 SALOME_INSTALL_SCRIPTS("${scripts}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel/tests/concurrentSession)

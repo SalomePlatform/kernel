@@ -26,17 +26,24 @@ import subprocess
 import re
 
 """
-Define a specific exception class to manage exceptions related to SalomeRunner
+Define a specific exception class to manage exceptions related to SalomeContext
 """
-class SalomeRunnerException(Exception):
-  """Report error messages to the user interface of SalomeRunner."""
+class SalomeContextException(Exception):
+  """Report error messages to the user interface of SalomeContext."""
 #
 
 def __listDirectory(path):
   allFiles = []
   for root, dirs, files in os.walk(path):
-    configFileNames = glob.glob(os.path.join(root,'*.cfg')) + glob.glob(os.path.join(root,'*.sh'))
-    allFiles += configFileNames
+    cfgFiles = glob.glob(os.path.join(root,'*.cfg'))
+    allFiles += cfgFiles
+
+    shFiles = glob.glob(os.path.join(root,'*.sh'))
+    for f in shFiles:
+      no_ext = os.path.splitext(f)[0]
+      if not os.path.isfile(no_ext+".cfg"):
+        allFiles.append(f)
+
   return allFiles
 #
 
@@ -82,8 +89,23 @@ def getConfigFileNames(args, checkExistence=False):
   return configFileNames, args, unexisting
 #
 
+def __getScriptPath(scriptName, searchPathList):
+  if searchPathList is None or len(searchPathList) == 0:
+    return None
+
+  for path in searchPathList:
+    fullName = os.path.join(path, scriptName)
+    if os.path.isfile(fullName) or os.path.isfile(fullName+".py"):
+      return fullName
+
+  return None
+#
+
 # Return an array of dictionaries {script_name: [list_of_its_args]}
-def getScriptsAndArgs(args=[]):
+def getScriptsAndArgs(args=[], searchPathList=None):
+  if searchPathList is None:
+    searchPathList = sys.path
+
   # Syntax of args: script.py [args:a1,a2=val,an] ... script.py [args:a1,a2=val,an]
   scriptArgs = []
   currentKey = None
@@ -96,14 +118,22 @@ def getScriptsAndArgs(args=[]):
 
     if elt.startswith(argsPrefix):
       if not currentKey or callPython:
-        raise SalomeRunnerException("args list must follow corresponding script file in command line.")
+        raise SalomeContextException("args list must follow corresponding script file in command line.")
       elt = elt.replace(argsPrefix, '')
       scriptArgs[len(scriptArgs)-1][currentKey] = elt.split(",")
       currentKey = None
       callPython = False
     elif elt.startswith("python"):
       callPython = True
-    elif os.path.isfile(elt) or os.path.isfile(elt+".py"):
+    else:
+      if not os.path.isfile(elt) and not os.path.isfile(elt+".py"):
+        eltInSearchPath = __getScriptPath(elt, searchPathList)
+        if eltInSearchPath is None or (not os.path.isfile(eltInSearchPath) and not os.path.isfile(eltInSearchPath+".py")):
+          if elt[-3:] == ".py":
+            raise SalomeContextException("Script not found: %s"%elt)
+          continue
+        elt = eltInSearchPath
+
       if elt[-4:] != ".hdf":
         if elt[-3:] == ".py":
           currentScript = os.path.abspath(elt)
@@ -124,9 +154,9 @@ def getScriptsAndArgs(args=[]):
           ispython = False
           try:
             fn = open(currentScript)
-            for i in xrange(10): # read only 10 first lines 
+            for i in xrange(10): # read only 10 first lines
               ln = fn.readline()
-              if re.search("#!.*python"): 
+              if re.search("#!.*python"):
                 ispython = True
                 break
               pass
@@ -153,8 +183,8 @@ def formatScriptsAndArgs(scriptArgs=[]):
         if sc_args:
           cmd = cmd + " " + " ".join(sc_args)
         commands.append(cmd)
-    sep = " ; " 
-    if sys.platform == "win32":    
+    sep = " ; "
+    if sys.platform == "win32":
       sep= " & "
     command = sep.join(["%s"%x for x in commands])
     return command
@@ -166,8 +196,8 @@ def formatScriptsAndArgs(scriptArgs=[]):
 # an exception is raised if check fails. It allows users for choosing a specific folder.
 # Else the function sets OMNIORB_USER_PATH this way:
 # - If APPLI environment variable is set, OMNIORB_USER_PATH is set to ${APPLI}/USERS.
-#   The function does not check USERS folder existence or wrute access. This folder
-#   must exist ; this is the case if SALOME virtual application has been create using
+#   The function does not check USERS folder existence or write access. This folder
+#   must exist ; this is the case if SALOME virtual application has been created using
 #   appli_gen.py script.
 # - Else OMNIORB_USER_PATH is set to user home directory.
 def setOmniOrbUserPath():

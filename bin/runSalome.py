@@ -764,7 +764,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 if not args['gui'] or not args['session_gui']:
                     toimport = args['pyscript']
 
-        from salomeLauncherUtils import formatScriptsAndArgs
+        from salomeContextUtils import formatScriptsAndArgs
         command = formatScriptsAndArgs(toimport)
         if command:
             proc = subprocess.Popen(command, shell=True)
@@ -812,9 +812,9 @@ def no_main():
     searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
 
-    if args.has_key('shutdown_servers') : 
+    if args.has_key('shutdown_servers') :
         var = args['shutdown_servers']
-        if hasattr(var, 'delete') and callable(getattr(var, 'delete')) : 
+        if hasattr(var, 'delete') and callable(getattr(var, 'delete')) :
             var.delete()
     return clt
 
@@ -825,7 +825,7 @@ def main():
 
     # define folder to store omniorb config (initially in virtual application folder)
     try:
-        from salomeLauncherUtils import setOmniOrbUserPath
+        from salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
     except Exception, e:
         print e
@@ -944,9 +944,9 @@ def runSalome():
         foreGround(clt, args)
         pass
     # --
-    if args.has_key('shutdown_servers') : 
+    if args.has_key('shutdown_servers') :
         var = args['shutdown_servers']
-        if hasattr(var, 'delete') and callable(getattr(var, 'delete')) : 
+        if hasattr(var, 'delete') and callable(getattr(var, 'delete')) :
             var.delete()
     pass
 #
