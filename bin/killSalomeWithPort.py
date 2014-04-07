@@ -407,6 +407,12 @@ if __name__ == "__main__":
             pass
         sys.exit(0)
         pass
+    try:
+        from salomeLauncherUtils import setOmniOrbUserPath
+        setOmniOrbUserPath()
+    except Exception, e:
+        print e
+        sys.exit(1)
     for port in sys.argv[1:]:
         killMyPort(port)
         pass

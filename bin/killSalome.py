@@ -47,7 +47,7 @@ def killAllPorts():
     #if hostname in fpidict:
     #    fpidict = fpidict.replace(hostname, shostname+".*")
     fpidict   = fpidict.replace('#####', '(\d*)')
-    fnamere   = re.compile("^%s$" % fpidict)
+    fnamere   = re.compile("^%s" % fpidict)
     try:
         for f in os.listdir(dirpidict):
             mo = fnamere.match(f)
@@ -94,5 +94,11 @@ def killAllPorts():
     pass
 
 if __name__ == "__main__":
+    try:
+        from salomeLauncherUtils import setOmniOrbUserPath
+        setOmniOrbUserPath()
+    except Exception, e:
+        print e
+        sys.exit(1)
     killAllPorts()
     pass
