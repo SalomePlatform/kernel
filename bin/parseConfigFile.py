@@ -86,7 +86,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
           optname = None
         # no section header in the file?
         elif cursect is None:
-          raise MissingSectionHeaderError(fpname, lineno, line)
+          raise ConfigParser.MissingSectionHeaderError(fpname, lineno, line)
         # an option line?
         else:
           mo = self.OPTCRE.match(line)
