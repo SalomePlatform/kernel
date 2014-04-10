@@ -55,3 +55,8 @@ def salome_kernel_init():
         cm = obj._narrow(Engines.ContainerManager)
 
     return orb, lcc, naming_service, cm
+
+def salome_kernel_close():
+    global salome_kernel_initial
+    salome_kernel_initial=1
+    pass
