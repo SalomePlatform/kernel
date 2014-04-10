@@ -18,15 +18,29 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup enumerate enumerate
+#  \{ 
+#  \details Emulates a C-like enum for python
+#  \}
+
 __author__ = "gboulant"
 __date__ = "$1 avr. 2010 09:08:02$"
 
+## This class emulates a C-like enum for python. It is initialized with a list
+#  of strings to be used as the enum symbolic keys. The enum values are automatically
+#  generated as sequencing integer starting at the specified offset value.
+#  \ingroup enumerate
 class Enumerate(object):
     """
     This class emulates a C-like enum for python. It is initialized with a list
     of strings to be used as the enum symbolic keys. The enum values are automatically
     generated as sequencing integer starting at the specified offset value.
     """
+    
+    ## Canonical constructor.
+    #  \param keys a list of string to be used as the enum symbolic keys. The enum values
+    #  are automatically generated as a sequence of integers starting at the specified
+    #  offset value.
     def __init__(self, keys, offset=0):
         """
         Canonical constructor
@@ -40,6 +54,8 @@ class Enumerate(object):
             setattr(self, key, value)
             self._dict_keynumbers[key] = value
 
+    ## Return true if this enumerate contains the specified key string
+    #  \param key a key string to test
     def contains(self, key):
         """
         Return true if this enumerate contains the specified key string
@@ -47,6 +63,9 @@ class Enumerate(object):
         """
         return (key in self._dict_keynumbers.keys())
 
+    ## Returns true if the specified integer value is defined as an identifier
+    #  in this enumarate.
+    #  \param value a value to test
     def isValid(self, value):
         """
         Returns true if the specified integer value is defined as an identifier
@@ -55,6 +74,7 @@ class Enumerate(object):
         """
         return (value in self._dict_keynumbers.values())
 
+    ## Returns the list of keys in this enumerate.
     def listkeys(self):
         """
         Returns the list of keys in this enumerate.
@@ -63,6 +83,7 @@ class Enumerate(object):
         list.sort()
         return list
 
+    ## Returns the list of values specified to initiate this enumerate.
     def listvalues(self):
         """
         Returns the list of values specified to initiate this enumerate.
@@ -71,6 +92,8 @@ class Enumerate(object):
         list.sort()
         return list
 
+    ## Returns the symbolic key string associated to the specified identifier value.
+    #  \param value an integer value whose associated key string is requested.
     def keyOf(self, value):
         """
         Returns the symbolic key string associated to the specified identifier

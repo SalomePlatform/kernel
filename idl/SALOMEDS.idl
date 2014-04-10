@@ -552,9 +552,17 @@ during each working session.
 /*!
      Attach an observer to the Study
 
-    \param theObserver
+    \param theObserver observer being attached
+    \param modify when \c true, observer receives any object's modification events;
+           otherwise observer receives object's creation events only
 */
      void attach(in SALOMEDS::Observer theObserver, in boolean modify);   
+/*!
+     Detach an observer from the Study
+
+    \param theObserver observer to be detached
+*/
+     void detach(in SALOMEDS::Observer theObserver);   
   };
 
   //===========================================================================

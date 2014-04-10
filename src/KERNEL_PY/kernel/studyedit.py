@@ -18,6 +18,14 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+## \defgroup studyedit studyedit
+#  \{ 
+#  \details
+#  This module provides a new class \bStudyEditor to complement \bStudy
+#  and \bStudyBuilder classes.
+#  \}
+
 """
 This module provides a new class :class:`StudyEditor` to complement
 :class:`Study` and :class:`StudyBuilder` classes.
@@ -33,6 +41,10 @@ logger = Logger("salome.kernel.studyedit", color = termcolor.PURPLE)
 _editors = {}
 _DEFAULT_CONTAINER = "FactoryServer"
 
+## Return the ID of the active study. In GUI mode, this function is equivalent
+#  to salome.sg.getActiveStudyId(). Outside GUI, it returns <b> salome.myStudyId </b>
+#  variable.
+#  \ingroup studyedit
 def getActiveStudyId():
     """
     Return the ID of the active study. In GUI mode, this function is equivalent
@@ -60,6 +72,9 @@ def getStudyIdFromStudy(study):
     studyId = study._get_StudyId()
     return studyId
 
+## Return a \b StudyEditor instance to edit the study with ID studyId. 
+#  If \b studyId is \b None, return an editor for the current study.
+#  \ingroup studyedit
 def getStudyEditor(studyId = None):
     """
     Return a :class:`StudyEditor` instance to edit the study with ID
@@ -72,6 +87,24 @@ def getStudyEditor(studyId = None):
         _editors[studyId] = StudyEditor(studyId)
     return _editors[studyId]
 
+## This class provides utility methods to complement \b Study and
+#  \b StudyBuilder classes. Those methods may be moved in those classes
+#  in the future. The parameter \b studyId defines the ID of the study to
+#  edit. If it is \em None, the edited study will be the current study.
+#  The preferred way to get a StudyEditor object is through the method
+#  \b getStudyEditor which allows to reuse existing instances.
+#
+#  \param studyId This instance attribute contains the ID of the edited study. 
+#  This attribute should not be modified.
+#
+#  \param study This instance attribute contains the underlying \b Study object.
+#  It can be used to access the study but the attribute itself should not
+#  be modified.
+#
+#  \param builder This instance attribute contains the underlying \b StudyBuilder
+#  object. It can be used to edit the study but the attribute itself
+#  should not be modified.
+#  \ingroup studyedit
 class StudyEditor:
     """
     This class provides utility methods to complement :class:`Study` and
@@ -110,6 +143,27 @@ class StudyEditor:
                             "Study %d doesn't exist" % studyId)
         self.builder = self.study.NewBuilder()
 
+    ## Find a component corresponding to the Salome module \b moduleName in
+    #  the study. If none is found, create a new component and associate it
+    #  with the corresponding engine (i.e. the engine named \b moduleName).
+    #  Note that in Salome 5, the module name and engine name must be
+    #  identical (every module must provide an engine with the same name).
+    #  In Salome 6 it will be possible to define a different name for the
+    #  engine.
+    #
+    #  \param moduleName (string) name of the module corresponding to the component
+    #  (the module name is the string value in the
+    #  attribute "AttributeComment" of the component)
+    #
+    #  \param componentName (string) name of the new component if created. 
+    #  If \b None, use \b moduleName instead.
+    #
+    #  \param icon (string) icon for the new component (attribute "AttributePixMap").
+    #
+    #  \param containerName (string) name of the container in which the engine should be
+    #  loaded.
+    #
+    #  \return the SComponent found or created.
     def findOrCreateComponent(self, moduleName, componentName = None,
                               icon = None, containerName = _DEFAULT_CONTAINER):
         """
@@ -175,6 +229,9 @@ class StudyEditor:
 
         return sComponent
 
+    ## Load the engine corresponding to \b sComponent in the container
+    #  \b containerName, associate the engine with the component and load the
+    #  CORBA objects of this component in the study.
     def loadComponentEngine(self, sComponent,
                             containerName = _DEFAULT_CONTAINER):
         """
@@ -195,6 +252,8 @@ class StudyEditor:
                              containerName))
         self.builder.LoadWith(sComponent, engine)
 
+    ## Get the CORBA object associated with the SObject \b item, eventually by
+    #  first loading it with the corresponding engine.
     def getOrLoadObject(self, item):
         """
         Get the CORBA object associated with the SObject `item`, eventually by
@@ -207,6 +266,11 @@ class StudyEditor:
             object = item.GetObject()
         return object
 
+    ## Find an object under \b fatherItem in the study with the given
+    #  attributes. Return the first one found if at least one exists,
+    #  otherwise create a new one with the given attributes and return it.
+    #
+    #  See \b setItem() for the description of the parameters.
     def findOrCreateItem(self, fatherItem, name, fileType = None,
                          fileName = None, comment = None, icon = None,
                          IOR = None, typeId = None):
@@ -224,6 +288,14 @@ class StudyEditor:
                                       comment, icon, IOR, typeId)
         return sObject
 
+    ## Find an item with given attributes under \b fatherItem in the study. If
+    #  none is found, return \b None. If several items correspond to
+    #  the parameters, only the first one is returned. The search is made
+    #  only on given parameters (i.e. not \b None). To look explicitly
+    #  for an empty attribute, use an empty string in the corresponding
+    #  parameter.
+    #    
+    #  See \b setItem() for the description of the parameters.
     def findItem(self, fatherItem, name = None, fileType = None,
                  fileName = None, comment = None, icon = None, IOR = None,
                  typeId = None):
@@ -257,6 +329,15 @@ class StudyEditor:
             childIterator.Next()
         return foundItem
 
+    ## Create a new object named \b name under \b fatherItem in the study, with
+    #  the given attributes. If an object named \b name already exists under
+    #  the father object, the new object is created with a new name \b name_X
+    #  where X is the first available index.
+    #
+    #  param fatherItem (SObject) item under which the new item will be added.
+    #  \return new SObject created in the study.
+    #
+    #  See \b setItem() for the description of the other parameters.
     def createItem(self, fatherItem, name, fileType = None, fileName = None,
                    comment = None, icon = None, IOR = None, typeId = None):
         """
@@ -310,6 +391,26 @@ class StudyEditor:
     
         return aSObject
 
+    ## Modify the attributes of an item in the study. Unspecified attributes
+    #  (i.e. those set to \b None) are left unchanged.
+    #
+    #  \param item (SObject) item to modify.
+    #
+    #  \param name (string) item name (attribute \b AttributeName).
+    #
+    #  \param fileType (string) item file type (attribute \b AttributeFileType).
+    #
+    #  \param fileName (string) item file name (attribute \b AttributeExternalFileDef).
+    #
+    #  \param comment (string) item comment (attribute \b AttributeComment). Note that
+    #  this attribute will appear in the \b Value column in the object browser.
+    #
+    #  \param icon (string) item icon name (attribute \b AttributePixMap).
+    #
+    #  \param IOR (string) IOR of a CORBA object associated with the item
+    #  (attribute \b AttributeIOR).
+    #
+    #  \param typeId (integer) item type (attribute \b AttributeLocalID).
     def setItem(self, item, name = None, fileType = None, fileName = None,
                 comment = None, icon = None, IOR = None, typeId = None):
         """
@@ -364,6 +465,15 @@ class StudyEditor:
         if typeId is not None:
             self.setTypeId(item, typeId)
 
+    ## Remove the given item from the study. Note that the items are never
+    #  really deleted. They just don't appear in the study anymore.
+    #
+    #  \param item (SObject) the item to be removed
+    #
+    #  \param withChildren (boolean) if \b True, also remove the children of item
+    #
+    #  \return \b True if the item was removed successfully, or 
+    #  \b False if an error happened.
     def removeItem(self, item, withChildren = False ):
         """
         Remove the given item from the study. Note that the items are never
@@ -390,6 +500,18 @@ class StudyEditor:
             ok = False
         return ok
 
+    ## Find an item tagged \b tag under \b fatherItem in the study tree or
+    #  create it if there is none, then set its attributes.
+    #
+    #  \param fatherItem (SObject) item under which the tagged item will be looked for
+    #  and eventually created.
+    #
+    #  \param tag integer) tag of the item to look for.
+    #
+    #  \return the SObject at \b tag if found or created successfully, or
+    #  \b None if an error happened.
+    #    
+    #  See \b setItem() for the description of the other parameters.
     def setItemAtTag(self, fatherItem, tag, name = None, fileType = None,
                      fileName = None, comment = None, icon = None, IOR = None,
                      typeId = None):
@@ -416,6 +538,8 @@ class StudyEditor:
                      IOR, typeId)
         return sObj
 
+    ## Return the value of the attribute named \b attributeName on the object
+    #  sObject, or \b default if the attribute doesn't exist.
     def getAttributeValue(self, sObject, attributeName, default = None):
         """
         Return the value of the attribute named `attributeName` on the object
@@ -427,6 +551,8 @@ class StudyEditor:
             value = attr.Value()
         return value
 
+    ## Set the value of the attribute named \b attributeName on the object
+    #  sObject to the value \b attributeValue.
     def setAttributeValue(self, sObject, attributeName, attributeValue):
         """
         Set the value of the attribute named `attributeName` on the object
@@ -435,6 +561,8 @@ class StudyEditor:
         attr = self.builder.FindOrCreateAttribute(sObject, attributeName)
         attr.SetValue(attributeValue)
 
+    ## Return the value of the attribute "AttributeLocalID" of the object
+    #  sObject, or \b None if it is not set.
     def getTypeId(self, sObject):
         """
         Return the value of the attribute "AttributeLocalID" of the object
@@ -442,6 +570,8 @@ class StudyEditor:
         """
         return self.getAttributeValue(sObject, "AttributeLocalID")
 
+    ## Set the attribute "AttributeLocalID" of the object \b sObject to the
+    #  value \b value.
     def setTypeId(self, sObject, value):
         """
         Set the attribute "AttributeLocalID" of the object `sObject` to the
@@ -449,6 +579,8 @@ class StudyEditor:
         """
         self.setAttributeValue(sObject, "AttributeLocalID", value)
 
+    ## Return the value of the attribute "AttributeFileType" of the object
+    #  sObject, or an empty string if it is not set.
     def getFileType(self, sObject):
         """
         Return the value of the attribute "AttributeFileType" of the object
@@ -456,6 +588,8 @@ class StudyEditor:
         """
         return self.getAttributeValue(sObject, "AttributeFileType", "")
 
+    ## Set the attribute "AttributeFileType" of the object sObject to the
+    #  value value.
     def setFileType(self, sObject, value):
         """
         Set the attribute "AttributeFileType" of the object `sObject` to the
@@ -464,6 +598,8 @@ class StudyEditor:
         # Explicit cast is necessary for unicode to string conversion
         self.setAttributeValue(sObject, "AttributeFileType", str(value))
 
+    ## Return the value of the attribute "AttributeExternalFileDef" of the
+    #  object sObject, or an empty string if it is not set.
     def getFileName(self, sObject):
         """
         Return the value of the attribute "AttributeExternalFileDef" of the
@@ -471,6 +607,8 @@ class StudyEditor:
         """
         return self.getAttributeValue(sObject, "AttributeExternalFileDef", "")
 
+    ## Set the attribute "AttributeExternalFileDef" of the object sObject
+    #  to the value value.
     def setFileName(self, sObject, value):
         """
         Set the attribute "AttributeExternalFileDef" of the object `sObject`
@@ -480,6 +618,8 @@ class StudyEditor:
         self.setAttributeValue(sObject, "AttributeExternalFileDef",
                                str(value))
 
+    ## Return the value of the attribute "AttributePixMap" of the object
+    #  sObject, or an empty string if it is not set.
     def getIcon(self, sObject):
         """
         Return the value of the attribute "AttributePixMap" of the object
@@ -491,6 +631,8 @@ class StudyEditor:
             value = attr.GetPixMap()
         return value
 
+    ## Set the attribute "AttributePixMap" of the object sObject to the
+    #  value value.
     def setIcon(self, sObject, value):
         """
         Set the attribute "AttributePixMap" of the object `sObject` to the

@@ -44,14 +44,6 @@ Launcher::Job::Job()
   _result_directory = "";
   _maximum_duration = "";
   _maximum_duration_in_second = -1;
-  _resource_required_params.name = "";
-  _resource_required_params.hostname = "";
-  _resource_required_params.OS = "";
-  _resource_required_params.nb_proc = -1;
-  _resource_required_params.nb_node = -1;
-  _resource_required_params.nb_proc_per_node = -1;
-  _resource_required_params.cpu_clock = -1;
-  _resource_required_params.mem_mb = -1;
   _queue = "";
   _job_type = "";
   _exclusive = false;

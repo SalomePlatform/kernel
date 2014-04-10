@@ -17,6 +17,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup study_exchange_vars study_exchange_vars
+#  \{ 
+#  \details
+#  This module provides classes and functions to handle "Exchange Variables",
+#  i.e. description of variables to be exchanged between a supervision code and a
+#  computation code. These Exchange Variables can be stored in a SObject in
+#  Salome study.
+#  \}
+
 """
 This module provides classes and functions to handle "Exchange Variables",
 i.e. description of variables to be exchanged between a supervision code and a
@@ -32,6 +41,9 @@ INPUT_VAR_NAMES = "ExchangeVariables.InputVarNames"
 OUTPUT_VAR_NAMES = "ExchangeVariables.OutputVarNames"
 REF_ENTRY = "ExchangeVariables.RefEntry"
 
+## This class describes a single variable. For now, it is only described by
+#  its name. Other attributes are reserved for future use.
+#  \ingroup study_exchange_vars
 class Variable:
     """
     This class describes a single variable. For now, it is only described by
@@ -48,7 +60,21 @@ class Variable:
         self.maxValue = maxValue
         self.initialValue = initialValue
 
-
+## This class describes "Exchange Variables", i.e. a structure containing all
+#  the necessary information to exchange variables between a supervision code
+#  and a computation code.
+#
+#  \param inputVarList This instance attribute is a list of \b Variable objects,
+#  describing the input variables for the computation code.
+#
+#  \param outputVarList This instance attribute is a list of \b Variable objects,
+#  describing the output variables for the computation code.
+#
+#  \param refEntry This instance attribute is optional and can be used to store a
+#  reference to a Salome entry containing an "Exchange Variable" SObject
+#  that was used to build this one (when the current object has been built
+#  by selecting variables of interest in a list of potential variables).
+#  \ingroup study_exchange_vars
 class ExchangeVariables:
     """
     This class describes "Exchange Variables", i.e. a structure containing all
@@ -80,6 +106,9 @@ class ExchangeVariables:
         self.outputVarList = outputVarList
         self.refEntry = refEntry
 
+    ## Save this object to an XML file.
+    #
+    #  \param filepath (string) path of the XML file.
     def saveToXmlFile(self, filepath):
         """
         Save this object to an XML file.
@@ -107,6 +136,21 @@ class ExchangeVariables:
         f.write(doc.toprettyxml(indent = "  "))
         f.close()
 
+## Create a SObject to store an \b ExchangeVariables instance.
+#
+#  \param fatherSobj (SObject) parent of the SObject to create.
+#
+#  \param exchangeVariables (ExchangeVariables) \b ExchangeVariables instance to store in
+#  Salome study.
+#
+#  \param name (string) name of the SObject to create.
+#
+#  \param icon (string) icon of the SObject to create.
+#
+#  \param typeId (integer) type of the SObject to create.
+#
+#  \return the newly created SObject.
+#  \ingroup study_exchange_vars
 def createSObjectForExchangeVariables(fatherSobj, exchangeVariables,
                                       name = DEFAULT_NAME,
                                       icon = None, typeId = None):
@@ -140,6 +184,13 @@ def createSObjectForExchangeVariables(fatherSobj, exchangeVariables,
                              typeId = typeId)
     _setSObjectForExchangeVariables(editor, sobj, exchangeVariables)
 
+## Update an existing SObject storing an \b ExchangeVariables instance.
+#
+#  \param sobj (SObject) the SObject to update.
+#
+#  See \b createSObjectForExchangeVariables() for the description of the
+#  other parameters.
+#  \ingroup study_exchange_vars
 def updateSObjectForExchangeVariables(sobj, exchangeVariables,
                                       name = DEFAULT_NAME,
                                       icon = None, typeId = None):
@@ -168,6 +219,13 @@ def _setSObjectForExchangeVariables(editor, sobj, exchangeVariables):
     if exchangeVariables.refEntry is not None:
         attr.SetString(REF_ENTRY, exchangeVariables.refEntry)
 
+## Get an \b ExchangeVariables instance from a SObject that stores it.
+#
+#  \param sobj (SObject) the SObject from which to read the \b ExchangeVariables
+#  instance.
+#
+#  \return the newly created \b ExchangeVariables instance.
+#  \ingroup study_exchange_vars
 def getExchangeVariablesFromSObject(sobj):
     """
     Get an :class:`ExchangeVariables` instance from a SObject that stores it.
@@ -190,6 +248,12 @@ def getExchangeVariablesFromSObject(sobj):
             [Variable(name) for name in attr.GetStrArray(OUTPUT_VAR_NAMES)],
             refEntry)
 
+## Load an \b ExchangeVariables instance from an XML file.
+#
+#  \param filepath (string) path of the XML file to load.
+#
+#  \return the newly created \b ExchangeVariables instance.
+#  \ingroup study_exchange_vars
 def loadExchangeVariablesFromXmlFile(filepath):
     """
     Load an :class:`ExchangeVariables` instance from an XML file.

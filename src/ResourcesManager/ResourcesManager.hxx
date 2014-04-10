@@ -50,6 +50,8 @@
 // session.
 struct resourceParams
 {
+  resourceParams();
+
   std::string name;
   std::string hostname;
   bool can_launch_batch_jobs;

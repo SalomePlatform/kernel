@@ -76,6 +76,7 @@ WARN_LOGFILE           = log.txt
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = \
+               @CMAKE_CURRENT_BINARY_DIR@/tmp \
 		       @PROJECT_SOURCE_DIR@/doc/salome \
 		       @PROJECT_SOURCE_DIR@/bin \
 		       @PROJECT_SOURCE_DIR@/idl \
@@ -83,9 +84,6 @@ INPUT                  = \
 		       @PROJECT_SOURCE_DIR@/src/LifeCycleCORBA \
 		       @PROJECT_SOURCE_DIR@/src/NamingService \
 		       @PROJECT_SOURCE_DIR@/src/Notification \
-		       @PROJECT_SOURCE_DIR@/src/SALOMEDS/SALOME_DriverPy.py \
-		       @PROJECT_SOURCE_DIR@/src/KERNEL_PY/salome.py \
-		       @PROJECT_SOURCE_DIR@/src/KERNEL_PY/salome_iapp.py \
 		       @PROJECT_SOURCE_DIR@/src/Utils \
 		       @PROJECT_SOURCE_DIR@/src/DSC
 

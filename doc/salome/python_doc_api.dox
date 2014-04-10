@@ -1,0 +1,27 @@
+/*!
+
+\page python_doc_api Documentation of the programming interface (API)
+
+This section describes the python modules of the <b>salome.kernel</b> 
+python package. The main part is generated from the code documentation 
+included in source python files.
+- <a href="group__salome__kernel.html">salome.kernel</a> - Package containing 
+  the KERNEL python utilities
+  - <a href="group__deprecation.html">deprecation</a> - Indication of deprecated modules and functions
+  - <a href="group__termcolor.html">termcolor</a> - Display colored text in terminal
+  - <a href="group__logger.html">logger</a> - Logging utility
+  - <a href="group__enumerate.html">enumerate</a> - Emulates a C-like enum for python
+  - <a href="group__uiexception.html">uiexception</a> - %Exception for user error management
+  - <a href="group__datamodeler.html">datamodeler</a> - Helper for modeling user data
+  - <a href="group__diclookup.html">diclookup</a> - Smart dictionnary with key/value lookup
+  - <a href="group__service.html">service</a> - Helper for using %SALOME kernel services
+  - <a href="group__studyedit.html">studyedit</a> - Study editor
+  - <a href="group__unittester.html">unittester</a> - Run very basic unit tests
+  - <a href="group__pyunittester.html">pyunittester</a> - Simple wrapper of the pyunit framework
+- <a href="group__salome__kernel__parametric.html">salome.kernel.parametric</a> - 
+  Package for parametric studies
+  - <a href="group__study__exchange__vars.html">study_exchange_vars</a> - Handle Exchange Variables
+  - <a href="group__compo__utils.html">compo_utils</a> - Useful functions for %SALOME components used in parametric studies
+  - <a href="group__pyscript__utils.html">pyscript_utils</a> - Useful functions for Python scripts used in parametric studies
+  
+*/

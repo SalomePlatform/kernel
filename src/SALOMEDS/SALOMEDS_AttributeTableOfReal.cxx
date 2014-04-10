@@ -101,7 +101,7 @@ void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>&
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theTitles[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitles(aSeq);
   }
 }
@@ -161,7 +161,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::strin
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theTitles[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitles(aSeq);
   }
 }
@@ -221,7 +221,7 @@ void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& 
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theUnits[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = theUnits[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnits(aSeq);
   }
 }

@@ -832,8 +832,8 @@ def main():
         sys.exit(1)
 
     from salome_utils import getHostName
-    print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()
+    print "runSalome running on %s" % getHostName()
 
     kill_salome(args)
     save_config = True

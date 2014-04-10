@@ -1,0 +1,214 @@
+/*!
+
+\page python_doc_compl Organizing the SALOME python functions in a packaged structure
+
+This chapter contains the instruction notes to organise the python files of %SALOME 
+in a packaged python structure. This is the first step of the development process, 
+whose goal is to validate the principles and show a possible way.
+
+\b Contacts: Guillaume Boulant, Christian Caremoli, Renaud Barate
+
+\section Compl_objectives Objectives
+
+The main idea is to import %SALOME python functions by doing:
+
+\code
+from salome.kernel.<myPythonModule> import <myFunction>
+\endcode
+
+instead of:
+
+\code
+from <myPythonModule> import <myFunction>
+\endcode
+
+as it must be done up to now because of the flat organisation of
+python files in the installation folders of %SALOME modules.
+
+To reach this target, the files <b><myPythonModule>.py</b> have to be
+organised in a packaged python structure where the main package is
+named salome, and then sub-packages could be created for each
+%SALOME module:
+
+- <b>salome.kernel</b>: for kernel python functions, embedded in the
+  KERNEL module
+- <b>salome.gui</b>: for gui python functions, embedded in the GUI module
+- <b>salome.geom</b>: for geom python functions, embedded in the GEOM
+  module
+- and so on ...
+
+The motivations of this objective are twice:
+
+- Definitively prevent the risk of naming conflict between python
+  modules coming from different %SALOME modules. Today, the developper
+  of a module has to take care of the names used in other modules to
+  choose a name.
+- Integrate in %SALOME some python modules initialy developed in the
+  context of domain specific %SALOME applications (%SALOME-MECA,
+  %SALOME-CFD, OPENTURN, PANTHERE) and whose source files are organized
+  in a packaged python structure.
+
+The starting point then is a python library named \em nepal that
+provides %SALOME helper functions classified by modules
+(KERNEL,GEOM,...) and organized in a packaged python structure:
+
+- <b>salome.kernel</b>: helper functions for manipulating the %SALOME
+  study and its components (SComponents and SObject). This provides
+  also general purpose utilities for logging and threading.
+- <b>salome.gui</b>:  helper functions to manipulate the graphical
+  representation of studies and the general behavior of the graphical
+  interface. This provides also generic templates for implementing
+  dialog box with the MVC pattern.
+- <b>salome.geom</b>: essentially contains a function called
+  "visualization of structural elements". This is used by mechanical
+  ingeneers to create the 3D geometrical object corresponding to the
+  numerical model of a given structural element.
+- <b>salome.smesh</b>: to manipulated smesh data handled from the SObject
+  in the %SALOME study.
+
+The target point is to have the <b>salome.kernel</b> part in the KERNEL
+module, the <b>salome.geom</b> part in the GEOM module, and so on. And
+with <b>no impact on %SALOME scripts</b> that already exists (import salome,
+and all other stuff should be imported and work as before).
+
+\section Compl_problems Problems
+
+To reach this target, we have to face two problems:
+
+- %A naming conflict with the instruction <b>import salome</b>. The result
+  is unpredictible because of the existance in the <b>sys.path</b> of
+  both a file <b>salome.py</b> and a package \b salome.
+- The dispatching of <b>salome.*</b> sub-packages in the different %SALOME
+  modules.
+
+\subsection subsection_prob1 Naming conflict between salome.py module and salome package
+
+The problem is solved by installing the <b>salome.py</b> file under the
+name <b>__init__.py</b> in a folder named <b>${salomepythondir}/salome</b>.
+
+By this operation, the <b>${salomepythondir}/salome</b> directory is
+transformed in a python package and the instruction <b>import salome</b>
+do the same things as before this modification, without any
+modification of the <b>sys.path</b>.
+
+\subsection subsection_prob2 Dispatching of salome.* sub-packages in different %SALOME modules
+
+When we use a %SALOME virtual application, the problem is naturally
+solved by the fact that every sub-packages are virtually installed in
+the same directory, the directory <b>${salomepythondir}/salome</b>
+containing the file <b>__init__.py</b>.
+
+Nevertheless, some people doesn't use the virtual application. To get
+a robust configuration in any case, one can use the python namespace
+pattern. This consists in creating a virtual python package that
+aggregates all the sub-packages.
+
+Technically speaking, this consists in implementing in the file
+<b>${salomepythondir}/salome/__init__.py</b> (new version of
+<b>salome.py</b>) a function that automatically extend the <b>__path__</b>
+variable with sub-packages that can be found in %SALOME modules
+installation paths. The code looks something like that:
+
+\code
+import os, sys 
+MATCH_ENDING_PATTERN="site-packages/salome"
+def extend_path(pname):
+  for dir in sys.path:
+    if not isinstance(dir, basestring) or not os.path.isdir(dir) or not dir.endswith(MATCH_ENDING_PATTERN):
+      continue
+    subdir = os.path.join(dir, pname)
+    # WARN: This may still add duplicate entries to path on
+    # case-insensitive filesystems
+    if os.path.isdir(subdir) and subdir not in __path__:
+      print "INFO - The directory %s is appended to sys.path" % subdir
+      __path__.append(subdir)
+ 
+extend_path(ROOT_PYTHONPACKAGE_NAME)
+\endcode
+
+\subsection subsection_prob3 Adaptation of the apply_gen utility
+
+Due to the specific above choices, the <b>apply_gen</b> utility must be
+modified so that the sub-folder \b salome in <b>${salomepythondir}</b>
+is not generated as a symbolic link any longer but as a real folder
+containing symbolic links towards the module specific python
+sub-packages (\b kernel, \b geom, \b smesh, ...) and to the single
+file <b>__init__.py</b> provided by the KERNEL module.
+
+This adaptation can be done in the <b>virtual_salome.py</b> script.
+
+\subsection subsection_prob4 What to do with already existing python files?
+
+Do nothing at this step, it works fine because the files are installed
+in a path included in the <b>sys.path</b>.
+
+In a future version, it should be nice to reverse all the python files
+of the KERNEL library in this packaged structure. But this can't be
+done without impact on existing python user scripts.
+
+\section Compl_instructions Instructions
+
+\subsection subsection_instr1 Instructions for creating the python packages
+
+Considering the elements described above, a procedure that works to
+get the packaged python structure is:
+
+- Rename the file <b>salome.py</b> in <b>__init__.py</b> (and adapt the
+  CMakeLists.txt). This is located in the source directory
+  <b>src/KERNEL_PY</b>.
+- Copy the sources files of the kernel part in the source directory
+  <b>src/KERNEL_PY</b> starting with a stage named \b kernel including
+  its own packaged structure (only python files and a file
+  <b>__init__.py</b> for now)
+- Copy the sources files of the geom part in the source directory
+  <b>src/GEOM_PY</b> (to be created) of the GEOM module. In this case, we
+  copy the python files directly in the directory (no stage named
+  \b geom, it's not required for source organisation, and will be
+  created only for installation by makefile).
+- Apply the same procedure for every other %SALOME modules (it concerns
+  only SMESH up to now).
+- Apply the "namespace pattern" by implementing and invoking the
+  <b>extend_path</b> function in the newly created file <b>__init__.py</b>
+- Adapt the <b>apply_gen</b> utility to take into account the finer
+  folder hierarchy in <b>site-packages</b>.
+
+The naming convention for source folder is here the convention in
+place in the KERNEL module: the source code of the python packages of
+a %SALOME module <MODULE_NAME> is located in the source directory
+<b><srcdir>/src/<MODULE_NAME>_PY</b>.
+
+Note also that all python files that were existing in the KERNEL
+module are leaft untouched but the file <b>salome.py</b>.
+
+\subsection subsection_instr2 Instructions for the associated documentation
+
+One special point for the documentation:
+
+- The documentation of the python package API is writen in HTML
+  and generated form the source code with doxygen.
+- The *.dox (doxygen file) source files are located in the directory
+  <b><srcdir>/doc/salome</b>.
+- The html generated files are installed in the directory
+  <b><installdir>/share/doc/salome/gui/KERNEL</b> and are connected to
+  the in-line documentation of the %SALOME associated module (menu help
+  of the %SALOME application).
+
+\section Compl_tests Tests and usage
+
+The instructions above provides you with a %SALOME application whose
+modules embed there dedicated python packages. This installation can
+can be tested using some test use cases. For example, the
+visualisation of structural elements (provided by the package
+<b>salome.geom</b> can be tested by:
+
+\code
+from salome.geom.structelem import TEST_StructuralElement
+TEST_StructuralElement()
+\endcode
+
+This can be enter in the GUI python console or in a python interpreter
+executed in a %SALOME session.
+
+For more details, read the \ref python_doc_api "API documentation" in
+<b><installdir>/share/doc/salome/gui/KERNEL</b>.
+*/

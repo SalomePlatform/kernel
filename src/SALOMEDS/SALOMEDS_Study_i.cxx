@@ -147,6 +147,23 @@ namespace SALOMEDS
       myObservers.push_back(std::make_pair(SALOMEDS::Observer::_duplicate(theObs),modify));
     }
 
+    //============================================================================
+    /*! Function : detach
+     *  Purpose  : unregister an Observer
+     */
+    //============================================================================
+
+    virtual void detach(SALOMEDS::Observer_ptr theObs)
+    {
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+      {
+	if ( it->first->_is_equivalent(theObs) ) {
+	  myObservers.erase( it );
+	  break;
+	}
+      }
+    }
+
   private:
     typedef std::list< std::pair< SALOMEDS::Observer_var, bool > > ObsList;
     typedef ObsList::iterator ObsListIter;
@@ -1328,6 +1345,18 @@ void SALOMEDS_Study_i::attach(SALOMEDS::Observer_ptr theObs,CORBA::Boolean modif
 {
   if(_notifier)
     static_cast<SALOMEDS::Notifier*>(_notifier)->attach(theObs,modify);
+}
+
+
+//============================================================================
+/*! Function : detach
+ *  Purpose  : This function detaches an observer from the study
+ */
+//============================================================================
+void SALOMEDS_Study_i::detach(SALOMEDS::Observer_ptr theObs)
+{
+  if(_notifier)
+    static_cast<SALOMEDS::Notifier*>(_notifier)->detach(theObs);
 }
 
 //===========================================================================

@@ -35,16 +35,11 @@
 
 #include "Container_init_python.hxx"
 
-PyThreadState *KERNEL_PYTHON::_gtstate = 0;
-PyObject *KERNEL_PYTHON::salome_shared_modules_module = NULL;
-PyInterpreterState *KERNEL_PYTHON::_interp = NULL;
-
 void KERNEL_PYTHON::init_python(int argc, char **argv)
 {
   if (Py_IsInitialized())
     {
       MESSAGE("Python already initialized");
-      SCRUTE(KERNEL_PYTHON::_gtstate);
       return;
     }
   MESSAGE("=================================================================");
@@ -57,10 +52,7 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
     Py_SetProgramName(salome_python);
   Py_Initialize(); // Initialize the interpreter
   PySys_SetArgv(argc, argv);
-  KERNEL_PYTHON::_interp = PyThreadState_Get()->interp;
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
-  ASSERT(!KERNEL_PYTHON::_gtstate);
-  KERNEL_PYTHON::_gtstate = PyEval_SaveThread(); // Release global thread state
-  SCRUTE(KERNEL_PYTHON::_gtstate);
+  PyEval_ReleaseLock();  // Py_InitThreads acquires the GIL
 }
 

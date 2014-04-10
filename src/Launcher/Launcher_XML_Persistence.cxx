@@ -323,7 +323,7 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
       }
     }
     else if (node_name == "resource_params")
-      new_job->setResourceRequiredParams(parseResourceNode(current_node));
+      parseResourceNode(new_job, current_node);
     else if (node_name == "maximum_duration")
       new_job->setMaximumDuration(getNodeContent(current_node));
     else if (node_name == "queue")
@@ -371,8 +371,8 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
   if (!job_file_ok) throw LauncherException("missing job file");
 }
 
-resourceParams
-XML_Persistence::parseResourceNode(xmlNodePtr res_node)
+void
+XML_Persistence::parseResourceNode(Job * new_job, xmlNodePtr res_node)
 {
   resourceParams p;
   xmlNodePtr current_node = xmlFirstElementChild(res_node);
@@ -395,11 +395,13 @@ XML_Persistence::parseResourceNode(xmlNodePtr res_node)
       p.cpu_clock = getNumericalNodeContent<long>(current_node);
     else if (node_name == "mem_mb")
       p.mem_mb = getNumericalNodeContent<long>(current_node);
+    else if (node_name == "mem_per_cpu")
+      new_job->setMemPerCpu(getNumericalNodeContent<long>(current_node));
     else
       throw LauncherException(string("invalid node \"") + node_name + "\"");
     current_node = xmlNextElementSibling(current_node);
   }
-  return p;
+  new_job->setResourceRequiredParams(p);
 }
 
 void

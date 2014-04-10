@@ -17,11 +17,23 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+## \defgroup uiexception uiexception
+#  \{ 
+#  \details Exception for user error management
+#  \}
+
 __author__="gboulant"
 __date__ ="$31 mars 2010 11:59:33$"
 
 from enumerate import Enumerate
 
+## This exception should be used for functionnal error management, at least in the GUI
+#  part of the application, for example to set user oriented messages at point
+#  of exception raise.
+#  \warning The exception should NOT be used to hide defaults in the algorithm, but
+#  only predicted error in the specified use case.
+#  \ingroup uiexception
 class UiException(Exception):
 
     TYPES = Enumerate([
@@ -40,6 +52,8 @@ class UiException(Exception):
     WARN: The exception should NOT be used to hide defaults in the algorithm, but
     only predicted error in the specified use case.
     """
+    
+    ## Canonical constructor
     def __init__(self, message, type=TYPES.USER):
         """Canonical constructor"""
         Exception.__init__(self,message)
@@ -52,6 +66,7 @@ class UiException(Exception):
     def getUIMessage(self):
         return self._UImessage
 
+    ## Specify the type of this exception. To be choosen in the TYPES list.
     def setType(self, type):
         """Specify the type of this exception. To be choosen in the TYPES list."""
         if not self.TYPES.isValid(type):

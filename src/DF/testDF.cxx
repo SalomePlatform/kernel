@@ -35,6 +35,7 @@
 #include "DF_ChildIterator.hxx"
 
 #ifndef WIN32
+#include <unistd.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>

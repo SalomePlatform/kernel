@@ -17,3 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup salome_kernel_parametric salome.kernel.parametric
+#  \{ 
+#  \details Package for parametric studies
+#  \defgroup study_exchange_vars
+#  \defgroup compo_utils
+#  \defgroup pyscript_utils
+#  \}

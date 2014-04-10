@@ -18,6 +18,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+## \defgroup datamodeler datamodeler
+#  \{ 
+#  \details Helper for modeling user data
+#  \}
+
 __author__="gboulant"
 __date__ ="$15 avr. 2010 19:44:17$"
 
@@ -43,6 +48,24 @@ UNCHECKED_ATTRIBUTES = [
     "_voidmap"
 ]
 
+## This class is a placeholder for modeling data. An object based on this class
+#  (particular instance or specialized derived class) can defined attributes with
+#  the following properties:
+#  - a type : the class or the type of the attribute. Setting an attribute to
+#    a value whose type is not the specified type raises an exception.
+#  - a range : a list of the possible values for the attribute. Setting an
+#    attribute to a value not in the range raises an exception
+#  - a default: the default value of an attribute when an instance is created
+#  - a void flag: the attribute can be authorized to be None or not using this
+#    flag. Setting an attribute to a None value while the flag is not set to
+#    True raises an exception. By default, a None value is not allowed.
+#
+#  These properties are dictionnaries mapping the attribute name to its
+#  associated value for the property.
+#  \n A typical usage is to derived this class in a specialized form where the
+#  attributes names and there properties are defined in the constructor. See
+#  use cases at the end of this file.
+#  \ingroup datamodeler
 class DataModeler:
     """
     This class is a placeholder for modeling data. An object based on this class
@@ -85,6 +108,7 @@ class DataModeler:
             for name in self._defaultmap.keys():
                 self.__setattr__(name,self._defaultmap[name])
 
+    ## %A None argument means that no entry is created in the associated maps.
     def addAttribute(self, name, type=None, range=None, default=None, void=None):
         """
         A None argument means that no entry is created in the associated maps.

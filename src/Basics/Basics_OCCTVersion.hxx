@@ -29,15 +29,20 @@
 #include <Standard_Version.hxx>
 
 //
-// NOTE: CAS_VERSION_DEVELOPMENT macro is defined via command line in contrast to OCC_VERSION_DEVELOPMENT
-//       which is specified in the Standard_Version.hxx
+// NOTE: Since version 6.7.0 OCC_VERSION_DEVELOPMENT macro in the Standard_Version.hxx
+// points to the development status of the OCCT version: for example "dev", "alpha",
+// "beta", "rc1", etc.
+// OCC_VERSION_MAJOR, OCC_VERSION_MINOR and OCC_VERSION_MAINTENANCE macros
+// specify actual (final) version number; for development version it is a future
+// target version number (i.e. version number is incremented immediately after
+// releasing of the stable version).
 //
 
 #ifdef OCC_VERSION_SERVICEPACK
 #  define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8 | OCC_VERSION_SERVICEPACK)
 #else
-#  ifdef CAS_VERSION_DEVELOPMENT
-#    define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8 | 1)
+#  ifdef OCC_VERSION_DEVELOPMENT
+#    define OCC_VERSION_LARGE ((OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8)-1)
 #  else
 #    define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8)
 #  endif

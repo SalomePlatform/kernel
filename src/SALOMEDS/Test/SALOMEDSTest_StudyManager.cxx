@@ -99,7 +99,7 @@ void SALOMEDSTest::testStudyManager()
   //Check method Open
   _PTR(Study) study1_opened = sm->Open("srn_UnitTest_Save.hdf");  //Contains Test component
   system("rm -f srn_UnitTest_Save.hdf");
-  url = study1->URL();
+  url = study1_opened->URL();
   CPPUNIT_ASSERT(study1_opened);
   CPPUNIT_ASSERT(url == "srn_UnitTest_Save.hdf");
 
