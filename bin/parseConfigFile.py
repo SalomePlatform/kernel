@@ -103,6 +103,12 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
                 if pos != -1 and optval[pos-1].isspace():
                   optval = optval[:pos]
               optval = optval.strip()
+              # ADD THESE LINES
+              splittedComments = optval.split('#')
+              optval = splittedComments[0].strip().strip("'").strip('"')
+              #if len(splittedComments) > 1:
+              #  optval += " #" + " ".join(splittedComments[1:])
+              # END OF ADD
               # allow empty values
               if optval == '""':
                 optval = ''
