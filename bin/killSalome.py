@@ -95,7 +95,7 @@ def killAllPorts():
 
 if __name__ == "__main__":
     try:
-        from salomeLauncherUtils import setOmniOrbUserPath
+        from salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
     except Exception, e:
         print e
