@@ -41,6 +41,7 @@ import virtual_salome
 # --- names of tags in XML configuration file
 appli_tag   = "application"
 prereq_tag  = "prerequisites"
+context_tag = "context"
 system_conf_tag  = "system_conf"
 modules_tag = "modules"
 module_tag  = "module"
@@ -83,6 +84,10 @@ class xml_parser:
         # --- if we are analyzing "prerequisites" element then store its "path" attribute
         if self.space == [appli_tag, prereq_tag] and path_att in attrs.getNames():
             self.config["prereq_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "context" element then store its "path" attribute
+        if self.space == [appli_tag, context_tag] and path_att in attrs.getNames():
+            self.config["context_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "system_conf" element then store its "path" attribute
         if self.space == [appli_tag, system_conf_tag] and path_att in attrs.getNames():
@@ -176,14 +181,16 @@ def install(prefix,config_file,verbose=0):
             print cle, _config[cle]
             pass
 
-    for module in _config["modules"]:
-        print "--- add module ", module, _config[module]
-        options = params()
-        options.verbose=verbose
-        options.clear=0
-        options.prefix=home_dir
-        options.module=_config[module]
-        virtual_salome.link_module(options)
+    for module in _config.get("modules",[]):
+        if _config.has_key(module):
+            print "--- add module ", module, _config[module]
+            options = params()
+            options.verbose=verbose
+            options.clear=0
+            options.prefix=home_dir
+            options.module=_config[module]
+            virtual_salome.link_module(options)
+            pass
         pass
 
     appliskel_dir=os.path.join(home_dir,'bin','salome','appliskel')
@@ -210,25 +217,32 @@ def install(prefix,config_file,verbose=0):
 
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
-    if os.path.isfile(_config["prereq_path"]):
+
+    if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
         command='cp -p ' + _config["prereq_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.sh')
         os.system(command)
         pass
     else:
         print "WARNING: prerequisite file does not exist"
         pass
-    # :NOTE: For the new launch procedure, we do not use a "physical" .cfg
-    # file for prerequisites; the launch procedure automatically reads and
-    # converts the envProducts.sh file.
+
+    if _config.has_key("context_path") and os.path.isfile(_config["context_path"]):
+        command='cp -p ' + _config["context_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.cfg')
+        os.system(command)
+        pass
+    else:
+        print "WARNING: context file does not exist"
+        pass
 
     if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
         command='cp -p ' + _config["system_conf_path"] + ' ' + os.path.join(home_dir,'env.d','envConfSystem.sh')
         os.system(command)
         pass
 
+
     # Create environment file: configSalome.sh
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
-    for module in _config["modules"]:
+    for module in _config.get("modules",[]):
         command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
         f.write(command)
         pass
@@ -246,7 +260,7 @@ def install(prefix,config_file,verbose=0):
     f =open(os.path.join(home_dir,'env.d','configSalome.cfg'),'w')
     command = "[SALOME ROOT_DIR (modules) Configuration]\n"
     f.write(command)
-    for module in _config["modules"]:
+    for module in _config.get("modules",[]):
         command=module + '_ROOT_DIR=${HOME}/${APPLI}\n'
         f.write(command)
         pass
@@ -306,7 +320,7 @@ MMGT_REENTRANT=1
 """
     mods=[]
     #Keep all modules except KERNEL and GUI
-    for m in _config["modules"]:
+    for m in _config.get("modules",[]):
       if m in ("KERNEL","GUI"):continue
       mods.append(m)
     f.write(command % ",".join(mods))

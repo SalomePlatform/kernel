@@ -158,7 +158,6 @@ def __savePortToFile(args):
   if args.has_key('ns_port_log_file'):
     omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
     file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
-    print file_name, os.environ['NSPORT']
     with open(file_name, "w") as f:
       f.write(os.environ['NSPORT'])
 #

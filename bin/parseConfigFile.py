@@ -86,7 +86,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
           optname = None
         # no section header in the file?
         elif cursect is None:
-          raise MissingSectionHeaderError(fpname, lineno, line)
+          raise ConfigParser.MissingSectionHeaderError(fpname, lineno, line)
         # an option line?
         else:
           mo = self.OPTCRE.match(line)
@@ -202,7 +202,14 @@ def __processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
       pass # end for key,val
     pass # end for section
 
-  return unsetVariables, outputVariables, reservedValues
+  # remove duplicate values
+  outVars = []
+  for (var, values) in outputVariables:
+    vals = values.split(',')
+    vals = list(set(vals))
+    outVars.append((var, ','.join(vals)))
+
+  return unsetVariables, outVars, reservedValues
 #
 
 def _trimColons(var):

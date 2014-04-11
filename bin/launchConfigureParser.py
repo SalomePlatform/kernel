@@ -28,7 +28,7 @@ import types
 
 from salome_utils import verbose, setVerbose, getPortNumber, getHomeDir
 
-from salomeLauncherUtils import getScriptsAndArgs
+from salomeContextUtils import getScriptsAndArgs
 
 # names of tags in XML configuration file
 doc_tag = "document"

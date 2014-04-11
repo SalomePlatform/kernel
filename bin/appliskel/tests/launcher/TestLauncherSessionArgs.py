@@ -30,43 +30,37 @@ logger.level = logging.DEBUG
 logger.addHandler(logging.StreamHandler())
 
 class TestSessionArgs(unittest.TestCase):
-  @classmethod
-  def setUpClass(cls):
+  #
+  logFile = "log.txt"
+  # Set some predefined command args and corresponding output messages
+  hello0 = ["hello.py", "args:outfile="+logFile]
+  hello0Msg = "Hello!"
+  hello1 = ["hello.py", "args:you,outfile="+logFile]
+  hello1Msg = "Hello to: you"
+  helloToAdd = ["hello.py", "args:add.py,1,2,3,outfile="+logFile]
+  helloToAddMsg = "Hello to: add.py, 1, 2, 3"
+  add0 = ["add.py", "args:outfile="+logFile]
+  add0Msg = "No args!"
+  add3 = ["add.py", "args:1,2,3,outfile="+logFile]
+  add3Msg = "1+2+3 = 6"
+  lines0 = ["lines.py", "args:outfile="+logFile]
+  lines0Msg = "No files given"
+  lines2 = ["lines.py", "args:hello.py,add.py,outfile="+logFile]
+  lines2Msg = "hello.py is 35 lines longadd.py is 37 lines long"
+  linesUnreadable = ["lines.py", "args:hello.py,add.py,1,2,outfile="+logFile]
+  linesUnreadableMsg = "hello.py is 35 lines longadd.py is 37 lines longFile '1' cannot be readFile '2' cannot be read"
+  #
+  def setUp(self):
     # Initialize path to SALOME application
     path_to_launcher = os.getenv("SALOME_LAUNCHER")
     appli_dir = os.path.dirname(path_to_launcher)
     envd_dir = os.path.join(appli_dir, "env.d")
 
     # Configure session startup
-    cls.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
-    cls.SALOME_args = ["shell", "--config="+envd_dir]
+    self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
+    self.SALOME_args = ["shell", "--config="+envd_dir]
 
-    cls.logFile = "log.txt"
     sys.stdout = StringIO()
-
-    # Set some predefined command args and corresponding output messages
-    cls.hello0 = ["hello.py", "args:outfile="+cls.logFile]
-    cls.hello0Msg = "Hello!"
-    cls.hello1 = ["hello.py", "args:you,outfile="+cls.logFile]
-    cls.hello1Msg = "Hello to: you"
-    cls.helloToAdd = ["hello.py", "args:add.py,1,2,3,outfile="+cls.logFile]
-    cls.helloToAddMsg = "Hello to: add.py, 1, 2, 3"
-    cls.add0 = ["add.py", "args:outfile="+cls.logFile]
-    cls.add0Msg = "No args!"
-    cls.add3 = ["add.py", "args:1,2,3,outfile="+cls.logFile]
-    cls.add3Msg = "1+2+3 = 6"
-    cls.lines0 = ["lines.py", "args:outfile="+cls.logFile]
-    cls.lines0Msg = "No files given"
-    cls.lines2 = ["lines.py", "args:hello.py,add.py,outfile="+cls.logFile]
-    cls.lines2Msg = "hello.py is 16 lines longadd.py is 18 lines long"
-    cls.linesUnreadable = ["lines.py", "args:hello.py,add.py,1,2,outfile="+cls.logFile]
-    cls.linesUnreadableMsg = "hello.py is 16 lines longadd.py is 18 lines longFile '1' cannot be readFile '2' cannot be read"
-  #
-  @classmethod
-  def tearDownClass(cls):
-    pass
-  #
-  def setUp(self):
     self.removeLogFile()
   #
   def tearDown(self):
@@ -85,9 +79,7 @@ class TestSessionArgs(unittest.TestCase):
     with open(self.logFile, "r") as f:
       contents = f.read().replace('\n', '')
 
-    #sys.stderr.write("Generated contents :%s\n"%contents)
-    #sys.stderr.write("Expected contents :%s\n"%message)
-    self.assertTrue(contents==message)
+    self.assertTrue(contents==message, "Contents differ!\n\tGenerated contents: %s\n\tExpected contents: %s"%(contents, message))
   #
   def testHello0(self):
     self.session(self.hello0)

@@ -30,8 +30,8 @@ import pickle
 import subprocess
 import platform
 
-from salomeLauncherUtils import SalomeRunnerException
-from salomeLauncherUtils import getScriptsAndArgs, formatScriptsAndArgs
+from salomeContextUtils import SalomeContextException
+from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs
 
 def usage():
   #exeName = os.path.splitext(os.path.basename(__file__))[0]
@@ -56,28 +56,28 @@ to show help on start and shell commands.
 #
 
 """
-The SalomeRunner class in an API to configure SALOME environment then
+The SalomeContext class in an API to configure SALOME environment then
 start SALOME using a single python command.
 
 """
-class SalomeRunner:
+class SalomeContext:
   """
   Initialize environment from a list of configuration files
   identified by their names.
   These files should be in appropriate (new .cfg) format.
   However you can give old .sh environment files; in this case,
-  the SalomeRunner class will try to automatically convert them
+  the SalomeContext class will try to automatically convert them
   to .cfg format before setting the environment.
   """
   def __init__(self, configFileNames=[]):
-    #it could be None explicitely (if user use multiples setEnviron...for standalone)
+    #it could be None explicitely (if user use multiples setVariable...for standalone)
     if configFileNames==None:
        return
 
     if len(configFileNames) == 0:
-      raise SalomeRunnerException("No configuration files given")
+      raise SalomeContextException("No configuration files given")
 
-    reserved=['PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'PV_PLUGIN_PATH']
+    reserved=['PATH', 'DYLD_LIBRARY_PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'PV_PLUGIN_PATH']
     for filename in configFileNames:
       basename, extension = os.path.splitext(filename)
       if extension == ".cfg":
@@ -100,7 +100,7 @@ class SalomeRunner:
         self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
   #
 
-  def go(self, args):
+  def runSalome(self, args):
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
     kill = False
@@ -108,31 +108,37 @@ class SalomeRunner:
       if "--shutdown-server" in e:
         kill = True
         args.remove(e)
-    
+
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeRunner.py"), pickle.dumps(self),  pickle.dumps(args)], shell=False, close_fds=True)
-    proc.communicate()
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True)
+    msg = proc.communicate()
     if kill:
       self._killAll(args)
+    return msg
   #
 
   """Append value to PATH environment variable"""
   def addToPath(self, value):
-    self.addToEnviron('PATH', value)
+    self.addToVariable('PATH', value)
   #
 
   """Append value to LD_LIBRARY_PATH environment variable"""
   def addToLdLibraryPath(self, value):
-    self.addToEnviron('LD_LIBRARY_PATH', value)
+    self.addToVariable('LD_LIBRARY_PATH', value)
+  #
+
+  """Append value to DYLD_LIBRARY_PATH environment variable"""
+  def addToDyldLibraryPath(self, value):
+    self.addToVariable('DYLD_LIBRARY_PATH', value)
   #
 
   """Append value to PYTHONPATH environment variable"""
   def addToPythonPath(self, value):
-    self.addToEnviron('PYTHONPATH', value)
+    self.addToVariable('PYTHONPATH', value)
   #
 
   """Set environment variable to value"""
-  def setEnviron(self, name, value, overwrite=False):
+  def setVariable(self, name, value, overwrite=False):
     env = os.getenv(name, '')
     if env and not overwrite:
       self.getLogger().warning("Environment variable already existing (and not overwritten): %s=%s", name, value)
@@ -147,13 +153,13 @@ class SalomeRunner:
   #
 
   """Unset environment variable"""
-  def unsetEnviron(self, name):
+  def unsetVariable(self, name):
     if os.environ.has_key(name):
       del os.environ[name]
   #
 
   """Append value to environment variable"""
-  def addToEnviron(self, name, value, separator=os.pathsep):
+  def addToVariable(self, name, value, separator=os.pathsep):
     if value == '':
       return
 
@@ -199,7 +205,7 @@ class SalomeRunner:
   Args consist in a mandatory command followed by optionnal parameters.
   See usage for details on commands.
   """
-  def _getStarted(self, args):
+  def _startSalome(self, args):
     command, options = self.__parseArguments(args)
     sys.argv = options
 
@@ -224,7 +230,7 @@ class SalomeRunner:
       import traceback
       traceback.print_exc()
       sys.exit(1)
-    except SalomeRunnerException, e:
+    except SalomeContextException, e:
       self.getLogger().error(e)
       sys.exit(1)
   #
@@ -234,17 +240,17 @@ class SalomeRunner:
 
     # unset variables
     for var in unsetVars:
-      self.unsetEnviron(var)
+      self.unsetVariable(var)
 
     # set environment
     for reserved in reservedDict:
       a = filter(None, reservedDict[reserved]) # remove empty elements
       reformattedVals = ':'.join(a)
-      self.addToEnviron(reserved, reformattedVals)
+      self.addToVariable(reserved, reformattedVals)
       pass
 
     for key,val in configVars:
-      self.setEnviron(key, val, overwrite=True)
+      self.setVariable(key, val, overwrite=True)
       pass
 
     sys.path[:0] = os.getenv('PYTHONPATH','').split(':')
@@ -279,7 +285,8 @@ class SalomeRunner:
       errmsg = []
       for cmd in command:
         cmd = cmd.strip().split(' ')
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd)
         (stdoutdata, stderrdata) = proc.communicate()
         if stdoutdata or stderrdata:
           outmsg.append(stdoutdata)
@@ -290,7 +297,7 @@ class SalomeRunner:
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
       cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
       proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-      proc.wait()
+      return proc.communicate()
   #
 
   def _runConsole(self, args=[]):
@@ -299,8 +306,9 @@ class SalomeRunner:
     import setenv
     setenv.main(True)
 
-    import runConsole
-    runConsole.connect()
+    cmd = ["python", "-c", "import runConsole\nrunConsole.connect()" ]
+    proc = subprocess.Popen(cmd, shell=False, close_fds=True)
+    return proc.communicate()
   #
 
   def _killAll(self, args=[]):
@@ -388,9 +396,9 @@ class SalomeRunner:
 import pickle
 if __name__ == "__main__":
   if len(sys.argv) == 3:
-    runner = pickle.loads(sys.argv[1])
+    context = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
-    (out, err) = runner._getStarted(args)
+    (out, err) = context._startSalome(args)
     if out:
       sys.stdout.write(out)
     if err:
