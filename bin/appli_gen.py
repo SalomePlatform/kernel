@@ -181,14 +181,16 @@ def install(prefix,config_file,verbose=0):
             print cle, _config[cle]
             pass
 
-    for module in _config["modules"]:
-        print "--- add module ", module, _config[module]
-        options = params()
-        options.verbose=verbose
-        options.clear=0
-        options.prefix=home_dir
-        options.module=_config[module]
-        virtual_salome.link_module(options)
+    for module in _config.get("modules",[]):
+        if _config.has_key(module):
+            print "--- add module ", module, _config[module]
+            options = params()
+            options.verbose=verbose
+            options.clear=0
+            options.prefix=home_dir
+            options.module=_config[module]
+            virtual_salome.link_module(options)
+            pass
         pass
 
     appliskel_dir=os.path.join(home_dir,'bin','salome','appliskel')
@@ -215,7 +217,8 @@ def install(prefix,config_file,verbose=0):
 
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
-    if os.path.isfile(_config["prereq_path"]):
+
+    if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
         command='cp -p ' + _config["prereq_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.sh')
         os.system(command)
         pass
@@ -223,7 +226,7 @@ def install(prefix,config_file,verbose=0):
         print "WARNING: prerequisite file does not exist"
         pass
 
-    if os.path.isfile(_config["context_path"]):
+    if _config.has_key("context_path") and os.path.isfile(_config["context_path"]):
         command='cp -p ' + _config["context_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.cfg')
         os.system(command)
         pass
@@ -239,7 +242,7 @@ def install(prefix,config_file,verbose=0):
 
     # Create environment file: configSalome.sh
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
-    for module in _config["modules"]:
+    for module in _config.get("modules",[]):
         command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
         f.write(command)
         pass
@@ -257,7 +260,7 @@ def install(prefix,config_file,verbose=0):
     f =open(os.path.join(home_dir,'env.d','configSalome.cfg'),'w')
     command = "[SALOME ROOT_DIR (modules) Configuration]\n"
     f.write(command)
-    for module in _config["modules"]:
+    for module in _config.get("modules",[]):
         command=module + '_ROOT_DIR=${HOME}/${APPLI}\n'
         f.write(command)
         pass
@@ -317,7 +320,7 @@ MMGT_REENTRANT=1
 """
     mods=[]
     #Keep all modules except KERNEL and GUI
-    for m in _config["modules"]:
+    for m in _config.get("modules",[]):
       if m in ("KERNEL","GUI"):continue
       mods.append(m)
     f.write(command % ",".join(mods))
