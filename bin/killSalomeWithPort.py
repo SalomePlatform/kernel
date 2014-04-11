@@ -408,7 +408,7 @@ if __name__ == "__main__":
         sys.exit(0)
         pass
     try:
-        from salomeLauncherUtils import setOmniOrbUserPath
+        from salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
     except Exception, e:
         print e
