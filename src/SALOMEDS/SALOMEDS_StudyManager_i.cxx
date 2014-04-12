@@ -112,8 +112,20 @@ void SALOMEDS_StudyManager_i::register_name(const char * name)
  */
 //============================================================================
 SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
+     throw(SALOME::SALOME_Exception)
 {
   SALOMEDS::Locker lock;
+
+#ifndef ALLOW_MULTI_STUDIES
+  std::vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
+  int aLength = anOpened.size();
+
+  if(aLength)
+    {
+      MESSAGE("There is already an active study in this session. Launch a new session, or close the study");
+      THROW_SALOME_CORBA_EXCEPTION("Problem on New Study.\nThere is already an active study in this session.\nLaunch a new session, or close the study", SALOME::BAD_PARAM)
+    }
+#endif // !ALLOW_MULTI_STUDIES
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->NewStudy(study_name);
   if(!aStudyImpl) {
@@ -156,6 +168,17 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
+
+  #ifndef ALLOW_MULTI_STUDIES
+  std::vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
+  int aLength = anOpened.size();
+
+  if(aLength)
+    {
+      MESSAGE("There is already an active study in this session. Launch a new session, or close the study.");
+      THROW_SALOME_CORBA_EXCEPTION("Problem on Open Study.\nThere is already an active study in this session.\nLaunch a new session, or close the study.", SALOME::BAD_PARAM)
+    }
+#endif // ;ALLOW_MULTI_STUDIES
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->Open(std::string(aUrl));
 

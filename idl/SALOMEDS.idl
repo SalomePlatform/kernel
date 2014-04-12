@@ -929,7 +929,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 <em>See \ref example17 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
-    Study NewStudy(in string study_name);
+    Study NewStudy(in string study_name) raises (SALOME::SALOME_Exception);
 
 /*! \brief Open a study
 

@@ -82,7 +82,7 @@ public:
     \param char* arguments, the new study name
     \return Study_ptr arguments
   */  
-  virtual SALOMEDS::Study_ptr NewStudy(const char* study_name);
+  virtual SALOMEDS::Study_ptr NewStudy(const char* study_name) throw (SALOME::SALOME_Exception);
 
   //! method to Open a Study from it's persistent reference
   /*!
