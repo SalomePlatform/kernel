@@ -285,7 +285,14 @@ def getActiveStudy(theStudyId=0):
                     if verbose(): print "connection to existing study ", theStudyId
                     salome_study_ID = theStudyId
             if salome_study_ID == -1:
-                salome_study_ID = createNewStudy()
+                listOpenStudies = myStudyManager.GetOpenStudies()
+                if len(listOpenStudies) == 0:
+                    salome_study_ID = createNewStudy()
+                else:
+                    s = myStudyManager.GetStudyByName(listOpenStudies[0])
+                    salome_study_ID = s._get_StudyId()
+            else:
+                pass
             if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
 
