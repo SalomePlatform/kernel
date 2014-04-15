@@ -193,7 +193,7 @@ def shutdownMyPort(port, cleanup=True):
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
-        # shutdown omniNames and notifd
+        # shutdown omniNames
         if cleanup:
             lcc.killOmniNames()
             time.sleep(1)
@@ -323,21 +323,14 @@ def killMyPort(port):
     appliCleanOmniOrbConfig(port)
     pass
 
-def killNotifdAndClean(port):
+def cleanApplication(port):
     """
-    Kill notifd daemon and clean application running on the specified port.
+    Clean application running on the specified port.
     Parameters:
     - port - port number
     """
     try:
         filedict=getPiDict(port)
-        with open(filedict, 'r') as f:
-            pids=pickle.load(f)
-            for d in pids:
-                for pid,process in d.items():
-                    if 'notifd' in process:
-                        cmd='kill -9 %d'% pid
-                        os.system(cmd)
         os.remove(filedict)
     except:
       #import traceback

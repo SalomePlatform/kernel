@@ -421,7 +421,7 @@ Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
 }
 
 //=============================================================================
-/*! \brief shutdown all the SALOME servers except SALOME_Session_Server, omniNames and notifd
+/*! \brief shutdown all the SALOME servers except SALOME_Session_Server and omniNames
  */
 //=============================================================================
 
@@ -587,7 +587,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 }
 
 //=============================================================================
-/*! \brief shutdown  omniNames and notifd
+/*! \brief shutdown  omniNames
  */
 //=============================================================================
 
@@ -611,8 +611,6 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 #endif
   }
 
-  // NPAL 18309  (Kill Notifd)
-
   std::string python_exe;
 
   python_exe = std::string("python");
@@ -624,8 +622,8 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 
   if ( !portNumber.empty() )
   {
-    std::string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
-    cmd += std::string("killNotifdAndClean(") + portNumber + "); ";
+    std::string cmd = ("from killSalomeWithPort import cleanApplication; ");
+    cmd += std::string("cleanApplication(") + portNumber + "); ";
     cmd  = python_exe + std::string(" -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     MESSAGE(cmd);
     system( cmd.c_str() );

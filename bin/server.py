@@ -33,7 +33,7 @@ process_id = {}
 
 class Server:
     """Generic class for CORBA server launch"""
-    
+
     server_launch_mode = "daemon"
 
     def initArgs(self):
@@ -133,7 +133,5 @@ class Server:
         try:
           os.execvp(args[0], args)
         except OSError, e:
-          if args[0] != "notifd":
-            print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
-            pass
+          print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
           os._exit(127)

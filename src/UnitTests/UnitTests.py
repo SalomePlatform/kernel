@@ -49,11 +49,6 @@ myServer=runSalome.LoggerServer(args)
 myServer.run()
 clt.waitLogger("Logger")
 
-# launch notify server
-
-myServer=runSalome.NotifyServer(args,modules_root_dir)
-myServer.run()
-
 # launch registry server
 
 myServer=runSalome.RegistryServer(args)
@@ -85,6 +80,6 @@ import Engines
 launcher = clt.waitNS("/SalomeLauncher",Engines.SalomeLauncher)
 launcher.Shutdown()
 
-# kill Test process 
+# kill Test process
 
 TestKiller.killProcess(runSalome.process_id)

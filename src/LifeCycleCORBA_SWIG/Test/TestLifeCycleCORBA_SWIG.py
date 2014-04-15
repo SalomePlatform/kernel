@@ -55,11 +55,6 @@ myServer=runSalome.LoggerServer(args)
 myServer.run()
 clt.waitLogger("Logger")
 
-# launch notify server
-
-myServer=runSalome.NotifyServer(args,modules_root_dir)
-myServer.run()
-
 # launch registry server
 
 myServer=runSalome.RegistryServer(args)

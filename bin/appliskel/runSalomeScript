@@ -137,7 +137,8 @@ def copy_files(user,machine,script,infiles,outfiles,directory):
   """modify script, copy files to remote computer and return lists of copied files"""
 
   namescript=os.path.basename(script)
-  logname=os.getenv("LOGNAME",user)
+  import getpass
+  logname = getpass.getuser()
   tmp_script="/tmp/%s_%s_%s" % (logname,os.getpid(),namescript)
   fscript=open(script)
   script_text=fscript.read()

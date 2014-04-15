@@ -393,21 +393,6 @@ class LauncherServer(Server):
             self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
-
-class NotifyServer(Server):
-    def __init__(self,args,modules_root_dir):
-        self.args=args
-        self.initArgs()
-        self.modules_root_dir=modules_root_dir
-        myLogName = os.environ["LOGNAME"]
-        self.CMD=['notifd','-c',
-                  self.modules_root_dir["KERNEL"] +'/share/salome/resources/kernel/channel.cfg',
-                  '-DFactoryIORFileName=/tmp/'+myLogName+'_rdifact.ior',
-                  '-DChannelIORFileName=/tmp/'+myLogName+'_rdichan.ior',
-                  '-DReportLogFile=/tmp/'+myLogName+'_notifd.report',
-                  '-DDebugLogFile=/tmp/'+myLogName+'_notifd.debug',
-                  ]
-
 #
 # -----------------------------------------------------------------------------
 
@@ -499,15 +484,6 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=LoggerServer(args)
         myServer.run()
         clt.waitLogger("Logger")
-
-    # Notify Server launch
-    #
-
-    if sys.platform != "win32":
-      if verbose(): print "Notify Server to launch"
-
-      myServer=NotifyServer(args,modules_root_dir)
-      myServer.run()
 
     # set siman python path before the session server launching to import scripts inside python console
     if simanStudyName(args):
