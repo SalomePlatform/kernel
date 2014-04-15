@@ -465,8 +465,8 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ELSE()
      SET(_var_already_there FALSE)
   ENDIF()
-  #   Make cache entry 
-  SET(${pkg_UC}_ROOT_DIR "${_dflt_value}" CACHE PATH "Path to ${pkg_UC} directory")
+  #   Make cache entry, giving precedence to the env variable 
+  SET(${pkg_UC}_ROOT_DIR "${_dflt_value}" CACHE PATH "Path to ${pkg_UC} directory" FORCE)
 
   ##
   ## 2. Find package - try CONFIG mode first (i.e. looking for XYZ-config.cmake)
