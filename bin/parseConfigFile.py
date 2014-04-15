@@ -23,6 +23,7 @@ import logging
 import re
 from io import StringIO
 import subprocess
+from salomeContextUtils import SalomeContextException
 
 logging.basicConfig()
 logConfigParser = logging.getLogger(__name__)
@@ -163,7 +164,11 @@ def parseConfigFile(filename, reserved = []):
     logConfigParser.error("No section found in file: %s"%(filename))
     return []
 
-  return __processConfigFile(config, reserved, filename)
+  try:
+    return __processConfigFile(config, reserved, filename)
+  except ConfigParser.InterpolationMissingOptionError, e:
+    msg = "A variable may be undefined in SALOME context file: %s\nParser error is: %s\n"%(filename, e)
+    raise SalomeContextException(msg)
 #
 
 def __processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):

@@ -89,13 +89,11 @@ class SalomeContext:
         try:
           convertEnvFileToConfigFile(filename, temp.name, reserved)
           self.__setEnvironmentFromConfigFile(temp.name, reserved)
-        except ConfigParser.ParsingError, e:
-          self.getLogger().warning("Invalid token found when parsing file: %s\n"%(filename))
-          print e
-          print '\n'
-        finally:
-          # Automatically cleans up the file
           temp.close()
+        except (ConfigParser.ParsingError, ValueError) as e:
+          self.getLogger().error("Invalid token found when parsing file: %s\n"%(filename))
+          temp.close()
+          sys.exit(1)
       else:
         self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
   #
@@ -236,7 +234,32 @@ class SalomeContext:
   #
 
   def __setEnvironmentFromConfigFile(self, filename, reserved=[]):
-    unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
+    try:
+      unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
+    except SalomeContextException, e:
+      msg = "%s"%e
+      file_dir = os.path.dirname(filename)
+      file_base = os.path.basename(filename)
+      base_no_ext, ext = os.path.splitext(file_base)
+      sh_file = os.path.join(file_dir, base_no_ext+'.sh')
+      if ext == ".cfg" and os.path.isfile(sh_file):
+        msg += "Found similar %s file; trying to parse this one instead..."%(base_no_ext+'.sh')
+        temp = tempfile.NamedTemporaryFile(suffix='.cfg')
+        try:
+          convertEnvFileToConfigFile(sh_file, temp.name, reserved)
+          self.__setEnvironmentFromConfigFile(temp.name, reserved)
+          msg += "OK\n"
+          self.getLogger().warning(msg)
+          temp.close()
+          return
+        except (ConfigParser.ParsingError, ValueError) as e:
+          msg += "Invalid token found when parsing file: %s\n"%(sh_file)
+          self.getLogger().error(msg)
+          temp.close()
+          sys.exit(1)
+      else:
+        self.getLogger().error(msg)
+        sys.exit(1)
 
     # unset variables
     for var in unsetVars:
@@ -388,7 +411,7 @@ class SalomeContext:
     if not hasattr(self, '_logger'):
       self._logger = logging.getLogger(__name__)
       #self._logger.setLevel(logging.DEBUG)
-      self._logger.setLevel(logging.ERROR)
+      self._logger.setLevel(logging.WARNING)
     return self._logger
   #
 
