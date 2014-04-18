@@ -48,7 +48,7 @@
 // in a critical section to be sure to be clean.
 // Only one thread should use the SALOME_ResourcesManager class in a SALOME
 // session.
-struct resourceParams
+struct RESOURCESMANAGER_EXPORT resourceParams
 {
   resourceParams();
 
