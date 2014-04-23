@@ -87,8 +87,9 @@ def main(args):
     sys.exit(1)
 
   # Create a SalomeContext which parses configFileNames to initialize environment
+  from salomeContextUtils import SalomeContextException
   try:
-    from salomeContext import SalomeContext, SalomeContextException
+    from salomeContext import SalomeContext
     context = SalomeContext(configFileNames)
 
     # Here set specific variables, if needed
@@ -98,9 +99,16 @@ def main(args):
     # context.setVariable('myvarname', 'value')
 
     # Start SALOME, parsing command line arguments
-    context.runSalome(args)
+    (out, err), returncode = context.runSalome(args)
     #print 'Thank you for using SALOME!'
 
+    if out:
+      sys.stdout.write(out)
+
+    if err:
+      sys.stderr.write(err)
+
+    sys.exit(returncode)
   except SalomeContextException, e:
     import logging
     logging.getLogger("salome").error(e)

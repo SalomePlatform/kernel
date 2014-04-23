@@ -112,7 +112,7 @@ class SalomeContext:
     msg = proc.communicate()
     if kill:
       self._killAll(args)
-    return msg
+    return msg, proc.returncode
   #
 
   """Append value to PATH environment variable"""
@@ -217,12 +217,10 @@ class SalomeContext:
     try:
       res = getattr(self, command)(options) # run appropriate method
       return res or (None, None)
-    except SystemExit, exc:
-      if exc==0:
-        sys.exit(0) #catch sys.exit(0) happy end no warning
-      if exc==1:
-        self.getLogger().warning("SystemExit 1 in method %s.", command)
-      sys.exit(1)
+    except SystemExit, returncode:
+      if returncode != 0:
+        self.getLogger().warning("SystemExit %s in method %s.", returncode, command)
+      sys.exit(returncode)
     except StandardError:
       self.getLogger().error("Unexpected error:")
       import traceback
@@ -307,13 +305,23 @@ class SalomeContext:
       outmsg = []
       errmsg = []
       for cmd in command:
+        save_cmd = cmd
         cmd = cmd.strip().split(' ')
         #proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc = subprocess.Popen(cmd)
         (stdoutdata, stderrdata) = proc.communicate()
-        if stdoutdata or stderrdata:
+        if stdoutdata:
           outmsg.append(stdoutdata)
+        if stderrdata:
           errmsg.append(stderrdata)
+
+        if proc.returncode != 0:
+          errmsg.append("Error raised when executing command: %s\n"%save_cmd)
+          if outmsg:
+            sys.stdout.write("".join(outmsg))
+          if errmsg:
+            sys.stderr.write("".join(errmsg))
+          sys.exit(proc.returncode)
 
       return ("".join(outmsg), "".join(errmsg))
     else:
@@ -411,12 +419,12 @@ class SalomeContext:
     return self._logger
   #
 
-###
 import pickle
 if __name__ == "__main__":
   if len(sys.argv) == 3:
     context = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
+
     (out, err) = context._startSalome(args)
     if out:
       sys.stdout.write(out)
