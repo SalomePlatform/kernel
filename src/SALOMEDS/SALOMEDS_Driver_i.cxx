@@ -27,6 +27,7 @@
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS.hxx"
+#include <SALOMEDSImpl_IParameters.hxx>
 #include <stdlib.h>
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -357,6 +358,10 @@ SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i()
 
 SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const std::string& theComponentType)
 {
+
+  if ( theComponentType == SALOMEDSImpl_IParameters::getDefaultVisualComponent() )
+    return NULL; // skip the "Interface Applicative" component
+
   SALOMEDSImpl_Driver* driver = 0;
 
   CORBA::Object_var obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServer", theComponentType.c_str());
