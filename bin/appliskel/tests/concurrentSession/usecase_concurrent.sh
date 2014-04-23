@@ -2,7 +2,7 @@
 
 echo "This is a script that can be run concurrently."
 echo "It takes as single argument the number of concurrent executions:"
-echo "Usage: " $0 "<nb_execution>"
+echo "Usage: " $0 "<nb_execution> <output_folder>"
 echo
 echo "Here is what executed code contents looks like:"
 echo "   - do some stuff"

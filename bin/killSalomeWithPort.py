@@ -35,7 +35,7 @@ import os, sys, pickle, signal, commands,glob
 from salome_utils import verbose
 import salome_utils
 
-def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None, with2809pid=False):
+def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
     Get file with list of SALOME processes.
     This file is located in the user's home directory
@@ -52,6 +52,13 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None, with280
     - hidden  : if True, file name is prefixed with . (dot) symbol; this internal parameter is used
     to support compatibility with older versions of SALOME
     """
+    # bug fix: ensure port is an integer
+    # Note: this function is also called with port='#####' !!!
+    try:
+        port = int(port)
+    except:
+        pass
+
     from salome_utils import generateFileName, getTmpDir
     dir = ""
     if not hostname:
@@ -71,11 +78,8 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None, with280
             pass
         pass
 
-    suffix = "pidict"
-    if port == 2809 and with2809pid:
-        suffix = suffix + "-%s"%(os.getpid())
     return generateFileName(dir,
-                            suffix=suffix,
+                            suffix="pidict",
                             hidden=hidden,
                             with_username=True,
                             with_hostname=hostname or True,
@@ -89,6 +93,9 @@ def appliCleanOmniOrbConfig(port):
     - ${OMNIORB_USER_PATH}/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
     """
+    if verbose():
+        print "clean OmniOrb config for port %s"%port
+
     from salome_utils import generateFileName, getUserName
     omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
     if omniorbUserPath is None:
@@ -157,6 +164,8 @@ def shutdownMyPort(port, cleanup=True):
     - port - port number
     """
     if not port: return
+    # bug fix: ensure port is an integer
+    port = int(port)
 
     try:
         from PortManager import releasePort
@@ -186,6 +195,7 @@ def shutdownMyPort(port, cleanup=True):
     try:
         import time
         from omniORB import CORBA
+
         from LifeCycleCORBA import LifeCycleCORBA
         # shutdown all
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
@@ -204,6 +214,10 @@ def shutdownMyPort(port, cleanup=True):
     pass
 
 def __killMyPort(port, filedict):
+    # bug fix: ensure port is an integer
+    if port:
+        port = int(port)
+
     try:
         with open(filedict, 'r') as fpid:
             #
@@ -251,6 +265,32 @@ def __killMyPort(port, filedict):
                 for process_id in process_ids:
                     for pid, cmd in process_id.items():
                         if verbose(): print "stop process %s : %s"% (pid, cmd[0])
+                        if cmd[0] == "omniNames":
+                            if not sys.platform == 'win32':
+                                import subprocess
+                                import shlex
+                                proc1 = subprocess.Popen(shlex.split('ps -eo pid,command'),stdout=subprocess.PIPE)
+                                proc2 = subprocess.Popen(shlex.split('egrep "[0-9] omniNames -start"'),stdin=proc1.stdout, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                                proc1.stdout.close() # Allow proc1 to receive a SIGPIPE if proc2 exits.
+                                out,err=proc2.communicate()
+                                # out looks like: PID omniNames -start PORT <other args>
+
+                                # extract omninames pid and port number
+                                try:
+                                    import re
+                                    omniNamesPid, omniNamesPort = re.search('(.+?) omniNames -start (.+?) ', out).group(1, 2)
+                                    if verbose():
+                                        print "stop omniNames [pid=%s] on port %s"%(omniNamesPid, omniNamesPort)
+                                    appliCleanOmniOrbConfig(omniNamesPort)
+                                    from PortManager import releasePort
+                                    releasePort(omniNamesPort)
+                                    os.kill(int(omniNamesPid),signal.SIGKILL)
+                                except (ImportError, AttributeError, OSError) as e:
+                                    pass
+                                except:
+                                    import traceback
+                                    traceback.print_exc()
+
                         try:
                             if sys.platform == "win32":
                                 import win32pm
@@ -284,14 +324,49 @@ def __killMyPort(port, filedict):
     #
 #
 
+def __guessPiDictFilename(port):
+    from salome_utils import getShortHostName, getHostName
+    filedicts = [
+        # new-style dot-prefixed pidict file
+        getPiDict(port, hidden=True),
+        # provide compatibility with old-style pidict file (not dot-prefixed)
+        getPiDict(port, hidden=False),
+        # provide compatibility with old-style pidict file (short hostname)
+        getPiDict(port, hidden=True, hostname=getShortHostName()),
+        # provide compatibility with old-style pidict file (not dot-prefixed, short hostname
+        getPiDict(port, hidden=False, hostname=getShortHostName()),
+        # provide compatibility with old-style pidict file (long hostname)
+        getPiDict(port, hidden=True, hostname=getHostName()),
+        # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
+        getPiDict(port, hidden=False, hostname=getHostName())
+        ]
+
+    log_msg = ""
+    for filedict in filedicts:
+        log_msg += "Trying %s..."%filedict
+        if os.path.exists(filedict):
+            log_msg += "   ... OK\n"
+            break
+        else:
+            log_msg += "   ... not found\n"
+
+    if verbose():
+        print log_msg
+
+    return filedict
+#
+
 def killMyPort(port):
     """
     Kill SALOME session running on the specified port.
     Parameters:
     - port - port number
     """
-    from salome_utils import getShortHostName, getHostName
     print "Terminating SALOME on port %s..."%(port)
+
+    # bug fix: ensure port is an integer
+    if port:
+        port = int(port)
 
     # try to shutdown session normally
     import threading, time
@@ -300,26 +375,17 @@ def killMyPort(port):
 
     try:
         import PortManager
-        filedict = getPiDict(port, hidden=True, with2809pid=False)
+        filedict = getPiDict(port)
+        #filedict = __guessPiDictFilename(port)
         import glob
         all_files = glob.glob("%s*"%filedict)
         for f in all_files:
             __killMyPort(port, f)
     except ImportError:
-        # new-style dot-prefixed pidict file
-        filedict = getPiDict(port, hidden=True)
-        # provide compatibility with old-style pidict file (not dot-prefixed)
-        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
-        # provide compatibility with old-style pidict file (short hostname)
-        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getShortHostName())
-        # provide compatibility with old-style pidict file (not dot-prefixed, short hostname)
-        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getShortHostName())
-        # provide compatibility with old-style pidict file (long hostname)
-        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getHostName())
-        # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
-        if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getHostName())
+        filedict = __guessPiDictFilename(port)
         __killMyPort(port, filedict)
     #
+
     appliCleanOmniOrbConfig(port)
     pass
 
@@ -329,6 +395,10 @@ def cleanApplication(port):
     Parameters:
     - port - port number
     """
+    # bug fix: ensure port is an integer
+    if port:
+        port = int(port)
+
     try:
         filedict=getPiDict(port)
         os.remove(filedict)

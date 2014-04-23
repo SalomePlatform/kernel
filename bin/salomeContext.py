@@ -349,10 +349,6 @@ class SalomeContext:
             p = Process(target = killMyPort, args=(port,))
             p.start()
             p.join()
-
-      p = Process(target = killMyPort, args=(2809,))
-      p.start()
-      p.join()
     except ImportError:
       from killSalome import killAllPorts
       killAllPorts()

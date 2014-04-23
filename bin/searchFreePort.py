@@ -167,7 +167,6 @@ def searchFreePort(args={}, save_config=1, use_port=None):
   Search free port for SALOME session.
   Returns first found free port number.
   """
-
   try:
     import PortManager # mandatory
     from multiprocessing import Process, Queue
@@ -178,6 +177,7 @@ def searchFreePort(args={}, save_config=1, use_port=None):
 
     os.environ['OMNIORB_CONFIG'] = info[0]
     os.environ['NSPORT'] = info[1]
+    args['port'] = os.environ['NSPORT']
     os.environ['NSHOST'] = info[2]
     __savePortToFile(args)
 

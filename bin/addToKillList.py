@@ -49,11 +49,7 @@ def addToKillList(command_pid, command, port=None):
     # retrieve current processes dictionary
     from killSalomeWithPort import getPiDict
     if port is None: port=findFileDict()
-    try:
-        import PortManager
-        filedict = getPiDict(port, hidden=True, with2809pid=True)
-    except:
-        filedict=getPiDict(port)
+    filedict = getPiDict(port)
 
     try:
         with open(filedict, 'r') as fpid:
@@ -71,6 +67,7 @@ def addToKillList(command_pid, command, port=None):
             pass
         if already_in: break
         pass
+
     # add process to the dictionary
     if not already_in:
         import types
@@ -98,10 +95,12 @@ def killList(port=None):
     # retrieve processes dictionary
     from killSalomeWithPort import getPiDict
     if port is None: port=findFileDict()
+
     # new-style dot-prefixed pidict file
-    filedict=getPiDict(port, hidden=True)
+    filedict=getPiDict(port)
     # provide compatibility with old-style pidict file (not dot-prefixed)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
+
     try:
         with open(filedict, 'r') as fpid:
             process_ids=pickle.load(fpid)

@@ -50,7 +50,7 @@ class client:
 
    def initNS(self,args):
       # Obtain a reference to the root naming context
-      obj         = self.orb.resolve_initial_references("NameService")
+      obj = self.orb.resolve_initial_references("NameService")
       try:
           self.rootContext = obj._narrow(CosNaming.NamingContext)
           return
@@ -89,6 +89,12 @@ class client:
    # --------------------------------------------------------------------------
 
    def showNScontext(self,context,dec=''):
+      if not context:
+         print "[NS] No context"
+         return
+      else:
+         print context
+
       bl,bi=context.list(0)
       if bi is not None:
          ok,b=bi.next_one()

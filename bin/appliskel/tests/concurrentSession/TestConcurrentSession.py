@@ -25,7 +25,7 @@ import sys
 import imp
 from cStringIO import StringIO
 import multiprocessing
-
+import logging
 
 class TestConcurrentLaunch(unittest.TestCase):
   def setUp(self):
@@ -90,8 +90,10 @@ class TestConcurrentLaunch(unittest.TestCase):
 if __name__ == "__main__":
   path_to_launcher = os.getenv("SALOME_LAUNCHER")
   if not path_to_launcher:
-    msg = "Error: please set SALOME_LAUNCHER variable to the salome command in your application folder."
-    raise Exception(msg)
+    msg = "\n"
+    msg += "Error: please set SALOME_LAUNCHER variable to the salome command in your application folder.\n"
+    logging.error(msg)
+    sys.exit(1)
 
   if not os.path.isfile("hello.py"):
     with open("hello.py", "w") as f:

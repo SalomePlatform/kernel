@@ -22,6 +22,7 @@ import os
 import sys
 import multiprocessing
 import unittest
+import logging
 
 def port_reservation(obtained_ports, prefered=None, test=None, expected=None):
   from PortManager import getPort
@@ -139,14 +140,20 @@ class TestMinimalExample(unittest.TestCase):
 if __name__ == "__main__":
   omniorb_user_path = os.getenv("OMNIORB_USER_PATH")
   if not omniorb_user_path:
-    msg = "Error: please set OMNIORB_USER_PATH variable."
-    raise Exception(msg)
+    msg = "\n"
+    msg += "Error: please set OMNIORB_USER_PATH variable.\n"
+    msg += "       Usually this points to your application USERS directory.\n"
+    logging.error(msg)
+    sys.exit(1)
 
   try:
     import PortManager
   except ImportError:
-    msg = "Error: can't import PortManager; please check PYTHONPATH variable."
-    raise Exception(msg)
+    msg = "\n"
+    msg += "Error: can't import PortManager; please check PYTHONPATH variable.\n"
+    msg += "       You need to add <KERNEL_INSTALL_PATH>/bin/salome path.\n"
+    logging.error(msg)
+    sys.exit(1)
 
   unittest.main()
 #
