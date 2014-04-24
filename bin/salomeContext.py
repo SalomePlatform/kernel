@@ -343,7 +343,6 @@ class SalomeContext:
   #
 
   def _killAll(self, args=[]):
-    absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     try:
       import PortManager # mandatory
       from multiprocessing import Process
@@ -415,7 +414,8 @@ class SalomeContext:
     if not hasattr(self, '_logger'):
       self._logger = logging.getLogger(__name__)
       #self._logger.setLevel(logging.DEBUG)
-      self._logger.setLevel(logging.WARNING)
+      #self._logger.setLevel(logging.WARNING)
+      self._logger.setLevel(logging.ERROR)
     return self._logger
   #
 

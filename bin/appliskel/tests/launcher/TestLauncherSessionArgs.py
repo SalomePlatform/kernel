@@ -55,6 +55,7 @@ class TestSessionArgs(unittest.TestCase):
     path_to_launcher = os.getenv("SALOME_LAUNCHER")
     appli_dir = os.path.dirname(path_to_launcher)
     envd_dir = os.path.join(appli_dir, "env.d")
+    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
 
     # Configure session startup
     self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
@@ -67,7 +68,12 @@ class TestSessionArgs(unittest.TestCase):
     self.removeLogFile()
   #
   def session(self, args=[]):
-    self.SALOME.main(self.SALOME_args + args)
+    try:
+      self.SALOME.main(self.SALOME_args + args)
+    except SystemExit, e:
+      if str(e) != '0':
+        logger.error(e)
+      pass
   #
   def removeLogFile(self):
     try:

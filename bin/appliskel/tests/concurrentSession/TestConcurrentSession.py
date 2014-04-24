@@ -32,6 +32,7 @@ class TestConcurrentLaunch(unittest.TestCase):
     # Initialize path to SALOME application
     path_to_launcher = os.getenv("SALOME_LAUNCHER")
     appli_dir = os.path.dirname(path_to_launcher)
+    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
 
     # Configure session startup
     self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
@@ -42,10 +43,20 @@ class TestConcurrentLaunch(unittest.TestCase):
     pass
   #
   def appli(self, args=[]):
-    self.SALOME.main(self.SALOME_appli_args + args)
+    try:
+      self.SALOME.main(self.SALOME_appli_args + args)
+    except SystemExit, e:
+      if str(e) != '0':
+        logging.error(e)
+      pass
   #
   def session(self, args=[]):
-    self.SALOME.main(self.SALOME_shell_args + args)
+    try:
+      self.SALOME.main(self.SALOME_shell_args + args)
+    except SystemExit, e:
+      if str(e) != '0':
+        logging.error(e)
+      pass
   #
   def test01_SingleSession(self):
     print "** Testing single session **"

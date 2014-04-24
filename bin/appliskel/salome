@@ -22,60 +22,14 @@
 import os
 import sys
 
-def __detectAppliPath(fromPath):
-  detection_criterion = "USERS" # the application folder is found if it contains a USERS subfolder
-
-  users_folder = os.path.join(fromPath, detection_criterion)
-  if os.path.isdir(users_folder):
-    return fromPath
-
-  pattern = "/bin/salome/appliskel"
-  if fromPath.endswith(pattern):
-    currentPath = __detectAppliPath(fromPath[:-len(pattern)])
-    if not currentPath is None:
-      return currentPath
-
-  if sys.platform.startswith("linux"):
-    filename = os.path.basename(__file__)
-    link_target = os.readlink(os.path.join(fromPath,filename)) # LINUX ONLY
-    currentPath = os.path.dirname(os.path.abspath(link_target))
-    return __detectAppliPath(currentPath)
-
-  return None
-#
-
-# Preliminary work to initialize path to SALOME Python modules
-def __initialize():
-  currentPath = os.path.dirname( os.path.abspath( __file__ ) )
-  homePath = os.path.realpath(os.path.expanduser('~'))
-
-  appliPath = __detectAppliPath(currentPath)
-
-  if appliPath is None:
-    print "ERROR: Unable to find application folder"
-    sys.exit(0)
-
-  appliPath = os.path.relpath(appliPath, homePath)
-  absoluteAppliPath = os.path.join(homePath, appliPath)
-  os.environ['APPLI'] = appliPath # needed to convert .sh environment files
-  os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
-
-  sys.path[:0] = [absoluteAppliPath+'/bin/salome']
-
-  # define folder to store omniorb config (initially in virtual application folder)
-  try:
-    from salomeContextUtils import setOmniOrbUserPath
-    setOmniOrbUserPath()
-  except Exception, e:
-    print e
-    sys.exit(1)
-# End of preliminary work
-
 def main(args):
   # Identify application path then locate configuration files
-  __initialize()
+  currentPath = os.path.dirname( os.path.abspath( __file__ ) )
+  launcherFile = os.path.basename(__file__)
+  from salome_starter import initialize
+  initialize(currentPath, launcherFile)
 
-  if args == ['--help']:
+  if len(args) == 1 and args[0] in ['--help', 'help', '-h', '--h']:
     from salomeContext import usage
     usage()
     sys.exit(0)
@@ -100,14 +54,11 @@ def main(args):
 
     # Start SALOME, parsing command line arguments
     (out, err), returncode = context.runSalome(args)
-    #print 'Thank you for using SALOME!'
-
     if out:
       sys.stdout.write(out)
-
     if err:
       sys.stderr.write(err)
-
+    #print 'Thank you for using SALOME!'
     sys.exit(returncode)
   except SalomeContextException, e:
     import logging
