@@ -32,6 +32,17 @@ ADD_TO_PREFIX = 'ADD_TO_'
 UNSET_KEYWORD = 'UNSET'
 
 
+def _expandSystemVariables(key, val):
+  expandedVal = os.path.expandvars(val) # expand environment variables
+  # Search for not expanded variables (i.e. non-existing environment variables)
+  pattern = re.compile('\${ ( [^}]* ) }', re.VERBOSE) # string enclosed in ${ and }
+  expandedVal = pattern.sub(r'', expandedVal) # remove matching patterns
+
+  if not "DLIM8VAR" in key: # special case: DISTENE licence key can contain double clons (::)
+    expandedVal = _trimColons(expandedVal)
+  return expandedVal
+#
+
 # :TRICKY: So ugly solution...
 class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
   def __init__(self):
@@ -106,7 +117,8 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
               optval = optval.strip()
               # ADD THESE LINES
               splittedComments = optval.split('#')
-              optval = splittedComments[0].strip().strip("'").strip('"')
+              s = _expandSystemVariables(optname, splittedComments[0])
+              optval = s.strip().strip("'").strip('"')
               #if len(splittedComments) > 1:
               #  optval += " #" + " ".join(splittedComments[1:])
               # END OF ADD
@@ -192,13 +204,7 @@ def __processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
       elif key == UNSET_KEYWORD:
         unsetVariables += val.replace(',', ' ').split()
       else:
-        expandedVal = os.path.expandvars(val) # expand environment variables
-        # Search for not expanded variables (i.e. non-existing environment variables)
-        pattern = re.compile('\${ ( [^}]* ) }', re.VERBOSE) # string enclosed in ${ and }
-        expandedVal = pattern.sub(r'', expandedVal) # remove matching patterns
-        # Trim colons
-        if not "DLIM8VAR" in key: # special case: DISTENE licence key can contain double clons (::)
-          expandedVal = _trimColons(expandedVal)
+        expandedVal = _expandSystemVariables(key, val)
 
         if key in reservedKeys:
           shortKey = key[len(ADD_TO_PREFIX):]
