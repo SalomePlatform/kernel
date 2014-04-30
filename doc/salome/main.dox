@@ -4,18 +4,19 @@
 \image html icon_about.png
 
 Welcome to the %SALOME KERNEL documentation !
-Following your kind of usage of %SALOME, you will find some specific 
+Following your kind of usage of %SALOME, you will find some specific
 introductory documentation, listed below.
 
 \section S2_main End user
 
 -# <b>How to configure a %SALOME application</b>\n
-    The end user may have to configure his own %SALOME application by selection of a
-    subset of availables %SALOME modules. He also may want to install his
-    application on several computers. 
-    See \subpage SALOME_Application to define your own configuration of %SALOME and run it  
+    The end user may have to configure his own %SALOME application by selecting a
+    subset of available %SALOME modules. He may also want to install his
+    application on several computers.
+    See \subpage SALOME_Application to define your own configuration of %SALOME and run it
     on one or several computers. This is the recommended way of configuration.
 -# <b>How to launch %SALOME</b>:
+    - Using \b NEW \subpage salome_command, based on \ref SALOME_Application.
     - In a %SALOME application, see \ref SALOME_Application.
     - Using \c runSalome script, see \subpage running_salome_page
 -# <b>How to use KERNEL services in Python scripts</b>\n
@@ -28,14 +29,14 @@ introductory documentation, listed below.
 \section S3_main Application Integrator
 
 Applications integrators are in charge of configuration and installation of
-specific %SALOME applications over a local network. Application Integrators 
+specific %SALOME applications over a local network. Application Integrators
 built %SALOME modules binaries from sources tarballs.
 
 -# <b>How to install %SALOME</b>\n
-    See \subpage INSTALL for general information on required configuration and 
+    See \subpage INSTALL for general information on required configuration and
     prerequisites, compilation procedure, setting environment principles.
 -# <b>How to configure a %SALOME application</b>\n
-    See \ref SALOME_Application to define your own configuration of %SALOME and run it  
+    See \ref SALOME_Application to define your own configuration of %SALOME and run it
     on one or several computers. This is the recommended way of configuration.
 
 \section S4_main Module maintainer
@@ -58,7 +59,7 @@ releases are identified by a CVS tag.
 You will find in the next pages informations about
 specific points of %SALOME Kernel :
 
-- \subpage kernel_salome 
+- \subpage kernel_salome
 - \subpage dsc_page : DSC documentation page.
 - \subpage salome_file_page : Salome_file documentation page.
 - \subpage python_documentation : The package salome.kernel provides

@@ -1,0 +1,185 @@
+/*!
+  \page salome_command salome command
+
+To start SALOME a new approach is proposed, based on \ref SALOME_Application. The underlying mechanism aims at:
+-# Unifying start commands\n
+Unix Shell scripts like runAppli, runSession and runConsole are replaced by a unique Python command named \b salome.
+-# Handle execution context\n
+After SALOME exit, environment is restored to its initial state. No Shell file sourcing is required; context management is achieved using Python standard API for context files parsing.
+-# Promote creation of custom start commands (launchers)\n
+A launcher is a Python script that creates an execution context then starts SALOME in this context. It uses methods provided by an Application Programming Interface (API). The \b salome command is a launcher. Several launchers may exist simultaneously; each uses the same API and focuses on execution context creation.
+
+
+\section salome_launcher The salome command
+Usage of \c salome command is:
+\code
+   salome [command] [options] [--config=file1,...,filen]
+\endcode
+
+Commands are:
+-# \c start: start a new SALOME application. This is the default command.
+-# \c shell: initialize SALOME environment, attached to the last created execution context if any. User works in a Shell terminal; SALOME environment is set but application is not started.
+-# \c connect: connect a Python console to an active SALOME session.
+-# \c killall: terminates all SALOME sessions (do not start a new one).
+-# \c info: displays Python and SALOME versions.
+-# \c help: obvious...
+
+To start an application, use \code salome start \endcode
+This command is equivalent to runAppli. It accepts the same options that can be listed using \code salome start --help \endcode
+
+To initialize an environment, use \code salome shell \endcode
+This command is equivalent to runSession. It accepts the same options that can be listed using \code salome shell --help \endcode
+
+To connect a Python console, use \code salome connect \endcode
+There is no options to this command. It asks user which SALOME session to connect to.
+
+
+\section context_files Context files management
+The <tt>--config</tt> option is used to identify the list of configuration files to be used for SALOME context creation. When this option is given, only files provided by user are considered. If user does not specify any context file SALOME will rely on context files detected in the env.d application folder. Two file formats can coexist, with a .cfg or .sh extension that are associated with the new and the former start mechanism, respectively.
+
+The \c salome command is based on the .cfg format; however, it is able to interpret (partially) the .sh format for software backward compatibility. The use of .cfg format is highly recommended with the new launcher.
+
+It is possible to add context files in the env.d folder; the strategy followed by \c salome
+for these files is as follows. All files with .cfg extension are taken into account. Files with .sh extension are taken into account only if there is no file with the same name with
+a .cfg extension, for example:
+-# Context1.cfg : taken into account because it has a .cfg extension.
+-# Context2.cfg : taken into account because it has a .cfg extension.
+-# Context2.sh : not taken into account because Context2.cfg exists.
+-# Context3.sh : considered because Context3.cfg does not exist.
+
+Considered .sh files are automatically translated to .cfg format (the .cfg file is not written to disk). The translator is not as complete as Unix Shell interpreter; malfunctions may emerge in case of unrecognized syntax.
+
+
+\section new_features New features
+\subsection new_features_scripts Run several scripts with multiple arguments
+On the one hand, runAppli options allow to give a list of Python scripts to be run after application startup; but it is not possible to specify parameters for these scripts. On the other hand runSession can run one script but it admits several parameters.
+
+The new \c salome command combines the two solutions: you can specify multiple scripts, each can have several parameters. For this, the following syntax must be used; to provide parameters to a script from the command line, we write <tt>script.py args: arg1, arg2, ..., argn</tt>
+
+The script parameters must be separated by commas and no spaces are allowed (except
+between the script name and the beginning of its parameters).
+For example, the following call will run sequentially three scripts, which will wait 5 seconds, say hello, and calculate 1 +2 +3:
+\code
+salome shell –p 2811 wait.py args:5 hello.py add.py args:1,2,3
+\endcode
+
+\subsection new_features_concurrency Handle concurrent starts
+In the previous command, the <tt>-p</tt> option is used to specify a TCP port number on which the CORBA name server of each SALOME application will connect. In an attempt to explain it simply, we are talking about a technique that allows multiple software components belonging to the same application to communicate with each other. This approach is a standard used when multiple applications are running at the same time (components should not interfere with each other), and when application components can be distributed across multiple machines.
+
+Each SALOME application owns a specific port number. This port is determined automatically when application starts. When multiple applications are started at the same time, assigning a number to each port may be conflicting, and the same port may be assigned to several applications. To resolve this situation, a Python object named \c Portmanager is proposed (Linux only). In SALOME 7, this object is available when activating a specific compilation flag of KERNEL module:
+- For gcc: -DWITH_PORTMANAGER
+- With CMake: SALOME_USE_PORTMANAGER=ON
+
+
+\section write_launcher How to write a launcher
+A launcher is a Python module that contains a single <tt>def main(args)</tt> function to sequentially execute the following operations:
+- Detect application path
+\code
+currentPath = os.path.dirname( os.path.abspath( __file__ ) )
+launcherFile = os.path.basename(__file__)
+from salome_starter import initialize
+initialize(currentPath, launcherFile)
+\endcode
+- Identify configuration (context) files
+\code
+from salomeContextUtils import getConfigFileNames
+configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True
+\endcode
+- Create a context
+\code
+context = SalomeContext(configFileNames)
+\endcode
+- Run SALOME
+\code
+(out, err), returncode = context.runSalome(args)
+\endcode
+
+This module is generally used as a script, run from a shell command line. It thus contains the directive:
+\code
+if __name__ == "__main__":
+  args = sys.argv[1:]
+  main(args)
+#
+\endcode
+
+Finally the module can be called from another script, for example a test script. Considering a Python variable \c path_to_launcher that identifies the absolute path to a launcher, one can write:
+\code
+appli_dir = os.path.dirname(path_to_launcher)
+sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
+self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
+try:
+  self.SALOME.main(["shell", "hello.py"])
+except SystemExit, e:
+  if str(e) != '0':
+    logging.error(e)
+\endcode
+
+
+\section salome_api The API
+An API named \c SalomeContext, written in Python, allows for the construction of SALOME execution context and for application start. Each launcher creates a \c SalomeContext object, and optionally gives it a list of configuration files to describe the context:
+\code
+SalomeContext.__init__(configFileNames=[])
+\endcode
+
+A launcher can also directly call the API functions to define, suppress or extend (add information) an environment variable:
+\code
+SalomeContext.setVariable(name, value, overwrite=False)
+SalomeContext.unsetVariable(name)
+SalomeContext.addToVariable(name, value, separator=os.pathsep)
+\endcode
+
+The \c addToVariable function consists in prefixing the variable name with the given value inserting a separator between the two items.
+
+Unix system variables PATH, LD_LIBRARY_PATH (DYLD_LIBRARY PATH for BSD) and PYTHONPATH can only be extended:
+\code
+SalomeContext.addToPath(value)
+SalomeContext.addToLdLibraryPath(value)
+SalomeContext.addToDyldLibraryPath(value)
+SalomeContext.addToPythonPath(value)
+\endcode
+
+Once the context is created, the application is started:
+\code
+SalomeContext.runSalome(args)
+\endcode
+
+The \c args list corresponds to commands and options given to \c salome launcher.
+
+
+\section context_file_syntax Syntax of a context file
+It is possible to write specific context files provided that the syntax defined
+hereinafter is respected; their analysis by the new SALOME start mechanism uses tools from the Python standard API.
+
+A context file starts with a section title, and continues with the definition of different
+context variables. The section title is a string enclosed by brackets, for example <tt>[My context]</tt>.
+
+\subsection context_file_syntax_definition Definition
+A variable can be defined with a declaration <tt>variable=value</tt>:
+\code
+SALOME_PREREQUISITES=salome/prerequisites/install
+\endcode
+
+\subsection context_file_syntax_substitution Substitution
+A variable can be defined relative to another one; this substitution corresponds to the syntax <tt>%(variable)s</tt>:
+\code
+QTDIR=${HOME}/%(SALOME_PREREQUISITES)s/Qt-484
+\endcode
+In this example QTDIR will equal ${HOME}/salome/prerequisites/install/Qt-484
+
+\subsection context_file_syntax_system System variables
+Specific system variables such as PATH, LD_LIBRARY_PATH, DYLD_LIBRARY_PATH and PYTHONPATH are extended with <tt>ADD_TO_variable: valeur</tt>.
+\code
+ADD_TO_PATH: %(QTDIR)s/bin
+ADD_TO_LD_LIBRARY_PATH: %(QTDIR)s/lib
+ADD_TO_PYTHONPATH: %(PYQT_ROOT_DIR)s/lib/python2.7/site-packages
+\endcode
+
+\subsection context_file_syntax_unset Unset
+A variable can be unset with <tt>UNSET: variable</tt>:
+\code
+UNSET: LD_LIBRARY_PATH PTHREAD_ROOT_DIR
+\endcode
+
+\n
+
+*/
