@@ -80,6 +80,7 @@ try:
   s = file.readline()
   versnb = string.strip(string.split(s, ":")[1])
   dirname=".salome_"+versnb
+  file.close()
 except:
   versnb = ""
   dirname=".salome"
