@@ -837,7 +837,12 @@ MACRO(SALOME_GENERATE_TESTS_ENVIRONMENT output)
  ENDFOREACH()
 
  # Get module name as substring of "Salome<ModuleName>"
- STRING(SUBSTRING "${PROJECT_NAME}" 6 -1 PRNAME) 
+ STRING(REGEX MATCH "^Salome" _is_salome_project ${PROJECT_NAME})
+ IF(_is_salome_project)
+   STRING(SUBSTRING "${PROJECT_NAME}" 6 -1 PRNAME) 
+ ELSE()
+   SET(PRNAME ${PROJECT_NAME})
+ ENDIF()
  SET(_env "${PRNAME}_ROOT_DIR=${CMAKE_INSTALL_PREFIX}${sep}${_env}")
   
  # Creating follow string for Windows environement:
