@@ -94,26 +94,42 @@ IF(WIN32)
   SET(PLATFORM_LIBS Ws2_32.lib)
   LIST(APPEND PLATFORM_LIBS Userenv.lib)      # At least for GEOM suit
 
-  # Disable iterator debugging on WINDOWS to avoid runtime error during checking iterators
-    # _SECURE_SCL 
-    #             If defined as 1, unsafe iterator use causes a runtime error. 
-    #             If defined as 0, checked iterators are disabled.
-    #             The default value for _SECURE_SCL is 1
-    # _SECURE_SCL_THROWS
-    #             If defined as 1, an out of range iterator use causes an exception at runtime.
-    #             If defined as 0, the program is terminated by calling invalid_parameter. 
-    #             The default value for _SECURE_SCL_THROWS is 0
-  
-  ADD_DEFINITIONS(-D_SECURE_SCL=0 -D_SECURE_SCL_THROWS=0)
-
-    # The symbol _HAS_ITERATOR_DEBUGGING can be used to turn off the iterator debugging feature in a debug build
-    #             If defined as 1, iterator debugging is enabled. 
-    #             If defined as 0, iterator debugging is disabled.
-    #             The default value for _HAS_ITERATOR_DEBUGGING is 1
-
-  IF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-    ADD_DEFINITIONS(-D_HAS_ITERATOR_DEBUGGING=0)  
-  ENDIF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+################################################################################################
+#
+# RNV: In the SALOME sometimes operating with STL collections is done in not fully valid way. 
+#      To avoid run-time exception in Debug mode default values of the _SECURE_SCL, 
+#      _SECURE_SCL_THROWS and _HAS_ITERATOR_DEBUGGING macros were redefined. It solved a problem 
+#      then we used tne Microsoft Visual Studio 2008 to build SALOME on Windows platform.
+#      But in the Microsoft Visual Studio 2010 these macros affect on the size of STL collection 
+#      classes(in difference from the Microsoft Visual Studio 2008: in this version of MSVS size
+#      of the STL collection  classes does not depend on these macros).
+#      All pre-requisite products are built by MSVS 2010 in Debug mode with the default 
+#      values of the metioned above macros (namely _SECURE_SCL=1, _HAS_ITERATOR_DEBUGGING=1 and
+#      _SECURE_SCL_THROWS=1). So SALOME modules should be build in the same configuration.
+#
+################################################################################################
+#
+#  # Disable iterator debugging on WINDOWS to avoid runtime error during checking iterators
+#    # _SECURE_SCL
+#    #             If defined as 1, unsafe iterator use causes a runtime error. 
+#    #             If defined as 0, checked iterators are disabled.
+#    #             The default value for _SECURE_SCL is 1
+#    # _SECURE_SCL_THROWS
+#    #             If defined as 1, an out of range iterator use causes an exception at runtime.
+#    #             If defined as 0, the program is terminated by calling invalid_parameter. 
+#    #             The default value for _SECURE_SCL_THROWS is 0
+#  
+#  ADD_DEFINITIONS(-D_SECURE_SCL=0 -D_SECURE_SCL_THROWS=0)
+#
+#    # The symbol _HAS_ITERATOR_DEBUGGING can be used to turn off the iterator debugging feature in a debug build
+#    #             If defined as 1, iterator debugging is enabled. 
+#    #             If defined as 0, iterator debugging is disabled.
+#    #             The default value for _HAS_ITERATOR_DEBUGGING is 1
+#
+#  IF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+#    ADD_DEFINITIONS(-D_HAS_ITERATOR_DEBUGGING=0)  
+#  ENDIF(NOT CMAKE_BUILD_TYPE STREQUAL "RELEASE" AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+################################################################################################
   
   IF(MACHINE_IS_64)
     SET(SIZE_OF_LONG 4)                          # set sizeof(long) to 4 byte
