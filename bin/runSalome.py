@@ -725,11 +725,14 @@ def useSalome(args, modules_list, modules_root_dir):
                         import killSalomeWithPort
                         self.killSalomeWithPort = killSalomeWithPort
                         return
-                    def delete(self):
+                    def __del__(self):
                         self.killSalomeWithPort.killMyPort(self.port)
                         return
                     pass
-                args['shutdown_servers'] = __utils__(args['port'])
+                def func(s):
+                    del s
+                import atexit
+                atexit.register(func, __utils__(args['port']))
                 pass
             pass
 
@@ -787,11 +790,6 @@ def no_main():
     from searchFreePort import searchFreePort
     searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
-
-    if args.has_key('shutdown_servers') :
-        var = args['shutdown_servers']
-        if hasattr(var, 'delete') and callable(getattr(var, 'delete')) :
-            var.delete()
     return clt
 
 # -----------------------------------------------------------------------------
@@ -919,11 +917,6 @@ def runSalome():
     if test:
         foreGround(clt, args)
         pass
-    # --
-    if args.has_key('shutdown_servers') :
-        var = args['shutdown_servers']
-        if hasattr(var, 'delete') and callable(getattr(var, 'delete')) :
-            var.delete()
     pass
 #
 
