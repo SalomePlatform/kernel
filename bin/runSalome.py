@@ -892,7 +892,6 @@ def foreGround(clt, args):
 #
 
 def runSalome():
-    print sys.argv
     import user
     clt,args = main()
     # --

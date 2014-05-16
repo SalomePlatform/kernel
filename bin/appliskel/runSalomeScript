@@ -192,15 +192,6 @@ def main():
 
   tmp_script=script
 
-  print "mode:",mode
-  print "user:",user
-  print "machine:",machine
-  print "port:",port
-  print "directory:",directory
-  print "infiles:",infiles
-  print "outfiles:",outfiles
-  print "script:",script
-
   if mode == "remote":
     list_infiles, list_outfiles, tmp_script = copy_files(user,machine,script,infiles,outfiles,directory)
 
