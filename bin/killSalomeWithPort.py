@@ -279,12 +279,13 @@ def __killMyPort(port, filedict):
                                 try:
                                     import re
                                     omniNamesPid, omniNamesPort = re.search('(.+?) omniNames -start (.+?) ', out).group(1, 2)
-                                    if verbose():
-                                        print "stop omniNames [pid=%s] on port %s"%(omniNamesPid, omniNamesPort)
-                                    appliCleanOmniOrbConfig(omniNamesPort)
-                                    from PortManager import releasePort
-                                    releasePort(omniNamesPort)
-                                    os.kill(int(omniNamesPid),signal.SIGKILL)
+                                    if omniNamesPort == port:
+                                        if verbose():
+                                            print "stop omniNames [pid=%s] on port %s"%(omniNamesPid, omniNamesPort)
+                                        appliCleanOmniOrbConfig(omniNamesPort)
+                                        from PortManager import releasePort
+                                        releasePort(omniNamesPort)
+                                        os.kill(int(omniNamesPid),signal.SIGKILL)
                                 except (ImportError, AttributeError, OSError) as e:
                                     pass
                                 except:

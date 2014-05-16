@@ -101,17 +101,17 @@ class SalomeContext:
   def runSalome(self, args):
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
-    kill = False
-    for e in args:
-      if "--shutdown-server" in e:
-        kill = True
-        args.remove(e)
+#    kill = False
+#    for e in args:
+#      if "--shutdown-server" in e:
+#        kill = True
+#        args.remove(e)
 
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True)
     msg = proc.communicate()
-    if kill:
-      self._killAll(args)
+ #   if kill:
+ #     self._killAll(args)
     return msg, proc.returncode
   #
 
@@ -297,38 +297,7 @@ class SalomeContext:
 
     scriptArgs = getScriptsAndArgs(args)
     command = formatScriptsAndArgs(scriptArgs)
-    if command:
-      sep = ";"
-      if sys.platform == "win32":
-        sep= "&"
-      command = command.split(sep)
-      outmsg = []
-      errmsg = []
-      for cmd in command:
-        save_cmd = cmd
-        cmd = cmd.strip().split(' ')
-        #proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        proc = subprocess.Popen(cmd)
-        (stdoutdata, stderrdata) = proc.communicate()
-        if stdoutdata:
-          outmsg.append(stdoutdata)
-        if stderrdata:
-          errmsg.append(stderrdata)
-
-        if proc.returncode != 0:
-          errmsg.append("Error raised when executing command: %s\n"%save_cmd)
-          if outmsg:
-            sys.stdout.write("".join(outmsg))
-          if errmsg:
-            sys.stderr.write("".join(errmsg))
-          sys.exit(proc.returncode)
-
-      return ("".join(outmsg), "".join(errmsg))
-    else:
-      absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-      cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
-      proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-      return proc.communicate()
+    return runSession.runSession(command)
   #
 
   def _runConsole(self, args=[]):

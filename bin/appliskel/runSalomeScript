@@ -140,9 +140,8 @@ def copy_files(user,machine,script,infiles,outfiles,directory):
   import getpass
   logname = getpass.getuser()
   tmp_script="/tmp/%s_%s_%s" % (logname,os.getpid(),namescript)
-  fscript=open(script)
-  script_text=fscript.read()
-  fscript.close()
+  with open(script, 'r') as fscript:
+    script_text=fscript.read()
 
   list_infiles=[]
   list_outfiles=[]
@@ -156,7 +155,7 @@ def copy_files(user,machine,script,infiles,outfiles,directory):
     #modify the salome script
     script_text = re.sub(infile,tmp_file,script_text)
 
-    # copy the infile to the remote server (into /tmp)
+    # copy the infile to the remote server
     cmd="scp %s %s@%s:%s" % (infile,user,machine,tmp_file)
     print "[  SCP  ]",cmd
     os.system(cmd)
@@ -176,9 +175,8 @@ def copy_files(user,machine,script,infiles,outfiles,directory):
     list_outfiles.append(tmp_file)
     n=n+1
 
-  fscript=open(tmp_script,'w')
-  fscript.write(script_text)
-  fscript.close()
+  with open(tmp_script,'w') as fscript:
+    fscript.write(script_text)
 
   if directory:
     #copy the salome script on the remote server
@@ -195,6 +193,13 @@ def main():
   tmp_script=script
 
   print "mode:",mode
+  print "user:",user
+  print "machine:",machine
+  print "port:",port
+  print "directory:",directory
+  print "infiles:",infiles
+  print "outfiles:",outfiles
+  print "script:",script
 
   if mode == "remote":
     list_infiles, list_outfiles, tmp_script = copy_files(user,machine,script,infiles,outfiles,directory)
@@ -202,7 +207,7 @@ def main():
   #################################################
   #          Execution                            #
   #################################################
-  if directory:
+  if mode == "remote":
     print "[ REMOTE ]"
 
     # execute runSession from the remote SALOME application
@@ -230,7 +235,7 @@ def main():
   #          Get remote files and clean           #
   #################################################
   if mode == "remote":
-    temp_files=list_infiles+list_outfiles
+    temp_files=list_infiles+list_outfiles+[tmp_script]
 
     #get the outfiles
     for outfile in outfiles:
@@ -247,4 +252,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-

@@ -26,6 +26,7 @@ import sys
 from optparse import OptionParser
 from NSparam import getNSparams
 import socket
+import subprocess
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -103,4 +104,41 @@ def _writeConfigFile(port, host):
   [ filename, msgSize ] = writeORBConfigFile(path, host, port, kwargs)
 
   os.environ['OMNIORB_CONFIG'] = filename
+#
+
+# command looks like a Bash command-line:
+# script1.py [args] ; script2.py [args] ; ...
+def runSession(command):
+  if command:
+    sep = ";"
+    if sys.platform == "win32":
+      sep= "&"
+    command = command.split(sep)
+    outmsg = []
+    errmsg = []
+    for cmd in command:
+      save_cmd = cmd
+      cmd = cmd.strip().split(' ')
+      #proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      proc = subprocess.Popen(cmd)
+      (stdoutdata, stderrdata) = proc.communicate()
+      if stdoutdata:
+        outmsg.append(stdoutdata)
+      if stderrdata:
+        errmsg.append(stderrdata)
+
+      if proc.returncode != 0:
+        errmsg.append("Error raised when executing command: %s\n"%save_cmd)
+        if outmsg:
+          sys.stdout.write("".join(outmsg))
+        if errmsg:
+          sys.stderr.write("".join(errmsg))
+        sys.exit(proc.returncode)
+
+    return ("".join(outmsg), "".join(errmsg))
+  else:
+    absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
+    cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
+    proc = subprocess.Popen(cmd, shell=False, close_fds=True)
+    return proc.communicate()
 #
