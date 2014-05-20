@@ -203,7 +203,8 @@ std::string SALOMEDS_Driver_i::IORToLocalPersistentID(const SALOMEDSImpl_SObject
   if ( !CORBA::is_nil(_driver) ) {
     CORBA::String_var pers_string =_driver->IORToLocalPersistentID(so.in(), IORString.c_str(),
                                                                    isMultiFile, isASCII);
-    pstr = pers_string;
+    if ( pers_string.in() )
+      pstr = pers_string;
   }
 
   so->UnRegister();

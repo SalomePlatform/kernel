@@ -54,5 +54,6 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   PySys_SetArgv(argc, argv);
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
   PyEval_ReleaseLock();  // Py_InitThreads acquires the GIL
+  PyRun_SimpleString("import threading\n");
 }
 
