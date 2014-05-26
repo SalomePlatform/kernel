@@ -133,6 +133,7 @@ def link_module(options):
     module_bin_dir=os.path.join(module_dir,'bin','salome')
     module_idl_dir=os.path.join(module_dir,'idl','salome')
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
+    module_pvlib_dir=os.path.join(module_dir,get_lib_dir(),'paraview')
     module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
     module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
                                           'site-packages','salome')
@@ -148,6 +149,7 @@ def link_module(options):
     bin_dir=os.path.join(home_dir,'bin','salome')
     idl_dir=os.path.join(home_dir,'idl','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
+    pvlib_dir=os.path.join(home_dir,'lib','paraview')
     lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
     lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
                                    'site-packages','salome')
@@ -203,6 +205,18 @@ def link_module(options):
             print module_lib_dir, " doesn't exist"
         pass
 
+    #directory lib/paraview : create it and link content
+    if os.path.exists(module_pvlib_dir):
+        mkdir(pvlib_dir)
+        for fn in os.listdir(module_pvlib_dir):
+            symlink(os.path.join(module_pvlib_dir, fn), os.path.join(pvlib_dir, fn))
+            pass
+        pass
+    else:
+        if verbose:
+            print module_pvlib_dir, " doesn't exist"
+        pass
+        
     #directory lib/pyversio/site-packages/salome : create it and link content
     if not os.path.exists(module_lib_py_dir):
         print "Python directory %s does not exist" % module_lib_py_dir
