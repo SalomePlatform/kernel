@@ -84,6 +84,9 @@ FIND_LIBRARY(CAS_FWOSPlugin FWOSPlugin )
 FIND_LIBRARY(CAS_PTKernel PTKernel )
 #FIND_LIBRARY(CAS_StdLPlugin StdLPlugin )
 #FIND_LIBRARY(CAS_StdPlugin StdPlugin )
+IF(CAS_VERSION_STR VERSION_LESS "6.7.2")
+FIND_LIBRARY(CAS_TKAdvTools TKAdvTools )
+ENDIF()
 FIND_LIBRARY(CAS_TKBin TKBin )
 FIND_LIBRARY(CAS_TKBinL TKBinL )
 FIND_LIBRARY(CAS_TKBinTObj TKBinTObj )
@@ -166,65 +169,70 @@ SET(CAS_TKSTEP ${CAS_TKSTEP_EA})
 SET(CAS_TKSTL ${CAS_TKSTL_EA})
 SET(CAS_TKCAF ${CAS_TKCAF_EA})
 
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(CAS 
-      REQUIRED_VARS CAS_INCLUDE_DIRS  
-        CAS_FWOSPlugin
-        CAS_PTKernel
-        CAS_TKBin
-        CAS_TKBinL
-        CAS_TKBinTObj
-        CAS_TKBinXCAF
-        CAS_TKBO
-        CAS_TKBool
-        CAS_TKBRep
-        CAS_TKCAF
-        CAS_TKCDF
-        CAS_TKernel
-        CAS_TKFeat
-        CAS_TKFillet
-        CAS_TKG2d
-        CAS_TKG3d
-        CAS_TKGeomAlgo
-        CAS_TKGeomBase
-        CAS_TKHLR
-        CAS_TKIGES
-        CAS_TKLCAF
-        CAS_TKMath
-        CAS_TKMesh
-        CAS_TKMeshVS
-        CAS_TKNIS
-        CAS_TKOffset
-        CAS_TKOpenGl
-        CAS_TKPCAF
-        CAS_TKPLCAF
-        CAS_TKPrim
-        CAS_TKPShape
-        CAS_TKService
-        CAS_TKShapeSchema
-        CAS_TKShHealing
-        CAS_TKStdLSchema
-        CAS_TKStdSchema
-        CAS_TKSTEP
-        CAS_TKSTEP209
-        CAS_TKSTEPAttr
-        CAS_TKSTEPBase
-        CAS_TKSTL
-        CAS_TKTObj
-        CAS_TKTopAlgo
-        CAS_TKV3d
-        CAS_TKVRML
-        CAS_TKXCAF
-        CAS_TKXCAFSchema
-        CAS_TKXDEIGES
-        CAS_TKXDESTEP
-        CAS_TKXMesh
-        CAS_TKXml
-        CAS_TKXmlL
-        CAS_TKXmlTObj
-        CAS_TKXmlXCAF
-        CAS_TKXSBase
+SET(_libs
+  CAS_FWOSPlugin
+  CAS_PTKernel
+  CAS_TKBin
+  CAS_TKBinL
+  CAS_TKBinTObj
+  CAS_TKBinXCAF
+  CAS_TKBO
+  CAS_TKBool
+  CAS_TKBRep
+  CAS_TKCAF
+  CAS_TKCDF
+  CAS_TKernel
+  CAS_TKFeat
+  CAS_TKFillet
+  CAS_TKG2d
+  CAS_TKG3d
+  CAS_TKGeomAlgo
+  CAS_TKGeomBase
+  CAS_TKHLR
+  CAS_TKIGES
+  CAS_TKLCAF
+  CAS_TKMath
+  CAS_TKMesh
+  CAS_TKMeshVS
+  CAS_TKNIS
+  CAS_TKOffset
+  CAS_TKOpenGl
+  CAS_TKPCAF
+  CAS_TKPLCAF
+  CAS_TKPrim
+  CAS_TKPShape
+  CAS_TKService
+  CAS_TKShapeSchema
+  CAS_TKShHealing
+  CAS_TKStdLSchema
+  CAS_TKStdSchema
+  CAS_TKSTEP
+  CAS_TKSTEP209
+  CAS_TKSTEPAttr
+  CAS_TKSTEPBase
+  CAS_TKSTL
+  CAS_TKTObj
+  CAS_TKTopAlgo
+  CAS_TKV3d
+  CAS_TKVRML
+  CAS_TKXCAF
+  CAS_TKXCAFSchema
+  CAS_TKXDEIGES
+  CAS_TKXDESTEP
+  CAS_TKXMesh
+  CAS_TKXml
+  CAS_TKXmlL
+  CAS_TKXmlTObj
+  CAS_TKXmlXCAF
+  CAS_TKXSBase
 )
+
+IF(CAS_VERSION_STR VERSION_LESS "6.7.2")
+  LIST(APPEND _libs CAS_TKAdvTools)
+ENDIF()
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(CAS REQUIRED_VARS CAS_INCLUDE_DIRS ${_libs})
 
 IF(CAS_FOUND AND NOT CAS_FIND_QUIETLY)
   IF(CAS_VERSION_DEVELOPMENT)
