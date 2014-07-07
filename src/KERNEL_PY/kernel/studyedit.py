@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
@@ -40,6 +38,9 @@ logger = Logger("salome.kernel.studyedit", color = termcolor.PURPLE)
 
 _editors = {}
 _DEFAULT_CONTAINER = "FactoryServer"
+
+# The codec to use for strings that are displayed in Salome study tree is UTF-8
+ENCODING_FOR_SALOME_STUDY = "utf-8"
 
 ## Return the ID of the active study. In GUI mode, this function is equivalent
 #  to salome.sg.getActiveStudyId(). Outside GUI, it returns <b> salome.myStudyId </b>
@@ -396,16 +397,16 @@ class StudyEditor:
     #
     #  \param item (SObject) item to modify.
     #
-    #  \param name (string) item name (attribute \b AttributeName).
+    #  \param name (string or unicode) item name (attribute \b AttributeName).
     #
-    #  \param fileType (string) item file type (attribute \b AttributeFileType).
+    #  \param fileType (string or unicode) item file type (attribute \b AttributeFileType).
     #
-    #  \param fileName (string) item file name (attribute \b AttributeExternalFileDef).
+    #  \param fileName (string or unicode) item file name (attribute \b AttributeExternalFileDef).
     #
-    #  \param comment (string) item comment (attribute \b AttributeComment). Note that
+    #  \param comment (string or unicode) item comment (attribute \b AttributeComment). Note that
     #  this attribute will appear in the \b Value column in the object browser.
     #
-    #  \param icon (string) item icon name (attribute \b AttributePixMap).
+    #  \param icon (string or unicode) item icon name (attribute \b AttributePixMap).
     #
     #  \param IOR (string) IOR of a CORBA object associated with the item
     #  (attribute \b AttributeIOR).
@@ -420,22 +421,22 @@ class StudyEditor:
         :type  item: SObject
         :param item: item to modify.
 
-        :type  name: string
+        :type  name: string or unicode
         :param name: item name (attribute 'AttributeName').
 
-        :type  fileType: string
+        :type  fileType: string or unicode
         :param fileType: item file type (attribute 'AttributeFileType').
 
-        :type  fileName: string
+        :type  fileName: string or unicode
         :param fileName: item file name (attribute
                          'AttributeExternalFileDef').
 
-        :type  comment: string
+        :type  comment: string or unicode
         :param comment: item comment (attribute 'AttributeComment'). Note that
                         this attribute will appear in the 'Value' column in
                         the object browser.
 
-        :type  icon: string
+        :type  icon: string or unicode
         :param icon: item icon name (attribute 'AttributePixMap').
 
         :type  IOR: string
@@ -449,19 +450,18 @@ class StudyEditor:
                      "comment=%s, icon=%s, IOR=%s" %
                      (item.GetID(), name, fileType, fileName, comment,
                       icon, IOR))
-        # Explicit cast is necessary for unicode to string conversion
         if name is not None:
-            self.builder.SetName(item, str(name))
+            self.builder.SetName(item, name.encode(ENCODING_FOR_SALOME_STUDY))
         if fileType is not None:
             self.setFileType(item, fileType)
         if fileName is not None:
             self.setFileName(item, fileName)
         if comment is not None:
-            self.builder.SetComment(item, str(comment))
+            self.builder.SetComment(item, comment.encode(ENCODING_FOR_SALOME_STUDY))
         if icon is not None:
             self.setIcon(item, icon)
         if IOR is not None:
-            self.builder.SetIOR(item, str(IOR))
+            self.builder.SetIOR(item, IOR)
         if typeId is not None:
             self.setTypeId(item, typeId)
 
@@ -595,8 +595,8 @@ class StudyEditor:
         Set the attribute "AttributeFileType" of the object `sObject` to the
         value `value`.
         """
-        # Explicit cast is necessary for unicode to string conversion
-        self.setAttributeValue(sObject, "AttributeFileType", str(value))
+        self.setAttributeValue(sObject, "AttributeFileType",
+                               value.encode(ENCODING_FOR_SALOME_STUDY))
 
     ## Return the value of the attribute "AttributeExternalFileDef" of the
     #  object sObject, or an empty string if it is not set.
@@ -614,9 +614,8 @@ class StudyEditor:
         Set the attribute "AttributeExternalFileDef" of the object `sObject`
         to the value `value`.
         """
-        # Explicit cast is necessary for unicode to string conversion
         self.setAttributeValue(sObject, "AttributeExternalFileDef",
-                               str(value))
+                               value.encode(ENCODING_FOR_SALOME_STUDY))
 
     ## Return the value of the attribute "AttributePixMap" of the object
     #  sObject, or an empty string if it is not set.
@@ -639,5 +638,4 @@ class StudyEditor:
         value `value`.
         """
         attr = self.builder.FindOrCreateAttribute(sObject, "AttributePixMap")
-        # Explicit cast is necessary for unicode to string conversion
-        attr.SetPixMap(str(value))
+        attr.SetPixMap(value.encode(ENCODING_FOR_SALOME_STUDY))
