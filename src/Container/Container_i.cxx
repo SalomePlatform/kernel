@@ -201,15 +201,20 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     myCommand += "')\n";
     SCRUTE(myCommand);
 
-    // [ABN]: using the PyGILState* API here is unstable. omniORB logic is invoked
-    // by the Python code executed below, and in some (random) cases, the Python code
-    // execution ends with a PyThreadState which was not the one we have here.
-    // (TODO: understand why ...)
-    // To be on the safe side we get and load the thread state ourselves:
-    //PyGILState_STATE gstate = PyGILState_Ensure();
-    PyEval_AcquireLock();  // get GIL
-    PyThreadState * mainThreadState = PyThreadState_Get();
-    PyThreadState_Swap(mainThreadState);
+    //[RNV]: Comment the PyEval_AcquireLock() and PyEval_ReleaseLock() because this 
+    //approach leads to the deadlock of the main thread of the application on Windows platform
+    //in case if cppContainer runs in the standalone mode. The problem with the PyThreadState 
+    //described by ABN seems not reproduced, to be checked carefully later...
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    
+    //// [ABN]: using the PyGILState* API here is unstable. omniORB logic is invoked
+    //// by the Python code executed below, and in some (random) cases, the Python code
+    //// execution ends with a PyThreadState which was not the one we have here.
+    //// (TODO: understand why ...)
+    //// To be on the safe side we get and load the thread state ourselves:    
+    //PyEval_AcquireLock();  // get GIL
+    //PyThreadState * mainThreadState = PyThreadState_Get();
+    //PyThreadState_Swap(mainThreadState);
 
 #ifdef WIN32
     // mpv: this is temporary solution: there is a unregular crash if not
@@ -225,9 +230,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     PyObject *globals = PyModule_GetDict(mainmod);
     _pyCont = PyDict_GetItemString(globals, "pyCont");
 
-    PyThreadState_Swap(NULL);
-    PyEval_ReleaseLock();
-    //PyGILState_Release(gstate);
+    //PyThreadState_Swap(NULL);
+    //PyEval_ReleaseLock();
+    PyGILState_Release(gstate);
 
     fileTransfer_i* aFileTransfer = new fileTransfer_i();
     CORBA::Object_var obref=aFileTransfer->_this();
