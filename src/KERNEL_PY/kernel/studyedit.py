@@ -315,12 +315,12 @@ class StudyEditor:
         while childIterator.More() and foundItem is None:
             childItem = childIterator.Value()
             if childItem and \
-               (name is None or childItem.GetName() == name) and \
+               (name is None or self.getName(childItem) == name) and \
                (fileType is None or \
                 self.getFileType(childItem) == fileType) and \
                (fileName is None or \
                 self.getFileName(childItem) == fileName) and \
-               (comment is None or childItem.GetComment() == comment) and \
+               (comment is None or self.getComment(childItem) == comment) and \
                (icon is None or \
                 self.getIcon(childItem) == icon) and \
                (IOR is None or childItem.GetIOR() == IOR) and \
@@ -451,13 +451,13 @@ class StudyEditor:
                      (item.GetID(), name, fileType, fileName, comment,
                       icon, IOR))
         if name is not None:
-            self.builder.SetName(item, name.encode(ENCODING_FOR_SALOME_STUDY))
+            self.setName(item, name)
         if fileType is not None:
             self.setFileType(item, fileType)
         if fileName is not None:
             self.setFileName(item, fileName)
         if comment is not None:
-            self.builder.SetComment(item, comment.encode(ENCODING_FOR_SALOME_STUDY))
+            self.setComment(item, comment)
         if icon is not None:
             self.setIcon(item, icon)
         if IOR is not None:
@@ -538,6 +538,24 @@ class StudyEditor:
                      IOR, typeId)
         return sObj
 
+    ## Return the name of the object sObject
+    def getName(self, sObject):
+        val = sObject.GetName()
+        return unicode(val, ENCODING_FOR_SALOME_STUDY)
+
+    ## Set the name of the object sObject
+    def setName(self, sObject, name):
+        self.builder.SetName(sObject, name.encode(ENCODING_FOR_SALOME_STUDY))
+
+    ## Return the comment of the object sObject
+    def getComment(self, sObject):
+        val = sObject.GetComment()
+        return unicode(val, ENCODING_FOR_SALOME_STUDY)
+
+    ## Set the comment of the object sObject
+    def setComment(self, sObject, comment):
+        self.builder.SetComment(sObject, comment.encode(ENCODING_FOR_SALOME_STUDY))
+
     ## Return the value of the attribute named \b attributeName on the object
     #  sObject, or \b default if the attribute doesn't exist.
     def getAttributeValue(self, sObject, attributeName, default = None):
@@ -586,7 +604,8 @@ class StudyEditor:
         Return the value of the attribute "AttributeFileType" of the object
         `sObject`, or an empty string if it is not set.
         """
-        return self.getAttributeValue(sObject, "AttributeFileType", "")
+        val = self.getAttributeValue(sObject, "AttributeFileType", "")
+        return unicode(val, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the attribute "AttributeFileType" of the object sObject to the
     #  value value.
@@ -605,7 +624,8 @@ class StudyEditor:
         Return the value of the attribute "AttributeExternalFileDef" of the
         object `sObject`, or an empty string if it is not set.
         """
-        return self.getAttributeValue(sObject, "AttributeExternalFileDef", "")
+        val = self.getAttributeValue(sObject, "AttributeExternalFileDef", "")
+        return unicode(val, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the attribute "AttributeExternalFileDef" of the object sObject
     #  to the value value.
@@ -628,7 +648,7 @@ class StudyEditor:
         found, attr = self.builder.FindAttribute(sObject, "AttributePixMap")
         if found and attr.HasPixMap():
             value = attr.GetPixMap()
-        return value
+        return unicode(value, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the attribute "AttributePixMap" of the object sObject to the
     #  value value.
