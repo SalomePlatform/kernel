@@ -106,7 +106,9 @@ public:
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
   void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
   Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
+  Engines::PyNode_ptr  getDefaultPyNode();
   Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
+  Engines::PyScriptNode_ptr getDefaultPyScriptNode();
   // --- local C++ methods
 
   Engines::EngineComponent_ptr
@@ -154,6 +156,8 @@ protected:
   std::map<std::string,Engines::EngineComponent_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
   std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
+  Engines::PyScriptNode_var _dftPyScriptNode;
+  Engines::PyNode_var _dftPyNode;
   std::list<std::string> _tmp_files;
   Engines::fileTransfer_var _fileTransfer;
 

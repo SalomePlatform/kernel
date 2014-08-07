@@ -53,6 +53,11 @@ module Engines
 
   interface PyScriptNode : SALOME::GenericObj
   {
+    /*!
+    This methode executes the python code in \a codeStr and can append/remove symboles in context to make them available or not for future call of execute on this.
+    \param [in] codeStr - the python code (without statement) to be executed, that can modify the context initialized at initialization.
+     */
+    void executeAnotherPieceOfCode(in string codeStr)  raises (SALOME::SALOME_Exception);
 
     /*! \brief execute a python script defined in the node
 

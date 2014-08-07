@@ -1646,6 +1646,7 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
       {
         CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
         node = Engines::PyNode::_narrow(obj);
+        _dftPyNode = node;
         return node._retn();
       }
     else
@@ -1656,6 +1657,19 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
         throw SALOME::SALOME_Exception(es);
       }
 
+}
+
+//=============================================================================
+/*! \brief Retrieves the last created PyNode instance with createPyNode.
+ *
+ */
+//=============================================================================
+Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode()
+{
+  if(!CORBA::is_nil(_dftPyNode))
+    return Engines::PyNode::_duplicate(_dftPyNode);
+  else
+    return Engines::PyNode::_nil();
 }
 
 //=============================================================================
@@ -1695,6 +1709,7 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
       {
         CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
         node = Engines::PyScriptNode::_narrow(obj);
+        _dftPyScriptNode = node;
         return node._retn();
       }
     else
@@ -1704,6 +1719,19 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
         es.text = astr.c_str();
         throw SALOME::SALOME_Exception(es);
       }
+}
+
+//=============================================================================
+/*! \brief Retrieves the last created PyScriptNode instance with createPyScriptNode.
+ *
+ */
+//=============================================================================
+Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode()
+{
+  if(!CORBA::is_nil(_dftPyScriptNode))
+    return Engines::PyScriptNode::_duplicate(_dftPyScriptNode);
+  else
+    return Engines::PyScriptNode::_nil();
 }
 
 //=============================================================================

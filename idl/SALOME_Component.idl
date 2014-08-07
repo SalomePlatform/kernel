@@ -222,12 +222,18 @@ module Engines
      */
     PyNode createPyNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
 
+    //! Retrieves the last created PyNode instance with createPyNode.
+    PyNode getDefaultPyNode();
+
     //! Create a PyScriptNode in the container
     /*!
       \param nodeName the name of the PyScriptNode
       \param code python code as text to load in the node
      */
     PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
+
+    //! Retrieves the last created PyScriptNode instance with createPyScriptNode.
+    PyScriptNode getDefaultPyScriptNode();
   };
 
   /*! \brief Interface to pass data files from the client side to the SALOME Container.
