@@ -138,8 +138,9 @@ public:
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
   void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
   Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
+  Engines::PyNode_ptr getDefaultPyNode();
   Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
-
+  Engines::PyScriptNode_ptr getDefaultPyScriptNode();
 protected:
 
   SALOME_NamingService *_NS;

@@ -1127,12 +1127,24 @@ Engines_Parallel_Container_i::createPyNode(const char* nodeName, const char* cod
   return node._retn();
 }
 
+Engines::PyNode_ptr Engines_Parallel_Container_i::getDefaultPyNode()
+{
+  INFOS("Python component not yet implemented");
+  return Engines::PyNode::_nil();
+}
+
 Engines::PyScriptNode_ptr 
 Engines_Parallel_Container_i::createPyScriptNode(const char* nodeName, const char* cod)
 {
   INFOS("Python script node not yet implemented");
   Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
   return node._retn();
+}
+
+Engines::PyScriptNode_ptr Engines_Parallel_Container_i::getDefaultPyScriptNode()
+{
+  INFOS("Python script node not yet implemented");
+  return Engines::PyScriptNode::_nil();
 }
 
 //=============================================================================
