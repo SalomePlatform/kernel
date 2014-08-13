@@ -64,6 +64,14 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     self.context["my_container"] = self.my_container
     exec ccode in self.context
 
+  def executeAnotherPieceOfCode(self,code):
+    """Called for initialization of container lodging self."""
+    try:
+      ccode=compile(code,self.nodeName,'exec')
+      exec ccode in self.context
+    except:
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
+
   def execute(self,funcName,argsin):
     """Execute the function funcName found in local context with pickled args (argsin)"""
     try:
