@@ -254,6 +254,10 @@ Engines_Container_i::~Engines_Container_i()
     delete _id;
   if(_NS)
     delete _NS;
+  if(!CORBA::is_nil(_dftPyNode))
+    _dftPyNode->UnRegister();
+  if(!CORBA::is_nil(_dftPyScriptNode))
+    _dftPyScriptNode->UnRegister();
 }
 
 //=============================================================================
@@ -1646,7 +1650,11 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
       {
         CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
         node = Engines::PyNode::_narrow(obj);
+        if(!CORBA::is_nil(_dftPyNode))
+          _dftPyNode->UnRegister();
         _dftPyNode = node;
+        if(!CORBA::is_nil(_dftPyNode))
+          _dftPyNode->Register();
         return node._retn();
       }
     else
@@ -1709,7 +1717,11 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
       {
         CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
         node = Engines::PyScriptNode::_narrow(obj);
+        if(!CORBA::is_nil(_dftPyScriptNode))
+          _dftPyScriptNode->UnRegister();
         _dftPyScriptNode = node;
+        if(!CORBA::is_nil(_dftPyScriptNode))
+          _dftPyScriptNode->Register();
         return node._retn();
       }
     else
