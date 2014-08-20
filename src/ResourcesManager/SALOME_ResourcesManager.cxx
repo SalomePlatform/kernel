@@ -56,16 +56,20 @@ const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesMana
  */ 
 //=============================================================================
 
-SALOME_ResourcesManager::
-SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
-                        PortableServer::POA_var poa, 
-                        SALOME_NamingService *ns,
-                        const char *xmlFilePath) : _rm(xmlFilePath)
+SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns, const char *xmlFilePath) : _rm(xmlFilePath)
 {
   MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
   _orb = CORBA::ORB::_duplicate(orb) ;
-  _poa = PortableServer::POA::_duplicate(poa) ;
+  //
+  PortableServer::POAManager_var pman = poa->the_POAManager();
+  CORBA::PolicyList policies;
+  policies.length(1);
+  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+  policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+  _poa = poa->create_POA("SingleThreadPOA",pman,policies);
+  threadPol->destroy();
+  //
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
   Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
@@ -91,7 +95,15 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
   MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
   _orb = CORBA::ORB::_duplicate(orb) ;
-  _poa = PortableServer::POA::_duplicate(poa) ;
+  //
+  PortableServer::POAManager_var pman = poa->the_POAManager();
+  CORBA::PolicyList policies;
+  policies.length(1);
+  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+  policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+  _poa = poa->create_POA("SingleThreadPOA",pman,policies);
+  threadPol->destroy();
+  //
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
   Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);

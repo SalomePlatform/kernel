@@ -55,6 +55,9 @@ const char *SALOME_ContainerManager::_ContainerManagerNameInNS =
 
 omni_mutex SALOME_ContainerManager::_numInstanceMutex;
 
+Utils_Mutex SALOME_ContainerManager::_getenvMutex;
+
+Utils_Mutex SALOME_ContainerManager::_systemMutex;
 
 //=============================================================================
 /*! 
@@ -75,11 +78,10 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   _orb = CORBA::ORB::_duplicate(orb) ;
   CORBA::PolicyList policies;
   policies.length(1);
-  PortableServer::ThreadPolicy_var threadPol = 
-    poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL);
+  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL));
   policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
 
-  _poa = poa->create_POA("SThreadPOA",pman,policies);
+  _poa = poa->create_POA("MThreadPOA",pman,policies);
   threadPol->destroy();
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
@@ -87,23 +89,23 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
     Engines::ContainerManager::_narrow(obj);
 
   _NS->Register(refContMan,_ContainerManagerNameInNS);
-  _isAppliSalomeDefined = (getenv("APPLI") != 0);
+  _isAppliSalomeDefined = (GetenvThreadSafe("APPLI") != 0);
 
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
   _pid_mpiServer = -1;
   // the urifile name depends on pid of the process
   std::stringstream urifile;
-  urifile << getenv("HOME") << "/.urifile_" << getpid();
+  urifile << GetenvThreadSafe("HOME") << "/.urifile_" << getpid();
   setenv("OMPI_URI_FILE",urifile.str().c_str(),1);
-  if( getenv("OMPI_URI_FILE") != NULL ){
+  if( GetenvThreadSafe("OMPI_URI_FILE") != NULL ){
     // get the pid of all ompi-server
     std::set<pid_t> thepids1 = getpidofprogram("ompi-server");
     // launch a new ompi-server
     std::string command;
     command = "ompi-server -r ";
-    command += getenv("OMPI_URI_FILE");
-    int status=system(command.c_str());
+    command += GetenvThreadSafe("OMPI_URI_FILE");
+    int status=SystemThreadSafe(command.c_str());
     if(status!=0)
       throw SALOME_Exception("Error when launching ompi-server");
     // get the pid of all ompi-server
@@ -123,7 +125,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   // launch a new hydra_nameserver
   std::string command;
   command = "hydra_nameserver &";
-  system(command.c_str());
+  SystemThreadSafe(command.c_str());
   // get the pid of all hydra_nameserver
   std::set<pid_t> thepids2 = getpidofprogram("hydra_nameserver");
   // my hydra_nameserver is the new one
@@ -148,12 +150,12 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
   MESSAGE("destructor");
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
-  if( getenv("OMPI_URI_FILE") != NULL ){
+  if( GetenvThreadSafe("OMPI_URI_FILE") != NULL ){
     // kill my ompi-server
     if( kill(_pid_mpiServer,SIGTERM) != 0 )
       throw SALOME_Exception("Error when killing ompi-server");
     // delete my urifile
-    int status=system("rm -f ${OMPI_URI_FILE}");
+    int status=SystemThreadSafe("rm -f ${OMPI_URI_FILE}");
     if(status!=0)
       throw SALOME_Exception("Error when removing urifile");
   }
@@ -263,11 +265,10 @@ void SALOME_ContainerManager::ShutdownContainers()
  *  \return the container or nil
  */
 //=============================================================================
-Engines::Container_ptr
-SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& params)
+Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& params)
 {
   std::string machFile;
-  Engines::Container_ptr ret = Engines::Container::_nil();
+  Engines::Container_ptr ret(Engines::Container::_nil());
 
   // Step 0: Default mode is start
   Engines::ContainerParameters local_params(params);
@@ -369,7 +370,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
           nbproc = params.nb_proc;
         try
         {
-          if( getenv("LIBBATCH_NODEFILE") != NULL )
+          if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
             machFile = machinesFile(nbproc);
         }
         catch(const SALOME_Exception & ex)
@@ -389,29 +390,33 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       // Step 6: check if the name exists in naming service
       //if params.mode == "getorstart" or "get" use the existing container
       //if params.mode == "start" shutdown the existing container before launching a new one with that name
-      CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
-      if (!CORBA::is_nil(obj))
-      {
-        try
-        {
-          Engines::Container_var cont=Engines::Container::_narrow(obj);
-          if(!cont->_non_existent())
+
+      { // critical section
+        Utils_Locker lock (&_giveContainerMutex1);
+        CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+        if (!CORBA::is_nil(obj))
           {
-            if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
-              return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
-            }
-            else
+            try
             {
-              INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
-              cont->Shutdown(); // shutdown the registered container if it exists
+                Engines::Container_var cont=Engines::Container::_narrow(obj);
+                if(!cont->_non_existent())
+                  {
+                    if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
+                        return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
+                    }
+                    else
+                      {
+                        INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
+                        cont->Shutdown(); // shutdown the registered container if it exists
+                      }
+                  }
+            }
+            catch(CORBA::Exception&)
+            {
+                INFOS("[GiveContainer] CORBA::Exception ignored when trying to get the container - we start a new one");
             }
           }
-        }
-        catch(CORBA::Exception&)
-        {
-          INFOS("[GiveContainer] CORBA::Exception ignored when trying to get the container - we start a new one");
-        }
-      }
+      } // end critical section
       Engines::Container_var cont = LaunchContainer(params, resource_selected, hostname, machFile, containerNameInNS);
       if (!CORBA::is_nil(cont))
       {
@@ -440,221 +445,222 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
                                          const std::string & machFile,
                                          const std::string & containerNameInNS)
 {
-
-  // Step 1: type of container: PaCO, Exe, Mpi or Classic
-  // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
-  // TODO -> separates Mpi from Classic/Exe
-  // Classic or Exe ?
-  std::string container_exe = "SALOME_Container"; // Classic container
-  Engines::ContainerParameters local_params(params);
-  Engines::Container_ptr ret = Engines::Container::_nil();
-  int found=0;
-  try
-  {
-    CORBA::String_var container_exe_tmp;
-    CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
-    SALOME_ModuleCatalog::ModuleCatalog_var Catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
-    if (CORBA::is_nil (Catalog))
+  std::string user,command,logFilename,tmpFileName;
+  int status;
+  Engines::Container_ptr ret(Engines::Container::_nil());
+  {//start of critical section
+    Utils_Locker lock (&_giveContainerMutex1);
+    // Step 1: type of container: PaCO, Exe, Mpi or Classic
+    // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
+    // TODO -> separates Mpi from Classic/Exe
+    // Classic or Exe ?
+    std::string container_exe = "SALOME_Container"; // Classic container
+    Engines::ContainerParameters local_params(params);
+    int found=0;
+    try
     {
-      INFOS("[GiveContainer] Module Catalog is not found -> cannot launch a container");
-      return ret;
+        CORBA::String_var container_exe_tmp;
+        CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
+        SALOME_ModuleCatalog::ModuleCatalog_var Catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+        if (CORBA::is_nil (Catalog))
+          {
+            INFOS("[GiveContainer] Module Catalog is not found -> cannot launch a container");
+            return ret;
+          }
+        // Loop through component list
+        for(unsigned int i=0; i < local_params.resource_params.componentList.length(); i++)
+          {
+            const char* compoi = local_params.resource_params.componentList[i];
+            SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
+            if (CORBA::is_nil (compoInfo))
+              {
+                continue;
+              }
+            SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
+            container_exe_tmp=compoInfo->implementation_name();
+            if(impl==SALOME_ModuleCatalog::CEXE)
+              {
+                if(found)
+                  {
+                    INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
+                    return Engines::Container::_nil();
+                  }
+                MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
+                container_exe = container_exe_tmp.in();
+                found=1;
+              }
+          }
     }
-    // Loop through component list
-    for(unsigned int i=0; i < local_params.resource_params.componentList.length(); i++)
+    catch (ServiceUnreachable&)
     {
-      const char* compoi = local_params.resource_params.componentList[i];
-      SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
-      if (CORBA::is_nil (compoInfo))
+        INFOS("Caught exception: Naming Service Unreachable");
+        return ret;
+    }
+    catch (...)
+    {
+        INFOS("Caught unknown exception.");
+        return ret;
+    }
+
+    // Step 2: test resource
+    // Only if an application directory is set
+    if(hostname != Kernel_Utils::GetHostname() && _isAppliSalomeDefined)
       {
-        continue;
-      }
-      SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
-      container_exe_tmp=compoInfo->implementation_name();
-      if(impl==SALOME_ModuleCatalog::CEXE)
-      {
-        if(found)
-        {
-          INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
-          return Engines::Container::_nil();
-        }
-        MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
-        container_exe = container_exe_tmp.in();
-        found=1;
-      }
-    }
-  }
-  catch (ServiceUnreachable&)
-  {
-    INFOS("Caught exception: Naming Service Unreachable");
-    return ret;
-  }
-  catch (...)
-  {
-    INFOS("Caught unknown exception.");
-    return ret;
-  }
+        // Preparing remote command
+        std::string command = "";
+        const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(resource_selected));
+        command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
+        if (resInfo.AppliPath != "")
+          command += resInfo.AppliPath;
+        else
+          {
+            ASSERT(GetenvThreadSafe("APPLI"));
+            command += GetenvThreadSafe("APPLI");
+          }
+        command += "/runRemote.sh ";
+        ASSERT(GetenvThreadSafe("NSHOST"));
+        command += GetenvThreadSafe("NSHOST"); // hostname of CORBA name server
+        command += " ";
+        ASSERT(GetenvThreadSafe("NSPORT"));
+        command += GetenvThreadSafe("NSPORT"); // port of CORBA name server
+        command += " \"ls /tmp >/dev/null 2>&1\"";
 
-  // Step 2: test resource
-  // Only if an application directory is set
-  if(hostname != Kernel_Utils::GetHostname() && _isAppliSalomeDefined)
-  {
-    // Preparing remote command
-    std::string command = "";
-    const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_selected);
-    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
-    if (resInfo.AppliPath != "")
-      command += resInfo.AppliPath;
-    else
-    {
-      ASSERT(getenv("APPLI"));
-      command += getenv("APPLI");
-    }
-    command += "/runRemote.sh ";
-    ASSERT(getenv("NSHOST")); 
-    command += getenv("NSHOST"); // hostname of CORBA name server
-    command += " ";
-    ASSERT(getenv("NSPORT"));
-    command += getenv("NSPORT"); // port of CORBA name server
-    command += " \"ls /tmp >/dev/null 2>&1\"";
-
-    // Launch remote command
-    int status = system(command.c_str());
-    if (status != 0)
-    {
-      // Error on resource - cannot launch commands
-      INFOS("[LaunchContainer] Cannot launch commands on machine " << hostname);
-      INFOS("[LaunchContainer] Command was " << command);
+        // Launch remote command
+        int status = SystemThreadSafe(command.c_str());
+        if (status != 0)
+          {
+            // Error on resource - cannot launch commands
+            INFOS("[LaunchContainer] Cannot launch commands on machine " << hostname);
+            INFOS("[LaunchContainer] Command was " << command);
 #ifndef WIN32
-      INFOS("[LaunchContainer] Command status is " << WEXITSTATUS(status));
+            INFOS("[LaunchContainer] Command status is " << WEXITSTATUS(status));
 #endif
+            return Engines::Container::_nil();
+          }
+      }
+
+    // Step 3: start a new container
+    // Check if a PaCO container
+    // PaCO++
+    if (std::string(local_params.parallelLib.in()) != "")
+      {
+        ret = StartPaCOPPContainer(params, resource_selected);
+        return ret;
+      }
+    // Other type of containers...
+    MESSAGE("[GiveContainer] Try to launch a new container on " << resource_selected);
+    // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
+    if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL && params.isMPI )
+      command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe, tmpFileName);
+    // if a container is launched on localhost, command is "SALOME_Container" or "mpirun -np nbproc SALOME_MPIContainer"
+    else if(hostname == Kernel_Utils::GetHostname())
+      command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe, tmpFileName);
+    // if a container is launched in remote mode, command is "ssh resource_selected SALOME_Container" or "ssh resource_selected mpirun -np nbproc SALOME_MPIContainer"
+    else
+      command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
+
+    //redirect stdout and stderr in a file
+#ifdef WIN32
+    logFilename=GetenvThreadSafe("TEMP");
+    logFilename += "\\";
+    user = GetenvThreadSafe( "USERNAME" );
+#else
+    user = GetenvThreadSafe( "USER" );
+    logFilename="/tmp";
+    char* val = GetenvThreadSafe("SALOME_TMP_DIR");
+    if(val)
+      {
+        struct stat file_info;
+        stat(val, &file_info);
+        bool is_dir = S_ISDIR(file_info.st_mode);
+        if (is_dir)logFilename=val;
+        else std::cerr << "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl;
+      }
+    logFilename += "/";
+#endif
+    logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+user;
+    std::ostringstream tmp;
+    tmp << "_" << getpid();
+    logFilename += tmp.str();
+    logFilename += ".log" ;
+    command += " > " + logFilename + " 2>&1";
+#ifdef WIN32
+    command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
+#else
+    command += " &";
+#endif
+
+    // launch container with a system call
+    status=SystemThreadSafe(command.c_str());
+  }//end of critical of section
+
+  if (status == -1)
+    {
+      INFOS("[LaunchContainer] command failed (system command status -1): " << command);
+      RmTmpFile(tmpFileName); // command file can be removed here
       return Engines::Container::_nil();
     }
-  }
-
-  // Step 3: start a new container
-  // Check if a PaCO container
-  // PaCO++
-  if (std::string(local_params.parallelLib.in()) != "")
-  {
-    ret = StartPaCOPPContainer(params, resource_selected);
-    return ret;
-  }
-  // Other type of containers...
-  MESSAGE("[GiveContainer] Try to launch a new container on " << resource_selected);
-  std::string command;
-  // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
-  if( getenv("LIBBATCH_NODEFILE") != NULL && params.isMPI )
-    command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe);
-  // if a container is launched on localhost, command is "SALOME_Container" or "mpirun -np nbproc SALOME_MPIContainer"
-  else if(hostname == Kernel_Utils::GetHostname())
-    command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe);
-  // if a container is launched in remote mode, command is "ssh resource_selected SALOME_Container" or "ssh resource_selected mpirun -np nbproc SALOME_MPIContainer"
-  else
-    command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
-
-  //redirect stdout and stderr in a file
-#ifdef WIN32
-  std::string logFilename=getenv("TEMP");
-  logFilename += "\\";
-  std::string user = getenv( "USERNAME" );
-#else
-  std::string user = getenv( "USER" );
-  std::string logFilename="/tmp";
-  char* val = getenv("SALOME_TMP_DIR");
-  if(val)
-  {
-    struct stat file_info;
-    stat(val, &file_info);
-    bool is_dir = S_ISDIR(file_info.st_mode);
-    if (is_dir)logFilename=val;
-    else std::cerr << "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl;
-  }
-  logFilename += "/";
-#endif
-  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+user;
-  std::ostringstream tmp;
-  tmp << "_" << getpid();
-  logFilename += tmp.str();
-  logFilename += ".log" ;
-  command += " > " + logFilename + " 2>&1";
-#ifdef WIN32
-  command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
-#else
-  command += " &";
-#endif
-
-  // launch container with a system call
-  int status=system(command.c_str());
-
-  if (status == -1){
-    INFOS("[LaunchContainer] command failed (system command status -1): " << command);
-    RmTmpFile(_TmpFileName); // command file can be removed here
-    _TmpFileName="";
-    return Engines::Container::_nil();
-  }
-  else if (status == 217){
-    INFOS("[LaunchContainer] command failed (system command status 217): " << command);
-    RmTmpFile(_TmpFileName); // command file can be removed here
-    _TmpFileName="";
-    return Engines::Container::_nil();
-  }
-  else
-  {
-    // Step 4: Wait for the container
-    int count = TIME_OUT_TO_LAUNCH_CONT;
-    if (getenv("TIMEOUT_TO_LAUNCH_CONTAINER") != 0)
+  else if (status == 217)
     {
-      std::string new_count_str = getenv("TIMEOUT_TO_LAUNCH_CONTAINER");
-      int new_count;
-      std::istringstream ss(new_count_str);
-      if (!(ss >> new_count))
-      {
-        INFOS("[LaunchContainer] TIMEOUT_TO_LAUNCH_CONTAINER should be an int");
-      }
-      else
-        count = new_count;
+      INFOS("[LaunchContainer] command failed (system command status 217): " << command);
+      RmTmpFile(tmpFileName); // command file can be removed here
+      return Engines::Container::_nil();
     }
-    INFOS("[GiveContainer] waiting " << count << " second steps container " << containerNameInNS);
-    while (CORBA::is_nil(ret) && count)
+  else
     {
+      // Step 4: Wait for the container
+      int count = TIME_OUT_TO_LAUNCH_CONT;
+      if (GetenvThreadSafe("TIMEOUT_TO_LAUNCH_CONTAINER") != 0)
+        {
+          std::string new_count_str = GetenvThreadSafe("TIMEOUT_TO_LAUNCH_CONTAINER");
+          int new_count;
+          std::istringstream ss(new_count_str);
+          if (!(ss >> new_count))
+            {
+              INFOS("[LaunchContainer] TIMEOUT_TO_LAUNCH_CONTAINER should be an int");
+            }
+          else
+            count = new_count;
+        }
+      INFOS("[GiveContainer] waiting " << count << " second steps container " << containerNameInNS);
+      while (CORBA::is_nil(ret) && count)
+        {
 #ifndef WIN32
-      sleep( 1 ) ;
+          sleep( 1 ) ;
 #else
-      Sleep(1000);
+          Sleep(1000);
 #endif
-      count--;
-      MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected);
-      CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
-      ret=Engines::Container::_narrow(obj);
+          count--;
+          MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected);
+          CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+          ret=Engines::Container::_narrow(obj);
+        }
+      if (CORBA::is_nil(ret))
+        {
+          INFOS("[GiveContainer] was not able to launch container " << containerNameInNS);
+        }
+      else
+        {
+          // Setting log file name
+          logFilename=":"+logFilename;
+          logFilename="@"+Kernel_Utils::GetHostname()+logFilename;//threadsafe
+          logFilename=user+logFilename;
+          ret->logfilename(logFilename.c_str());
+          RmTmpFile(tmpFileName); // command file can be removed here
+        }
     }
-    if (CORBA::is_nil(ret))
-    {
-      INFOS("[GiveContainer] was not able to launch container " << containerNameInNS);
-    }
-    else
-    {
-      // Setting log file name
-      logFilename=":"+logFilename;
-      logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
-      logFilename=user+logFilename;
-      ret->logfilename(logFilename.c_str());
-      RmTmpFile(_TmpFileName); // command file can be removed here
-      _TmpFileName="";
-    }
-  }
   return ret;
 }
 
 //=============================================================================
 //! Find a container given constraints (params) on a list of machines (possibleComputers)
+//! agy : this method is ThreadSafe
 /*!
  *
  */
 //=============================================================================
 
-Engines::Container_ptr
-SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params,
-                                       const Engines::ResourceList& possibleResources)
+Engines::Container_ptr SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params, const Engines::ResourceList& possibleResources)
 {
   MESSAGE("[FindContainer] FindContainer on " << possibleResources.length() << " resources");
   for(unsigned int i=0; i < possibleResources.length();i++)
@@ -669,14 +675,14 @@ SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& param
 
 //=============================================================================
 //! Find a container given constraints (params) on a machine (theMachine)
+//! agy : this method is ThreadSafe
 /*!
  *
  */
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params,
-                                       const std::string& resource)
+SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params, const std::string& resource)
 {
   Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource.c_str());
   std::string hostname(resource_definition->hostname.in());
@@ -741,20 +747,17 @@ bool isPythonContainer(const char* ContainerName)
 //=============================================================================
 
 std::string
-SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
-(const std::string& resource_name,
- const Engines::ContainerParameters& params, const std::string& container_exe)
+SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& resource_name, const Engines::ContainerParameters& params, const std::string& container_exe) const
 {
-
-  std::string command;
+  std::string command,tmpFileName;
   if (!_isAppliSalomeDefined)
-    command = BuildTempFileToLaunchRemoteContainer(resource_name, params);
+    command = BuildTempFileToLaunchRemoteContainer(resource_name, params, tmpFileName);
   else
   {
     int nbproc;
     Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_name.c_str());
     std::string hostname(resource_definition->hostname.in());
-    const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
+    const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(resource_name));
 
     if (params.isMPI)
     {
@@ -772,18 +775,18 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
       command += resInfo.AppliPath; // path relative to user@machine $HOME
     else
     {
-      ASSERT(getenv("APPLI"));
-      command += getenv("APPLI"); // path relative to user@machine $HOME
+      ASSERT(GetenvThreadSafe("APPLI"));
+      command += GetenvThreadSafe("APPLI"); // path relative to user@machine $HOME
     }
 
     command += "/runRemote.sh ";
 
-    ASSERT(getenv("NSHOST")); 
-    command += getenv("NSHOST"); // hostname of CORBA name server
+    ASSERT(GetenvThreadSafe("NSHOST"));
+    command += GetenvThreadSafe("NSHOST"); // hostname of CORBA name server
 
     command += " ";
-    ASSERT(getenv("NSPORT"));
-    command += getenv("NSPORT"); // port of CORBA name server
+    ASSERT(GetenvThreadSafe("NSPORT"));
+    command += GetenvThreadSafe("NSPORT"); // port of CORBA name server
 
     std::string wdir = params.workingdir.in();
     if(wdir != "")
@@ -805,11 +808,11 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 #ifdef WITHLAM
       command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
-      if( getenv("OMPI_URI_FILE") == NULL )
+      if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
         command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
         command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-        command += getenv("OMPI_URI_FILE");
+        command += GetenvThreadSafe("OMPI_URI_FILE");
       }
 #elif defined(WITHMPICH)
       command += "-nameserver " + Kernel_Utils::GetHostname();
@@ -834,11 +837,9 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
  *  builds the command to be launched.
  */ 
 //=============================================================================
-std::string
-SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
-(const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe)
+std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe, std::string& tmpFileName) const
 {
-  _TmpFileName = BuildTemporaryFileName();
+  tmpFileName = BuildTemporaryFileName();
   std::string command;
   int nbproc = 0;
 
@@ -855,18 +856,18 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 
       o << nbproc << " ";
 
-      if( getenv("LIBBATCH_NODEFILE") != NULL )
+      if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
         o << "-machinefile " << machinesFile << " ";
 
 #ifdef WITHLAM
       o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
-      if( getenv("OMPI_URI_FILE") == NULL )
+      if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
         o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else
         {
           o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-          o << getenv("OMPI_URI_FILE");
+          o << GetenvThreadSafe("OMPI_URI_FILE");
         }
 #elif defined(WITHMPICH)
       o << "-nameserver " + Kernel_Utils::GetHostname();
@@ -918,14 +919,14 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
   o << " -";
   AddOmninamesParams(o);
 
-  std::ofstream command_file( _TmpFileName.c_str() );
+  std::ofstream command_file( tmpFileName.c_str() );
   command_file << o.str();
   command_file.close();
 
 #ifndef WIN32
-  chmod(_TmpFileName.c_str(), 0x1ED);
+  chmod(tmpFileName.c_str(), 0x1ED);
 #endif
-  command = _TmpFileName;
+  command = tmpFileName;
 
   MESSAGE("Command is file ... " << command);
   MESSAGE("Command is ... " << o.str());
@@ -936,6 +937,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 //=============================================================================
 /*!
  *  removes the generated temporary file in case of a remote launch.
+ *  This method is thread safe
  */ 
 //=============================================================================
 
@@ -954,7 +956,7 @@ void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
       else
         command += tmpFileName;
       command += '*';
-      system(command.c_str());
+      SystemThreadSafe(command.c_str());
       //if dir is empty - remove it
       std::string tmp_dir = Kernel_Utils::GetDirByPath( tmpFileName );
       if ( Kernel_Utils::IsEmptyDir( tmp_dir ) )
@@ -964,7 +966,7 @@ void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
 #else
           command = "rmdir " + tmp_dir;
 #endif
-          system(command.c_str());
+          SystemThreadSafe(command.c_str());
         }
     }
 }
@@ -1014,7 +1016,7 @@ void SALOME_ContainerManager::AddOmninamesParams(std::ostringstream& oss) const
  */ 
 //=============================================================================
 
-std::string SALOME_ContainerManager::BuildTemporaryFileName() const
+std::string SALOME_ContainerManager::BuildTemporaryFileName()
 {
   //build more complex file name to support multiple salome session
   std::string aFileName = Kernel_Utils::GetTmpFileName();
@@ -1036,17 +1038,14 @@ std::string SALOME_ContainerManager::BuildTemporaryFileName() const
  */ 
 //=============================================================================
 
-std::string
-SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
-(const std::string& resource_name,
- const Engines::ContainerParameters& params) throw(SALOME_Exception)
+std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const std::string& resource_name, const Engines::ContainerParameters& params, std::string& tmpFileName) const throw(SALOME_Exception)
 {
   int status;
 
-  _TmpFileName = BuildTemporaryFileName();
+  tmpFileName = BuildTemporaryFileName();
   std::ofstream tempOutputFile;
-  tempOutputFile.open(_TmpFileName.c_str(), std::ofstream::out );
-  const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
+  tempOutputFile.open(tmpFileName.c_str(), std::ofstream::out );
+  const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(resource_name));
   tempOutputFile << "#! /bin/sh" << std::endl;
 
   // --- set env vars
@@ -1072,18 +1071,18 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 #ifdef WITHLAM
       tempOutputFile << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
-      if( getenv("OMPI_URI_FILE") == NULL )
+      if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
         tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
         tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-        tempOutputFile << getenv("OMPI_URI_FILE");
+        tempOutputFile << GetenvThreadSafe("OMPI_URI_FILE");
       }
 #elif defined(WITHMPICH)
       tempOutputFile << "-nameserver " + Kernel_Utils::GetHostname();
 #endif
     }
 
-  tempOutputFile << getenv("KERNEL_ROOT_DIR") << "/bin/salome/";
+  tempOutputFile << GetenvThreadSafe("KERNEL_ROOT_DIR") << "/bin/salome/";
 
   if (params.isMPI)
     {
@@ -1107,7 +1106,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
   tempOutputFile.flush();
   tempOutputFile.close();
 #ifndef WIN32
-  chmod(_TmpFileName.c_str(), 0x1ED);
+  chmod(tmpFileName.c_str(), 0x1ED);
 #endif
 
   // --- Build command
@@ -1118,36 +1117,36 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
     {
       command = "rsh ";
       std::string commandRcp = "rcp ";
-      commandRcp += _TmpFileName;
+      commandRcp += tmpFileName;
       commandRcp += " ";
       commandRcp += resInfo.HostName;
       commandRcp += ":";
-      commandRcp += _TmpFileName;
-      status = system(commandRcp.c_str());
+      commandRcp += tmpFileName;
+      status = SystemThreadSafe(commandRcp.c_str());
     }
 
   else if (resInfo.Protocol == ssh)
     {
       command = "ssh ";
       std::string commandRcp = "scp ";
-      commandRcp += _TmpFileName;
+      commandRcp += tmpFileName;
       commandRcp += " ";
       commandRcp += resInfo.HostName;
       commandRcp += ":";
-      commandRcp += _TmpFileName;
-      status = system(commandRcp.c_str());
+      commandRcp += tmpFileName;
+      status = SystemThreadSafe(commandRcp.c_str());
     }
 
   else if (resInfo.Protocol == srun)
     {
       command = "srun -n 1 -N 1 --share --nodelist=";
       std::string commandRcp = "rcp ";
-      commandRcp += _TmpFileName;
+      commandRcp += tmpFileName;
       commandRcp += " ";
       commandRcp += resInfo.HostName;
       commandRcp += ":";
-      commandRcp += _TmpFileName;
-      status = system(commandRcp.c_str());
+      commandRcp += tmpFileName;
+      status = SystemThreadSafe(commandRcp.c_str());
     }
   else
     throw SALOME_Exception("Unknown protocol");
@@ -1156,9 +1155,8 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
     throw SALOME_Exception("Error of connection on remote host");    
 
   command += resInfo.HostName;
-  _CommandForRemAccess = command;
   command += " ";
-  command += _TmpFileName;
+  command += tmpFileName;
 
   SCRUTE(command);
 
@@ -1166,18 +1164,18 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 
 }
 
-std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, const std::string machinesFile)
+std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, const std::string machinesFile) const
 {
   int status;
   std::string zeronode;
   std::string command;
   std::string tmpFile = BuildTemporaryFileName();
 
-  if( getenv("LIBBATCH_NODEFILE") == NULL )
+  if( GetenvThreadSafe("LIBBATCH_NODEFILE") == NULL )
     {
       if (_isAppliSalomeDefined)
         {
-          const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(machine);
+          const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(machine));
 
           if (resInfo.Protocol == rsh)
             command = "rsh ";
@@ -1202,18 +1200,18 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
             command += resInfo.AppliPath; // path relative to user@machine $HOME
           else
             {
-              ASSERT(getenv("APPLI"));
-              command += getenv("APPLI"); // path relative to user@machine $HOME
+              ASSERT(GetenvThreadSafe("APPLI"));
+              command += GetenvThreadSafe("APPLI"); // path relative to user@machine $HOME
             }
 
           command += "/runRemote.sh ";
 
-          ASSERT(getenv("NSHOST")); 
-          command += getenv("NSHOST"); // hostname of CORBA name server
+          ASSERT(GetenvThreadSafe("NSHOST"));
+          command += GetenvThreadSafe("NSHOST"); // hostname of CORBA name server
 
           command += " ";
-          ASSERT(getenv("NSPORT"));
-          command += getenv("NSPORT"); // port of CORBA name server
+          ASSERT(GetenvThreadSafe("NSPORT"));
+          command += GetenvThreadSafe("NSPORT"); // port of CORBA name server
 
           command += " mpirun -np 1 hostname -s > " + tmpFile;
         }
@@ -1223,7 +1221,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
   else
     command = "mpirun -np 1 -machinefile " + machinesFile + " hostname -s > " + tmpFile;
 
-  status = system(command.c_str());
+  status = SystemThreadSafe(command.c_str());
   if( status == 0 ){
     std::ifstream fp(tmpFile.c_str(),std::ios::in);
     while(fp >> zeronode);
@@ -1237,7 +1235,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
 std::string SALOME_ContainerManager::machinesFile(const int nbproc)
 {
   std::string tmp;
-  std::string nodesFile = getenv("LIBBATCH_NODEFILE");
+  std::string nodesFile = GetenvThreadSafe("LIBBATCH_NODEFILE");
   std::string machinesFile = Kernel_Utils::GetTmpFileName();
   std::ifstream fpi(nodesFile.c_str(),std::ios::in);
   std::ofstream fpo(machinesFile.c_str(),std::ios::out);
@@ -1270,7 +1268,7 @@ std::set<pid_t> SALOME_ContainerManager::getpidofprogram(const std::string progr
   std::string cmd;
   std::string thepid;
   cmd = "pidof " + program + " > " + tmpFile;
-  system(cmd.c_str());
+  SystemThreadSafe(cmd.c_str());
   std::ifstream fpi(tmpFile.c_str(),std::ios::in);
   while(fpi >> thepid){
     thepids.insert(atoi(thepid.c_str()));
@@ -1366,6 +1364,19 @@ SALOME_ContainerManager::checkPaCOParameters(Engines::ContainerParameters & para
 
   return result;
 }
+
+char *SALOME_ContainerManager::GetenvThreadSafe(const char *name)
+{// getenv is not thread safe. See man 7 pthread.
+  Utils_Locker lock (&_getenvMutex);
+  return getenv(name);
+}
+
+int SALOME_ContainerManager::SystemThreadSafe(const char *command)
+{
+  Utils_Locker lock (&_systemMutex);
+  return system(command);
+}
+
 #ifdef WITH_PACO_PARALLEL
 
 //=============================================================================
@@ -1574,7 +1585,7 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
   
   // Log environnement
   std::string log_type("");
-  char * get_val = getenv("PARALLEL_LOG");
+  char * get_val = GetenvThreadSafe("PARALLEL_LOG");
   if (get_val)
     log_type = get_val;
 
@@ -1591,8 +1602,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
   // a SALOME application
   if (remote_execution)
   {
-    ASSERT(getenv("NSHOST")); 
-    ASSERT(getenv("NSPORT"));
+    ASSERT(GetenvThreadSafe("NSHOST"));
+    ASSERT(GetenvThreadSafe("NSPORT"));
 
     command << resource_definition->protocol.in();
     command << " -l ";
@@ -1600,8 +1611,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
     command << " " << hostname;
     command << " " << resource_definition->applipath.in();
     command << "/runRemote.sh ";
-    command << getenv("NSHOST") << " "; // hostname of CORBA name server
-    command << getenv("NSPORT") << " "; // port of CORBA name server
+    command << GetenvThreadSafe("NSHOST") << " "; // hostname of CORBA name server
+    command << GetenvThreadSafe("NSPORT") << " "; // port of CORBA name server
   }
 
   command << exe_name;
@@ -1640,7 +1651,7 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
   
   // Log environnement
   std::string log_type("");
-  char * get_val = getenv("PARALLEL_LOG");
+  char * get_val = GetenvThreadSafe("PARALLEL_LOG");
   if (get_val)
     log_type = get_val;
 
@@ -1679,8 +1690,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
       // a SALOME application
       if (remote_execution)
       {
-        ASSERT(getenv("NSHOST")); 
-        ASSERT(getenv("NSPORT"));
+        ASSERT(GetenvThreadSafe("NSHOST"));
+        ASSERT(GetenvThreadSafe("NSPORT"));
 
         command_node_stream << resource_definition->protocol.in();
         command_node_stream << " -l ";
@@ -1688,8 +1699,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
         command_node_stream << " " << hostname;
         command_node_stream << " " << resource_definition->applipath.in();
         command_node_stream << "/runRemote.sh ";
-        command_node_stream << getenv("NSHOST") << " "; // hostname of CORBA name server
-        command_node_stream << getenv("NSPORT") << " "; // port of CORBA name server
+        command_node_stream << GetenvThreadSafe("NSHOST") << " "; // hostname of CORBA name server
+        command_node_stream << GetenvThreadSafe("NSPORT") << " "; // port of CORBA name server
       }
 
       command_node_stream << exe_name;
@@ -1737,7 +1748,7 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
     command_remote_stream << hostname << ":" << resource_definition->applipath.in();
     command_remote_stream <<  "/" << machine_file_name.substr(last+1);
 
-    int status = system(command_remote_stream.str().c_str());
+    int status = SystemThreadSafe(command_remote_stream.str().c_str());
     if (status == -1)
     {
       INFOS("copy of the MPI machine file failed ! - sorry !");
@@ -1756,8 +1767,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
     // a SALOME application
     if (remote_execution)
     {
-      ASSERT(getenv("NSHOST")); 
-      ASSERT(getenv("NSPORT"));
+      ASSERT(GetenvThreadSafe("NSHOST"));
+      ASSERT(GetenvThreadSafe("NSPORT"));
 
       command_nodes << resource_definition->protocol.in();
       command_nodes << " -l ";
@@ -1765,8 +1776,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
       command_nodes << " " << hostname;
       command_nodes << " " << resource_definition->applipath.in();
       command_nodes << "/runRemote.sh ";
-      command_nodes << getenv("NSHOST") << " "; // hostname of CORBA name server
-      command_nodes << getenv("NSPORT") << " "; // port of CORBA name server
+      command_nodes << GetenvThreadSafe("NSHOST") << " "; // hostname of CORBA name server
+      command_nodes << GetenvThreadSafe("NSPORT") << " "; // port of CORBA name server
     }
 
     if (std::string(resource_definition->mpiImpl.in()) == "lam")
@@ -1817,7 +1828,7 @@ SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
   {
     // default into a file...
     std::string logFilename = "/tmp/" + container_name + "_" + hostname + "_" + exe_type + "_";
-    logFilename += std::string(getenv("USER")) + ".log";
+    logFilename += std::string(GetenvThreadSafe("USER")) + ".log";
     end = " > " + logFilename + " 2>&1 & ";
   }
 }
@@ -1830,7 +1841,7 @@ SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
   PaCO::InterfaceManager_ptr container_proxy = PaCO::InterfaceManager::_nil();
 
   MESSAGE("[LaunchPaCOProxyContainer] Launch command");
-  int status = system(command.c_str());
+  int status = SystemThreadSafe(command.c_str());
   if (status == -1) {
     INFOS("[LaunchPaCOProxyContainer] failed : system command status -1");
     return container_proxy;
@@ -1901,7 +1912,7 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
                                                  SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
 {
   INFOS("[LaunchPaCONodeContainer] Launch command");
-  int status = system(command.c_str());
+  int status = SystemThreadSafe(command.c_str());
   if (status == -1) {
     INFOS("[LaunchPaCONodeContainer] failed : system command status -1");
     return false;
