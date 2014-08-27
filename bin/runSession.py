@@ -34,7 +34,9 @@ class MyParser(OptionParser):
         return self.epilog
 #
 
-def configureSession(args=[]):
+def configureSession(args=None):
+  if args is None:
+    args = []
   usage = "Usage: %prog [options] [command]"
   epilog  = """\n
 If the command is not given a shell is opened; else execute the given command.

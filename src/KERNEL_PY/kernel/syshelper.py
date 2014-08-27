@@ -25,7 +25,7 @@ __author__="gboulant"
 __date__ ="$21 mai 2010 18:00:23$"
 
 
-def findFiles(rootpath, excludes=[]):
+def findFiles(rootpath, excludes=None):
     """
     This looks after files recursively from the specified rootpath,
     but without visiting directories whose basename is in the list
@@ -34,6 +34,8 @@ def findFiles(rootpath, excludes=[]):
     if not os.path.exists(rootpath):
         raise RuntimeError("the path %s does not exists"%rootpath)
 
+    if excludes is None:
+        excludes = []
     exclude_options=""
     for excludepath in excludes:
         exclude_options+="-e %s "%excludepath

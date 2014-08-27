@@ -322,11 +322,11 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     #-------------------------------------------------------------------------    
 
     def importData(self, studyId, dataContainer, options):
-	return [] # no implmenetation by default
+	return [] # no implementation by default
 
     #-------------------------------------------------------------------------    
 
     def getModifiedData(self, studyId):
-	return [] # no implmenetation by default
+	return [] # no implementation by default
 
     pass # end of SALOME_ComponentPy_i

@@ -67,7 +67,9 @@ class TestSessionArgs(unittest.TestCase):
   def tearDown(self):
     self.removeLogFile()
   #
-  def session(self, args=[]):
+  def session(self, args=None):
+    if args is None:
+      args = []
     try:
       self.SALOME.main(self.SALOME_args + args)
     except SystemExit, e:

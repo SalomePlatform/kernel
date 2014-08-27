@@ -21,10 +21,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-def __prompt(environment = None, commands=[], message = "Connecting to SALOME"):
+def __prompt(environment = None, commands=None, message = "Connecting to SALOME"):
   if environment is None:
     environment = globals().copy()
     environment.update(locals())
+  if commands is None:
+    commands = []
 
   import code
   import rlcompleter
@@ -38,7 +40,9 @@ def __prompt(environment = None, commands=[], message = "Connecting to SALOME"):
   return shell.interact
 #
 
-def connect(args=[]):
+def connect(args=None):
+  if args is None:
+    args = []
   p = __prompt(commands=["import salomeConsole"])
   p()
 #

@@ -42,7 +42,9 @@ class TestConcurrentLaunch(unittest.TestCase):
   def tearDown(self):
     pass
   #
-  def appli(self, args=[]):
+  def appli(self, args=None):
+    if args is None:
+      args = []
     try:
       self.SALOME.main(self.SALOME_appli_args + args)
     except SystemExit, e:
@@ -50,7 +52,9 @@ class TestConcurrentLaunch(unittest.TestCase):
         logging.error(e)
       pass
   #
-  def session(self, args=[]):
+  def session(self, args=None):
+    if args is None:
+      args = []
     try:
       self.SALOME.main(self.SALOME_shell_args + args)
     except SystemExit, e:

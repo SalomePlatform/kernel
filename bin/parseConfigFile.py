@@ -163,7 +163,9 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
 # Input: filename, and a list of reserved keywords (environment variables)
 # Output: a list of pairs (variable, value), and a dictionary associating a list of user-defined values to each reserved keywords
 # Note: Does not support duplicate keys in a same section
-def parseConfigFile(filename, reserved = []):
+def parseConfigFile(filename, reserved = None):
+  if reserved is None:
+    reserved = []
   config = MultiOptSafeConfigParser()
   config.optionxform = str # case sensitive
 
@@ -183,10 +185,12 @@ def parseConfigFile(filename, reserved = []):
     raise SalomeContextException(msg)
 #
 
-def __processConfigFile(config, reserved = [], filename="UNKNOWN FILENAME"):
+def __processConfigFile(config, reserved = None, filename="UNKNOWN FILENAME"):
   # :TODO: may detect duplicated variables in the same section (raise a warning)
   #        or even duplicate sections
 
+  if reserved is None:
+    reserved = []
   unsetVariables = []
   outputVariables = []
   # Get raw items for each section, and make some processing for environment variables management
@@ -245,12 +249,14 @@ def _trimColons(var):
 #    - virtually add a section to configuration file
 #    - process shell keywords (if, then...)
 class EnvFileConverter(object):
-  def __init__(self, fp, section_name, reserved = [], outputFile=None):
+  def __init__(self, fp, section_name, reserved = None, outputFile=None):
+    if reserved is None:
+      reserved = []
     self.fp = fp
     self.sechead = '[' + section_name + ']\n'
     self.reserved = reserved
     self.outputFile = outputFile
-    self.allParsedVariableNames=[]
+    self.allParsedVariableNames = []
     # exclude line that begin with:
     self.exclude = [ 'if', 'then', 'else', 'fi', '#', 'echo', 'exit' ]
     self.exclude.append('$gconfTool') # QUICK FIX :TODO: provide method to extend this variable
@@ -371,7 +377,9 @@ class EnvFileConverter(object):
   #
 
 # Convert .sh environment file to configuration file format
-def convertEnvFileToConfigFile(envFilename, configFilename, reserved=[]):
+def convertEnvFileToConfigFile(envFilename, configFilename, reserved=None):
+  if reserved is None:
+    reserved = []
   logConfigParser.debug('convert env file %s to %s'%(envFilename, configFilename))
   fileContents = open(envFilename, 'r').read()
 

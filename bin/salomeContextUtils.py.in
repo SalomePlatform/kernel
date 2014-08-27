@@ -102,7 +102,9 @@ def __getScriptPath(scriptName, searchPathList):
 #
 
 # Return an array of dictionaries {script_name: [list_of_its_args]}
-def getScriptsAndArgs(args=[], searchPathList=None):
+def getScriptsAndArgs(args=None, searchPathList=None):
+  if args is None:
+    args = []
   if searchPathList is None:
     searchPathList = sys.path
 
@@ -175,7 +177,9 @@ def getScriptsAndArgs(args=[], searchPathList=None):
 
 # Formatting scripts and args as a Bash-like command-line:
 # script1.py [args] ; script2.py [args] ; ...
-def formatScriptsAndArgs(scriptArgs=[]):
+def formatScriptsAndArgs(scriptArgs=None):
+    if scriptArgs is None:
+      scriptArgs = []
     commands = []
     for sc_dict in scriptArgs:
       for script, sc_args in sc_dict.items(): # single entry

@@ -50,8 +50,10 @@ class Variable:
     its name. Other attributes are reserved for future use.
     """
     
-    def __init__(self, name, dimension = [], minValue = None, maxValue = None,
+    def __init__(self, name, dimension = None, minValue = None, maxValue = None,
                  initialValue = None):
+        if dimension is None:
+	  dimension = []
         self.name = name
         
         # Reserved for future use
@@ -100,8 +102,12 @@ class ExchangeVariables:
 
     """
     
-    def __init__(self, inputVarList = [], outputVarList = [],
+    def __init__(self, inputVarList = None, outputVarList = None,
                  refEntry = None):
+        if inputVarList is None:
+	  inputVarList = []
+	if outputVarList is None:
+	  outputVarList = []
         self.inputVarList = inputVarList
         self.outputVarList = outputVarList
         self.refEntry = refEntry

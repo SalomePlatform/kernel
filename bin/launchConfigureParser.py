@@ -483,7 +483,9 @@ def store_boolean (option, opt, value, parser, *args):
         for attribute in args:
             setattr(parser.values, attribute, value)
 
-def CreateOptionParser (theAdditionalOptions=[]):
+def CreateOptionParser (theAdditionalOptions=None):
+    if theAdditionalOptions is None:
+        theAdditionalOptions = []
     # GUI/Terminal. Default: GUI
     help_str = "Launch without GUI (in the terminal mode)."
     o_t = optparse.Option("-t",
@@ -871,7 +873,7 @@ Python file arguments, if any, must be comma-separated (without blank characters
 args = {}
 #def get_env():
 #args = []
-def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgname):
+def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgname):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -894,6 +896,9 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     #   specified in configuration file(s)
     ###
 
+    if theAdditionalOptions is None:
+        theAdditionalOptions = []
+
     global args
     config_var = appname+'Config'
 
@@ -902,15 +907,13 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
         separator = ";"
 
     # check KERNEL_ROOT_DIR
-    try:
-        kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
-    except:
+    kernel_root_dir = os.environ.get("KERNEL_ROOT_DIR", None)
+    if kernel_root_dir is None:
         print """
         For each SALOME module, the environment variable <moduleN>_ROOT_DIR must be set.
         KERNEL_ROOT_DIR is mandatory.
         """
         sys.exit(1)
-        pass
 
     ############################
     # parse command line options
@@ -1000,15 +1003,15 @@ def get_env(theAdditionalOptions=[], appname=salomeappname, cfgname=salomecfgnam
     # set default values for options which are NOT set in config files
     for aKey in listKeys:
         if not args.has_key( aKey ):
-            args[aKey]=[]
+            args[aKey] = []
 
     for aKey in boolKeys:
         if not args.has_key( aKey ):
-            args[aKey]=0
+            args[aKey] = 0
 
     if args[file_nam]:
         afile=args[file_nam]
-        args[file_nam]=[afile]
+        args[file_nam] = [afile]
 
     args[appname_nam] = appname
 

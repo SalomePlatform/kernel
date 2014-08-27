@@ -118,7 +118,7 @@ except SystemExit, e:
 \section salome_api The API
 An API named \c SalomeContext, written in Python, allows for the construction of SALOME execution context and for application start. Each launcher creates a \c SalomeContext object, and optionally gives it a list of configuration files to describe the context:
 \code
-SalomeContext.__init__(configFileNames=[])
+SalomeContext.__init__(configFileNames=None)
 \endcode
 
 A launcher can also directly call the API functions to define, suppress or extend (add information) an environment variable:

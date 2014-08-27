@@ -21,7 +21,9 @@ import os
 import sys
 import logging
 
-def getLogger(args=[]):
+def getLogger(args=None):
+  if args is None:
+    args = []
   outfileOptionPrefix = "outfile="
   outfileArgs = [ str(x) for x in args if str(x).startswith(outfileOptionPrefix) ]
   allFiles = [ x.replace(outfileOptionPrefix, '') for x in outfileArgs ]

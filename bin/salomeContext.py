@@ -69,11 +69,11 @@ class SalomeContext:
   the SalomeContext class will try to automatically convert them
   to .cfg format before setting the environment.
   """
-  def __init__(self, configFileNames=[]):
+  def __init__(self, configFileNames=0):
     #it could be None explicitely (if user use multiples setVariable...for standalone)
-    if configFileNames==None:
+    if configFileNames is None:
        return
-
+    configFileNames = configFileNames or []
     if len(configFileNames) == 0:
       raise SalomeContextException("No configuration files given")
 
@@ -231,7 +231,9 @@ class SalomeContext:
       sys.exit(1)
   #
 
-  def __setEnvironmentFromConfigFile(self, filename, reserved=[]):
+  def __setEnvironmentFromConfigFile(self, filename, reserved=None):
+    if reserved is None:
+      reserved = []
     try:
       unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
     except SalomeContextException, e:
@@ -277,7 +279,9 @@ class SalomeContext:
     sys.path[:0] = os.getenv('PYTHONPATH','').split(':')
   #
 
-  def _runAppli(self, args=[]):
+  def _runAppli(self, args=None):
+    if args is None:
+      args = []
     # Initialize SALOME environment
     sys.argv = ['runSalome'] + args
     import setenv
@@ -287,7 +291,9 @@ class SalomeContext:
     runSalome.runSalome()
   #
 
-  def _runSession(self, args=[]):
+  def _runSession(self, args=None):
+    if args is None:
+      args = []
     sys.argv = ['runSession'] + args
     import runSession
     runSession.configureSession(args)
@@ -300,7 +306,9 @@ class SalomeContext:
     return runSession.runSession(command)
   #
 
-  def _runConsole(self, args=[]):
+  def _runConsole(self, args=None):
+    if args is None:
+      args = []
     # Initialize SALOME environment
     sys.argv = ['runConsole'] + args
     import setenv
@@ -311,7 +319,9 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _killAll(self, args=[]):
+  def _killAll(self, args=None):
+    if args is None:
+      args = []
     try:
       import PortManager # mandatory
       from multiprocessing import Process
@@ -332,16 +342,16 @@ class SalomeContext:
 
   #
 
-  def _showInfo(self, args=[]):
+  def _showInfo(self, args=None):
     print "Running with python", platform.python_version()
     self._runAppli(["--version"])
   #
 
-  def _usage(self, unused=[]):
+  def _usage(self, unused=None):
     usage()
   #
 
-  def _makeCoffee(self, args=[]):
+  def _makeCoffee(self, args=None):
     print "                        ("
     print "                          )     ("
     print "                   ___...(-------)-....___"
@@ -388,7 +398,6 @@ class SalomeContext:
     return self._logger
   #
 
-import pickle
 if __name__ == "__main__":
   if len(sys.argv) == 3:
     context = pickle.loads(sys.argv[1])

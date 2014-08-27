@@ -33,7 +33,9 @@ import socket
 
 _session = None
 
-def startSession(modules=[]):
+def startSession(modules=None):
+    if modules is None:
+        modules = []
     global _session
     if _session: return
     from searchFreePort import searchFreePort

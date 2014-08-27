@@ -53,8 +53,10 @@ class Lookup(dict):
     a dictionary which can lookup value by key, or keys by value
     """
     ## items can be a list of pair_lists or a dictionary
-    def __init__(self, items=[]):
+    def __init__(self, items=None):
         """items can be a list of pair_lists or a dictionary"""
+	if items is None:
+	    items = []
         dict.__init__(self, items)
 
     ## find the key(s) as a list given a value
