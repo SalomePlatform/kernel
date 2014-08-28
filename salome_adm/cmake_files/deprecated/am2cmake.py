@@ -819,7 +819,7 @@ class CMakeFile(object):
             set(VERSION 7.4.1)
             set(SHORT_VERSION 7.4)
             set(XVERSION 0x070401)
-            set(VERSION_DEV 0)
+            set(VERSION_DEV 1)
             """)
             pass
         # --
