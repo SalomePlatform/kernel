@@ -54,6 +54,19 @@ ORB_INIT::~ORB_INIT()
   }
 }
 
+void ORB_INIT::explicit_destroy()
+{
+  if ( ! CORBA::is_nil( _orb ) )
+    {
+    try {
+          _orb->destroy() ;
+          _orb = CORBA::ORB::_nil();
+        }
+        catch(...) {
+          MESSAGE("Caught CORBA::Exception.");
+        }
+    }
+}
 
 CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv ) throw( CommException )
 {
