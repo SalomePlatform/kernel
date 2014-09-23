@@ -32,15 +32,15 @@ from SALOME_NamingServicePy import *
 from SALOME_utilities import *
 import Engines
 
-salome_kernel_initial=1
+orb = None
+lcc = None
+naming_service = None
+cm = None
 
 def salome_kernel_init():
-    global salome_kernel_initial
     global orb, lcc, naming_service, cm
     
-    if salome_kernel_initial:
-        salome_kernel_initial = 0
-        
+    if not orb:
         # initialise the ORB
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 
@@ -55,8 +55,3 @@ def salome_kernel_init():
         cm = obj._narrow(Engines.ContainerManager)
 
     return orb, lcc, naming_service, cm
-
-def salome_kernel_close():
-    global salome_kernel_initial
-    salome_kernel_initial=1
-    pass

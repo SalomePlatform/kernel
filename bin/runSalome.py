@@ -738,11 +738,15 @@ def useSalome(args, modules_list, modules_root_dir):
 
         # run python scripts, passed as command line arguments
         toimport = []
-        if args.has_key('pyscript'):
-            if args.has_key('gui') and args.has_key('session_gui'):
-                if not args['gui'] or not args['session_gui']:
+        if args.has_key('gui') and args.has_key('session_gui'):
+            if not args['gui'] or not args['session_gui']:
+                if args.has_key('study_hdf'):
+                    toopen = args['study_hdf']
+                    if toopen:
+                        import salome
+                        salome.salome_init(toopen)
+                if args.has_key('pyscript'):
                     toimport = args['pyscript']
-
         from salomeContextUtils import formatScriptsAndArgs
         command = formatScriptsAndArgs(toimport)
         if command:

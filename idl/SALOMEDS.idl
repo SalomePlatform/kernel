@@ -125,6 +125,8 @@ during each working session.
   interface Study
   {
 
+//! Invalid study reference
+    exception StudyInvalidReference {};
 //! Invalid study context
     exception StudyInvalidContext {};
 //! Invalid study component
@@ -153,15 +155,15 @@ during each working session.
 //! Sequence containing %SObjects
     typedef sequence<SObject> ListOfSObject;
 //!  Get the persistent reference to the %Study.
-    PersistentReference  GetPersistentReference();
+    PersistentReference  GetPersistentReference() raises(StudyInvalidReference);
 //! Get a transient reference to the %Study.
-    SalomeReference      GetTransientReference();
+    SalomeReference      GetTransientReference() raises(StudyInvalidReference);
 
 /*! \brief indicate whether the %Study is empty
 
     \return True if the %Study is empty
 */
-    boolean IsEmpty();
+    boolean IsEmpty() raises(StudyInvalidReference);
 /*! \brief  Find a %SComponent by its name.
 
    \param aComponentName    It's a string value in the Comment Attribute of the Component,
@@ -170,11 +172,11 @@ during each working session.
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
-    SComponent FindComponent  (in string aComponentName);
+    SComponent FindComponent  (in string aComponentName) raises(StudyInvalidReference);
 
 /*! \brief  Find a %SComponent by ID of the according %SObject
 */
-    SComponent FindComponentID(in ID aComponentID);
+    SComponent FindComponentID(in ID aComponentID) raises(StudyInvalidReference);
 /*! \brief  Find a %SObject by the Name Attribute of this %SObject
 
     \param anObjectName String parameter defining the name of the object
@@ -182,40 +184,40 @@ during each working session.
 
 <em>See \ref example19 for an example of this method usage in batchmode of %SALOME application.</em>
 */
-    SObject       FindObject      (in string anObjectName);
+    SObject       FindObject      (in string anObjectName) raises(StudyInvalidReference);
 /*! \brief  Find a %SObject by its ID
 
     \param aObjectID This parameter defines the ID of the required object
     \return The obtained %SObject
 */
-    SObject       FindObjectID    (in ID aObjectID);
+    SObject       FindObjectID    (in ID aObjectID) raises(StudyInvalidReference);
 /*! \brief Create a %SObject by its ID
 
     \param aObjectID This parameter defines the ID of the required object
     \return The created %SObject
 */
-    SObject       CreateObjectID    (in ID aObjectID);
+    SObject       CreateObjectID    (in ID aObjectID) raises(StudyInvalidReference);
 /*!  \brief Find a %SObject by IOR of the object belonging to this %SObject.
 
     \param anObjectName This parameter defines the IOR of the object
     \return The obtained %SObject
 */
-    SObject       FindObjectIOR   (in ID aObjectIOR);
+    SObject       FindObjectIOR   (in ID aObjectIOR) raises(StudyInvalidReference);
 /*! \brief  Find in the study all %SObjects produced by a given %Component.
 
     \param anObjectName The Name Attribute of the searched %SObjects should correspond to <VAR>anObjectName</VAR>.
     \param aComponentName The name of the component, which objects are searched for.
 */
-    ListOfSObject FindObjectByName(in string anObjectName, in string aComponentName);
+    ListOfSObject FindObjectByName(in string anObjectName, in string aComponentName) raises(StudyInvalidReference);
 /*! \brief  Find a %SObject by the path to it.
 
     \param thePath The path to the required %SObject.
     \return The obtained %SObject.
 */
-    SObject FindObjectByPath(in string thePath);
+    SObject FindObjectByPath(in string thePath) raises(StudyInvalidReference);
 /*! \brief Get the path to the %SObject.
 */
-    string  GetObjectPath(in Object theObject);
+    string GetObjectPath(in Object theObject) raises(StudyInvalidReference);
 
 /*! \brief  Set the context of the %Study.
 
@@ -223,44 +225,44 @@ during each working session.
 
 <em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
 */
-    void SetContext(in string thePath);
+    void SetContext(in string thePath) raises (StudyInvalidReference, StudyInvalidContext);
 /*!  \brief Get the context of the %Study.
     
 <em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
 */
-    string GetContext();
+    string GetContext() raises (StudyInvalidReference, StudyInvalidContext);
 /*!  \brief Get a list of names of objects corresponding to the context.
 
    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
 */
-    ListOfStrings GetObjectNames(in string theContext);
+    ListOfStrings GetObjectNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
 /*! \brief Get a list of names of directories and subdirectories corresponding to the context.
 
    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
 */
-    ListOfStrings GetDirectoryNames(in string theContext);
+    ListOfStrings GetDirectoryNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
 /*! \brief  Get a list of names of Files corresponding to the context.
 
     \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
 */
-    ListOfStrings GetFileNames(in string theContext);
+    ListOfStrings GetFileNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
 /*! \brief Get a list of names of Components corresponding to the context.
 
    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
 */
-    ListOfStrings GetComponentNames(in string theContext);
+    ListOfStrings GetComponentNames(in string theContext) raises(StudyInvalidReference);
 /*!  \brief Create a new iterator of child levels of the given %SObject.
 
     \param aSO The given %SObject
     \return A new iterator of child levels of the given %SObject.
 */
-    ChildIterator      NewChildIterator(in SObject aSO);
+    ChildIterator NewChildIterator(in SObject aSO) raises(StudyInvalidReference);
 
 /*!  \brief Create a new iterator of the %SComponents.
 
     \return A new iterator of the %SComponents.
 */
-    SComponentIterator NewComponentIterator();
+    SComponentIterator NewComponentIterator() raises(StudyInvalidReference);
 
 /*! \brief  Create a new %StudyBuilder to add or modify an object in the study.
 
@@ -268,12 +270,12 @@ during each working session.
 
 <em>See \ref example20 for an example of this method usage in batchmode of %SALOME application.</em>
 */
-    StudyBuilder NewBuilder() ;
+    StudyBuilder NewBuilder() raises(StudyInvalidReference);
 /*! \brief Labels dependency
 
     Updates the map with IOR attribute. It's an inner method used for optimization.
 */
-    void UpdateIORLabelMap(in string anIOR, in string anEntry);
+    void UpdateIORLabelMap(in string anIOR, in string anEntry) raises(StudyInvalidReference);
 
 /*! \brief Getting properties of the study
 
@@ -282,7 +284,7 @@ during each working session.
 <em>See \ref example20 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
-    AttributeStudyProperties GetProperties();
+    AttributeStudyProperties GetProperties() raises(StudyInvalidReference);
 /*! \brief  Indicate whether the %study has been saved
 */
     attribute boolean IsSaved;
@@ -290,33 +292,33 @@ during each working session.
 
   Returns True if the %study has been modified and not saved.
 */
-    boolean IsModified();
+    boolean IsModified() raises(StudyInvalidReference);
 
 /*! \brief  Mark the %study as being modified and not saved.
 */
-    void Modified();
+    void Modified() raises(StudyInvalidReference);
 
 /*! \brief  Indicate the file where the %study has been saved
 */
-    attribute string  URL;
+    attribute string URL;
 
 /*! \brief List of %SObjects
 
     Returns the list of %SObjects which refers to %anObject.
 */
-    ListOfSObject FindDependances(in SObject anObject);
+    ListOfSObject FindDependances(in SObject anObject) raises(StudyInvalidReference);
 
 /*! \brief The date of the last saving of the study
 
     Returns the date of the last saving of study with format: "DD/MM/YYYY HH:MM"
 */
-    string GetLastModificationDate();
+    string GetLastModificationDate() raises(StudyInvalidReference);
 /*! \brief The list of modification dates of the study
 
     Returns the list of modification dates (without creation date) with format "DD/MM/YYYY HH:MM".
       Note : the first modification begins the list.
 */
-    ListOfDates GetModificationsDate();
+    ListOfDates GetModificationsDate() raises(StudyInvalidReference);
 /*! \brief Object conversion.
 
     Converts an object into IOR.
@@ -332,38 +334,38 @@ during each working session.
 
 /*!  \brief Get a new %UseCaseBuilder.
 */
-    UseCaseBuilder  GetUseCaseBuilder();
+    UseCaseBuilder  GetUseCaseBuilder() raises(StudyInvalidReference);
 
 /*! \brief  Close the components in the study, remove itself from the %StudyManager.
 */
-    void Close();
+    void Close() raises(StudyInvalidReference);
 
 /*! \brief  Enable (if isEnabled = True)/disable automatic addition of new %SObjects to the use case.
 */
-    void EnableUseCaseAutoFilling(in boolean isEnabled);
+    void EnableUseCaseAutoFilling(in boolean isEnabled) raises(StudyInvalidReference);
 
 /*!
     Functions for internal usage only
 */
-    void AddPostponed(in string theIOR);
+    void AddPostponed(in string theIOR) raises(StudyInvalidReference);
 
-    void AddCreatedPostponed(in string theIOR);
+    void AddCreatedPostponed(in string theIOR) raises(StudyInvalidReference);
 
-    void RemovePostponed(in long theUndoLimit);
+    void RemovePostponed(in long theUndoLimit) raises(StudyInvalidReference);
 
-    void UndoPostponed(in long theWay);
+    void UndoPostponed(in long theWay) raises(StudyInvalidReference);
 
     boolean DumpStudy(in string thePath,
                       in string theBaseName,
                       in boolean isPublished,
-                      in boolean isMultiFile);
+                      in boolean isMultiFile) raises(StudyInvalidReference);
 
 /*! \brief  Get an AttributeParameter used to store common parameters for given %theSavePoint.
 
     \param theID identifies a common parameters set (Example: "Interface Applicative")
     \param theSavePoint is number of a set of parameters as there can be several sets
 */
-    AttributeParameter GetCommonParameters(in string theID, in long theSavePoint);
+    AttributeParameter GetCommonParameters(in string theID, in long theSavePoint) raises(StudyInvalidReference);
 
 /*! \brief  Get an AttributeParameter used to store parameters for given %theModuleName.
 
@@ -371,7 +373,7 @@ during each working session.
     \param theModuleName is a name of the module (Example: "Geometry")
     \param theSavePoint is number of a set of parameters as there can be several sets
 */
-    AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint);
+    AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint) raises(StudyInvalidReference);
 
 
 /*! \brief Get a default Python script to restore visual parameters for given %theModuleName.
@@ -379,7 +381,7 @@ during each working session.
     \param theModuleName is a name of the module (Example: "Geometry")
     \param indent is a string to use for script indentation
 */
-    string GetDefaultScript(in string theModuleName, in string indent);
+    string GetDefaultScript(in string theModuleName, in string indent) raises(StudyInvalidReference);
 
 /*!
     Private method, returns an implementation of this Study.
@@ -395,24 +397,24 @@ during each working session.
     The lock status can be checked by method IsStudyLocked
     \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locks the study.
 */
-    void SetStudyLock(in string theLockerID);
+    void SetStudyLock(in string theLockerID) raises(StudyInvalidReference);
 
 /*! \brief Indicate if the Study is locked
 
    Returns True if the Study was marked locked. 
 */
-    boolean IsStudyLocked();
+    boolean IsStudyLocked() raises(StudyInvalidReference);
 
 /*! \brief  Mark this Study as being unlocked by the given locker. 
 
      The lock status can be checked by method IsStudyLocked
     \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that unlocks the study.
 */
-    void UnLockStudy(in string theLockerID);
+    void UnLockStudy(in string theLockerID) raises(StudyInvalidReference);
 
 /*! \brief  Get the list of IDs of the Study's lockers. 
 */
-    ListOfStrings GetLockerID();
+    ListOfStrings GetLockerID() raises(StudyInvalidReference);
 
 /*! \brief  Create real variable with Name theVarName and value theValue 
 
@@ -420,7 +422,7 @@ during each working session.
     \param theVarName is a name of the variable
     \param theVarName is a value of the variable.
 */
-    void SetReal( in string theVarName, in double theValue );
+    void SetReal( in string theVarName, in double theValue ) raises(StudyInvalidReference);
 
 /*! \brief  Create integer variable with Name theVarName and value theValue 
 
@@ -428,14 +430,14 @@ during each working session.
     \param theVarName is a name of the variable
     \param theVarName is a value of the variable.
 */
-    void SetInteger( in string theVarName, in long theValue );
+    void SetInteger( in string theVarName, in long theValue ) raises(StudyInvalidReference);
 /*! \brief  Create boolean variable with Name theVarName and value theValue 
 
     (or set if variable value into theValue already exists)
     \param theVarName is a name of the variable
     \param theVarName is a value of the variable.
 */
-    void SetBoolean( in string theVarName, in boolean theValue );
+    void SetBoolean( in string theVarName, in boolean theValue ) raises(StudyInvalidReference);
 
 /*! \brief  Create string variable with Name theVarName and value theValue 
 
@@ -443,35 +445,35 @@ during each working session.
     \param theVarName is a name of the variable
     \param theVarName is a value of the variable.
 */
-    void SetString( in string theVarName, in string theValue );
+    void SetString( in string theVarName, in string theValue ) raises(StudyInvalidReference);
 
 /*! \brief  Set current value as double for string variable
 */
-    void SetStringAsDouble( in string theVarName, in double theValue );
+    void SetStringAsDouble( in string theVarName, in double theValue ) raises(StudyInvalidReference);
 
 /*! \brief Get value of a real variable
 
     \param theVarName is a name of the variable.
 */
-    double GetReal( in string theVarName );
+    double GetReal( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Get value of an integer variable
 
     \param theVarName is a name of the variable.
 */
-    long GetInteger( in string theVarName );
+    long GetInteger( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Get value of a boolean variable
 
     \param theVarName is a name of the variable.
 */
-    boolean GetBoolean( in string theVarName );
+    boolean GetBoolean( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Get value of a string variable
 
     \param theVarName is a name of the variable.
 */
-    string GetString( in string theVarName );
+    string GetString( in string theVarName ) raises(StudyInvalidReference);
     
 
 /*! \brief Indicate if a variable is real
@@ -479,28 +481,28 @@ during each working session.
     Return true if variable is real otherwise return false.
     \param theVarName is a name of the variable.
 */
-    boolean IsReal( in string theVarName );
+    boolean IsReal( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Indicate if a variable is integer
 
     Return true if variable is integer otherwise return false.
     \param theVarName is a name of the variable.
 */
-    boolean IsInteger( in string theVarName );
+    boolean IsInteger( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Indicate if a variable is boolean
 
     Return true if variable is boolean otherwise return false.
     \param theVarName is a name of the variable.
 */
-    boolean IsBoolean( in string theVarName );
+    boolean IsBoolean( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Indicate if a variable is string
 
     Return true if variable is string otherwise return false.
     \param theVarName is a name of the variable.
 */
-    boolean IsString( in string theVarName );
+    boolean IsString( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Indicate if a variable exists in the study
 
@@ -508,11 +510,11 @@ during each working session.
     otherwise return false.
     \param theVarName is a name of the variable.
 */
-    boolean IsVariable( in string theVarName );
+    boolean IsVariable( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Get names of all variables from the study.
 */
-    ListOfStrings GetVariableNames();
+    ListOfStrings GetVariableNames() raises(StudyInvalidReference);
 
 /*! \brief Remove a variable
 
@@ -521,7 +523,7 @@ during each working session.
    \param theVarName Name of the variable.
    \return Status of operation.
 */
-    boolean RemoveVariable( in string theVarName );
+    boolean RemoveVariable( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Rename a variable
 
@@ -531,7 +533,7 @@ during each working session.
    \param theNewVarName New name for the variable.
    \return Status of operation.
 */
-    boolean RenameVariable( in string theVarName, in string theNewVarName );
+    boolean RenameVariable( in string theVarName, in string theNewVarName ) raises(StudyInvalidReference);
 
 /*! \brief Indicate whether variable is used
 
@@ -540,14 +542,14 @@ during each working session.
    \param theVarName Name of the variable.
    \return Variable usage.
 */
-    boolean IsVariableUsed( in string theVarName );
+    boolean IsVariableUsed( in string theVarName ) raises(StudyInvalidReference);
 
 /*! \brief Parse variables used for object creation
 
    \param string with variables, separated by special symbol. 
    \return Variables list.
 */
-    ListOfListOfStrings ParseVariables( in string theVars );
+    ListOfListOfStrings ParseVariables( in string theVars ) raises(StudyInvalidReference);
 
 /*!
      Attach an observer to the Study

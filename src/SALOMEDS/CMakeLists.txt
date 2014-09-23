@@ -27,6 +27,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
+  ${CMAKE_CURRENT_SOURCE_DIR}/../KernelHelpers
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/../DF
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMEDSImpl
@@ -51,6 +52,7 @@ SET(COMMON_LIBS
   SALOMELocalTrace
   SALOMEBasics
   SalomeHDFPersist
+  SalomeKernelHelpers
   DF
   SalomeDSImpl
   SalomeGenericObj

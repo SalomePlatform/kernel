@@ -31,6 +31,11 @@ import SALOMEDS
 import salome_iapp
 from launchConfigureParser import verbose
 
+myStudyManager = None
+myStudyId = None
+myStudy = None
+myStudyName = None
+
 #--------------------------------------------------------------------------
 
 def DumpComponent(Study, SO, Builder,offset):
@@ -70,8 +75,9 @@ def DumpStudies():
   """
     Dump all studies in a StudyManager
   """
+  global myStudyManager
   for name in myStudyManager.GetOpenStudies():
-    s=myStudyManager.GetStudyByName(name)
+    s = myStudyManager.GetStudyByName(name)
     print "study:",name, s._get_StudyId()
     DumpStudy(s)
 
@@ -79,6 +85,7 @@ def DumpStudies():
 #--------------------------------------------------------------------------
 
 def IDToObject(id):
+    global myStudy
     myObj = None
     mySO = myStudy.FindObjectID(id);
     if mySO is not None:
@@ -104,6 +111,7 @@ def ObjectToID(obj):
     return ""
 
 def IDToSObject(id):
+    global myStudy
     mySO = myStudy.FindObjectID(id);
     return mySO
 
@@ -178,6 +186,7 @@ def PersistentPresentation(theStudy, theSO, theWithID):
 
 def GetTree(theSO):
     # returns the document list tree (as list)
+    global myStudy
     aResult = [theSO.GetID()]
     anIter = myStudy.NewChildIterator(theSO)
     while anIter.More():
@@ -188,6 +197,8 @@ def GetTree(theSO):
     #--------------------------------------------------------------------------
 
 def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
+    global myStudyManager, myStudy
+
     aRoot = theSO
     while aRoot.GetID() != "0:":
         aRoot = aRoot.GetFather()
@@ -229,6 +240,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
 
 def GetComponentVersion(theComponent, all_versions = False):
     # returns the document list tree (as list)
+    global myStudy
     props = myStudy.GetProperties()
     stored_components = props.GetStoredComponents()
     version = "no component data" # vsr: better raise an exception in this case?
@@ -269,31 +281,27 @@ def FindFileInDataDir(filename):
 
 salome_study_ID = -1
 
-def getActiveStudy(theStudyId=0):
+# *args are used here to support backward compatibility
+# previously it was possible to pass theStudyId parameter to this function
+# which is no more supported.
+def getActiveStudy(*args):
+    global myStudyManager
     global salome_study_ID
+
+    if not myStudyManager:
+        print "No active study"
+        return None
+        pass
 
     if verbose(): print "getActiveStudy"
     if salome_study_ID == -1:
-        if salome_iapp.hasDesktop():
-            if verbose(): print "---in gui"
-            salome_study_ID = salome_iapp.sg.getActiveStudyId()
+        listOpenStudies = myStudyManager.GetOpenStudies()
+        if len(listOpenStudies) == 0:
+            return None
         else:
-            if verbose(): print "---outside gui"
-            if theStudyId:
-                aStudy=myStudyManager.GetStudyByID(theStudyId)
-                if aStudy:
-                    if verbose(): print "connection to existing study ", theStudyId
-                    salome_study_ID = theStudyId
-            if salome_study_ID == -1:
-                listOpenStudies = myStudyManager.GetOpenStudies()
-                if len(listOpenStudies) == 0:
-                    salome_study_ID = createNewStudy()
-                else:
-                    s = myStudyManager.GetStudyByName(listOpenStudies[0])
-                    salome_study_ID = s._get_StudyId()
-            else:
-                pass
-            if verbose(): print"--- Study Id ", salome_study_ID
+            s = myStudyManager.GetStudyByName(listOpenStudies[0])
+            salome_study_ID = s._get_StudyId()
+    if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
 
     #--------------------------------------------------------------------------
@@ -303,50 +311,51 @@ def setCurrentStudy(theStudy):
     Change current study : an existing one given by a study object.
 
     :param theStudy: the study CORBA object to set as current study
+
+    Obsolete: only one study can be opened at the moment.
+    This function works properly if specified theStudy parameter
+    corresponds to the currently opened study.
+    Kept for backward compatibility only.
     """
     global myStudyId, myStudy, myStudyName
     global salome_study_ID
-    myStudy=theStudy
-    myStudyId=theStudy._get_StudyId()
-    myStudyName=theStudy._get_Name()
+    myStudy = theStudy
+    myStudyId = theStudy._get_StudyId()
+    myStudyName = theStudy._get_Name()
     return myStudyId, myStudy, myStudyName
 
     #--------------------------------------------------------------------------
 
-def setCurrentStudyId(theStudyId=0):
+# *args are used here to support backward compatibility
+# previously it was possible to pass theStudyId parameter to this function
+# which is no more supported.
+def setCurrentStudyId(*args):
     """
     Change current study : an existing or new one.
-    optional argument : theStudyId
-        0      : create a new study (default).
-        n (>0) : try connection to study with Id = n, or create a new one
-                 if study not found.
+
+    This function connects to the single opened study if there is any; otherwise
+    new empty study is created.
+
+    Obsolete: only one study can be opened at the moment.
+    Kept for backward compatibility only.
     """
-    global myStudyId, myStudy, myStudyName
+    global myStudyManager, myStudyId, myStudy, myStudyName
     global salome_study_ID
     salome_study_ID = -1
-    myStudyId = getActiveStudy(theStudyId)
+    myStudyId = getActiveStudy()
+    if not myStudyId:
+      myStudyId = createNewStudy()
     if verbose(): print "myStudyId",myStudyId
     myStudy = myStudyManager.GetStudyByID(myStudyId)
     myStudyName = myStudy._get_Name()
-
     return myStudyId, myStudy, myStudyName
 
     #--------------------------------------------------------------------------
 
 def createNewStudy():
+    global myStudyManager
     print "createNewStudy"
-    i=1
-    aStudyName = "noName"
-    nameAlreadyInUse = 1
-    listOfOpenStudies = myStudyManager.GetOpenStudies()
-    print listOfOpenStudies
-    while nameAlreadyInUse:
-        aStudyName = "extStudy_%d"%i
-        if aStudyName not in listOfOpenStudies:
-            nameAlreadyInUse=0
-        else:
-            i = i+1
-
+    aStudyName = "extStudy"
     theStudy = myStudyManager.NewStudy(aStudyName)
     theStudyId = theStudy._get_StudyId()
     print aStudyName, theStudyId
@@ -354,26 +363,29 @@ def createNewStudy():
 
     #--------------------------------------------------------------------------
 
-salome_study_initial = 1
+def openStudy(theStudyPath):
+    global myStudyManager
+    print "openStudy"
+    theStudy = myStudyManager.Open(theStudyPath)
+    theStudyId = theStudy._get_StudyId()
+    print theStudyPath, theStudyId
+    return theStudyId
 
-def salome_study_init(theStudyId=0):
+    #--------------------------------------------------------------------------
+
+def salome_study_init(theStudyPath=None):
     """
     Performs only once study creation or connection.
-    optional argument : theStudyId
-      When in embedded interpreter inside IAPP, theStudyId is not used
-      When used without GUI (external interpreter)
-        0      : create a new study (default).
-        n (>0) : try connection to study with Id = n, or create a new one
-                 if study not found.
+    optional argument : theStudyPath
+        None        : attach to the currently active single study;
+                      create new empty study if there is active study
+        <URL> (str) : open study with the given file name
     """
-
-    global salome_study_initial
     global myStudyManager, myStudyId, myStudy, myStudyName
     global orb, lcc, naming_service, cm
 
-    if salome_study_initial:
-        salome_study_initial = 0
-
+    if verbose(): print "theStudyPath:", theStudyPath
+    if not myStudyManager:
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
 
         # get Study Manager reference
@@ -381,17 +393,28 @@ def salome_study_init(theStudyId=0):
         obj = naming_service.Resolve('myStudyManager')
         myStudyManager = obj._narrow(SALOMEDS.StudyManager)
         if verbose(): print "studyManager found"
+        pass
 
-        # get active study Id, ref and name
-        myStudyId = getActiveStudy(theStudyId)
-        if verbose(): print "myStudyId",myStudyId
+    # get active study Id, ref and name
+    myStudy = None
+    myStudyId = getActiveStudy()
+    if myStudyId == None :
+        import types
+        if theStudyPath and type(theStudyPath) == types.StringType:
+            myStudyId = openStudy(theStudyPath)
+        else:
+            myStudyId = createNewStudy()
+    if verbose(): print "myStudyId", myStudyId
+
+    if myStudy == None:
         myStudy = myStudyManager.GetStudyByID(myStudyId)
-        myStudyName = myStudy._get_Name()
+    myStudyName = myStudy._get_Name()
 
     return myStudyManager, myStudyId, myStudy, myStudyName
 
 def salome_study_close():
-    global salome_study_initial, salome_study_ID
-    salome_study_initial=1
-    salome_study_ID=-1
+    global salome_study_ID
+    global myStudyId, myStudy, myStudyName
+    salome_study_ID = -1
+    myStudyId, myStudy, myStudyName = None, None, None
     pass

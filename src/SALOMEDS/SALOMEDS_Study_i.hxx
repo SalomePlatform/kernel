@@ -55,6 +55,7 @@ private:
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
   SALOMEDSImpl_AbstractCallback* _notifier;
   SALOMEDSImpl_AbstractCallback* _genObjRegister;
+  bool                           _closed;
 
 public:
 
@@ -276,17 +277,10 @@ public:
 
   virtual void AddCreatedPostponed(const char* theIOR);
 
-#ifndef WIN32
-  virtual void RemovePostponed(const CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
-                                                        // if theUndoLimit==0, removes all
-  virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,
-                                                // theWay = -1: get back to the list of postponed
-#else
   virtual void RemovePostponed(CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
                                                         // if theUndoLimit==0, removes all
   virtual void UndoPostponed(CORBA::Long theWay); // theWay = 1: resurrect objects,
                                                 // theWay = -1: get back to the list of postponed
-#endif
 
   virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);
   virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 

@@ -221,7 +221,7 @@ def salome_init(theStudyId=0,embedded=0):
             salome_initial=0
             sg = salome_iapp_init(embedded)
             orb, lcc, naming_service, cm = salome_kernel_init()
-            myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
+            myStudyManager, myStudyId, myStudy, myStudyName = salome_study_init(theStudyId)
             pass
         pass
     except RuntimeError, inst:
@@ -238,13 +238,18 @@ def salome_init(theStudyId=0,embedded=0):
         ============================================
         """
         raise
-
+    
 def salome_close():
-    global salome_initial
+    global salome_initial, myStudy, myStudyId, myStudyName
+    try:
+        # study can be closed either from GUI or directly with salome.myStudy.Close()
+        myStudy.Close()
+    except:
+        pass
     salome_initial=1
     salome_iapp_close()
-    salome_kernel_close()
     salome_study_close()
+    myStudyId, myStudy, myStudyName=None,None,None
     pass
 
 
