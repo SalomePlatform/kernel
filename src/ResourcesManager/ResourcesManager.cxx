@@ -500,11 +500,16 @@ const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
   return _resourcesList;
 }
 
-std::string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfResources)
+//! threadsafe
+std::string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfResources) const
 {
-  if(_resourceManagerMap.count(policy)==0)
-    return _resourceManagerMap[""]->Find(listOfResources, _resourcesList);
-  return _resourceManagerMap[policy]->Find(listOfResources, _resourcesList);
+  std::map<std::string , LoadRateManager*>::const_iterator it(_resourceManagerMap.find(policy));
+  if(it==_resourceManagerMap.end())
+	{
+	  it=_resourceManagerMap.find("");
+	  return ((*it).second)->Find(listOfResources, _resourcesList);
+	}
+  return ((*it).second)->Find(listOfResources, _resourcesList);
 }
 
 //=============================================================================
@@ -570,12 +575,12 @@ ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& r
   resources=kept_resources;
 }
 
-
-ParserResourcesType 
-ResourcesManager_cpp::GetResourcesDescr(const std::string & name)
+//! thread safe
+ParserResourcesType ResourcesManager_cpp::GetResourcesDescr(const std::string & name) const
 {
-  if (_resourcesList.find(name) != _resourcesList.end())
-    return _resourcesList[name];
+  MapOfParserResourcesType::const_iterator it(_resourcesList.find(name));
+  if (it != _resourcesList.end())
+    return (*it).second;
   else
   {
     std::string error("[GetResourcesDescr] Resource does not exist: ");

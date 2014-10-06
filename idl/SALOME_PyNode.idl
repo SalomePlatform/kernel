@@ -61,6 +61,13 @@ module Engines
 
   interface PyScriptNode : PyNodeBase
   {
+    /*!
+      This method compiles, but NOT EXECUTE, the code \a codeStr. The result of the compiled code will be used then
+      on execute step.
+      \param codeStr - the python code (without statement) to be executed, that can modify the context initialized at initialization.
+     */
+    void assignNewCompiledCode(in string codeStr) raises (SALOME::SALOME_Exception);
+
     /*! \brief execute a python script defined in the node
 
       \param outargsname output argument names 

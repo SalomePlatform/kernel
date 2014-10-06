@@ -25,7 +25,7 @@
 #include <map>
 
 std::string LoadRateManagerFirst::Find(const std::vector<std::string>& hosts,
-                                  MapOfParserResourcesType& resList)
+                                       const MapOfParserResourcesType& resList)
 {
   if (hosts.size() == 0)
     return std::string("");
@@ -34,7 +34,7 @@ std::string LoadRateManagerFirst::Find(const std::vector<std::string>& hosts,
 }
 
 std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
-                                 MapOfParserResourcesType& resList)
+                                      const MapOfParserResourcesType& resList)
 {
   static int imachine = 0;
   static int iproc = 0;
@@ -43,7 +43,10 @@ std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
   if (hosts.size() == 0)
     return std::string("");
   else{
-    ParserResourcesType resource = resList[std::string(hosts[imachine])];
+    MapOfParserResourcesType::const_iterator it(resList.find(hosts[imachine]));
+    ParserResourcesType resource;
+    if(it!=resList.end())
+      resource = (*it).second;
     int nbproc = resource.DataForSort._nbOfProcPerNode * resource.DataForSort._nbOfNodes;
     if( nbproc <= 0) nbproc = 1;
     if( iproc < nbproc ){
@@ -61,7 +64,7 @@ std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
 }
 
 std::string LoadRateManagerAltCycl::Find(const std::vector<std::string>& hosts,
-                                    MapOfParserResourcesType& resList)
+                                         const MapOfParserResourcesType& resList)
 {
   if (hosts.size() == 0)
     return std::string("");

@@ -106,6 +106,13 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     except:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
+  def assignNewCompiledCode(self,codeStr):
+    try:
+      self.code=codeStr
+      self.ccode=compile(codeStr,self.nodeName,'exec')
+    except:
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode.assignNewCompiledCode (%s) : code to be executed \"%s\"" %(self.nodeName,codeStr),0))
+
   def execute(self,outargsname,argsin):
     """Execute the script stored in attribute ccode with pickled args (argsin)"""
     try:
