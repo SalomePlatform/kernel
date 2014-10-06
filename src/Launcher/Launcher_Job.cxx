@@ -326,6 +326,12 @@ Launcher::Job::setMemPerCpu(unsigned long mem_per_cpu)
 }
 
 void
+Launcher::Job::setWCKey(const std::string & wckey)
+{
+  _wckey = wckey;
+}
+
+void
 Launcher::Job::setReference(const std::string & reference)
 {
   _reference = reference;
@@ -407,6 +413,12 @@ unsigned long
 Launcher::Job::getMemPerCpu() const
 {
   return _mem_per_cpu;
+}
+
+std::string
+Launcher::Job::getWCKey() const
+{
+  return _wckey;
 }
 
 std::string
@@ -631,6 +643,10 @@ Launcher::Job::common_job_params()
   // Exclusive
   if (getExclusive())
     params[Batch::EXCLUSIVE] = true;
+
+  // WC Key
+  if (_wckey != "")
+    params[Batch::WCKEY] = _wckey;
 
   // Specific parameters
   std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
