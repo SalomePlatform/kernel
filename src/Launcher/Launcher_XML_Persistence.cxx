@@ -200,6 +200,8 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
     addNumericalNode(res_node, "mem_per_cpu", job.getMemPerCpu());
   if (!job.getWCKey().empty())
     addNode(node, "wckey", job.getWCKey());
+  if (!job.getExtraParams().empty())
+    addNode(node, "extra_params", job.getExtraParams());
 
   // Specific parameters part
   map<string, string> specific_parameters = job.getSpecificParameters();
@@ -336,6 +338,8 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
       new_job->setMemPerCpu(getNumericalNodeContent<unsigned long>(current_node));
     else if (node_name == "wckey")
       new_job->setWCKey(getNodeContent(current_node));
+    else if (node_name == "extra_params")
+      new_job->setExtraParams(getNodeContent(current_node));
     else if (node_name == "specific_parameters")
     {
       // Get specific parameters

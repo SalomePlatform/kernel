@@ -169,6 +169,10 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   std::string wckey = job_parameters.wckey.in();
   new_job->setWCKey(wckey);
 
+  // Extra params
+  std::string extra_params = job_parameters.extra_params.in();
+  new_job->setExtraParams(extra_params);
+
   // Resources requirements
   try
   {
@@ -507,6 +511,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   job_parameters->exclusive        = job->getExclusive();
   job_parameters->mem_per_cpu      = job->getMemPerCpu();
   job_parameters->wckey            = CORBA::string_dup(job->getWCKey().c_str());
+  job_parameters->extra_params     = CORBA::string_dup(job->getExtraParams().c_str());
 
   resourceParams resource_params = job->getResourceRequiredParams();
   job_parameters->resource_required.name             = CORBA::string_dup(resource_params.name.c_str());

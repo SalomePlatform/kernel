@@ -82,6 +82,9 @@ struct JobParameters
   //! Workload Characterization Key - mandatory on some clusters
   string wckey;
 
+  //! String that is added to the job submission file - optional
+  string extra_params;
+
   /*!
     Specific parameters for each type of job - optional
   */
