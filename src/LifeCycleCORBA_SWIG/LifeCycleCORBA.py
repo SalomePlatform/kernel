@@ -61,6 +61,7 @@ class JobParameters (Engines.JobParameters):
   def __init__(self, job_name="", job_type="", job_file="", env_file="", in_files=None, out_files=None,
                      work_directory="", local_directory="", result_directory="", maximum_duration="",
                      resource_required=None, queue="", exclusive = False, mem_per_cpu = 0,
+                     wckey = "", extra_params = "",
                      specific_parameters=None, launcher_file = "", launcher_args = ""):
     if in_files is None:
       in_files = []
@@ -71,6 +72,7 @@ class JobParameters (Engines.JobParameters):
     Engines.JobParameters.__init__(self, job_name, job_type, job_file, env_file, in_files, out_files,
                                          work_directory, local_directory, result_directory, maximum_duration,
                                          resource_required, queue, exclusive, mem_per_cpu,
+                                         wckey, extra_params,
                                          specific_parameters, launcher_file, launcher_args)
 
 class ResourceDefinition(Engines.ResourceDefinition):

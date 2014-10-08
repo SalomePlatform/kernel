@@ -79,6 +79,8 @@ namespace Launcher
       void setExclusive(bool exclusive);
       void setExclusiveStr(const std::string & exclusiveStr);
       void setMemPerCpu(unsigned long mem_per_cpu);
+      void setWCKey(const std::string & wckey);
+      void setExtraParams(const std::string & extra_params);
       void setReference(const std::string & reference);
 	  // For COORM
 	  void setLauncherFile(const std::string & launcher_file);
@@ -99,6 +101,8 @@ namespace Launcher
       bool getExclusive() const;
       std::string getExclusiveStr() const;
       unsigned long getMemPerCpu() const;
+      std::string getWCKey() const;
+      std::string getExtraParams() const;
       std::string getReference() const;
 
 	  // For COORM
@@ -155,6 +159,8 @@ namespace Launcher
       std::string _queue;
       bool _exclusive;
       unsigned long _mem_per_cpu;
+      std::string _wckey;
+      std::string _extra_params;
       std::string _reference; //! Reference of the job for the batch manager
 
 	  // Parameters for COORM
