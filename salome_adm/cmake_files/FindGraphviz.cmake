@@ -3,7 +3,9 @@
 # Output variables: GRAPHVIZ_EXECUTABLE   - where is executable 'dot' takes place.
 #		    GRAPHVIZ_INCLUDE_DIRS - where to find headers.
 # 		    GRAPHVIZ_LIBRARIES    - where to get libraries.
-# 		    GRAPHVIZ_FOUND        - True if Graphiz was found.
+#		    GRAPHVIZ_VERSION      - Graphviz version
+#		    GRAPHVIZ_DEFINITIONS  - Graphviz definitions
+# 		    GRAPHVIZ_FOUND        - True if Graphviz was found.
 #
 ###########################################################################
 # Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
@@ -44,6 +46,16 @@ SET(GRAPHVIZ_LIBRARIES
   ${GRAPHVIZ_gvc_LIBRARY}
   ${GRAPHVIZ_pathplan_LIBRARY}
   )
+
+IF(GRAPHVIZ_EXECUTABLE)
+  EXECUTE_PROCESS(COMMAND ${GRAPHVIZ_EXECUTABLE} "-V" ERROR_VARIABLE GRAPHVIZ_VERSION ERROR_STRIP_TRAILING_WHITESPACE)
+  STRING(REGEX REPLACE ".* ([0-9.]+) .*" "\\1" GRAPHVIZ_VERSION "${GRAPHVIZ_VERSION}")
+ENDIF()
+
+SET(GRAPHVIZ_DEFINITIONS)
+IF("${GRAPHVIZ_VERSION}" VERSION_LESS "2.36.0")
+  SET(GRAPHVIZ_DEFINITIONS -DWITH_CGRAPH)
+ENDIF()
 
 ## Don't detect cgraph on Windows
 #IF(NOT WIN32)
