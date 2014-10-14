@@ -46,6 +46,7 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   orbdata.append("%sInitRef = NameService=corbaname::%s:%s"%(prefix,host,port))
   orbdata.append("%sgiopMaxMsgSize = %s # 2 GBytes"%(prefix,GIOP_MaxMsgSize))
   orbdata.append("%straceLevel = 0 # critical errors only"%(prefix))
+  orbdata.append("%smaxGIOPConnectionPerServer = 50 # to allow containers parallel launch"%(prefix))
   orbdata.append("")
 
   f = open(omniorb_config, "w")

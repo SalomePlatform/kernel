@@ -31,13 +31,14 @@
 #include "SALOME_ResourcesManager.hxx"
 #include "SALOME_LoadRateManager.hxx"
 
+#include "Utils_Mutex.hxx"
+
 #include <string>
 #include <set>
 
 class SALOME_NamingService;
 
-class CONTAINER_EXPORT SALOME_ContainerManager:
-  public POA_Engines::ContainerManager
+class CONTAINER_EXPORT SALOME_ContainerManager : public POA_Engines::ContainerManager
 {
 
 public:
@@ -45,8 +46,7 @@ public:
   ~SALOME_ContainerManager();
 
   // Corba Methods
-  Engines::Container_ptr
-  GiveContainer(const Engines::ContainerParameters& params);
+  Engines::Container_ptr GiveContainer(const Engines::ContainerParameters& params);
 
   void ShutdownContainers();
 
@@ -67,16 +67,17 @@ protected:
 
   std::string BuildCommandToLaunchRemoteContainer(const std::string & resource_name,
                                                   const Engines::ContainerParameters& params, 
-                                                  const std::string& container_exe="SALOME_Container");
+                                                  const std::string& container_exe="SALOME_Container") const;
 
   std::string BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params,
                                                  const std::string& machinesFile,
-                                                 const std::string& container_exe="SALOME_Container");
+                                                 const std::string& container_exe,//"SALOME_Container"
+                                                 std::string& tmpFileName) const;
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& resource_name,
-                                                   const Engines::ContainerParameters& params) throw(SALOME_Exception);
+                                                   const Engines::ContainerParameters& params, std::string& tmpFileName) const throw(SALOME_Exception);
 
-  void RmTmpFile(std::string& tmpFile);
+  static void RmTmpFile(std::string& tmpFile);
 
   void AddOmninamesParams(std::string& command) const;
 
@@ -84,17 +85,15 @@ protected:
 
   void AddOmninamesParams(std::ofstream& fileStream) const;
 
-  std::string BuildTemporaryFileName() const;
+  static std::string BuildTemporaryFileName();
 
-  std::string GetMPIZeroNode(const std::string machine, const std::string machinesFile);
+  std::string GetMPIZeroNode(const std::string machine, const std::string machinesFile) const;
 
   std::string machinesFile(const int nbproc);
 
   std::set<pid_t> getpidofprogram(const std::string program);
 
-  std::string getCommandToRunRemoteProcess(AccessProtocolType protocol,
-                                           const std::string & hostname,
-                                           const std::string & username);
+ static std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, const std::string & hostname, const std::string & username);
 
   Engines::Container_ptr
   LaunchContainer(const Engines::ContainerParameters& params,
@@ -109,13 +108,6 @@ protected:
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
 
-  //! attribute that contains current tmp files generated
-  std::string _TmpFileName;
-
-  //! contains the rsh or ssh command to access directly to machine.
-  //  Only used by this->RmTmpFile in case of a remote launch.
-  std::string _CommandForRemAccess;
-
   //! different behaviour if $APPLI exists (SALOME Application) 
   bool _isAppliSalomeDefined;
 
@@ -123,6 +115,9 @@ protected:
   int _nbprocUsed;
 
   static omni_mutex _numInstanceMutex ; // lib and instance protection
+
+  //! attributes to allow concurrency for // GiveContainer
+  Utils_Mutex _giveContainerMutex1;
 
   pid_t _pid_mpiServer;
 
@@ -163,5 +158,11 @@ protected:
                           const std::string& name,
                           SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   // End of PaCO++ Parallel extension
+public:
+  static char *GetenvThreadSafe(const char *name);
+  static int SystemThreadSafe(const char *command);
+private:
+  static Utils_Mutex _getenvMutex;
+  static Utils_Mutex _systemMutex;
 };
 #endif

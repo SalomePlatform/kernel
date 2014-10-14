@@ -87,8 +87,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     std::vector<std::string> 
     GetFittingResources(const resourceParams& params) throw(ResourcesException);
 
-    std::string Find(const std::string& policy, 
-                     const std::vector<std::string>& listOfResources);
+    std::string Find(const std::string& policy, const std::vector<std::string>& listOfResources) const;
 
     void AddResourceInCatalog (const ParserResourcesType & new_resource);
 
@@ -100,7 +99,8 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     const MapOfParserResourcesType& GetList() const;
 
-    ParserResourcesType GetResourcesDescr(const std::string & name);
+    //! thread safe
+    ParserResourcesType GetResourcesDescr(const std::string & name) const;
 
   protected:
     

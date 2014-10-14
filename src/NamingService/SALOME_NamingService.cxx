@@ -576,9 +576,9 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 
 std::string SALOME_NamingService::ContainerName(const char *containerName)
 {
-  std::string ret;
+  std::string ret,containerNameCpp(containerName);
 
-  if (strlen(containerName) == 0)
+  if (containerNameCpp.empty())
     ret = "FactoryServer";
   else
     ret = containerName;
@@ -599,8 +599,7 @@ std::string SALOME_NamingService::ContainerName(const char *containerName)
  */
 // ============================================================================
 
-std::string 
-SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
+std::string SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
 {
   int nbproc;
 
@@ -611,13 +610,13 @@ SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
   else
     nbproc = params.nb_proc;
 
-  std::string ret = ContainerName(params.container_name);
+  std::string ret(ContainerName(params.container_name));
 
   if ( nbproc >= 1 )
     {
-      char *suffix = new char[8];
-      sprintf(suffix, "_%d", nbproc);
-      ret += suffix;
+	  std::ostringstream suffix;
+	  suffix << "_" << nbproc;
+      ret += suffix.str();
     }
 
   return ret;
@@ -637,10 +636,9 @@ SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
  */
 // ============================================================================
 
-std::string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
-                                                     const char *hostname)
+std::string SALOME_NamingService::BuildContainerNameForNS(const char *containerName, const char *hostname)
 {
-  std::string ret = "/Containers/";
+  std::string ret("/Containers/");
   ret += hostname;
   ret += "/";
   ret += ContainerName(containerName);
@@ -660,12 +658,9 @@ std::string SALOME_NamingService::BuildContainerNameForNS(const char *containerN
  */
 // ============================================================================
 
-std::string
-SALOME_NamingService::
-BuildContainerNameForNS(const Engines::ContainerParameters& params,
-                        const char *hostname)
+std::string SALOME_NamingService::BuildContainerNameForNS(const Engines::ContainerParameters& params, const char *hostname)
 {
-  std::string ret = "/Containers/";
+  std::string ret("/Containers/");
   ret += hostname;
   ret += "/";
   ret += ContainerName(params);
@@ -732,8 +727,7 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-bool SALOME_NamingService::Create_Directory(const char* Path)
-throw(ServiceUnreachable)
+bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Create_Directory");
 
@@ -777,8 +771,7 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-bool SALOME_NamingService::Change_Directory(const char* Path)
-throw(ServiceUnreachable)
+bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnreachable)
 {
 //   MESSAGE("BEGIN OF Change_Directory " << Path);
   Utils_Locker lock (&_myMutex);
@@ -878,8 +871,7 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-char* SALOME_NamingService::Current_Directory()
-throw(ServiceUnreachable)
+char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Current_Directory");
 
@@ -931,8 +923,7 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-void SALOME_NamingService::list()
-throw(ServiceUnreachable)
+void SALOME_NamingService::list() throw(ServiceUnreachable)
 {
   MESSAGE("Begin of list");
 
@@ -996,10 +987,10 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-std::vector<std::string> SALOME_NamingService::list_directory()
-throw(ServiceUnreachable)
+std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnreachable)
 {
 //   MESSAGE("list_directory");
+  Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
   dirList.resize(0);
 
@@ -1050,10 +1041,10 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-std::vector<std::string> SALOME_NamingService::list_subdirs()
-throw(ServiceUnreachable)
+std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnreachable)
 {
   MESSAGE("list_subdirs");
+  Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
   dirList.resize(0);
 
@@ -1283,8 +1274,7 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-void SALOME_NamingService::Destroy_Directory(const char* Path)
-throw(ServiceUnreachable)
+void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Destroy_Directory " << Path);
 
@@ -1458,10 +1448,10 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
-throw(ServiceUnreachable)
+void SALOME_NamingService::Destroy_FullDirectory(const char* Path) throw(ServiceUnreachable)
 {
   MESSAGE("begin of Destroy_FullDirectory " << Path);
+  //no need to lock here because method calls are threadsafe.
   if( Change_Directory(Path) )
     {
       std::vector<std::string> contList = list_directory();
@@ -1484,7 +1474,7 @@ throw(ServiceUnreachable)
 void SALOME_NamingService::_initialize_root_context()
 {
   //MESSAGE("Get the root context");
-
+  //no lock here because initialization is expected to be done once.
   try
     {
       CORBA::Object_var obj = _orb->resolve_initial_references("NameService");

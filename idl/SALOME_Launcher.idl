@@ -79,6 +79,12 @@ struct JobParameters
   //! Specifies the memory limit per cpu (exclusive with resource_required.mem_mb)
   unsigned long mem_per_cpu;
 
+  //! Workload Characterization Key - mandatory on some clusters
+  string wckey;
+
+  //! String that is added to the job submission file - optional
+  string extra_params;
+
   /*!
     Specific parameters for each type of job - optional
   */

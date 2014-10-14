@@ -35,6 +35,7 @@
 
 namespace Kernel_Utils
 {
+  // threadsafe
   std::string GetHostname()
   {
     int ls = 100, r = 1;
@@ -44,7 +45,7 @@ namespace Kernel_Utils
       {
         ls *= 2;
         s = new char[ls];
-        r = gethostname(s, ls-1);
+        r = gethostname(s, ls-1);//threadsafe see man 7 pthread
         switch (r) 
           {
           case 0:
