@@ -32,7 +32,7 @@ import salome_ComponentGUI
 
     #--------------------------------------------------------------------------
 
-IN_SALOME_GUI=0
+IN_SALOME_GUI=None
 
 def ImportComponentGUI(ComponentName):
     if IN_SALOME_GUI:
@@ -174,11 +174,13 @@ def salome_iapp_init(embedded):
 
             # create a SALOMEGUI_Swig instance
             sg = SalomeGUI()
-            IN_SALOME_GUI = sg.hasDesktop()
+            inSalomeGUI = sg.hasDesktop()
         else:
             # Not embedded in GUI
             sg=SalomeOutsideGUI()
-            IN_SALOME_GUI=0
+            inSalomeGUI=0
+        if IN_SALOME_GUI is None:
+          IN_SALOME_GUI = inSalomeGUI
     return sg
 
 def salome_iapp_close():
