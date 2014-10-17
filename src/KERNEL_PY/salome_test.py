@@ -63,7 +63,7 @@ print "======================================================================"
 print "           %d. Check modules availability in the module catalog " % step; step+=1
 print "======================================================================"
 
-for module in [ "GEOM", "SMESH", "MEDOPFactory", "PARAVIS"]:
+for module in [ "GEOM", "SMESH", "MEDOPFactory", "PVSERVER"]:
     print
     print "--- Check %s ..." % module
     comp = catalog.GetComponent(module)
@@ -351,12 +351,12 @@ print "======================================================================"
 
 if salome.hasDesktop(): # in gui mode
 
-    print "**** Importing paravis... It can take some time."
+    print "**** Importing pvserver... It can take some time."
     from presentations import *
-    import paravis
+    import pvserver
     import pvsimple
     
-    my_paravis = paravis.myParavis
+    my_paravis = pvserver.myPVServerService
     
     #====================Stage1: Importing MED file====================
     
@@ -365,7 +365,7 @@ if salome.hasDesktop(): # in gui mode
     print 'Import "ResOK_0000.med"...............',
     medFileName = "ResOK_0000.med"
     medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
-    my_paravis.ImportFile(medFile)
+    pvsimple.MEDReader( FileName=medFile )
     med_reader = pvsimple.GetActiveSource()
     
     if med_reader is None:
