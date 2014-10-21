@@ -71,7 +71,11 @@ def _getConfigurationFilename():
                                         suffix="PortManager",
                                         extension="cfg",
                                         hidden=True)
-  lock_file = portmanager_config + "-lock"
+  import tempfile
+  temp = tempfile.NamedTemporaryFile()
+  lock_file = os.path.join(os.path.dirname(temp.name), ".omniORB_PortManager.lock")
+  temp.close()
+
   return (portmanager_config, lock_file)
 #
 
@@ -103,6 +107,7 @@ def getPort(preferedPort=None):
   logger.debug("GET PORT")
 
   config_file, lock_file = _getConfigurationFilename()
+  oldmask = os.umask(0)
   with open(lock_file, 'w') as lock:
     # acquire lock
     __acquire_lock(lock)
@@ -143,9 +148,11 @@ def getPort(preferedPort=None):
 
     # release lock
     __release_lock(lock)
+  #
 
-    logger.debug("get port: %s"%str(port))
-    return port
+  os.umask(oldmask)
+  logger.debug("get port: %s"%str(port))
+  return port
 #
 
 def releasePort(port):
