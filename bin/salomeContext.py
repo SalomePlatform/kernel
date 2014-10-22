@@ -268,7 +268,7 @@ class SalomeContext:
     # set environment
     for reserved in reservedDict:
       a = filter(None, reservedDict[reserved]) # remove empty elements
-      reformattedVals = ':'.join(a)
+      reformattedVals = os.pathsep.join(a)
       self.addToVariable(reserved, reformattedVals)
       pass
 
@@ -276,7 +276,7 @@ class SalomeContext:
       self.setVariable(key, val, overwrite=True)
       pass
 
-    sys.path[:0] = os.getenv('PYTHONPATH','').split(':')
+    sys.path[:0] = os.getenv('PYTHONPATH','').split(os.pathsep)
   #
 
   def _runAppli(self, args=None):
