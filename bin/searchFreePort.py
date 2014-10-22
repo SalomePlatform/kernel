@@ -132,6 +132,9 @@ def searchFreePort_withPortManager(queue, args={}, save_config=1, use_port=None)
     if port == use_port and port != -1:
       print "- OK"
       __setup_config(use_port, args, save_config)
+      queue.put([os.environ['OMNIORB_CONFIG'],
+                 os.environ['NSPORT'],
+                 os.environ['NSHOST']])
       return
     else:
       print "- KO: port is busy"
