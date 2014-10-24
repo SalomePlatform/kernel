@@ -31,7 +31,6 @@ import subprocess
 import platform
 
 from salomeContextUtils import SalomeContextException
-from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs
 
 def usage():
   #exeName = os.path.splitext(os.path.basename(__file__))[0]
@@ -296,14 +295,13 @@ class SalomeContext:
       args = []
     sys.argv = ['runSession'] + args
     import runSession
-    runSession.configureSession(args)
+    params, args = runSession.configureSession(args)
 
+    sys.argv = ['runSession'] + args
     import setenv
     setenv.main(True)
 
-    scriptArgs = getScriptsAndArgs(args)
-    command = formatScriptsAndArgs(scriptArgs)
-    return runSession.runSession(command)
+    return runSession.runSession(params, args)
   #
 
   def _runConsole(self, args=None):

@@ -24,6 +24,7 @@ import sys
 import glob
 import subprocess
 import re
+import socket
 
 """
 Define a specific exception class to manage exceptions related to SalomeContext
@@ -101,7 +102,17 @@ def __getScriptPath(scriptName, searchPathList):
   return None
 #
 
-# Return an array of dictionaries {script_name: [list_of_its_args]}
+class ScriptAndArgs:
+  # script: the command to be run, e.g. python <script.py>
+  # args: its input parameters
+  # out: its output parameters
+  def __init__(self, script = None, args = None, out = None):
+    self.script = script
+    self.args = args
+    self.out = out
+#
+
+# Return an array of ScriptAndArgs objects
 def getScriptsAndArgs(args=None, searchPathList=None):
   if args is None:
     args = []
@@ -112,7 +123,9 @@ def getScriptsAndArgs(args=None, searchPathList=None):
   scriptArgs = []
   currentKey = None
   argsPrefix = "args:"
+  outPrefix = "out:"
   callPython = False
+  afterArgs = False
   currentScript = None
 
   for i in range(len(args)):
@@ -122,11 +135,21 @@ def getScriptsAndArgs(args=None, searchPathList=None):
       if not currentKey or callPython:
         raise SalomeContextException("args list must follow corresponding script file in command line.")
       elt = elt.replace(argsPrefix, '')
-      scriptArgs[len(scriptArgs)-1][currentKey] = elt.split(",")
+      scriptArgs[len(scriptArgs)-1].args = elt.split(",")
       currentKey = None
       callPython = False
+      afterArgs = True
+    elif elt.startswith(outPrefix):
+      if (not currentKey and not afterArgs) or callPython:
+        raise SalomeContextException("out list must follow both corresponding script file and its args in command line.")
+      elt = elt.replace(outPrefix, '')
+      scriptArgs[len(scriptArgs)-1].out = elt.split(",")
+      currentKey = None
+      callPython = False
+      afterArgs = False
     elif elt.startswith("python"):
       callPython = True
+      afterArgs = False
     else:
       if not os.path.isfile(elt) and not os.path.isfile(elt+".py"):
         eltInSearchPath = __getScriptPath(elt, searchPathList)
@@ -146,12 +169,12 @@ def getScriptsAndArgs(args=None, searchPathList=None):
         pass
       if currentScript and callPython:
         currentKey = "@PYTHONBIN@ "+currentScript
-        scriptArgs.append({currentKey:[]})
+        scriptArgs.append(ScriptAndArgs(script=currentKey))
         callPython = False
       elif currentScript:
         if not os.access(currentScript, os.X_OK):
           currentKey = "@PYTHONBIN@ "+currentScript
-          scriptArgs.append({currentKey:[]})
+          scriptArgs.append(ScriptAndArgs(script=currentKey))
         else:
           ispython = False
           try:
@@ -170,26 +193,29 @@ def getScriptsAndArgs(args=None, searchPathList=None):
           else:
             currentKey = currentScript
             pass
-          scriptArgs.append({currentKey:[]})
+          scriptArgs.append(ScriptAndArgs(script=currentKey))
+      # CLOSE elif currentScript
+      afterArgs = False
   # end for loop
   return scriptArgs
 #
 
 # Formatting scripts and args as a Bash-like command-line:
 # script1.py [args] ; script2.py [args] ; ...
+# scriptArgs is a list of ScriptAndArgs objects; their output parameters are omitted
 def formatScriptsAndArgs(scriptArgs=None):
     if scriptArgs is None:
-      scriptArgs = []
+      return ""
     commands = []
-    for sc_dict in scriptArgs:
-      for script, sc_args in sc_dict.items(): # single entry
-        cmd = script
-        if sc_args:
-          cmd = cmd + " " + " ".join(sc_args)
-        commands.append(cmd)
+    for sa_obj in scriptArgs:
+      cmd = sa_obj.script
+      if sa_obj.args:
+        cmd = " ".join([cmd]+sa_obj.args)
+      commands.append(cmd)
+
     sep = " ; "
     if sys.platform == "win32":
-      sep= " & "
+      sep = " & "
     command = sep.join(["%s"%x for x in commands])
     return command
 #
@@ -218,4 +244,8 @@ def setOmniOrbUserPath():
       defaultOmniorbUserPath = os.path.join(homePath, os.getenv("APPLI"), "USERS")
       pass
     os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
+#
+
+def getHostname():
+  return socket.gethostname().split('.')[0]
 #
