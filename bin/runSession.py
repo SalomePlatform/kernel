@@ -244,10 +244,10 @@ def __runRemoteSession(sa_obj, params):
   tmp_in, tmp_out, tmp_script = __copyFiles(params.user, params.machine, script, sa_obj.args or [], sa_obj.out or [])
 
   # execute command on the remote SALOME application
-  command = "ssh %s@%s %s/runSession " % (params.user, params.machine, params.directory)
+  command = "ssh %s@%s %s/salome shell " % (params.user, params.machine, params.directory)
   if params.port:
     command = command + "-p %s "%params.port
-  command = command + " ".join([header,tmp_script] + tmp_in)
+  command = command + " %s %s args:%s"%(header, tmp_script, ",".join(tmp_in))
   print '[  SSH   ] ' + command
   os.system(command)
 
