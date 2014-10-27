@@ -25,6 +25,7 @@ import glob
 import subprocess
 import re
 import socket
+import json
 
 """
 Define a specific exception class to manage exceptions related to SalomeContext
@@ -110,6 +111,15 @@ class ScriptAndArgs:
     self.script = script
     self.args = args
     self.out = out
+#
+class ScriptAndArgsObjectEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, ScriptAndArgs):
+      # to be easily parsed in GUI module (SalomeApp_Application)
+      # Do not export output arguments
+      return {obj.script:obj.args or []}
+    else:
+      return json.JSONEncoder.default(self, obj)
 #
 
 # Return an array of ScriptAndArgs objects

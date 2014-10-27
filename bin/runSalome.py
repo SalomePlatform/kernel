@@ -33,6 +33,7 @@ from launchConfigureParser import verbose
 from server import process_id, Server
 import json
 import subprocess
+from salomeContextUtils import ScriptAndArgsObjectEncoder
 
 # -----------------------------------------------------------------------------
 
@@ -287,7 +288,7 @@ class SessionServer(Server):
                     pass
                 pass
                 if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
-                    msg = json.dumps(self.args['pyscript'])
+                    msg = json.dumps(self.args['pyscript'], cls=ScriptAndArgsObjectEncoder)
                     self.SCMD2+=['--pyscript=%s'%(msg)]
                     pass
                 pass
