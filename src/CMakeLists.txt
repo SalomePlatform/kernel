@@ -38,6 +38,7 @@ SET(SUBDIR_CORBA
   Notification
   NOTIFICATION_SWIG
   Container
+  SALOMESDS
   TestContainer
   Launcher
   LifeCycleCORBA

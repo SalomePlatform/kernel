@@ -33,6 +33,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../Batch
   ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
   ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
+  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMESDS
   ${PROJECT_BINARY_DIR}/idl
 )
 
@@ -40,6 +41,7 @@ SET(COMMON_LIBS
   SalomeContainer
   SalomeResourcesManager
   SalomeNS
+  SalomeSDS
   OpUtil
   SALOMELocalTrace
   SALOMEBasics

@@ -42,11 +42,15 @@
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_ResourcesManager.hxx"
+#include "SALOMESDS_DataServerManager.hxx"
+
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_CLIENT_HEADER(DSC_Engines)
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
 #include CORBA_CLIENT_HEADER(SALOMEDS)
+#include CORBA_CLIENT_HEADER(SALOME_SDS)
 #include CORBA_CLIENT_HEADER(Logger)
 #include CORBA_CLIENT_HEADER(SALOME_Launcher)
 
@@ -503,8 +507,20 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 #ifndef WIN32
   nanosleep(&ts_req,0);
 #endif
+  // 4 ) Remote ScopeServer (the DataServer is hosted by SalomeLauncher shutdown right after)
+  try
+    {
+      CORBA::Object_var objDSM(_NS->Resolve(SALOMESDS::DataServerManager::NAME_IN_NS));
+      SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(objDSM));
+      if ( !CORBA::is_nil(dsm) )
+        dsm->shutdownScopes();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
 
-  // 4) SalomeLauncher
+  // 5) SalomeLauncher
   try
     {
       CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
@@ -522,7 +538,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   nanosleep(&ts_req,0);
 #endif
 
-  // 5) Registry
+  // 6) Registry
   try
     {
       CORBA::Object_var objR = _NS->Resolve("/Registry");
@@ -534,20 +550,6 @@ void SALOME_LifeCycleCORBA::shutdownServers()
     {
        // ignore and continue
     }
-
-  /*
-  // 6) Session
-  if ( !CORBA::is_nil( session ) ) {
-    try
-    {
-      session->Shutdown();
-    }
-    catch(const CORBA::Exception& e)
-    {
-      // ignore and continue
-    }
-  }
-  */
 
   // 7) Logger
   int argc = 0;

@@ -36,6 +36,7 @@ SET(SalomeIDLKernel_IDLSOURCES
   SALOMEDS_Attributes.idl
   SALOME_Component.idl
   SALOME_ContainerManager.idl
+  SALOME_SDS.idl
   SALOME_Registry.idl
   Logger.idl
   SALOME_GenericObj.idl

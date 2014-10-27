@@ -35,7 +35,8 @@
 #include "SALOMEDSImpl_Study.hxx"
 
 #include "Utils_ORB_INIT.hxx" 
-#include "Utils_SINGLETON.hxx" 
+#include "Utils_SINGLETON.hxx"
+#include "utilities.h" 
 
 #include "Basics_Utils.hxx"
 

@@ -21,6 +21,8 @@
 //
 
 #include "SALOME_ContainerManager.hxx"
+#include "SALOME_ResourcesManager.hxx"
+#include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ResourcesManager_Client.hxx"
 #include "SALOME_ModuleCatalog.hh"
@@ -49,7 +51,7 @@
 #include "PaCOPP.hxx"
 #endif
 
-#define TIME_OUT_TO_LAUNCH_CONT 60
+const int SALOME_ContainerManager::TIME_OUT_TO_LAUNCH_CONT=60;
 
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
@@ -587,11 +589,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     logFilename += tmp.str();
     logFilename += ".log" ;
     command += " > " + logFilename + " 2>&1";
-#ifdef WIN32
-    command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
-#else
-    command += " &";
-#endif
+    MakeTheCommandToBeLaunchedASync(command);
 
     // launch container with a system call
     status=SystemThreadSafe(command.c_str());
@@ -612,30 +610,14 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
   else
     {
       // Step 4: Wait for the container
-      int count = TIME_OUT_TO_LAUNCH_CONT;
-      if (GetenvThreadSafe("TIMEOUT_TO_LAUNCH_CONTAINER") != 0)
-        {
-          std::string new_count_str = GetenvThreadSafe("TIMEOUT_TO_LAUNCH_CONTAINER");
-          int new_count;
-          std::istringstream ss(new_count_str);
-          if (!(ss >> new_count))
-            {
-              INFOS("[LaunchContainer] TIMEOUT_TO_LAUNCH_CONTAINER should be an int");
-            }
-          else
-            count = new_count;
-        }
+      int count(GetTimeOutToLoaunchServer());
       INFOS("[GiveContainer] waiting " << count << " second steps container " << containerNameInNS);
       while (CORBA::is_nil(ret) && count)
         {
-#ifndef WIN32
-          sleep( 1 ) ;
-#else
-          Sleep(1000);
-#endif
+          SleepInSecond(1);
           count--;
           MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected);
-          CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+          CORBA::Object_var obj(_NS->Resolve(containerNameInNS.c_str()));
           ret=Engines::Container::_narrow(obj);
         }
       if (CORBA::is_nil(ret))
@@ -980,9 +962,9 @@ void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
 
 void SALOME_ContainerManager::AddOmninamesParams(std::string& command) const
 {
-  CORBA::String_var iorstr = _NS->getIORaddr();
-  command += "ORBInitRef NameService=";
-  command += iorstr;
+  std::ostringstream oss;
+  AddOmninamesParams(oss);
+  command+=oss.str();
 }
 
 //=============================================================================
@@ -991,24 +973,59 @@ void SALOME_ContainerManager::AddOmninamesParams(std::string& command) const
  */ 
 //=============================================================================
 
-void SALOME_ContainerManager::AddOmninamesParams(std::ofstream& fileStream) const
+void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream) const
 {
-  CORBA::String_var iorstr = _NS->getIORaddr();
+  AddOmninamesParams(fileStream,_NS);
+}
+
+//=============================================================================
+/*!
+ *  add to command all options relative to naming service.
+ */ 
+//=============================================================================
+
+void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService *ns)
+{
+  CORBA::String_var iorstr(ns->getIORaddr());
   fileStream << "ORBInitRef NameService=";
   fileStream << iorstr;
 }
 
-//=============================================================================
-/*!
- *  add to command all options relative to naming service.
- */ 
-//=============================================================================
-
-void SALOME_ContainerManager::AddOmninamesParams(std::ostringstream& oss) const
+void SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(std::string& command)
 {
-  CORBA::String_var iorstr = _NS->getIORaddr();
-  oss << "ORBInitRef NameService=";
-  oss << iorstr;
+#ifdef WIN32
+    command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
+#else
+    command += " &";
+#endif
+}
+
+int SALOME_ContainerManager::GetTimeOutToLoaunchServer()
+{
+  int count(TIME_OUT_TO_LAUNCH_CONT);
+  if (GetenvThreadSafe("TIMEOUT_TO_LAUNCH_CONTAINER") != 0)
+    {
+      std::string new_count_str(GetenvThreadSafe("TIMEOUT_TO_LAUNCH_CONTAINER"));
+      int new_count;
+      std::istringstream ss(new_count_str);
+      if (!(ss >> new_count))
+        {
+          INFOS("[LaunchContainer] TIMEOUT_TO_LAUNCH_CONTAINER should be an int");
+        }
+      else
+        count = new_count;
+    }
+  return count;
+}
+
+void SALOME_ContainerManager::SleepInSecond(int ellapseTimeInSecond)
+{
+#ifndef WIN32
+  sleep( ellapseTimeInSecond ) ;
+#else
+  int timeInMS(1000*ellapseTimeInSecond);
+  Sleep(timeInMS);
+#endif
 }
 
 //=============================================================================
@@ -1853,7 +1870,7 @@ SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
     return container_proxy;
   }
 
-  int count = TIME_OUT_TO_LAUNCH_CONT;
+  int count(GetTimeOutToLoaunchServer());
   CORBA::Object_var obj = CORBA::Object::_nil();
   std::string containerNameInNS = _NS->BuildContainerNameForNS(params.container_name.in(), 
                                                                hostname.c_str());
@@ -1937,9 +1954,9 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
     std::string container_node_name = name + proc_number;
     std::string containerNameInNS = _NS->BuildContainerNameForNS((char*) container_node_name.c_str(), theMachine.c_str());
     INFOS("[LaunchPaCONodeContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
-    int count = TIME_OUT_TO_LAUNCH_CONT;
+    int count(GetTimeOutToLoaunchServer());
     while (CORBA::is_nil(obj) && count) {
-      sleep(1) ;
+      SleepInSecond(1);
       count-- ;
       obj = _NS->Resolve(containerNameInNS.c_str());
     }

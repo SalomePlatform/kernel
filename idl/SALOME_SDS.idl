@@ -1,0 +1,86 @@
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+// Author : Anthony GEAY (EDF R&D)
+
+#include "SALOME_GenericObj.idl"
+#include "SALOME_Exception.idl"
+
+module SALOME
+{
+  typedef sequence<string> StringVec;
+  typedef sequence<octet> ByteVec;
+  
+  interface DataScopeServer;
+
+  interface BasicDataServer : GenericObj
+  {
+    DataScopeServer getMyDataScopeServer();
+    string getVarName();
+    string getScopeName();
+  };
+
+  interface PickelizedPyObjServer : BasicDataServer
+  {
+    ByteVec fetchSerializedContent() raises (SALOME::SALOME_Exception);
+  };
+
+  interface PickelizedPyObjRdOnlyServer : PickelizedPyObjServer
+  {
+  };
+
+  interface PickelizedPyObjRdExtServer : PickelizedPyObjServer
+  {
+    PickelizedPyObjRdExtServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+  };
+
+  interface PickelizedPyObjRdWrServer : PickelizedPyObjServer
+  {
+    void setSerializedContent(in ByteVec newValue) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdWrServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+  };
+
+  interface DataServerManager;
+
+  interface DataScopeServer
+  {
+    void ping();
+    string getScopeName();
+    StringVec listVars();
+    BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
+    void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    //PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
+    void shutdownIfNotHostedByDSM();
+  };
+
+  interface DataServerManager
+  {
+    StringVec listScopes();
+    StringVec listAliveAndKickingScopes() raises (SALOME::SALOME_Exception);
+    DataScopeServer getDefaultScope() raises (SALOME::SALOME_Exception);
+    boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServer retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated);
+    void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    void cleanScopesInNS();
+    void shutdownScopes() raises (SALOME::SALOME_Exception);
+  };
+};

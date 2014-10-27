@@ -25,6 +25,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "Basics_Utils.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "utilities.h"
 
 #include <iostream>
 #include <fstream>

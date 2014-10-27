@@ -21,6 +21,7 @@
 //
 
 #include "SALOME_Launcher.hxx"
+#include "SALOMESDS_DataServerManager.hxx"
 #include "utilities.h"
 #include <sstream>
 #include <iostream>
@@ -85,18 +86,26 @@ int main(int argc, char* argv[])
     if(!CORBA::is_nil(obj))
       root_poa = PortableServer::POA::_narrow(obj);
     if(!CORBA::is_nil(root_poa))
-      pman = root_poa->the_POAManager();
+      {
+        pman = root_poa->the_POAManager();
+        pman->activate();
+      }
   }
   catch(CORBA::COMM_FAILURE&){
     MESSAGE( "Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
   }
-  try{
-    SALOME_Launcher *lServ=new SALOME_Launcher(orb,root_poa);
-    pman->activate();
-    lServ->_remove_ref();
-    orb->run();
-    orb->destroy();
-  }catch(CORBA::SystemException&){
+  try
+    {
+      SALOME_Launcher *lServ(new SALOME_Launcher(orb,root_poa));
+      lServ->_remove_ref();
+      //
+      SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(argc,argv,orb,root_poa));
+      dsm->_remove_ref();
+      //
+      orb->run();
+      orb->destroy();
+    }
+  catch(CORBA::SystemException&){
     MESSAGE("Caught CORBA::SystemException.");
   }catch(PortableServer::POA::WrongPolicy&){
     MESSAGE("Caught CORBA::WrongPolicyException.");

@@ -24,6 +24,7 @@
 #include "BatchTest.hxx"
 #include "OpUtil.hxx"
 #include "SALOME_ContainerManager.hxx"
+#include "SALOME_NamingService.hxx"
 #include "SALOME_ResourcesManager.hxx"
 #include "Utils_CorbaException.hxx"
 
@@ -31,6 +32,8 @@
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
+
+#include "utilities.h"
 
 #ifdef WIN32
 # include <process.h>

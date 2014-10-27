@@ -218,7 +218,7 @@ ELSE()
     LIST(APPEND _${PROJECT_NAME}_exposed_targets 
       DF SalomeLoggerServer with_loggerTraceCollector SalomeNS SalomeGenericObj 
       Registry SalomeCatalog ResourcesManager SalomeResourcesManager
-      SalomeNotification SalomeContainer Launcher SalomeLauncher
+      SalomeNotification SalomeContainer SalomeSDS Launcher SalomeLauncher
       SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers
       SalomeDSImpl SalomeDS SalomeCommunication SalomeDSCContainer)
     # Temporary solution for package src\DSC on windows

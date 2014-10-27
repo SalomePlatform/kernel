@@ -81,9 +81,7 @@ protected:
 
   void AddOmninamesParams(std::string& command) const;
 
-  void AddOmninamesParams(std::ostringstream& oss) const;
-
-  void AddOmninamesParams(std::ofstream& fileStream) const;
+  void AddOmninamesParams(std::ostream& fileStream) const;
 
   static std::string BuildTemporaryFileName();
 
@@ -161,7 +159,12 @@ protected:
 public:
   static char *GetenvThreadSafe(const char *name);
   static int SystemThreadSafe(const char *command);
-private:
+  static void AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService *ns);
+  static void MakeTheCommandToBeLaunchedASync(std::string& command);
+  static int GetTimeOutToLoaunchServer();
+  static void SleepInSecond(int ellapseTimeInSecond);
+ private:
+  static const int TIME_OUT_TO_LAUNCH_CONT;
   static Utils_Mutex _getenvMutex;
   static Utils_Mutex _systemMutex;
 };

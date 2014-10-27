@@ -35,7 +35,6 @@
 
 #include <vector>
 #include <string>
-#include "utilities.h"
 #include "Utils_Mutex.hxx"
 #include "ServiceUnreachable.hxx"
 
