@@ -323,8 +323,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
     //Open the Study HDF file 
     HDFfile *hdf_file = new HDFfile((char*)aHDFUrl.c_str()); 
 
-    char aMultifileState[2];
-    char ASCIIfileState[2];
+    char aMultifileState[2] = { '0','0' };
+    char ASCIIfileState[2] = { '0','0' };
     bool hasModuleData = false;
     try {
       std::string scoid = anSCO.GetID();
@@ -350,13 +350,21 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       } else
         aStreamFile = NULL;
 
-      HDFdataset *multifile_hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group);
-      multifile_hdf_dataset->OpenOnDisk();
-      multifile_hdf_dataset->ReadFromDisk(aMultifileState);
+      if (hdf_sco_group->ExistInternalObject("MULTIFILE_STATE")) {
+        HDFdataset *multifile_hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group);
+        multifile_hdf_dataset->OpenOnDisk();
+        multifile_hdf_dataset->ReadFromDisk(aMultifileState);
+        multifile_hdf_dataset->CloseOnDisk();
+        multifile_hdf_dataset = 0;
+      }
 
-      HDFdataset *ascii_hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group);
-      ascii_hdf_dataset->OpenOnDisk();
-      ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
+      if (hdf_sco_group->ExistInternalObject("ASCII_STATE")) {
+        HDFdataset *ascii_hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group);
+        ascii_hdf_dataset->OpenOnDisk();
+        ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
+        ascii_hdf_dataset->CloseOnDisk();
+        ascii_hdf_dataset = 0;
+      }
 
       std::string aDir = SALOMEDSImpl_Tool::GetDirFromPath(Res);
 
@@ -377,11 +385,6 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       }
 
       //if(aDir != NULL) delete []aDir;
-
-      multifile_hdf_dataset->CloseOnDisk();
-      multifile_hdf_dataset = 0;
-      ascii_hdf_dataset->CloseOnDisk();
-      ascii_hdf_dataset = 0;
 
       hdf_sco_group->CloseOnDisk();
       hdf_sco_group = 0;
