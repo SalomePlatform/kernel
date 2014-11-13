@@ -629,17 +629,20 @@ Launcher::Job::common_job_params()
   for(std::list<std::string>::iterator it = _out_files.begin(); it != _out_files.end(); it++)
   {
     std::string file = *it;
-
-    // local file 
-    size_t found = file.find_last_of("/");
-    std::string local_file = _result_directory +  "/" + file.substr(found+1);
-
     // remote file -> If file is not an absolute path, we apply _work_directory
     std::string remote_file;
+    std::string local_file;
     if (file.substr(0, 1) == std::string("/"))
+    {
       remote_file = file;
+      size_t found = file.find_last_of("/");
+      local_file = file.substr(found+1);
+    }
     else
+    {
       remote_file = _work_directory + "/" + file;
+      local_file = file;
+    }
 
     params[Batch::OUTFILE] += Batch::Couple(local_file, remote_file);
   }
