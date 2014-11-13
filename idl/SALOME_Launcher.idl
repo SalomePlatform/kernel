@@ -46,17 +46,54 @@ typedef sequence<Engines::Parameter> ParameterList;
 
 struct JobParameters
 {
+  //! Name of the job.
   string job_name;
-  //! Job Type - Could be equal to "command" or "yacs_file" or "python_salome"
+
+  /*! \brief Type of the job.
+      There are three supported types:
+        - "command" : execute #job_file script without SALOME environment
+        - "python_salome" : execute #job_file python script by SALOME
+        - "yacs_file" : execute #job_file by YACS module as a xml YACS schema
+  */
   string job_type;
 
   // Common values
+  /*! \brief Local path to the file to be executed by the job.
+      The type of the file depends on #job_type.
+  */
   string job_file;
+
+  /*! \brief Local path to a script to be sourced in the environment of the job.
+      It may contain modifications of environment variables.
+  */
   string env_file; 
+
+  /*! List of local data files to be copied to #work_directory.
+      #job_file and #env_file are automaticaly copied, without adding them
+      to this list. The actual path of the files could be prefixed by
+      #local_directory.
+  */
   FilesList in_files;
+
+  /*! List of results to get back at the end of the job.
+      These results can be names of files or directories, produced by the job
+      in #work_directory. Directories will be copied recursively.
+      It is also possible to use an absolute path instead of the simple name,
+      (string beginning with '/') and this absolute path will be used instead
+      of #result_directory when SalomeLauncher::getJobResults is called.
+      \see SalomeLauncher::getJobResults
+  */
   FilesList out_files;
+
+  //! Remote directory where the job will be executed.
   string work_directory;
+
+  //! Prefix to be applied to #in_files.
   string local_directory;
+
+  /*! Local directory where to get result files.
+      \see SalomeLauncher::getJobResults
+  */
   string result_directory;
 
   /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
@@ -64,12 +101,13 @@ struct JobParameters
   */
   string maximum_duration; 
 
-  // Memory is expressed in megabytes -> mem_mb
-  // Number of Processors -> nb_proc
+  /*! Memory is expressed in megabytes -> mem_mb.
+      Number of Processors -> nb_proc.
+  */
   ResourceParameters resource_required;
 
   /*!
-    Name of the batch queue choosed - optional
+    Name of the batch queue chosen - optional
   */
   string queue;
   
@@ -90,8 +128,9 @@ struct JobParameters
   */
   Engines::ParameterList specific_parameters;
 
-  // Parameters for COORM
+  //! %Parameter for COORM
   string launcher_file;
+  //! %Parameter for COORM
   string launcher_args;
 };
 
@@ -114,10 +153,41 @@ interface SalomeLauncherObserver
 interface SalomeLauncher
 {
   // Main methods
+  /*! Create a job and set its parameters, without launching it.
+      Its state becomes "CREATED".
+      \return job id
+  */
   long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+
+  /*! Launch an already created job (job's state should be "CREATED").
+      Its state changes to "QUEUED".
+  */
   void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+
+  /*!
+     \return "CREATED", "IN_PROCESS", "QUEUED", "RUNNING", "PAUSED",
+             "FINISHED" or "FAILED"
+     \see LIBBATCH/src/core/Constants.hxx
+  */
   string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
-  string getAssignedHostnames  (in long job_id)                  raises (SALOME::SALOME_Exception); // Get names or ids of hosts assigned to the job
+
+  //! Get names or ids of hosts assigned to the job
+  string getAssignedHostnames  (in long job_id)                  raises (SALOME::SALOME_Exception);
+
+  /*!
+     Copy the result files from the work directory of the job
+     to a local directory.
+     The list of result files is given by the "out_files" parameter.
+     If a result "file" is a directory, the copy is recursive.
+     The "logs" directory contains the standard and the error outputs of the job.
+     \param job_id    Job id returned by createJob().
+     \param directory Local directory where to copy the results.
+                      If this value is an empty string (""), files will be
+                      copied to the directory given by
+                      JobParameters::result_directory.
+     \see JobParameters
+     \see createJob
+  */
   void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
   boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
   void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
