@@ -730,7 +730,8 @@ def CreateOptionParser (theAdditionalOptions=None):
     help_str += "0 to keep the standalone servers as daemon [default]. "
     help_str += "This option is only useful in batchmode "
     help_str += "(terminal mode or without showing desktop)."
-    o_shutdown = optparse.Option("--shutdown-servers",
+    o_shutdown = optparse.Option("-w",
+                                 "--shutdown-servers",
                                  metavar="<1/0>",
                                  #type="choice", choices=boolean_choices,
                                  type="string",
