@@ -22,7 +22,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os, sys, pickle, string, signal
+import os, sys, pickle, signal
 from launchConfigureParser import verbose
 
 ########## adds to the kill list of SALOME one more process ##########
@@ -60,7 +60,7 @@ def addToKillList(command_pid, command, port=None):
     # check if PID is already in dictionary
     already_in=False
     for process_id in process_ids:
-        for pid, cmd in process_id.items():
+        for pid in process_id.keys():
             if int(pid) == int(command_pid):
                 already_in=True
                 break

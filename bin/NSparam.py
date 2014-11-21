@@ -35,13 +35,13 @@ def getNSparams(info=""):
     else    print 2 strings on stdout on one line: host port
     """
     from salome_utils import getORBcfgInfo
-    my_version, my_host, my_port = getORBcfgInfo()
+    _, my_host, my_port = getORBcfgInfo()
     if info=='host':
-        os.environ['NSHOST']=my_host
+        os.environ['NSHOST'] = my_host
         return my_host
         pass
     elif info=='port':
-        os.environ['NSPORT']=my_port
+        os.environ['NSPORT'] = my_port
         return my_port
         pass
     else:

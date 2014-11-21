@@ -22,23 +22,23 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import sys, os, re, socket
+import os, sys, re, socket
 #import commands
-from server import *
+from server import Server
 from Utils_Identity import getShortHostName
 from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
 
 class NamingServer(Server):
-   XTERM=""
-   USER=os.getenv('USER')
-   if USER is None:
-      USER='anonymous'
-   #os.system("mkdir -m 777 -p /tmp/logs")
-   LOGDIR="/tmp/logs/" + USER
+    XTERM = ""
+    USER = os.getenv('USER')
+    if USER is None:
+      USER = 'anonymous'
+    #os.system("mkdir -m 777 -p /tmp/logs")
+    LOGDIR = "/tmp/logs/" + USER
 
-   def initNSArgs(self):
+    def initNSArgs(self):
         if sys.platform == "win32":
           # temporarily using home directory for Namning Service logs
           # to be replaced with TEMP later...
@@ -55,9 +55,9 @@ class NamingServer(Server):
 
         upath = os.environ["BaseDir"] + "/logs/";
         if sys.platform == "win32":
-           upath += os.environ["Username"];
+          upath += os.environ["Username"];
         else:
-           upath += os.environ["USER"];
+          upath += os.environ["USER"];
 
         try:
           os.mkdir(upath)
@@ -68,16 +68,15 @@ class NamingServer(Server):
         if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
-          hname=getShortHostName();
+          hname = getShortHostName();
         else:
           hname = socket.gethostname();
         #print "hname=",hname
 
-        f=open(os.environ["OMNIORB_CONFIG"])
-        ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-        if verbose(): print "ss = ", ss,
-        f.close()
-        sl=ss[0]
+        with open(os.environ["OMNIORB_CONFIG"]) as f:
+          ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
+          if verbose(): print "ss = ", ss,
+        sl = ss[0]
         ll = sl.split(':')
         aPort = ll[-1]
         #aPort=(ss.join().split(':'))[2];
@@ -91,15 +90,15 @@ class NamingServer(Server):
         
         upath += "/omniNames_%s"%(aPort)
         try:
-           os.mkdir(upath)
+          os.mkdir(upath)
         except:
-           #print "Can't create " + upath
-           pass
+          #print "Can't create " + upath
+          pass
         
         #os.system("touch " + upath + "/dummy")
         for fname in os.listdir(upath):
           try:
-             os.remove(upath + "/" + fname)
+            os.remove(upath + "/" + fname)
           except:
             pass
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
@@ -110,24 +109,24 @@ class NamingServer(Server):
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
+          self.CMD = ['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
-          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
+          self.CMD = ['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
           #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
         if verbose(): print "... ok"
         if verbose(): print "to list contexts and objects bound into the context with the specified name : showNS "
 
 
-   def initArgs(self):
+    def initArgs(self):
         Server.initArgs(self)
         if sys.platform == "win32":
-          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
+          env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
         else:
-          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
-        self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+          env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
+        self.CMD = ['xterm', '-e']+ env_ld_library_path + ['python']
         self.initNSArgs()
 
 # In LifeCycleCORBA, FactoryServer is started with rsh on the requested

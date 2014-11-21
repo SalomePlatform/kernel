@@ -27,7 +27,7 @@
 
 import sys,os,time
 import string
-from nameserver import *
+from nameserver import NamingServer
 from omniORB import CORBA
 from launchConfigureParser import verbose
 
@@ -37,18 +37,18 @@ import CosNaming
 # -----------------------------------------------------------------------------
 
 class client:
-   """Client for SALOME"""
+    """Client for SALOME"""
 
-   def __init__(self,args=None):
+    def __init__(self,args=None):
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
 
       # Initialise the Naming Service
       self.initNS(args or {})
 
-   # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
-   def initNS(self,args):
+    def initNS(self,args):
       # Obtain a reference to the root naming context
       obj = self.orb.resolve_initial_references("NameService")
       try:
@@ -61,11 +61,11 @@ class client:
       # On lance le Naming Server (doit etre dans le PATH)
       test = True
       if args['wake_up_session']:
-         test = False
-         pass
+        test = False
+        pass
       if test:
-         NamingServer(args).run()
-         pass
+        NamingServer(args).run()
+        pass
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
@@ -86,42 +86,42 @@ class client:
           sys.exit(1)
       print " found in %s seconds " % ((ncount-1)*delta)
 
-   # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
-   def showNScontext(self,context,dec=''):
+    def showNScontext(self,context,dec=''):
       if not context:
-         print "[NS] No context"
-         return
+        print "[NS] No context"
+        return
       else:
-         print context
+        print context
 
-      bl,bi=context.list(0)
+      _,bi = context.list(0)
       if bi is not None:
-         ok,b=bi.next_one()
-         while(ok):
+        ok,b = bi.next_one()
+        while(ok):
             for s in b.binding_name :
-               print "%s%s.%s" %(dec,s.id,s.kind)
-               if s.kind == "dir":
-                  obj=context.resolve([s])
+              print "%s%s.%s" %(dec,s.id,s.kind)
+              if s.kind == "dir":
+                  obj = context.resolve([s])
                   scontext = obj._narrow(CosNaming.NamingContext)
                   self.showNScontext(scontext,dec=dec+'  ')
-            ok,b=bi.next_one()
+            ok,b = bi.next_one()
 
-   # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
-   def showNS(self):
+    def showNS(self):
       """ Show the content of SALOME naming service """
       self.showNScontext(self.rootContext)
 
-   # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
-   def Resolve(self, Path):
-      resolve_path=string.split(Path,'/')
+    def Resolve(self, Path):
+      resolve_path = string.split(Path,'/')
       if resolve_path[0] == '': del resolve_path[0]
-      dir_path=resolve_path[:-1]
-      context_name=[]
+      dir_path = resolve_path[:-1]
+      context_name = []
       for e in dir_path:
-         context_name.append(CosNaming.NameComponent(e,"dir"))
+        context_name.append(CosNaming.NameComponent(e,"dir"))
       context_name.append(CosNaming.NameComponent(resolve_path[-1],"object"))
 
       try:
@@ -136,16 +136,16 @@ class client:
           obj = None
       return obj
 
-   # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
-   def waitNS(self,name,typobj=None,maxcount=240):
-      count=0
-      delta=0.5
+    def waitNS(self,name,typobj=None,maxcount=240):
+      count = 0
+      delta = 0.5
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
           if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
-          obj=self.Resolve(name)
+          obj = self.Resolve(name)
           if obj :
               print " found in %s seconds " % ((count-1)*delta)
               break
@@ -161,42 +161,42 @@ class client:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
 
-   if sys.platform != "win32":
-    def waitNSPID(self, theName, thePID, theTypObj = None):
-      aCount = 0
-      aDelta = 0.5
-      anObj = None
-      print "Searching %s in Naming Service " % theName,
-      while(1):
-         try:
-           os.kill(thePID,0)
-         except:
-           raise RuntimeError, "Process %d for %s not found" % (thePID,theName)
-         aCount += 1
-         anObj = self.Resolve(theName)
-         if anObj:
+    if sys.platform != "win32":
+      def waitNSPID(self, theName, thePID, theTypObj = None):
+        aCount = 0
+        aDelta = 0.5
+        anObj = None
+        print "Searching %s in Naming Service " % theName,
+        while(1):
+          try:
+            os.kill(thePID,0)
+          except:
+            raise RuntimeError, "Process %d for %s not found" % (thePID,theName)
+          aCount += 1
+          anObj = self.Resolve(theName)
+          if anObj:
             print " found in %s seconds " % ((aCount-1)*aDelta)
             break
-         else:
+          else:
             sys.stdout.write('+')
             sys.stdout.flush()
             time.sleep(aDelta)
             pass
-         pass
+          pass
+  
+        if theTypObj is None:
+          return anObj
+  
+        anObject = anObj._narrow(theTypObj)
+        if anObject is None:
+          print "%s exists but is not a %s" % (theName,theTypObj)
+        return anObject
 
-      if theTypObj is None:
-         return anObj
 
-      anObject = anObj._narrow(theTypObj)
-      if anObject is None:
-         print "%s exists but is not a %s" % (theName,theTypObj)
-      return anObject
+    # --------------------------------------------------------------------------
 
-
-   # --------------------------------------------------------------------------
-
-   def ResolveLogger(self, name):
-      context_name=[]
+    def ResolveLogger(self, name):
+      context_name = []
       context_name.append(CosNaming.NameComponent(name,""))
 
       try:
@@ -211,16 +211,16 @@ class client:
           obj = None
       return obj
 
-   # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
-   def waitLogger(self,name,typobj=None,maxcount=40):
-      count=0
-      delta=0.5
+    def waitLogger(self,name,typobj=None,maxcount=40):
+      count = 0
+      delta = 0.5
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
           if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
-          obj=self.ResolveLogger(name)
+          obj = self.ResolveLogger(name)
           if obj :
               print " found in %s seconds " % ((count-1)*delta)
               break
