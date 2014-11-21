@@ -19,24 +19,25 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org or email : webmaster.salome@opencascade.com
 #
 
 ## \file appli_gen.py
 #  Create a %SALOME application (virtual Salome installation)
 #
-usage="""usage: %prog [options]
+usage = """%(prog)s [options]
 Typical use is:
-  python appli_gen.py
+  python %(prog)s
 Typical use with options is:
-  python appli_gen.py --verbose --prefix=<install directory> --config=<configuration file>
+  python %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
 """
 
-import os, glob, string, sys, re
+import argparse
+import os
+import sys
 import shutil
-import xml.sax
-import optparse
 import virtual_salome
+import xml.sax
 
 # --- names of tags in XML configuration file
 appli_tag   = "application"
@@ -69,13 +70,13 @@ class xml_parser:
         parser.parse(fileName)
         pass
 
-    def boolValue( self, str ):
-        if str in ("yes", "y", "1"):
+    def boolValue( self, text):
+        if text in ("yes", "y", "1"):
             return 1
-        elif str in ("no", "n", "0"):
+        elif text in ("no", "n", "0"):
             return 0
         else:
-            return str
+            return text
         pass
 
     def startElement(self, name, attrs):
@@ -120,7 +121,7 @@ class xml_parser:
         pass
 
     def endElement(self, name):
-        p = self.space.pop()
+        self.space.pop()
         self.current = None
         pass
 
@@ -150,20 +151,20 @@ class params:
 
 def makedirs(namedir):
   if os.path.exists(namedir):
-    dirbak=namedir+".bak"
+    dirbak = namedir+".bak"
     if os.path.exists(dirbak):
       shutil.rmtree(dirbak)
-    os.rename(namedir,dirbak)
+    os.rename(namedir, dirbak)
     os.listdir(dirbak) #sert seulement a mettre a jour le systeme de fichier sur certaines machines
   os.makedirs(namedir)
 
-def install(prefix,config_file,verbose=0):
-    home_dir=os.path.abspath(os.path.expanduser(prefix))
-    filename=os.path.abspath(os.path.expanduser(config_file))
-    _config={}
+def install(prefix, config_file, verbose=0):
+    home_dir = os.path.abspath(os.path.expanduser(prefix))
+    filename = os.path.abspath(os.path.expanduser(config_file))
+    _config = {}
     try:
-        p = xml_parser(filename)
-        _config = p.config
+        parser = xml_parser(filename)
+        _config = parser.config
     except xml.sax.SAXParseException, inst:
         print inst.getMessage()
         print "Configure parser: parse error in configuration file %s" % filename
@@ -177,23 +178,23 @@ def install(prefix,config_file,verbose=0):
         pass
 
     if verbose:
-        for cle in _config.keys():
-            print cle, _config[cle]
+        for cle,val in _config.items():
+            print cle, val
             pass
 
-    for module in _config.get("modules",[]):
+    for module in _config.get("modules", []):
         if _config.has_key(module):
             print "--- add module ", module, _config[module]
             options = params()
-            options.verbose=verbose
-            options.clear=0
-            options.prefix=home_dir
-            options.module=_config[module]
+            options.verbose = verbose
+            options.clear = 0
+            options.prefix = home_dir
+            options.module = _config[module]
             virtual_salome.link_module(options)
             pass
         pass
 
-    appliskel_dir=os.path.join(home_dir,'bin','salome','appliskel')
+    appliskel_dir = os.path.join(home_dir, 'bin', 'salome', 'appliskel')
 
     for fn in ('envd',
                'getAppliPath.py',
@@ -211,94 +212,87 @@ def install(prefix,config_file,verbose=0):
         pass
 
     if filename != os.path.join(home_dir,"config_appli.xml"):
-        command = "cp -p " + filename + ' ' + os.path.join(home_dir,"config_appli.xml")
-        os.system(command)
+        shutil.copyfile(filename, os.path.join(home_dir,"config_appli.xml"))
         pass
 
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
     if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
-        command='cp -p ' + _config["prereq_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.sh')
-        os.system(command)
+        shutil.copyfile(_config["prereq_path"], 
+                        os.path.join(home_dir, 'env.d', 'envProducts.sh'))
         pass
     else:
         print "WARNING: prerequisite file does not exist"
         pass
 
     if _config.has_key("context_path") and os.path.isfile(_config["context_path"]):
-        command='cp -p ' + _config["context_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.cfg')
-        os.system(command)
+        shutil.copyfile(_config["context_path"],
+                        os.path.join(home_dir, 'env.d', 'envProducts.cfg'))
         pass
     else:
         print "WARNING: context file does not exist"
         pass
 
     if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
-        command='cp -p ' + _config["system_conf_path"] + ' ' + os.path.join(home_dir,'env.d','envConfSystem.sh')
-        os.system(command)
+        shutil.copyfile(_config["system_conf_path"], 
+                        os.path.join(home_dir, 'env.d', 'envConfSystem.sh'))
         pass
 
 
     # Create environment file: configSalome.sh
-    f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
-    for module in _config.get("modules",[]):
-        command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
-        f.write(command)
-        pass
-    if _config.has_key("samples_path"):
-        command='export DATA_DIR=' + _config["samples_path"] +'\n'
-        f.write(command)
-        pass
-    if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
-        command='export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
-        f.write(command)
-
-    f.close()
+    with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
+        for module in _config.get("modules", []):
+            command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
+            f.write(command)
+            pass
+        if _config.has_key("samples_path"):
+            command = 'export DATA_DIR=' + _config["samples_path"] +'\n'
+            f.write(command)
+            pass
+        if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+            command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
+            f.write(command)
 
     # Create configuration file: configSalome.cfg
-    f =open(os.path.join(home_dir,'env.d','configSalome.cfg'),'w')
-    command = "[SALOME ROOT_DIR (modules) Configuration]\n"
-    f.write(command)
-    for module in _config.get("modules",[]):
-        command=module + '_ROOT_DIR=${HOME}/${APPLI}\n'
+    with open(os.path.join(home_dir, 'env.d', 'configSalome.cfg'),'w') as f:
+        command = "[SALOME ROOT_DIR (modules) Configuration]\n"
         f.write(command)
-        pass
-    if _config.has_key("samples_path"):
-        command='DATA_DIR=' + _config["samples_path"] +'\n'
-        f.write(command)
-        pass
-    if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
-        command='USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
-        f.write(command)
-
-    f.close()
+        for module in _config.get("modules", []):
+            command = module + '_ROOT_DIR=${HOME}/${APPLI}\n'
+            f.write(command)
+            pass
+        if _config.has_key("samples_path"):
+            command = 'DATA_DIR=' + _config["samples_path"] +'\n'
+            f.write(command)
+            pass
+        if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+            command = 'USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
+            f.write(command)
 
 
     # Create environment file: configGUI.sh
-    f =open(os.path.join(home_dir,'env.d','configGUI.sh'),'w')
-    command = """export SalomeAppConfig=${HOME}/${APPLI}
+    with open(os.path.join(home_dir, 'env.d', 'configGUI.sh'),'w') as f:
+        command = """export SalomeAppConfig=${HOME}/${APPLI}
 export SUITRoot=${HOME}/${APPLI}/share/salome
 export DISABLE_FPE=1
 export MMGT_REENTRANT=1
 """
-    f.write(command)
-    f.close()
+        f.write(command)
 
     # Create configuration file: configGUI.cfg
-    f =open(os.path.join(home_dir,'env.d','configGUI.cfg'),'w')
-    command = """[SALOME GUI Configuration]
+    with open(os.path.join(home_dir, 'env.d', 'configGUI.cfg'),'w') as f:
+        command = """[SALOME GUI Configuration]
 SalomeAppConfig=${HOME}/${APPLI}
 SUITRoot=${HOME}/${APPLI}/share/salome
 DISABLE_FPE=1
 MMGT_REENTRANT=1
 """
-    f.write(command)
-    f.close()
+        f.write(command)
 
     #SalomeApp.xml file
-    f =open(os.path.join(home_dir,'SalomeApp.xml'),'w')
-    command="""<document>
+    with open(os.path.join(home_dir,'SalomeApp.xml'),'w') as f:
+        command = """<document>
   <section name="launch">
     <!-- SALOME launching parameters -->
     <parameter name="gui"        value="yes"/>
@@ -318,37 +312,38 @@ MMGT_REENTRANT=1
   </section>
 </document>
 """
-    mods=[]
-    #Keep all modules except KERNEL and GUI
-    for m in _config.get("modules",[]):
-      if m in ("KERNEL","GUI"):continue
-      mods.append(m)
-    f.write(command % ",".join(mods))
-    f.close()
+        mods = []
+        #Keep all modules except KERNEL and GUI
+        for module in _config.get("modules", []):
+            if module in ("KERNEL","GUI"):
+                continue
+            mods.append(module)
+        f.write(command % ",".join(mods))
 
     #Add USERS directory with 777 permission to store users configuration files
-    users_dir=os.path.join(home_dir,'USERS')
+    users_dir = os.path.join(home_dir,'USERS')
     makedirs(users_dir)
     os.chmod(users_dir, 0777)
 
 def main():
-    parser = optparse.OptionParser(usage=usage)
+    parser = argparse.ArgumentParser(usage=usage)
 
-    parser.add_option('--prefix', dest="prefix", default='.',
-                      help="Installation directory (default .)")
+    parser.add_argument('--prefix', default='.', metavar="<install directory>",
+                      help="Installation directory (default %(default)s)")
 
-    parser.add_option('--config', dest="config", default='config_appli.xml',
-                      help="XML configuration file (default config_appli.xml)")
+    parser.add_argument('--config', default='config_appli.xml',
+                      metavar="<configuration file>",
+                      help="XML configuration file (default %(default)s)")
 
-    parser.add_option('-v', '--verbose', action='count', dest='verbose',
+    parser.add_argument('-v', '--verbose', action='count', 
                       default=0, help="Increase verbosity")
 
-    options, args = parser.parse_args()
+    options = parser.parse_args()
     if not os.path.exists(options.config):
-      print "ERROR: config file %s does not exist. It is mandatory." % options.config
-      sys.exit(1)
+        print "ERROR: config file %s does not exist. It is mandatory." % options.config
+        sys.exit(1)
 
-    install(prefix=options.prefix,config_file=options.config,verbose=options.verbose)
+    install(prefix=options.prefix, config_file=options.config, verbose=options.verbose)
     pass
 
 # -----------------------------------------------------------------------------

@@ -26,7 +26,7 @@ import xml.sax
 import optparse
 import types
 
-from salome_utils import verbose, setVerbose, getPortNumber, getHomeDir
+from salome_utils import verbose, getPortNumber, getHomeDir
 
 from salomeContextUtils import getScriptsAndArgs
 
@@ -105,11 +105,13 @@ def version():
     try:
         filename = None
         root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' ) # KERNEL_ROOT_DIR or "" if not found
-        if root_dir and os.path.exists( root_dir + "/bin/salome/VERSION" ):
-            filename = root_dir + "/bin/salome/VERSION"
+        version_file = os.path.join(root_dir, 'bin', 'salome', 'VERSION')
+        if root_dir and os.path.exists( version_file ):
+            filename = version_file
         root_dir = os.environ.get( 'GUI_ROOT_DIR', '' )    # GUI_ROOT_DIR "" if not found
-        if root_dir and os.path.exists( root_dir + "/bin/salome/VERSION" ):
-            filename = root_dir + "/bin/salome/VERSION"
+        version_file = os.path.join(root_dir, 'bin', 'salome', 'VERSION')
+        if root_dir and os.path.exists( version_file ):
+            filename = version_file
         if filename:
             str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
             match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
@@ -127,7 +129,12 @@ def version_id(fname):
     major = minor = release = dev1 = dev2 = 0
     vers = fname.split(".")
     if len(vers) > 0: major = int(vers[0])
-    if len(vers) > 1: minor = int(vers[1])
+    try:
+      if len(vers) > 1: minor = int(vers[1])
+    except ValueError:
+      # If salome version given is 7.DEV, the call to int('DEV') will fail with
+      # a ValueError exception
+      pass
     if len(vers) > 2:
         mr = re.search(r'^([0-9]+)([A-Z]|RC)?([0-9]*)',vers[2], re.I)
         if mr:
@@ -160,15 +167,14 @@ def version_id(fname):
 ###
 def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
     v = version()
-    if v: v = ".%s" % v
     if sys.platform == "win32":
-      filename = os.path.join(getHomeDir(), "%s.xml%s" % (appname, v))
+      filename = os.path.join(getHomeDir(), "{0}.xml.{1}".format(appname, v))
     else:
         if cfgname:
-            filename = os.path.join(getHomeDir(), ".config", cfgname, "%src%s" % (appname, v))
+            filename = os.path.join(getHomeDir(), ".config", cfgname, "{0}rc.{1}".format(appname, v))
             pass
         else:
-            filename = os.path.join(getHomeDir(), ".%src%s" % (appname, v))
+            filename = os.path.join(getHomeDir(), "{0}rc.{1}".format(appname, v))
             pass
         pass
     return filename
@@ -196,17 +202,17 @@ def userFile(appname, cfgname):
 
     # ... get all existing user preferences files
     if sys.platform == "win32":
-        files = glob.glob(os.path.join(getHomeDir(), "%s.xml.*" % appname))
+        files = glob.glob(os.path.join(getHomeDir(), "{0}.xml.*".format(appname)))
     else:
         files = []
         if cfgname:
             # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
-            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, "%src.*" % appname))
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, "{0}rc.*".format(appname)))
             # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
-            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".%src.*" % appname))
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".{0}rc.*".format(appname)))
             pass
         # old style (before v6.5.0) - in ~ directory, dot-prefixed
-        files += glob.glob(os.path.join(getHomeDir(), ".%src.*" % appname))
+        files += glob.glob(os.path.join(getHomeDir(), ".{0}rc.*".format(appname)))
         pass
 
     # ... loop through all files and find most appopriate file (with closest id)
@@ -215,9 +221,9 @@ def userFile(appname, cfgname):
     for f in files:
         ff = os.path.basename( f )
         if sys.platform == "win32":
-            match = re.search( r'^%s\.xml\.([a-zA-Z0-9.]+)$'%appname, ff )
+            match = re.search( r'^{0}\.xml\.([a-zA-Z0-9.]+)$'.format(appname), ff )
         else:
-            match = re.search( r'^\.?%src\.([a-zA-Z0-9.]+)$'%appname, ff )
+            match = re.search( r'^\.?{0}rc\.([a-zA-Z0-9.]+)$'.format(appname), ff )
         if match:
             ver = version_id(match.group(1))
             if not ver: continue                 # bad version id -> skip file
@@ -352,7 +358,7 @@ class xml_parser:
         pass
 
     def endElement(self, name):
-        p = self.space.pop()
+        self.space.pop()
         self.current = None
         if self.section != section_to_skip and name == sec_tag:
             self.section = section_to_skip
@@ -903,10 +909,6 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     global args
     config_var = appname+'Config'
 
-    separator = ":"
-    if os.sys.platform == 'win32':
-        separator = ";"
-
     # check KERNEL_ROOT_DIR
     kernel_root_dir = os.environ.get("KERNEL_ROOT_DIR", None)
     if kernel_root_dir is None:
@@ -941,20 +943,22 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     dirs = []
     if os.getenv(config_var):
         if sys.platform == 'win32':
-            dirs += re.split(';', os.getenv(config_var))
+            dirs += re.split(os.pathsep, os.getenv(config_var))
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
 
     gui_available = True
-    if os.getenv("GUI_ROOT_DIR") and os.path.isdir( os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui" ):
-        dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
+    gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
+    if os.getenv("GUI_ROOT_DIR") and os.path.isdir( gui_resources_dir ):
+        dirs.append(gui_resources_dir)
         pass
     else:
         gui_available = False
-        if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel" ):
-            dirs += [os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel"]
+        kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appliskel')
+        if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( kernel_resources_dir ):
+          dirs.append(kernel_resources_dir)
         pass
-    os.environ[config_var] = separator.join(dirs)
+    os.environ[config_var] = os.pathsep.join(dirs)
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
@@ -1176,7 +1180,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     ####################################################
     # Add <theAdditionalOptions> values to args
     for add_opt in theAdditionalOptions:
-        cmd = "args[\"%s\"] = cmd_opts.%s"%(add_opt.dest,add_opt.dest)
+        cmd = "args[\"{0}\"] = cmd_opts.{0}".format(add_opt.dest)
         exec(cmd)
     ####################################################
 
@@ -1191,15 +1195,15 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
         dirs = re.split('[;]', os.environ[config_var] )
     else:
         dirs = re.split('[;|:]', os.environ[config_var] )
-    for m in args[modules_nam]:
-        if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
-            d1 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources/" + m.lower()
-            d2 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources"
+    for module in args[modules_nam]:
+        if module not in ["KERNEL", "GUI", ""] and os.getenv("{0}_ROOT_DIR".format(module)):
+            d1 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources",module.lower())
+            d2 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources")
             #if os.path.exists( "%s/%s.xml"%(d1, appname) ):
-            if os.path.exists( "%s/%s.xml"%(d1, salomeappname) ):
+            if os.path.exists( os.path.join(d1,"{0}.xml".format(salomeappname)) ):
                 dirs.append( d1 )
             #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
-            elif os.path.exists( "%s/%s.xml"%(d2, salomeappname) ):
+            elif os.path.exists( os.path.join(d2,"{0}.xml".format(salomeappname)) ):
                 dirs.append( d2 )
         else:
             #print "* '"+m+"' should be deleted from ",args[modules_nam]
@@ -1231,6 +1235,6 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
         args[useport_nam] = cmd_opts.use_port
 
     # return arguments
-    os.environ[config_var] = separator.join(dirs)
+    os.environ[config_var] = os.pathsep.join(dirs)
     #print "Args: ", args
     return args
