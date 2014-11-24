@@ -378,6 +378,7 @@ def killMyPort(port):
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
 
     try:
+        import PortManager
         filedict = getPiDict(port)
         #filedict = __guessPiDictFilename(port)
         import glob
