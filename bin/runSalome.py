@@ -223,10 +223,8 @@ class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        from salome_utils import generateFileName
-        if sys.platform == "win32": dirpath = os.environ["HOME"]
-        else:                       dirpath = "/tmp"
-        logfile = generateFileName( dirpath,
+        from salome_utils import generateFileName, getLogDir
+        logfile = generateFileName( getLogDir(),
                                     prefix="logger",
                                     extension="log",
                                     with_username=True,
@@ -489,8 +487,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # set siman python path before the session server launching to import scripts inside python console
     if simanStudyName(args):
         # MPV: use os.environ here because session server is launched in separated process and sys.path is missed in this case
-        os.environ["PYTHONPATH"] = "/tmp/SimanSalome/" + args['siman_study'] + "/" + \
-                                   args['siman_scenario'] + "/" + args['siman_user'] + os.pathsep + os.environ["PYTHONPATH"];
+        from salome_utils import getTmpDir
+        ppath = os.path.join(getTmpDir, "SimanSalome", args['siman_study'],
+                             args['siman_scenario'], args['siman_user'])
+        os.environ["PYTHONPATH"] = ppath + os.pathsep + os.environ["PYTHONPATH"]
 
     # Launch  Session Server (to show splash ASAP)
     #
@@ -771,11 +771,8 @@ def registerEnv(args, modules_list, modules_root_dir):
     Register args, modules_list, modules_root_dir in a file
     for further use, when SALOME is launched embedded in an other application.
     """
-    if sys.platform == "win32":
-      fileEnv = os.getenv('TEMP')
-    else:
-      fileEnv = '/tmp/'
-
+    from salome_utils import getTmpDir
+    fileEnv = getTmpDir()
     fileEnv += os.getenv('USER') + "_" + str(args['port']) \
             + '_' + args['appname'].upper() + '_env'
     fenv=open(fileEnv,'w')

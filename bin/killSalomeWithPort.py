@@ -61,7 +61,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     except:
         pass
 
-    from salome_utils import generateFileName, getTmpDir
+    from salome_utils import generateFileName, getLogDir
     dir = ""
     if not hostname:
         hostname = os.getenv("NSHOST")
@@ -72,7 +72,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
         if hidden:
             # new-style dot-prefixed pidict files
             # are in the system-dependant temporary diretory
-            dir = getTmpDir()
+            dir = getLogDir()
         else:
             # old-style non-dot-prefixed pidict files
             # are in the user's home directory
@@ -197,7 +197,7 @@ def shutdownMyPort(port, cleanup=True):
     try:
         import time
         from omniORB import CORBA
-        
+
         from LifeCycleCORBA import LifeCycleCORBA
         # shutdown all
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
@@ -223,15 +223,8 @@ def __killMyPort(port, filedict):
     try:
         with open(filedict, 'r') as fpid:
             #
-            from salome_utils import generateFileName
-            if sys.platform == "win32":
-                username = os.getenv( "USERNAME" )
-                tmpdir = 'c:\tmp'
-            else:
-                username = os.getenv('USER')
-                tmpdir = '/tmp'
-            path = os.path.join(tmpdir, 'logs', username)
-            fpidomniNames = generateFileName(path,
+            from salome_utils import generateFileName, getLogDir
+            fpidomniNames = generateFileName(getLogDir(),
                                              prefix="",
                                              suffix="Pid_omniNames",
                                              extension="log",
@@ -378,7 +371,7 @@ def killMyPort(port):
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
 
     try:
-        import PortManager
+        import PortManager # do not remove! Test for PortManager availability!
         filedict = getPiDict(port)
         #filedict = __guessPiDictFilename(port)
         import glob
