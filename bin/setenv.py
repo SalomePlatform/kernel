@@ -81,12 +81,12 @@ def get_lib_dir():
 def get_config(silent=False):
     """
     Get list of modules, paths.
-    
+
     Read args from launch configure xml file and command line options.
     Check variables <module>_ROOT_DIR and set list of used modules.
-    Return args, modules_list, modules_root_dir    
+    Return args, modules_list, modules_root_dir
     """
-    
+
     # read args from launch configure xml file and command line options
 
     #*** Test additional option
@@ -150,14 +150,14 @@ def get_config(silent=False):
 
 def set_env(args, modules_list, modules_root_dir, silent=False):
     """Add to the PATH-variables modules specific paths"""
-    
+
     import os
-    from salome_utils import getTmpDir, generateFileName, makeTmpDir, getPortNumber
+    from salome_utils import getLogDir, generateFileName, makeTmpDir, getPortNumber
 
     # create temporary directory for environment files needed by modules from the list
     port = getPortNumber(False)
     if port:
-        tmp_dir = getTmpDir()
+        tmp_dir = getLogDir()
         env_dir = generateFileName(tmp_dir, prefix="env", with_port=True)
         makeTmpDir(env_dir)
         pass
@@ -167,8 +167,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if os.getenv('SALOME_BATCH') == None:
       os.putenv('SALOME_BATCH','0')
     if args["gui"] :
-        modules_list = modules_list[:] + ["GUI"] 
-    modules_list = modules_list[:] + ["KERNEL"] 
+        modules_list = modules_list[:] + ["GUI"]
+    modules_list = modules_list[:] + ["KERNEL"]
     for module in modules_list :
         if modules_root_dir.has_key(module):
             module_root_dir = modules_root_dir[module]
@@ -224,9 +224,9 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
         os.environ["SALOMEPATH"]=";".join(modules_root_dir_list)
     else:
         os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
-    
+
     # set trace environment variable
-    
+
     if not os.environ.has_key("SALOME_trace"):
         os.environ["SALOME_trace"]="local"
     if args['file']:

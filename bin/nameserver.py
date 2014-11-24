@@ -31,39 +31,20 @@ from launchConfigureParser import verbose
 # -----------------------------------------------------------------------------
 
 class NamingServer(Server):
-    XTERM = ""
-    USER = os.getenv('USER')
-    if USER is None:
-      USER = 'anonymous'
+    #XTERM = ""
+    #USER = os.getenv('USER')
+    #if USER is None:
+    #  USER = 'anonymous'
     #os.system("mkdir -m 777 -p /tmp/logs")
-    LOGDIR = "/tmp/logs/" + USER
+    #LOGDIR = "/tmp/logs/" + USER
 
     def initNSArgs(self):
-        if sys.platform == "win32":
-          # temporarily using home directory for Namning Service logs
-          # to be replaced with TEMP later...
-          os.environ["BaseDir"]=os.environ["HOME"]
-        else:
-          os.environ["BaseDir"]="/tmp"
-
+        from salome_utils import getLogDir
+        upath = getLogDir()
         try:
-          os.mkdir(os.environ["BaseDir"] + "/logs")
-          os.chmod(os.environ["BaseDir"] + "/logs", 0777)
+            os.makedirs(upath, mode=0777)
         except:
-          #print "Can't create " + os.environ["BaseDir"] + "/logs"
-          pass
-
-        upath = os.environ["BaseDir"] + "/logs/";
-        if sys.platform == "win32":
-          upath += os.environ["Username"];
-        else:
-          upath += os.environ["USER"];
-
-        try:
-          os.mkdir(upath)
-        except:
-          #print "Can't create " + upath
-          pass
+            pass
 
         if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
@@ -87,14 +68,14 @@ class NamingServer(Server):
         # it is cleaner on linux and it is a fix for salome since it is impossible to
         # remove the log files if the corresponding omniNames has not been killed.
         # \end{E.A.}
-        
-        upath += "/omniNames_%s"%(aPort)
+
+        upath = os.path.join(upath, "omniNames_%s"%(aPort))
         try:
           os.mkdir(upath)
         except:
           #print "Can't create " + upath
           pass
-        
+
         #os.system("touch " + upath + "/dummy")
         for fname in os.listdir(upath):
           try:
@@ -134,7 +115,7 @@ class NamingServer(Server):
 #    Others Containers are started with start_impl method of FactoryServer Container.
 # For using rsh it is necessary to have in the ${HOME} directory a .rhosts file
 # Warning : on RedHat the file /etc/hosts contains by default a line like :
-# 127.0.0.1               bordolex bordolex.paris1.matra-dtv.fr localhost.localdomain localhost  
+# 127.0.0.1               bordolex bordolex.paris1.matra-dtv.fr localhost.localdomain localhost
 #   (bordolex is the station name). omniNames on bordolex will be accessible from other
 #   computers only if the computer name is removed on that line like :
 #   127.0.0.1               bordolex.paris1.matra-dtv.fr localhost.localdomain localhost
