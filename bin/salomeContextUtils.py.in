@@ -92,6 +92,10 @@ def getConfigFileNames(args, checkExistence=False):
 #
 
 def __getScriptPath(scriptName, searchPathList):
+  scriptName = os.path.expanduser(scriptName)
+  if os.path.isabs(scriptName):
+    return scriptName
+
   if searchPathList is None or len(searchPathList) == 0:
     return None
 
@@ -111,6 +115,13 @@ class ScriptAndArgs:
     self.script = script
     self.args = args
     self.out = out
+  #
+  def __repr__(self):
+    msg = "\n# Script: %s\n"%self.script
+    msg += "     * Input: %s\n"%self.args
+    msg += "     * Output: %s\n"%self.out
+    return msg
+  #
 #
 class ScriptAndArgsObjectEncoder(json.JSONEncoder):
   def default(self, obj):
@@ -139,13 +150,14 @@ def getScriptsAndArgs(args=None, searchPathList=None):
   currentScript = None
 
   for i in range(len(args)):
-    elt = args[i]
+    elt = os.path.expanduser(args[i])
+    isDriver = (elt == "driver") # special case for YACS scheme execution
 
     if elt.startswith(argsPrefix):
       if not currentKey or callPython:
         raise SalomeContextException("args list must follow corresponding script file in command line.")
       elt = elt.replace(argsPrefix, '')
-      scriptArgs[len(scriptArgs)-1].args = elt.split(",")
+      scriptArgs[len(scriptArgs)-1].args = [os.path.expanduser(x) for x in elt.split(",")]
       currentKey = None
       callPython = False
       afterArgs = True
@@ -153,7 +165,7 @@ def getScriptsAndArgs(args=None, searchPathList=None):
       if (not currentKey and not afterArgs) or callPython:
         raise SalomeContextException("out list must follow both corresponding script file and its args in command line.")
       elt = elt.replace(outPrefix, '')
-      scriptArgs[len(scriptArgs)-1].out = elt.split(",")
+      scriptArgs[len(scriptArgs)-1].out = [os.path.expanduser(x) for x in elt.split(",")]
       currentKey = None
       callPython = False
       afterArgs = False
@@ -170,19 +182,24 @@ def getScriptsAndArgs(args=None, searchPathList=None):
         elt = eltInSearchPath
 
       if elt[-4:] != ".hdf":
-        if elt[-3:] == ".py":
+        if elt[-3:] == ".py" or isDriver:
           currentScript = os.path.abspath(elt)
         elif os.path.isfile(elt+".py"):
           currentScript = os.path.abspath(elt+".py")
         else:
           currentScript = os.path.abspath(elt) # python script not necessary has .py extension
         pass
+
       if currentScript and callPython:
         currentKey = "@PYTHONBIN@ "+currentScript
         scriptArgs.append(ScriptAndArgs(script=currentKey))
         callPython = False
       elif currentScript:
-        if not os.access(currentScript, os.X_OK):
+        if isDriver:
+          currentKey = currentScript
+          scriptArgs.append(ScriptAndArgs(script=currentKey))
+          callPython = False
+        elif not os.access(currentScript, os.X_OK):
           currentKey = "@PYTHONBIN@ "+currentScript
           scriptArgs.append(ScriptAndArgs(script=currentKey))
         else:
