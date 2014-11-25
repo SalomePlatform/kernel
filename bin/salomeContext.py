@@ -106,8 +106,10 @@ class SalomeContext:
 #        kill = True
 #        args.remove(e)
 
+    import os
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True)
+    env_copy = os.environ.copy()
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True, env=env_copy)
     msg = proc.communicate()
  #   if kill:
  #     self._killAll(args)
@@ -203,6 +205,16 @@ class SalomeContext:
   See usage for details on commands.
   """
   def _startSalome(self, args):
+    try:
+      import os
+      absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
+      import sys
+      path = os.path.join(absoluteAppliPath, "bin", "salome")
+      if not path in sys.path:
+        sys.path[:0] = [path]
+    except:
+      pass
+
     command, options = self.__parseArguments(args)
     sys.argv = options
 
