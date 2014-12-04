@@ -49,7 +49,6 @@ class TestEnvironment:
     # some tests need YACS module.
     yacs_path = os.getenv("YACS_ROOT_DIR", "")
     if os.path.isdir(yacs_path):
-      cls.hasYacs = True
       config_appli_text += '''
    <module name="YACS" path="'''
       config_appli_text += yacs_path + '"/>'

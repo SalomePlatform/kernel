@@ -8,6 +8,7 @@ import time
 
 # Test of SalomeLauncher.
 # This test should be run in the salome environment, using "salome shell"
+# and salome application should be running.
 # If YACS_ROOT_DIR is not set, the test of submitting a YACS schema will be
 # skiped.
 class TestCompo(unittest.TestCase):
@@ -268,6 +269,11 @@ f.close()
     #job_params.in_files = [case_test_dir]
     job_params.out_files = ["result.txt"]
     job_params.result_directory = local_result_dir
+    
+    # define the interval between two YACS schema dumps (3 seconds)
+    import Engines
+    job_params.specific_parameters = [Engines.Parameter("EnableDumpYACS", "3")]
+    
     job_params.resource_required = salome.ResourceParameters()
     job_params.resource_required.nb_proc = 1
     
@@ -280,14 +286,32 @@ f.close()
     
     import time
     jobState = launcher.getJobState(job_id)
+    yacs_dump_success = False
     print "Job %d state: %s" % (job_id,jobState)
     while jobState != "FINISHED" and jobState != "FAILED" :
       time.sleep(5)
       jobState = launcher.getJobState(job_id)
-      print "Job %d state: %s" % (job_id,jobState)
+      yacs_dump_success = launcher.getJobDumpState(job_id, local_result_dir)
+      print "Job %d state: %s - dump: %s" % (job_id,jobState, yacs_dump_success)
       pass
     
     self.assertEqual(jobState, "FINISHED")
+    
+    # Verify dumpState file is in the results
+    self.assertTrue(yacs_dump_success)
+    dump_file_path = os.path.join(local_result_dir, "dumpState_mySchema.xml")
+    self.assertTrue(os.path.isfile(dump_file_path))
+    
+    # Load the schema state from the dump file and verify the state of a node
+    import SALOMERuntime
+    SALOMERuntime.RuntimeSALOME_setRuntime(1)
+    import loader
+    schema = loader.YACSLoader().load(job_script_file)
+    stateParser = loader.stateParser()
+    sl = loader.stateLoader(stateParser, schema)
+    sl.parse(dump_file_path)
+    # 106 : "DONE" state code
+    self.assertEqual(106, schema.getChildByName("PyScript0").getEffectiveState())
     
     # getJobResults to default directory (result_directory)
     launcher.getJobResults(job_id, "")
@@ -297,7 +321,7 @@ f.close()
       f.close()
       self.assertEqual(text, "expected")
     except IOError,ex:
-      self.fail("IO exception:" + str(ex));
+      self.fail("IO exception:" + str(ex))
     
 if __name__ == '__main__':
     # creat study

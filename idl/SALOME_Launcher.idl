@@ -26,7 +26,7 @@
 #include "SALOME_Exception.idl"
 #include "SALOME_ResourcesManager.idl"
 
-/*! \file SALOME_Launcher.idl \brief interfaces for %SALOME Launcher service
+/*! \file SALOME_Launcher.idl \brief Interfaces for %SALOME Launcher service
 */
 
 module Engines
@@ -49,34 +49,37 @@ struct JobParameters
   //! Name of the job.
   string job_name;
 
-  /*! \brief Type of the job.
-      There are three supported types:
-        - "command" : execute #job_file script without SALOME environment
-        - "python_salome" : execute #job_file python script by SALOME
+  //! Type of the job.
+  /*! There are three supported types:
+        - "command" : execute #job_file script without %SALOME environment
+        - "python_salome" : execute #job_file python script by %SALOME
         - "yacs_file" : execute #job_file by YACS module as a xml YACS schema
   */
   string job_type;
 
   // Common values
-  /*! \brief Local path to the file to be executed by the job.
-      The type of the file depends on #job_type.
+  //! Local path to the file to be executed by the job.
+  /*! The type of the file depends on #job_type.
+      If #job_type is "command", the #job_file must be a single filename
+      specifying a self-consistent script to be executed without any argument,
+      on the remote host.
   */
   string job_file;
 
-  /*! \brief Local path to a script to be sourced in the environment of the job.
-      It may contain modifications of environment variables.
+  //! Local path to a script to be sourced in the environment of the job.
+  /*! It may contain modifications of environment variables.
   */
   string env_file; 
 
-  /*! List of local data files to be copied to #work_directory.
-      #job_file and #env_file are automaticaly copied, without adding them
-      to this list. The actual path of the files could be prefixed by
-      #local_directory.
+  //! List of local data files to be copied to #work_directory.
+  /*! #job_file and #env_file are automaticaly copied, without adding them
+      to this list. If basenames are specified, then the files are supposed
+      to be located in #local_directory.
   */
   FilesList in_files;
 
-  /*! List of results to get back at the end of the job.
-      These results can be names of files or directories, produced by the job
+  //! List of results to get back at the end of the job.
+  /*! These results can be names of files or directories, produced by the job
       in #work_directory. Directories will be copied recursively.
       It is also possible to use an absolute path instead of the simple name,
       (string beginning with '/') and this absolute path will be used instead
@@ -86,29 +89,41 @@ struct JobParameters
   FilesList out_files;
 
   //! Remote directory where the job will be executed.
+  /*! It must be used to specify the remote directory where to put all
+      the stuff to run the job. Note that the job will be executed from within
+      this directory. A change directory toward this working directory is done
+      by the batch system before running the job.
+  */
   string work_directory;
 
   //! Prefix to be applied to #in_files.
+  /*! It can be used to specify where to find the local input files.
+      It's optionnal if you specify the absolute path name of input files.
+  */
   string local_directory;
 
-  /*! Local directory where to get result files.
+  //! Local directory where to get result files.
+  /*! It must be used to specify where to download the output files on the
+      local file system.
       \see SalomeLauncher::getJobResults
   */
   string result_directory;
 
-  /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
-       this case, default value of the selected resource will be used.
+  //! Maximum time for the batch execution (expected format : "hh:mm").
+  /*! Could be empty, in this case, default value of the selected resource
+      will be used.
   */
   string maximum_duration; 
 
-  /*! Memory is expressed in megabytes -> mem_mb.
-      Number of Processors -> nb_proc.
+  //! Specifies the rules to choose the ressource where to execute the job.
+  /*! The additionnal two following parameters MUST be specified explicitly,
+      because they are not provided by the resource definition:
+      - mem_mb -> Memory expressed in megabytes.
+      - nb_proc -> Number of Processors.
   */
   ResourceParameters resource_required;
 
-  /*!
-    Name of the batch queue chosen - optional
-  */
+  //!  Name of the batch queue chosen - optional
   string queue;
   
   //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
@@ -123,8 +138,14 @@ struct JobParameters
   //! String that is added to the job submission file - optional
   string extra_params;
 
-  /*!
-    Specific parameters for each type of job - optional
+  //! Specific parameters for each type of job - optional
+  /*! This is a list of parameters (key - value pairs of strings) useful in
+      some specific situations.
+      Known parameters:
+      - EnableDumpYACS : value of the "dump" option of the "driver" command
+        when the job type is "yacs_file". It gives the number of seconds
+        between two updates of the state dump file. There will be no dump file
+        if this parameter is missing or if its value is less than 1.
   */
   Engines::ParameterList specific_parameters;
 
@@ -146,38 +167,45 @@ interface SalomeLauncherObserver
   void notify(in string event_name, in string event_data);
 };
 
-/*! \brief Interface of the %salomelauncher
-    This interface is used for interaction with the unique instance
-    of SalomeLauncher
+//! Interface of the %salome launcher.
+/*! This interface is used for interaction with the unique instance
+    of SalomeLauncher.
+    The utilisation of this interface is explained in the YACS documentation,
+    article "Starting a SALOME application in a batch manager".
+    Other examples of use can be found in the modules JOBMANAGER, PARAMETRIC
+    and SMESH (PADDER tool).
 */
 interface SalomeLauncher
 {
   // Main methods
-  /*! Create a job and set its parameters, without launching it.
-      Its state becomes "CREATED".
+  //! Create a job and set its parameters, without launching it.
+  /*! Its state becomes "CREATED".
       \return job id
   */
   long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
 
-  /*! Launch an already created job (job's state should be "CREATED").
-      Its state changes to "QUEUED".
+  //! Launch an already created job (job's state should be "CREATED").
+  /*! Launching the job consists of:
+      - create the working directory on the remote file system
+      - copy the input files into the working directory
+      - source the environment file if defined
+      - run the job
   */
   void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
-  /*!
-     \return "CREATED", "IN_PROCESS", "QUEUED", "RUNNING", "PAUSED",
+  //! Get the execution state of the job.
+  /*! \return "CREATED", "IN_PROCESS", "QUEUED", "RUNNING", "PAUSED",
              "FINISHED" or "FAILED"
-     \see LIBBATCH/src/core/Constants.hxx
+      \see LIBBATCH/src/core/Constants.hxx
   */
   string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
 
   //! Get names or ids of hosts assigned to the job
   string getAssignedHostnames  (in long job_id)                  raises (SALOME::SALOME_Exception);
 
-  /*!
-     Copy the result files from the work directory of the job
-     to a local directory.
-     The list of result files is given by the "out_files" parameter.
+  //! Copy the result files from the work directory of the job
+  //! to a local directory.
+  /*! The list of result files is given by the JobParameters::out_files parameter.
      If a result "file" is a directory, the copy is recursive.
      The "logs" directory contains the standard and the error outputs of the job.
      \param job_id    Job id returned by createJob().
@@ -189,8 +217,26 @@ interface SalomeLauncher
      \see createJob
   */
   void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+
+  //! Try to copy the files named "dumpState*.xml" from the working directory.
+  /*! The file "dumpState_name.xml" can be produced by the execution of a YACS
+      schema and it contains the execution state of the schema.
+      You can activate the creation of this file by adding the parameter
+      "EnableDumpYACS" in JobParameters::specific_parameters when the job
+      is created.
+     \param job_id    Job id returned by createJob().
+     \param directory Local directory where to copy the file.
+                      If this value is an empty string (""), the file will be
+                      copied to the directory given by
+                      JobParameters::result_directory.
+     \return 1 if the copy succeeds.
+     \see JobParameters::specific_parameters
+  */
   boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
+
+  //! Kill the job and set its state to "FAILED"
   void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
+  //! Kill the job and remove it from the jobs list
   void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
   // Useful methods
@@ -198,17 +244,22 @@ interface SalomeLauncher
   boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
 
   // SALOME kernel service methods
+  //! Shutdow SalomeLauncher server.
   void Shutdown();
+  //! Get the PID of the current process
   long getPID();
 
   // Observer and introspection methods
+  //! Add an observer to be notified of the jobs list modifications
   void addObserver(in Engines::SalomeLauncherObserver observer);
   void removeObserver(in Engines::SalomeLauncherObserver observer);
   Engines::JobsList getJobsList();
   Engines::JobParameters getJobParameters(in long job_id) raises (SALOME::SALOME_Exception);
 
   // Save and load methods
+  //! Add to the current jobs list the jobs previously saved in an xml file.
   void loadJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+  //! Save the current list of jobs in an xml file.
   void saveJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
 
 };
