@@ -33,7 +33,7 @@ def __detectAppliPath(fromPath, launcherFile):
   if os.path.isdir(users_folder):
     return fromPath
 
-  pattern = "/bin/salome/appliskel"
+  pattern = os.path.sep + os.path.join("bin", "salome", "appliskel")
   if fromPath.endswith(pattern):
     currentPath = __detectAppliPath(fromPath[:-len(pattern)], launcherFile)
     if not currentPath is None:
@@ -61,7 +61,7 @@ def initialize(launcherPath, launcherFile):
   os.environ['APPLI'] = appliPath # needed to convert .sh environment files
   os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
 
-  sys.path[:0] = [absoluteAppliPath+'/bin/salome']
+  sys.path[:0] = [os.path.join(absoluteAppliPath, "bin", "salome")]
 
   # define folder to store omniorb config (initially in virtual application folder)
   try:

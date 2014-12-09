@@ -29,7 +29,7 @@ def __prompt(environment = None, commands=None, message = "Connecting to SALOME"
     commands = []
 
   import code
-  import rlcompleter
+  import rlcompleter #@UnusedImport
   import readline
   readline.parse_and_bind("tab: complete")
   # calling this with globals ensures we can see the environment

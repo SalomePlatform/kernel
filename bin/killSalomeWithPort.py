@@ -32,8 +32,10 @@
 #
 
 import os, sys, pickle, signal, commands,glob
+import subprocess
+import shlex
 from salome_utils import verbose
-import salome_utils
+
 
 def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
@@ -59,7 +61,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     except:
         pass
 
-    from salome_utils import generateFileName, getTmpDir
+    from salome_utils import generateFileName, getLogDir
     dir = ""
     if not hostname:
         hostname = os.getenv("NSHOST")
@@ -70,7 +72,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
         if hidden:
             # new-style dot-prefixed pidict files
             # are in the system-dependant temporary diretory
-            dir = getTmpDir()
+            dir = getLogDir()
         else:
             # old-style non-dot-prefixed pidict files
             # are in the user's home directory
@@ -221,20 +223,15 @@ def __killMyPort(port, filedict):
     try:
         with open(filedict, 'r') as fpid:
             #
-            from salome_utils import generateFileName
-            if sys.platform == "win32":
-                username = os.getenv( "USERNAME" )
-            else:
-                username = os.getenv('USER')
-            path = os.path.join('/tmp/logs', username)
-            fpidomniNames = generateFileName(path,
+            from salome_utils import generateFileName, getLogDir
+            fpidomniNames = generateFileName(getLogDir(),
                                              prefix="",
                                              suffix="Pid_omniNames",
                                              extension="log",
                                              with_port=port)
             if not sys.platform == 'win32':
-                cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start %s"` ; echo $pid > %s' % ( str(port), fpidomniNames )
-                a = os.system(cmd)
+                cmd = 'pid=$(ps -eo pid,command | egrep "[0-9] omniNames -start {0}") ; echo $pid > {1}'.format(port, fpidomniNames )
+                subprocess.call(cmd, shell=True)
                 pass
             try:
                 with open(fpidomniNames) as fpidomniNamesFile:
@@ -245,7 +242,7 @@ def __killMyPort(port, filedict):
                     try:
                         pidfield = l.split()[0] # pid should be at the first position
                         if sys.platform == "win32":
-                            import win32pm
+                            import win32pm #@UnresolvedImport
                             if verbose(): print 'stop process '+pidfield+' : omniNames'
                             win32pm.killpid(int(pidfield),0)
                         else:
@@ -267,12 +264,10 @@ def __killMyPort(port, filedict):
                         if verbose(): print "stop process %s : %s"% (pid, cmd[0])
                         if cmd[0] == "omniNames":
                             if not sys.platform == 'win32':
-                                import subprocess
-                                import shlex
                                 proc1 = subprocess.Popen(shlex.split('ps -eo pid,command'),stdout=subprocess.PIPE)
                                 proc2 = subprocess.Popen(shlex.split('egrep "[0-9] omniNames -start"'),stdin=proc1.stdout, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                                 proc1.stdout.close() # Allow proc1 to receive a SIGPIPE if proc2 exits.
-                                out,err=proc2.communicate()
+                                out,_ = proc2.communicate()
                                 # out looks like: PID omniNames -start PORT <other args>
 
                                 # extract omninames pid and port number
@@ -286,7 +281,7 @@ def __killMyPort(port, filedict):
                                         from PortManager import releasePort
                                         releasePort(omniNamesPort)
                                         os.kill(int(omniNamesPid),signal.SIGKILL)
-                                except (ImportError, AttributeError, OSError) as e:
+                                except (ImportError, AttributeError, OSError):
                                     pass
                                 except:
                                     import traceback
@@ -294,7 +289,7 @@ def __killMyPort(port, filedict):
 
                         try:
                             if sys.platform == "win32":
-                                import win32pm
+                                import win32pm #@UnresolvedImport @Reimport
                                 win32pm.killpid(int(pid),0)
                             else:
                                 os.kill(int(pid),signal.SIGKILL)
@@ -312,6 +307,7 @@ def __killMyPort(port, filedict):
         #
         os.remove(filedict)
         cmd='ps -eo pid,command | egrep "[0-9] omniNames -start '+str(port)+'" | sed -e "s%[^0-9]*\([0-9]*\) .*%\\1%g"'
+#        pid = subprocess.check_output(shlex.split(cmd))
         pid = commands.getoutput(cmd)
         a = ""
         while pid and len(a.split()) < 2:
@@ -375,7 +371,7 @@ def killMyPort(port):
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
 
     try:
-        import PortManager
+        import PortManager # do not remove! Test for PortManager availability!
         filedict = getPiDict(port)
         #filedict = __guessPiDictFilename(port)
         import glob
@@ -414,7 +410,7 @@ def killMyPortSpy(pid, port):
     dt = 1.0
     while 1:
         if sys.platform == "win32":
-            from win32pm import killpid
+            from win32pm import killpid #@UnresolvedImport
             if killpid(int(pid), 0) != 0:
                 return
         else:
@@ -437,7 +433,7 @@ def killMyPortSpy(pid, port):
         orb = omniORB.CORBA.ORB_init(sys.argv, omniORB.CORBA.ORB_ID)
         import SALOME_NamingServicePy
         ns = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb)
-        import SALOME
+        import SALOME #@UnresolvedImport @UnusedImport
         session = ns.Resolve("/Kernel/Session")
         assert session
     except:
@@ -472,7 +468,7 @@ if __name__ == "__main__":
         sys.exit(0)
         pass
     try:
-        from salomeContextUtils import setOmniOrbUserPath
+        from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
         setOmniOrbUserPath()
     except Exception, e:
         print e

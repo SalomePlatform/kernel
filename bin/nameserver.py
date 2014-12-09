@@ -22,62 +22,42 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import sys, os, re, socket
+import os, sys, re, socket
 #import commands
-from server import *
+from server import Server
 from Utils_Identity import getShortHostName
 from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
 
 class NamingServer(Server):
-   XTERM=""
-   USER=os.getenv('USER')
-   if USER is None:
-      USER='anonymous'
-   #os.system("mkdir -m 777 -p /tmp/logs")
-   LOGDIR="/tmp/logs/" + USER
+    #XTERM = ""
+    #USER = os.getenv('USER')
+    #if USER is None:
+    #  USER = 'anonymous'
+    #os.system("mkdir -m 777 -p /tmp/logs")
+    #LOGDIR = "/tmp/logs/" + USER
 
-   def initNSArgs(self):
-        if sys.platform == "win32":
-          # temporarily using home directory for Namning Service logs
-          # to be replaced with TEMP later...
-          os.environ["BaseDir"]=os.environ["HOME"]
-        else:
-          os.environ["BaseDir"]="/tmp"
-
+    def initNSArgs(self):
+        from salome_utils import getLogDir
+        upath = getLogDir()
         try:
-          os.mkdir(os.environ["BaseDir"] + "/logs")
-          os.chmod(os.environ["BaseDir"] + "/logs", 0777)
+            os.makedirs(upath, mode=0777)
         except:
-          #print "Can't create " + os.environ["BaseDir"] + "/logs"
-          pass
-
-        upath = os.environ["BaseDir"] + "/logs/";
-        if sys.platform == "win32":
-           upath += os.environ["Username"];
-        else:
-           upath += os.environ["USER"];
-
-        try:
-          os.mkdir(upath)
-        except:
-          #print "Can't create " + upath
-          pass
+            pass
 
         if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
-          hname=getShortHostName();
+          hname = getShortHostName();
         else:
           hname = socket.gethostname();
         #print "hname=",hname
 
-        f=open(os.environ["OMNIORB_CONFIG"])
-        ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-        if verbose(): print "ss = ", ss,
-        f.close()
-        sl=ss[0]
+        with open(os.environ["OMNIORB_CONFIG"]) as f:
+          ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
+          if verbose(): print "ss = ", ss,
+        sl = ss[0]
         ll = sl.split(':')
         aPort = ll[-1]
         #aPort=(ss.join().split(':'))[2];
@@ -88,18 +68,18 @@ class NamingServer(Server):
         # it is cleaner on linux and it is a fix for salome since it is impossible to
         # remove the log files if the corresponding omniNames has not been killed.
         # \end{E.A.}
-        
-        upath += "/omniNames_%s"%(aPort)
+
+        upath = os.path.join(upath, "omniNames_%s"%(aPort))
         try:
-           os.mkdir(upath)
+          os.mkdir(upath)
         except:
-           #print "Can't create " + upath
-           pass
-        
+          #print "Can't create " + upath
+          pass
+
         #os.system("touch " + upath + "/dummy")
         for fname in os.listdir(upath):
           try:
-             os.remove(upath + "/" + fname)
+            os.remove(upath + "/" + fname)
           except:
             pass
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
@@ -110,24 +90,24 @@ class NamingServer(Server):
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
+          self.CMD = ['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
-          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
+          self.CMD = ['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
           #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
         if verbose(): print "... ok"
         if verbose(): print "to list contexts and objects bound into the context with the specified name : showNS "
 
 
-   def initArgs(self):
+    def initArgs(self):
         Server.initArgs(self)
         if sys.platform == "win32":
-          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
+          env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
         else:
-          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
-        self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+          env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
+        self.CMD = ['xterm', '-e']+ env_ld_library_path + ['python']
         self.initNSArgs()
 
 # In LifeCycleCORBA, FactoryServer is started with rsh on the requested
@@ -135,7 +115,7 @@ class NamingServer(Server):
 #    Others Containers are started with start_impl method of FactoryServer Container.
 # For using rsh it is necessary to have in the ${HOME} directory a .rhosts file
 # Warning : on RedHat the file /etc/hosts contains by default a line like :
-# 127.0.0.1               bordolex bordolex.paris1.matra-dtv.fr localhost.localdomain localhost  
+# 127.0.0.1               bordolex bordolex.paris1.matra-dtv.fr localhost.localdomain localhost
 #   (bordolex is the station name). omniNames on bordolex will be accessible from other
 #   computers only if the computer name is removed on that line like :
 #   127.0.0.1               bordolex.paris1.matra-dtv.fr localhost.localdomain localhost
