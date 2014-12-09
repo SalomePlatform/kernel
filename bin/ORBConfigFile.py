@@ -40,7 +40,7 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   from omniORB import CORBA
   prefix = "" if CORBA.ORB_ID == "omniORB4" else "ORB"
 
-  GIOP_MaxMsgSize=2097152000  # 2 GBytes
+  GIOP_MaxMsgSize = 2097152000  # 2 GBytes
 
   orbdata = []
   orbdata.append("%sInitRef = NameService=corbaname::%s:%s"%(prefix,host,port))
@@ -49,16 +49,15 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   orbdata.append("%smaxGIOPConnectionPerServer = 50 # to allow containers parallel launch"%(prefix))
   orbdata.append("")
 
-  f = open(omniorb_config, "w")
-  f.write("\n".join(orbdata))
-  f.close()
+  with open(omniorb_config, "w") as f:
+    f.write("\n".join(orbdata))
 
   return [ omniorb_config, GIOP_MaxMsgSize ]
 
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-  import sys, getopt
+  import sys
 
   path = sys.argv[1]
   host = sys.argv[2]

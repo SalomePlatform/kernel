@@ -119,8 +119,7 @@ If MACHINE is remote, the following options MUST be provided:
   os.environ['NSHOST'] = host
 
   # determine running mode, taht is either 'local' or 'remote'
-  from salomeContextUtils import getHostname
-  here = getHostname()
+  here = socket.gethostname()
   mode = "local"
   if host != here and host != "localhost" and host != "no_host":
     mode="remote"

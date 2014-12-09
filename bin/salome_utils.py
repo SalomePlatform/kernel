@@ -39,6 +39,7 @@ __all__ = [
     'getShortHostName',
     'getAppName',
     'getPortNumber',
+    'getLogDir',
     'getTmpDir',
     'getHomeDir',
     'generateFileName',
@@ -71,7 +72,7 @@ def getORBcfgInfo():
     """
     Get omniORB current configuration.
     Returns a list of three values: [ orb_version, host_name, port_number ].
-    
+
     The information is retrieved from the omniORB configuration file defined
     by the OMNIORB_CONFIG environment variable.
     If omniORB configuration file can not be accessed, a list of three empty
@@ -125,12 +126,14 @@ def getPortFromORBcfg():
 def getUserName():
     """
     Get user name:
-    1. try USER environment variable
+    1. try USER environment variable (USERNAME on windows)
     2. if fails, return 'unknown' as default user name
     """
-    import os
-    return os.getenv( "USER", "unknown" ) # 'unknown' is default user name
-
+    import os, sys
+    if sys.platform == "win32":
+        return os.getenv("USERNAME", "unknown")
+    else:
+        return os.getenv("USER", "unknown")
 # ---
 
 def getHostName():
@@ -168,7 +171,7 @@ def getShortHostName():
     except:
         pass
     return "unknown"           # 'unknown' is default host name
-    
+
 # ---
 
 def getAppName():
@@ -208,41 +211,27 @@ def getHomeDir():
     """
     Get home directory.
     """
-    import os, sys
-    if sys.platform == "win32":
-        # for Windows the home directory is detected in the following way:
-        # 1. try USERPROFILE env variable
-        # 2. try combination of HOMEDRIVE and HOMEPATH env variables
-        # 3. try HOME env variable
-        # TODO: on Windows, also GetUserProfileDirectoryW() system function might be used
-        dir = os.getenv("USERPROFILE")
-        if not dir and os.getenv("HOMEDRIVE") and os.getenv("HOMEPATH"):
-            dir = os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"))
-        if not dir:
-            dir = os.getenv("HOME")
-        pass
-    else:
-        # for Linux: use HOME variable
-        dir = os.getenv("HOME")
-        pass
-    return dir
+    import os
+    return os.path.realpath(os.path.expanduser('~'))
+# ---
+
+def getLogDir():
+    """
+    Get directory to be used for the log files.
+    """
+    import os
+    return os.path.join(getTmpDir(), "logs", getUserName())
 # ---
 
 def getTmpDir():
     """
     Get directory to be used for the temporary files.
     """
-    import os, sys
-    if sys.platform == "win32":
-        # for Windows: temporarily using home directory for tmp files;
-        # to be replaced with TEMP environment variable later...
-        dir = os.getenv("HOME")
-    else:
-        # for Linux: use /tmp/logs/{user} folder
-        dir = os.path.join( '/tmp', 'logs', getUserName() )
-        pass
-    return dir
-
+    import os, tempfile
+    f = tempfile.NamedTemporaryFile()
+    tmpdir = os.path.dirname(f.name)
+    f.close()
+    return tmpdir
 # ---
 
 def generateFileName( dir, prefix = None, suffix = None, extension = None,
@@ -481,6 +470,7 @@ def verbose():
         pass
     #
     return _verbose
+# --
 
 def setVerbose(level):
     """
@@ -489,4 +479,4 @@ def setVerbose(level):
     global _verbose
     _verbose = level
     return
-
+# --

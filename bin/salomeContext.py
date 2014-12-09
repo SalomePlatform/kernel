@@ -36,19 +36,31 @@ def usage():
   #exeName = os.path.splitext(os.path.basename(__file__))[0]
 
   msg = '''\
-Usage: salome [command] [options] [--config=file1,...,filen]
+Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
-    start         Launches SALOME virtual application [DEFAULT]
-    shell         Executes a script under SALOME application environment
+=========
+    start         Starts a SALOME session (through virtual application)
+    shell         Initializes SALOME environment, and executes scripts passed
+                  as command arguments
     connect       Connects a Python console to the active SALOME session
-    killall       Kill all SALOME running sessions
+    killall       Kill all SALOME running sessions for current user
     info          Display some information about SALOME
     help          Show this message
-    coffee        Yes! SALOME can also make coffee!!"
+    coffee        Yes! SALOME can also make coffee!!
 
-Use salome start --help or salome shell --help
-to show help on start and shell commands.
+If no command is given, default to start.
+
+Command options:
+================
+    Use salome <command> --help to show help on command ; available for start
+    and shell commands.
+
+--config=<file,folder,...>
+==========================
+    Initialize SALOME environment from a list of context files and/or a list
+    of folders containing context files. The list is comma-separated, whithout
+    any blank characters.
 '''
 
   print msg
@@ -106,8 +118,10 @@ class SalomeContext:
 #        kill = True
 #        args.remove(e)
 
+    import os
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True)
+    env_copy = os.environ.copy()
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True, env=env_copy)
     msg = proc.communicate()
  #   if kill:
  #     self._killAll(args)
@@ -203,6 +217,16 @@ class SalomeContext:
   See usage for details on commands.
   """
   def _startSalome(self, args):
+    try:
+      import os
+      absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
+      import sys
+      path = os.path.join(absoluteAppliPath, "bin", "salome")
+      if not path in sys.path:
+        sys.path[:0] = [path]
+    except:
+      pass
+
     command, options = self.__parseArguments(args)
     sys.argv = options
 

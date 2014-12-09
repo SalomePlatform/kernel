@@ -23,7 +23,7 @@ import logging
 import re
 from io import StringIO
 import subprocess
-from salomeContextUtils import SalomeContextException
+from salomeContextUtils import SalomeContextException #@UnresolvedImport
 
 logging.basicConfig()
 logConfigParser = logging.getLogger(__name__)
@@ -133,7 +133,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
                 cursect[optname][0] += ','+optval
               else:
                 cursect[optname] = [optval]
-              # END OF SUBSITUTION
+              # END OF SUBSTITUTION
             else:
               # valueless option handling
               cursect[optname] = optval

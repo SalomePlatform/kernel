@@ -36,7 +36,7 @@ import sys
 import setenv
 
 kernel_root=os.getenv("KERNEL_ROOT_DIR")
-sys.path[:0]=[kernel_root+"/bin/salome"]
+sys.path[:0]=[os.path.join(kernel_root,"bin","salome")]
 
 argv = sys.argv[1:]
 sys.argv = argv[1:]

@@ -25,9 +25,9 @@ import os
 import sys
 
 try:
-  import cPickle as pickle
+  import cPickle as pickle #@UnusedImport
 except:
-  import pickle
+  import pickle #@Reimport
 
 import logging
 def createLogger():
@@ -88,7 +88,7 @@ def __isNetworkConnectionActiveOnPort(port):
   #        netstat options -l and -t are unavailable
   #        grep command is unavailable
   from subprocess import Popen, PIPE
-  (stdout, stderr) = Popen(['netstat','-an'], stdout=PIPE).communicate()
+  stdout, _ = Popen(['netstat','-an'], stdout=PIPE).communicate()
   import StringIO
   buf = StringIO.StringIO(stdout)
   ports = buf.readlines()
