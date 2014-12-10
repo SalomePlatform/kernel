@@ -167,17 +167,13 @@ def version_id(fname):
 ###
 def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
     v = version()
-    if sys.platform == "win32":
-      filename = os.path.join(getHomeDir(), "{0}.xml.{1}".format(appname, v))
-    else:
-        if cfgname:
-            filename = os.path.join(getHomeDir(), ".config", cfgname, "{0}rc.{1}".format(appname, v))
-            pass
-        else:
-            filename = os.path.join(getHomeDir(), "{0}rc.{1}".format(appname, v))
-            pass
-        pass
-    return filename
+    filetmpl = sys.platform == "win32" and "{0}.xml.{1}" or "{0}rc.{1}"
+    paths = []
+    paths.append(getHomeDir())
+    paths.append(".config")
+    if cfgname: paths.append(cfgname)
+    paths.append(filetmpl.format(appname, v))
+    return os.path.join(*paths)
 
 ###
 # Get user configuration file name
@@ -201,19 +197,17 @@ def userFile(appname, cfgname):
     if not id0: return None                      # bad version id -> can't detect appropriate file
 
     # ... get all existing user preferences files
-    if sys.platform == "win32":
-        files = glob.glob(os.path.join(getHomeDir(), "{0}.xml.*".format(appname)))
-    else:
-        files = []
-        if cfgname:
-            # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
-            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, "{0}rc.*".format(appname)))
+    filetmpl = sys.platform == "win32" and "{0}.xml.*" or "{0}rc.*"
+    files = []
+    if cfgname:
+        # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
+        files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl.format(appname)))
             # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
-            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".{0}rc.*".format(appname)))
-            pass
-        # old style (before v6.5.0) - in ~ directory, dot-prefixed
-        files += glob.glob(os.path.join(getHomeDir(), ".{0}rc.*".format(appname)))
+        files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl.format(appname)))
         pass
+    # old style (before v6.5.0) - in ~ directory, dot-prefixed
+    files += glob.glob(os.path.join(getHomeDir(), filetmpl.format(appname)))
+    pass
 
     # ... loop through all files and find most appopriate file (with closest id)
     appr_id   = -1
