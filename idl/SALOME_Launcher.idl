@@ -93,6 +93,11 @@ struct JobParameters
       the stuff to run the job. Note that the job will be executed from within
       this directory. A change directory toward this working directory is done
       by the batch system before running the job.
+      If not specified (empty string), the launcher will use the working
+      directory of the chosen ressource and if this is also an empty string
+      the value used will be $HOME/Batch/workdir_"date" where $HOME is the
+      value of the environment variable on the remote ressource and "date" is
+      the current date.
   */
   string work_directory;
 
@@ -105,6 +110,8 @@ struct JobParameters
   //! Local directory where to get result files.
   /*! It must be used to specify where to download the output files on the
       local file system.
+      If not specified (empty string), the value of $HOME environment variable
+      will be used.
       \see SalomeLauncher::getJobResults
   */
   string result_directory;

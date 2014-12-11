@@ -19,6 +19,7 @@
 
 // Author: André RIBES - EDF R&D
 //
+//#define _DEBUG_
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
 
@@ -578,15 +579,22 @@ Launcher::Job::common_job_params()
     params[Batch::MEMPERCPU] = (long)_mem_per_cpu;
   }
 
-  // We define a default directory based on user time
+  // We define a default directory
   if (_work_directory == "")
   {
-    const size_t BUFSIZE = 32;
-    char date[BUFSIZE];
-    time_t curtime = time(NULL);
-    strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
-    _work_directory = std::string("$HOME/Batch/workdir_");
-    _work_directory += date;
+    if(!_resource_definition.working_directory.empty())
+    {
+      _work_directory = _resource_definition.working_directory;
+    }
+    else
+    {
+      const size_t BUFSIZE = 32;
+      char date[BUFSIZE];
+      time_t curtime = time(NULL);
+      strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
+      _work_directory = std::string("/$HOME/Batch/workdir_");
+      _work_directory += date;
+    }
   }
   params[Batch::WORKDIR] = _work_directory;
 
@@ -615,7 +623,7 @@ Launcher::Job::common_job_params()
 #ifndef WIN32
       local_file = _local_directory + "/" + file;
 #else
-	  local_file = file;
+      local_file = file;
 #endif
     
     // remote file -> get only file name from in_files
