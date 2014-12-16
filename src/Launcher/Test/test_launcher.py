@@ -40,6 +40,15 @@ class TestCompo(unittest.TestCase):
     rm = salome.lcc.getResourcesManager()
     cls.ressources = rm.GetFittingResources(ressource_param)
 
+  def verifyFile(self, path, content):
+    try:
+      f = open(path, 'r')
+      text = f.read()
+      f.close()
+      self.assertEqual(text, content)
+    except IOError,ex:
+      self.fail("IO exception:" + str(ex));
+
   ##############################
   # test of python_salome job
   ##############################
@@ -107,42 +116,17 @@ f.close()
 
       # getJobResults to default directory (result_directory)
       launcher.getJobResults(job_id, "")
-      try:
-        f = open(os.path.join(job_params.result_directory, "result.txt"), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "Salut!")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex));
-
-      try:
-        f = open(os.path.join(job_params.result_directory,
-                              "subdir", "autre.txt"), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "Hello!")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex));
+      self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
+                      "Salut!")
+      self.verifyFile(os.path.join(job_params.result_directory,
+                                   "subdir", "autre.txt"),
+                      "Hello!")
 
       # getJobResults to a specific directory
       mydir = os.path.join(case_test_dir, "custom_result_dir" + resource)
       launcher.getJobResults(job_id, mydir)
-      try:
-        f = open(os.path.join(mydir, "result.txt"), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "Salut!")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex));
-
-      try:
-        f = open(os.path.join(mydir, "subdir", "autre.txt"), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "Hello!")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex));
-        pass
+      self.verifyFile(os.path.join(mydir, "result.txt"), "Salut!")
+      self.verifyFile(os.path.join(mydir, "subdir", "autre.txt"), "Hello!")
       pass #for
 
     os.chdir(old_dir)
@@ -238,22 +222,23 @@ f.close()
       # verify the results
       self.assertEqual(jobState, "FINISHED")
       launcher.getJobResults(job_id, "")
-      try:
-        f = open(os.path.join(job_params.result_directory, "result.txt"), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "expected")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex));
+      self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
+                      "expected")
+      self.verifyFile(os.path.join(job_params.result_directory,
+                                   "copie",'copie.txt'),
+                      "to be copied")
 
-      try:
-        f = open(os.path.join(job_params.result_directory,
-                              "copie",'copie.txt'), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "to be copied")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex));
+      # verify getJobWorkFile
+      mydir = os.path.join(case_test_dir, "work_dir" + resource)
+      success = launcher.getJobWorkFile(job_id, "result.txt", mydir)
+      self.assertEqual(success, True)
+      self.verifyFile(os.path.join(mydir, "result.txt"), "expected")
+
+      success = launcher.getJobWorkFile(job_id, "copie", mydir)
+      self.assertEqual(success, True)
+      self.verifyFile(os.path.join(mydir, "copie", "copie.txt"),
+                      "to be copied")
+
 
   ##############################
   # test of yacs job type
@@ -338,6 +323,7 @@ f.close()
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(5)
         jobState = launcher.getJobState(job_id)
+#        yacs_dump_success = launcher.getJobWorkFile(job_id, "dumpState_mySchema.xml",
         yacs_dump_success = launcher.getJobDumpState(job_id,
                                               job_params.result_directory)
         print "Job %d state: %s - dump: %s" % (job_id,jobState, yacs_dump_success)
@@ -364,13 +350,8 @@ f.close()
 
       # getJobResults to default directory (result_directory)
       launcher.getJobResults(job_id, "")
-      try:
-        f = open(os.path.join(job_params.result_directory, "result.txt"), 'r')
-        text = f.read()
-        f.close()
-        self.assertEqual(text, "expected")
-      except IOError,ex:
-        self.fail("IO exception:" + str(ex))
+      self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
+                      "expected")
     
 if __name__ == '__main__':
     # creat study

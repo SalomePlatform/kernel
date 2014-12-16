@@ -241,6 +241,22 @@ interface SalomeLauncher
   */
   boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
 
+  //! Retrieve one sigle file from the working directory.
+  /*! Use this method if you don't want to copy all the results of the job,
+      for instance if you want to obtain a file which contains the computing
+      progress while the job is running.
+     \param job_id    Job id returned by createJob().
+     \param work_file Path to the file to be copied, relative to the
+                      working directory of the job. If it is a directory,
+                      it will be copied recursively.
+     \param directory Local directory where to copy the file.
+                      If this value is an empty string (""), the file will be
+                      copied to the directory given by
+                      JobParameters::result_directory.
+     \return 1 if the copy succeeds.
+  */
+  boolean getJobWorkFile(in long job_id, in string work_file, in string directory)   raises (SALOME::SALOME_Exception);
+
   //! Kill the job and set its state to "FAILED"
   void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
   //! Kill the job and remove it from the jobs list
