@@ -54,8 +54,8 @@ struct ResourceParameters
   boolean can_run_containers;
   //! if given required operating system 
   string OS;
-  //! if given list of components that could be loaded on a container
-  //! Optional if no resource are found with this constraint
+  //! if given, list of components that could be loaded on a container.
+  /*! Ignored if no resources are found with this constraint.*/
   CompoList componentList;
 
   // Permits to order resources

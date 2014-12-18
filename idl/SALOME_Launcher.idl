@@ -195,8 +195,7 @@ interface SalomeLauncher
   /*! Launching the job consists of:
       - create the working directory on the remote file system
       - copy the input files into the working directory
-      - source the environment file if defined
-      - run the job
+      - submit the job to the batch manager
   */
   void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
