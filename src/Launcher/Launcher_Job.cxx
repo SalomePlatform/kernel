@@ -582,16 +582,17 @@ Launcher::Job::common_job_params()
   // We define a default directory
   if (_work_directory == "")
   {
+    const size_t BUFSIZE = 32;
+    char date[BUFSIZE];
+    time_t curtime = time(NULL);
+    strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
     if(!_resource_definition.working_directory.empty())
     {
-      _work_directory = _resource_definition.working_directory;
+      std::string job_dir = std::string("/job_") + date;
+      _work_directory = _resource_definition.working_directory + job_dir;
     }
     else
     {
-      const size_t BUFSIZE = 32;
-      char date[BUFSIZE];
-      time_t curtime = time(NULL);
-      strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
       _work_directory = std::string("/$HOME/Batch/workdir_");
       _work_directory += date;
     }
