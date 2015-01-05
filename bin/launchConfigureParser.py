@@ -941,13 +941,14 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
 
-    gui_available = True
-    gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
-    if os.getenv("GUI_ROOT_DIR") and os.path.isdir( gui_resources_dir ):
-        dirs.append(gui_resources_dir)
+    gui_available = False
+    if os.getenv("GUI_ROOT_DIR"):
+        gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
+        if os.path.isdir( gui_resources_dir ):
+            gui_available = True
+            dirs.append(gui_resources_dir)
         pass
-    else:
-        gui_available = False
+    if not gui_available:
         kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appliskel')
         if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( kernel_resources_dir ):
           dirs.append(kernel_resources_dir)
