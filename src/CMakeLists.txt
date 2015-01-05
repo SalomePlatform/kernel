@@ -18,6 +18,7 @@
 #
 
 SET(SUBDIR_BASE
+  AppQuickStart
   Basics
   SALOMELocalTrace
   HDFPersist

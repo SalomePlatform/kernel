@@ -4,11 +4,15 @@
 
 There are two ways to run %SALOME:
 
-1) Using <b>Salome Application Concept</b> approach.
+1) Using a python launcher.
+
+For more details see \ref salome_command.
+
+2) Deprecated : Using shell launchers.
 
 For more details see \ref SALOME_Application.
 
-2) Using <b>\c %runSalome</b> script supplied with %SALOME KERNEL module distribution.
+3) Deprecated : Using <b>\c %runSalome</b> script supplied with %SALOME KERNEL module distribution.
 
 To launch %SALOME using \c %runSalome script, you have first to
 set-up proper environment for %SALOME. If you installed %SALOME using

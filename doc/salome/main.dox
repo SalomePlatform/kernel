@@ -16,9 +16,9 @@ introductory documentation, listed below.
     See \subpage SALOME_Application to define your own configuration of %SALOME and run it
     on one or several computers. This is the recommended way of configuration.
 -# <b>How to launch %SALOME</b>:
-    - Using \b NEW \subpage salome_command, based on \ref SALOME_Application.
-    - In a %SALOME application, see \ref SALOME_Application.
-    - Using \c runSalome script, see \subpage running_salome_page
+    - Using a python launcher like the \subpage salome_command.
+    - <i>Deprecated:</i> Using the shell launchers (runAppli, runSession, runConsole...) alongside configuration files (*.cfg or *.sh), 
+    - <i>Deprecated:</i> Using \c runSalome script, see \subpage running_salome_page
 -# <b>How to use KERNEL services in Python scripts</b>\n
     The %SALOME KERNEL offers a list of services available in Python. See \subpage KERNEL_Services.
 -# <b>How to use KERNEL services from a C++ context</b>\n

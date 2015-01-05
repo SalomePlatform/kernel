@@ -7,11 +7,11 @@ modules, how to define and run this application on one or more computers.
 
 \section S1_sal_appl General principles
 
-%A %SALOME application is defined by a set of modules (GEOM, SMESH, ASTER...). %A %SALOME application
-lives in an application  directory.
-%A %SALOME application is a virtual installation of %SALOME in the application directory 
-(bin, lib, doc, share...), with, for each file (executable, script, data,
-library, resources...), symbolic links to the actual files.
+%A %SALOME application is defined by :
+- a set of modules (GEOM, SMESH, ASTER...)
+- a profile: set of informatic resources (images, documentation, tests...) binding the modules together. 
+- a launcher: python script that creates a context (set of environment variables usable by the SALOME modules) and runs an instance of SALOME.
+ 
 
 %A %SALOME User can define several %SALOME Applications. These applications are
 runnable from the same user account. These applications may share the same 
@@ -40,7 +40,27 @@ account@computer is via rsh or ssh and must be configured for use without
 password (key exchange for ssh). Account may be different on each
 computer.
 
-\section S2_sal_appl Application Directory
+\section S2_sal_appl Generation of a profile
+
+The user can generate a default profile for its application using the following command:
+\code
+python ${KERNEL_ROOT_DIR}/bin/salome/app-quickstart.py --prefix=<generation directory> --name=<application's name> --modules=<list,of,modules>
+\endcode
+
+Likely, the user would like to personalize its application's profile. Then, the profile
+can be compiled using the standard cmake procedure:
+
+\code
+cmake
+make
+make install
+\endcode
+
+This profile can be used within a python launcher - like the \subpage salome_command - by setting
+context variable <b>SalomeAppConfig</b> to the path where the profile is installed.
+
+
+\section S3_sal_appl Deprecated Application Directory
 
 First, the user must create a %SALOME application configuration file by modifying a
 copy of ${KERNEL_ROOT_DIR}/bin/salome/config_appli.xml.
@@ -67,7 +87,7 @@ some modules needs a special environment not defined in the above script).
 For a distributed application (several computers), one must copy and adapt
 CatalogResources.xml from ${KERNEL_ROOT_DIR}/bin/salome/appliskel (see below).
 
-\section S3_sal_appl General rules
+\section S4_sal_appl Deprecated general rules
 
 The application directory must be created on each computer of the application.
 The easiest way is to use the same relative path (to ${HOME}) on each computer.
@@ -152,7 +172,7 @@ appliPath="my/specific/path/on/this/computer"
   </li>
 </ol>
 
-\section S4_sal_appl Examples of use
+\section S5_sal_appl Deprecated examples of use
 
 <ol>
   <li>
