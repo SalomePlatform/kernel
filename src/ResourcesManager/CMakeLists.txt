@@ -54,7 +54,12 @@ INSTALL(TARGETS ResourcesManager EXPORT ${PROJECT_NAME}TargetGroup
     DESTINATION ${SALOME_INSTALL_LIBS})
 
 IF(NOT SALOME_LAUNCHER_ONLY)
-  ADD_LIBRARY(SalomeResourcesManager SALOME_ResourcesManager.cxx)
+  SET(SalomeResourcesManager_SOURCES
+    SALOME_ResourcesManager.cxx
+    SALOME_ResourcesManager_Client.cxx
+    SALOME_ResourcesManager_Common.cxx
+  )
+  ADD_LIBRARY(SalomeResourcesManager ${SalomeResourcesManager_SOURCES})
   TARGET_LINK_LIBRARIES(SalomeResourcesManager ResourcesManager ${COMMON_LIBS})
   INSTALL(TARGETS SalomeResourcesManager EXPORT ${PROJECT_NAME}TargetGroup
         DESTINATION ${SALOME_INSTALL_LIBS})
@@ -66,5 +71,7 @@ SET(COMMON_HEADERS_HXX
   SALOME_LoadRateManager.hxx
   SALOME_ResourcesCatalog_Parser.hxx
   SALOME_ResourcesManager.hxx
+  SALOME_ResourcesManager_Client.hxx
+  SALOME_ResourcesManager_Common.hxx
   )
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
