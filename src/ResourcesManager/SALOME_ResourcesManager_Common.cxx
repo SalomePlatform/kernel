@@ -112,3 +112,27 @@ ParserResourcesType resourceDefinition_CORBAtoCPP(const Engines::ResourceDefinit
   resource.ComponentsList = strvec_CORBAtoCPP<Engines::CompoList>(resDef.componentList);
   return resource;
 }
+
+Engines::ResourceDefinition_var resourceDefinition_CPPtoCORBA(const ParserResourcesType & resource)
+{
+  Engines::ResourceDefinition_var resCorba = new Engines::ResourceDefinition;
+  resCorba->name = resource.Name.c_str();
+  resCorba->hostname = resource.HostName.c_str();
+  resCorba->type = resource.getResourceTypeStr().c_str();
+  resCorba->protocol = resource.getAccessProtocolTypeStr().c_str();
+  resCorba->iprotocol = resource.getClusterInternalProtocolStr().c_str();
+  resCorba->username = resource.UserName.c_str();
+  resCorba->applipath = resource.AppliPath.c_str();
+  resCorba->componentList = strvec_CPPtoCORBA<Engines::CompoList>(resource.ComponentsList);
+  resCorba->OS = resource.OS.c_str();
+  resCorba->mem_mb = resource.DataForSort._memInMB;
+  resCorba->cpu_clock = resource.DataForSort._CPUFreqMHz;
+  resCorba->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
+  resCorba->nb_node = resource.DataForSort._nbOfNodes;
+  resCorba->can_launch_batch_jobs = resource.can_launch_batch_jobs;
+  resCorba->can_run_containers = resource.can_run_containers;
+  resCorba->working_directory = resource.working_directory.c_str();
+  resCorba->mpiImpl = resource.getMpiImplTypeStr().c_str();
+  resCorba->batch = resource.getBatchTypeStr().c_str();
+  return resCorba;
+}

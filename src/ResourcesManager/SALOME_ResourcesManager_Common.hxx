@@ -47,4 +47,5 @@ SALOMERESOURCESMANAGER_EXPORT std::vector<std::string> resourceList_CORBAtoCPP(c
 SALOMERESOURCESMANAGER_EXPORT Engines::ResourceList_var resourceList_CPPtoCORBA(const std::vector<std::string> & resList);
 
 SALOMERESOURCESMANAGER_EXPORT ParserResourcesType resourceDefinition_CORBAtoCPP(const Engines::ResourceDefinition & resDef);
+SALOMERESOURCESMANAGER_EXPORT Engines::ResourceDefinition_var resourceDefinition_CPPtoCORBA(const ParserResourcesType & resource);
 #endif
