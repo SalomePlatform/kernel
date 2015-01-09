@@ -116,7 +116,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "NS_PORT_FILE_NAME=`basename $NS_PORT_FILE_PATH` &&\n";
 
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal --ns-port-log=$NS_PORT_FILE_NAME --server-launch-mode=fork ";
+  launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=$NS_PORT_FILE_NAME --server-launch-mode=fork ";
   launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"
@@ -136,8 +136,8 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   addJobTypeSpecificScript(launch_script_stream);
 
   // End
-  launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port shutdownSalome.py" << std::endl;
-  launch_script_stream << "sleep 10" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p $appli_port shutdownSalome.py" << std::endl;
+  //launch_script_stream << "sleep 10" << std::endl;
 
   // Return
   launch_script_stream.flush();
