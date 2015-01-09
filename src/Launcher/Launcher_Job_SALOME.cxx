@@ -90,37 +90,39 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << "CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '<!DOCTYPE ResourcesCatalog>'  > $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
-  launch_script_stream << "cat $LIBBATCH_NODEFILE | sort | uniq -c | while read nbproc host"  << std::endl;
+  launch_script_stream << "{" << std::endl;
+  launch_script_stream << "echo '<!DOCTYPE ResourcesCatalog>'" << std::endl;
+  launch_script_stream << "echo '<resources>'" << std::endl;
+  launch_script_stream << "sort \"$LIBBATCH_NODEFILE\" | uniq -c | while read nbproc host"  << std::endl;
   launch_script_stream << "do"                                                  << std::endl;
   // Full name doesn't work. eg: sagittaire-7 instead of sagittaire-7.lyon.grid5000.fr
-  launch_script_stream << "host_basename=$(echo $host | cut -f1 -d.)"                                                  << std::endl;
-  launch_script_stream << "echo '<machine name='\\\"$host_basename\\\" >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         hostname='\\\"$host_basename\\\" >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         type=\"single_machine\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         mpi=\"" << _resource_definition.getMpiImplTypeStr() << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         nbOfNodes='\\\"$nbproc\\\" >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         nbOfProcPerNode=\"1\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         canRunContainers=\"true\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '/>'                                                              >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "host_basename=$(echo \"$host\" | cut -f1 -d.)"                                                  << std::endl;
+  launch_script_stream << "echo '<machine name='\\\"\"$host_basename\"\\\"" << std::endl;
+  launch_script_stream << "echo '         hostname='\\\"\"$host_basename\"\\\"" << std::endl;
+  launch_script_stream << "echo '         type=\"single_machine\"'" << std::endl;
+  launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"'" << std::endl;
+  launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"'" << std::endl;
+  launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"'" << std::endl;
+  launch_script_stream << "echo '         mpi=\"" << _resource_definition.getMpiImplTypeStr() << "\"'" << std::endl;
+  launch_script_stream << "echo '         nbOfNodes='\\\"\"$nbproc\"\\\"" << std::endl;
+  launch_script_stream << "echo '         nbOfProcPerNode=\"1\"'" << std::endl;
+  launch_script_stream << "echo '         canRunContainers=\"true\"'" << std::endl;
+  launch_script_stream << "echo '/>'" << std::endl;
   launch_script_stream << "done"                                 << std::endl;
-  launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '</resources>'" << std::endl;
+  launch_script_stream << "} > $CATALOG_FILE" << std::endl;
   launch_script_stream << "fi" << std::endl;
 
   // Create file for ns-port-log
-  launch_script_stream << "NS_PORT_FILE_PATH=`mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX` &&\n";
-  launch_script_stream << "NS_PORT_FILE_NAME=`basename $NS_PORT_FILE_PATH` &&\n";
+  launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
+  launch_script_stream << "NS_PORT_FILE_NAME=$(basename \"$NS_PORT_FILE_PATH\") &&\n";
 
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=$NS_PORT_FILE_NAME --server-launch-mode=fork ";
+  launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_NAME\" --server-launch-mode=fork ";
   launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"
-                       << "while ! test -s $NS_PORT_FILE_PATH\n"
+                       << "while ! test -s \"$NS_PORT_FILE_PATH\"\n"
                        << "do\n"
                        << "  sleep 2\n"
                        << "  current=$((current+1))\n"
@@ -129,14 +131,14 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
                        << "    exit\n"
                        << "  fi\n"
                        << "done &&\n"
-                       << "appli_port=`cat $NS_PORT_FILE_PATH` &&\n"
-                       << "rm $NS_PORT_FILE_PATH &&\n";
+                       << "appli_port=$(cat \"$NS_PORT_FILE_PATH\") &&\n"
+                       << "rm \"$NS_PORT_FILE_PATH\" &&\n";
 
   // Call real job type
   addJobTypeSpecificScript(launch_script_stream);
 
   // End
-  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p $appli_port shutdownSalome.py" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" shutdownSalome.py" << std::endl;
   //launch_script_stream << "sleep 10" << std::endl;
 
   // Return
