@@ -35,7 +35,7 @@ Launcher::Job_SALOME::Job_SALOME() {}
 
 Launcher::Job_SALOME::~Job_SALOME() {}
 
-void 
+void
 Launcher::Job_SALOME::setResourceDefinition(const ParserResourcesType & resource_definition)
 {
   // Check resource_definition
@@ -58,7 +58,7 @@ Launcher::Job_SALOME::update_job()
 }
 
 #ifdef WITH_LIBBATCH
-std::string 
+std::string
 Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 {
   // parameters
@@ -66,13 +66,13 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 
   std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
   std::ofstream launch_script_stream;
-  launch_script_stream.open(launch_script.c_str(), 
+  launch_script_stream.open(launch_script.c_str(),
                             std::ofstream::out
-#ifdef WIN32		
+#ifdef WIN32
  | std::ofstream::binary   //rnv: to avoid CL+RF end of line on windows
 #endif
                            );
-   
+
   // Begin of script
   launch_script_stream << "#!/bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
@@ -148,4 +148,3 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   return launch_script;
 }
 #endif
-

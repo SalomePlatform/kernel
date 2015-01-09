@@ -26,7 +26,7 @@ Launcher::Job_PythonSALOME::Job_PythonSALOME() {_job_type = "python_salome";}
 
 Launcher::Job_PythonSALOME::~Job_PythonSALOME() {}
 
-void 
+void
 Launcher::Job_PythonSALOME::setJobFile(const std::string & job_file)
 {
   Launcher::Job::setJobFile(job_file);

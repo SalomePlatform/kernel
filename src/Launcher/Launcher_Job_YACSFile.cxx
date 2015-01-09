@@ -23,7 +23,7 @@
 #include <sstream>
 
 
-Launcher::Job_YACSFile::Job_YACSFile() 
+Launcher::Job_YACSFile::Job_YACSFile()
 {
   _job_type = "yacs_file";
   _dumpState = -1;
@@ -31,7 +31,7 @@ Launcher::Job_YACSFile::Job_YACSFile()
 
 Launcher::Job_YACSFile::~Job_YACSFile() {}
 
-void 
+void
 Launcher::Job_YACSFile::setJobFile(const std::string & job_file)
 {
   Launcher::Job::setJobFile(job_file);
