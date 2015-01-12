@@ -50,6 +50,7 @@
 #include CORBA_CLIENT_HEADER(Logger)
 #include CORBA_CLIENT_HEADER(SALOME_Launcher)
 
+#include "SALOME_ResourcesManager.hxx"
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"

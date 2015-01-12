@@ -156,34 +156,18 @@ Engines::ResourceList *
 SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& params)
 {
   MESSAGE("ResourcesManager::GetFittingResources");
-  Engines::ResourceList * ret = new Engines::ResourceList;
+  Engines::ResourceList_var ret;
 
   // CORBA -> C++
-  resourceParams p;
-  p.name = params.name;
-  p.hostname = params.hostname;
-  p.can_launch_batch_jobs = params.can_launch_batch_jobs;
-  p.can_run_containers = params.can_run_containers;
-  p.OS = params.OS;
-  p.nb_proc = params.nb_proc;
-  p.nb_node = params.nb_node;
-  p.nb_proc_per_node = params.nb_proc_per_node;
-  p.cpu_clock = params.cpu_clock;
-  p.mem_mb = params.mem_mb;
-  for(unsigned int i=0; i<params.componentList.length(); i++)
-    p.componentList.push_back(std::string(params.componentList[i]));
-  for(unsigned int i=0; i<params.resList.length(); i++)
-    p.resourceList.push_back(std::string(params.resList[i]));
-  
+  resourceParams p = resourceParameters_CORBAtoCPP(params);
+
   try
   {
     // Call C++ ResourceManager
     std::vector <std::string> vec = _rm.GetFittingResources(p);
 
     // C++ -> CORBA
-    ret->length(vec.size());
-    for(unsigned int i=0;i<vec.size();i++)
-      (*ret)[i] = (vec[i]).c_str();
+    ret = resourceList_CPPtoCORBA(vec);
   }
   catch(const ResourcesException &ex)
   {
@@ -191,7 +175,7 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& 
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }  
 
-  return ret;
+  return ret._retn();
 }
 
 //=============================================================================
@@ -204,9 +188,7 @@ char *
 SALOME_ResourcesManager::FindFirst(const Engines::ResourceList& listOfResources)
 {
   // CORBA -> C++
-  std::vector<std::string> rl;
-  for(unsigned int i=0; i<listOfResources.length(); i++)
-    rl.push_back(std::string(listOfResources[i]));
+  std::vector<std::string> rl = resourceList_CORBAtoCPP(listOfResources);
 
   return CORBA::string_dup(_rm.Find("first", rl).c_str());
 }
@@ -215,47 +197,24 @@ char *
 SALOME_ResourcesManager::Find(const char* policy, const Engines::ResourceList& listOfResources)
 {
   // CORBA -> C++
-  std::vector<std::string> rl;
-  for(unsigned int i=0; i<listOfResources.length(); i++)
-    rl.push_back(std::string(listOfResources[i]));
+  std::vector<std::string> rl = resourceList_CORBAtoCPP(listOfResources);
 
   return CORBA::string_dup(_rm.Find(policy, rl).c_str());
 }
 
-Engines::ResourceDefinition* 
+Engines::ResourceDefinition*
 SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 {
-  Engines::ResourceDefinition * p_ptr = NULL;
+  Engines::ResourceDefinition_var resDef;
   try {
     ParserResourcesType resource = _rm.GetResourcesDescr(name);
-    p_ptr = new Engines::ResourceDefinition;
-
-    p_ptr->name = CORBA::string_dup(resource.Name.c_str());
-    p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
-    p_ptr->type = CORBA::string_dup(resource.getResourceTypeStr().c_str());
-    p_ptr->protocol = CORBA::string_dup(resource.getAccessProtocolTypeStr().c_str());
-    p_ptr->iprotocol = CORBA::string_dup(resource.getClusterInternalProtocolStr().c_str());
-    p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
-    p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
-    p_ptr->componentList.length(resource.ComponentsList.size());
-    for(unsigned int i=0;i<resource.ComponentsList.size();i++)
-      p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
-    p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
-    p_ptr->mem_mb = resource.DataForSort._memInMB;
-    p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
-    p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
-    p_ptr->nb_node = resource.DataForSort._nbOfNodes;
-    p_ptr->can_launch_batch_jobs = resource.can_launch_batch_jobs;
-    p_ptr->can_run_containers = resource.can_run_containers;
-    p_ptr->working_directory = CORBA::string_dup(resource.working_directory.c_str());
-    p_ptr->mpiImpl = CORBA::string_dup(resource.getMpiImplTypeStr().c_str());
-    p_ptr->batch = CORBA::string_dup(resource.getBatchTypeStr().c_str());
+    resDef = resourceDefinition_CPPtoCORBA(resource);
   } catch (const exception & ex) {
     INFOS("Caught exception in GetResourceDefinition: " << ex.what());
     THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::BAD_PARAM);
   }
 
-  return p_ptr;
+  return resDef._retn();
 }
 
 void 
@@ -265,27 +224,7 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
 {
   try
   {
-    ParserResourcesType resource;
-    resource.Name = new_resource.name.in();
-    resource.HostName = new_resource.hostname.in();
-    resource.setResourceTypeStr(new_resource.type.in());
-    resource.OS = new_resource.OS.in();
-    resource.AppliPath = new_resource.applipath.in();
-    resource.DataForSort._memInMB = new_resource.mem_mb;
-    resource.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
-    resource.DataForSort._nbOfNodes = new_resource.nb_node;
-    resource.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
-    resource.UserName = new_resource.username.in();
-    resource.can_launch_batch_jobs = new_resource.can_launch_batch_jobs;
-    resource.can_run_containers = new_resource.can_run_containers;
-    resource.working_directory = new_resource.working_directory.in();
-    resource.setBatchTypeStr(new_resource.batch.in());
-    resource.setMpiImplTypeStr(new_resource.mpiImpl.in());
-    resource.setAccessProtocolTypeStr(new_resource.protocol.in());
-    resource.setClusterInternalProtocolStr(new_resource.iprotocol.in());
-    for (CORBA::ULong i = 0; i < new_resource.componentList.length(); i++)
-      resource.ComponentsList.push_back(new_resource.componentList[i].in());
-
+    ParserResourcesType resource = resourceDefinition_CORBAtoCPP(new_resource);
     _rm.AddResourceInCatalog(resource);
 
     if (write)

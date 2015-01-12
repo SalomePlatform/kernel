@@ -22,6 +22,7 @@
 
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_ResourcesManager_Client.hxx"
 #include "SALOME_ModuleCatalog.hh"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
@@ -68,11 +69,12 @@ Utils_Mutex SALOME_ContainerManager::_systemMutex;
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns):_nbprocUsed(1)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns)
+  : _nbprocUsed(1)
 {
   MESSAGE("constructor");
   _NS = ns;
-  _ResManager = rm;
+  _resManager = new SALOME_ResourcesManager_Client(ns);
 
   PortableServer::POAManager_var pman = poa->the_POAManager();
   _orb = CORBA::ORB::_duplicate(orb) ;
@@ -148,6 +150,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 SALOME_ContainerManager::~SALOME_ContainerManager()
 {
   MESSAGE("destructor");
+  delete _resManager;
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
   if( GetenvThreadSafe("OMPI_URI_FILE") != NULL ){
@@ -299,21 +302,22 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
 
   // Step 2: Get all possibleResources from the parameters
   // Consider only resources that can run containers
-  local_params.resource_params.can_run_containers = true;
-  Engines::ResourceList_var possibleResources = _ResManager->GetFittingResources(local_params.resource_params);
-  MESSAGE("[GiveContainer] - length of possible resources " << possibleResources->length());
+  resourceParams resource_params = resourceParameters_CORBAtoCPP(local_params.resource_params);
+  resource_params.can_run_containers = true;
+  std::vector<std::string> possibleResources = _resManager->GetFittingResources(resource_params);
+  MESSAGE("[GiveContainer] - length of possible resources " << possibleResources.size());
   std::vector<std::string> local_resources;
 
   // Step 3: if mode is "get" keep only machines with existing containers 
   if(mode == "get")
   {
-    for(unsigned int i=0; i < possibleResources->length(); i++)
+    for(unsigned int i=0; i < possibleResources.size(); i++)
     {
-      Engines::Container_ptr cont = FindContainer(params, possibleResources[i].in());
+      Engines::Container_ptr cont = FindContainer(params, possibleResources[i]);
       try
       {
         if(!cont->_non_existent())
-          local_resources.push_back(std::string(possibleResources[i]));
+          local_resources.push_back(possibleResources[i]);
       }
       catch(CORBA::Exception&) {}
     }
@@ -326,8 +330,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
     }
   }
   else
-    for(unsigned int i=0; i < possibleResources->length(); i++)
-      local_resources.push_back(std::string(possibleResources[i]));
+    local_resources = possibleResources;
 
   // Step 4: select the resource where to get/start the container
   bool resource_available = true;
@@ -341,7 +344,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
     {
       try
       {
-        resource_selected = _ResManager->GetImpl()->Find(params.resource_params.policy.in(), resources);
+        resource_selected = _resManager->Find(params.resource_params.policy.in(), resources);
         // Remove resource_selected from vector
         std::vector<std::string>::iterator it;
         for (it=resources.begin() ; it < resources.end(); it++ )
@@ -359,8 +362,8 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
       MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
 
       // Step 5: Create container name
-      Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
-      std::string hostname(resource_definition->hostname.in());
+      ParserResourcesType resource_definition = _resManager->GetResourceDefinition(resource_selected);
+      std::string hostname(resource_definition.HostName);
       std::string containerNameInNS;
       if(params.isMPI){
         int nbproc;
@@ -508,7 +511,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
       {
         // Preparing remote command
         std::string command = "";
-        const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(resource_selected));
+        const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_selected));
         command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
         if (resInfo.AppliPath != "")
           command += resInfo.AppliPath;
@@ -684,8 +687,8 @@ Engines::Container_ptr SALOME_ContainerManager::FindContainer(const Engines::Con
 Engines::Container_ptr
 SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params, const std::string& resource)
 {
-  Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource.c_str());
-  std::string hostname(resource_definition->hostname.in());
+  ParserResourcesType resource_definition = _resManager->GetResourceDefinition(resource);
+  std::string hostname(resource_definition.HostName);
   std::string containerNameInNS(_NS->BuildContainerNameForNS(params, hostname.c_str()));
   MESSAGE("[FindContainer] Try to find a container  " << containerNameInNS << " on resource " << resource);
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
@@ -755,9 +758,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
   else
   {
     int nbproc;
-    Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_name.c_str());
-    std::string hostname(resource_definition->hostname.in());
-    const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(resource_name));
+    const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_name));
 
     if (params.isMPI)
     {
@@ -1038,14 +1039,14 @@ std::string SALOME_ContainerManager::BuildTemporaryFileName()
  */ 
 //=============================================================================
 
-std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const std::string& resource_name, const Engines::ContainerParameters& params, std::string& tmpFileName) const throw(SALOME_Exception)
+std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const std::string& resource_name, const Engines::ContainerParameters& params, std::string& tmpFileName) const
 {
   int status;
 
   tmpFileName = BuildTemporaryFileName();
   std::ofstream tempOutputFile;
   tempOutputFile.open(tmpFileName.c_str(), std::ofstream::out );
-  const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(resource_name));
+  const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_name));
   tempOutputFile << "#! /bin/sh" << std::endl;
 
   // --- set env vars
@@ -1175,7 +1176,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
     {
       if (_isAppliSalomeDefined)
         {
-          const ParserResourcesType resInfo(_ResManager->GetImpl()->GetResourcesDescr(machine));
+          const ParserResourcesType resInfo(_resManager->GetResourceDefinition(machine));
 
           if (resInfo.Protocol == rsh)
             command = "rsh ";
@@ -1346,17 +1347,18 @@ SALOME_ContainerManager::checkPaCOParameters(Engines::ContainerParameters & para
   }
 
   // Step 2 : check resource_selected
-  Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
-  std::string protocol = resource_definition->protocol.in();
-  std::string username = resource_definition->username.in();
-  std::string applipath = resource_definition->applipath.in();
+  const ParserResourcesType resource_definition = _resManager->GetResourceDefinition(resource_selected);
+  //std::string protocol = resource_definition->protocol.in();
+  std::string username = resource_definition.UserName;
+  std::string applipath = resource_definition.AppliPath;
 
-  if (protocol == "" || username == "" || applipath == "")
+  //if (protocol == "" || username == "" || applipath == "")
+  if (username == "" || applipath == "")
   {
     INFOS("[checkPaCOParameters] resource selected is not well defined");
-    INFOS("[checkPaCOParameters] resource name: " << resource_definition->name.in());
-    INFOS("[checkPaCOParameters] resource hostname: " << resource_definition->hostname.in());
-    INFOS("[checkPaCOParameters] resource protocol: " << protocol);
+    INFOS("[checkPaCOParameters] resource name: " << resource_definition.Name);
+    INFOS("[checkPaCOParameters] resource hostname: " << resource_definition.HostName);
+    INFOS("[checkPaCOParameters] resource protocol: " << resource_definition.getAccessProtocolTypeStr());
     INFOS("[checkPaCOParameters] resource username: " << username);
     INFOS("[checkPaCOParameters] resource applipath: " << applipath);
     result = false;

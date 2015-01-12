@@ -33,16 +33,7 @@
 #include <vector>
 #include "ResourcesManager.hxx"
 
-
-#ifdef WIN32
-# if defined SALOMERESOURCESMANAGER_EXPORTS || defined SalomeResourcesManager_EXPORTS
-#  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllexport )
-# else
-#  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllimport )
-# endif
-#else
-# define SALOMERESOURCESMANAGER_EXPORT
-#endif
+#include "SALOME_ResourcesManager_Common.hxx"
 
 #ifdef WIN32
 #pragma warning(disable:4275) // Disable warning interface non dll
