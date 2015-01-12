@@ -42,40 +42,42 @@
 #     $5 (or $3 if no workingdir given) and following : local command to execute, with args
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
-APPLI_HOME=`dirname $0`
-export APPLI=`${APPLI_HOME}/getAppliPath.py`
+APPLI_HOME=$(dirname "$0")
+export APPLI=$("${APPLI_HOME}/getAppliPath.py")
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+# Sourcing files with parameters works with bash, not with dash. This is why
+# we must use bash for this script.
 
-. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+. "${HOME}/${APPLI}/envd" "${HOME}/${APPLI}"
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 export NSHOST=$1
 export NSPORT=$2
 
 # Get (in bash) the configuration filename from (Python) ORBConfigFile return values
-RETURN_VALUES=$(${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py ${OMNIORB_USER_PATH} ${NSHOST} ${NSPORT} with_username=${USER})
-export OMNIORB_CONFIG=$(echo ${RETURN_VALUES} | cut -d' ' -f1)
+RETURN_VALUES=$("${KERNEL_ROOT_DIR}/bin/salome/envSalome.py" python "${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py" "${OMNIORB_USER_PATH}" "${NSHOST}" "${NSPORT}" "with_username=${USER}")
+export OMNIORB_CONFIG=$(echo "${RETURN_VALUES}" | cut -d' ' -f1)
 
 #go to the requested working directory if any
 if test "x$3" == "xWORKINGDIR"; then
   if test "x$4" = "x\$TEMPDIR"; then
     #create a temp working dir and change to it
-    WDIR=`mktemp -d` && {
-      cd $WDIR
+    WDIR=$(mktemp -d) && {
+      cd "$WDIR"
     }
   else
-    if test -d $4; then
+    if test -d "$4"; then
       #the dir exists, go to it
-      cd $4
+      cd "$4"
     else
-      if test -a $4; then
+      if test -a "$4"; then
         # It's a file do nothing
-        echo $4 "is an existing file. Can't use it as a working directory"
+        echo "$4 is an existing file. Can't use it as a working directory"
       else
         #It does not exists, create it
-        mkdir -p $4 && {
-          cd $4
+        mkdir -p "$4" && {
+          cd "$4"
         }
       fi
     fi
@@ -90,4 +92,4 @@ fi
 
 # suppress --rcfile option because of problem on Mandriva2006 - B Secher mai 2007
 #${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"
-${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh -c "$*"
+"${KERNEL_ROOT_DIR}/bin/salome/envSalome.py" /bin/sh -c "$*"
