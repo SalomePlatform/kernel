@@ -197,16 +197,19 @@ def userFile(appname, cfgname):
     if not id0: return None                      # bad version id -> can't detect appropriate file
 
     # ... get all existing user preferences files
-    filetmpl = sys.platform == "win32" and "{0}.xml.*" or "{0}rc.*"
+    filetmpl1 = sys.platform == "win32" and "{0}.xml.*" or "{0}rc.*"
+    filetmpl2 = sys.platform == "win32" and filetmpl1 or "." + filetmpl1
     files = []
     if cfgname:
         # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
-        files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl.format(appname)))
-            # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
-        files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl.format(appname)))
+        files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl1.format(appname)))
+        # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
+        if filetmpl2 and filetmpl2 != filetmpl1:
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl2.format(appname)))
         pass
     # old style (before v6.5.0) - in ~ directory, dot-prefixed
-    files += glob.glob(os.path.join(getHomeDir(), filetmpl.format(appname)))
+    if filetmpl2 and filetmpl2 != filetmpl1:
+        files += glob.glob(os.path.join(getHomeDir(), filetmpl2.format(appname)))
     pass
 
     # ... loop through all files and find most appopriate file (with closest id)
