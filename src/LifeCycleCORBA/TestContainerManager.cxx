@@ -30,6 +30,7 @@
 #endif
 #include <SALOMEconfig.h>
 #include "SALOME_NamingService.hxx"
+#include "SALOME_ResourcesManager.hxx"
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"

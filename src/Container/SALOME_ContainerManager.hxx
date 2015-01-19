@@ -28,8 +28,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-#include "SALOME_ResourcesManager.hxx"
-#include "SALOME_LoadRateManager.hxx"
+#include "SALOME_ResourcesCatalog_Parser.hxx"
 
 #include "Utils_Mutex.hxx"
 
@@ -37,12 +36,13 @@
 #include <set>
 
 class SALOME_NamingService;
+class SALOME_ResourcesManager_Client;
 
 class CONTAINER_EXPORT SALOME_ContainerManager : public POA_Engines::ContainerManager
 {
 
 public:
-  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns);
+  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns);
   ~SALOME_ContainerManager();
 
   // Corba Methods
@@ -75,7 +75,7 @@ protected:
                                                  std::string& tmpFileName) const;
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& resource_name,
-                                                   const Engines::ContainerParameters& params, std::string& tmpFileName) const throw(SALOME_Exception);
+                                                   const Engines::ContainerParameters& params, std::string& tmpFileName) const;
 
   static void RmTmpFile(std::string& tmpFile);
 
@@ -105,7 +105,7 @@ protected:
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 
-  SALOME_ResourcesManager *_ResManager;
+  SALOME_ResourcesManager_Client *_resManager;
   SALOME_NamingService *_NS;
 
   //! different behaviour if $APPLI exists (SALOME Application) 
