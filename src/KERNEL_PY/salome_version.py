@@ -75,7 +75,7 @@ def getVersion( mod = "KERNEL", full = False ):
     v = _salome_versions[ mod ][ 0 ]
     if full and v is not None:
         v += _salome_versions[ mod ][ 1 ]
-    return v
+    return v is not None and v or ""
 
 def getVersionMajor( mod = "KERNEL" ):
     """
