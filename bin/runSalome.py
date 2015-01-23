@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -760,7 +760,7 @@ def useSalome(args, modules_list, modules_root_dir):
 
 def execScript(script_path):
     print 'executing', script_path
-    sys.path.insert(0, os.path.dirname(script_path))
+    sys.path.insert(0, os.path.realpath(os.path.dirname(script_path)))
     execfile(script_path,globals())
     del sys.path[0]
 
