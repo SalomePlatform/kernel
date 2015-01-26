@@ -322,7 +322,7 @@ class SalomeContext:
       args = []
     sys.argv = ['runSession'] + args
     import runSession
-    params, args = runSession.configureSession(args)
+    params, args = runSession.configureSession(args, exe="salome shell")
 
     sys.argv = ['runSession'] + args
     import setenv
