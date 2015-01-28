@@ -1410,7 +1410,7 @@ SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters
   INFOS("[StartPaCOPPContainer] on resource : " << resource_selected);
 
   // Step 2 : Get a MachineFile for the parallel container
-  std::string machine_file_name = _ResManager->getMachineFile(resource_selected, 
+  std::string machine_file_name = _resManager->getMachineFile(resource_selected,
                                                               params.nb_proc,
                                                               params.parallelLib.in());
 
@@ -1564,8 +1564,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
   std::string nb_proc_str = tmp_string.str();
 
   // Get resource definition
-  Engines::ResourceDefinition_var resource_definition = 
-    _ResManager->GetResourceDefinition(params.resource_params.name);
+  ParserResourcesType resource_definition =
+      _resManager->GetResourceDefinition(params.resource_params.name.in());
 
   // Choose hostname
   std::string hostname;
@@ -1607,11 +1607,11 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
     ASSERT(GetenvThreadSafe("NSHOST"));
     ASSERT(GetenvThreadSafe("NSPORT"));
 
-    command << resource_definition->protocol.in();
+    command << resource_definition.getAccessProtocolTypeStr();
     command << " -l ";
-    command << resource_definition->username.in();
+    command << resource_definition.UserName;
     command << " " << hostname;
-    command << " " << resource_definition->applipath.in();
+    command << " " << resource_definition.AppliPath;
     command << "/runRemote.sh ";
     command << GetenvThreadSafe("NSHOST") << " "; // hostname of CORBA name server
     command << GetenvThreadSafe("NSPORT") << " "; // port of CORBA name server
@@ -1648,9 +1648,9 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
   nb_proc_stream << params.nb_proc;
 
   // Get resource definition
-  Engines::ResourceDefinition_var resource_definition = 
-    _ResManager->GetResourceDefinition(params.resource_params.name);
-  
+  ParserResourcesType resource_definition =
+      _resManager->GetResourceDefinition(params.resource_params.name.in());
+
   // Log environnement
   std::string log_type("");
   char * get_val = GetenvThreadSafe("PARALLEL_LOG");
@@ -1695,11 +1695,11 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
         ASSERT(GetenvThreadSafe("NSHOST"));
         ASSERT(GetenvThreadSafe("NSPORT"));
 
-        command_node_stream << resource_definition->protocol.in();
+        command_node_stream << resource_definition.getAccessProtocolTypeStr();
         command_node_stream << " -l ";
-        command_node_stream << resource_definition->username.in();
+        command_node_stream << resource_definition.UserName;
         command_node_stream << " " << hostname;
-        command_node_stream << " " << resource_definition->applipath.in();
+        command_node_stream << " " << resource_definition.AppliPath;
         command_node_stream << "/runRemote.sh ";
         command_node_stream << GetenvThreadSafe("NSHOST") << " "; // hostname of CORBA name server
         command_node_stream << GetenvThreadSafe("NSPORT") << " "; // port of CORBA name server
@@ -1740,14 +1740,13 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
     if (last == std::string::npos)
       last = -1;
 
-    std::string protocol = resource_definition->protocol.in();
-    if (protocol == "rsh")
+    if (resource_definition.Protocol == rsh)
       command_remote_stream << "rcp ";
     else 
       command_remote_stream << "scp ";
     command_remote_stream << machine_file_name << " ";
-    command_remote_stream << resource_definition->username.in() << "@";
-    command_remote_stream << hostname << ":" << resource_definition->applipath.in();
+    command_remote_stream << resource_definition.UserName << "@";
+    command_remote_stream << hostname << ":" << resource_definition.AppliPath;
     command_remote_stream <<  "/" << machine_file_name.substr(last+1);
 
     int status = SystemThreadSafe(command_remote_stream.str().c_str());
@@ -1772,17 +1771,17 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
       ASSERT(GetenvThreadSafe("NSHOST"));
       ASSERT(GetenvThreadSafe("NSPORT"));
 
-      command_nodes << resource_definition->protocol.in();
+      command_nodes << resource_definition.getAccessProtocolTypeStr();
       command_nodes << " -l ";
-      command_nodes << resource_definition->username.in();
+      command_nodes << resource_definition.UserName;
       command_nodes << " " << hostname;
-      command_nodes << " " << resource_definition->applipath.in();
+      command_nodes << " " << resource_definition.AppliPath;
       command_nodes << "/runRemote.sh ";
       command_nodes << GetenvThreadSafe("NSHOST") << " "; // hostname of CORBA name server
       command_nodes << GetenvThreadSafe("NSPORT") << " "; // port of CORBA name server
     }
 
-    if (std::string(resource_definition->mpiImpl.in()) == "lam")
+    if (resource_definition.mpi == lam)
     {
       command_nodes << "mpiexec -ssi boot ";
       command_nodes << "-machinefile "  << machine_file_name << " "; 

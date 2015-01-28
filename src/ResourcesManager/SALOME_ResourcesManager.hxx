@@ -69,13 +69,13 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     void RemoveResource(const char * resource_name,
                         CORBA::Boolean write,
                         const char * xml_file);
+    char* getMachineFile(const char * resource_name,
+                         CORBA::Long nb_procs,
+                         const char * parallelLib);
 
     // Cpp Methods
     void Shutdown();
     ResourcesManager_cpp *GetImpl() { return &_rm; }
-    std::string getMachineFile(std::string resource_name, 
-                               CORBA::Long nb_procs,
-                               std::string parallelLib);
 
 
     static const char *_ResourcesManagerNameInNS;

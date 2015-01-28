@@ -62,3 +62,14 @@ ParserResourcesType SALOME_ResourcesManager_Client::GetResourceDefinition(const 
   ParserResourcesType res = resourceDefinition_CORBAtoCPP(corba_res);
   return res;
 }
+
+string SALOME_ResourcesManager_Client::getMachineFile(const string & resource_name,
+                                                      long nb_procs,
+                                                      const string & parallelLib)
+{
+  CORBA::String_var corba_res = _rm->getMachineFile(resource_name.c_str(),
+                                                    nb_procs,
+                                                    parallelLib.c_str());
+  string res = corba_res.in();
+  return res;
+}
