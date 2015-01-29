@@ -170,7 +170,17 @@ int main( int argc , char **argv )
       RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance() ;
       ptrRegistry->SessionName( ptrSessionName ) ;
       ptrRegistry->SetOrb(orb);
-      varComponents = ptrRegistry->_this() ;
+      //
+      CORBA::PolicyList policies;
+      policies.length(1);
+      PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+      policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+      PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",manager,policies));
+      threadPol->destroy();
+      //
+      PortableServer::ObjectId_var id(poa2->activate_object(ptrRegistry));
+      CORBA::Object_var pipo=poa2->id_to_reference(id);
+      varComponents = Registry::Components::_narrow(pipo) ;
       ptrRegistry->_remove_ref(); //let poa manage registryservice deletion
       // The RegistryService must not already exist.
             
