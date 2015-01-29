@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -45,23 +45,33 @@ class SessionParameters:
     self.directory = directory
 #
 
-def configureSession(args=None):
+def configureSession(args=None, exe=None):
   if args is None:
     args = []
-  usage = "Usage: %prog [options] [command]"
+  if exe:
+      usage = "Usage: %s [options] [command]"%exe
+  else:
+      usage = "Usage: %prog [options] [command]"
   epilog  = """\n
-If the command is not given a shell is opened; else execute the given command.
-Command may be a series of Python scripts with arguments: [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
-Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
+If command is not given a shell is opened; else execute the given command.\n
+* Command may be an executable script or program, either identified by its full path or located in a directory pointed by a system variable (e.g. PATH).\n
+* Command may also be a series of Python scripts with arguments: [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes).
+For example:
+       salome shell hello.py add.py args:1,2 hello.py args:you
+will successively say hello, add 1+2, and say hello to you.
 \n
 If PORT and MACHINE are not given, try to connect to the last active session on the local machine.
 If PORT and MACHINE are given, try to connect to the remote session associated with PORT on MACHINE.
 If MACHINE is not given, try to connect to the session associated to PORT on the local machine.
-If PORT is not given, try to connect to the remote session associated to port 2810 on MACHINE.
-\n
+If PORT is not given, try to connect to the remote session associated to port 2810 on MACHINE.\n
 If MACHINE is remote, the following options MUST be provided:
      * DIRECTORY: The full path to the salome command on remote machine.
-     * USER: The user on the computer to connect to.
+     * USER: The user on the computer to connect to.\n
+In case of remote call, syntax "out:res1,res2,..." can be used to get results from remote machine.
+For example:
+       salome shell -m remotemachine -p 2810 -u myself -d /full/path/to/salome concatenate.py args:file1.txt,file2.txt out:result.txt
+User "myself" connects to remotemachine to run the script concatenate.py in a SALOME session on port 2810; the script takes two input parameters and produces one result file.\n
 """
   parser = MyParser(usage=usage, epilog=epilog)
   parser.add_option("-p", "--port", metavar="<port>", default=0,
@@ -151,20 +161,28 @@ def __runLocalSession(command):
     errmsg = []
     for cmd in command:
       single_cmd = cmd.strip().split(' ')
-      proc = subprocess.Popen(single_cmd)
-      (stdoutdata, stderrdata) = proc.communicate() # Wait for process to terminate
-      if stdoutdata:
-        outmsg.append(stdoutdata)
-      if stderrdata:
-        errmsg.append(stderrdata)
+      any_error = False
+      try:
+        proc = subprocess.Popen(single_cmd)
+        (stdoutdata, stderrdata) = proc.communicate() # Wait for process to terminate
+        if stdoutdata:
+          outmsg.append(stdoutdata)
+        if stderrdata:
+          errmsg.append(stderrdata)
 
-      if proc.returncode != 0:
+        if proc.returncode != 0:
+          any_error = True
+      except:
+          any_error = True
+          pass
+
+      if any_error:
         errmsg.append("Error raised when executing command: %s\n"%cmd)
         if outmsg:
           sys.stdout.write("".join(outmsg))
         if errmsg:
           sys.stderr.write("".join(errmsg))
-        sys.exit(proc.returncode)
+        sys.exit(1)
 
     return ("".join(outmsg), "".join(errmsg))
   else:
@@ -270,7 +288,6 @@ def __runRemoteSession(sa_obj, params):
 
 def runSession(params, args):
   scriptArgs = getScriptsAndArgs(args)
-  command = formatScriptsAndArgs(scriptArgs)
 
   if params.mode == "local":
     command = formatScriptsAndArgs(scriptArgs)

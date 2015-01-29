@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -64,7 +64,7 @@ def add_path(directory, variable_name):
         newpath = string.join(newpath, splitsym)
         os.environ[variable_name] = newpath
         if variable_name == "PYTHONPATH":
-            sys.path[:0] = [directory]
+            sys.path[:0] = [os.path.realpath(directory)]
 
 # -----------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -221,7 +221,7 @@ class SalomeContext:
       import os
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
       import sys
-      path = os.path.join(absoluteAppliPath, "bin", "salome")
+      path = os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome"))
       if not path in sys.path:
         sys.path[:0] = [path]
     except:
@@ -291,6 +291,7 @@ class SalomeContext:
     # set environment
     for reserved in reservedDict:
       a = filter(None, reservedDict[reserved]) # remove empty elements
+      a = [ os.path.realpath(x) for x in a ]
       reformattedVals = os.pathsep.join(a)
       self.addToVariable(reserved, reformattedVals)
       pass
@@ -299,7 +300,9 @@ class SalomeContext:
       self.setVariable(key, val, overwrite=True)
       pass
 
-    sys.path[:0] = os.getenv('PYTHONPATH','').split(os.pathsep)
+    pythonpath = os.getenv('PYTHONPATH','').split(os.pathsep)
+    pythonpath = [ os.path.realpath(x) for x in pythonpath ]
+    sys.path[:0] = pythonpath
   #
 
   def _runAppli(self, args=None):
@@ -319,7 +322,7 @@ class SalomeContext:
       args = []
     sys.argv = ['runSession'] + args
     import runSession
-    params, args = runSession.configureSession(args)
+    params, args = runSession.configureSession(args, exe="salome shell")
 
     sys.argv = ['runSession'] + args
     import setenv

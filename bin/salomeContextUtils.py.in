@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2013-2014  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -178,6 +178,7 @@ def getScriptsAndArgs(args=None, searchPathList=None):
         if eltInSearchPath is None or (not os.path.isfile(eltInSearchPath) and not os.path.isfile(eltInSearchPath+".py")):
           if elt[-3:] == ".py":
             raise SalomeContextException("Script not found: %s"%elt)
+          scriptArgs.append(ScriptAndArgs(script=elt))
           continue
         elt = eltInSearchPath
 

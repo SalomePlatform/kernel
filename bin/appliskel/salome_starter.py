@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2014  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2014, 2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -61,7 +61,7 @@ def initialize(launcherPath, launcherFile):
   os.environ['APPLI'] = appliPath # needed to convert .sh environment files
   os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
 
-  sys.path[:0] = [os.path.join(absoluteAppliPath, "bin", "salome")]
+  sys.path[:0] = [os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome"))]
 
   # define folder to store omniorb config (initially in virtual application folder)
   try:
