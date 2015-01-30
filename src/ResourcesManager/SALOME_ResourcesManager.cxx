@@ -262,20 +262,20 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
   }
 }
 
-std::string 
-SALOME_ResourcesManager::getMachineFile(std::string resource_name, 
+char *
+SALOME_ResourcesManager::getMachineFile(const char * resource_name,
                                         CORBA::Long nb_procs, 
-                                        std::string parallelLib)
+                                        const char * parallelLib)
 {
   std::string machine_file_name("");
 
-  if (parallelLib == "Dummy")
+  if (std::string(parallelLib) == "Dummy")
   {
     MESSAGE("[getMachineFile] parallelLib is Dummy");
     MapOfParserResourcesType resourcesList = _rm.GetList();
-    if (resourcesList.find(resource_name) != resourcesList.end())
+    if (resourcesList.find(std::string(resource_name)) != resourcesList.end())
     {
-      ParserResourcesType resource = resourcesList[resource_name];
+      ParserResourcesType resource = resourcesList[std::string(resource_name)];
 
       // Check if resource is cluster or not
       if (resource.ClusterMembersList.empty())
@@ -327,14 +327,14 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
     else
       INFOS("[getMachineFile] Error resource_name not found in resourcesList -> " << resource_name);
   }
-  else if (parallelLib == "Mpi")
+  else if (std::string(parallelLib) == "Mpi")
   {
     MESSAGE("[getMachineFile] parallelLib is Mpi");
 
     MapOfParserResourcesType resourcesList = _rm.GetList();
-    if (resourcesList.find(resource_name) != resourcesList.end())
+    if (resourcesList.find(std::string(resource_name)) != resourcesList.end())
     {
-      ParserResourcesType resource = resourcesList[resource_name];
+      ParserResourcesType resource = resourcesList[std::string(resource_name)];
       // Check if resource is cluster or not
       if (resource.ClusterMembersList.empty())
       {
@@ -398,5 +398,5 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
   else
     INFOS("[getMachineFile] Error parallelLib is not handled -> " << parallelLib);
 
-  return machine_file_name;
+  return CORBA::string_dup(machine_file_name.c_str());
 }

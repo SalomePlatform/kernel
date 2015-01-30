@@ -156,6 +156,10 @@ interface ResourcesManager
     */
   void RemoveResource(in string resource_name, in boolean write, in string xml_file) 
     raises (SALOME::SALOME_Exception);
+
+  //! Create a machine file for PaCO container
+  string getMachineFile(in string resource_name, in long nb_procs, in string parallelLib)
+    raises (SALOME::SALOME_Exception);
 };
 
 };

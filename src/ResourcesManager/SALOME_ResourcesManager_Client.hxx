@@ -42,6 +42,9 @@ public:
   ParserResourcesType GetResourceDefinition(const std::string & name);
   //void AddResource(const ParserResourcesType & new_resource, bool write, const std::string & xml_file);
   //void RemoveResource(const std::string & name, bool write, const std::string & xml_file);
+  std::string getMachineFile(const std::string & resource_name,
+                             long nb_procs,
+                             const std::string & parallelLib);
 
 protected:
 
