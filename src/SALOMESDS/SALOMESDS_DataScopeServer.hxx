@@ -27,6 +27,7 @@
 #include "SALOMESDS_RefCountServ.hxx"
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_BasicDataServer.hxx"
+#include "SALOMESDS_Defines.hxx"
 
 #include <Python.h>
 
@@ -36,7 +37,7 @@
 
 namespace SALOMESDS
 {
-  class DataScopeServer : public virtual POA_SALOME::DataScopeServer
+  class SALOMESDS_EXPORT DataScopeServer : public virtual POA_SALOME::DataScopeServer
   {
   public:
     DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);

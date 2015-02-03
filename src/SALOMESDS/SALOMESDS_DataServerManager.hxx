@@ -27,13 +27,15 @@
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 
+#include "SALOMESDS_Defines.hxx"
+
 #include <string>
 
 namespace SALOMESDS
 {
   class DataScopeServer;
   
-  class DataServerManager : public virtual POA_SALOME::DataServerManager
+  class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME::DataServerManager
   {
   public:
     DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);

@@ -16,25 +16,18 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony GEAY (EDF R&D)
 
-#ifndef __SALOMESDS_EXCEPTION_HXX__
-#define __SALOMESDS_EXCEPTION_HXX__
+#ifndef _SALOMESDS_Defines_HXX_
+#define _SALOMESDS_Defines_HXX_
 
-#include "SALOMEconfig.h"
-#include CORBA_SERVER_HEADER(SALOME_Exception)
-
-#include "SALOMESDS_Defines.hxx"
-
-#include <string>
-
-namespace SALOMESDS
-{
-  class SALOMESDS_EXPORT Exception : public SALOME::SALOME_Exception
-  {
-  public:
-    Exception(const std::string& reason);
-  };
-}
+#ifdef WIN32
+# if defined SALOMESDS_EXPORTS || defined SalomeSDS_EXPORTS
+#  define SALOMESDS_EXPORT __declspec( dllexport )
+# else
+#  define SALOMESDS_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMESDS_EXPORT
+#endif
 
 #endif
