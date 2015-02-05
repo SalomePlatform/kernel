@@ -23,6 +23,7 @@
 //  Author : Paul RASCLE, EDF
 
 #include "SALOME_Component.idl"
+#include "SALOME_GenericObj.idl"
 
 /*! \file SALOME_Session.idl \brief file that contains interface of the session
  */
@@ -97,6 +98,9 @@ module SALOME
     long GetActiveStudyId();
 //!  Restores a state of the study at theSavePoint
     boolean restoreVisualState(in long theSavePoint);
+
+//! Get list of selected entities
+    StringSeq getSelection();
 
  //! Send a message to the session GUI desktop that will emit a qt signal
 /*!
