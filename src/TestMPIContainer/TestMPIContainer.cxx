@@ -126,6 +126,17 @@ int main (int argc, char * argv[])
     }
     else{ 
       m1->Coucou(1L);
+// Display MPI component in naming service
+      std::string cmdn = "nameclt list Containers.dir/";
+      cmdn += hostName;
+      cmdn += ".dir";
+      system(cmdn.c_str());
+      cmdn = "nameclt list Containers.dir/";
+      cmdn += hostName;
+      cmdn += ".dir/MPIFactoryServer_";
+      cmdn += argv[2];
+      cmdn += ".dir";
+      system(cmdn.c_str());
 // //   sleep(5);
       INFOS("Unload MPI Component");
       iGenFact->remove_impl(m1) ;

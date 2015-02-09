@@ -42,6 +42,10 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 
+#ifdef HAVE_MPI2
+#include <mpi.h>
+#endif
+
 #ifdef WIN32
 #include <process.h>
 #define getpid _getpid
@@ -96,7 +100,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   _isAppliSalomeDefined = (GetenvThreadSafe("APPLI") != 0);
 
 #ifdef HAVE_MPI2
-#ifdef WITHOPENMPI
+#ifdef OPEN_MPI
   _pid_mpiServer = -1;
   // the urifile name depends on pid of the process
   std::stringstream urifile;
@@ -122,7 +126,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
     if(_pid_mpiServer < 0)
       throw SALOME_Exception("Error when getting ompi-server id");
   }
-#elif defined(WITHMPICH)
+#elif defined(MPICH)
   _pid_mpiServer = -1;
   // get the pid of all hydra_nameserver
   std::set<pid_t> thepids1 = getpidofprogram("hydra_nameserver");
@@ -154,7 +158,7 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
   MESSAGE("destructor");
   delete _resManager;
 #ifdef HAVE_MPI2
-#ifdef WITHOPENMPI
+#ifdef OPEN_MPI
   if( GetenvThreadSafe("OMPI_URI_FILE") != NULL ){
     // kill my ompi-server
     if( kill(_pid_mpiServer,SIGTERM) != 0 )
@@ -164,7 +168,7 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
     if(status!=0)
       throw SALOME_Exception("Error when removing urifile");
   }
-#elif defined(WITHMPICH)
+#elif defined(MPICH)
   // kill my hydra_nameserver
   if(_pid_mpiServer > -1)
     if( kill(_pid_mpiServer,SIGTERM) != 0 )
@@ -788,16 +792,16 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
       std::ostringstream o;
       o << nbproc << " ";
       command += o.str();
-#ifdef WITHLAM
+#ifdef LAM_MPI
       command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-#elif defined(WITHOPENMPI)
+#elif defined(OPEN_MPI)
       if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
         command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
         command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
         command += GetenvThreadSafe("OMPI_URI_FILE");
       }
-#elif defined(WITHMPICH)
+#elif defined(MPICH)
       command += "-nameserver " + Kernel_Utils::GetHostname();
 #endif        
       command += " SALOME_MPIContainer ";
@@ -842,9 +846,9 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
       if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
         o << "-machinefile " << machinesFile << " ";
 
-#ifdef WITHLAM
+#ifdef LAM_MPI
       o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-#elif defined(WITHOPENMPI)
+#elif defined(OPEN_MPI)
       if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
         o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else
@@ -852,7 +856,7 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
           o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
           o << GetenvThreadSafe("OMPI_URI_FILE");
         }
-#elif defined(WITHMPICH)
+#elif defined(MPICH)
       o << "-nameserver " + Kernel_Utils::GetHostname();
 #endif
 
@@ -1086,16 +1090,16 @@ std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const
       std::ostringstream o;
 
       tempOutputFile << nbproc << " ";
-#ifdef WITHLAM
+#ifdef LAM_MPI
       tempOutputFile << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-#elif defined(WITHOPENMPI)
+#elif defined(OPEN_MPI)
       if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
         tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
         tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
         tempOutputFile << GetenvThreadSafe("OMPI_URI_FILE");
       }
-#elif defined(WITHMPICH)
+#elif defined(MPICH)
       tempOutputFile << "-nameserver " + Kernel_Utils::GetHostname();
 #endif
     }
