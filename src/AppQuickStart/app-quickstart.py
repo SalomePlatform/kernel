@@ -163,6 +163,8 @@ def profileReplaceStrings( src, dst, options ) :
     with open( dst, "wt" ) as fout:
         with open( src, "rt" ) as fin:
             for line in fin:
+                if options.modules == '_NO_' and '[LIST_OF_MODULES]' in line:
+                    line = ''
                 l = line.replace( '[LIST_OF_MODULES]', options.modules )
                 l = l.replace( '[VERSION]', options.version )
                 l = l.replace( '[SLOGAN]', options.slogan )
