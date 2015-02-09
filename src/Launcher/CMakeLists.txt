@@ -17,6 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF(SALOME_BUILD_TESTS)
+
 INCLUDE_DIRECTORIES(
   ${LIBXML2_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}

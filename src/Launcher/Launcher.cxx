@@ -288,6 +288,45 @@ Launcher_cpp::getJobDumpState(int job_id, std::string directory)
 
 //=============================================================================
 /*!
+ * Get one file from the working directory - the result directory can be changed
+ */
+//=============================================================================
+bool
+Launcher_cpp::getJobWorkFile(int job_id,
+                             std::string work_file,
+                             std::string directory)
+{
+  bool rtn;
+  LAUNCHER_MESSAGE("Get working file " << work_file);
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+  std::string resource_name = job->getResourceDefinition().Name;
+  try
+  {
+    if (directory != "")
+      rtn = _batchmap[job_id]->importWorkFile(*(job->getBatchJob()), work_file, directory);
+    else
+      rtn = _batchmap[job_id]->importWorkFile(*(job->getBatchJob()), work_file, job->getResultDirectory());
+  }
+  catch(const Batch::GenericException &ex)
+  {
+    LAUNCHER_INFOS("getJobWorkFile is maybe incomplete, exception: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+  LAUNCHER_MESSAGE("getJobWorkFile ended");
+  return rtn;
+}
+
+//=============================================================================
+/*!
  * Remove the job - into the Launcher and its batch manager
  */ 
 //=============================================================================
@@ -542,6 +581,14 @@ Launcher_cpp::getJobDumpState(int job_id, std::string directory)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job dump state!!!");
   throw LauncherException("Method Launcher_cpp::getJobDumpState is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
+bool
+Launcher_cpp::getJobWorkFile(int job_id, std::string work_file, std::string directory)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job dump state!!!");
+  throw LauncherException("Method Launcher_cpp::getJobWorkFile is not available "
                           "(libBatch was not present at compilation time)");
 }
 

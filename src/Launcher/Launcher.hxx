@@ -69,6 +69,7 @@ public:
   const char * getAssignedHostnames(int job_id); // Get names or ids of hosts assigned to the job
   void         getJobResults(int job_id, std::string directory);
   bool         getJobDumpState(int job_id, std::string directory);
+  bool         getJobWorkFile(int job_id, std::string work_file, std::string directory);
   void         stopJob(int job_id);
   void         removeJob(int job_id);
 

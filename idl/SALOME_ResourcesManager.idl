@@ -40,7 +40,12 @@ typedef sequence<string> CompoList;
 struct ResourceParameters
 {
   //! resource name - manual selection
+  /*! If a name is provided, the ressource will be imposed.
+      If the name is an empty string, the ressource will be chosen to match
+      the other parameters.
+  */
   string name;
+
   //! host name
   string hostname;
   //! if true select only resources that can launch batch jobs
@@ -49,18 +54,41 @@ struct ResourceParameters
   boolean can_run_containers;
   //! if given required operating system 
   string OS;
-  //! if given list of components that could be loaded on a container
-  //! Optional if no resource are found with this constraint
+  //! if given, list of components that could be loaded on a container.
+  /*! Ignored if no resources are found with this constraint.*/
   CompoList componentList;
 
   // Permits to order resources
-  //! required number of proc
+  //! required number of processors
+  /*! This parameter must be specified explicitly, because it is not provided
+      by the resource definition.
+  */
   long nb_proc;
+
   //! required memory size
+  /*! This parameter must be specified explicitly, because it is not provided
+      by the resource definition.
+
+      The parameter specifies the maximum memory value that could be allocated
+      for executing the job. This takes into account not only the data that
+      could be loaded by the batch process but also the linked dynamic library.
+      A possible problem, for exemple in the case where you use the ssh
+      emulation of a batch system, is to get an error message as below
+      when libBatch tries to run the ssh command:
+\verbatim
+/usr/bin/ssh: error while loading shared libraries: libcrypto.so.0.9.8: failed
+to map segment from shared object: Cannot allocate memory
+\endverbatim
+      In this exemple, the mem_mb was set to 1MB, value that is not
+      sufficient to load the dynamic libraries linked to the ssh
+      executable (libcrypto.so in the error message).
+      So, even in the case of a simple test shell script, you should
+      set this value at least to a standard threshold as 500MB.
+  */
   long mem_mb;
   //! required frequency
   long cpu_clock;
-  //! required number of node
+  //! required number of nodes
   long nb_node;
   //! required number of proc per node
   long nb_proc_per_node;

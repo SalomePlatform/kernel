@@ -302,6 +302,22 @@ SALOME_Launcher::getJobDumpState(CORBA::Long job_id, const char * directory)
   return rtn;
 }
 
+CORBA::Boolean
+SALOME_Launcher::getJobWorkFile(CORBA::Long job_id, const char * work_file, const char * directory)
+{
+  CORBA::Boolean rtn = false;
+  try
+  {
+    rtn = _l.getJobWorkFile(job_id, work_file, directory);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+  return rtn;
+}
+
 void 
 SALOME_Launcher::removeJob(CORBA::Long job_id)
 {

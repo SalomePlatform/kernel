@@ -19,6 +19,7 @@
 
 // Author: André RIBES - EDF R&D
 //
+//#define _DEBUG_
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
 
@@ -578,15 +579,23 @@ Launcher::Job::common_job_params()
     params[Batch::MEMPERCPU] = (long)_mem_per_cpu;
   }
 
-  // We define a default directory based on user time
+  // We define a default directory
   if (_work_directory == "")
   {
     const size_t BUFSIZE = 32;
     char date[BUFSIZE];
     time_t curtime = time(NULL);
     strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
-    _work_directory = std::string("$HOME/Batch/workdir_");
-    _work_directory += date;
+    if(!_resource_definition.working_directory.empty())
+    {
+      std::string job_dir = std::string("/job_") + date;
+      _work_directory = _resource_definition.working_directory + job_dir;
+    }
+    else
+    {
+      _work_directory = std::string("/$HOME/Batch/workdir_");
+      _work_directory += date;
+    }
   }
   params[Batch::WORKDIR] = _work_directory;
 
@@ -615,7 +624,7 @@ Launcher::Job::common_job_params()
 #ifndef WIN32
       local_file = _local_directory + "/" + file;
 #else
-	  local_file = file;
+      local_file = file;
 #endif
     
     // remote file -> get only file name from in_files
@@ -629,17 +638,20 @@ Launcher::Job::common_job_params()
   for(std::list<std::string>::iterator it = _out_files.begin(); it != _out_files.end(); it++)
   {
     std::string file = *it;
-
-    // local file 
-    size_t found = file.find_last_of("/");
-    std::string local_file = _result_directory +  "/" + file.substr(found+1);
-
     // remote file -> If file is not an absolute path, we apply _work_directory
     std::string remote_file;
+    std::string local_file;
     if (file.substr(0, 1) == std::string("/"))
+    {
       remote_file = file;
+      size_t found = file.find_last_of("/");
+      local_file = file.substr(found+1);
+    }
     else
+    {
       remote_file = _work_directory + "/" + file;
+      local_file = file;
+    }
 
     params[Batch::OUTFILE] += Batch::Couple(local_file, remote_file);
   }
