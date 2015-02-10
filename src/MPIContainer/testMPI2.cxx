@@ -31,22 +31,18 @@
 int main(int argc, char**argv)
 {
   int *indg;
-  double *vector, sum=0., norm, etalon;
+  double *vector, sum=0., norm=1., etalon=0.;
   int rank, size, grank, gsize, rsize;
   int vsize=20, lvsize, rlvsize;
   int i, k1, k2, imin, imax, nb;
   int srv=0;
   MPI_Comm com, icom;
-  MPI_Status status; 
+  MPI_Status status;
+  MPI_Info info;
   char   port_name     [MPI_MAX_PORT_NAME]; 
   char   port_name_clt [MPI_MAX_PORT_NAME]; 
   std::string service = "SERVICE";
   bool debug=false;
-
-#ifndef WITHOPENMPI
-  std::cout << "This test only works with openmpi implementation" << std::endl;
-  exit(1);
-#endif
 
   for(i=1;i<argc;i++){
     std::string sargv = argv[i];
@@ -64,6 +60,9 @@ int main(int argc, char**argv)
   MPI_Barrier(MPI_COMM_WORLD);
 
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#ifdef HAVE_MPI2
+  MPI_Info_create(&info);
+  MPI_Info_set(info, "ompi_unique", "true");
   if(rank==0){
     MPI_Open_port(MPI_INFO_NULL, port_name); 
     if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )  {
@@ -71,7 +70,7 @@ int main(int argc, char**argv)
         std::cout << "[" << rank << "] I am client: I get the service " << service << " !" << std::endl;
       MPI_Close_port( port_name );
     } 
-    else if ( MPI_Publish_name((char*)service.c_str(), MPI_INFO_NULL, port_name) == MPI_SUCCESS )  {
+    else if ( MPI_Publish_name((char*)service.c_str(), info, port_name) == MPI_SUCCESS )  {
       if(debug)
         std::cout << "[" << rank << "] I am server: I've managed to publish the service " << service << " !" << std::endl;
       srv = 1;
@@ -206,6 +205,7 @@ int main(int argc, char**argv)
 
   free(indg);
   free(vector);
+#endif
   MPI_Finalize();
 
   if(rank==0){
