@@ -32,7 +32,7 @@ class TestEnvironment:
       print "File salome_context.cfg not found."
       print "Search path:" + salome_path
       print "This test needs ROOT_SALOME environment variable in order to run"
-      exit(1)
+      exit(0)
     
     config_appli_text = '''<application>
 <context path="''' + salome_context_file + '''"/>
@@ -41,7 +41,7 @@ class TestEnvironment:
     kernel_path = os.getenv("KERNEL_ROOT_DIR", "")
     if not os.path.isdir(kernel_path) :
       print "KERNEL_ROOT_DIR not defined"
-      exit(1)
+      exit(0)
       pass
     
     config_appli_text += kernel_path + '"/>'
