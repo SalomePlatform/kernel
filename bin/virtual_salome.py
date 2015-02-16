@@ -98,11 +98,11 @@ def get_lib_dir():
 def link_module(options):
     global verbose
 
-    if not options.module:
+    if not options.module_path:
         print "Option module is mandatory"
         return
 
-    module_dir=os.path.abspath(options.module)
+    module_dir=os.path.abspath(options.module_path)
     if not os.path.exists(module_dir):
         print "Module %s does not exist" % module_dir
         return
@@ -131,6 +131,7 @@ def link_module(options):
       return
 
     module_bin_dir=os.path.join(module_dir,'bin','salome')
+    module_test_dir=os.path.join(module_dir,'bin','salome', 'test')
     module_idl_dir=os.path.join(module_dir,'idl','salome')
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
     module_pvlib_dir=os.path.join(module_dir,get_lib_dir(),'paraview')
@@ -147,6 +148,7 @@ def link_module(options):
     module_sharedoc_examples=os.path.join(module_dir,'share','doc','salome','examples')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
+    test_dir=os.path.join(home_dir,'bin','salome', 'test')
     idl_dir=os.path.join(home_dir,'idl','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
     pvlib_dir=os.path.join(home_dir,'lib','paraview')
@@ -164,6 +166,7 @@ def link_module(options):
 
     if options.clear:
         rmtree(bin_dir)
+        rmtree(test_dir)
         rmtree(idl_dir)
         rmtree(lib_dir)
         rmtree(lib_py_dir)
@@ -175,10 +178,25 @@ def link_module(options):
     #directory bin/salome : create it and link content
     if os.path.exists(module_bin_dir):
         mkdir(bin_dir)
+        mkdir(test_dir)
         for fn in os.listdir(module_bin_dir):
-            symlink(os.path.join(module_bin_dir, fn), os.path.join(bin_dir, fn))
+            if fn != "test":
+                symlink(os.path.join(module_bin_dir, fn), os.path.join(bin_dir, fn))
             pass
         pass
+    else:
+        if verbose:
+            print module_bin_dir, " doesn't exist"
+        pass
+
+    #directory bin/salome/test : create it and link content
+    if os.path.exists(module_test_dir):
+        # link <appli_path>/bin/salome/test/<module> to <module_path>/bin/salome/test
+        print "link %s --> %s"%(os.path.join(test_dir, options.module_name), module_test_dir)
+        symlink(module_test_dir, os.path.join(test_dir, options.module_name))
+        # register module for testing in CTestTestfile.cmake
+        with open(os.path.join(test_dir, "CTestTestfile.cmake"), "ab") as f:
+            f.write("SUBDIRS(%s)\n"%options.module_name)
     else:
         if verbose:
             print module_bin_dir, " doesn't exist"
@@ -216,7 +234,7 @@ def link_module(options):
         if verbose:
             print module_pvlib_dir, " doesn't exist"
         pass
-        
+
     #directory lib/pyversio/site-packages/salome : create it and link content
     if not os.path.exists(module_lib_py_dir):
         print "Python directory %s does not exist" % module_lib_py_dir
@@ -271,7 +289,7 @@ def link_module(options):
             symlink(os.path.join(module_sharedoc_tui_dir, fn), os.path.join(sharedoc_tui_dir, fn))
             pass
         pass
-      
+
     #directory share/doc/salome/examples : create it and link content
     if os.path.exists(module_sharedoc_examples):
         mkdir(sharedoc_examples_dir)

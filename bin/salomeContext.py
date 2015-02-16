@@ -40,22 +40,25 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start         Starts a SALOME session (through virtual application)
-    context       Initializes SALOME context.
-    shell         Initializes SALOME context, and executes scripts passed
-                  as command arguments
-    connect       Connects a Python console to the active SALOME session
-    killall       Kill all SALOME running sessions for current user
-    info          Display some information about SALOME
-    help          Show this message
-    coffee        Yes! SALOME can also make coffee!!
+    start           Starts a SALOME session (through virtual application)
+    context         Initializes SALOME context.
+    shell           Initializes SALOME context, and executes scripts passed
+                    as command arguments
+    connect         Connects a Python console to the active SALOME session
+    kill <port(s)>  Terminate SALOME session running on given ports for current user
+                    Port numbers must be separated by blank characters
+    killall         Kill *all* SALOME running sessions for current user
+    test            Run SALOME tests.
+    info            Display some information about SALOME
+    help            Show this message
+    coffee          Yes! SALOME can also make coffee!!
 
 If no command is given, default to start.
 
 Command options:
 ================
-    Use salome <command> --help to show help on command ; available for start
-    and shell commands.
+    Use salome <command> --help to show help on command ; available for commands:
+    start, shell, test.
 
 --config=<file,folder,...>
 ==========================
@@ -210,14 +213,17 @@ class SalomeContext:
     options = args[1:]
 
     availableCommands = {
-      'start' :   '_runAppli',
+      'start'   : '_runAppli',
       'context' : '_setContext',
-      'shell' :   '_runSession',
+      'shell'   : '_runSession',
       'connect' : '_runConsole',
-      'killall':  '_killAll',
-      'info':     '_showInfo',
-      'help':     '_usage',
-      'coffee' :  '_makeCoffee'
+      'kill'    : '_kill',
+      'killall' : '_killAll',
+      'test'    : '_runTests',
+      'info'    : '_showInfo',
+      'help'    : '_usage',
+      'coffee'  : '_makeCoffee',
+      'car'     : '_getCar',
       }
 
     if not command in availableCommands.keys():
@@ -324,10 +330,8 @@ class SalomeContext:
     sys.path[:0] = pythonpath
   #
 
-  def _runAppli(self, args=None):
-    if args is None:
-      args = []
-    # Initialize SALOME context
+  def _runAppli(self, args=[]):
+    # Initialize SALOME environment
     sys.argv = ['runSalome'] + args
     import setenv
     setenv.main(True)
@@ -356,9 +360,7 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _runSession(self, args=None):
-    if args is None:
-      args = []
+  def _runSession(self, args=[]):
     sys.argv = ['runSession'] + args
     import runSession
     params, args = runSession.configureSession(args, exe="salome shell")
@@ -370,10 +372,8 @@ class SalomeContext:
     return runSession.runSession(params, args)
   #
 
-  def _runConsole(self, args=None):
-    if args is None:
-      args = []
-    # Initialize SALOME context
+  def _runConsole(self, args=[]):
+    # Initialize SALOME environment
     sys.argv = ['runConsole'] + args
     import setenv
     setenv.main(True)
@@ -383,9 +383,24 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _killAll(self, args=None):
-    if args is None:
-      args = []
+  def _kill(self, args=[]):
+    ports = args
+    if not ports:
+      print "Port number(s) not provided to command: salome kill <port(s)>"
+      return
+
+    from multiprocessing import Process
+    from killSalomeWithPort import killMyPort
+    import tempfile
+    for port in ports:
+      with tempfile.NamedTemporaryFile():
+        p = Process(target = killMyPort, args=(port,))
+        p.start()
+        p.join()
+    pass
+  #
+
+  def _killAll(self, unused=None):
     try:
       import PortManager # mandatory
       from multiprocessing import Process
@@ -403,10 +418,18 @@ class SalomeContext:
       from killSalome import killAllPorts
       killAllPorts()
       pass
-
   #
 
-  def _showInfo(self, args=None):
+  def _runTests(self, args=[]):
+    sys.argv = ['runTests']
+    import setenv
+    setenv.main(True)
+
+    import runTests
+    return runTests.runTests(args, exe="salome test")
+  #
+
+  def _showInfo(self, unused=None):
     print "Running with python", platform.python_version()
     self._runAppli(["--version"])
   #
@@ -415,7 +438,7 @@ class SalomeContext:
     usage()
   #
 
-  def _makeCoffee(self, args=None):
+  def _makeCoffee(self, unused=None):
     print "                        ("
     print "                          )     ("
     print "                   ___...(-------)-....___"
@@ -426,9 +449,9 @@ class SalomeContext:
     print "       |  |    |                             |"
     print "        \\  \\   |                             |"
     print "         `\\ `\\ |                             |"
-    print "           `\\ `|                             |"
-    print "           _/ /\\                             /"
-    print "          (__/  \\                           /"
+    print "           `\\ `|            SALOME           |"
+    print "           _/ /\\            4 EVER           /"
+    print "          (__/  \\             <3            /"
     print "       _..---\"\"` \\                         /`\"\"---.._"
     print "    .-\'           \\                       /          \'-."
     print "   :               `-.__             __.-\'              :"
@@ -438,6 +461,43 @@ class SalomeContext:
     print "       \'._     \"\"\"----.....______.....----\"\"\"     _.\'"
     print "          `\"\"--..,,_____            _____,,..--\"\"`"
     print "                        `\"\"\"----\"\"\"`"
+    print ""
+    print "                    SALOME is working for you; what else?"
+    print ""
+    sys.exit(0)
+  #
+
+  def _getCar(self, unused=None):
+    print "                                              _____________"
+    print "                                  ..---:::::::-----------. ::::;;."
+    print "                               .\'\"\"\"\"\"\"                  ;;   \\  \":."
+    print "                            .\'\'                          ;     \\   \"\\__."
+    print "                          .\'                            ;;      ;   \\\\\";"
+    print "                        .\'                              ;   _____;   \\\\/"
+    print "                      .\'                               :; ;\"     \\ ___:\'."
+    print "                    .\'--...........................    : =   ____:\"    \\ \\"
+    print "               ..-\"\"                               \"\"\"\'  o\"\"\"     ;     ; :"
+    print "          .--\"\"  .----- ..----...    _.-    --.  ..-\"     ;       ;     ; ;"
+    print "       .\"\"_-     \"--\"\"-----\'\"\"    _-\"        .-\"\"         ;        ;    .-."
+    print "    .\'  .\'   SALOME             .\"         .\"              ;       ;   /. |"
+    print "   /-./\'         4 EVER <3    .\"          /           _..  ;       ;   ;;;|"
+    print "  :  ;-.______               /       _________==.    /_  \\ ;       ;   ;;;;"
+    print "  ;  / |      \"\"\"\"\"\"\"\"\"\"\".---.\"\"\"\"\"\"\"          :    /\" \". |;       ; _; ;;;"
+    print " /\"-/  |                /   /                  /   /     ;|;      ;-\" | ;\';"
+    print ":-  :   \"\"\"----______  /   /              ____.   .  .\"\'. ;;   .-\"..T\"   ."
+    print "\'. \"  ___            \"\":   \'\"\"\"\"\"\"\"\"\"\"\"\"\"\"    .   ; ;    ;; ;.\" .\"   \'--\""
+    print " \",   __ \"\"\"  \"\"---... :- - - - - - - - - \' \'  ; ;  ;    ;;\"  .\""
+    print "  /. ;  \"\"\"---___                             ;  ; ;     ;|.\"\""
+    print " :  \":           \"\"\"----.    .-------.       ;   ; ;     ;:"
+    print "  \\  \'--__               \\   \\        \\     /    | ;     ;;"
+    print "   \'-..   \"\"\"\"---___      :   .______..\\ __/..-\"\"|  ;   ; ;"
+    print "       \"\"--..       \"\"\"--\"        m l s         .   \". . ;"
+    print "             \"\"------...                  ..--\"\"      \" :"
+    print "                        \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"    \\        /"
+    print "                                               \"------\""
+    print ""
+    print "                                Drive your simulation properly with SALOME!"
+    print ""
     sys.exit(0)
   #
 

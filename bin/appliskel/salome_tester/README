@@ -1,0 +1,38 @@
+This package contains a test driver to run component tests in a SALOME session.
+This note presents the procedure to declare tests that will be runnable from a SALOME application (through the salome command).
+
+
+I. Write, declare, build and install tests
+==========================================
+
+Each module test folder must contain:
+   - a set of test source files
+   - a CMakeLists.txt that:
+      - declare unit tests (not requiring a SALOME session) only
+      - build test files from sources if necessary
+      - install test files in <module_install_path>/bin/salome/test/
+      - install the CTestTestfileInstall.cmake file (see below) as <module_install_path>/bin/salome/test/CTestTestfile.cmake (rename file)
+   - a CTestTestfileInstall.cmake that:
+      - declare tests requiring a SALOME session
+
+The CTestTestfileInstall.cmake can also declare unit tests already declared in CMakeLists.txt. Actually CTestTestfileInstall.cmake declare all tests that will be runnable from SALOME application. This file MUST NOT use cmake environment variables.
+It can refer the ABSOLUTE_APPLI_PATH variable (automatically set when using application).
+If a test has to be run inside a SALOME session, use the salome_test_driver.py script that need as arguments a timeout, the test file to be run and its arguments.
+      SET(SALOME_TEST_DRIVER "$ENV{ABSOLUTE_APPLI_PATH}/bin/salome/appliskel/salome_test_driver.py")
+      SET(TIMEOUT        500)
+      ADD_TEST(SalomeLauncher python ${SALOME_TEST_DRIVER} ${TIMEOUT} test_launcher.py)
+Call explicitly python when using this test driver.
+
+You may want to label each test with the component they are associated to. It is useful to run tests associated to a specific component.
+      SET(COMPONENT_NAME KERNEL)
+      SET_TESTS_PROPERTIES(SalomeLauncher PROPERTIES LABELS "${COMPONENT_NAME}")
+
+
+You can have a look at KERNEL/src/Launcher/Test/ directory for a working example.
+
+
+II. Run tests
+=============
+
+Tests are run with the "salome test" command (in a terminal).
+Enter "salome test --help" for detailed usage.

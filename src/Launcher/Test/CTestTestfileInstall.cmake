@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,28 +17,17 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(salome_tester)
-ADD_SUBDIRECTORY(tests)
+SET(SALOME_TEST_DRIVER "$ENV{ABSOLUTE_APPLI_PATH}/bin/salome/appliskel/salome_test_driver.py")
 
-# ===============================================================
-# Files to be installed
-# ===============================================================
+SET(COMPONENT_NAME KERNEL)
+SET(TIMEOUT        500)
 
-# These files are executable scripts
-SET(SCRIPTS
-  envd
-  runRemote.sh
-  runAppli
-  runConsole
-  runSession
-  runSalomeScript
-  .bashrc
-  getAppliPath.py
-  update_catalogs.py
-  kill_remote_containers.py
-  salome # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
-  salome_starter.py
-  .salome-completion.sh
-)
+IF(NOT WIN32)
+  ADD_TEST(SalomeLauncher python ${SALOME_TEST_DRIVER} ${TIMEOUT} test_launcher.py)
+  SET_TESTS_PROPERTIES(SalomeLauncher PROPERTIES LABELS "${COMPONENT_NAME}"
+    #                                                 TIMEOUT 500
+    )
+  # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
+  #     BUT PASS TIMEOUT VALUE TO THE DRIVER
 
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)
+ENDIF()

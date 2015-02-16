@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2014  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2015  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,17 @@
 # --- rules ---
 
 IF(NOT WIN32)
-  ADD_TEST(NAME SalomeLauncher
-           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../UnitTests/prepare_test.py
-           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
-           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
-          )
+# ** Now in CTestTestfileInstall.cmake **
+# ** In this file only remain unit tests (no SALOME session is needed) **
+#  ADD_TEST(NAME SalomeLauncher
+#           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../UnitTests/prepare_test.py
+#           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
+#           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
+#          )
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
+          DESTINATION ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test)
+
+  INSTALL(FILES CTestTestfileInstall.cmake
+          DESTINATION ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test
+          RENAME CTestTestfile.cmake)
 ENDIF()

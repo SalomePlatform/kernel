@@ -51,7 +51,7 @@ _salome()
     local cur prev command options
     COMPREPLY=( )
     _get_comp_words_by_ref -n = cur prev
-    commands='start context shell connect killall info help coffee'
+    commands='start context shell connect kill killall test info help coffee'
 
     # Algorithm:
     # If cursor is at index 1

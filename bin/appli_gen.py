@@ -189,7 +189,8 @@ def install(prefix, config_file, verbose=0):
             options.verbose = verbose
             options.clear = 0
             options.prefix = home_dir
-            options.module = _config[module]
+            options.module_name = module
+            options.module_path = _config[module]
             virtual_salome.link_module(options)
             pass
         pass
@@ -202,7 +203,7 @@ def install(prefix, config_file, verbose=0):
                'runAppli',           # OBSOLETE (replaced by salome)
                'runConsole',         # OBSOLETE (replaced by salome)
                'runRemote.sh',
-               'runSalomeScript',
+               'runSalomeScript',    # OBSOLETE (replaced by salome)
                'runSession',         # OBSOLETE (replaced by salome)
                'salome',
                'update_catalogs.py',

@@ -61,6 +61,7 @@ def initialize(launcherPath, launcherFile):
   os.environ['APPLI'] = appliPath # needed to convert .sh environment files
   os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
 
+  sys.path[:0] = [os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome", "test"))]
   sys.path[:0] = [os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome"))]
 
   # define folder to store omniorb config (initially in virtual application folder)
