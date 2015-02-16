@@ -237,6 +237,21 @@ class SalomeContext:
       # try to default to "start" command
       command = "_runAppli"
 
+    mpi_module_option = "--with_mpi_module="
+    mpi_module = [x for x in args if x.startswith(mpi_module_option)]
+    if mpi_module:
+      mpi_module = mpi_module[0][len(mpi_module_option):]
+      print "Trying to load MPI module: %s..."%mpi_module,
+      import subprocess
+      try:
+        subprocess.call(["module", "load", mpi_module])
+        print " OK"
+      except:
+        print " ** Failed **"
+        pass
+      options = [x for x in options if not x.startswith(mpi_module_option)]
+      pass
+
     try:
       res = getattr(self, command)(options) # run appropriate method
       return res or (None, None)
