@@ -71,10 +71,10 @@ _salome()
         if [[ "$cur" == -* ]]; then
             case $command in
                 start)
-                    options='-t --terminal -g --gui -d --show-desktop= -o --hide-desktop -b --batch -l --logger -f --log-file= -r --resources= -x --xterm -m --modules= -e --embedded= -s --standalone= -p --portkill -k --killall -i --interp= -z --splash= -c --catch-exceptions= --print-port --nosave-config --pinter --ns-port-log= --test= --play= --gdb-session --ddd-session --valgrind-session -w --shutdown-servers= --foreground= --wake-up-session --server-launch-mode= --port= --siman --siman-study= --siman-scenario= --siman-user= --version -h --help'
+                    options='-t --terminal -g --gui -d --show-desktop= -o --hide-desktop -b --batch -l --logger -f --log-file= -r --resources= -x --xterm -m --modules= -e --embedded= -s --standalone= -p --portkill -k --killall -i --interp= -z --splash= -c --catch-exceptions= --print-port --nosave-config --pinter --ns-port-log= --test= --play= --gdb-session --ddd-session --valgrind-session -w --shutdown-servers= --foreground= --wake-up-session --server-launch-mode= --port= --siman --siman-study= --siman-scenario= --siman-user= --version -h --help --with-mpi-module='
                     ;;
                 shell)
-                    options='-h --help -p --port= -m --machine='
+                    options='-h --help -p --port= -m --machine= --with-mpi-module='
                     ;;
             esac
             COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
