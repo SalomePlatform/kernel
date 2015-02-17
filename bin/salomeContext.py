@@ -109,25 +109,32 @@ class SalomeContext:
         self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
   #
 
+  def __loadMPI(self, module_name):
+    print "Trying to load MPI module: %s..."%module_name,
+    try:
+      out, err = subprocess.Popen(["modulecmd", "python", "load", module_name], stdout=subprocess.PIPE).communicate()
+      exec out # define specific environment variables
+      print " OK"
+    except:
+      print " ** Failed **"
+      pass
+  #
+
   def runSalome(self, args):
+    import os
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
-    mpi_module_option = "--with_mpi_module="
+    mpi_module_option = "--with-mpi-module="
     mpi_module = [x for x in args if x.startswith(mpi_module_option)]
     if mpi_module:
       mpi_module = mpi_module[0][len(mpi_module_option):]
-      print "Trying to load MPI module: %s..."%mpi_module,
-      try:
-        out, err = subprocess.call(["modulecmd", "python", "load", mpi_module]).communicate()
-        exec out # define specific environment variables
-        print " OK"
-      except:
-        print " ** Failed **"
-        pass
+      self.__loadMPI(mpi_module)
       args = [x for x in args if not x.startswith(mpi_module_option)]
-      pass
+    else:
+      mpi_module = os.getenv("SALOME_MPI_MODULE_NAME", None)
+      if mpi_module:
+        self.__loadMPI(mpi_module)
 
-    import os
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True, env=env_copy)
