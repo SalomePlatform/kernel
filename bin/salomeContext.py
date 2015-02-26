@@ -41,7 +41,8 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 Commands:
 =========
     start         Starts a SALOME session (through virtual application)
-    shell         Initializes SALOME environment, and executes scripts passed
+    context       Initializes SALOME context.
+    shell         Initializes SALOME context, and executes scripts passed
                   as command arguments
     connect       Connects a Python console to the active SALOME session
     killall       Kill all SALOME running sessions for current user
@@ -58,7 +59,7 @@ Command options:
 
 --config=<file,folder,...>
 ==========================
-    Initialize SALOME environment from a list of context files and/or a list
+    Initialize SALOME context from a list of context files and/or a list
     of folders containing context files. The list is comma-separated, whithout
     any blank characters.
 '''
@@ -67,18 +68,18 @@ Command options:
 #
 
 """
-The SalomeContext class in an API to configure SALOME environment then
+The SalomeContext class in an API to configure SALOME context then
 start SALOME using a single python command.
 
 """
 class SalomeContext:
   """
-  Initialize environment from a list of configuration files
+  Initialize context from a list of configuration files
   identified by their names.
   These files should be in appropriate (new .cfg) format.
   However you can give old .sh environment files; in this case,
   the SalomeContext class will try to automatically convert them
-  to .cfg format before setting the environment.
+  to .cfg format before setting the context.
   """
   def __init__(self, configFileNames=0):
     #it could be None explicitely (if user use multiples setVariable...for standalone)
@@ -92,14 +93,14 @@ class SalomeContext:
     for filename in configFileNames:
       basename, extension = os.path.splitext(filename)
       if extension == ".cfg":
-        self.__setEnvironmentFromConfigFile(filename, reserved)
+        self.__setContextFromConfigFile(filename, reserved)
       elif extension == ".sh":
         #new convert procedures, temporary could be use not to be automatically deleted
         #temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
         temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
           convertEnvFileToConfigFile(filename, temp.name, reserved)
-          self.__setEnvironmentFromConfigFile(temp.name, reserved)
+          self.__setContextFromConfigFile(temp.name, reserved)
           temp.close()
         except (ConfigParser.ParsingError, ValueError) as e:
           self.getLogger().error("Invalid token found when parsing file: %s\n"%(filename))
@@ -123,7 +124,7 @@ class SalomeContext:
   def runSalome(self, args):
     import os
     # Run this module as a script, in order to use appropriate Python interpreter
-    # according to current path (initialized from environment files).
+    # according to current path (initialized from context files).
     mpi_module_option = "--with-mpi-module="
     mpi_module = [x for x in args if x.startswith(mpi_module_option)]
     if mpi_module:
@@ -210,6 +211,7 @@ class SalomeContext:
 
     availableCommands = {
       'start' :   '_runAppli',
+      'context' : '_setContext',
       'shell' :   '_runSession',
       'connect' : '_runConsole',
       'killall':  '_killAll',
@@ -268,7 +270,7 @@ class SalomeContext:
       sys.exit(1)
   #
 
-  def __setEnvironmentFromConfigFile(self, filename, reserved=None):
+  def __setContextFromConfigFile(self, filename, reserved=None):
     if reserved is None:
       reserved = []
     try:
@@ -284,7 +286,7 @@ class SalomeContext:
         temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
           convertEnvFileToConfigFile(sh_file, temp.name, reserved)
-          self.__setEnvironmentFromConfigFile(temp.name, reserved)
+          self.__setContextFromConfigFile(temp.name, reserved)
           msg += "OK\n"
           self.getLogger().warning(msg)
           temp.close()
@@ -302,7 +304,7 @@ class SalomeContext:
     for var in unsetVars:
       self.unsetVariable(var)
 
-    # set environment
+    # set context
     for reserved in reservedDict:
       a = filter(None, reservedDict[reserved]) # remove empty elements
       a = [ os.path.realpath(x) for x in a ]
@@ -322,13 +324,33 @@ class SalomeContext:
   def _runAppli(self, args=None):
     if args is None:
       args = []
-    # Initialize SALOME environment
+    # Initialize SALOME context
     sys.argv = ['runSalome'] + args
     import setenv
     setenv.main(True)
 
     import runSalome
     runSalome.runSalome()
+  #
+
+  def _setContext(self, args=None):
+    salome_context_set = os.getenv("SALOME_CONTEXT_SET")
+    if salome_context_set:
+      print "***"
+      print "*** SALOME context has already been set."
+      print "*** Enter 'exit' (only once!) to leave SALOME context."
+      print "***"
+      return
+
+    os.environ["SALOME_CONTEXT_SET"] = "yes"
+    print "***"
+    print "*** SALOME context is now set."
+    print "*** Enter 'exit' (only once!) to leave SALOME context."
+    print "***"
+
+    cmd = ["/bin/bash"]
+    proc = subprocess.Popen(cmd, shell=False, close_fds=True)
+    return proc.communicate()
   #
 
   def _runSession(self, args=None):
@@ -348,7 +370,7 @@ class SalomeContext:
   def _runConsole(self, args=None):
     if args is None:
       args = []
-    # Initialize SALOME environment
+    # Initialize SALOME context
     sys.argv = ['runConsole'] + args
     import setenv
     setenv.main(True)
