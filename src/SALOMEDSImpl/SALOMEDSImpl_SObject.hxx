@@ -55,6 +55,7 @@ public:
   virtual std::string GetID() const;
   virtual SALOMEDSImpl_SComponent GetFatherComponent() const;
   virtual SALOMEDSImpl_SObject GetFather() const ;
+  virtual int  GetLastChildTag() const ;
   virtual bool FindAttribute(DF_Attribute*& theAttribute, const std::string& theTypeOfAttribute) const;
   virtual bool ReferencedObject(SALOMEDSImpl_SObject& theObject) const ;
   virtual bool FindSubObject(int theTag, SALOMEDSImpl_SObject& theObject);

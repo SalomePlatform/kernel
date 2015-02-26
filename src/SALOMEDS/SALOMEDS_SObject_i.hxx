@@ -75,6 +75,7 @@ public:
   virtual void SetAttrString(const char*, const char*);
 
   virtual CORBA::Short Tag();
+  virtual CORBA::Short GetLastChildTag();
   virtual CORBA::Short Depth();
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);

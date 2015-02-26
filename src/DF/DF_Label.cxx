@@ -374,6 +374,12 @@ DF_Label DF_Label::NewChild()
   return FindChild(tag, true);
 }
 
+//Returns a tag of the last child
+int DF_Label::LastChildTag() const
+{
+  return _node->_lastChild ? _node->_lastChild->_tag : 0;
+}
+
 //Returns a string entry of this Label
 std::string DF_Label::Entry() const
 {

@@ -88,39 +88,48 @@ std::string SALOMEDSImpl_SObject::GetID() const
 {
   return _lab.Entry();
 }
-  
+
 //============================================================================
 /*! Function : GetFatherComponent
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDSImpl_SComponent SALOMEDSImpl_SObject::GetFatherComponent() const
 {
-  SALOMEDSImpl_SComponent sco;    
+  SALOMEDSImpl_SComponent sco;
   DF_Label LF = _lab;
   while (!SALOMEDSImpl_SComponent::IsA(LF) && !LF.IsRoot()) {
     LF = LF.Father();
   }
-  
+
   if(LF.IsRoot()) return sco;
-  
+
   return GetStudy()->GetSComponent(LF);
 }
-  
+
 //============================================================================
 /*! Function : GetFather
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_SObject::GetFather() const
 {
-  return GetStudy()->GetSObject(_lab.Father());    
+  return GetStudy()->GetSObject(_lab.Father());
 }
 
+//============================================================================
+/*! Function : GetLastChild
+ *  Purpose  :
+ */
+//============================================================================
+int SALOMEDSImpl_SObject::GetLastChildTag() const
+{
+  return _lab.LastChildTag();
+}
 
 //============================================================================
 /*! Function : GetStudy
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDSImpl_Study* SALOMEDSImpl_SObject::GetStudy() const

@@ -152,6 +152,9 @@ public:
   //Creates a new child Label of this Label.
   Standard_EXPORT DF_Label NewChild();
 
+  //Returns a tag of the last child
+  Standard_EXPORT int LastChildTag() const;
+
   //Returns a string presentation of the entry
   Standard_EXPORT std::string Entry() const;
 

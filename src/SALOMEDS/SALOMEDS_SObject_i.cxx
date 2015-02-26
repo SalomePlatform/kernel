@@ -266,6 +266,17 @@ CORBA::Short SALOMEDS_SObject_i::Tag()
 }
 
 //============================================================================
+/*! Function : GetLastChildTag
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Short SALOMEDS_SObject_i::GetLastChildTag()
+{
+  SALOMEDS::Locker lock;
+  return (CORBA::Short) _impl->GetLastChildTag();
+}
+
+//============================================================================
 /*! Function : Depth
  *  Purpose  :
  */

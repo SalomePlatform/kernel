@@ -1093,39 +1093,42 @@ Gets the list of open studies
     boolean IsNull();
 
 /*! Gets an object %ID
-
    \return ID of the %SObject.
 */
     ID GetID();
-/*!  Acquisition of the father %Component of the %SObject
 
+/*!  Acquisition of the father %Component of the %SObject
   \return The father %Component of the %SObject.
 */
     SComponent GetFatherComponent();
-/*! Acquisition of the father %SObject of the %SObject
 
+/*! Acquisition of the father %SObject of the %SObject
    \return the father %SObject of the given %SObject.
 */
     SObject    GetFather();
-/*! Gets the %tag of a %SObject
 
+/*! Gets the %tag of a %SObject
     \return the %tag of a %SObject.
 */
     short      Tag();
-/*! Gets the depth of a %SObject
 
+/*! Returns a tag of the last child %SObject (if any) of this %SObject.
+    Returns zero if this %SObject has no children.
+*/
+    short      GetLastChildTag();
+
+/*! Gets the depth of a %SObject
     \return the depth of a %SObject.
 */
     short      Depth();
-/*! Looks for subobjects of a given %SObject.
 
+/*! Looks for subobjects of a given %SObject.
     \param atag Tag of the given %SObject
     \return True if it finds a subobject of the %SObject with a definite tag as well as the required subobject.
 */
-
     boolean FindSubObject (in long atag, out SObject obj);
-/*! Looks for attributes of a given %SObject
 
+/*! Looks for attributes of a given %SObject
    \param aTypeOfAttribute String value defining the type of the required attribute of the given %SObject.
    \return True if it finds an attribute of a definite type of the given %SObject as well as the discovered attribute.
 
@@ -1133,29 +1136,28 @@ Gets the list of open studies
 */
     boolean FindAttribute(out GenericAttribute anAttribute,
 				  in  string         aTypeOfAttribute);
-/*! Looks for a %SObject which the given %SObject refers to.
 
+/*! Looks for a %SObject which the given %SObject refers to.
     \return The object which the given %SObject refers to as well as True if it finds
     this object.
 */
     boolean ReferencedObject(out SObject obj); // A REVOIR
-/*! Gets all attributes of a given %SObject
 
+/*! Gets all attributes of a given %SObject
     \return The list of all attributes of the given %SObject.
 
 <em>See \ref example17 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     ListOfAttributes     GetAllAttributes();
-/*! Gets the study of a given %SObject.
 
+/*! Gets the study of a given %SObject.
     \return The study containing the given %SObject.
 */
     Study GetStudy();
 
 /*! Gets the CORBA object by its own IOR attribute.
     Returns nil, if can't.
-
     \return The CORBA object of the %SObject.
 */
     Object GetObject();
