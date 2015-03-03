@@ -133,10 +133,24 @@ class ScriptAndArgsObjectEncoder(json.JSONEncoder):
       return json.JSONEncoder.default(self, obj)
 #
 
+def getShortAndExtraArgs(args=[]):
+  try:
+    pos = args.index("--") # raise a ValueError if not found
+    short_args = args[:pos]
+    extra_args = args[pos:] # include "--"
+  except ValueError:
+    short_args = args
+    extra_args = []
+    pass
+
+  return short_args, extra_args
+#
+
 # Return an array of ScriptAndArgs objects
-def getScriptsAndArgs(args=None, searchPathList=None):
-  if args is None:
-    args = []
+def getScriptsAndArgs(args=[], searchPathList=None):
+  short_args, extra_args = getShortAndExtraArgs(args)
+  args = short_args
+
   if searchPathList is None:
     searchPathList = sys.path
 
@@ -225,6 +239,13 @@ def getScriptsAndArgs(args=None, searchPathList=None):
       # CLOSE elif currentScript
       afterArgs = False
   # end for loop
+
+  if len(extra_args) > 1: # syntax: -- program [options] [arguments]
+    command = extra_args[1]
+    command_args = extra_args[2:]
+    scriptArgs.append(ScriptAndArgs(script=command, args=command_args))
+    pass
+
   return scriptArgs
 #
 

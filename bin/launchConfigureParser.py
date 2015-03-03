@@ -28,8 +28,6 @@ import types
 
 from salome_utils import verbose, getPortNumber, getHomeDir
 
-from salomeContextUtils import getScriptsAndArgs
-
 # names of tags in XML configuration file
 doc_tag = "document"
 sec_tag = "section"
@@ -1073,10 +1071,10 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
             args["study_hdf"] = arg
 
     # Python scripts
-    args[script_nam] = getScriptsAndArgs(cmd_args)
-    new_args = []
     if args[gui_nam] and args["session_gui"]:
-        from salomeContextUtils import ScriptAndArgs
+        from salomeContextUtils import getScriptsAndArgs, ScriptAndArgs
+        args[script_nam] = getScriptsAndArgs(cmd_args)
+        new_args = []
         for sa_obj in args[script_nam]: # args[script_nam] is a list of ScriptAndArgs objects
             script = re.sub(r'^python.*\s+', r'', sa_obj.script)
             new_args.append(ScriptAndArgs(script=script, args=sa_obj.args, out=sa_obj.out))

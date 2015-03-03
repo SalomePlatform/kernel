@@ -28,7 +28,7 @@ from NSparam import getNSparams
 import socket
 import subprocess
 import re
-from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs
+from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs, getShortAndExtraArgs
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -43,35 +43,61 @@ class SessionParameters:
     self.machine = machine
     self.user = user
     self.directory = directory
+  #
+  def __repr__(self):
+    msg = "\n# Session Parameters:\n"
+    msg += "     * mode: %s\n"%self.mode
+    msg += "     * port: %s\n"%self.port
+    msg += "     * machine: %s\n"%self.machine
+    msg += "     * user: %s\n"%self.user
+    msg += "     * directory: %s\n"%self.directory
+    return msg
+  #
 #
 
-def configureSession(args=None, exe=None):
-  if args is None:
-    args = []
+def configureSession(args=[], exe=None):
   if exe:
-      usage = "Usage: %s [options] [command]"%exe
+      usage = "Usage: %s [options] [command] [-- <extra>]"%exe
   else:
-      usage = "Usage: %prog [options] [command]"
+      usage = "Usage: %prog [options] [command] [-- <extra>]"
   epilog  = """\n
 If command is not given a shell is opened; else execute the given command.\n
-* Command may be an executable script or program, either identified by its full path or located in a directory pointed by a system variable (e.g. PATH).\n
-* Command may also be a series of Python scripts with arguments: [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
-Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes).
+* Command may be an executable script or program, either identified by its
+  full path or located in a directory pointed by a system variable (e.g.
+  PATH).\n
+* Command may also be a series of Python scripts with arguments:
+  [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+Python file arguments, if any, must be comma-separated (without blank
+  characters) and prefixed by "args:" keyword (without quotes).
 For example:
        salome shell hello.py add.py args:1,2 hello.py args:you
-will successively say hello, add 1+2, and say hello to you.
+will successively say hello, add 1+2, and say hello to you.\n
+The double dash (--) syntax indicates an extra command to be run "as is". It
+  allows calling a extern program or system command with options and
+  arguments, using the syntax: -- <program> [options] [arguments].
+For example:
+       salome shell -- ls -l *.py
+       salome shell -- python -tt hello.py
 \n
-If PORT and MACHINE are not given, try to connect to the last active session on the local machine.
-If PORT and MACHINE are given, try to connect to the remote session associated with PORT on MACHINE.
-If MACHINE is not given, try to connect to the session associated to PORT on the local machine.
-If PORT is not given, try to connect to the remote session associated to port 2810 on MACHINE.\n
+If PORT and MACHINE are not given, try to connect to the last active session
+  on the local machine.
+If PORT and MACHINE are given, try to connect to the remote session associated
+  with PORT on MACHINE.
+If MACHINE is not given, try to connect to the session associated to PORT on
+  the local machine.
+If PORT is not given, try to connect to the remote session associated to port
+  2810 on MACHINE.\n
 If MACHINE is remote, the following options MUST be provided:
      * DIRECTORY: The full path to the salome command on remote machine.
      * USER: The user on the computer to connect to.\n
-In case of remote call, syntax "out:res1,res2,..." can be used to get results from remote machine.
+In case of remote call, syntax "out:res1,res2,..." can be used to get results
+  from remote machine.
 For example:
-       salome shell -m remotemachine -p 2810 -u myself -d /full/path/to/salome concatenate.py args:file1.txt,file2.txt out:result.txt
-User "myself" connects to remotemachine to run the script concatenate.py in a SALOME session on port 2810; the script takes two input parameters and produces one result file.\n
+       salome shell -m remotemachine -p 2810 -u myself -d /full/path/to/salome
+  concatenate.py args:file1.txt,file2.txt out:result.txt
+User "myself" connects to remotemachine to run the script concatenate.py in
+  a SALOME session on port 2810; the script takes two input parameters and
+  produces one result file.\n
 """
   parser = MyParser(usage=usage, epilog=epilog)
   parser.add_option("-p", "--port", metavar="<port>", default=0,
@@ -88,8 +114,10 @@ User "myself" connects to remotemachine to run the script concatenate.py in a SA
   parser.add_option('-u', '--user', dest="user", default=None,
                     help="[Remote mode] The user on the computer to connect to."
                     )
+
+  short_args, extra_args = getShortAndExtraArgs(args)
   try:
-    (options, args) = parser.parse_args(args)
+    (options, args) = parser.parse_args(short_args)
   except Exception, e:
     print e
     return
@@ -135,7 +163,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in a SA
     mode="remote"
     pass
   params = SessionParameters(mode, port, host, options.user, options.directory)
-  return params, args
+  return params, args+extra_args
 #
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
