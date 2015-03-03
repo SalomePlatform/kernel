@@ -309,7 +309,10 @@ class SalomeContext:
       a = filter(None, reservedDict[reserved]) # remove empty elements
       a = [ os.path.realpath(x) for x in a ]
       reformattedVals = os.pathsep.join(a)
-      self.addToVariable(reserved, reformattedVals)
+      if reserved in ["INCLUDE", "LIBPATH"]:
+        self.addToVariable(reserved, reformattedVals, separator=' ')
+      else:
+        self.addToVariable(reserved, reformattedVals)
       pass
 
     for key,val in configVars:
