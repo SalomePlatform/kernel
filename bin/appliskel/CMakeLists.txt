@@ -37,6 +37,7 @@ SET(SCRIPTS
   kill_remote_containers.py
   salome # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
   salome_starter.py
+  .salome-completion.sh
 )
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)

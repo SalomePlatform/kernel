@@ -215,11 +215,17 @@ def install(prefix, config_file, verbose=0):
         shutil.copyfile(filename, os.path.join(home_dir,"config_appli.xml"))
         pass
 
+
+    # Add .salome-completion.sh file
+    shutil.copyfile(os.path.join(appliskel_dir, ".salome-completion.sh"),
+                    os.path.join(home_dir, ".salome-completion.sh"))
+
+
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
     if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
-        shutil.copyfile(_config["prereq_path"], 
+        shutil.copyfile(_config["prereq_path"],
                         os.path.join(home_dir, 'env.d', 'envProducts.sh'))
         pass
     else:
@@ -235,10 +241,9 @@ def install(prefix, config_file, verbose=0):
         pass
 
     if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
-        shutil.copyfile(_config["system_conf_path"], 
+        shutil.copyfile(_config["system_conf_path"],
                         os.path.join(home_dir, 'env.d', 'envConfSystem.sh'))
         pass
-
 
     # Create environment file: configSalome.sh
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
@@ -335,7 +340,7 @@ def main():
                       metavar="<configuration file>",
                       help="XML configuration file (default %(default)s)")
 
-    parser.add_argument('-v', '--verbose', action='count', 
+    parser.add_argument('-v', '--verbose', action='count',
                       default=0, help="Increase verbosity")
 
     options = parser.parse_args()
