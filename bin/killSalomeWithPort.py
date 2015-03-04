@@ -201,7 +201,8 @@ def shutdownMyPort(port, cleanup=True):
         from LifeCycleCORBA import LifeCycleCORBA
         # shutdown all
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
-        lcc = LifeCycleCORBA(orb)
+        lcc = LifeCycleCORBA(orb) # see (1)
+        print "Terminating SALOME on port %s..."%(port)
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
@@ -213,7 +214,13 @@ def shutdownMyPort(port, cleanup=True):
         pass
     except:
         pass
+    exit(0) # see (1)
     pass
+# (1) If --shutdown-servers option is set to 1, session close procedure is
+# called twice: first explicitely by salome command, second by automatic
+# atexit to handle Ctrl-C. During second call, LCC does not exist anymore and
+# a RuntimeError is raised; we explicitely exit this function with code 0 to
+# prevent parent thread from crashing.
 
 def __killMyPort(port, filedict):
     # bug fix: ensure port is an integer
@@ -359,11 +366,17 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
-    print "Terminating SALOME on port %s..."%(port)
-
     # bug fix: ensure port is an integer
     if port:
         port = int(port)
+
+    try:
+        import PortManager # do not remove! Test for PortManager availability!
+        filedict = getPiDict(port)
+        if not os.path.isfile(filedict): # removed by previous call, see (1)
+            return
+    except:
+        pass
 
     # try to shutdown session normally
     import threading, time
