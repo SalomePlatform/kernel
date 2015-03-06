@@ -127,13 +127,17 @@ def getUserName():
     """
     Get user name:
     1. try USER environment variable (USERNAME on windows)
-    2. if fails, return 'unknown' as default user name
+    2. if fails, try LOGNAME (un*x)
+    3. if fails return 'unknown' as default user name
     """
     import os, sys
     if sys.platform == "win32":
         return os.getenv("USERNAME", "unknown")
     else:
-        return os.getenv("USER", "unknown")
+        user = os.getenv("USER")
+        if user:
+            return user
+        return os.getenv("LOGNAME", "unknown")
 # ---
 
 def getHostName():

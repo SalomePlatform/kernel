@@ -26,6 +26,7 @@
 """
 import sys,os,shutil,glob,socket
 import optparse
+from salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))
@@ -116,7 +117,7 @@ class Resource:
   def get_user(self):
     userName= self.node.get("userName")
     if not userName:
-      userName=os.getenv('USER')
+      userName=getUserName()
     return userName
 
   def get_host(self):
@@ -143,7 +144,7 @@ class Resource:
 
     resource_dir=os.path.join(cata_dir,self.get_name())
 
-    if hostname == "localhost" or hostname == get_hostname() and userName == os.getenv("USER"):
+    if hostname == "localhost" or hostname == get_hostname() and userName == getUserName():
       #local machine, use cp
       if appliPath[0]!='/':
         #relative path
@@ -187,7 +188,7 @@ class Resource:
     resource_dir=os.path.join(cata_dir,self.get_name())
     catalogs_list=glob.glob(os.path.join(resource_dir,"*Catalog.xml"))
 
-    if hostname == "localhost" or hostname == get_hostname() and userName == os.getenv("USER"):
+    if hostname == "localhost" or hostname == get_hostname() and userName == getUserName():
       #user local resource
       if appliPath[0]!='/':
         appliPath=os.path.join(os.getenv("HOME"),appliPath)

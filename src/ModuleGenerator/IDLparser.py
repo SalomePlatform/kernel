@@ -30,6 +30,7 @@ import pdb
 
 from xml.sax.handler import *
 from omniidl import idlast, idltype, idlvisitor, idlutil, output
+from salome_utils import getUserName
 
 # parameters not found in IDL file, user's specified in optional parameters
 common_data={"AUTHOR"     : "",
@@ -827,7 +828,7 @@ def run(tree, args):
 
     #=========  Read parameters  ======================
     common_data["ICON"]       = getParamValue("icon",       "",                args)
-    common_data["AUTHOR"]     = getParamValue("author",     os.getenv("USER"), args)
+    common_data["AUTHOR"]     = getParamValue("author",     getUserName(),     args)
     common_data["VERSION"]    = getParamValue("version",    "1",               args)
     common_data["COMP_NAME"]  = getParamValue("name",       "",                args)
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)

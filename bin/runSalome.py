@@ -773,7 +773,8 @@ def registerEnv(args, modules_list, modules_root_dir):
     """
     from salome_utils import getTmpDir
     fileEnv = getTmpDir()
-    fileEnv += os.getenv('USER') + "_" + str(args['port']) \
+    from salome_utils import getUserName
+    fileEnv += getUserName() + "_" + str(args['port']) \
             + '_' + args['appname'].upper() + '_env'
     fenv=open(fileEnv,'w')
     pickle.dump((args, modules_list, modules_root_dir),fenv)

@@ -26,6 +26,7 @@
 """
 import sys,os,shutil,glob,socket
 import optparse
+from salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))
@@ -90,7 +91,7 @@ class Resource:
   def get_user(self):
     userName= self.node.get("userName")
     if not userName:
-      userName=os.getenv('USER')
+      userName=getUserName()
     return userName
 
   def get_host(self):
@@ -110,7 +111,7 @@ class Resource:
 
 def main():
   parser = optparse.OptionParser(usage=usage)
-  parser.add_option('-p','--port', dest="port", 
+  parser.add_option('-p','--port', dest="port",
                             help="The SALOME session port (default NSPORT or 2810)")
 
 

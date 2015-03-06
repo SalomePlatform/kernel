@@ -59,7 +59,7 @@ Launcher::Job::Job()
 #endif
 }
 
-Launcher::Job::~Job() 
+Launcher::Job::~Job()
 {
   LAUNCHER_MESSAGE("Deleting job number: " << _number);
 #ifdef WITH_LIBBATCH
@@ -76,7 +76,7 @@ Launcher::Job::stopJob()
 #ifdef WITH_LIBBATCH
   if (_batch_job_id.getReference() != "undefined")
   {
-    try 
+    try
     {
       _batch_job_id.deleteJob();
     }
@@ -96,7 +96,7 @@ Launcher::Job::removeJob()
 #ifdef WITH_LIBBATCH
   if (_batch_job_id.getReference() != "undefined")
   {
-    try 
+    try
     {
       _batch_job_id.deleteJob();
     }
@@ -126,7 +126,7 @@ Launcher::Job::getJobName() const
   return _job_name;
 }
 
-void 
+void
 Launcher::Job::setState(const std::string & state)
 {
   // State of a Job: CREATED, QUEUED, RUNNING, FINISHED, FAILED
@@ -144,7 +144,7 @@ Launcher::Job::setState(const std::string & state)
   _state = state;
 }
 
-std::string 
+std::string
 Launcher::Job::getState() const
 {
   return _state;
@@ -157,7 +157,7 @@ Launcher::Job::getAssignedHostnames()
   return _assigned_hostnames;
 }
 
-void 
+void
 Launcher::Job::setNumber(const int & number)
 {
   if (_number != -1)
@@ -171,7 +171,7 @@ Launcher::Job::getNumber()
   return _number;
 }
 
-void 
+void
 Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_definition)
 {
   // Check machine_definition
@@ -180,8 +180,10 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
   {
     user_name = getenv("USER");
     if (user_name == "")
+      user_name = getenv("LOGNAME");
+    if (user_name == "")
     {
-      std::string mess = "You must define a user name: into your resource description or with env variable USER";
+      std::string mess = "You must define a user name: into your resource description or with one of env variables USER/LOGNAME";
       throw LauncherException(mess);
     }
   }
@@ -192,13 +194,13 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
   _resource_definition.UserName = user_name;
 }
 
-ParserResourcesType 
+ParserResourcesType
 Launcher::Job::getResourceDefinition() const
 {
   return _resource_definition;
 }
 
-void 
+void
 Launcher::Job::setJobFile(const std::string & job_file)
 {
   // Check job file
@@ -220,7 +222,7 @@ Launcher::Job::getJobFile() const
 {
   return _job_file;
 }
-void 
+void
 Launcher::Job::setEnvFile(const std::string & env_file)
 {
   _env_file = env_file;
@@ -232,25 +234,25 @@ Launcher::Job::getEnvFile() const
   return _env_file;
 }
 
-void 
+void
 Launcher::Job::setWorkDirectory(const std::string & work_directory)
 {
   _work_directory = work_directory;
 }
 
-void 
+void
 Launcher::Job::setLocalDirectory(const std::string & local_directory)
 {
   _local_directory = local_directory;
 }
 
-void 
+void
 Launcher::Job::setResultDirectory(const std::string & result_directory)
 {
   _result_directory = result_directory;
 }
 
-void 
+void
 Launcher::Job::add_in_file(const std::string & file)
 {
   std::list<std::string>::iterator it = std::find(_in_files.begin(), _in_files.end(), file);
@@ -260,7 +262,7 @@ Launcher::Job::add_in_file(const std::string & file)
     std::cerr << "Launcher::Job::add_in_file -- Warning file was already entered in in_files: " << file << std::endl;
 }
 
-void 
+void
 Launcher::Job::add_out_file(const std::string & file)
 {
   std::list<std::string>::iterator it = std::find(_out_files.begin(), _out_files.end(), file);
@@ -270,7 +272,7 @@ Launcher::Job::add_out_file(const std::string & file)
     std::cerr << "Launcher::Job::add_out_file -- Warning file was already entered in out_files: " << file << std::endl;
 }
 
-void 
+void
 Launcher::Job::setMaximumDuration(const std::string & maximum_duration)
 {
   checkMaximumDuration(maximum_duration);
@@ -282,22 +284,22 @@ Launcher::Job::setMaximumDuration(const std::string & maximum_duration)
 void
 Launcher::Job::setLauncherFile(const std::string & launcher_file)
 {
-	_launcher_file = launcher_file;
+        _launcher_file = launcher_file;
 }
 void
 Launcher::Job::setLauncherArgs(const std::string & launcher_args)
 {
-	_launcher_args = launcher_args;
+        _launcher_args = launcher_args;
 }
 
-void 
+void
 Launcher::Job::setResourceRequiredParams(const resourceParams & resource_required_params)
 {
   checkResourceRequiredParams(resource_required_params);
   _resource_required_params = resource_required_params;
 }
 
-void 
+void
 Launcher::Job::setQueue(const std::string & queue)
 {
   _queue = queue;
@@ -344,13 +346,13 @@ Launcher::Job::setReference(const std::string & reference)
   _reference = reference;
 }
 
-std::string 
+std::string
 Launcher::Job::getWorkDirectory() const
 {
   return _work_directory;
 }
 
-std::string 
+std::string
 Launcher::Job::getLocalDirectory() const
 {
   return _local_directory;
@@ -362,19 +364,19 @@ Launcher::Job::getResultDirectory() const
   return _result_directory;
 }
 
-const std::list<std::string> & 
+const std::list<std::string> &
 Launcher::Job::get_in_files() const
 {
   return _in_files;
 }
 
-const std::list<std::string> & 
+const std::list<std::string> &
 Launcher::Job::get_out_files() const
 {
   return _out_files;
 }
 
-std::string 
+std::string
 Launcher::Job::getMaximumDuration() const
 {
   return _maximum_duration;
@@ -384,21 +386,21 @@ Launcher::Job::getMaximumDuration() const
 std::string
 Launcher::Job::getLauncherFile() const
 {
-	return _launcher_file;
+        return _launcher_file;
 }
 std::string
 Launcher::Job::getLauncherArgs() const
 {
-	return _launcher_args;
+        return _launcher_args;
 }
 
-resourceParams 
+resourceParams
 Launcher::Job::getResourceRequiredParams() const
 {
   return _resource_required_params;
 }
 
-std::string 
+std::string
 Launcher::Job::getQueue() const
 {
   return _queue;
@@ -440,7 +442,7 @@ Launcher::Job::getReference() const
   return _reference;
 }
 
-void 
+void
 Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 {
   std::string result("");
@@ -454,7 +456,7 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
     std::string begin_edt_value = edt_value.substr(0, pos);
     std::string mid_edt_value = edt_value.substr(pos, 1);
     std::string end_edt_value = edt_value.substr(pos + 1, edt_value.npos);
-  
+
     long value;
     std::istringstream iss(begin_edt_value);
     if (!(iss >> value)) {
@@ -478,7 +480,7 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
     throw LauncherException(result);
 }
 
-void 
+void
 Launcher::Job::checkResourceRequiredParams(const resourceParams & resource_required_params)
 {
   // nb_proc has be to > 0
@@ -489,7 +491,7 @@ Launcher::Job::checkResourceRequiredParams(const resourceParams & resource_requi
   }
 }
 
-long 
+long
 Launcher::Job::convertMaximumDuration(const std::string & edt)
 {
   long hh, mm, ret;
@@ -510,18 +512,18 @@ Launcher::Job::convertMaximumDuration(const std::string & edt)
   return ret;
 }
 
-std::string 
+std::string
 Launcher::Job::getLaunchDate() const
 {
   time_t rawtime;
   time(&rawtime);
   std::string launch_date = ctime(&rawtime);
   int i = 0 ;
-  for (;i < launch_date.size(); i++) 
+  for (;i < launch_date.size(); i++)
     if (launch_date[i] == '/' ||
         launch_date[i] == '-' ||
         launch_date[i] == ':' ||
-        launch_date[i] == ' ') 
+        launch_date[i] == ' ')
       launch_date[i] = '_';
   launch_date.erase(--launch_date.end()); // Last caracter is a \n
 
@@ -553,7 +555,7 @@ Launcher::Job::updateJobState()
 }
 
 #ifdef WITH_LIBBATCH
-Batch::Job * 
+Batch::Job *
 Launcher::Job::getBatchJob()
 {
   update_job();
@@ -611,7 +613,7 @@ Launcher::Job::common_job_params()
   std::list<std::string> in_files(_in_files);
   in_files.push_back(_job_file);
   if (_env_file != "")
-	  in_files.push_back(_env_file);
+          in_files.push_back(_env_file);
   for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
   {
     std::string file = *it;
@@ -626,14 +628,14 @@ Launcher::Job::common_job_params()
 #else
       local_file = file;
 #endif
-    
+
     // remote file -> get only file name from in_files
     size_t found = file.find_last_of("/");
     std::string remote_file = _work_directory + "/" + file.substr(found+1);
 
     params[Batch::INFILE] += Batch::Couple(local_file, remote_file);
   }
-   
+
   // _out_files
   for(std::list<std::string>::iterator it = _out_files.begin(); it != _out_files.end(); it++)
   {
@@ -683,20 +685,20 @@ Launcher::Job::common_job_params()
   return params;
 }
 
-void 
+void
 Launcher::Job::setBatchManagerJobId(Batch::JobId batch_manager_job_id)
 {
   _batch_job_id = batch_manager_job_id;
 }
 
-Batch::JobId 
+Batch::JobId
 Launcher::Job::getBatchManagerJobId() const
 {
   return _batch_job_id;
 }
 #endif
 
-void 
+void
 Launcher::Job::addSpecificParameter(const std::string & name,
                                       const std::string & value)
 {

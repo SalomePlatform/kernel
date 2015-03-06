@@ -30,12 +30,13 @@ import os, sys, re, signal
 
 from killSalomeWithPort import killMyPort, getPiDict
 #from salome_utils import getHostName, getShortHostName
+from salome_utils import getUserName
 
 def killAllPorts():
     """
     Kill all SALOME sessions belonging to the user.
     """
-    user = os.getenv('USER')
+    user = getUserName()
     #hostname  = getHostName()
     #shostname = getShortHostName()
     # new-style dot-prefixed pidict file

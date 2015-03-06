@@ -29,6 +29,7 @@ import socket
 import subprocess
 import re
 from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs, getShortAndExtraArgs
+from salome_utils import getUserName
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -132,7 +133,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
       # neither MACHINE nor PORT are given
       # --- set omniORB configuration to current session if any
       omniorbUserPath = os.environ['OMNIORB_USER_PATH']
-      fileOmniConfig = omniorbUserPath + '/.omniORB_' + os.environ['USER'] + '_last.cfg'
+      fileOmniConfig = omniorbUserPath + '/.omniORB_' + getUserName() + '_last.cfg'
       if os.path.isfile(fileOmniConfig):
         os.environ['OMNIORB_CONFIG'] = fileOmniConfig
         # --- set environment variables for port and hostname of NamingService
@@ -169,7 +170,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 def _writeConfigFile(port, host):
   path = os.environ['OMNIORB_USER_PATH']
-  kwargs = {'with_username' : os.environ['USER']}
+  kwargs = {'with_username' : getUserName()}
 
   from ORBConfigFile import writeORBConfigFile
   [ filename, msgSize ] = writeORBConfigFile(path, host, port, kwargs)

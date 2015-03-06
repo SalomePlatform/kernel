@@ -66,7 +66,7 @@ protected:
                 const std::string& resource);
 
   std::string BuildCommandToLaunchRemoteContainer(const std::string & resource_name,
-                                                  const Engines::ContainerParameters& params, 
+                                                  const Engines::ContainerParameters& params,
                                                   const std::string& container_exe="SALOME_Container") const;
 
   std::string BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params,
@@ -106,7 +106,7 @@ protected:
   SALOME_ResourcesManager_Client *_resManager;
   SALOME_NamingService *_NS;
 
-  //! different behaviour if $APPLI exists (SALOME Application) 
+  //! different behaviour if $APPLI exists (SALOME Application)
   bool _isAppliSalomeDefined;
 
   //! attribute that contains the number of processes used in batch mode by MPI containers
@@ -124,7 +124,7 @@ protected:
 
   bool checkPaCOParameters(Engines::ContainerParameters & params, std::string resource_selected);
 
-  Engines::Container_ptr 
+  Engines::Container_ptr
   StartPaCOPPContainer(const Engines::ContainerParameters& params, std::string resource_selected);
 
 
@@ -135,29 +135,30 @@ protected:
 
   std::string BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
                                                     const std::string & machine_file_name,
-                                                    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
-                                                    const std::string & proxy_hostname); 
+                                                    SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
+                                                    const std::string & proxy_hostname);
 
   void LogConfiguration(const std::string & log_type,
                         const std::string & exe_type,
                         const std::string & container_name,
                         const std::string & hostname,
-                        std::string & begin, 
+                        std::string & begin,
                         std::string & end);
 
-  CORBA::Object_ptr 
-  LaunchPaCOProxyContainer(const std::string& command, 
+  CORBA::Object_ptr
+  LaunchPaCOProxyContainer(const std::string& command,
                            const Engines::ContainerParameters& params,
                            const std::string& hostname);
 
-  bool 
-  LaunchPaCONodeContainer(const std::string& command, 
+  bool
+  LaunchPaCONodeContainer(const std::string& command,
                           const Engines::ContainerParameters& params,
                           const std::string& name,
                           SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   // End of PaCO++ Parallel extension
 public:
   static char *GetenvThreadSafe(const char *name);
+  static std::string GetenvThreadSafeAsString(const char *name);
   static int SystemThreadSafe(const char *command);
   static void AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService *ns);
   static void MakeTheCommandToBeLaunchedASync(std::string& command);
