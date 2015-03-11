@@ -1071,9 +1071,9 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
             args["study_hdf"] = arg
 
     # Python scripts
+    from salomeContextUtils import getScriptsAndArgs, ScriptAndArgs
+    args[script_nam] = getScriptsAndArgs(cmd_args)
     if args[gui_nam] and args["session_gui"]:
-        from salomeContextUtils import getScriptsAndArgs, ScriptAndArgs
-        args[script_nam] = getScriptsAndArgs(cmd_args)
         new_args = []
         for sa_obj in args[script_nam]: # args[script_nam] is a list of ScriptAndArgs objects
             script = re.sub(r'^python.*\s+', r'', sa_obj.script)
