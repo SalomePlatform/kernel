@@ -72,7 +72,7 @@ clt.waitNS("/SalomeLauncher")
 
 # execute Unit Test
 
-command = ['TestLifeCycleCORBA']
+command = ['./TestLifeCycleCORBA']
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
 # kill containers created by the Container Manager
@@ -86,3 +86,4 @@ launcher.Shutdown()
 addToKillList.killList()
 
 TestKiller.killProcess(runSalome.process_id)
+exit(ret)

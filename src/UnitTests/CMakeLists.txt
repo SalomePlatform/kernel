@@ -32,7 +32,8 @@ INCLUDE_DIRECTORIES(
 # ===============================================================
 
 # Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(UnitTests.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
+SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/UnitTests)
+INSTALL(FILES UnitTests.py DESTINATION ${LOCAL_TEST_DIR})
 
 # ===============================================================
 # Executables targets
@@ -93,4 +94,8 @@ ENDIF()
 
 ADD_EXECUTABLE(UnitTests UnitTests.cxx)
 TARGET_LINK_LIBRARIES(UnitTests ${COMMON_LIBS})
-INSTALL(TARGETS UnitTests DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(TARGETS UnitTests DESTINATION ${LOCAL_TEST_DIR})
+
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${LOCAL_TEST_DIR}
+        RENAME CTestTestfile.cmake)

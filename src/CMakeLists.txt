@@ -99,6 +99,14 @@ ELSE()
   ENDIF()
 ENDIF()
 
+# For salome test
+SET(KERNEL_TEST_DIR ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test)
+SET(KERNEL_TEST_LIB ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test/lib)
+CONFIGURE_FILE(CTestTestfileInstall.cmake.in CTestTestfileInstall.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileInstall.cmake
+        DESTINATION ${KERNEL_TEST_DIR}
+        RENAME CTestTestfile.cmake)
+
 FOREACH(_dir ${SUBDIRS})
   ADD_SUBDIRECTORY(${_dir})
 ENDFOREACH()

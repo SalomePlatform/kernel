@@ -28,9 +28,9 @@ IF(NOT WIN32)
 #           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
 #          )
   INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
-          DESTINATION ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test)
+          DESTINATION ${KERNEL_TEST_DIR}/Launcher)
 
   INSTALL(FILES CTestTestfileInstall.cmake
-          DESTINATION ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test
+          DESTINATION ${KERNEL_TEST_DIR}/Launcher
           RENAME CTestTestfile.cmake)
 ENDIF()

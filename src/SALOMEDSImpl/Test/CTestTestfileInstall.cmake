@@ -18,11 +18,9 @@
 #
 
 IF(NOT WIN32)
-  ADD_TEST(SalomeLauncher python ${SALOME_TEST_DRIVER} ${TIMEOUT} test_launcher.py)
-  SET_TESTS_PROPERTIES(SalomeLauncher PROPERTIES LABELS "${COMPONENT_NAME}"
-    #                                                 TIMEOUT 500
-    )
-  # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
-  #     BUT PASS TIMEOUT VALUE TO THE DRIVER
-
+  ADD_TEST(SALOMEDSImpl python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestSALOMEDSImpl.py)
+  SET_TESTS_PROPERTIES(SALOMEDSImpl PROPERTIES
+                                     LABELS "${COMPONENT_NAME}"
+                                     ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+                      )
 ENDIF()

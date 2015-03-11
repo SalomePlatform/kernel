@@ -35,9 +35,13 @@ def killNamingService():
     line=f.readline()
     f.close()
     port=string.split(line,':')[-1][0:4]
-    command='ps -eo pid,command | grep "omniNames -start '+str(port)+'"'
-    pid=string.split(commands.getoutput(command))[0]
-    os.kill(int(pid),signal.SIGKILL)
+    command='ps -eo pid,command | grep "omniNames -start '+str(port)+'" | grep --invert-match grep'
+    output_com = commands.getoutput(command)
+    try:
+      pid=string.split(output_com)[0]
+      os.kill(int(pid),signal.SIGKILL)
+    except:
+      print "killNamingService failed."
 
 
 def killProcess(process_id):

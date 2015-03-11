@@ -61,7 +61,8 @@ if __name__ == "__main__":
   # Add explicit call to python executable if a Python script is passed as
   # first argument
   if not args:
-    exit(0)
+    print "Invalid arguments for salome_test_helper.py. No command defined."
+    exit(1)
   _, ext = os.path.splitext(args[0])
   if ext == ".py":
     test_and_args = [sys.executable] + args

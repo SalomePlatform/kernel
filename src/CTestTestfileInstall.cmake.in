@@ -17,12 +17,25 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-IF(NOT WIN32)
-  ADD_TEST(SalomeLauncher python ${SALOME_TEST_DRIVER} ${TIMEOUT} test_launcher.py)
-  SET_TESTS_PROPERTIES(SalomeLauncher PROPERTIES LABELS "${COMPONENT_NAME}"
-    #                                                 TIMEOUT 500
-    )
-  # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
-  #     BUT PASS TIMEOUT VALUE TO THE DRIVER
+#SET(SALOME_TEST_DRIVER "$ENV{ABSOLUTE_APPLI_PATH}/bin/salome/appliskel/salome_test_driver.py")
+SET(SALOME_TEST_DRIVER "@CMAKE_INSTALL_PREFIX@/bin/salome/appliskel/salome_test_driver.py")
 
-ENDIF()
+SET(COMPONENT_NAME KERNEL)
+SET(TIMEOUT        500)
+
+SET(KERNEL_TEST_LIB "@CMAKE_INSTALL_PREFIX@/@KERNEL_TEST_LIB@")
+
+# Add all test subdirs
+SUBDIRS( Launcher
+         LifeCycleCORBA_SWIG
+         NamingService
+         SALOMELocalTrace
+         LifeCycleCORBA
+         Logger
+         SALOMETraceCollector
+         KernelHelpers
+         SALOMEDS
+         SALOMEDSImpl
+         Utils
+         UnitTests
+    )

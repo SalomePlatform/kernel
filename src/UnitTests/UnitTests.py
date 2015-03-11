@@ -71,7 +71,7 @@ clt.waitNS("/SalomeLauncher")
 
 # execute Unit Test
 
-command = ['UnitTests']
+command = ['./UnitTests']
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
 # kill containers created by the Container Manager
@@ -83,3 +83,4 @@ launcher.Shutdown()
 # kill Test process
 
 TestKiller.killProcess(runSalome.process_id)
+exit(ret)

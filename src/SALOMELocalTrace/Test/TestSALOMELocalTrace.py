@@ -33,7 +33,8 @@ setenv.set_env(args, modules_list, modules_root_dir)
 
 # execute Unit Test
 
-command = ['TestSALOMELocalTrace']
+command = ['./TestSALOMELocalTrace']
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
 # no process to kill
+exit(ret)
