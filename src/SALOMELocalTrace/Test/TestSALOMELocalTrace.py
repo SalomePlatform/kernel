@@ -21,7 +21,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import sys, os,signal,string,commands
+import sys, signal,string,commands
+import subprocess
 import runSalome
 import setenv
 
@@ -34,7 +35,7 @@ setenv.set_env(args, modules_list, modules_root_dir)
 # execute Unit Test
 
 command = ['./TestSALOMELocalTrace']
-ret = os.spawnvp(os.P_WAIT, command[0], command)
+ret = subprocess.call(command)
 
 # no process to kill
 exit(ret)

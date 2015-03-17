@@ -22,10 +22,11 @@
 #
 
 import sys, os,signal,string,commands
+import subprocess
 import runSalome
+import setenv
 import orbmodule
 import TestKiller
-import setenv
 
 # get SALOME environment :
 
@@ -45,9 +46,10 @@ clt.waitLogger("Logger")
 # execute Unit Test
 
 command = ['./TestKernelHelpers']
-ret = os.spawnvp(os.P_WAIT, command[0], command)
+ret = subprocess.call(command)
 
-# kill Test process 
+# kill Test process
 
 TestKiller.killProcess(runSalome.process_id)
+TestKiller.closeSalome()
 exit(ret)

@@ -27,6 +27,7 @@
 #  $Header$
 #
 import sys, os,signal,string,commands
+import subprocess
 import runSalome
 import setenv
 import orbmodule
@@ -78,7 +79,7 @@ clt.waitNS("/SalomeLauncher")
 # execute Unit Test
 
 command = ['TestLifeCycleCORBA']
-ret = os.spawnvp(os.P_WAIT, command[0], command)
+ret = subprocess.call(command)
 
 import LifeCycleCORBA_SWIGTest
 import unittest
@@ -95,4 +96,5 @@ launcher.Shutdown()
 addToKillList.killList()
 
 TestKiller.killProcess(runSalome.process_id)
+TestKiller.closeSalome()
 exit(ret)

@@ -40,7 +40,7 @@ void KernelHelpersUnitTests::setUp()
 
 // ============================================================================
 /*!
- *  - delete 
+ *  - delete
  */
 // ============================================================================
 
@@ -58,7 +58,7 @@ void KernelHelpersUnitTests::TEST_corba()
   CORBA::ORB_var orb = KERNEL::getORB();
   CPPUNIT_ASSERT(!CORBA::is_nil(orb));
 
-  
+
   SALOME_NamingService *  ns  = KERNEL::getNamingService();
   CPPUNIT_ASSERT(ns!=NULL);
 
@@ -69,7 +69,7 @@ void KernelHelpersUnitTests::TEST_corba()
 void KernelHelpersUnitTests::TEST_getLifeCycleCORBA() {
   Engines::EngineComponent_var component =
     KERNEL::getLifeCycleCORBA()->FindOrLoad_Component( "FactoryServer","SalomeTestComponent" );
-  
+
   Engines::TestComponent_var engine = Engines::TestComponent::_narrow(component);
   char * coucou_res = engine->Coucou(123.);
   const char * coucou_ref = "TestComponent_i : L = 123";
@@ -78,7 +78,20 @@ void KernelHelpersUnitTests::TEST_getLifeCycleCORBA() {
 }
 
 void KernelHelpersUnitTests::TEST_getStudyManager() {
-  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudyManager()->NewStudy("kerneltest");
+  SALOMEDS::StudyManager_var studyManager = KERNEL::getStudyManager();
+
+  #ifndef ALLOW_MULTI_STUDIES
+  SALOMEDS::ListOfOpenStudies_var _list_open_studies =  studyManager->GetOpenStudies();
+  for (unsigned int ind = 0; ind < _list_open_studies->length();ind++)
+    {
+      LOG("Close study : " << _list_open_studies[ind]);
+      SALOMEDS::Study_var study = studyManager->GetStudyByName(_list_open_studies[0]);
+      if(study)
+        studyManager->Close(study);
+    }
+  #endif
+
+  SALOMEDS::Study_ptr myTestStudy = studyManager->NewStudy("kerneltest");
   CPPUNIT_ASSERT(!CORBA::is_nil(myTestStudy));
 
   // One can use the study to store some general properties

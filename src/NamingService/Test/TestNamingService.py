@@ -22,6 +22,7 @@
 #
 
 import sys, os,signal,string,commands
+import subprocess
 import runSalome
 import setenv
 import orbmodule
@@ -54,9 +55,10 @@ clt.waitLogger("Logger")
 command = ['./TestNamingService']
 valgrind = ['valgrind','--leak-check=full']
 #command=valgrind+command #to check memory leaks
-ret = os.spawnvp(os.P_WAIT, command[0], command)
+ret = subprocess.call(command)
 
 # kill Test process
 
 TestKiller.killProcess(runSalome.process_id)
+TestKiller.closeSalome()
 exit(ret)

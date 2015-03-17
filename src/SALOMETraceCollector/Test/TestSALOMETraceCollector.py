@@ -22,6 +22,7 @@
 #
 
 import sys, os,signal,string,commands
+import subprocess
 import runSalome
 import orbmodule
 import TestKiller
@@ -45,9 +46,9 @@ clt.waitLogger("Logger")
 # execute Unit Test
 
 command = ['./TestSALOMETraceCollector']
-ret = os.spawnvp(os.P_WAIT, command[0], command)
+ret = subprocess.call(command)
 
-# kill Test process 
+# kill Test process
 
 TestKiller.killProcess(runSalome.process_id)
 exit(ret)

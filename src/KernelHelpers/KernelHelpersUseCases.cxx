@@ -16,7 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author: Guillaume Boulant (EDF/R&D) 
+// Author: Guillaume Boulant (EDF/R&D)
 
 #include "SALOME_KernelServices.hxx"
 #include "Basics_Utils.hxx"
@@ -34,7 +34,7 @@ bool TEST_corba() {
   if ( ns == NULL ) {
     LOG("TEST_Corba: ns ERROR");
     return false;
-    
+
   }
   SALOME_LifeCycleCORBA * lcc = KERNEL::getLifeCycleCORBA();
   if ( lcc == NULL ) {
@@ -49,7 +49,7 @@ bool TEST_corba() {
 bool TEST_getLifeCycleCORBA() {
   Engines::EngineComponent_var component =
     KERNEL::getLifeCycleCORBA()->FindOrLoad_Component( "FactoryServer","SalomeTestComponent" );
-  
+
   Engines::TestComponent_var engine = Engines::TestComponent::_narrow(component);
   char * coucou_res = engine->Coucou(123.);
   const char * coucou_ref = "L = 123";

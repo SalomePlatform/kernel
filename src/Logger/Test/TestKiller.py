@@ -23,6 +23,24 @@
 
 import sys, os,signal,string,commands
 
+def getCurrentPort():
+    fic=os.environ['OMNIORB_CONFIG']
+    with open(fic,'r') as f:
+        line=f.readline()
+    port=string.split(line,':')[-1][0:4]
+    return port
+
+
+def closeSalome():
+    port = getCurrentPort()
+    try:
+        from PortManager import releasePort
+        print "### release current port:", port
+        releasePort(port)
+    except:
+        pass
+
+
 def killNamingService():
     """
     kills omniORB4 Naming Service on local machine.
@@ -30,11 +48,7 @@ def killNamingService():
     Works only with a single line $OMNIORB_CONFIG like
     InitRef = NameService=corbaname::<hostname>:<port>
     """
-    fic=os.environ['OMNIORB_CONFIG']
-    f=open(fic,'r')
-    line=f.readline()
-    f.close()
-    port=string.split(line,':')[-1][0:4]
+    port = getCurrentPort()
     command='ps -eo pid,command | grep "omniNames -start '+str(port)+'" | grep --invert-match grep'
     output_com = commands.getoutput(command)
     try:

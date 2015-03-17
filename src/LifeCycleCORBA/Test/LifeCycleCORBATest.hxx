@@ -54,11 +54,15 @@ class LIFECYCLECORBATEST_EXPORT LifeCycleCORBATest : public CppUnit::TestFixture
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsEmpty );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsLocalContainer );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsContainerName );
+#ifdef SALOME_TEST_REMOTE
   CPPUNIT_TEST( testFindOrLoad_Component_RemoteComputer );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsRemoteComputer );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsRemoteComputer2 );
+#endif
   CPPUNIT_TEST( testgetLocalFile_localComputer );
+#ifdef SALOME_TEST_REMOTE
   CPPUNIT_TEST( testgetLocalFile_remoteComputer );
+#endif
 //   CPPUNIT_TEST( testFindOrLoad_Component_ );
 //   CPPUNIT_TEST(  );
 //   CPPUNIT_TEST(  );
