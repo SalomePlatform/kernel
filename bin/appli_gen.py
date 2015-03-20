@@ -32,12 +32,12 @@ Typical use with options is:
   python %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
 """
 
-import argparse
 import os
 import sys
 import shutil
 import virtual_salome
 import xml.sax
+import optparse
 
 # --- names of tags in XML configuration file
 appli_tag   = "application"
@@ -331,19 +331,18 @@ MMGT_REENTRANT=1
     os.chmod(users_dir, 0777)
 
 def main():
-    parser = argparse.ArgumentParser(usage=usage)
+    parser = optparse.OptionParser(usage=usage)
 
-    parser.add_argument('--prefix', default='.', metavar="<install directory>",
-                      help="Installation directory (default %(default)s)")
+    parser.add_option('--prefix', dest="prefix", default='.',
+                      help="Installation directory (default .)")
 
-    parser.add_argument('--config', default='config_appli.xml',
-                      metavar="<configuration file>",
-                      help="XML configuration file (default %(default)s)")
+    parser.add_option('--config', dest="config", default='config_appli.xml',
+                      help="XML configuration file (default config_appli.xml)")
 
-    parser.add_argument('-v', '--verbose', action='count',
+    parser.add_option('-v', '--verbose', action='count', dest='verbose',
                       default=0, help="Increase verbosity")
 
-    options = parser.parse_args()
+    options, args = parser.parse_args()
     if not os.path.exists(options.config):
         print "ERROR: config file %s does not exist. It is mandatory." % options.config
         sys.exit(1)
