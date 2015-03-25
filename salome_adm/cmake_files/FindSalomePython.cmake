@@ -107,6 +107,14 @@ ENDIF()
 # Set the FOUND flag for SalomePython and Python:
 SET(SALOMEPYTHON_FOUND FALSE)
 IF (_found1 AND PYTHONLIBS_FOUND)
+  
+  # 24.03.2015 ANA: Fix problem on Windows in  Debug mode
+  # If you have Python, installed by Windows MSI Installer, 
+  # PYTHON_LIBRARIES variable contains redundant release libraries...
+  IF(WIN32 AND CMAKE_BUILD_TYPE STREQUAL Debug)
+    SET (PYTHON_LIBRARIES ${PYTHON_DEBUG_LIBRARIES})
+  ENDIF()
+
   SET(SALOMEPYTHON_FOUND TRUE)
   SET(Python_FOUND TRUE)
 ELSE()
@@ -116,7 +124,7 @@ ENDIF()
 
 IF (SALOMEPYTHON_FOUND)
   MESSAGE(STATUS "Python interpreter and Python libraries found:")
-  MESSAGE(STATUS "Python libraries: ${PYTHON_LIBRARY}")
+  MESSAGE(STATUS "Python libraries: ${PYTHON_LIBRARIES}")
   MESSAGE(STATUS "Python include dir: ${PYTHON_INCLUDE_DIR}")
 
   # 3. Set the root dir which was finally retained 
