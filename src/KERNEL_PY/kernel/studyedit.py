@@ -39,8 +39,8 @@ logger = Logger("salome.kernel.studyedit", color = termcolor.PURPLE)
 _editors = {}
 _DEFAULT_CONTAINER = "FactoryServer"
 
-# The codec to use for strings that are displayed in Salome study tree is UTF-8
-ENCODING_FOR_SALOME_STUDY = "utf-8"
+# The codec to use for strings that are displayed in Salome study tree is Latin-1
+ENCODING_FOR_SALOME_STUDY = "iso-8859-1"
 
 ## Return the ID of the active study. In GUI mode, this function is equivalent
 #  to salome.sg.getActiveStudyId(). Outside GUI, it returns <b> salome.myStudyId </b>
