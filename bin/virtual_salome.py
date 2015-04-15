@@ -199,7 +199,7 @@ def link_module(options):
             f.write("SUBDIRS(%s)\n"%options.module_name)
     else:
         if verbose:
-            print module_bin_dir, " doesn't exist"
+            print module_test_dir, " doesn't exist"
         pass
 
     #directory idl/salome : create it and link content
@@ -338,6 +338,40 @@ def link_module(options):
         for fn in os.listdir(module_doc_tui_dir):
             symlink(os.path.join(module_doc_tui_dir, fn), os.path.join(doc_tui_dir, fn))
             pass
+        pass
+
+def link_extra_test(options):
+    global verbose
+
+    if not options.extra_test_path:
+        print "Option extra_test is mandatory"
+        return
+
+    extra_test_dir=os.path.abspath(options.extra_test_path)
+    if not os.path.exists(extra_test_dir):
+        print "Test %s does not exist" % extra_test_dir
+        return
+
+    verbose = options.verbose
+
+    home_dir = os.path.expanduser(options.prefix)
+    test_dir = os.path.join(home_dir,'bin','salome', 'test')
+
+    if options.clear:
+        rmtree(test_dir)
+        pass
+
+    #directory bin/salome/test : create it and link content
+    if os.path.exists(extra_test_dir):
+        # link <appli_path>/bin/salome/test/<extra_test> to <extra_test_path>/bin/salome/test
+        print "link %s --> %s"%(os.path.join(test_dir, options.extra_test_name), extra_test_dir)
+        symlink(extra_test_dir, os.path.join(test_dir, options.extra_test_name))
+        # register extra_test for testing in CTestTestfile.cmake
+        with open(os.path.join(test_dir, "CTestTestfile.cmake"), "ab") as f:
+            f.write("SUBDIRS(%s)\n"%options.extra_test_name)
+    else:
+        if verbose:
+            print extra_test_dir, " doesn't exist"
         pass
 
 # -----------------------------------------------------------------------------
