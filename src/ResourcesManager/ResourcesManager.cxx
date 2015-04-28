@@ -39,8 +39,6 @@
 
 #include <algorithm>
 
-#include "Utils_SALOME_Exception.hxx"
-
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
 using namespace std;
@@ -328,9 +326,10 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
 void
 ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resource)
 {
-  if (new_resource.Name == DEFAULT_RESOURCE_NAME)
-    throw SALOME_Exception((string("Cannot modify default local resource \"") +
-                            DEFAULT_RESOURCE_NAME + "\"").c_str());
+  if (new_resource.Name == DEFAULT_RESOURCE_NAME){
+    std::string error("Cannot modify default local resource \"" + DEFAULT_RESOURCE_NAME + "\"");
+    throw ResourcesException(error);
+  }
   // TODO - Add minimal check
   _resourcesList[new_resource.Name] = new_resource;
 }
@@ -343,9 +342,10 @@ ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resou
 
 void ResourcesManager_cpp::DeleteResourceInCatalog(const char * name)
 {
-  if (DEFAULT_RESOURCE_NAME == name)
-    throw SALOME_Exception((string("Cannot delete default local resource \"") +
-                            DEFAULT_RESOURCE_NAME + "\"").c_str());
+  if (DEFAULT_RESOURCE_NAME == name){
+    std::string error("Cannot delete default local resource \"" + DEFAULT_RESOURCE_NAME + "\"");
+    throw ResourcesException(error);
+  }
   MapOfParserResourcesType_it it = _resourcesList.find(name);
   if (it != _resourcesList.end())
     _resourcesList.erase(name);

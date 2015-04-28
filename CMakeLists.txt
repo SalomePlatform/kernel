@@ -67,7 +67,6 @@ CMAKE_DEPENDENT_OPTION(SALOME_USE_MPI "Use MPI containers" OFF
 CMAKE_DEPENDENT_OPTION(SALOME_USE_MPI "Use MPI containers" ${SALOME_USE_MPI}
                        "NOT SALOME_LIGHT_ONLY" OFF)
 MARK_AS_ADVANCED(SALOME_LIGHT_ONLY SALOME_USE_LIBBATCH SALOME_USE_SIMAN SALOME_PACO_PARALLEL SALOME_USE_PORTMANAGER)
-SET(SALOME_LAUNCHER_ONLY OFF) # deprecated option: Build only the Launcher part
 
 # Required prerequisites
 #   Find "big" prerequisites first - they reference themselves many others
@@ -206,52 +205,47 @@ INCLUDE(CMakePackageConfigHelpers)
 # List of targets in this project we want to make visible to the rest of the world.
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
-IF(SALOME_LAUNCHER_ONLY)
-  SET(_${PROJECT_NAME}_exposed_targets 
-    SALOMEBasics ResourcesManager Launcher)
-ELSE()
-  SET(_${PROJECT_NAME}_exposed_targets 
-    SALOMEBasics SALOMELocalTrace SalomeHDFPersist OpUtil)
+SET(_${PROJECT_NAME}_exposed_targets 
+  SALOMEBasics SALOMELocalTrace SalomeHDFPersist OpUtil)
     
-  # CORBA specific targets:
+# CORBA specific targets:
+IF(NOT SALOME_LIGHT_ONLY)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+    DF SalomeLoggerServer with_loggerTraceCollector SalomeNS SalomeGenericObj 
+    Registry SalomeCatalog ResourcesManager SalomeResourcesManager
+    SalomeNotification SalomeContainer SalomeSDS Launcher SalomeLauncher
+    SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers
+    SalomeDSImpl SalomeDS SalomeCommunication SalomeDSCContainer)
+  # Temporary solution for package src\DSC on windows
+  IF(NOT WIN32)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+      CalciumC SalomeCalcium SalomeDatastream SalomePalm SalomeDSCSupervBasic 
+      SalomeDSCSuperv)
+    IF(SALOME_PACO_PARALLEL)
+      LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelDSCContainer)
+    ENDIF()
+  ENDIF()
+ENDIF()
+  
+# MPI specific targets:
+IF(SALOME_USE_MPI)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+    SalomeMPIContainer SalomeTestMPIComponentEngine)
+ENDIF()
+      
+# Test targets:
+IF(SALOME_BUILD_TESTS)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets SALOMELocalTraceTest UnitTests)
   IF(NOT SALOME_LIGHT_ONLY)
     LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-      DF SalomeLoggerServer with_loggerTraceCollector SalomeNS SalomeGenericObj 
-      Registry SalomeCatalog ResourcesManager SalomeResourcesManager
-      SalomeNotification SalomeContainer SalomeSDS Launcher SalomeLauncher
-      SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers
-      SalomeDSImpl SalomeDS SalomeCommunication SalomeDSCContainer)
-    # Temporary solution for package src\DSC on windows
-    IF(NOT WIN32)
-      LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-        CalciumC SalomeCalcium SalomeDatastream SalomePalm SalomeDSCSupervBasic 
-        SalomeDSCSuperv)
-      IF(SALOME_PACO_PARALLEL)
-        LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelDSCContainer)
-      ENDIF()
-    ENDIF()
+      SALOMETraceCollectorTest UtilsTest NamingServiceTest SalomeTestComponentEngine 
+      LifeCycleCORBATest SalomeKernelHelpersTest SALOMEDSImplTest SALOMEDSTest)
   ENDIF()
-  
-  # MPI specific targets:
-  IF(SALOME_USE_MPI)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-      SalomeMPIContainer SalomeTestMPIComponentEngine)
-  ENDIF()
-      
-  # Test targets:
-  IF(SALOME_BUILD_TESTS)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets SALOMELocalTraceTest UnitTests)
-    IF(NOT SALOME_LIGHT_ONLY)
-      LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-        SALOMETraceCollectorTest UtilsTest NamingServiceTest SalomeTestComponentEngine 
-        LifeCycleCORBATest SalomeKernelHelpersTest SALOMEDSImplTest SALOMEDSTest)
-    ENDIF()
-  ENDIF()
+ENDIF()
 
-  # PACO specific targets:
-  IF(SALOME_PACO_PARALLEL)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelContainer)
-  ENDIF()
+# PACO specific targets:
+IF(SALOME_PACO_PARALLEL)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelContainer)
 ENDIF()
              
 IF(NOT SALOME_LIGHT_ONLY)

@@ -18,14 +18,24 @@
 //
 
 #include "Launcher.hxx"
+#include <iostream>
+#include <string>
 
 int main(int argc, char** argv)
 {
+  std::string xmlfile("");
 
   try {
     Launcher_cpp *lcpp = new Launcher_cpp();
     ResourcesManager_cpp *rcpp = new ResourcesManager_cpp();
     lcpp->SetResourcesManager(rcpp);
+    if(!getenv("KERNEL_ROOT_DIR"))
+      throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load testLauncher.xml");
+    xmlfile = getenv("KERNEL_ROOT_DIR");
+    xmlfile += "/share/salome/resources/kernel/testLauncher.xml";
+
+    long jobid = lcpp->createJobWithFile(xmlfile.c_str(),"localhost");
+    lcpp->launchJob(jobid);
     delete lcpp;
     delete rcpp;
     std::cout << "test OK" << std::endl;

@@ -49,6 +49,14 @@ enum BatchType {none, pbs, lsf, sge, ccc, ll, slurm, vishnu, oar, coorm};
 
 enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, ompi, slurmmpi, prun};
 
+class RESOURCESMANAGER_EXPORT ResourcesException
+{
+public:
+  const std::string msg;
+
+  ResourcesException(const std::string m) : msg(m) {}
+};
+
 class RESOURCESMANAGER_EXPORT ResourceDataToSort
   {
 
