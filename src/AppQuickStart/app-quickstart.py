@@ -169,7 +169,7 @@ def profileReplaceStrings( src, dst, options ) :
                 l = l.replace( '[VERSION]', options.version )
                 l = l.replace( '[SLOGAN]', options.slogan )
                 l = l.replace( '[NAME_OF_APPLICATION]', options.name.upper() )
-                l = l.replace( '<Name_of_Application>', options.name )
+                l = l.replace( '[Name_of_Application]', options.name )
                 l = l.replace( '(name_of_application)', options.name.lower() )
                 fout.write( l )
 

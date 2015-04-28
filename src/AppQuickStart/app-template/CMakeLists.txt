@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
-PROJECT(Salome_<Name_of_Application>_Profile C CXX)
+PROJECT(Salome_[Name_of_Application]_Profile C CXX)
 
 # Ensure a proper linker behavior:
 CMAKE_POLICY(SET CMP0003 NEW)
@@ -48,7 +48,7 @@ ENDIF(EXISTS ${KERNEL_ROOT_DIR})
 # User options
 # ============
 OPTION(SALOME_BUILD_TESTS "Build SALOME tests" ON)
-OPTION(SALOME_BUILD_DOC "Generate SALOME <Name_of_Application> documentation" ON)
+OPTION(SALOME_BUILD_DOC "Generate SALOME [Name_of_Application] documentation" ON)
 
 IF(SALOME_BUILD_TESTS)
   ENABLE_TESTING()
