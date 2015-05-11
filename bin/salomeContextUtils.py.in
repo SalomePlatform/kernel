@@ -144,8 +144,24 @@ def __get_environment_from_batch_command(env_cmd, initial=None):
 #
 def __subtract(ref, dic):
   result = {}
-  for item in set(ref).difference(set(dic)):
-    result[item] = ref[item]
+  for key,val in ref.items():
+    if not dic.has_key(key):
+      result[key] = val
+    else:
+      # compare values types
+      if (type(dic[key]) != type(val)):
+        result[key] = val
+      else:
+        # compare values
+        if isinstance(val, basestring):
+          tolist1 = dic[key].split(os.pathsep)
+          tolist2 = val.split(os.pathsep)
+          diff = list(set(tolist2)-set(tolist1))
+          if diff:
+            result[key] = os.pathsep.join(diff)
+        else:
+          result[key] = val
+
   return result
 #
 
