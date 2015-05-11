@@ -61,18 +61,14 @@ def __getConfigFileNamesDefault():
   return __listDirectory(envdDir)
 #
 
-def getConfigFileNames(args, checkExistence=False):
-  # special case: configuration files are provided by user
-  # Search for command-line argument(s) --config=file1,file2,..., filen
-  # Search for command-line argument(s) --config=dir1,dir2,..., dirn
-  configOptionPrefix = "--config="
-  configArgs = [ str(x) for x in args if str(x).startswith(configOptionPrefix) ]
+def __getEnvironmentFileNames(args, optionPrefix, checkExistence):
+  # special case: extra configuration/environment files are provided by user
+  # Search for command-line argument(s) <optionPrefix>=file1,file2,..., filen
+  # Search for command-line argument(s) <optionPrefix>=dir1,dir2,..., dirn
+  configArgs = [ str(x) for x in args if str(x).startswith(optionPrefix) ]
 
-  if len(configArgs) == 0:
-    return __getConfigFileNamesDefault(), args, []
-
-  args = [ x for x in args if not x.startswith(configOptionPrefix) ]
-  allLists = [ x.replace(configOptionPrefix, '') for x in configArgs ]
+  args = [ x for x in args if not x.startswith(optionPrefix) ]
+  allLists = [ x.replace(optionPrefix, '') for x in configArgs ]
 
   configFileNames = []
   unexisting = []
@@ -89,6 +85,89 @@ def getConfigFileNames(args, checkExistence=False):
           configFileNames += [elt]
 
   return configFileNames, args, unexisting
+#
+
+def __validate_pair(ob):
+  try:
+    if not (len(ob) == 2):
+      #print "Unexpected result:", ob
+      raise ValueError
+  except:
+    return False
+  return True
+#
+def __get_environment_from_batch_command(env_cmd, initial=None):
+  """
+  Take a command (either a single command or list of arguments)
+  and return the environment created after running that command.
+  Note that if the command must be a batch file or .cmd file, or the
+  changes to the environment will not be captured.
+
+  If initial is supplied, it is used as the initial environment passed
+  to the child process.
+  """
+  #if not isinstance(env_cmd, (list, tuple)):
+  #    env_cmd = [env_cmd]
+  # construct the command that will alter the environment
+  #env_cmd = subprocess.list2cmdline(env_cmd)
+  # create a tag so we can tell in the output when the proc is done
+  tag = 'Done running command'
+  # construct a command to do accomplish this
+  cmd = '{env_cmd} && echo "{tag}"'.format(**vars())
+
+  # launch the process
+  proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial, shell=True)
+  # parse the output sent to stdout
+  lines = proc.stdout
+  # consume whatever output occurs until the tag is reached
+  #consume(itertools.takewhile(lambda l: tag not in l, lines))
+  # define a way to handle each KEY=VALUE line
+  handle_line = lambda l: l.rstrip().split('=',1)
+  # parse key/values into pairs
+  #pairs = map(handle_line, lines)
+  pairs = []
+  cpt = 0
+  while True:
+    line = lines.readline()
+    cpt = cpt+1
+    if tag in line or cpt > 1000:
+      break
+    if line:
+      pairs.append(line.rstrip().split('=',1))
+  # make sure the pairs are valid
+  valid_pairs = filter(__validate_pair, pairs)
+  # construct a dictionary of the pairs
+  result = dict(valid_pairs)
+  # let the process finish
+  proc.communicate()
+  return result
+#
+def __subtract(ref, dic):
+  result = {}
+  for item in set(ref).difference(set(dic)):
+    result[item] = ref[item]
+  return result
+#
+
+def getConfigFileNames(args, checkExistence=False):
+  configOptionPrefix = "--config="
+  configArgs = [ str(x) for x in args if str(x).startswith(configOptionPrefix) ]
+  if len(configArgs) == 0:
+    configFileNames, unexist1 = __getConfigFileNamesDefault(), []
+  else:
+    # get configuration filenames
+    configFileNames, args, unexist1 = __getEnvironmentFileNames(args, configOptionPrefix, checkExistence)
+
+  # get extra environment
+  extraEnvFileNames, args, unexist2 = __getEnvironmentFileNames(args, "--extra_env=", checkExistence)
+  before = __get_environment_from_batch_command("env")
+  after = {}
+  for filename in extraEnvFileNames:
+    after.update(__get_environment_from_batch_command(filename))
+    pass
+
+  extraEnv = __subtract(after,before)
+  return configFileNames, extraEnv, args, unexist1+unexist2
 #
 
 def __getScriptPath(scriptName, searchPathList):
