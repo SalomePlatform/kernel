@@ -239,13 +239,16 @@ class SalomeContext:
   See usage for details on commands.
   """
   def _startSalome(self, args):
+    import os
+    import sys
     try:
-      import os
+      from setenv import add_path
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
-      import sys
       path = os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome"))
-      if not path in sys.path:
-        sys.path[:0] = [path]
+      add_path(path, "PYTHONPATH")
+      path = os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome", "appliskel"))
+      add_path(path, "PYTHONPATH")
+
     except:
       pass
 

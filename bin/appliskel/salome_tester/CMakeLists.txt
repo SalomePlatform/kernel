@@ -19,7 +19,7 @@
 
 SET(SCRIPTS
   salome_test_driver.py
-  salome_test_session.py
+  salome_instance.py
 )
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)

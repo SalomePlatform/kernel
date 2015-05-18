@@ -23,8 +23,37 @@ import os
 # Example of args:
 #      args=["--gui", "--show-desktop=1", "--splash=0"]
 #      args=["--terminal","--modules=MED,PARAVIS,GUI"]
-class SalomeSession(object):
-  def __init__(self, args=[]):
+class SalomeInstance(object):
+
+  def __init__(self):
+    self.port = None
+  #
+
+  def get_port(self):
+    return self.port
+  #
+
+  @staticmethod
+  def start(shutdown_servers=False):
+    import tempfile
+    log = tempfile.NamedTemporaryFile(suffix='_nsport.log', delete=False)
+    log.close()
+
+    instance_args = [
+      "--ns-port-log=%s"%log.name,
+      "--shutdown-servers=%d"%shutdown_servers
+      ]
+    salome_instance = SalomeInstance()
+    salome_instance.__run(args=instance_args)
+
+    with open(log.name) as f:
+      salome_instance.port = int(f.readline())
+
+    os.remove(log.name)
+    return salome_instance
+  #
+
+  def __run(self, args=[]):
     sys.argv = ['runSalome'] + args
 
     if "INGUI" in args:
@@ -36,41 +65,37 @@ class SalomeSession(object):
       #sys.argv += ["--embedded=SalomeAppEngine,cppContainer,registry,moduleCatalog"]
     else:
       sys.argv += ["--terminal"]
-      sys.argv += ["--shutdown-servers=1"]
+      #sys.argv += ["--shutdown-servers=1"]
       #sys.argv += ["--modules=MED,PARAVIS,GUI"]
       pass
 
     import setenv
     setenv.main(True)
-
     import runSalome
     runSalome.runSalome()
-  #
-#
 
-# Run SALOME
-def startSession():
-  import tempfile
-  log = tempfile.NamedTemporaryFile(suffix='_nsport.log', delete=False)
-  log.close()
-  import salome
-  salome_session = SalomeSession(args=["--ns-port-log=%s"%log.name])
-  salome.salome_init()
-  session_server = salome.naming_service.Resolve('/Kernel/Session')
-  if session_server:
+    import salome
+    salome.salome_init()
+    session_server = salome.naming_service.Resolve('/Kernel/Session')
+    if session_server:
       session_server.emitMessage("connect_to_study")
       session_server.emitMessage("activate_viewer/ParaView")
       pass
+  #
 
-  with open(log.name) as f:
-      port = int(f.readline())
+  def stop(self):
+    import killSalomeWithPort
+    killSalomeWithPort.killMyPort(self.port)
+  #
 
-  os.remove(log.name)
-  return port
 #
 
-# Terminate SALOME
-def terminateSession(port):
-  import killSalomeWithPort
-  killSalomeWithPort.killMyPort(port)
+if __name__ == "__main__":
+  print "##### Start instance..."
+  salome_instance = SalomeInstance.start()
+  port = salome_instance.get_port()
+  print "#####    ...instance started on port %s"%port
+
+  print "##### Terminate instance running on port %s"%port
+  salome_instance.stop()
 #

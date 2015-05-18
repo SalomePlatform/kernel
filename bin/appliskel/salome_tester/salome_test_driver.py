@@ -110,11 +110,12 @@ if __name__ == "__main__":
   signal.alarm(abs(int(timeout_delay)-10))
   signal.signal(signal.SIGALRM, timeoutHandler)
 
-  # Run test in a new SALOME session
-  from salome_test_session import startSession, terminateSession
+  # Run test in a new SALOME instance
+  from salome_instance import SalomeInstance
   res = 1
   try:
-    port = startSession()
+    salome_instance = SalomeInstance.start(shutdown_servers=True)
+    port = salome_instance.get_port()
     res, out, err = runTest(test_and_args)
     #res = processResult(res, out, err)
     res = processResultSpecialParavis(res, out, err)
@@ -125,7 +126,7 @@ if __name__ == "__main__":
     traceback.print_exc()
     pass
 
-  terminateSession(port)
+  salome_instance.stop()
   print "Exit test with status code:", res
   exit(res)
 #
