@@ -109,58 +109,58 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
   IF(NOT SALOME_INSTALL_SCRIPTS_DEF_PERMS)
     SET(PERMS ${PERMS} OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
   ENDIF(NOT SALOME_INSTALL_SCRIPTS_DEF_PERMS)
+  SET(_all_pyc)
+  SET(_all_pyo)
+  SET(_all_subdirs)
   FOREACH(file ${file_list})
     SET(PREFIX "")
+    SET(_source_prefix "")
     GET_FILENAME_COMPONENT(file_name ${file} NAME)
     IF(NOT IS_ABSOLUTE ${file})
       IF(SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY)
 	    SET(PREFIX "${SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY}/")
       ENDIF(SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY)
+      SET(_source_prefix "${CMAKE_CURRENT_SOURCE_DIR}/")
     ENDIF(NOT IS_ABSOLUTE ${file})
     INSTALL(FILES ${PREFIX}${file} DESTINATION ${path} PERMISSIONS ${PERMS})
     GET_FILENAME_COMPONENT(ext ${file} EXT)
-    IF(ext STREQUAL .py)
-      # FILE TIMESTAMP command appears in cmake-2.8.11
-      IF(${CMAKE_VERSION} VERSION_LESS "2.8.11")
-        INSTALL(CODE "MESSAGE(STATUS \"py compiling ${CMAKE_INSTALL_PREFIX}/${path}/${file_name}\")")
-        INSTALL(CODE "SET(CMD \"import py_compile ; py_compile.compile('${CMAKE_INSTALL_PREFIX}/${path}/${file_name}')\")")
-        INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c \"\${CMD}\")")
-        INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -O -c \"\${CMD}\")")
-      ELSE(${CMAKE_VERSION} VERSION_LESS "2.8.11")
-        GET_FILENAME_COMPONENT(file_we ${file_name} NAME_WE)
-        INSTALL(CODE "SET(CMD \"import py_compile ; py_compile.compile('${CMAKE_INSTALL_PREFIX}/${path}/${file_name}')\")")
-        INSTALL(CODE "FILE(TIMESTAMP \"${CMAKE_INSTALL_PREFIX}/${path}/${file_name}\"            py_time)")
-        INSTALL(CODE "IF(EXISTS \"${CMAKE_INSTALL_PREFIX}/${path}/${file_we}.pyc\") \n  FILE(TIMESTAMP \"${CMAKE_INSTALL_PREFIX}/${path}/${file_we}.pyc\" pyc_time) \n ELSE()\n  SET(pyc_time 0) \n ENDIF() ")
-        INSTALL(CODE "IF(EXISTS \"${CMAKE_INSTALL_PREFIX}/${path}/${file_we}.pyo\") \n  FILE(TIMESTAMP \"${CMAKE_INSTALL_PREFIX}/${path}/${file_we}.pyo\" pyo_time) \n ELSE()\n  SET(pyo_time 0) \n ENDIF() ")
-        #INSTALL(CODE "MESSAGE(STATUS \"\${py_time} \${pyc_time} \")")
-        INSTALL(CODE "STRING(COMPARE LESS \${pyc_time} \${py_time} to_install_pyc)")
-        INSTALL(CODE "STRING(COMPARE LESS \${pyo_time} \${py_time} to_install_pyo)")
-        INSTALL(CODE "IF (\${to_install_pyc} OR \${to_install_pyo}) \n MESSAGE(STATUS \"py compiling ${CMAKE_INSTALL_PREFIX}/${path}/${file_name}\") \n ENDIF()")
-        INSTALL(CODE "IF (\${to_install_pyc}) \n EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c \"\${CMD}\") \n ENDIF()")
-        INSTALL(CODE "IF (\${to_install_pyo}) \n EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -O -c \"\${CMD}\") \n ENDIF()")
-      ENDIF(${CMAKE_VERSION} VERSION_LESS "2.8.11")
+    GET_FILENAME_COMPONENT(we_ext ${file} NAME_WE)
+    GET_FILENAME_COMPONENT(single_dir ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE) 
+    IF(ext STREQUAL .py)    
+      # Generate and install the pyc and pyo
+      # [ABN] Important: we avoid references or usage of CMAKE_INSTALL_PREFIX which is not correctly set 
+      # when using CPack.       
+      SET(_pyc_file "${CMAKE_CURRENT_BINARY_DIR}/${we_ext}.pyc")
+      SET(_pyo_file "${CMAKE_CURRENT_BINARY_DIR}/${we_ext}.pyo")
+      LIST(APPEND _all_pyc ${_pyc_file})
+      LIST(APPEND _all_pyo ${_pyo_file})
+      ADD_CUSTOM_COMMAND(
+           OUTPUT ${_pyc_file}
+           COMMAND ${PYTHON_EXECUTABLE} -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyc_file}' )"
+           DEPENDS ${PREFIX}${file}
+           VERBATIM
+       )
+      ADD_CUSTOM_COMMAND(
+           OUTPUT ${_pyo_file}
+           COMMAND ${PYTHON_EXECUTABLE} -O -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyo_file}' )"
+           DEPENDS ${PREFIX}${file}
+           VERBATIM
+       )
+      # Install the .pyo and the .pyc
+      INSTALL(FILES ${_pyc_file} DESTINATION ${path} PERMISSIONS ${PERMS})
+      INSTALL(FILES ${_pyo_file} DESTINATION ${path} PERMISSIONS ${PERMS})
     ENDIF(ext STREQUAL .py)
   ENDFOREACH(file ${file_list})
+  # Generate only one target for all requested Python script compilation.
+  # Make sure that the target name is unique too. 
+  IF(_all_pyc)
+     SET(_cnt 0)
+     WHILE(TARGET "PYCOMPILE_${single_dir}_${_cnt}")
+       MATH(EXPR _cnt ${_cnt}+1)
+     ENDWHILE()
+     ADD_CUSTOM_TARGET("PYCOMPILE_${single_dir}_${_cnt}" ALL DEPENDS ${_all_pyc} ${_all_pyo})
+  ENDIF()
 ENDMACRO(SALOME_INSTALL_SCRIPTS)
-
-#----------------------------------------------------------------------------
-# SALOME_INSTALL_SCRIPTS is a macro useful for installing executable scripts.
-# ARGUMENTS:
-# PYFILE2COMPINST: IN : list of python files to be installed.
-# PYFILELOC: IN : full pathname for installing.
-# Permissions of installed files: OWNER_WRITE, OWNER_READ, GROUP_READ, and WORLD_READ
-#----------------------------------------------------------------------------
-MACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
-  INSTALL(CODE "SET(PYTHON_FILE ${f})")
-  FOREACH(input ${PYFILE2COMPINST})
-    GET_FILENAME_COMPONENT(inputname ${input} NAME)
-    INSTALL(FILES ${input} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PYFILELOC})
-    INSTALL(CODE "MESSAGE(STATUS \"py compiling ${CMAKE_INSTALL_PREFIX}/${PYFILELOC}/${inputname}\")")
-    INSTALL(CODE "SET(CMD \"import py_compile ; py_compile.compile('${CMAKE_INSTALL_PREFIX}/${PYFILELOC}/${inputname}')\")")
-    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c \"\${CMD}\")")
-    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -O -c \"\${CMD}\")")
-  ENDFOREACH(input ${PYFILE2COMPINST})
-ENDMACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
 
 #----------------------------------------------------------------------------
 # SALOME_CONFIGURE_FILE is a macro useful for copying a file to another location 

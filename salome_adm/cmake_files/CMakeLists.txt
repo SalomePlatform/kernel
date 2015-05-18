@@ -51,7 +51,6 @@ SET(DATA
   FindSphinx.cmake
   FindSalomeVTK.cmake
   FindMEDFile.cmake
-  InstallAndCompilePythonFile.cmake
   UseOmniORB.cmake
   SalomeMacros.cmake
   SalomeSetupPlatform.cmake
