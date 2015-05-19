@@ -108,3 +108,7 @@ SET(_salome_context_API_SCRIPTS
    ${KERNEL_ROOT_DIR}/bin/salome/parseConfigFile.py
 )
 SALOME_INSTALL_SCRIPTS("${_salome_context_API_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
+SET(_salome_context_BASHRC
+   ${KERNEL_ROOT_DIR}/bin/salome/appliskel/.bashrc
+)
+SALOME_INSTALL_SCRIPTS("${_salome_context_BASHRC}" $ENV{[NAME_OF_APPLICATION]_PROFILE_ROOT_DIR})
