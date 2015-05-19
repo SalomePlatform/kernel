@@ -333,7 +333,9 @@ class SalomeContext:
     sys.path[:0] = pythonpath
   #
 
-  def _runAppli(self, args=[]):
+  def _runAppli(self, args=None):
+    if args is None:
+      args = []
     # Initialize SALOME environment
     sys.argv = ['runSalome'] + args
     import setenv
@@ -363,7 +365,9 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _runSession(self, args=[]):
+  def _runSession(self, args=None):
+    if args is None:
+      args = []
     sys.argv = ['runSession'] + args
     import runSession
     params, args = runSession.configureSession(args, exe="salome shell")
@@ -375,7 +379,9 @@ class SalomeContext:
     return runSession.runSession(params, args)
   #
 
-  def _runConsole(self, args=[]):
+  def _runConsole(self, args=None):
+    if args is None:
+      args = []
     # Initialize SALOME environment
     sys.argv = ['runConsole'] + args
     import setenv
@@ -386,7 +392,9 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _kill(self, args=[]):
+  def _kill(self, args=None):
+    if args is None:
+      args = []
     ports = args
     if not ports:
       print "Port number(s) not provided to command: salome kill <port(s)>"
@@ -423,7 +431,9 @@ class SalomeContext:
       pass
   #
 
-  def _runTests(self, args=[]):
+  def _runTests(self, args=None):
+    if args is None:
+      args = []
     sys.argv = ['runTests']
     import setenv
     setenv.main(True)

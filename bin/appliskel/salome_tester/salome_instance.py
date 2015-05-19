@@ -53,7 +53,9 @@ class SalomeInstance(object):
     return salome_instance
   #
 
-  def __run(self, args=[]):
+  def __run(self, args=None):
+    if args is None:
+      args = []
     sys.argv = ['runSalome'] + args
 
     if "INGUI" in args:

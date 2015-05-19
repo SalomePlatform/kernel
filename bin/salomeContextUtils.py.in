@@ -133,7 +133,9 @@ class ScriptAndArgsObjectEncoder(json.JSONEncoder):
       return json.JSONEncoder.default(self, obj)
 #
 
-def getShortAndExtraArgs(args=[]):
+def getShortAndExtraArgs(args=None):
+  if args is None:
+    args = []
   try:
     pos = args.index("--") # raise a ValueError if not found
     short_args = args[:pos]
@@ -147,7 +149,9 @@ def getShortAndExtraArgs(args=[]):
 #
 
 # Return an array of ScriptAndArgs objects
-def getScriptsAndArgs(args=[], searchPathList=None):
+def getScriptsAndArgs(args=None, searchPathList=None):
+  if args is None:
+    args = []
   short_args, extra_args = getShortAndExtraArgs(args)
   args = short_args
 
