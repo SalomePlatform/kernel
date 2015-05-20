@@ -33,8 +33,6 @@ import platform
 from salomeContextUtils import SalomeContextException
 
 def usage():
-  #exeName = os.path.splitext(os.path.basename(__file__))[0]
-
   msg = '''\
 Usage: salome [command] [options] [--config=<file,folder,...>]
 
@@ -51,14 +49,13 @@ Commands:
     test            Run SALOME tests.
     info            Display some information about SALOME
     help            Show this message
-    coffee          Yes! SALOME can also make coffee!!
 
 If no command is given, default to start.
 
 Command options:
 ================
     Use salome <command> --help to show help on command ; available for commands:
-    start, shell, test.
+    start, shell, connect, test, info.
 
 --config=<file,folder,...>
 ==========================
@@ -383,13 +380,12 @@ class SalomeContext:
     if args is None:
       args = []
     # Initialize SALOME environment
-    sys.argv = ['runConsole'] + args
+    sys.argv = ['runConsole']
     import setenv
     setenv.main(True)
 
-    cmd = ["python", "-c", "import runConsole\nrunConsole.connect()" ]
-    proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-    return proc.communicate()
+    import runConsole
+    return runConsole.connect(args)
   #
 
   def _kill(self, args=None):
@@ -442,9 +438,35 @@ class SalomeContext:
     return runTests.runTests(args, exe="salome test")
   #
 
-  def _showInfo(self, unused=None):
-    print "Running with python", platform.python_version()
-    self._runAppli(["--version"])
+  def _showInfo(self, args=None):
+    if args is None:
+      args = []
+
+    usage = "Usage: salome info [options]"
+    epilog  = """\n
+Display some information about SALOME.\n
+Available options are:
+    -p,--ports        Show list of busy ports (running SALOME instances).
+    -v,--version      Show running SALOME version.
+    -h,--help         Show this message.
+"""
+    if not args:
+      args = ["--version"]
+
+    if "-h" in args or "--help" in args:
+      print usage + epilog
+      return
+
+    if "-p" in args or "--ports" in args:
+      import PortManager
+      ports = PortManager.getBusyPorts()
+      print "SALOME instances are running on ports:", ports
+      if ports:
+        print "Last started instance on port %s"%ports[-1]
+
+    if "-v" in args or "--version" in args:
+      print "Running with python", platform.python_version()
+      self._runAppli(["--version"])
   #
 
   def _usage(self, unused=None):

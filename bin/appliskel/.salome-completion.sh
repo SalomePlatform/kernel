@@ -51,7 +51,7 @@ _salome()
     local cur prev command options
     COMPREPLY=( )
     _get_comp_words_by_ref -n = cur prev
-    commands='start context shell connect kill killall test info help coffee'
+    commands='start context shell connect kill killall test info help coffee car'
 
     # Algorithm:
     # If cursor is at index 1
@@ -75,6 +75,12 @@ _salome()
                     ;;
                 shell)
                     options='-h --help -p --port= -m --machine= -d --directory= -u --user= --with-mpi-module='
+                    ;;
+                info)
+                    options='-h --help -p --ports -v --version'
+                    ;;
+                connect)
+                    options='-h --help -c -p'
                     ;;
             esac
             COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )

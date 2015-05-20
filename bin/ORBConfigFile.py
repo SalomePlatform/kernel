@@ -22,6 +22,23 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+def readORBConfigFile(filename):
+  """ Extract information (host, port) from ORB configuration file. """
+  with open(filename) as f:
+    contents = f.readlines()
+
+  import re
+  host, port = None, None
+  for line in contents:
+    m = re.match("(ORB)?InitRef = NameService=corbaname::([\D\d]+):(\d*)", line)
+    if m:
+      host = m.group(2)
+      port = m.group(3)
+      break
+    pass
+  return host, port
+#
+
 # IMPORTANT NOTE: do not add any print call (cf. note at the bottom of the file)
 def writeORBConfigFile(path, host, port, kwargs={}):
 
