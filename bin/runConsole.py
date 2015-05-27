@@ -103,7 +103,7 @@ def __get_running_session(requested_port=None, lastInstanceByDefault=False):
   host, port, filename = None, None, None
   if requested_port:
     print "Search for running instance on port %s..."%requested_port
-    found = [(h,p,f) for h,p,f in available_connexions if p == requested_port]
+    found = [(h,p,f) for h,p,f in available_connexions if int(p) == int(requested_port)]
     if not found:
       print "   ...no running instance found"
     elif len(found) == 1:
@@ -150,8 +150,6 @@ class client(orbmodule.client):
 #
 
 def start_client():
-  print os.getenv("OMNIORB_CONFIG")
-
   try:
     clt = client()
   except Exception:

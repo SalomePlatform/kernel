@@ -86,8 +86,14 @@ class SalomeInstance(object):
   #
 
   def stop(self):
-    import killSalomeWithPort
-    killSalomeWithPort.killMyPort(self.port)
+    from multiprocessing import Process
+    from killSalomeWithPort import killMyPort
+    import tempfile
+    with tempfile.NamedTemporaryFile():
+      p = Process(target = killMyPort, args=(self.port,))
+      p.start()
+      p.join()
+    pass
   #
 
 #
