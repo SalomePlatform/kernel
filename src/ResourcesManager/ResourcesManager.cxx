@@ -603,7 +603,12 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   {
     resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
   }
-  resource.working_directory = "/tmp/salome_localres_workdir";
+  string tmpdir = "/tmp";
+  if (getenv("TMPDIR") != NULL)
+    tmpdir = getenv("TMPDIR");
+  resource.working_directory = tmpdir + "/salome_localres_workdir";
+  if (getenv("USER") != NULL)
+    resource.working_directory += string("_") + getenv("USER");
   resource.can_launch_batch_jobs = true;
   resource.can_run_containers = true;
   _resourcesList[resource.Name] = resource;
