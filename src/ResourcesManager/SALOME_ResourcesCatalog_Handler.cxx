@@ -28,7 +28,6 @@
 //
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "Basics_Utils.hxx"
-#include "Utils_SALOME_Exception.hxx"
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -291,7 +290,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     {
       resource.setAccessProtocolTypeStr((const char *)protocol);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
@@ -313,7 +312,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     {
       resource.setClusterInternalProtocolStr((const char *)iprotocol);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
       std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
@@ -463,7 +462,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setResourceTypeStr((const char*)type);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
               resource.Name << "\", using default value \"" << resource.getResourceTypeStr() <<
@@ -498,7 +497,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setAccessProtocolTypeStr((const char *)protocol);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid protocol \"" << (const char*)protocol << "\" for resource \"" <<
               resource.Name << "\", using default value \"" <<
@@ -514,7 +513,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setClusterInternalProtocolStr((const char *)iprotocol);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid internal protocol \"" << (const char*)iprotocol <<
               "\" for resource \"" << resource.Name << "\", using default value \"" <<
@@ -532,7 +531,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setBatchTypeStr((const char *)batch);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid batch manager \"" << (const char*)batch <<
               "\" for resource \"" << resource.Name << "\", using default value \"" <<
@@ -548,7 +547,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setMpiImplTypeStr((const char *)mpi);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid MPI implementation \"" << (const char*)mpi <<
               "\" for resource \"" << resource.Name << "\", using default value \"" <<
@@ -613,7 +612,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setCanLaunchBatchJobsStr((const char *)can_launch_batch_jobs);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid can_launch_batch_jobs parameter value \"" <<
               (const char*)can_launch_batch_jobs << "\" for resource \"" << resource.Name <<
@@ -629,7 +628,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     {
       resource.setCanRunContainersStr((const char *)can_run_containers);
     }
-    catch (const SALOME_Exception & e)
+    catch (const ResourcesException & e)
     {
       cerr << "Warning, invalid can_run_containers parameter value \"" <<
               (const char*)can_run_containers << "\" for resource \"" << resource.Name <<

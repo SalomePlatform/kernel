@@ -166,7 +166,7 @@ latex_font_size = '10pt'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', '(name_of_application).tex', '<Name_of_Application> User Documentation', 'A. Ribes', 'manual')
+  ('index', '(name_of_application).tex', '[Name_of_Application] User Documentation', 'A. Ribes', 'manual')
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

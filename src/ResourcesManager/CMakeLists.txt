@@ -49,21 +49,19 @@ SET(ResourcesManager_SOURCES
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${LIBXML2_DEFINITIONS})
 
 ADD_LIBRARY(ResourcesManager ${ResourcesManager_SOURCES})
-TARGET_LINK_LIBRARIES(ResourcesManager SALOMEBasics OpUtil ${LIBXML2_LIBRARIES})
+TARGET_LINK_LIBRARIES(ResourcesManager SALOMEBasics ${LIBXML2_LIBRARIES})
 INSTALL(TARGETS ResourcesManager EXPORT ${PROJECT_NAME}TargetGroup 
     DESTINATION ${SALOME_INSTALL_LIBS})
 
-IF(NOT SALOME_LAUNCHER_ONLY)
-  SET(SalomeResourcesManager_SOURCES
-    SALOME_ResourcesManager.cxx
-    SALOME_ResourcesManager_Client.cxx
-    SALOME_ResourcesManager_Common.cxx
-  )
-  ADD_LIBRARY(SalomeResourcesManager ${SalomeResourcesManager_SOURCES})
-  TARGET_LINK_LIBRARIES(SalomeResourcesManager ResourcesManager ${COMMON_LIBS})
-  INSTALL(TARGETS SalomeResourcesManager EXPORT ${PROJECT_NAME}TargetGroup
+SET(SalomeResourcesManager_SOURCES
+  SALOME_ResourcesManager.cxx
+  SALOME_ResourcesManager_Client.cxx
+  SALOME_ResourcesManager_Common.cxx
+)
+ADD_LIBRARY(SalomeResourcesManager ${SalomeResourcesManager_SOURCES})
+TARGET_LINK_LIBRARIES(SalomeResourcesManager ResourcesManager ${COMMON_LIBS})
+INSTALL(TARGETS SalomeResourcesManager EXPORT ${PROJECT_NAME}TargetGroup
         DESTINATION ${SALOME_INSTALL_LIBS})
-ENDIF()
 
 SET(COMMON_HEADERS_HXX
   ResourcesManager.hxx

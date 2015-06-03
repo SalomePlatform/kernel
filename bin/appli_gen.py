@@ -47,6 +47,8 @@ system_conf_tag  = "system_conf"
 modules_tag = "modules"
 module_tag  = "module"
 samples_tag = "samples"
+extra_tests_tag = "extra_tests"
+extra_test_tag = "extra_test"
 resources_tag = "resources"
 
 # --- names of attributes in XML configuration file
@@ -65,6 +67,7 @@ class xml_parser:
         self.config = {}
         self.config["modules"] = []
         self.config["guimodules"] = []
+        self.config["extra_tests"] = []
         parser = xml.sax.make_parser()
         parser.setContentHandler(self)
         parser.parse(fileName)
@@ -117,6 +120,15 @@ class xml_parser:
             if gui:
                 self.config["guimodules"].append(nam)
                 pass
+            pass
+        # --- if we are analyzing "extra_test" element then store its "name" and "path" attributes
+        elif self.space == [appli_tag,extra_tests_tag,extra_test_tag] and \
+            nam_att in attrs.getNames() and \
+            path_att in attrs.getNames():
+            nam = attrs.getValue( nam_att )
+            path = attrs.getValue( path_att )
+            self.config["extra_tests"].append(nam)
+            self.config[nam]=path
             pass
         pass
 
@@ -192,6 +204,19 @@ def install(prefix, config_file, verbose=0):
             options.module_name = module
             options.module_path = _config[module]
             virtual_salome.link_module(options)
+            pass
+        pass
+
+    for extra_test in _config.get("extra_tests", []):
+        if _config.has_key(extra_test):
+            print "--- add extra test ", extra_test, _config[extra_test]
+            options = params()
+            options.verbose = verbose
+            options.clear = 0
+            options.prefix = home_dir
+            options.extra_test_name = extra_test
+            options.extra_test_path = _config[extra_test]
+            virtual_salome.link_extra_test(options)
             pass
         pass
 

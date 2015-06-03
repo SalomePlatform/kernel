@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>ABOUT_CAPTION</source>
-        <translation>About <Name_of_Application></translation>
+        <translation>About [Name_of_Application]</translation>
     </message>
     <message>
         <source>APP_NAME</source>
-        <translation><Name_of_Application> [SLOGAN]</translation>
+        <translation>[Name_of_Application] [SLOGAN]</translation>
     </message>
     <message>
         <source>APP_VERSION</source>
@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>ABOUT_TITLE</source>
-        <translation><Name_of_Application></translation>
+        <translation>[Name_of_Application]</translation>
     </message>
 </context>
 </TS>

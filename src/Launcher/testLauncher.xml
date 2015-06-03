@@ -1,0 +1,10 @@
+<main>
+ <machine-list>
+   <machine work-directory="/tmp/testLauncher">localhost</machine>
+ </machine-list>
+ <nb-processes>1</nb-processes>
+ <output-file>testLauncher.output</output-file>
+ <command>ls > testLauncher.output</command>
+</main>
+
+

@@ -66,14 +66,6 @@ struct RESOURCESMANAGER_EXPORT resourceParams
   std::vector<std::string> resourceList;
 };
 
-class RESOURCESMANAGER_EXPORT ResourcesException
-{
-public:
-  const std::string msg;
-
-  ResourcesException(const std::string m) : msg(m) {}
-};
-
 class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
   {
 

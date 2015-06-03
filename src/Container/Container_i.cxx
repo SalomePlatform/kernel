@@ -1822,7 +1822,7 @@ void Engines_Container_i::clearTemporaryFiles()
   std::list<std::string>::const_iterator it;
   for ( it = _tmp_files.begin(); it != _tmp_files.end(); ++it ) {
 #ifdef WIN32
-    std::string command = "del /F ";
+    std::string command = "del /F /P";
 #else
     std::string command = "rm -rf ";
 #endif

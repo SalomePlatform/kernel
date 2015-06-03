@@ -26,6 +26,7 @@ SET(_ts_RESOURCES
   LightApp_images.ts
   LightApp_msg_en.ts
   LightApp_msg_fr.ts
+  LightApp_msg_ja.ts
 ) 
 
 # --- rules ---

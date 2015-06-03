@@ -70,7 +70,7 @@ __testSubDir = "bin/salome/test"
 
 # Both display process stdout&stderr to console and capture them to variables
 def __runTest(command, workdir):
-  p = subprocess.Popen(command, cwd=workdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
+  p = subprocess.Popen(command, cwd=workdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
   stdout = []
   stderr = []
 

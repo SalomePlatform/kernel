@@ -21,7 +21,6 @@
 //
 
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "Utils_SALOME_Exception.hxx"
 #include <iostream>
 #include <sstream>
 
@@ -170,7 +169,7 @@ std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
   case blaunch:
     return "blaunch";
   default:
-    throw SALOME_Exception("Unknown protocol");
+    throw ResourcesException("Unknown protocol");
   }
 }
 
@@ -189,7 +188,7 @@ AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & pro
   else if (protocolStr == "blaunch")
     return blaunch;
   else
-    throw SALOME_Exception((string("Unknown protocol ") + protocolStr).c_str());
+    throw ResourcesException((string("Unknown protocol ") + protocolStr).c_str());
 }
 
 ostream & operator<<(ostream &os, const ParserResourcesType &prt)
@@ -249,7 +248,7 @@ ParserResourcesType::getResourceTypeStr() const
   case single_machine:
     return "single_machine";
   default:
-    throw SALOME_Exception("Unknown resource type");
+    throw ResourcesException("Unknown resource type");
   }
 }
 
@@ -279,7 +278,7 @@ ParserResourcesType::getBatchTypeStr() const
   case coorm:
     return "coorm";
   default:
-    throw SALOME_Exception("Unknown batch type");
+    throw ResourcesException("Unknown batch type");
   }
 }
 
@@ -305,7 +304,7 @@ ParserResourcesType::getMpiImplTypeStr() const
   case prun:
     return "prun";
   default:
-    throw SALOME_Exception("Unknown MPI implementation type");
+    throw ResourcesException("Unknown MPI implementation type");
   }
 }
 
@@ -331,7 +330,7 @@ void ParserResourcesType::setResourceTypeStr(const string & resourceTypeStr)
   else if (resourceTypeStr == "single_machine")
     type = single_machine;
   else
-    throw SALOME_Exception((string("Unknown resource type ") + resourceTypeStr).c_str());
+    throw ResourcesException((string("Unknown resource type ") + resourceTypeStr).c_str());
 }
 
 void ParserResourcesType::setBatchTypeStr(const string & batchTypeStr)
@@ -357,7 +356,7 @@ void ParserResourcesType::setBatchTypeStr(const string & batchTypeStr)
   else if (batchTypeStr == "" || batchTypeStr == "none" || batchTypeStr == "ssh_batch")
     Batch = none;
   else
-    throw SALOME_Exception((string("Unknown batch type ") + batchTypeStr).c_str());
+    throw ResourcesException((string("Unknown batch type ") + batchTypeStr).c_str());
 }
 
 void ParserResourcesType::setMpiImplTypeStr(const string & mpiImplTypeStr)
@@ -379,7 +378,7 @@ void ParserResourcesType::setMpiImplTypeStr(const string & mpiImplTypeStr)
   else if (mpiImplTypeStr == "" || mpiImplTypeStr == "no mpi")
     mpi = nompi;
   else
-    throw SALOME_Exception((string("Unknown MPI implementation type ") + mpiImplTypeStr).c_str());
+    throw ResourcesException((string("Unknown MPI implementation type ") + mpiImplTypeStr).c_str());
 }
 
 void ParserResourcesType::setClusterInternalProtocolStr(const string & internalProtocolTypeStr)
@@ -394,7 +393,7 @@ void ParserResourcesType::setCanLaunchBatchJobsStr(const string & canLaunchBatch
   else if (canLaunchBatchJobsStr == "false")
     can_launch_batch_jobs = false;
   else
-    throw SALOME_Exception((string("Invalid boolean value for can_launch_batch_jobs: ") +
+    throw ResourcesException((string("Invalid boolean value for can_launch_batch_jobs: ") +
                             canLaunchBatchJobsStr).c_str());
 }
 
@@ -405,6 +404,6 @@ void ParserResourcesType::setCanRunContainersStr(const string & canRunContainers
   else if (canRunContainersStr == "false")
     can_run_containers = false;
   else
-    throw SALOME_Exception((string("Invalid boolean value for can_run_containers: ") +
+    throw ResourcesException((string("Invalid boolean value for can_run_containers: ") +
                             canRunContainersStr).c_str());
 }
