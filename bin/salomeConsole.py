@@ -22,6 +22,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+###############################################
+############### IMPORTANT NOTE ################
+###############################################
+# The salomeConsole.py script is obsolete.    #
+# Please consider the new salome launcher.    #
+###############################################
+
+
 import os
 import sys
 import glob
@@ -36,7 +44,7 @@ import user
 #-------------------------------
 # Get major CORBA objects
 #-------------------------------
-import CORBA
+from omniORB import CORBA
 import CosNaming
 import salome_utils
 
@@ -44,7 +52,7 @@ import orbmodule
 
 def getRunningSession():
   omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
-  files = glob.glob(os.path.join(omniorbUserPath,".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
+  files = glob.glob(os.path.join(omniorbUserPath,".omniORB_"+salome_utils.getUserName()+"_*[!last].cfg"))
 
   filename=""
   if len(files)==1:
@@ -70,16 +78,16 @@ def getRunningSession():
 #
 
 class client(orbmodule.client):
-   def initNS(self,args):
-      # Obtain a reference to the root naming context
-      obj = self.orb.resolve_initial_references("NameService")
-      try:
-          self.rootContext = obj._narrow(CosNaming.NamingContext)
-          return
-      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
-          print "It's not a valid naming service"
-          self.rootContext = None
-          raise
+  def initNS(self,args):
+    # Obtain a reference to the root naming context
+    obj = self.orb.resolve_initial_references("NameService")
+    try:
+      self.rootContext = obj._narrow(CosNaming.NamingContext)
+      return
+    except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+      print "It's not a valid naming service"
+      self.rootContext = None
+      raise
 #
 
 def startClient():
@@ -92,7 +100,9 @@ def startClient():
 
   clt.showNS()
 
-  session=clt.waitNS("/Kernel/Session")
+  session_server = clt.Resolve('/Kernel/Session')
+  if session_server:
+    session=clt.waitNS("/Kernel/Session")
   catalog=clt.waitNS("/Kernel/ModulCatalog")
   studyMgr=clt.waitNS("/myStudyManager")
   import salome

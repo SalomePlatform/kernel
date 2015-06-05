@@ -56,7 +56,9 @@ class SessionParameters:
   #
 #
 
-def configureSession(args=[], exe=None):
+def configureSession(args=None, exe=None):
+  if args is None:
+    args = []
   if exe:
       usage = "Usage: %s [options] [command] [-- <extra>]"%exe
   else:
