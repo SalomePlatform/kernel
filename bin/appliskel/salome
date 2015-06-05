@@ -35,9 +35,10 @@ def main(args):
     sys.exit(0)
 
   from salomeContextUtils import getConfigFileNames
-  configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True)
+  configFileNames, extraEnv, args, unexisting = getConfigFileNames(args, checkExistence=True)
+
   if len(unexisting) > 0:
-    print "ERROR: unexisting configuration file(s): " + ', '.join(unexisting)
+    print "ERROR: unexisting configuration/environment file(s): " + ', '.join(unexisting)
     sys.exit(1)
 
   # Create a SalomeContext which parses configFileNames to initialize environment
@@ -51,6 +52,10 @@ def main(args):
     # context.addToLdLibraryPath('myldlibrarypath')
     # context.addToPythonPath('mypythonpath')
     # context.setVariable('myvarname', 'value')
+
+    if extraEnv:
+      for key,val in extraEnv.items():
+        context.addToVariable(key,val)
 
     # Start SALOME, parsing command line arguments
     (out, err), returncode = context.runSalome(args)
