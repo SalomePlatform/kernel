@@ -82,6 +82,9 @@ _salome()
                 connect)
                     options='-h --help -c -p'
                     ;;
+                test)
+                    options='-h --help --print-labels'
+                    ;;
             esac
             COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
         fi

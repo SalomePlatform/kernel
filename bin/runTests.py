@@ -35,6 +35,10 @@ Principal options are:
     -h,--help
         Show this help message and exit.
 
+    --print-labels
+        Print the list of all labels associated with the test set.
+        This option will not run any tests.
+
     -V,--verbose
         Enable verbose output from tests.
     -VV,--extra-verbose

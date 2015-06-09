@@ -18,7 +18,7 @@
 #
 
 """
-Usage: salome_test_helper.py <timeout_delay> <test_file.py> [test file arguments]
+Usage: salome_test_helper.py <timeout_delay> <test command> [test command arguments]
 """
 
 import sys
