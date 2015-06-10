@@ -17,9 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SCRIPTS
-  salome_test_driver.py
-  salome_instance.py
-)
+SALOME_INSTALL_SCRIPTS(salome_instance.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
 
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)
+SALOME_INSTALL_SCRIPTS(salome_test_driver.py ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)
