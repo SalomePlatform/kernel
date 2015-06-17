@@ -125,7 +125,7 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
     INSTALL(FILES ${PREFIX}${file} DESTINATION ${path} PERMISSIONS ${PERMS})
     GET_FILENAME_COMPONENT(ext ${file} EXT)
     GET_FILENAME_COMPONENT(we_ext ${file} NAME_WE)
-    GET_FILENAME_COMPONENT(single_dir ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE) 
+
     IF(ext STREQUAL .py)    
       # Generate and install the pyc and pyo
       # [ABN] Important: we avoid references or usage of CMAKE_INSTALL_PREFIX which is not correctly set 
@@ -150,15 +150,21 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
       INSTALL(FILES ${_pyc_file} DESTINATION ${path} PERMISSIONS ${PERMS})
       INSTALL(FILES ${_pyo_file} DESTINATION ${path} PERMISSIONS ${PERMS})
     ENDIF(ext STREQUAL .py)
+
+  # get relativa path (from CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR)
+  STRING(REGEX REPLACE ${CMAKE_SOURCE_DIR} "" rel_dir ${CMAKE_CURRENT_SOURCE_DIR})
+  # convert "/" to "_"
+  STRING(REGEX REPLACE "/" "_" unique_name ${rel_dir})
+
   ENDFOREACH(file ${file_list})
   # Generate only one target for all requested Python script compilation.
   # Make sure that the target name is unique too. 
   IF(_all_pyc)
      SET(_cnt 0)
-     WHILE(TARGET "PYCOMPILE_${single_dir}_${_cnt}")
+     WHILE(TARGET "PYCOMPILE${unique_name}_${_cnt}")
        MATH(EXPR _cnt ${_cnt}+1)
      ENDWHILE()
-     ADD_CUSTOM_TARGET("PYCOMPILE_${single_dir}_${_cnt}" ALL DEPENDS ${_all_pyc} ${_all_pyo})
+     ADD_CUSTOM_TARGET("PYCOMPILE${unique_name}_${_cnt}" ALL DEPENDS ${_all_pyc} ${_all_pyo})
   ENDIF()
 ENDMACRO(SALOME_INSTALL_SCRIPTS)
 
