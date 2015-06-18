@@ -154,7 +154,11 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
   # get relativa path (from CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR)
   STRING(REGEX REPLACE ${CMAKE_SOURCE_DIR} "" rel_dir ${CMAKE_CURRENT_SOURCE_DIR})
   # convert "/" to "_"
-  STRING(REGEX REPLACE "/" "_" unique_name ${rel_dir})
+  IF(rel_dir)
+    STRING(REGEX REPLACE "/" "_" unique_name ${rel_dir})
+  ELSE(rel_dir)
+    SET(unique_name _)
+  ENDIF(rel_dir)
 
   ENDFOREACH(file ${file_list})
   # Generate only one target for all requested Python script compilation.
