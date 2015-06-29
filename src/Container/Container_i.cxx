@@ -958,6 +958,40 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
   return iobject._retn();
 }
 
+char *
+Engines_Container_i::create_python_service_instance(const char * CompName,
+                                                    CORBA::String_out reason)
+{
+  CORBA::Object_var object = CORBA::Object::_nil();
+
+  _numInstanceMutex.lock() ; // lock on the instance number
+  _numInstance++ ;
+  int numInstance = _numInstance ;
+  _numInstanceMutex.unlock() ;
+
+  char aNumI[12];
+  sprintf( aNumI , "%d" , numInstance ) ;
+  std::string instanceName = std::string(CompName) + "_inst_" + aNumI ;
+  std::string component_registerName = _containerName + "/" + instanceName;
+
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *result = PyObject_CallMethod(_pyCont,
+                                         (char*)"create_component_instance",
+                                         (char*)"ssl",
+                                         CompName,
+                                         instanceName.c_str(),
+                                         0);
+  const char *ior;
+  const char *error;
+  PyArg_ParseTuple(result,"ss", &ior, &error);
+  reason = CORBA::string_dup(error);
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return CORBA::string_dup(ior);
+}
+
+
 //=============================================================================
 //! Create a new component instance (C++ implementation)
 /*! 
