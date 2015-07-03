@@ -444,8 +444,12 @@ ENDMACRO()
 # retrieve the package root directory (xxx_ROOT_DIR)
 #    upCount          : number of times we have to go up from the path <referenceVariable>
 # to obtain the package root directory.
+# If this is a path to a file, going up one time gives the directory containing the file
+# going up 2 times gives the parent directory.
 #   
-# For example:  SALOME_FIND_PACKAGE_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2) 
+# For example:  SALOME_FIND_PACKAGE_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2)
+#     with SWIG_EXECUTABLE set to '/usr/bin/swig'
+#     will produce '/usr' 
 #
 # Generic detection (and conflict check) procedure for package XYZ:
 # 1. Load a potential env variable XYZ_ROOT_DIR as a default choice for the cache entry XYZ_ROOT_DIR
