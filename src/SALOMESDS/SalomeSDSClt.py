@@ -22,17 +22,61 @@
 import SALOME
 import cPickle
 
+class InvokatorStyle(object):
+    def __init__(self,varPtr):
+        self._var_ptr=varPtr
+    def ptr(self):
+        return self._var_ptr
+    pass
+
+class InvokatorPossibleStyle(InvokatorStyle):
+    def __init__(self,varPtr):
+        InvokatorStyle.__init__(self,varPtr)
+        assert(self.__class__.IsOK(varPtr))
+
+    def invokePythonMethodOn(self,meth,argsInStrFrmt):
+        return self._var_ptr.invokePythonMethodOn(meth,argsInStrFrmt)
+        
+    @classmethod
+    def IsOK(cls,varPtr):
+        return isinstance(varPtr,SALOME._objref_PickelizedPyObjRdExtServer)
+    pass
+
+class InvokatorImpossibleStyle(InvokatorStyle):
+    def __init__(self,varPtr):
+        InvokatorStyle.__init__(self,varPtr)
+        assert(self.__class__.IsOK(varPtr))
+        
+    def invokePythonMethodOn(self,meth,argsInStrFrmt):
+        raise Exception("Cannot invoke because it is readonly var !")
+
+    @classmethod
+    def IsOK(cls,varPtr):
+        return isinstance(varPtr,SALOME._objref_PickelizedPyObjRdOnlyServer)
+    pass
+
+def InvokatorStyleFactory(varPtr):
+    if InvokatorImpossibleStyle.IsOK(varPtr):
+        return InvokatorImpossibleStyle(varPtr)
+    if InvokatorPossibleStyle.IsOK(varPtr):
+        return InvokatorPossibleStyle(varPtr)
+    raise Exception("InvokatorStyleFactory : unmanaged type of var (%s)!"%(type(varPtr)))
+    pass
+
 class WrappedType(object):
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
-        self._var_ptr=varPtr
+        self._var_ptr=InvokatorStyleFactory(varPtr)
         if not isTemporaryVar:
-            self._var_ptr.Register()
+            self._var_ptr.ptr().Register()
         self._is_temp=isTemporaryVar
         pass
 
+    def ptr(self):
+        return self._var_ptr.ptr()
+
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+        return cPickle.loads(self._var_ptr.ptr().fetchSerializedContent())
 
     def __str__(self):
         return self.local_copy().__str__()
@@ -50,7 +94,7 @@ class WrappedType(object):
         pass
 
     def __del__(self):
-        self._var_ptr.UnRegister()
+        self._var_ptr.ptr().UnRegister()
         pass
     pass
 
@@ -450,7 +494,6 @@ class String(WrappedType):
 
 class Caller:
     def __init__(self,varPtr,meth):
-        assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
         self._var_ptr=varPtr
         self._meth=meth
         pass
@@ -475,18 +518,21 @@ def GetHandlerFromRef(objCorba,isTempVar=False):
     
 def CreateRdOnlyGlobalVar(value,varName,scopeName):
     import salome
+    salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdOnlyVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
     
 def CreateRdExtGlobalVar(value,varName,scopeName):
     import salome
+    salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdExtVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
 
-def GetHandlerFromName(scopeName,varName):
+def GetHandlerFromName(varName,scopeName):
     import salome
+    salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s=dsm.retriveDataScope(scopeName)
     return GetHandlerFromRef(d2s.retrieveVar(varName),False)

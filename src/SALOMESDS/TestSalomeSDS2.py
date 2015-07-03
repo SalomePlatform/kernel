@@ -43,7 +43,7 @@ class SalomeSDS2Test(unittest.TestCase):
     self.assertEqual(a.local_copy(),[5,["rt",8],5,["rt",8],["rt",8]])
     a[4].append(7)
     self.assertEqual(a.local_copy(),[5,["rt",8],5,["rt",8],["rt",8,7]])
-    a._var_ptr.getMyDataScopeServer().deleteVar("a")
+    a.ptr().getMyDataScopeServer().deleteVar("a")
     pass
   
   def testDict1(self):
@@ -64,14 +64,14 @@ class SalomeSDS2Test(unittest.TestCase):
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77],"ef":["a","bb","ccc"],"gh":{"ab":4,"cd":[5,77],"ef":["a","bb","ccc"]}})
     a["gh"]["cd"].append(99) ; a["cd"].append(88)
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77,88],"ef":["a","bb","ccc"],"gh":{"ab":4,"cd":[5,77,99],"ef":["a","bb","ccc"]}})
-    a._var_ptr.getMyDataScopeServer().deleteVar("a")
+    a.ptr().getMyDataScopeServer().deleteVar("a")
     pass
 
   def testReadOnly1(self):
     a=SalomeSDSClt.CreateRdOnlyGlobalVar({"ab":4,"cd":[5,77]},"a","Scope0")
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
-    self.assertRaises(AttributeError,a.__getitem__,"ab")
-    a._var_ptr.getMyDataScopeServer().deleteVar("a")
+    self.assertRaises(Exception,a.__getitem__,"ab")
+    a.ptr().getMyDataScopeServer().deleteVar("a")
 
   def setUp(self):
     salome.salome_init()
