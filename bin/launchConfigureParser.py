@@ -126,7 +126,13 @@ def version():
 def version_id(fname):
     major = minor = release = dev1 = dev2 = 0
     vers = fname.split(".")
-    if len(vers) > 0: major = int(vers[0])
+    if len(vers) > 0:
+      try:
+        major = int(vers[0])
+      except ValueError:
+        # If salome version given is DEV, the call to int('DEV') will fail with
+        # a ValueError exception
+        pass
     try:
       if len(vers) > 1: minor = int(vers[1])
     except ValueError:
