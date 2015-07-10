@@ -33,12 +33,19 @@ int main(int argc, char *argv[])
   if(argc<=1)
     throw SALOMESDS::Exception("In the main of SALOME_DataScopeServer.cxx !");
   scopeName=argv[1];
+  std::istringstream isTransacSS(argv[2]);
+  int isTransac(0);
+  isTransacSS >> isTransac;
   CORBA::ORB_var orb(CORBA::ORB_init(argc,argv));
   CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
   PortableServer::POAManager_var mgr(poa->the_POAManager());
   mgr->activate();
-  SALOMESDS::DataScopeServer *server(new SALOMESDS::DataScopeServer(orb,scopeName));
+  SALOMESDS::DataScopeServerBase *server(0);
+  if(!isTransac)
+    server=new SALOMESDS::DataScopeServer(orb,scopeName);
+  else
+    server=new SALOMESDS::DataScopeServerTransaction(orb,scopeName);
   //
   CORBA::PolicyList policies;
   policies.length(1);
@@ -48,10 +55,11 @@ int main(int argc, char *argv[])
   threadPol->destroy();
   server->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
   server->registerToSalomePiDict();
-  PortableServer::ObjectId_var id(poa2->activate_object(server));
-  obj=poa2->id_to_reference(id);
-  SALOME::DataScopeServer_var serverPtr(SALOME::DataScopeServer::_narrow(obj));
-  server->setPOAAndRegister(poa2,serverPtr);
+  //
+  server->setPOA(poa2);
+  obj=server->activate();
+  SALOME::DataScopeServerBase_var serverPtr(SALOME::DataScopeServerBase::_narrow(obj));
+  server->registerInNS(serverPtr);
   //
   orb->run();
   server->_remove_ref();

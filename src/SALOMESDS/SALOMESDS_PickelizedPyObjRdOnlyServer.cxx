@@ -22,11 +22,11 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
 {
 }
 
-PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServer *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
+PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
 {
 }
 

@@ -27,13 +27,13 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
 {
   setSerializedContentInternal(value);
 }
 
 //! obj is consumed
-PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(0)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(0)
 {
   setNewPyObj(obj);
 }
@@ -50,6 +50,46 @@ SALOME::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
 {
   Py_XINCREF(_self);//because pickelize consume _self
   return FromCppToByteSeq(pickelize(_self));
+}
+
+bool PickelizedPyObjServer::isDict()
+{
+  if(PyDict_Check(_self))
+    return true;
+  else
+    return false;
+}
+
+void PickelizedPyObjServer::checkKeyNotAlreadyPresent(PyObject *key)
+{
+  checkKeyPresence(key,false);
+}
+
+void PickelizedPyObjServer::checkKeyPresent(PyObject *key)
+{
+  checkKeyPresence(key,true);
+}
+
+void PickelizedPyObjServer::addKeyValueHard(PyObject *key, PyObject *value)
+{
+  bool isOK(PyDict_SetItem(_self,key,value)==0);
+  if(!isOK)
+    throw Exception("PickelizedPyObjServer::addKeyValueHard : error when trying to add key,value to dict !");
+}
+
+void PickelizedPyObjServer::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
+{
+  checkKeyNotAlreadyPresent(key);
+  bool isOK(PyDict_SetItem(_self,key,value)==0);
+  if(!isOK)
+    throw Exception("PickelizedPyObjServer::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
+}
+
+void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
+{
+  checkKeyPresent(key);
+  if(PyDict_DelItem(_self,key)!=0)
+    throw Exception("PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
 }
 
 void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
@@ -73,14 +113,14 @@ SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strT
 }
 
 //! New reference returned
-PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledData)
+PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb)
 {
   std::size_t sz(pickledData.size());
   PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
   char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
   const char *inBuf(pickledData.c_str());
   std::copy(inBuf,inBuf+sz,buf);
-  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
+  PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
   PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
   PyObject *ret(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(args);
@@ -88,13 +128,41 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledD
   return ret;
 }
 
+//! New reference returned
+PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledData)
+{
+  return GetPyObjFromPickled(pickledData,_father);
+}
+
+//! New reference returned
+PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb)
+{
+  std::size_t sz(pickledData.size());
+  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
+  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
+  const unsigned char *inBuf(&pickledData[0]);
+  std::copy(inBuf,inBuf+sz,buf);
+  PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
+  PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
+  PyObject *ret(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(selfMeth);
+  return ret;
+}
+
+//! New reference returned
+PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::vector<unsigned char>& pickledData)
+{
+  return GetPyObjFromPickled(pickledData,_father);
+}
+
 //! obj is consumed by this method.
-std::string PickelizedPyObjServer::pickelize(PyObject *obj)
+std::string PickelizedPyObjServer::Pickelize(PyObject *obj, DataScopeServerBase *dsb)
 {
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,obj);
   PyTuple_SetItem(args,1,PyInt_FromLong(2));// because "assert(cPickle.HIGHEST_PROTOCOL is 2)"
-  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"dumps"));
+  PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"dumps"));
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(selfMeth);
   Py_XDECREF(args);
@@ -106,6 +174,12 @@ std::string PickelizedPyObjServer::pickelize(PyObject *obj)
     inBuf[i]=buf[i];
   Py_XDECREF(retPy);
   return ret;
+}
+
+//! obj is consumed by this method.
+std::string PickelizedPyObjServer::pickelize(PyObject *obj)
+{
+  return Pickelize(obj,_father);
 }
 
 //! obj is consumed by this method.
@@ -158,4 +232,30 @@ PyObject *PickelizedPyObjServer::CreateDftObjFromType(PyObject *globals, const s
   PyObject *ret(PyObject_CallObject(tmp,args));
   Py_XDECREF(args);
   return ret;
+}
+
+void PickelizedPyObjServer::checkKeyPresence(PyObject *key, bool presence)
+{
+  if(!isDict())
+    throw Exception("PickelizedPyObjServer::checkKeyPresence : not a dict !");
+  PyObject *selfMeth(PyObject_GetAttrString(_self,"__contains__"));//new ref
+  PyObject *args(PyTuple_New(1));
+  PyTuple_SetItem(args,0,key); Py_XINCREF(key);// key is stolen by PyTuple_SetItem
+  PyObject *retPy(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(selfMeth);
+  //
+  if(retPy!=Py_False && retPy!=Py_True)
+    throw Exception("PickelizedPyObjServer::checkKeyPresence : unexpected return of dict.__contains__ !");
+  if(!presence)
+    {
+      if(retPy==Py_True)
+        throw Exception("PickelizedPyObjServer::checkKeyPresence : key is already present and it should not !");
+    }
+  else
+    {
+      if(retPy==Py_False)
+        throw Exception("PickelizedPyObjServer::checkKeyPresence : key is not present and it should !");
+    }
+  Py_XDECREF(retPy);
 }

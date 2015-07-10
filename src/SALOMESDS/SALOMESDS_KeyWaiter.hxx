@@ -18,24 +18,43 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
-#ifndef __SALOMESDS_REFCOUNTSERV_HXX__
-#define __SALOMESDS_REFCOUNTSERV_HXX__
+#ifndef __SALOMESDS_KEYWAITER_HXX__
+#define __SALOMESDS_KEYWAITER_HXX__
 
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_SDS)
+
+#include "SALOMESDS_Defines.hxx"
 #include "SALOMESDS_AutoRefCountPtr.hxx"
+#include "SALOMESDS_DataScopeServer.hxx"
+#include "SALOMESDS_PickelizedPyObjServer.hxx"
+
+#include <Python.h>
+
+#include <semaphore.h>
 
 namespace SALOMESDS
 {
-  class RefCountServ : public virtual PortableServer::ServantBase, public POAHolder
+  class DataScopeServerTransaction;
+  
+  class SALOMESDS_EXPORT KeyWaiter : public virtual POA_SALOME::KeyWaiter, public POAHolder
   {
   public:
-    void incrRef() const;
-    bool decrRef() const;
-  protected:
-    RefCountServ();
-    RefCountServ(const RefCountServ& other);
-    virtual ~RefCountServ();
+    KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal);
+    PyObject *getKeyPyObj() const { return _ze_key; }
+    virtual ~KeyWaiter();
+    PortableServer::POA_var getPOA() const;
+    SALOME::ByteVec *waitFor();
+    void valueJustCome(PyObject *val);
+    void go();
+    SALOME::ByteVec *waitForMonoThr();
   private:
-    mutable unsigned int _cnt;
+    DataScopeServerTransaction *getDSS() const { return static_cast<DataScopeServerTransaction *>(_var->getFather()); }//thanks to dynamic_cast in constructor
+  private:
+    PickelizedPyObjServer *_var;
+    PyObject *_ze_key;
+    PyObject *_ze_value;
+    sem_t _sem;
   };
 }
 

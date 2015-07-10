@@ -33,8 +33,8 @@ namespace SALOMESDS
   class PickelizedPyObjRdExtServer : public PickelizedPyObjServer, public virtual POA_SALOME::PickelizedPyObjRdExtServer
   {
   public:
-    PickelizedPyObjRdExtServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
-    PickelizedPyObjRdExtServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdExtServer();
     SALOME::PickelizedPyObjRdExtServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
   private:

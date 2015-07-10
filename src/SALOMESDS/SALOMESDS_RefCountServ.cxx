@@ -38,14 +38,6 @@ bool RefCountServ::decrRef() const
   return ret;
 }
 
-void RefCountServ::enforcedRelease()
-{
-  PortableServer::POA_var poa(getPOA());
-  PortableServer::ObjectId_var oid(poa->servant_to_id(this));
-  poa->deactivate_object(oid);
-  _remove_ref();
-}
-
 RefCountServ::RefCountServ():_cnt(1)
 {
 }

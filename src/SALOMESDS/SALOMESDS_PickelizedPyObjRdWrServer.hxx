@@ -33,9 +33,9 @@ namespace SALOMESDS
   class PickelizedPyObjRdWrServer : public PickelizedPyObjServer, public virtual POA_SALOME::PickelizedPyObjRdWrServer
   {
   public:
-    PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& typeName, const std::string& varName);
-    PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
-    PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& typeName, const std::string& varName);
+    PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdWrServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::PickelizedPyObjRdWrServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);

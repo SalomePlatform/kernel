@@ -28,24 +28,40 @@
 
 #include "SALOMESDS_BasicDataServer.hxx"
 
+#include <vector>
+
 namespace SALOMESDS
 {
   class PickelizedPyObjServer : public BasicDataServer, public virtual POA_SALOME::PickelizedPyObjServer
   {
   public:
-    PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
-    PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();
-  protected:
+  public:
+    bool isDict();
+    void checkKeyNotAlreadyPresent(PyObject *key);
+    void checkKeyPresent(PyObject *key);
+    void addKeyValueHard(PyObject *key, PyObject *value);
+    void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);
+    void removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key);
+    PyObject *getPyObj() const { return _self; }
+  public:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
+    static PyObject *GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb);
+    static PyObject *GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb);
+    static std::string Pickelize(PyObject *obj, DataScopeServerBase *dsb);
     PyObject *getPyObjFromPickled(const std::string& pickledData);
+    PyObject *getPyObjFromPickled(const std::vector<unsigned char>& pickledData);
     std::string pickelize(PyObject *obj);
     void setNewPyObj(PyObject *obj);
     void setSerializedContentInternal(const SALOME::ByteVec& newValue);
     static PyObject *CreateDftObjFromType(PyObject *globals, const std::string& typeName);
+  private:
+    void checkKeyPresence(PyObject *key, bool presence);
   protected:
     static const char FAKE_VAR_NAME_FOR_WORK[];
     PyObject *_self;

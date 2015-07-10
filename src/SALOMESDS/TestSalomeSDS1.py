@@ -25,6 +25,7 @@ import cPickle
 import gc
 import SalomeSDSClt
 
+salome.salome_init()
 st="jjj"
 dsm=salome.naming_service.Resolve("/DataServerManager")
 assert(dsm.isAliveAndKicking("Default"))

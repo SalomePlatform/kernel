@@ -17,27 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#SET(SALOME_TEST_DRIVER "$ENV{ABSOLUTE_APPLI_PATH}/bin/salome/appliskel/salome_test_driver.py")
-SET(SALOME_TEST_DRIVER "@CMAKE_INSTALL_PREFIX@/bin/salome/appliskel/salome_test_driver.py")
-
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        500)
-
-SET(KERNEL_TEST_LIB "@CMAKE_INSTALL_PREFIX@/@KERNEL_TEST_LIB@")
-
-# Add all test subdirs
-SUBDIRS( Launcher
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-	 SALOMESDS
-         Utils
-         UnitTests
-         connect
-    )
+IF(NOT WIN32)
+  ADD_TEST(TestSalomeSDS python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestSalomeSDS.py)
+  SET_TESTS_PROPERTIES(TestSalomeSDS PROPERTIES LABELS "${COMPONENT_NAME}" ENVIRONMENT "PYTHONPATH=${KERNEL_TEST_LIB}:$ENV{PYTHONPATH}")
+ENDIF(NOT WIN32)

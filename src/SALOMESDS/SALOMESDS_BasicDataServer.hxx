@@ -30,12 +30,12 @@
 
 namespace SALOMESDS
 {
-  class DataScopeServer;
+  class DataScopeServerBase;
   
   class BasicDataServer : public RefCountServ, public virtual POA_SALOME::BasicDataServer
   {
   public:
-    BasicDataServer(DataScopeServer *father, const std::string& varName);
+    BasicDataServer(DataScopeServerBase *father, const std::string& varName);
     SALOME::DataScopeServer_ptr getMyDataScopeServer();
     char *getVarName();
     char *getScopeName();
@@ -44,11 +44,12 @@ namespace SALOMESDS
     void UnRegister();
     void Destroy();
   public:
+    DataScopeServerBase *getFather() const { return _father; }
     std::string getVarNameCpp() const { return _var_name; }
   protected:
-    PortableServer::POA_var getPOA();
+    PortableServer::POA_var getPOA() const;
   protected:
-    DataScopeServer *_father;
+    DataScopeServerBase *_father;
   private:
     std::string _var_name;
   };

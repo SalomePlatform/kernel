@@ -27,16 +27,16 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& typeName, const std::string& varName):PickelizedPyObjServer(father,varName,CreateDftObjFromType(father->getGlobals(),typeName))
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& typeName, const std::string& varName):PickelizedPyObjServer(father,varName,CreateDftObjFromType(father->getGlobals(),typeName))
 {
 }
 
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
 {
 }
 
 //! obj is consumed
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
 {
 }
 

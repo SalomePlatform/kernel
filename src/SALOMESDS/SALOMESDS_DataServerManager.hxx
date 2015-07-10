@@ -31,10 +31,12 @@
 
 #include <string>
 
+class SALOME_NamingService;
+
 namespace SALOMESDS
 {
   class DataScopeServer;
-  
+    
   class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME::DataServerManager
   {
   public:
@@ -43,19 +45,28 @@ namespace SALOMESDS
     SALOME::StringVec *listAliveAndKickingScopes();
     SALOME::DataScopeServer_ptr getDefaultScope();
     CORBA::Boolean isAliveAndKicking(const char *scopeName);
+    SALOME::DataScopeServerBase_ptr retriveDataScope(const char *scopeName);
+    //
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
-    SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated);
+    //
+    SALOME::DataScopeServerTransaction_ptr createDataScopeTransaction(const char *scopeName);
+    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
+    //
     void removeDataScope(const char *scopeName);
     void cleanScopesInNS();
     void shutdownScopes();
+  public:
+    CORBA::ORB_var getORB() { return _orb; }
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
+    static CORBA::Boolean IsAliveAndKicking(SALOME::DataScopeServerBase_ptr scopePtr);
+    static SALOME::DataScopeServerBase_var GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService& ns);
   public:
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];
   private:
     std::vector<std::string> listOfScopesCpp();
-    SALOME::DataScopeServer_var getScopePtrGivenName(const std::string& scopeName);
+    SALOME::DataScopeServerBase_var getScopePtrGivenName(const std::string& scopeName);
   private:
     CORBA::ORB_var _orb;
     //! single thread poa
