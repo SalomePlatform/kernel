@@ -75,7 +75,12 @@ public:
   create_component_instance_env( const char* componentName,
                                  CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
-                                 CORBA::String_out reason); 
+                                 CORBA::String_out reason);
+
+  virtual char *
+  create_python_service_instance(const char* CompName,
+                                 CORBA::String_out reason);
+
   Engines::EngineComponent_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy

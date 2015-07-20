@@ -102,6 +102,21 @@ module Engines
     Engines::EngineComponent create_component_instance(in string componentName,
                                                        in long studyId);
 
+    //! Create a new Python servant instance of a generic service.
+        /*!
+          This simply loads the service in the current container by importing the
+          corresponding Python module. 
+          Warning: no internal registration is done, so it is up to the caller to 
+          manage the various instanciation.  
+          \param serviceName Name of the service
+           
+                                >0 otherwise (== study id)
+          \param reason  in case of error (return void string) a string explaining the error
+          \return the IOR of the loaded service.
+        */
+    string create_python_service_instance(in string serviceName,
+                                          out string reason);
+    
     //! Create a new servant instance of a component with environment variables specified.
     /*!
       Component library must be loaded.
