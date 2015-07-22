@@ -490,6 +490,14 @@ Engines::EngineComponent_ptr Engines_Parallel_Container_i::find_component_instan
   return anEngine._retn();  
 }
 
+char* Engines_Parallel_Container_i::create_python_service_instance(const char* CompName,
+								   CORBA::String_out reason)
+{
+  // not implemented
+  reason=CORBA::string_dup("");
+  return CORBA::string_dup("");
+}
+
 //=============================================================================
 //! Find or create a new component instance
 /*! 

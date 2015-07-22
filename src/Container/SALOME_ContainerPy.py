@@ -245,7 +245,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             i = i + 1
         return anEngine._this()
         
-        
+
+    #-------------------------------------------------------------------------
+
+    def create_python_service_instance(self, CompName)
+        # not implemented
+        return "", ""
+
     #-------------------------------------------------------------------------
 
     def remove_impl(self, component):
