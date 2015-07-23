@@ -312,6 +312,15 @@ class xml_parser:
                 return string.atoi(strloc)
         return strloc
         pass
+    
+    def strValue( self, str ):
+        strloc = str
+        try:
+            if isinstance(strloc, types.UnicodeType): strloc = strloc.encode().strip()
+            else: strloc = strloc.strip()
+        except:
+            pass
+        return strloc
 
     def startElement(self, name, attrs):
         self.space.append(name)
@@ -347,14 +356,15 @@ class xml_parser:
                 key = nam
             else:                         # key for <module> section
                 key = self.section + "_" + nam
+            key = self.strValue( key )
             if nam in boolKeys:
                 self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
             elif nam in intKeys:
                 self.opts[key] = self.intValue( val )   # assign integer value
             elif nam in listKeys:
-                self.opts[key] = filter( lambda a: a.strip(), re.split( "[:;,]", val ) ) # assign list value: []
+                self.opts[key] = [ self.strValue( a ) for a in re.split( "[:;,]", val ) ] # assign list value: []
             else:
-                self.opts[key] = val
+                self.opts[key] = self.strValue( val ) # string value
             pass
         pass
 
