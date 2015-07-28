@@ -33,6 +33,7 @@ import logging
 def createLogger():
   logger = logging.getLogger(__name__)
 #  logger.setLevel(logging.DEBUG)
+  logger.setLevel(logging.INFO)
   ch = logging.StreamHandler()
   ch.setLevel(logging.DEBUG)
   formatter = logging.Formatter("%(levelname)s:%(threadName)s:%(message)s")
@@ -119,7 +120,7 @@ def getPort(preferedPort=None):
       with open(config_file, 'r') as f:
         config = pickle.load(f)
     except:
-      print "Problem loading PortManager file: %s"%config_file
+      logger.info("Problem loading PortManager file: %s"%config_file)
       # In this case config dictionary is reset
 
     logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
@@ -135,6 +136,9 @@ def getPort(preferedPort=None):
           msg += "Can't find a free port to launch omniNames\n"
           msg += "Try to kill the running servers and then launch SALOME again.\n"
           raise RuntimeError, msg
+        logger.debug("Port %s seems to be busy"%str(port))
+        if not port in config["busy_ports"]:
+          config["busy_ports"].append(port)
         port = port + 1
     logger.debug("found free port: %s"%str(port))
     config["busy_ports"].append(port)
