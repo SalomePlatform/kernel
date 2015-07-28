@@ -54,13 +54,13 @@ _Sleeping = 0
 
 ## define an implementation of the component interface Engines::Component
 #
-#  
+#
 class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     _orb = None
     _poa = None
     _fieldsDict = []
     _studyId = -1
-    
+
     #-------------------------------------------------------------------------
 
     def __init__ (self, orb, poa, contID, containerName,
@@ -126,7 +126,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     def _get_instanceName(self):
         MESSAGE(  "SALOME_ComponentPy_i::_get_instanceName" )
         return self._instanceName
-    
+
     #-------------------------------------------------------------------------
 
     def _get_interfaceName(self):
@@ -137,12 +137,12 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
 
     def ping(self):
         MESSAGE(  "SALOME_ComponentPy_i::ping() pid " + str(os.getpid()) )
-        
+
     #-------------------------------------------------------------------------
 
     def setProperties(self, dico):
         self._fieldsDict = dico
-    
+
     #-------------------------------------------------------------------------
 
     def getProperties(self):
@@ -155,13 +155,13 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
         id = self._poa.servant_to_id(self)
         self._poa.deactivate_object(id)
         return
-        
+
     #-------------------------------------------------------------------------
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
         return self._contId._narrow(Engines.Container)
-                
+
     #-------------------------------------------------------------------------
 
     def beginService(self , serviceName ):
@@ -180,7 +180,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
           value=any.from_any(e.value)
           if isinstance(value,str):
             os.environ[key]=value
-        
+
 
     #-------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
         MESSAGE(  "SALOME_ComponentPy_i::Names" + str(GraphName) + str(NodeName) )
         self._graphName = GraphName
         self._nodeName = NodeName
-        
+
     #-------------------------------------------------------------------------
 
     def graphName(self):
@@ -226,8 +226,8 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
                 #   return 0
                 #else:
                 #   MESSAGE()
-        return 1                 
-    
+        return 1
+
     #-------------------------------------------------------------------------
 
     def Kill_impl(self):
@@ -292,41 +292,33 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
         return 0
 
     #-------------------------------------------------------------------------
-   
+
     def DumpPython(self, theStudy, isPublished, isMultiFile):
         aBuffer = "\0"
         if isMultiFile :
             aBuffer = "def RebuildData(theStudy): pass\n\0"
         return (aBuffer, 1)
 
-    #-------------------------------------------------------------------------    
+    #-------------------------------------------------------------------------
 
     def getStudyId(self):
         return self._studyId
 
-    #-------------------------------------------------------------------------    
+    #-------------------------------------------------------------------------
 
     def hasObjectInfo(self):
         return 0
 
-    #-------------------------------------------------------------------------    
+    #-------------------------------------------------------------------------
 
     def getObjectInfo(self, studyId, entry):
         return ""
 
-    #-------------------------------------------------------------------------    
+    #-------------------------------------------------------------------------
 
     def getVersion(self):
         return "" # empty string means "unknown" version
 
-    #-------------------------------------------------------------------------    
-
-    def importData(self, studyId, dataContainer, options):
-	return [] # no implementation by default
-
-    #-------------------------------------------------------------------------    
-
-    def getModifiedData(self, studyId):
-	return [] # no implementation by default
+    #-------------------------------------------------------------------------
 
     pass # end of SALOME_ComponentPy_i

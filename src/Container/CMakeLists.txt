@@ -40,7 +40,6 @@ SET(SCRIPTS
   SALOME_ComponentPy.py
   SALOME_PyNode.py
   SALOME_Container.py
-  SALOME_DataContainerPy.py
 )
 
 ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${OMNIORB_DEFINITIONS})
@@ -76,7 +75,6 @@ ENDIF()
 SET(SalomeContainer_SOURCES
   Component_i.cxx
   Container_i.cxx
-  SALOME_DataContainer_i.cxx
   SALOME_FileTransfer_i.cxx
   SALOME_FileRef_i.cxx
   Container_init_python.cxx

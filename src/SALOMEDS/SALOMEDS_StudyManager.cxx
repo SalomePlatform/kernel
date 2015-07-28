@@ -30,13 +30,12 @@
 #include "SALOMEDS_Study.hxx"
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS_Driver_i.hxx"
-#include "SALOMEDS_SimanStudy.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
 
-#include "Utils_ORB_INIT.hxx" 
+#include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-#include "utilities.h" 
+#include "utilities.h"
 
 #include "Basics_Utils.hxx"
 
@@ -56,7 +55,7 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
   long pid =  (long)_getpid();
 #else
   long pid =  (long)getpid();
-#endif  
+#endif
 
   CORBA::LongLong addr = theManager->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
@@ -84,7 +83,7 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager()
   long pid =  (long)_getpid();
 #else
   long pid =  (long)getpid();
-#endif  
+#endif
 
   CORBA::LongLong addr = theManager->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
@@ -103,7 +102,7 @@ SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
 
 _PTR(Study) SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
 {
-  //SRN: Pure CORBA NewStudy as it does more initialization than the local one   
+  //SRN: Pure CORBA NewStudy as it does more initialization than the local one
   SALOMEDSClient_Study* aStudy = NULL;
 
   SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy((char*)study_name.c_str());
@@ -115,48 +114,48 @@ _PTR(Study) SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
 
 _PTR(Study) SALOMEDS_StudyManager::Open(const std::string& theStudyUrl)
 {
-  //SRN: Pure CORBA Open as it does more initialization than the local one   
+  //SRN: Pure CORBA Open as it does more initialization than the local one
   SALOMEDSClient_Study* aStudy = NULL;
 
   SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
   if(CORBA::is_nil(aStudy_impl)) return  _PTR(Study)(aStudy);
-    
+
   aStudy = new SALOMEDS_Study(aStudy_impl.in());
 
   return _PTR(Study)(aStudy);
 }
- 
+
 void SALOMEDS_StudyManager::Close(const _PTR(Study)& theStudy)
 {
   //SRN: Pure CORBA close as it does more cleaning than the local one
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
   _corba_impl->Close(aStudy);
 }
- 
+
 bool SALOMEDS_StudyManager::Save(const _PTR(Study)& theStudy, bool theMultiFile)
 {
-  //SRN: Pure CORBA save as the save operation require CORBA in any case 
+  //SRN: Pure CORBA save as the save operation require CORBA in any case
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
   return _corba_impl->Save(aStudy, theMultiFile);
 }
- 
+
 bool SALOMEDS_StudyManager::SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile)
 {
-  //SRN: Pure CORBA save as the save operation require CORBA in any case 
+  //SRN: Pure CORBA save as the save operation require CORBA in any case
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
   return _corba_impl->SaveASCII(aStudy, theMultiFile);
 }
- 
+
 bool SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
-  //SRN: Pure CORBA save as the save operation require CORBA in any case 
+  //SRN: Pure CORBA save as the save operation require CORBA in any case
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
   return _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
- 
+
 bool SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
-  //SRN: Pure CORBA save as the save operation require CORBA in any case 
+  //SRN: Pure CORBA save as the save operation require CORBA in any case
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
   return _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
@@ -171,19 +170,19 @@ std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
 
     std::vector<SALOMEDSImpl_Study*> aSeq = _local_impl->GetOpenStudies();
     aLength = aSeq.size();
-    for(i = 0; i < aLength; i++) 
+    for(i = 0; i < aLength; i++)
       aVector.push_back(aSeq[i]->Name());
   }
   else {
     SALOMEDS::ListOfOpenStudies_var aSeq = _corba_impl->GetOpenStudies();
     aLength = aSeq->length();
-    for(i = 0; i < aLength; i++) 
+    for(i = 0; i < aLength; i++)
       aVector.push_back(aSeq[i].in());
   }
   return aVector;
 }
 
-_PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyName) 
+_PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyName)
 {
   SALOMEDSClient_Study* aStudy = NULL;
   if (_isLocal) {
@@ -201,7 +200,7 @@ _PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyNam
   return _PTR(Study)(aStudy);
 }
 
-_PTR(Study) SALOMEDS_StudyManager::GetStudyByID(int theStudyID) 
+_PTR(Study) SALOMEDS_StudyManager::GetStudyByID(int theStudyID)
 {
   SALOMEDSClient_Study* aStudy = NULL;
   if (_isLocal) {
@@ -211,7 +210,7 @@ _PTR(Study) SALOMEDS_StudyManager::GetStudyByID(int theStudyID)
     if(!aStudy_impl) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
-  else { 
+  else {
     SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByID(theStudyID);
     if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
@@ -312,7 +311,7 @@ void SALOMEDS_StudyManager::init_orb()
 SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
 {
   SALOMEDS_Driver_i* driver = NULL;
-  
+
   SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
   if(!aSCO.IsNull()) {
     std::string IOREngine = aSCO.GetIOR();
@@ -324,25 +323,4 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
   }
 
   return driver;
-}
-
-_PTR(SimanStudy) SALOMEDS_StudyManager::GetSimanStudy()
-{
-  SALOMEDSClient_SimanStudy* aSiman = NULL;
-  /*if (_isLocal) {
-    SALOMEDS::Locker lock;
-
-    SALOMEDSImpl_SimanStudy* aSiman_impl = _local_impl->GetSimanStudy();
-    if(!aSiman_impl) return _PTR(SimanStudy)(aSiman);
-    aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
-  }
-  else { 
-    SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
-    if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
-    aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
-  }*/
-  SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
-  if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
-  aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
-  return _PTR(SimanStudy)(aSiman);
 }

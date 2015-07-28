@@ -1,5 +1,5 @@
 # - Config file for the @PROJECT_NAME@ package
-# It defines the following variables. 
+# It defines the following variables.
 # Specific to the pacakge @PROJECT_NAME@ itself:
 #  @PROJECT_NAME_UC@_ROOT_DIR_EXP - the root path of the installation providing this CMake file
 #
@@ -35,12 +35,12 @@
 ### Initialisation performed by CONFIGURE_PACKAGE_CONFIG_FILE:
 @PACKAGE_INIT@
 
-# Load the dependencies for the libraries of @PROJECT_NAME@ 
-# (contains definitions for IMPORTED targets). This is only 
+# Load the dependencies for the libraries of @PROJECT_NAME@
+# (contains definitions for IMPORTED targets). This is only
 # imported if we are not built as a subproject (in this case targets are already there)
 IF(NOT TARGET SALOMEBasics AND NOT @PROJECT_NAME@_BINARY_DIR)
   INCLUDE("@PACKAGE_SALOME_INSTALL_CMAKE@/@PROJECT_NAME@Targets.cmake")
-ENDIF()   
+ENDIF()
 
 # Package root dir:
 SET_AND_CHECK(KERNEL_ROOT_DIR_EXP "@PACKAGE_CMAKE_INSTALL_PREFIX@")
@@ -67,11 +67,6 @@ SET(SALOME_KERNEL_BUILD_TESTS @SALOME_BUILD_TESTS@)
 SET(SALOME_KERNEL_LIGHT_ONLY  @SALOME_LIGHT_ONLY@)
 SET(SALOME_USE_LIBBATCH       @SALOME_USE_LIBBATCH@)
 
-SET(SALOME_USE_SIMAN     @SALOME_USE_SIMAN@)
-IF(SALOME_USE_SIMAN)
-  LIST(APPEND KERNEL_DEFINITIONS "-DWITH_SIMANIO")
-ENDIF()
-
 SET(SALOME_USE_PORTMANAGER     @SALOME_USE_PORTMANAGER@)
 IF(SALOME_USE_PORTMANAGER)
   LIST(APPEND KERNEL_DEFINITIONS "-DWITH_PORTMANAGER")
@@ -96,9 +91,6 @@ ENDIF()
 IF(SALOME_USE_LIBBATCH)
   SET_AND_CHECK(LIBBATCH_ROOT_DIR_EXP "@PACKAGE_LIBBATCH_ROOT_DIR@")
 ENDIF()
-IF(SALOME_USE_SIMAN)
-  SET_AND_CHECK(SIMANIO_ROOT_DIR_EXP "@PACKAGE_SIMANIO_ROOT_DIR@")
-ENDIF()
 
 SET_AND_CHECK(PTHREAD_ROOT_DIR_EXP  "@PACKAGE_PTHREAD_ROOT_DIR@")
 SET_AND_CHECK(HDF5_ROOT_DIR_EXP     "@PACKAGE_HDF5_ROOT_DIR@")
@@ -106,7 +98,7 @@ SET_AND_CHECK(LIBXML2_ROOT_DIR_EXP  "@PACKAGE_LIBXML2_ROOT_DIR@")
 SET_AND_CHECK(PYTHON_ROOT_DIR_EXP   "@PACKAGE_PYTHON_ROOT_DIR@")
 SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
 
-# For all prerequisites, load the corresponding targets if the package was used 
+# For all prerequisites, load the corresponding targets if the package was used
 # in CONFIG mode. This ensures dependent projects link correctly
 # without having to set LD_LIBRARY_PATH:
 SET(_PREREQ @_PREREQ_LIST@)
@@ -116,20 +108,20 @@ LIST(LENGTH _PREREQ_CONFIG_DIR _list_len)
 IF(NOT _list_len EQUAL 0)
   # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
   MATH(EXPR _range "${_list_len}-1")
-  FOREACH(_p RANGE ${_range})  
+  FOREACH(_p RANGE ${_range})
     LIST(GET _PREREQ            ${_p} _pkg    )
     LIST(GET _PREREQ_CONFIG_DIR ${_p} _pkg_dir)
     LIST(GET _PREREQ_COMPONENTS ${_p} _pkg_compo)
     MESSAGE(STATUS "===> Reloading targets from ${_pkg} ...")
     IF(NOT _pkg_compo)
-      FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE 
-          PATHS "${_pkg_dir}" 
+      FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE
+          PATHS "${_pkg_dir}"
           NO_DEFAULT_PATH)
     ELSE()
       STRING(REPLACE "," ";" _compo_lst "${_pkg_compo}")
       MESSAGE(STATUS "===> (components: ${_pkg_compo})")
       FIND_PACKAGE(${_pkg} REQUIRED NO_MODULE
-          COMPONENTS ${_compo_lst} 
+          COMPONENTS ${_compo_lst}
           PATHS "${_pkg_dir}"
           NO_DEFAULT_PATH)
     ENDIF()
@@ -145,7 +137,7 @@ SET(SALOME_INSTALL_SCRIPT_SCRIPTS "@SALOME_INSTALL_SCRIPT_SCRIPTS@")
 SET(SALOME_INSTALL_SCRIPT_DATA "@SALOME_INSTALL_SCRIPT_DATA@")
 SET(SALOME_INSTALL_SCRIPT_PYTHON "@SALOME_INSTALL_SCRIPT_PYTHON@")
 SET(SALOME_INSTALL_APPLISKEL_SCRIPTS "@SALOME_INSTALL_APPLISKEL_SCRIPTS@")
-SET(SALOME_INSTALL_APPLISKEL_PYTHON "@SALOME_INSTALL_APPLISKEL_PYTHON@") 
+SET(SALOME_INSTALL_APPLISKEL_PYTHON "@SALOME_INSTALL_APPLISKEL_PYTHON@")
 SET(SALOME_INSTALL_CMAKE "@SALOME_INSTALL_CMAKE@")
 SET(SALOME_INSTALL_CMAKE_LOCAL "@SALOME_INSTALL_CMAKE_LOCAL@")
 SET(SALOME_INSTALL_PYTHON "@SALOME_INSTALL_PYTHON@")

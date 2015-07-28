@@ -43,7 +43,7 @@ class Standard_EXPORT SALOMEDS_StudyManager: public SALOMEDSClient_StudyManager
 private:
   bool                              _isLocal;
   SALOMEDSImpl_StudyManager*        _local_impl;
-  SALOMEDS::StudyManager_var        _corba_impl;  
+  SALOMEDS::StudyManager_var        _corba_impl;
   CORBA::ORB_var                    _orb;
 
 public:
@@ -65,11 +65,10 @@ public:
   virtual bool CanCopy(const _PTR(SObject)& theSO);
   virtual bool Copy(const _PTR(SObject)& theSO);
   virtual bool CanPaste(const _PTR(SObject)& theSO);
-  virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO); 
-  virtual _PTR(SimanStudy) GetSimanStudy(); 
+  virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO);
 
 private:
   void init_orb();
 };
 
-#endif 
+#endif

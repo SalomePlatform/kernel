@@ -49,7 +49,7 @@
 class RegistryConnexion;
 class Engines_Container_i;
 
-class CONTAINER_EXPORT Engines_Component_i: 
+class CONTAINER_EXPORT Engines_Component_i:
   public virtual POA_Engines::EngineComponent,
   public virtual PortableServer::ServantBase
 {
@@ -57,16 +57,16 @@ public:
   Engines_Component_i();
   Engines_Component_i(CORBA::ORB_ptr orb,
                       PortableServer::POA_ptr poa,
-                      PortableServer::ObjectId * contId, 
-                      const char *instanceName, 
+                      PortableServer::ObjectId * contId,
+                      const char *instanceName,
                       const char *interfaceName,
                       bool notif = false,
                       bool regist = true);
   //Constructor for standalone component
   Engines_Component_i(CORBA::ORB_ptr orb,
                       PortableServer::POA_ptr poa,
-                      Engines::Container_ptr container, 
-                      const char *instanceName, 
+                      Engines::Container_ptr container,
+                      const char *instanceName,
                       const char *interfaceName,
                       bool notif = false,
                       bool regist = true);
@@ -103,29 +103,29 @@ public:
                                        CORBA::Boolean& isValidScript);
 
   // CORBA operations for Salome_file
-  virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
+  virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name,
                                                          const char* Salome_file_name);
-  virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
+  virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name,
                                                           const char* Salome_file_name);
 
   virtual void checkInputFilesToService(const char* service_name);
-  virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
+  virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name,
                                                          const char* Salome_file_name);
 
   virtual void checkOutputFilesToService(const char* service_name);
-  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
+  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name,
                                                           const char* Salome_file_name);
 
   // Object information
   virtual bool hasObjectInfo() { return false; }
   virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return CORBA::string_dup(""); }
-  
+
   // Version information
   virtual char* getVersion();
-  
+
   // --- local C++ methods
 
-  PortableServer::ObjectId * getId(); 
+  PortableServer::ObjectId * getId();
   Engines_Container_i *GetContainerPtr();
   std::string getContainerName();
   void setContainerName();
@@ -148,11 +148,6 @@ public:
   virtual void configureSalome_file(std::string service_name,
                                     std::string file_port_name,
                                     Salome_file_i * file);
-
-  virtual Engines::ListOfIdentifiers* importData(CORBA::Long studyId,
-						 Engines::DataContainer_ptr data,
-						 const Engines::ListOfOptions& options);
-  virtual Engines::ListOfData* getModifiedData(CORBA::Long studyId);
 
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
@@ -177,7 +172,7 @@ protected:
   typedef std::map<std::string, Salome_file_i*> _t_Salome_file_map;
   // Map Service_name to  _Salome_file_map
   typedef std::map<std::string, Engines_Component_i::_t_Salome_file_map*> _t_Service_file_map;
-  
+
   _t_Service_file_map _Input_Service_file_map;
   _t_Service_file_map _Output_Service_file_map;
   _t_Service_file_map::iterator _Service_file_map_it;

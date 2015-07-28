@@ -51,7 +51,7 @@ namespace SALOMEDS{
   // To convert CORBA::Object to  PortableServer::ServantBase
   PortableServer::ServantBase_var GetServant(CORBA::Object_ptr, PortableServer::POA_ptr);
 
-}    
+}
 
 class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager
 {
@@ -59,9 +59,9 @@ private:
 
   CORBA::ORB_var                    _orb;
   PortableServer::POA_var           _poa;
-  SALOMEDSImpl_StudyManager*        _impl;  
+  SALOMEDSImpl_StudyManager*        _impl;
   SALOME_NamingService*             _name_service;
-  SALOMEDS_DriverFactory_i*         _factory; 
+  SALOMEDS_DriverFactory_i*         _factory;
 
 public:
 
@@ -69,36 +69,36 @@ public:
   SALOMEDS_StudyManager_i(CORBA::ORB_ptr orb, PortableServer::POA_ptr thePOA);
 
   //! standard destructor
-  virtual  ~SALOMEDS_StudyManager_i(); 
+  virtual  ~SALOMEDS_StudyManager_i();
 
  //! method to Register study Manager in the naming service
   /*!
     \param char* arguments, the context to register the study manager in the NS
-  */  
+  */
   void register_name(const char * name);
-  
+
  //! method to Create a New Study of name study_name
   /*!
     \param char* arguments, the new study name
     \return Study_ptr arguments
-  */  
+  */
   virtual SALOMEDS::Study_ptr NewStudy(const char* study_name) throw (SALOME::SALOME_Exception);
 
   //! method to Open a Study from it's persistent reference
   /*!
     \param char* arguments, the study URL
     \return Study_ptr arguments
-  */ 
+  */
   virtual SALOMEDS::Study_ptr Open(const char* aStudyUrl) throw (SALOME::SALOME_Exception);
 
 
-  //! method to close a Study 
+  //! method to close a Study
   /*!
     \param Study_ptr arguments
-  */ 
+  */
   virtual void Close( SALOMEDS::Study_ptr aStudy);
 
-  //! method to save a Study 
+  //! method to save a Study
   /*!
     \param Study_ptr arguments
   */
@@ -124,24 +124,24 @@ public:
   /*!
     \param char* arguments, the study name
     \return Study_ptr arguments
-  */ 
+  */
   virtual SALOMEDS::Study_ptr GetStudyByName(const char* aStudyName) ;
 
   //! method to get a Study from it's ID
   /*!
     \param char* arguments, the study ID
     \return Study_ptr arguments
-  */ 
+  */
   virtual SALOMEDS::Study_ptr GetStudyByID(CORBA::Short aStudyID) ;
-  
+
   virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean Copy(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean CanPaste(SALOMEDS::SObject_ptr theObject);
   virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) throw(SALOMEDS::StudyBuilder::LockProtection);
 
   virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject) {return _orb->object_to_string(theObject); }
-  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };  
-  
+  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };
+
   void ping(){};
   CORBA::Long getPID();
   void ShutdownWithExit();
@@ -151,8 +151,6 @@ public:
   static PortableServer::POA_ptr GetPOA(const SALOMEDS::Study_ptr theStudy);
 
   void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
-
-  virtual SALOMEDS::SimanStudy_ptr GetSimanStudy();
 };
 
-#endif 
+#endif

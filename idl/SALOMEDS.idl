@@ -139,7 +139,7 @@ during each working session.
     exception StudyObjectAlreadyExists {};
 //! Invalid name of the %study exception
     exception StudyNameError {};
-//! Invalid study comment 
+//! Invalid study comment
     exception StudyCommentError {};
 
 /*! \brief The name of the %Study
@@ -227,7 +227,7 @@ during each working session.
 */
     void SetContext(in string thePath) raises (StudyInvalidReference, StudyInvalidContext);
 /*!  \brief Get the context of the %Study.
-    
+
 <em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string GetContext() raises (StudyInvalidReference, StudyInvalidContext);
@@ -392,7 +392,7 @@ during each working session.
     long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
 
 
-/*! \brief  Mark this Study as being locked by the given locker. 
+/*! \brief  Mark this Study as being locked by the given locker.
 
     The lock status can be checked by method IsStudyLocked
     \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locks the study.
@@ -401,22 +401,22 @@ during each working session.
 
 /*! \brief Indicate if the Study is locked
 
-   Returns True if the Study was marked locked. 
+   Returns True if the Study was marked locked.
 */
     boolean IsStudyLocked() raises(StudyInvalidReference);
 
-/*! \brief  Mark this Study as being unlocked by the given locker. 
+/*! \brief  Mark this Study as being unlocked by the given locker.
 
      The lock status can be checked by method IsStudyLocked
     \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that unlocks the study.
 */
     void UnLockStudy(in string theLockerID) raises(StudyInvalidReference);
 
-/*! \brief  Get the list of IDs of the Study's lockers. 
+/*! \brief  Get the list of IDs of the Study's lockers.
 */
     ListOfStrings GetLockerID() raises(StudyInvalidReference);
 
-/*! \brief  Create real variable with Name theVarName and value theValue 
+/*! \brief  Create real variable with Name theVarName and value theValue
 
     (or set if variable value into theValue already exists)
     \param theVarName is a name of the variable
@@ -424,14 +424,14 @@ during each working session.
 */
     void SetReal( in string theVarName, in double theValue ) raises(StudyInvalidReference);
 
-/*! \brief  Create integer variable with Name theVarName and value theValue 
+/*! \brief  Create integer variable with Name theVarName and value theValue
 
     (or set if variable value into theValue already exists)
     \param theVarName is a name of the variable
     \param theVarName is a value of the variable.
 */
     void SetInteger( in string theVarName, in long theValue ) raises(StudyInvalidReference);
-/*! \brief  Create boolean variable with Name theVarName and value theValue 
+/*! \brief  Create boolean variable with Name theVarName and value theValue
 
     (or set if variable value into theValue already exists)
     \param theVarName is a name of the variable
@@ -439,7 +439,7 @@ during each working session.
 */
     void SetBoolean( in string theVarName, in boolean theValue ) raises(StudyInvalidReference);
 
-/*! \brief  Create string variable with Name theVarName and value theValue 
+/*! \brief  Create string variable with Name theVarName and value theValue
 
     (or set if variable value into theValue already exists)
     \param theVarName is a name of the variable
@@ -474,7 +474,7 @@ during each working session.
     \param theVarName is a name of the variable.
 */
     string GetString( in string theVarName ) raises(StudyInvalidReference);
-    
+
 
 /*! \brief Indicate if a variable is real
 
@@ -546,7 +546,7 @@ during each working session.
 
 /*! \brief Parse variables used for object creation
 
-   \param string with variables, separated by special symbol. 
+   \param string with variables, separated by special symbol.
    \return Variables list.
 */
     ListOfListOfStrings ParseVariables( in string theVars ) raises(StudyInvalidReference);
@@ -558,77 +558,14 @@ during each working session.
     \param modify when \c true, observer receives any object's modification events;
            otherwise observer receives object's creation events only
 */
-     void attach(in SALOMEDS::Observer theObserver, in boolean modify);   
+     void attach(in SALOMEDS::Observer theObserver, in boolean modify);
 /*!
      Detach an observer from the Study
 
     \param theObserver observer to be detached
 */
-     void detach(in SALOMEDS::Observer theObserver);   
+     void detach(in SALOMEDS::Observer theObserver);
   };
-
-  //===========================================================================
- /*! \brief %SimanStudy Interface
-
-    The Siman (simulation management) study is an interface extension to the %Study
-    with functions for working with SIMAN server. Is allows to get data from SIMAN (check-out operation)
-    and to store it back (check-in operation).
-    This interface is correctly working if SALOME is compiled with SimanIO library, launched with siman
-    option and  connection to SIMAN server is established and alive. Only one study per application,
-    checked out from the SIMAN is SimanStudy. For other studies all functionality is unaccessible.
-*/
-
-  interface SimanStudy
-  {
-
-//! No connection with SIMAN server
-    exception SimanStudyNoConnection {};
-//! There is no SimanStudy with: study with checked out data.
-    exception SimanStudyNotExists {};
-
-/*! \brief The ID of the study in SIMAN server
-
-   This is equivalent to the methods setStudyId() & getStudyId()
-*/
-    attribute string      StudyId;
-    
-/*! \brief The ID of the scenario in SIMAN server
-
-   This is equivalent to the methods setScenarioId() & getScenarioId()
-*/
-    attribute string      ScenarioId;
-/*! \brief The ID of the user in SIMAN server
-
-   This is equivalent to the methods setUserId() & getUserId()
-*/
-    attribute string      UserId;
-
-/*! \brief Get data from SIMAN and put it to the given study
-
-   This method is called for just created study to make it referenced
-   by this Siman study. Also it fills this study by the checked out
-   data from SIMAN server.
-   Warning: StudyID, ScenarioID and User Id must be set before calling of this method!
-
-   \param theTarget referenced study for checking out
-*/
-    void CheckOut(in Study theTarget);
-
-/*! \brief Get data from the source study and store in SIMAN
-    
-    It works only with already checked out study.
-    \param theModuleName name of the module the check in must be perfrormed for. If empty, check in is performed for all modules.
-*/
-    void CheckIn(in string theModuleName);
-
-/*! \brief Returns the %Study with checked out data
-
-   If study is null, there is no such study in this application instance, or Salome was
-   launched without siman option.
-*/
-    Study getReferencedStudy();
-
-};
 
   //==========================================================================
 /*! \brief %Study Builder Interface
@@ -664,7 +601,7 @@ during each working session.
     Defines the instance to the %SComponent.
 */
     void       DefineComponentInstance (in SComponent aComponent,in Object ComponentIOR) raises(LockProtection);
-        
+
 /*! \brief Deletion of a %SComponent
 
   Removes a %SComponent.
@@ -732,7 +669,7 @@ during each working session.
 */
 
     GenericAttribute FindOrCreateAttribute(in  SObject        anObject,
-	                                 in  string         aTypeOfAttribute) raises(LockProtection);
+                                         in  string         aTypeOfAttribute) raises(LockProtection);
 
 /*! \brief Looking for an attribute assigned to a %SObject
 
@@ -744,8 +681,8 @@ during each working session.
  */
 
     boolean FindAttribute(in  SObject        anObject,
-				 out GenericAttribute anAttribute,
-				 in  string         aTypeOfAttribute);
+                                 out GenericAttribute anAttribute,
+                                 in  string         aTypeOfAttribute);
 /*! \brief Deleting the attribute assigned to the %SObject
 
     Removes the attribute of a specific type which is assigned to the object.
@@ -755,7 +692,7 @@ during each working session.
 <em>See \ref example17 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void RemoveAttribute(in  SObject        anObject,
-			 in  string         aTypeOfAttribute) raises(LockProtection);
+                         in  string         aTypeOfAttribute) raises(LockProtection);
 /*!
     Adds a reference between %anObject and %theReferencedObject.
     \param anObject The %SObject which will get a reference
@@ -763,7 +700,7 @@ during each working session.
 */
 
     void Addreference(in SObject anObject,
-		      in SObject theReferencedObject) ;
+                      in SObject theReferencedObject) ;
 
 /*!
     Removes a reference from %anObject to another object.
@@ -802,7 +739,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 /*! \brief Creation of a new command
 
    Creates a new command which can contain several different actions.
-   
+
 <em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
@@ -824,7 +761,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 /*! \brief Cancelation of the command
 
     Cancels all actions declared within the command.
-    
+
 <em>See \ref example17 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void AbortCommand(); // command management
@@ -855,7 +792,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     void Redo() raises (LockProtection);
 /*!
     Returns True if at this moment there are any actions which can be canceled.
-    
+
 <em>See \ref example16 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
@@ -919,7 +856,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 /*!
     Shutdown the StudyManager process.
-*/    
+*/
     oneway void ShutdownWithExit();
 
 /*! \brief Creation of a new study
@@ -974,8 +911,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     boolean  SaveAs(in URL   aUrl, // if the file already exists
-		in Study aStudy,
-		in boolean theMultiFile); // overwrite (as option)
+                in Study aStudy,
+                in boolean theMultiFile); // overwrite (as option)
 /*! \brief Saving the study in a specified ASCII file (or files).
 
     Saves the study in a specified ASCII file (or files).
@@ -985,8 +922,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
     boolean  SaveAsASCII(in URL   aUrl, // if the file already exists
-		      in Study aStudy,
-		      in boolean theMultiFile); // overwrite (as option)
+                      in Study aStudy,
+                      in boolean theMultiFile); // overwrite (as option)
 
 
 /*! \brief List of open studies.
@@ -1044,11 +981,11 @@ Gets the list of open studies
 */
     string ConvertObjectToIOR(in Object theObject);
 /*! \brief Object conversion.
-	    
+
     Converts IOR into an object.
     \return    An object
 */
-    Object ConvertIORToObject(in string theIOR); 
+    Object ConvertIORToObject(in string theIOR);
 
 /*!
     Private method, returns an implementation of this StudyManager.
@@ -1056,14 +993,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the StudyManager is launched locally with the caller
 */
-    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
-
-/*! \brief Returns the siman study based on the given study.
-	    
-    Creates a new Siman study, or returns just a previously created.
-    \return Siman study, or none if it is not siman mode
-*/
-    SimanStudy GetSimanStudy();
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
 
   };
 
@@ -1074,7 +1004,7 @@ Gets the list of open studies
    The objects in the %study are built by the %StudyBuilder. The %SObject interface
    provides methods for elementary inquiries, like getting an object %ID or its attribuites.
  \note
- 
+
    <BR><VAR>Tag</VAR> of an item in %SALOME application is an integer value uniquely defining an item
    in the tree-type data structure.
    <BR><VAR>ID</VAR> of an item is a description of item's position in the tree-type data structure.
@@ -1135,7 +1065,7 @@ Gets the list of open studies
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     boolean FindAttribute(out GenericAttribute anAttribute,
-				  in  string         aTypeOfAttribute);
+                                  in  string         aTypeOfAttribute);
 
 /*! Looks for a %SObject which the given %SObject refers to.
     \return The object which the given %SObject refers to as well as True if it finds
@@ -1222,8 +1152,8 @@ Gets the list of open studies
     string Type();
 
     //! Get the class type
-    string GetClassType(); 	
-	
+    string GetClassType();
+
     //! Get SObject
     SObject GetSObject();
 
@@ -1536,9 +1466,9 @@ study is saved these references are transformed into persintent IDs.
 
 */
     string IORToLocalPersistentID (in SObject theSObject,
-				   in string IORString,
-				   in boolean isMultiFile,
-				   in boolean isASCII);
+                                   in string IORString,
+                                   in boolean isMultiFile,
+                                   in boolean isASCII);
 /*!
   Transforms PersistentID into IOR of the object. It is called for each
    object in the %study.
@@ -1555,9 +1485,9 @@ study is open, these references are transformed into persintent IORs.
 
 */
     string LocalPersistentIDToIOR (in SObject theSObject,
-				   in string aLocalPersistentID,
-				   in boolean isMultiFile,
-				   in boolean isASCII)
+                                   in string aLocalPersistentID,
+                                   in boolean isMultiFile,
+                                   in boolean isASCII)
       raises (SALOME::SALOME_Exception);
 
     // Publishing in the study

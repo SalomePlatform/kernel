@@ -60,7 +60,7 @@ bool Engines_Component_i::_isMultiInstance = false;
  */
 
 //=============================================================================
-/*! 
+/*!
  *  Default constructor, not for use
  */
 //=============================================================================
@@ -86,8 +86,8 @@ Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupp
 //=============================================================================
 
 Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
-                                         PortableServer::POA_ptr poa, 
-                                         PortableServer::ObjectId * contId, 
+                                         PortableServer::POA_ptr poa,
+                                         PortableServer::ObjectId * contId,
                                          const char *instanceName,
                                          const char *interfaceName,
                                          bool notif,
@@ -175,7 +175,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
 
 
 //=============================================================================
-/*! 
+/*!
  *  Destructor: call Container for decrement of instances count.
  *  When instances count falls to 0, the container tries to remove the
  *  component library (dlclose)
@@ -204,7 +204,7 @@ Engines_Component_i::~Engines_Component_i()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: return name of the instance, unique in this Container
  */
 //=============================================================================
@@ -215,7 +215,7 @@ char* Engines_Component_i::instanceName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: return name of the component class
  */
 //=============================================================================
@@ -226,7 +226,7 @@ char* Engines_Component_i::interfaceName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: Get study Id
  *  \return -1: not initialised (Internal Error)
  *           0: multistudy component instance
@@ -240,7 +240,7 @@ CORBA::Long Engines_Component_i::getStudyId()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: Test if instance is alive and responds
  */
 //=============================================================================
@@ -257,7 +257,7 @@ void Engines_Component_i::ping()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: Deactivate this instance. CORBA object is deactivated (do not
  *  respond any more to CORBA calls), the connection to Regsitry is removed
  *  (Registry informed of deactivation), internal server reference counter on
@@ -279,7 +279,7 @@ void Engines_Component_i::destroy()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: return CORBA reference of the Container
  *
  */
@@ -291,12 +291,12 @@ Engines::Container_ptr Engines_Component_i::GetContainerRef()
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
- *  Gives a sequence of (key=string,value=any) to the component. 
+/*!
+ *  CORBA method:
+ *  Gives a sequence of (key=string,value=any) to the component.
  *  Base class component stores the sequence in a map.
  *  The map is cleared before.
- *  This map is for use by derived classes. 
+ *  This map is for use by derived classes.
  *  \param dico sequence of (key=string,value=any)
  */
 //=============================================================================
@@ -312,8 +312,8 @@ void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
+/*!
+ *  CORBA method:
  *  returns a previously stored map (key=string,value=any) as a sequence.
  *  (see setProperties)
  */
@@ -335,8 +335,8 @@ Engines::FieldsDict* Engines_Component_i::getProperties()
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
+/*!
+ *  CORBA method:
  *  This method is to set an option specific to a certain EngineComponent.
  */
 //=============================================================================
@@ -346,8 +346,8 @@ void Engines_Component_i::SetOption(const char*, const char*)
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
+/*!
+ *  CORBA method:
  *  This method is to get value of an option specific to a certain EngineComponent.
  */
 //=============================================================================
@@ -358,7 +358,7 @@ char* Engines_Component_i::GetOption(const char*)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used by Supervision to give names to this instance
  */
 //=============================================================================
@@ -373,12 +373,12 @@ void Engines_Component_i::Names( const char * graphName ,
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
 
-bool Engines_Component_i::Kill_impl() 
+bool Engines_Component_i::Kill_impl()
 {
 //  MESSAGE("Engines_Component_i::Kill_i() pthread_t "<< pthread_self()
 //          << " pid " << getpid() << " instanceName "
@@ -407,7 +407,7 @@ bool Engines_Component_i::Kill_impl()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
@@ -427,7 +427,7 @@ bool Engines_Component_i::Stop_impl()
           << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
           << std::dec << " _ThreadId " << _ThreadId );
 #endif
-  
+
 
   bool RetVal = false ;
 #ifndef WIN32
@@ -447,7 +447,7 @@ bool Engines_Component_i::Stop_impl()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
@@ -479,7 +479,7 @@ bool Engines_Component_i::Suspend_impl()
         {
           return false ;
         }
-    else 
+    else
       {
 #ifndef WIN32
         RetVal = Killer( _ThreadId ,SIGINT ) ;
@@ -494,7 +494,7 @@ bool Engines_Component_i::Suspend_impl()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
@@ -521,7 +521,7 @@ bool Engines_Component_i::Resume_impl()
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
 #endif
     {
-    if ( _Sleeping ) 
+    if ( _Sleeping )
       {
         _Sleeping = false ;
         RetVal = true ;
@@ -535,8 +535,8 @@ bool Engines_Component_i::Resume_impl()
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
+/*!
+ *  CORBA method:
  */
 //=============================================================================
 
@@ -576,7 +576,7 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
           //      << _serviceName << " " << cpu << endl ;
       }
     }
-    else 
+    else
       {
         cpu = _ThreadCpuUsed ;
         // cout << pthread_self() << " Engines_Component_i::CpuUsed_impl "
@@ -593,7 +593,7 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
 
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: return Container Servant
  */
 //=============================================================================
@@ -605,9 +605,9 @@ Engines_Container_i *Engines_Component_i::GetContainerPtr()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: set study Id
- *  \param studyId         0 if instance is not associated to a study, 
+ *  \param studyId         0 if instance is not associated to a study,
  *                         >0 otherwise (== study id)
  *  \return true if the set of study Id is OK
  *  must be set once by Container, at instance creation,
@@ -619,7 +619,7 @@ CORBA::Boolean Engines_Component_i::setStudyId(CORBA::Long studyId)
 {
   ASSERT( studyId >= 0);
   CORBA::Boolean ret = false;
-  if (_studyId < 0) // --- not yet initialized 
+  if (_studyId < 0) // --- not yet initialized
     {
       _studyId = studyId;
       ret = true;
@@ -630,7 +630,7 @@ CORBA::Boolean Engines_Component_i::setStudyId(CORBA::Long studyId)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: return CORBA instance id, the id is set in derived class
  *  constructor, when instance is activated.
  */
@@ -643,7 +643,7 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used by derived classes for supervision
  */
 //=============================================================================
@@ -695,7 +695,7 @@ void Engines_Component_i::beginService(const char *serviceName)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used by derived classes for supervision
  */
 //=============================================================================
@@ -715,7 +715,7 @@ void Engines_Component_i::endService(const char *serviceName)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: -- CHECK IF USED --
  */
 //=============================================================================
@@ -726,7 +726,7 @@ char* Engines_Component_i::graphName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: -- CHECK IF USED --
  */
 //=============================================================================
@@ -737,7 +737,7 @@ char* Engines_Component_i::nodeName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used in Supervision (see kill_impl)
  */
 //=============================================================================
@@ -773,7 +773,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
               perror("Killer pthread_kill error") ;
               return false ;
             }
-          else 
+          else
             {
 #ifdef WIN32
               MESSAGE("Killer : ThreadId " << ThreadId.p << " pthread_killed(" << signum << ")") ;
@@ -790,9 +790,9 @@ void SetCpuUsed();
 void CallCancelThread();
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method:
- */ 
+ */
 //=============================================================================
 
 void SetCpuUsed()
@@ -802,7 +802,7 @@ void SetCpuUsed()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method:
  */
 //=============================================================================
@@ -810,12 +810,12 @@ void SetCpuUsed()
 void Engines_Component_i::SetCurCpu()
 {
   _ThreadCpuUsed =  CpuUsed() ;
-  //  MESSAGE(pthread_self() << 
+  //  MESSAGE(pthread_self() <<
   //  " Engines_Component_i::SetCurCpu() _ThreadCpuUsed " << _ThreadCpuUsed) ;
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method:
  */
 //=============================================================================
@@ -843,10 +843,10 @@ long Engines_Component_i::CpuUsed()
   else
     {
       // std::cout << pthread_self() << "Engines_Component_i::CpuUsed _ThreadId "
-      //      << _ThreadId << " " << _serviceName<< " _StartUsed " 
+      //      << _ThreadId << " " << _serviceName<< " _StartUsed "
       //      << _StartUsed << std::endl ;
     }
-#else 
+#else
         // NOT implementet yet
 #endif
 
@@ -872,7 +872,7 @@ void Engines_Component_i::CancelThread()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: Send message to event channel
  */
 //=============================================================================
@@ -884,7 +884,7 @@ void Engines_Component_i::sendMessage(const char *event_type,
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: return standard library name built on component name
  */
 //=============================================================================
@@ -898,19 +898,19 @@ std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
 #else
   std::string ret=componentName;
   ret+="Engine.dll";
-#endif 
+#endif
   return ret;
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: DumpPython default implementation
  */
 //=============================================================================
 
-Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy, 
-                                                  CORBA::Boolean isPublished, 
-                                                  CORBA::Boolean isMultiFile, 
+Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
+                                                  CORBA::Boolean isPublished,
+                                                  CORBA::Boolean isMultiFile,
                                                   CORBA::Boolean& isValidScript)
 {
   const char* aScript = isMultiFile ? "def RebuildData(theStudy): pass" : "";
@@ -918,14 +918,14 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
   int aBufferSize = strlen(aBuffer)+1;
-  Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1); 
+  Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1);
   isValidScript = true;
-  return aStreamFile._retn(); 
+  return aStreamFile._retn();
 }
 
-Engines::Salome_file_ptr 
-Engines_Component_i::getInputFileToService(const char* service_name, 
-                                           const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Component_i::getInputFileToService(const char* service_name,
+                                           const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -950,9 +950,9 @@ Engines_Component_i::getInputFileToService(const char* service_name,
   return Sfile->_this();
 }
 
-Engines::Salome_file_ptr 
-Engines_Component_i::setInputFileToService(const char* service_name, 
-                                           const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Component_i::setInputFileToService(const char* service_name,
+                                           const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we add it.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -961,7 +961,7 @@ Engines_Component_i::setInputFileToService(const char* service_name,
     _Input_Service_file_map[service_name] = _map;
   }
   _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
-  
+
   // Try to find the Salome_file ...
   _Salome_file_map_it = _map->find(Salome_file_name);
   if (_Salome_file_map_it ==  _map->end()) {
@@ -975,8 +975,8 @@ Engines_Component_i::setInputFileToService(const char* service_name,
   return Sfile->_this();
 }
 
-void 
-Engines_Component_i::checkInputFilesToService(const char* service_name) 
+void
+Engines_Component_i::checkInputFilesToService(const char* service_name)
 {
   // Try to find the service, if it doesn't exist, nothing to do.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -994,9 +994,9 @@ Engines_Component_i::checkInputFilesToService(const char* service_name)
   }
 }
 
-Engines::Salome_file_ptr 
-Engines_Component_i::getOutputFileToService(const char* service_name, 
-                                            const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Component_i::getOutputFileToService(const char* service_name,
+                                            const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
@@ -1021,9 +1021,9 @@ Engines_Component_i::getOutputFileToService(const char* service_name,
   return Sfile->_this();
 }
 
-Engines::Salome_file_ptr 
-Engines_Component_i::setOutputFileToService(const char* service_name, 
-                                           const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Component_i::setOutputFileToService(const char* service_name,
+                                           const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we add it.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
@@ -1032,7 +1032,7 @@ Engines_Component_i::setOutputFileToService(const char* service_name,
     _Output_Service_file_map[service_name] = _map;
   }
   _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
-  
+
   // Try to find the Salome_file ...
   _Salome_file_map_it = _map->find(Salome_file_name);
   if (_Salome_file_map_it ==  _map->end()) {
@@ -1046,8 +1046,8 @@ Engines_Component_i::setOutputFileToService(const char* service_name,
   return Sfile->_this();
 }
 
-void 
-Engines_Component_i::checkOutputFilesToService(const char* service_name) 
+void
+Engines_Component_i::checkOutputFilesToService(const char* service_name)
 {
   // Try to find the service, if it doesn't exist, nothing to do.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
@@ -1067,7 +1067,7 @@ Engines_Component_i::checkOutputFilesToService(const char* service_name)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used to configure the Salome_file into the runtime.
  *  \param service_name name of the service that use this Salome_file
  *  \param file_port_name name of the Salome_file
@@ -1077,45 +1077,13 @@ Engines_Component_i::checkOutputFilesToService(const char* service_name)
 void
 Engines_Component_i::configureSalome_file(std::string service_name,
                                           std::string file_port_name,
-                                          Salome_file_i * file) 
+                                          Salome_file_i * file)
 {
   // By default this method does nothing
 }
 
 //=============================================================================
-/*! 
- *  C++ method: allows to import data file into the Component internal data 
-    structure (like import operation of BRep file in GEOM module).
- *  \param studyId identifier of the working study
- *  \param data container of the file content
- *  \param options additional options for import (if needed)
- */
-//=============================================================================
-Engines::ListOfIdentifiers* Engines_Component_i::importData(CORBA::Long studyId,
-                                     Engines::DataContainer_ptr data,
-                                     const Engines::ListOfOptions& options)
-{
-  // By default this method does nothing
-  Engines::ListOfIdentifiers_var aList = new Engines::ListOfIdentifiers;
-  return aList._retn();
-}
-
-//=============================================================================
-/*! 
- *  C++ method: allows to export data files from the Component internal data 
-    structure (like Export operation of Step file in GEOM module).
- *  \param studyId identifier of the working study
- */
-//=============================================================================
-Engines::ListOfData* Engines_Component_i::getModifiedData(CORBA::Long studyId)
-{
-  // By default this method does nothing
-  Engines::ListOfData_var aList = new Engines::ListOfData;
-  return aList._retn();
-}
-
-//=============================================================================
-/*! 
+/*!
  *  C++ method: return the name of the container associated with this component
  *  This name does not contains the "/Containers" string and all "/" are replaced by "_"
  *  \return the container name (reformatted)
@@ -1126,7 +1094,7 @@ std::string Engines_Component_i::getContainerName()
   return _containerName;
 }
 //=============================================================================
-/*! 
+/*!
  *  C++ method: set the name of the container associated with this component (attribute _containerName)
  *  This name does not contains the "/Containers" string and all "/" are replaced by "_"
  *  \return the container name (reformatted)
@@ -1152,7 +1120,7 @@ void Engines_Component_i::setContainerName()
 
   \note The version of the component is stored to the study, as a part of general persistence
   mechanism; once stored, version information in the study cannot be changed.
-  
+
   \return string containing component's version, e.g. "1.0"
 */
 char* Engines_Component_i::getVersion()
