@@ -118,8 +118,9 @@ def getPort(preferedPort=None):
     try:
       with open(config_file, 'r') as f:
         config = pickle.load(f)
-    except IOError: # empty file
-      pass
+    except:
+      print "Problem loading PortManager file: %s"%config_file
+      # In this case config dictionary is reset
 
     logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
 
