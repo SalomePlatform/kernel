@@ -374,6 +374,16 @@ def killMyPort(port):
         import PortManager # do not remove! Test for PortManager availability!
         filedict = getPiDict(port)
         if not os.path.isfile(filedict): # removed by previous call, see (1)
+            if verbose():
+                print "SALOME on port %s: already removed by previous call"%port
+            # Remove port from PortManager config file
+            try:
+                from PortManager import releasePort
+                if verbose():
+                    print "Removing port from PortManager configuration file"
+                releasePort(port)
+            except ImportError:
+                pass
             return
     except:
         pass
