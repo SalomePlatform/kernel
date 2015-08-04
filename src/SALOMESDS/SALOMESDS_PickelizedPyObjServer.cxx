@@ -101,14 +101,19 @@ void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, 
     buf[i]=bsToBeConv[i];
 }
 
+void PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv, SALOME::ByteVec& ret)
+{
+  const char *buf(strToBeConv.c_str());
+  std::size_t sz(strToBeConv.size());
+  ret.length(sz);
+  for(std::size_t i=0;i<sz;i++)
+    ret[i]=buf[i];
+}
+
 SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv)
 {
   SALOME::ByteVec *ret(new SALOME::ByteVec);
-  const char *buf(strToBeConv.c_str());
-  std::size_t sz(strToBeConv.size());
-  ret->length(sz);
-  for(std::size_t i=0;i<sz;i++)
-    (*ret)[i]=buf[i];
+  FromCppToByteSeq(strToBeConv,*ret);
   return ret;
 }
 

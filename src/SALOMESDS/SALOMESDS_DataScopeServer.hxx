@@ -53,6 +53,8 @@ namespace SALOMESDS
     BasicDataServer *retrieveVarInternal2(const std::string& varName);
     void deleteVar(const char *varName);
     void shutdownIfNotHostedByDSM();
+    SALOME::ByteVec *fetchSerializedContent(const char *varName);
+    SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
     ~DataScopeServerBase();
   public:
     void initializePython(int argc, char *argv[]);
@@ -111,12 +113,12 @@ namespace SALOMESDS
     void notifyKey(PyObject *keyObj, PyObject *valueObj);
     SALOME::ByteVec *waitForMonoThrRev(SALOME::KeyWaiter_ptr kw);
   public://remotely callable
-    SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
     SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    void addKeyValueInVarErrorIfAlreadyExistingNow(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
     SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key);
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
     SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);

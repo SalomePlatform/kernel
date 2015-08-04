@@ -195,6 +195,29 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
 
+  def testTransaction5(self):
+    """ Like testTransaction2 but without transactions. """
+    scopeName="Scope1"
+    varName="a"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+    #
+    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    dss.atomicApply([t0])
+    #
+    self.assertRaises(SALOME.SALOME_Exception,dss.addKeyValueInVarErrorIfAlreadyExistingNow,varName,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
+    dss.addKeyValueInVarErrorIfAlreadyExistingNow(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
+    #
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
+    wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
+    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
+    self.assertEqual(keys,['ab','cd'])
+
   def setUp(self):
     salome.salome_init()
     pass

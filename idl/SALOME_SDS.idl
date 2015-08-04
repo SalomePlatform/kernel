@@ -25,6 +25,7 @@ module SALOME
 {
   typedef sequence<string> StringVec;
   typedef sequence<octet> ByteVec;
+  typedef sequence<ByteVec> SeqOfByteVec;
   
   interface DataScopeServer;
 
@@ -65,6 +66,8 @@ module SALOME
     boolean existVar(in string varName) raises (SALOME::SALOME_Exception);
     void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
+    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
+    SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME::SALOME_Exception);
   };
 
   interface DataScopeServer : DataScopeServerBase
@@ -88,12 +91,12 @@ module SALOME
 
   interface DataScopeServerTransaction : DataScopeServerBase
   {
-    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction addKeyValueInVarHard(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction addKeyValueInVarErrorIfAlreadyExisting(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    void addKeyValueInVarErrorIfAlreadyExistingNow(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction removeKeyInVarErrorIfNotAlreadyExisting(in string varName, in ByteVec keyValue) raises (SALOME::SALOME_Exception);
     KeyWaiter waitForKeyInVar(in string varName, in ByteVec keyVal) raises (SALOME::SALOME_Exception);
     KeyWaiter waitForKeyInVarAndKillIt(in string varName, in ByteVec keyVal, out Transaction transac) raises (SALOME::SALOME_Exception);

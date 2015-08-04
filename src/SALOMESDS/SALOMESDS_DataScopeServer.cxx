@@ -156,6 +156,52 @@ void DataScopeServerBase::shutdownIfNotHostedByDSM()
     }
 }
 
+SALOME::ByteVec *DataScopeServerBase::fetchSerializedContent(const char *varName)
+{
+  BasicDataServer *var(retrieveVarInternal2(varName));
+  PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
+  if(!varc)
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::fetchSerializedContent : var \"" << varName << "\" exists but it is not serialized !";
+      throw Exception(oss.str());
+    }
+  return varc->fetchSerializedContent();
+}
+
+SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const char *varName)
+{
+  BasicDataServer *var(retrieveVarInternal2(varName));
+  PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
+  if(!varc)
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::getAllKeysOfVarWithTypeDict : var \"" << varName << "\" exists but it is not serialized !";
+      throw Exception(oss.str());
+    }
+  if(!varc->isDict())
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::getAllKeysOfVarWithTypeDict : var \"" << varName << "\" exists but it is not a PyDict !";
+      throw Exception(oss.str());
+    }
+  PyObject *keys(PyDict_Keys(varc->getPyObj()));
+  if(!PyList_Check(keys))
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::getAllKeysOfVarWithTypeDict : var \"" << varName << "\" has keys but not of type list !";
+      throw Exception(oss.str());
+    }
+  Py_ssize_t sz(PyList_Size(keys));
+  SALOME::SeqOfByteVec *ret(new SALOME::SeqOfByteVec);
+  ret->length(sz);
+  for(Py_ssize_t i=0;i<sz;i++)
+    {
+      PyObject *item(PyList_GetItem(keys,i));
+      Py_XINCREF(item);
+      std::string pickel(varc->pickelize(item));//item consumed
+      PickelizedPyObjServer::FromCppToByteSeq(pickel,(*ret)[i]);
+    }
+  Py_XDECREF(keys);
+  return ret;
+}
+
 void DataScopeServerBase::initializePython(int argc, char *argv[])
 {
   Py_Initialize();
@@ -376,18 +422,6 @@ void DataScopeServerTransaction::createRdWrVarInternal(const std::string& varNam
   _vars.push_back(p);
 }
 
-SALOME::ByteVec *DataScopeServerTransaction::fetchSerializedContent(const char *varName)
-{
-  BasicDataServer *var(retrieveVarInternal2(varName));
-  PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
-  if(!varc)
-    {
-      std::ostringstream oss; oss << "DataScopeServerTransaction::fetchSerializedContent : var \"" << varName << "\"exists but it is not serialized !";
-      throw Exception(oss.str());
-    }
-  return varc->fetchSerializedContent();
-}
-
 SALOME::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
@@ -500,6 +534,31 @@ SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarErrorIfAlrea
   TransactionAddKeyValueErrorIfAlreadyExisting *ret(new TransactionAddKeyValueErrorIfAlreadyExisting(this,varName,key,value));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
+};
+
+class TrustTransaction
+{
+public:
+  TrustTransaction():_must_rollback(0),_ptr(0) { }
+  void setTransaction(Transaction *t, bool *mustRollback) { if(!t || !mustRollback) throw Exception("TrustTransaction Error #1"); _ptr=t; _must_rollback=mustRollback; _ptr->prepareRollBackInCaseOfFailure(); }
+  void operate() { _ptr->perform(); }
+  ~TrustTransaction() { if(!_ptr) return ; if(*_must_rollback) _ptr->rollBack(); }
+private:
+  bool *_must_rollback;
+  Transaction *_ptr;
+};
+
+void DataScopeServerTransaction::addKeyValueInVarErrorIfAlreadyExistingNow(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+{
+  checkVarExistingAndDict(varName);
+  TransactionAddKeyValueErrorIfAlreadyExisting ret(this,varName,key,value);
+  {
+    bool mustRollback(true);
+    TrustTransaction t;
+    t.setTransaction(&ret,&mustRollback);
+    t.operate();
+    mustRollback=false;
+  }
 }
 
 SALOME::Transaction_ptr DataScopeServerTransaction::removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key)
@@ -545,18 +604,6 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   retc->_remove_ref();
   retc->waitForMonoThr();
 }
-
-class TrustTransaction
-{
-public:
-  TrustTransaction():_must_rollback(0),_ptr(0) { }
-  void setTransaction(Transaction *t, bool *mustRollback) { if(!t || !mustRollback) throw Exception("TrustTransaction Error #1"); _ptr=t; _must_rollback=mustRollback; _ptr->prepareRollBackInCaseOfFailure(); }
-  void operate() { _ptr->perform(); }
-  ~TrustTransaction() { if(!_ptr) return ; if(*_must_rollback) _ptr->rollBack(); }
-private:
-  bool *_must_rollback;
-  Transaction *_ptr;
-};
 
 void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& transactions)
 {
