@@ -27,16 +27,18 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& typeName, const std::string& varName):PickelizedPyObjServer(father,varName,CreateDftObjFromType(father->getGlobals(),typeName))
+const char PickelizedPyObjRdWrServer::ACCESS_REPR[]="RdWr";
+
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& typeName, const std::string& varName):PickelizedPyObjServerModifiable(father,varName,CreateDftObjFromType(father->getGlobals(),typeName))
 {
 }
 
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
 {
 }
 
 //! obj is consumed
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServerModifiable(father,varName,obj)
 {
 }
 
@@ -52,9 +54,6 @@ void PickelizedPyObjRdWrServer::setSerializedContent(const SALOME::ByteVec& newV
   setSerializedContentInternal(newValue);
 }
 
-/*!
- * Called remotely -> to protect against throw
- */
 SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
 {
   if(!_self)
@@ -107,4 +106,23 @@ SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMet
   PortableServer::ObjectId_var id(poa->activate_object(ret));
   CORBA::Object_var obj(poa->id_to_reference(id));
   return SALOME::PickelizedPyObjRdWrServer::_narrow(obj);
+}
+
+void PickelizedPyObjRdWrServer::addKeyValueHard(PyObject *key, PyObject *value)
+{
+  bool isOK(PyDict_SetItem(_self,key,value)==0);
+  if(!isOK)
+    throw Exception("PickelizedPyObjRdWrServer::addKeyValueHard : error when trying to add key,value to dict !");
+}
+
+void PickelizedPyObjRdWrServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
+{
+  checkKeyPresent(key);
+  if(PyDict_DelItem(_self,key)!=0)
+    throw Exception("PickelizedPyObjRdWrServer::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
+}
+
+std::string PickelizedPyObjRdWrServer::getAccessStr() const
+{
+  return std::string(ACCESS_REPR);
 }

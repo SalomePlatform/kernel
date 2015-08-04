@@ -41,11 +41,15 @@ int main(int argc, char *argv[])
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
   PortableServer::POAManager_var mgr(poa->the_POAManager());
   mgr->activate();
+  //
+  SALOMESDS::DataScopeKiller *killer(new SALOMESDS::DataScopeKiller(orb));
+  SALOME::DataScopeKiller_var killerObj(killer->_this());
+  //
   SALOMESDS::DataScopeServerBase *server(0);
   if(!isTransac)
-    server=new SALOMESDS::DataScopeServer(orb,scopeName);
+    server=new SALOMESDS::DataScopeServer(orb,killerObj,scopeName);
   else
-    server=new SALOMESDS::DataScopeServerTransaction(orb,scopeName);
+    server=new SALOMESDS::DataScopeServerTransaction(orb,killerObj,scopeName);
   //
   CORBA::PolicyList policies;
   policies.length(1);
@@ -62,7 +66,7 @@ int main(int argc, char *argv[])
   server->registerInNS(serverPtr);
   //
   orb->run();
-  server->_remove_ref();
+  delete killer;
   return 0;
 }
 

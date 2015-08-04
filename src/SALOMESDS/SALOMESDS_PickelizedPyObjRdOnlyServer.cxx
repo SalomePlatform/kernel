@@ -22,6 +22,8 @@
 
 using namespace SALOMESDS;
 
+const char PickelizedPyObjRdOnlyServer::ACCESS_REPR[]="RdOnly";
+
 PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
 {
 }
@@ -32,4 +34,14 @@ PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServerBase *fa
 
 PickelizedPyObjRdOnlyServer::~PickelizedPyObjRdOnlyServer()
 {
+}
+
+void PickelizedPyObjRdOnlyServer::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
+{
+  throw Exception("PickelizedPyObjRdOnlyServer::addKeyValueErrorIfAlreadyExisting : incompatible with RdOnly !");
+}
+
+std::string PickelizedPyObjRdOnlyServer::getAccessStr() const
+{
+  return std::string(ACCESS_REPR);
 }

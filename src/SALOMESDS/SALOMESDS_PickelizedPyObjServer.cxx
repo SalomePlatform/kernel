@@ -72,24 +72,14 @@ void PickelizedPyObjServer::checkKeyPresent(PyObject *key)
 
 void PickelizedPyObjServer::addKeyValueHard(PyObject *key, PyObject *value)
 {
-  bool isOK(PyDict_SetItem(_self,key,value)==0);
-  if(!isOK)
-    throw Exception("PickelizedPyObjServer::addKeyValueHard : error when trying to add key,value to dict !");
-}
-
-void PickelizedPyObjServer::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
-{
-  checkKeyNotAlreadyPresent(key);
-  bool isOK(PyDict_SetItem(_self,key,value)==0);
-  if(!isOK)
-    throw Exception("PickelizedPyObjServer::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
+  std::ostringstream oss; oss << "PickelizedPyObjServer::addKeyValueHard : var \"" << getVarNameCpp() << "\" is not permitted to alter its value !";
+  throw Exception(oss.str());
 }
 
 void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
 {
-  checkKeyPresent(key);
-  if(PyDict_DelItem(_self,key)!=0)
-    throw Exception("PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
+  std::ostringstream oss; oss << "PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting : var \"" << getVarNameCpp() << "\" is not permitted to alter its value !";
+  throw Exception(oss.str());
 }
 
 void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
@@ -263,4 +253,20 @@ void PickelizedPyObjServer::checkKeyPresence(PyObject *key, bool presence)
         throw Exception("PickelizedPyObjServer::checkKeyPresence : key is not present and it should !");
     }
   Py_XDECREF(retPy);
+}
+
+PickelizedPyObjServerModifiable::PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+{
+}
+
+PickelizedPyObjServerModifiable::PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
+{
+}
+
+void PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
+{
+  checkKeyNotAlreadyPresent(key);
+  bool isOK(PyDict_SetItem(_self,key,value)==0);
+  if(!isOK)
+    throw Exception("PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
 }

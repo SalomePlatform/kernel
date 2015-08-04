@@ -30,18 +30,22 @@
 
 namespace SALOMESDS
 {
-  class PickelizedPyObjRdExtServer : public PickelizedPyObjServer, public virtual POA_SALOME::PickelizedPyObjRdExtServer
+  class PickelizedPyObjRdExtServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME::PickelizedPyObjRdExtServer
   {
   public:
     PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
     PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdExtServer();
     SALOME::PickelizedPyObjRdExtServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
+  public:
+    std::string getAccessStr() const;
   private:
     void checkRdExtnessOf(const std::string& methodName, PyObject *argsPy);
     void checkListRdExtnessOf(const std::string& methodName, PyObject *argsPy);
     void checkDictRdExtnessOf(const std::string& methodName, PyObject *argsPy);
     void checkDictSetitemRdExtness(PyObject *argsPy);
+  public:
+    static const char ACCESS_REPR[];
   };
 }
 

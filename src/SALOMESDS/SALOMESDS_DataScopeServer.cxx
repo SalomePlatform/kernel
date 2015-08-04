@@ -44,11 +44,17 @@ using namespace SALOMESDS;
 
 std::size_t DataScopeServerBase::COUNTER=0;
 
-DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
+void DataScopeKiller::shutdown()
+{
+  Py_Finalize();
+  _orb->shutdown(0);
+}
+
+DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
 {
 }
 
-DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars)
+DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars),_killer(other._killer)
 {
 }
 
@@ -57,6 +63,14 @@ DataScopeServerBase::~DataScopeServerBase()
   // _globals is borrowed ref -> do nothing
   Py_XDECREF(_locals);
   Py_XDECREF(_pickler);
+  for(std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it=_vars.begin();it!=_vars.end();it++)
+    {
+       BasicDataServer *obj((*it).second);
+       if(obj)
+         {
+           obj->decrRef();
+         }
+    }
 }
 
 /*!
@@ -126,17 +140,18 @@ void DataScopeServerBase::deleteVar(const char *varName)
     }
   std::size_t pos(std::distance(allNames.begin(),it));
   std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
-  (*it0).first->UnRegister();
+  for(std::size_t ii=0;ii<pos;ii++,it0++);
+  (*it0).second->decrRef();
   _vars.erase(it0);
 }
 
-void DataScopeServerBase::shutdownIfNotHostedByDSM()
+CORBA::Boolean DataScopeServerBase::shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer)
 {
   SALOME_NamingService ns(_orb);
   CORBA::Object_var obj(ns.Resolve(DataServerManager::NAME_IN_NS));
   SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(obj));
   if(CORBA::is_nil(dsm))
-    return ;
+    throw Exception("Unable to reach in the NS the unique DataServerManager instance of the Session !");
   // destroy ref in the naming service
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
   ns.Destroy_Name(fullScopeName.c_str());
@@ -149,10 +164,17 @@ void DataScopeServerBase::shutdownIfNotHostedByDSM()
   catch(...) { ret=0; }
   //
   if(!ret)
-    _orb->shutdown(0);
-  else
     {
       enforcedRelease();
+      killer=SALOME::DataScopeKiller::_duplicate(_killer);
+      return true;
+    }
+  else
+    {
+      ret->_remove_ref();
+      enforcedRelease();
+      killer=SALOME::DataScopeKiller::_duplicate(_killer);
+      return false;
     }
 }
 
@@ -307,13 +329,43 @@ PickelizedPyObjServer *DataScopeServerBase::checkVarExistingAndDict(const std::s
   return ret;
 }
 
+void DataScopeServerBase::moveStatusOfVarFromRdWrToRdOnly(const std::string& varName)
+{
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  PickelizedPyObjRdWrServer *varc(dynamic_cast<PickelizedPyObjRdWrServer *>(p.second));
+  if(!varc)
+    throw Exception("DataScopeServerBase::moveStatusOfVarFromRdWrToRdOnly : var is not a RdWr !");
+  PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
+  PickelizedPyObjRdOnlyServer *newVar(new PickelizedPyObjRdOnlyServer(this,varName,pyobj));
+  CORBA::Object_var obj(newVar->activate());
+  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+  p.first=obj2; p.second=newVar;
+  varc->decrRef();
+}
+
+void DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr(const std::string& varName)
+{
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  PickelizedPyObjRdOnlyServer *varc(dynamic_cast<PickelizedPyObjRdOnlyServer *>(p.second));
+  if(!varc)
+    throw Exception("DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr : var is not a RdWr !");
+  PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
+  PickelizedPyObjRdWrServer *newVar(new PickelizedPyObjRdWrServer(this,varName,pyobj));
+  CORBA::Object_var obj(newVar->activate());
+  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+  p.first=obj2; p.second=newVar;
+  varc->decrRef();
+}
+
 std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator DataScopeServerBase::retrieveVarInternal3(const std::string& varName) const
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
   if(it==allNames.end())
     {
-      std::ostringstream oss; oss << "DataScopeServerBase::retrieveVarInternal : name \"" << varName << "\" does not exists ! Possibilities are :";
+      std::ostringstream oss; oss << "DataScopeServerBase::retrieveVarInternal3 : name \"" << varName << "\" does not exists ! Possibilities are :";
       std::copy(allNames.begin(),allNames.end(),std::ostream_iterator<std::string>(oss,", "));
       throw Exception(oss.str());
     }
@@ -323,9 +375,25 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_
   return it0;
 }
 
+std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator DataScopeServerBase::retrieveVarInternal4(const std::string& varName)
+{
+  std::vector<std::string> allNames(getAllVarNames());
+  std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
+  if(it==allNames.end())
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::retrieveVarInternal4 : name \"" << varName << "\" does not exists ! Possibilities are :";
+      std::copy(allNames.begin(),allNames.end(),std::ostream_iterator<std::string>(oss,", "));
+      throw Exception(oss.str());
+    }
+  std::size_t pos(std::distance(allNames.begin(),it));
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
+  for(std::size_t i=0;i<pos;i++,it0++);
+  return it0;
+}
+
 ///////
 
-DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):DataScopeServerBase(orb,scopeName)
+DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(orb,killer,scopeName)
 {
 }
 
@@ -355,9 +423,6 @@ SALOME::PickelizedPyObjRdExtServer_ptr DataScopeServer::createRdExtVar(const cha
   return SALOME::PickelizedPyObjRdExtServer::_narrow(ret);
 }
 
-/*!
- * Called remotely -> to protect against throw
- */
 SALOME::PickelizedPyObjRdWrServer_ptr DataScopeServer::createRdWrVar(const char *typeName, const char *varName)
 {
   std::string varNameCpp(varName),typeNameCpp(typeName);
@@ -375,7 +440,7 @@ DataScopeServer::~DataScopeServer()
 
 ////////
 
-DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, const std::string& scopeName):DataScopeServerBase(orb,scopeName)
+DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(orb,killer,scopeName)
 {
   CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
@@ -393,6 +458,20 @@ DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, const
 
 DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):DataScopeServerBase(other),_poa_for_key_waiter(other.getPOA4KeyWaiter())
 {
+}
+
+char *DataScopeServerTransaction::getAccessOfVar(const char *varName)
+{
+  std::string varNameCpp(varName);
+  checkExistingVar(varNameCpp);
+  BasicDataServer *var(retrieveVarInternal2(varName));
+  if(!var)
+    throw Exception("DataScopeServerTransaction::getAccessOfVar : variable is NULL !");
+  PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
+  if(!varc)
+    throw Exception("DataScopeServerTransaction::getAccessOfVar : variable is not of type PickelizedPyObjServer !");
+  std::string ret(varc->getAccessStr());
+  return CORBA::string_dup(ret.c_str());
 }
 
 void DataScopeServerTransaction::createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
@@ -567,6 +646,20 @@ SALOME::Transaction_ptr DataScopeServerTransaction::removeKeyInVarErrorIfNotAlre
   TransactionRemoveKeyInVarErrorIfNotAlreadyExisting *ret(new TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(this,varName,key));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
+}
+
+SALOME::TransactionRdWrAccess_ptr DataScopeServerTransaction::createWorkingVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+{
+  std::string varNameCpp(varName);
+  checkNotAlreadyExistingVar(varName);
+  PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,varNameCpp,constValue));
+  CORBA::Object_var obj(tmp->activate());
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(obj),tmp);
+  _vars.push_back(p);
+  //
+  TransactionMorphRdWrIntoRdOnly *ret(new TransactionMorphRdWrIntoRdOnly(this,varName));
+  CORBA::Object_var obj2(ret->activate());
+  return SALOME::TransactionRdWrAccess::_narrow(obj2);
 }
 
 SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal)

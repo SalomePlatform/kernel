@@ -34,6 +34,8 @@
 namespace SALOMESDS
 {
   class PickelizedPyObjServer;
+  class PickelizedPyObjRdWrServer;
+  class PickelizedPyObjRdExtServer;
 
   class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction, public POAHolder
   {
@@ -137,6 +139,19 @@ namespace SALOMESDS
     ~TransactionRemoveKeyInVarErrorIfNotAlreadyExisting();
   private:
     PyObject *_key;
+  };
+
+  class TransactionMorphRdWrIntoRdOnly : public Transaction, public virtual POA_SALOME::TransactionRdWrAccess
+  {
+  public:
+    TransactionMorphRdWrIntoRdOnly(DataScopeServerTransaction *dsct, const std::string& varName);
+  public:
+    SALOME::PickelizedPyObjRdWrServer_ptr getVar();
+  public:
+    void prepareRollBackInCaseOfFailure();
+    void perform();
+    void rollBack();
+    void notify();
   };
 }
 

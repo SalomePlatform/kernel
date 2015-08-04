@@ -113,8 +113,10 @@ class SalomeSDSTest(unittest.TestCase):
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     self.assertTrue(isCreated)
     #
-    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    t0=dss.createRdWrVarTransac(varName,obj2Str({"ab":[4,5,6]}))
     dss.atomicApply([t0])
+    #
+    self.assertEqual(dss.getAccessOfVar(varName),"RdWr")
     #
     t1=dss.addKeyValueInVarHard(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
     dss.atomicApply([t1])
@@ -142,6 +144,8 @@ class SalomeSDSTest(unittest.TestCase):
     t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
     dss.atomicApply([t0])
     #
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
+    #
     self.assertRaises(SALOME.SALOME_Exception,dss.addKeyValueInVarErrorIfAlreadyExisting,varName,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
     t1=dss.addKeyValueInVarErrorIfAlreadyExisting(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
     dss.atomicApply([t1])
@@ -160,7 +164,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     self.assertTrue(isCreated)
     #
-    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    t0=dss.createRdWrVarTransac(varName,obj2Str({"ab":[4,5,6]}))
     dss.atomicApply([t0])
     #
     t1=dss.addKeyValueInVarErrorIfAlreadyExisting(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
@@ -182,7 +186,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     self.assertTrue(isCreated)
     #
-    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    t0=dss.createRdWrVarTransac(varName,obj2Str({"ab":[4,5,6]}))
     dss.atomicApply([t0])
     #
     t1=dss.addKeyValueInVarHard(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
@@ -217,6 +221,52 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
     self.assertEqual(keys,['ab','cd'])
+
+  def testTransaction6(self):
+    """ Test to test RdWr global vars with transaction"""
+    scopeName="Scope1"
+    varName="a"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+    #
+    t0=dss.createWorkingVarTransac(varName,obj2Str({}))
+    a=SalomeSDSClt.GetHandlerFromRef(t0.getVar())
+    self.assertEqual(dss.getAccessOfVar(varName),"RdWr")
+    # play
+    a["ab"]=4
+    self.assertEqual(a.local_copy(),{"ab":4})
+    a["cd"]=[5]
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5]})
+    a["cd"].append(77)
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
+    a.__setitem__("ef",["a","bb"])
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77],"ef":["a","bb"]})
+    a["ef"].append("ccc")
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77],"ef":["a","bb","ccc"]})
+    a["gh"]=a
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77],"ef":["a","bb","ccc"],"gh":{"ab":4,"cd":[5,77],"ef":["a","bb","ccc"]}})
+    a["gh"]["cd"].append(99) ; a["cd"].append(88)
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77,88],"ef":["a","bb","ccc"],"gh":{"ab":4,"cd":[5,77,99],"ef":["a","bb","ccc"]}})
+    # WARNING here not problem to overwrite
+    a["gh"]=7
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77,88],"ef":["a","bb","ccc"],"gh":7})
+    # end of play
+    self.assertTrue(isinstance(a,SalomeSDSClt.Dict))
+    self.assertTrue(isinstance(a,SalomeSDSClt.WrappedType))# important for EEM
+    # commit : RdWr->RdOnly
+    dss.atomicApply([t0])
+    #
+    self.assertEqual(dss.getAccessOfVar(varName),"RdOnly") # after atomicApply the var is readOnly. Impossible to change its value !
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{"ab":4,"cd":[5,77,88],"ef":["a","bb","ccc"],"gh":7})
+    dsm.cleanScopesInNS()
+    del a # very important kill Ref before removingDataScope...
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    pass
 
   def setUp(self):
     salome.salome_init()

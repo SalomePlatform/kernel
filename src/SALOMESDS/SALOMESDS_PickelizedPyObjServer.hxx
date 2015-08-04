@@ -37,17 +37,19 @@ namespace SALOMESDS
   public:
     PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
     PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
-    ~PickelizedPyObjServer();
+    virtual ~PickelizedPyObjServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();
   public:
     bool isDict();
     void checkKeyNotAlreadyPresent(PyObject *key);
     void checkKeyPresent(PyObject *key);
-    void addKeyValueHard(PyObject *key, PyObject *value);
-    void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);
-    void removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key);
     PyObject *getPyObj() const { return _self; }
+  public:
+    virtual void addKeyValueHard(PyObject *key, PyObject *value);
+    virtual void removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key);
+    virtual void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value) = 0;
+    virtual std::string getAccessStr() const = 0;
   public:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static void FromCppToByteSeq(const std::string& strToBeConv, SALOME::ByteVec& ret);
@@ -67,6 +69,14 @@ namespace SALOMESDS
     static const char FAKE_VAR_NAME_FOR_WORK[];
     PyObject *_self;
     PortableServer::POA_var _poa;
+  };
+
+  class PickelizedPyObjServerModifiable : public PickelizedPyObjServer
+  {
+  public:
+    PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
+    void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);
   };
 }
 

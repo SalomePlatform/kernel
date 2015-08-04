@@ -35,7 +35,7 @@ const char DataServerManager::DFT_SCOPE_NAME_IN_NS[]="Default";
 
 DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
-  DataScopeServer *dftScope(new DataScopeServer(orb,DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
+  DataScopeServer *dftScope(new DataScopeServer(orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
   PortableServer::POAManager_var pman(poa->the_POAManager());
   CORBA::PolicyList policies;
   policies.length(1);
@@ -225,7 +225,10 @@ SALOME::DataScopeServerBase_ptr DataServerManager::retriveDataScope(const char *
 void DataServerManager::removeDataScope(const char *scopeName)
 {
   SALOME::DataScopeServerBase_var scs(getScopePtrGivenName(scopeName));
-  scs->shutdownIfNotHostedByDSM();
+  SALOME::DataScopeKiller_ptr killer;
+  if(scs->shutdownIfNotHostedByDSM(killer))
+    killer->shutdown();
+  CORBA::release(killer);
 }
 
 void DataServerManager::cleanScopesInNS()
@@ -246,7 +249,13 @@ void DataServerManager::shutdownScopes()
 {
   std::vector<std::string> scopeNames(listOfScopesCpp());
   for(std::vector<std::string>::const_iterator it=scopeNames.begin();it!=scopeNames.end();it++)
-    getScopePtrGivenName(*it)->shutdownIfNotHostedByDSM();
+    {
+      SALOME::DataScopeServerBase_var scope(getScopePtrGivenName(*it));
+      SALOME::DataScopeKiller_ptr killer;
+      if(scope->shutdownIfNotHostedByDSM(killer))
+        killer->shutdown();
+      CORBA::release(killer);
+    }
 }
 
 std::string DataServerManager::CreateAbsNameInNSFromScopeName(const std::string& scopeName)

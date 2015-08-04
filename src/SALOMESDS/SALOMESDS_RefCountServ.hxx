@@ -30,6 +30,7 @@ namespace SALOMESDS
   public:
     void incrRef() const;
     bool decrRef() const;
+    int getCounter() const { return _cnt; }
   protected:
     RefCountServ();
     RefCountServ(const RefCountServ& other);

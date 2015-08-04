@@ -39,7 +39,7 @@ class InvokatorPossibleStyle(InvokatorStyle):
         
     @classmethod
     def IsOK(cls,varPtr):
-        return isinstance(varPtr,SALOME._objref_PickelizedPyObjRdExtServer)
+        return isinstance(varPtr,SALOME._objref_PickelizedPyObjRdExtServer) or isinstance(varPtr,SALOME._objref_PickelizedPyObjRdWrServer)
     pass
 
 class InvokatorImpossibleStyle(InvokatorStyle):

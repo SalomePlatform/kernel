@@ -27,12 +27,14 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjRdExtServer::PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+const char PickelizedPyObjRdExtServer::ACCESS_REPR[]="RdExt";
+
+PickelizedPyObjRdExtServer::PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
 {
 }
 
 //! obj is consumed
-PickelizedPyObjRdExtServer::PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServer(father,varName,obj)
+PickelizedPyObjRdExtServer::PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServerModifiable(father,varName,obj)
 {
 }
 
@@ -134,4 +136,9 @@ void PickelizedPyObjRdExtServer::checkDictSetitemRdExtness(PyObject *argsPy)
       Py_XDECREF(argsPy);
       throw Exception("PickelizedPyObjRdExtServer::checkDictSetitemRdExtness : specified key of __setitem__ already exists ! RdExt property is not applied !");
     }
+}
+
+std::string PickelizedPyObjRdExtServer::getAccessStr() const
+{
+  return std::string(ACCESS_REPR);
 }

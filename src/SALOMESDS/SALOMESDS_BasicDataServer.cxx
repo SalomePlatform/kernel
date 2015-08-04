@@ -75,6 +75,11 @@ void BasicDataServer::Destroy()
   enforcedRelease();
 }
 
+CORBA::Long BasicDataServer::getRCValue()
+{
+  return getCounter();
+}
+
 PortableServer::POA_var BasicDataServer::getPOA() const
 {
   return _father->getPOA();

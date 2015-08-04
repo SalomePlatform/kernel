@@ -21,6 +21,8 @@
 #include "SALOMESDS_Transaction.hxx"
 #include "SALOMESDS_Exception.hxx"
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
+#include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
+#include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 
 #include <sstream>
 
@@ -64,7 +66,7 @@ void TransactionVarCreate::rollBack()
 }
 
 /*!
- TODO : To be implemented.
+ * no implementation it is not a bug !
  */
 void TransactionVarCreate::notify()
 {
@@ -169,7 +171,7 @@ void TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::perform()
 }
 
 /*!
- * not implementation it is not a bug !
+ * no implementation it is not a bug !
  */
 void TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::notify()
 {
@@ -178,4 +180,47 @@ void TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::notify()
 TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::~TransactionRemoveKeyInVarErrorIfNotAlreadyExisting()
 {
   Py_XDECREF(_key);
+}
+
+TransactionMorphRdWrIntoRdOnly::TransactionMorphRdWrIntoRdOnly(DataScopeServerTransaction *dsct, const std::string& varName):Transaction(dsct,varName)
+{
+}
+
+SALOME::PickelizedPyObjRdWrServer_ptr TransactionMorphRdWrIntoRdOnly::getVar()
+{
+  SALOME::BasicDataServer_var obj(_dsct->retrieveVarInternal(_var_name.c_str()));
+  SALOME::PickelizedPyObjRdWrServer_ptr ret(SALOME::PickelizedPyObjRdWrServer::_narrow(obj));
+  if(CORBA::is_nil(ret))
+    {
+      std::ostringstream oss; oss << "TransactionMorphRdWrIntoRdOnly::getVar : var \"" << _var_name << "\" has not expected PickelizedPyObjRdWrServer type !";
+      throw Exception(oss.str());
+    }
+  return ret;
+}
+
+void TransactionMorphRdWrIntoRdOnly::prepareRollBackInCaseOfFailure()
+{
+  BasicDataServer *var(_dsct->retrieveVarInternal2(_var_name));
+  if(!var)
+    throw Exception("TransactionMorphRdWrIntoRdOnly::prepareRollBackInCaseOfFailure : Returned var is NULL !");
+  PickelizedPyObjRdWrServer *varc(dynamic_cast<PickelizedPyObjRdWrServer *>(var));
+  if(!varc)
+    throw Exception("TransactionMorphRdWrIntoRdOnly::prepareRollBackInCaseOfFailure : Returned var has not expected type !");
+}
+
+void TransactionMorphRdWrIntoRdOnly::perform()
+{
+  _dsct->moveStatusOfVarFromRdWrToRdOnly(_var_name);
+}
+
+void TransactionMorphRdWrIntoRdOnly::rollBack()
+{
+  _dsct->moveStatusOfVarFromRdOnlyToRdWr(_var_name);
+}
+
+/*!
+ * no implementation it is not a bug !
+ */
+void TransactionMorphRdWrIntoRdOnly::notify()
+{
 }

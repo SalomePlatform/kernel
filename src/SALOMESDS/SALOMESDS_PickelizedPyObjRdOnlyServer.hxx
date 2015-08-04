@@ -36,6 +36,11 @@ namespace SALOMESDS
     PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
     PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdOnlyServer();
+  public:
+    void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);
+    std::string getAccessStr() const;
+  public:
+    static const char ACCESS_REPR[];
   };
 }
 
