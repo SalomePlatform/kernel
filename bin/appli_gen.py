@@ -194,6 +194,13 @@ def install(prefix, config_file, verbose=0):
             print cle, val
             pass
 
+    # Remove CTestTestfile.cmake; this file will be filled by successive calls to link_module and link_extra_test
+    try:
+      ctest_file = os.path.join(home_dir, 'bin', 'salome', 'test', "CTestTestfile.cmake")
+      os.remove(ctest_file)
+    except:
+      pass
+
     for module in _config.get("modules", []):
         if _config.has_key(module):
             print "--- add module ", module, _config[module]
