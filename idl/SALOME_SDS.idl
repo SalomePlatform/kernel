@@ -46,9 +46,17 @@ module SALOME
   {
   };
 
-  interface PickelizedPyObjRdExtServer : PickelizedPyObjServer
+  interface PickelizedPyObjRdExtBaseServer : PickelizedPyObjServer
+  {
+  };
+
+  interface PickelizedPyObjRdExtServer : PickelizedPyObjRdExtBaseServer
   {
     PickelizedPyObjRdExtServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+  };
+
+  interface PickelizedPyObjRdExtInitServer : PickelizedPyObjRdExtBaseServer
+  {
   };
 
   interface PickelizedPyObjRdWrServer : PickelizedPyObjServer
@@ -92,6 +100,11 @@ module SALOME
     PickelizedPyObjRdWrServer getVar() raises (SALOME::SALOME_Exception);
   };
 
+  interface TransactionMultiKeyAddSession : Transaction
+  {
+    void addKeyValueInVarErrorIfAlreadyExistingNow(in SALOME::ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+  };
+
   typedef sequence<Transaction> ListOfTransaction;
 
   interface KeyWaiter
@@ -107,7 +120,7 @@ module SALOME
     Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction addKeyValueInVarHard(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction addKeyValueInVarErrorIfAlreadyExisting(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    void addKeyValueInVarErrorIfAlreadyExistingNow(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    TransactionMultiKeyAddSession addMultiKeyValueSession(in string varName) raises (SALOME::SALOME_Exception);
     Transaction removeKeyInVarErrorIfNotAlreadyExisting(in string varName, in ByteVec keyValue) raises (SALOME::SALOME_Exception);
     TransactionRdWrAccess createWorkingVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     KeyWaiter waitForKeyInVar(in string varName, in ByteVec keyVal) raises (SALOME::SALOME_Exception);

@@ -43,6 +43,7 @@ SET(SalomeSDS_SOURCES
   SALOMESDS_PickelizedPyObjServer.cxx
   SALOMESDS_PickelizedPyObjRdOnlyServer.cxx
   SALOMESDS_PickelizedPyObjRdExtServer.cxx
+  SALOMESDS_PickelizedPyObjRdExtInitServer.cxx
   SALOMESDS_PickelizedPyObjRdWrServer.cxx
   SALOMESDS_Transaction.cxx
   SALOMESDS_KeyWaiter.cxx

@@ -23,6 +23,7 @@
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
+#include "SALOMESDS_TrustTransaction.hxx"
 
 #include <sstream>
 
@@ -224,3 +225,49 @@ void TransactionMorphRdWrIntoRdOnly::rollBack()
 void TransactionMorphRdWrIntoRdOnly::notify()
 {
 }
+
+TransactionMultiKeyAddSession::TransactionMultiKeyAddSession(DataScopeServerTransaction *dsct, const std::string& varName):Transaction(dsct,varName)
+{
+  _dsct->moveStatusOfVarFromRdExtToRdExtInit(_var_name);
+}
+
+void TransactionMultiKeyAddSession::addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+{
+  _dsct->checkVarExistingAndDict(_var_name);
+  TransactionAddKeyValueErrorIfAlreadyExisting ret(_dsct,_var_name,key,value);
+  {
+    bool mustRollback(true);
+    TrustTransaction t;
+    t.setTransaction(&ret,&mustRollback);
+    t.operate();
+    mustRollback=false;//important let this line to notify t that everything was OK
+  }
+  ret.notify();
+}
+
+/*!
+ * no implementation it is not a bug !
+ */
+void TransactionMultiKeyAddSession::prepareRollBackInCaseOfFailure()
+{
+}
+
+void TransactionMultiKeyAddSession::perform()
+{
+  _dsct->moveStatusOfVarFromRdExtInitToRdExt(_var_name);
+}
+
+/*!
+ * no implementation it is not a bug !
+ */
+void TransactionMultiKeyAddSession::rollBack()
+{
+}
+
+/*!
+ * no implementation it is not a bug !
+ */
+void TransactionMultiKeyAddSession::notify()
+{
+}
+

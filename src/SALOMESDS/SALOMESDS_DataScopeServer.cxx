@@ -23,6 +23,8 @@
 #include "SALOMESDS_PickelizedPyObjRdOnlyServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
+#include "SALOMESDS_PickelizedPyObjRdExtInitServer.hxx"
+#include "SALOMESDS_TrustTransaction.hxx"
 #include "SALOMESDS_KeyWaiter.hxx"
 #include "SALOMESDS_Transaction.hxx"
 #include "SALOME_NamingService.hxx"
@@ -245,10 +247,10 @@ void DataScopeServerBase::initializePython(int argc, char *argv[])
 
 void DataScopeServerBase::registerToSalomePiDict() const
 {
-  PyObject *mod(PyImport_ImportModule("addToKillList"));
+  PyObject *mod(PyImport_ImportModule("addToKillList"));//new value
   if(!mod)
     return;
-  PyObject *meth(PyObject_GetAttrString(mod,"addToKillList"));
+  PyObject *meth(PyObject_GetAttrString(mod,"addToKillList"));//new value
   if(!meth)
     { Py_XDECREF(mod); return ; }
   PyObject *args(PyTuple_New(2));
@@ -257,6 +259,7 @@ void DataScopeServerBase::registerToSalomePiDict() const
   PyObject *res(PyObject_CallObject(meth,args));
   Py_XDECREF(args);
   Py_XDECREF(res);
+  Py_XDECREF(meth);
   Py_XDECREF(mod);
 }
 
@@ -353,6 +356,36 @@ void DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr(const std::string& var
     throw Exception("DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr : var is not a RdWr !");
   PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
   PickelizedPyObjRdWrServer *newVar(new PickelizedPyObjRdWrServer(this,varName,pyobj));
+  CORBA::Object_var obj(newVar->activate());
+  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+  p.first=obj2; p.second=newVar;
+  varc->decrRef();
+}
+
+void DataScopeServerBase::moveStatusOfVarFromRdExtToRdExtInit(const std::string& varName)
+{
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  PickelizedPyObjRdExtServer *varc(dynamic_cast<PickelizedPyObjRdExtServer *>(p.second));
+  if(!varc)
+    throw Exception("DataScopeServerBase::moveStatusOfVarFromRdExtToRdExtInit : var is not a RdExt !");
+  PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
+  PickelizedPyObjRdExtInitServer *newVar(new PickelizedPyObjRdExtInitServer(this,varName,pyobj));
+  CORBA::Object_var obj(newVar->activate());
+  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+  p.first=obj2; p.second=newVar;
+  varc->decrRef();
+}
+
+void DataScopeServerBase::moveStatusOfVarFromRdExtInitToRdExt(const std::string& varName)
+{
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  PickelizedPyObjRdExtInitServer *varc(dynamic_cast<PickelizedPyObjRdExtInitServer *>(p.second));
+  if(!varc)
+    throw Exception("DataScopeServerBase::moveStatusOfVarFromRdExtInitToRdExt : var is not a RdExtInit !");
+  PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
+  PickelizedPyObjRdExtServer *newVar(new PickelizedPyObjRdExtServer(this,varName,pyobj));
   CORBA::Object_var obj(newVar->activate());
   SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
   p.first=obj2; p.second=newVar;
@@ -620,29 +653,12 @@ SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarErrorIfAlrea
   return SALOME::Transaction::_narrow(obj);
 };
 
-class TrustTransaction
-{
-public:
-  TrustTransaction():_must_rollback(0),_ptr(0) { }
-  void setTransaction(Transaction *t, bool *mustRollback) { if(!t || !mustRollback) throw Exception("TrustTransaction Error #1"); _ptr=t; _must_rollback=mustRollback; _ptr->prepareRollBackInCaseOfFailure(); }
-  void operate() { _ptr->perform(); }
-  ~TrustTransaction() { if(!_ptr) return ; if(*_must_rollback) _ptr->rollBack(); }
-private:
-  bool *_must_rollback;
-  Transaction *_ptr;
-};
-
-void DataScopeServerTransaction::addKeyValueInVarErrorIfAlreadyExistingNow(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+SALOME::TransactionMultiKeyAddSession_ptr DataScopeServerTransaction::addMultiKeyValueSession(const char *varName)
 {
   checkVarExistingAndDict(varName);
-  TransactionAddKeyValueErrorIfAlreadyExisting ret(this,varName,key,value);
-  {
-    bool mustRollback(true);
-    TrustTransaction t;
-    t.setTransaction(&ret,&mustRollback);
-    t.operate();
-    mustRollback=false;
-  }
+  TransactionMultiKeyAddSession *ret(new TransactionMultiKeyAddSession(this,varName));
+  CORBA::Object_var obj(ret->activate());
+  return SALOME::TransactionMultiKeyAddSession::_narrow(obj);
 }
 
 SALOME::Transaction_ptr DataScopeServerTransaction::removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key)

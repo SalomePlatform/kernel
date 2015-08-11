@@ -85,6 +85,8 @@ namespace SALOMESDS
   public:
     void moveStatusOfVarFromRdWrToRdOnly(const std::string& varName);
     void moveStatusOfVarFromRdOnlyToRdWr(const std::string& varName);
+    void moveStatusOfVarFromRdExtToRdExtInit(const std::string& varName);
+    void moveStatusOfVarFromRdExtInitToRdExt(const std::string& varName);
   protected:
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator retrieveVarInternal4(const std::string& varName);
@@ -133,7 +135,7 @@ namespace SALOMESDS
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
     SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
-    void addKeyValueInVarErrorIfAlreadyExistingNow(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    SALOME::TransactionMultiKeyAddSession_ptr addMultiKeyValueSession(const char *varName);
     SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key);
     SALOME::TransactionRdWrAccess_ptr createWorkingVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);

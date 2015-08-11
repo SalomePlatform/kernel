@@ -153,6 +153,19 @@ namespace SALOMESDS
     void rollBack();
     void notify();
   };
+
+  class TransactionMultiKeyAddSession : public Transaction, public virtual POA_SALOME::TransactionMultiKeyAddSession
+  {
+  public:
+    TransactionMultiKeyAddSession(DataScopeServerTransaction *dsct, const std::string& varName);
+  public://remotely callable
+    void addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+  public:
+    void prepareRollBackInCaseOfFailure();
+    void perform();
+    void rollBack();
+    void notify();
+  };
 }
 
 #endif

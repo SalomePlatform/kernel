@@ -213,8 +213,17 @@ class SalomeSDSTest(unittest.TestCase):
     t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
     dss.atomicApply([t0])
     #
-    self.assertRaises(SALOME.SALOME_Exception,dss.addKeyValueInVarErrorIfAlreadyExistingNow,varName,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
-    dss.addKeyValueInVarErrorIfAlreadyExistingNow(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
+    t1=dss.addMultiKeyValueSession(varName)
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExtInit")
+    self.assertRaises(SALOME.SALOME_Exception,t1.addKeyValueInVarErrorIfAlreadyExistingNow,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
+    wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
+    t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("cd"),obj2Str([7,8,9,10]))
+    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})# it is not a bug ! commit of t1 not done !
+    dss.atomicApply([t1])
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
     #
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
