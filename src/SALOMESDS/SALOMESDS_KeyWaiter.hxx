@@ -47,6 +47,7 @@ namespace SALOMESDS
     SALOME::ByteVec *waitFor();
     void valueJustCome(PyObject *val);
     void go();
+    std::string getVarName() const { return _var->getVarNameCpp(); }
     SALOME::ByteVec *waitForMonoThr();
   private:
     DataScopeServerTransaction *getDSS() const { return static_cast<DataScopeServerTransaction *>(_var->getFather()); }//thanks to dynamic_cast in constructor

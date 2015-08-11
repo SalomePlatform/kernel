@@ -561,7 +561,7 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
     }
 }
 
-void DataScopeServerTransaction::notifyKey(PyObject *keyObj, PyObject *valueObj)
+void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj)
 {
   PyObject *cmpObj(getPyCmpFunc());
   if(!keyObj)
@@ -572,6 +572,11 @@ void DataScopeServerTransaction::notifyKey(PyObject *keyObj, PyObject *valueObj)
   std::list< KeyWaiter *> newList,listOfEltToWakeUp;
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
     {
+      if((*it)->getVarName()!=varName)
+        {
+          newList.push_back(*it);
+          continue;
+        }
       PyObject *waitKey((*it)->getKeyPyObj());
       PyTuple_SetItem(args,1,waitKey); Py_XINCREF(waitKey);
       PyObject *res(PyObject_CallObject(cmpObj,args));

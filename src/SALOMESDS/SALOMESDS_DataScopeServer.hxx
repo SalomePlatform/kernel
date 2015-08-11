@@ -124,7 +124,7 @@ namespace SALOMESDS
     PortableServer::POA_var getPOA4KeyWaiter() const { return _poa_for_key_waiter; }
     void addWaitKey(KeyWaiter *kw);
     void pingKey(PyObject *keyObj);
-    void notifyKey(PyObject *keyObj, PyObject *valueObj);
+    void notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj);
     SALOME::ByteVec *waitForMonoThrRev(SALOME::KeyWaiter_ptr kw);
   public://remotely callable
     char *getAccessOfVar(const char *varName);

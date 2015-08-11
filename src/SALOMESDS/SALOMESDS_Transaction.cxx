@@ -130,7 +130,7 @@ void TransactionAddKeyValue::prepareRollBackInCaseOfFailure()
 
 void TransactionAddKeyValue::notify()
 {
-  _dsct->notifyKey(_key,_value);
+  _dsct->notifyKey(getVarName(),_key,_value);
 }
 
 TransactionAddKeyValue::~TransactionAddKeyValue()
