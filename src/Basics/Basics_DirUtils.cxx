@@ -31,6 +31,9 @@
 # include <dirent.h>
 # include <unistd.h>
 #else
+#include <io.h>
+#define F_OK 0
+#define access _access
 # include <windows.h>
 # include <time.h>
 #endif
@@ -160,16 +163,8 @@ namespace Kernel_Utils
   //============================================================================ 
   bool IsExists(const std::string& thePath) 
   {
-#ifdef WIN32 
-    if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-      if (  GetLastError () == ERROR_FILE_NOT_FOUND  ) {
-        return false;
-      }
-    }
-#else 
     int status = access ( thePath.c_str() , F_OK ); 
     if (status != 0) return false;
-#endif
     return true;
   }
 
