@@ -85,7 +85,7 @@ namespace SALOMESDS
   public:
     void moveStatusOfVarFromRdWrToRdOnly(const std::string& varName);
     void moveStatusOfVarFromRdOnlyToRdWr(const std::string& varName);
-    void moveStatusOfVarFromRdExtToRdExtInit(const std::string& varName);
+    void moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const std::string& varName);
     void moveStatusOfVarFromRdExtInitToRdExt(const std::string& varName);
   protected:
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
@@ -122,6 +122,7 @@ namespace SALOMESDS
     ~DataScopeServerTransaction();
     void createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
+    void createRdExtInitVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     PortableServer::POA_var getPOA4KeyWaiter() const { return _poa_for_key_waiter; }
     void addWaitKey(KeyWaiter *kw);
@@ -132,6 +133,7 @@ namespace SALOMESDS
     char *getAccessOfVar(const char *varName);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr createRdExtInitVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
     SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);

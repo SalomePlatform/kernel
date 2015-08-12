@@ -277,6 +277,30 @@ class SalomeSDSTest(unittest.TestCase):
       dsm.removeDataScope(scopeName)
     pass
 
+  def testTransaction7(self):
+    """Like testTransaction5 but after a recovery."""
+    scopeName="Scope1"
+    varName="a"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+    #
+    t0=dss.createRdExtInitVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    dss.atomicApply([t0])
+    #
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExtInit")
+    t1=dss.addMultiKeyValueSession(varName)
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExtInit")
+    t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("cd"),obj2Str([7,8,9,10]))
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})# it is not a bug ! commit of t1 not done !
+    dss.atomicApply([t1])
+    self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
+    pass
+
   def setUp(self):
     salome.salome_init()
     pass

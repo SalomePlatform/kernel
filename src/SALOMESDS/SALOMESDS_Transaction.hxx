@@ -83,6 +83,13 @@ namespace SALOMESDS
     void perform();
   };
 
+  class TransactionRdExtInitVarCreate : public TransactionVarCreate
+  {
+  public:
+    TransactionRdExtInitVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    void perform();
+  };
+
   class TransactionRdWrVarCreate : public TransactionVarCreate
   {
   public:

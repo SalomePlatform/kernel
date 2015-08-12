@@ -87,6 +87,13 @@ void TransactionRdExtVarCreate::perform()
   _dsct->createRdExtVarInternal(_var_name,data2);
 }
 
+void TransactionRdExtInitVarCreate::perform()
+{
+  SALOME::ByteVec data2;
+  FromVBToByteSeq(_data,data2);
+  _dsct->createRdExtInitVarInternal(_var_name,data2);
+}
+
 void TransactionRdWrVarCreate::perform()
 {
   SALOME::ByteVec data2;
@@ -228,7 +235,7 @@ void TransactionMorphRdWrIntoRdOnly::notify()
 
 TransactionMultiKeyAddSession::TransactionMultiKeyAddSession(DataScopeServerTransaction *dsct, const std::string& varName):Transaction(dsct,varName)
 {
-  _dsct->moveStatusOfVarFromRdExtToRdExtInit(_var_name);
+  _dsct->moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(_var_name);
 }
 
 void TransactionMultiKeyAddSession::addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME::ByteVec& key, const SALOME::ByteVec& value)

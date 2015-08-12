@@ -362,19 +362,23 @@ void DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr(const std::string& var
   varc->decrRef();
 }
 
-void DataScopeServerBase::moveStatusOfVarFromRdExtToRdExtInit(const std::string& varName)
+void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const std::string& varName)
 {
   std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
-  PickelizedPyObjRdExtServer *varc(dynamic_cast<PickelizedPyObjRdExtServer *>(p.second));
-  if(!varc)
-    throw Exception("DataScopeServerBase::moveStatusOfVarFromRdExtToRdExtInit : var is not a RdExt !");
-  PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
-  PickelizedPyObjRdExtInitServer *newVar(new PickelizedPyObjRdExtInitServer(this,varName,pyobj));
-  CORBA::Object_var obj(newVar->activate());
-  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
-  p.first=obj2; p.second=newVar;
-  varc->decrRef();
+  PickelizedPyObjRdExtServer *varc0(dynamic_cast<PickelizedPyObjRdExtServer *>(p.second));
+  PickelizedPyObjRdExtInitServer *varc1(dynamic_cast<PickelizedPyObjRdExtInitServer *>(p.second));
+  if(!varc0 && !varc1)
+    throw Exception("DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit : var is neither RdExt nor RdExtInit !");
+  if(varc0)
+    {
+      PyObject *pyobj(varc0->getPyObj()); Py_XINCREF(pyobj);
+      PickelizedPyObjRdExtInitServer *newVar(new PickelizedPyObjRdExtInitServer(this,varName,pyobj));
+      CORBA::Object_var obj(newVar->activate());
+      SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+      p.first=obj2; p.second=newVar;
+      varc0->decrRef();
+    }
 }
 
 void DataScopeServerBase::moveStatusOfVarFromRdExtInitToRdExt(const std::string& varName)
@@ -525,6 +529,15 @@ void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varNa
   _vars.push_back(p);
 }
 
+void DataScopeServerTransaction::createRdExtInitVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+{
+  checkNotAlreadyExistingVar(varName);
+  PickelizedPyObjRdExtInitServer *tmp(new PickelizedPyObjRdExtInitServer(this,varName,constValue));
+  CORBA::Object_var ret(tmp->activate());
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  _vars.push_back(p);
+}
+
 void DataScopeServerTransaction::createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
@@ -546,6 +559,14 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const 
 {
   checkNotAlreadyExistingVar(varName);
   TransactionRdExtVarCreate *ret(new TransactionRdExtVarCreate(this,varName,constValue));
+  CORBA::Object_var obj(ret->activate());
+  return SALOME::Transaction::_narrow(obj);
+}
+
+SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtInitVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+{
+  checkNotAlreadyExistingVar(varName);
+  TransactionRdExtInitVarCreate *ret(new TransactionRdExtInitVarCreate(this,varName,constValue));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
