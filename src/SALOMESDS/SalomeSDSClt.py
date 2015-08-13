@@ -21,6 +21,7 @@
 
 import SALOME
 import cPickle
+import SALOMEWrappedStdType
 
 class InvokatorStyle(object):
     def __init__(self,varPtr):
@@ -63,7 +64,7 @@ def InvokatorStyleFactory(varPtr):
     raise Exception("InvokatorStyleFactory : unmanaged type of var (%s)!"%(type(varPtr)))
     pass
 
-class WrappedType(object):
+class WrappedType(SALOMEWrappedStdType.WrappedType):
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
         self._var_ptr=InvokatorStyleFactory(varPtr)
@@ -98,7 +99,7 @@ class WrappedType(object):
         pass
     pass
 
-class List(WrappedType):
+class List(WrappedType,SALOMEWrappedStdType.List):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=list
@@ -154,7 +155,7 @@ class List(WrappedType):
         return len(self.local_copy())
     pass
 
-class Dict(WrappedType):
+class Dict(WrappedType,SALOMEWrappedStdType.Dict):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=dict
@@ -223,7 +224,7 @@ class Dict(WrappedType):
 
     pass
 
-class Tuple(WrappedType):
+class Tuple(WrappedType,SALOMEWrappedStdType.Tuple):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=tuple
@@ -246,7 +247,7 @@ class Tuple(WrappedType):
 
     pass
 
-class Float(WrappedType):
+class Float(WrappedType,SALOMEWrappedStdType.Float):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=float
@@ -301,7 +302,7 @@ class Float(WrappedType):
         return self.local_copy().real(*args)
     pass
 
-class Int(WrappedType):
+class Int(WrappedType,SALOMEWrappedStdType.Int):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=int
@@ -359,7 +360,7 @@ class Int(WrappedType):
         return self.local_copy().real(*args)
     pass
 
-class String(WrappedType):
+class String(WrappedType,SALOMEWrappedStdType.String):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=int
