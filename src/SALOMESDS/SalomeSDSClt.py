@@ -144,7 +144,7 @@ class List(WrappedType,SALOMEWrappedStdType.List):
     def sort(self,*args):
         ret=Caller(self._var_ptr,"sort")
         return ret(*args)
-    
+    # work on local copy
     def count(self,*args):
         return self.local_copy().count(*args)
 

@@ -69,6 +69,7 @@ class List(WrappedType):
     @abc.abstractmethod
     def sort(self,*args):
         _raiseNow("sort")
+    # work on local copy
     @abc.abstractmethod
     def count(self,*args):
         _raiseNow("count")
