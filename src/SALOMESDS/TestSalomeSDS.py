@@ -248,6 +248,9 @@ class SalomeSDSTest(unittest.TestCase):
     # play
     a["ab"]=4
     self.assertEqual(a.local_copy(),{"ab":4})
+    a.assign({"ab":5})
+    self.assertEqual(a.local_copy(),{"ab":5})
+    a.assign({"ab":4})
     a["cd"]=[5]
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5]})
     a["cd"].append(77)

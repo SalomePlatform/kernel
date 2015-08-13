@@ -89,9 +89,10 @@ class WrappedType(SALOMEWrappedStdType.WrappedType):
         return (self._wrapped_type,(self.local_copy(),))
 
     def assign(self,elt):
-        assert(isinstance(self._var_ptr,SALOME._objref_PickelizedPyObjRdWrServer))
+        ptrCorba=self._var_ptr.ptr()
+        assert(isinstance(ptrCorba,SALOME._objref_PickelizedPyObjRdWrServer))
         st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
-        self._var_ptr.setSerializedContent(st)
+        ptrCorba.setSerializedContent(st)
         pass
 
     def __del__(self):
