@@ -42,7 +42,6 @@ namespace SALOMESDS
   public:
     std::string getAccessStr() const;
     void addKeyValueHard(PyObject *key, PyObject *value);
-    void removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key);
   public:
     static const char ACCESS_REPR[];
   };

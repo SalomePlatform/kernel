@@ -270,3 +270,10 @@ void PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting(PyObject
   if(!isOK)
     throw Exception("PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
 }
+
+void PickelizedPyObjServerModifiable::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
+{
+  checkKeyPresent(key);
+  if(PyDict_DelItem(_self,key)!=0)
+    throw Exception("PickelizedPyObjServerModifiable::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
+}

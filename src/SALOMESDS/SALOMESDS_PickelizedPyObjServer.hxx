@@ -76,7 +76,9 @@ namespace SALOMESDS
   public:
     PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
     PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
+  public:
     void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);
+    void removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key);
   };
 }
 

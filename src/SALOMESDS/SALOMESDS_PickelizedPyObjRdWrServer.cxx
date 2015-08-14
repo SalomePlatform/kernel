@@ -115,13 +115,6 @@ void PickelizedPyObjRdWrServer::addKeyValueHard(PyObject *key, PyObject *value)
     throw Exception("PickelizedPyObjRdWrServer::addKeyValueHard : error when trying to add key,value to dict !");
 }
 
-void PickelizedPyObjRdWrServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
-{
-  checkKeyPresent(key);
-  if(PyDict_DelItem(_self,key)!=0)
-    throw Exception("PickelizedPyObjRdWrServer::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
-}
-
 std::string PickelizedPyObjRdWrServer::getAccessStr() const
 {
   return std::string(ACCESS_REPR);
