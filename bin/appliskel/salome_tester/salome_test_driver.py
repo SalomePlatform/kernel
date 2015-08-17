@@ -80,7 +80,7 @@ def processResult(res, out, err):
 
 # Timeout management
 class TimeoutException(Exception):
-  """Execption raised when test timeout is reached."""
+  """Exception raised when test timeout is reached."""
 #
 def timeoutHandler(signum, frame):
   raise TimeoutException()
@@ -107,8 +107,14 @@ if __name__ == "__main__":
 
   # Set timeout handler
   print "Test timeout explicitely set to: %s seconds"%timeout_delay
-  signal.alarm(abs(int(timeout_delay)-10))
-  signal.signal(signal.SIGALRM, timeoutHandler)
+  timeout_sec = abs(int(timeout_delay)-10)
+  if sys.platform == 'win32':
+    from threading import Timer
+    timer = Timer(timeout_sec, timeoutHandler)
+    timer.start()
+  else:    
+    signal.alarm(timeout_sec)
+    signal.signal(signal.SIGALRM, timeoutHandler)
 
   # Run test in a new SALOME instance
   from salome_instance import SalomeInstance
@@ -127,6 +133,8 @@ if __name__ == "__main__":
     pass
 
   salome_instance.stop()
+  if sys.platform == 'win32':
+    timer.cancel()
   print "Exit test with status code:", res
   exit(res)
 #
