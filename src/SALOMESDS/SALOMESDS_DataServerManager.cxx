@@ -122,6 +122,11 @@ typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vec
   std::string command(oss.str());
   SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
   int status(SALOME_ContainerManager::SystemThreadSafe(command.c_str()));
+  if(status!=0)
+    {
+      std::ostringstream oss2; oss2 << "CreateDataScope : Fail to launch \"" << command << "\" ! Return code was : " << status << " !";
+      throw Exception(oss2.str());
+    }
   int count(SALOME_ContainerManager::GetTimeOutToLoaunchServer());
   typename T::VarType ret(T::nil());
   while (CORBA::is_nil(ret) && count)
@@ -286,7 +291,6 @@ std::vector<std::string> DataServerManager::listOfScopesCpp()
 
 SALOME::DataScopeServerBase_var DataServerManager::GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService& ns)
 {
-  std::size_t sz(scopes.size());
   if(std::find(scopes.begin(),scopes.end(),scopeName)==scopes.end())
     {
       std::ostringstream oss; oss << "DataServerManager::getScopePtrGivenName : scope name \"" << scopeName << "\" does not exist !";

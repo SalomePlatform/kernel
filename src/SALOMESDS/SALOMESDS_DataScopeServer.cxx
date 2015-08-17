@@ -56,7 +56,7 @@ DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKi
 {
 }
 
-DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars),_killer(other._killer)
+DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars),_killer(other._killer)
 {
 }
 
@@ -434,7 +434,7 @@ DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var
 {
 }
 
-DataScopeServer::DataScopeServer(const DataScopeServer& other):DataScopeServerBase(other)
+DataScopeServer::DataScopeServer(const DataScopeServer& other):omniServant(other),ServantBase(other),DataScopeServerBase(other)
 {
 }
 
@@ -493,7 +493,7 @@ DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, SALOM
   _poa_for_key_waiter=poa2;
 }
 
-DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):DataScopeServerBase(other),_poa_for_key_waiter(other.getPOA4KeyWaiter())
+DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):omniServant(other),ServantBase(other),DataScopeServerBase(other),_poa_for_key_waiter(other.getPOA4KeyWaiter())
 {
 }
 
@@ -672,7 +672,7 @@ SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarErrorIfAlrea
   TransactionAddKeyValueErrorIfAlreadyExisting *ret(new TransactionAddKeyValueErrorIfAlreadyExisting(this,varName,key,value));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
-};
+}
 
 SALOME::TransactionMultiKeyAddSession_ptr DataScopeServerTransaction::addMultiKeyValueSession(const char *varName)
 {
@@ -737,7 +737,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
   retc->_remove_ref();
-  retc->waitForMonoThr();
+  return retc->waitForMonoThr();
 }
 
 void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& transactions)

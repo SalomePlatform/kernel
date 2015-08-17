@@ -138,10 +138,10 @@ module SALOME
     boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
     //
     DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated);
+    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
     //
     DataScopeServerTransaction createDataScopeTransaction(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated);
+    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
     //
     DataScopeServerBase retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
