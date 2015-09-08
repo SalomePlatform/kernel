@@ -165,6 +165,7 @@ def releasePort(port):
   logger.debug("RELEASE PORT (%s)"%port)
 
   config_file, lock_file = _getConfigurationFilename()
+  oldmask = os.umask(0)
   with open(lock_file, 'w') as lock:
     # acquire lock
     __acquire_lock(lock)
@@ -199,10 +200,14 @@ def releasePort(port):
     __release_lock(lock)
 
     logger.debug("released port port: %s"%str(port))
+  
+  os.umask(oldmask)
 #
 
 def getBusyPorts():
+  busy_ports = []
   config_file, lock_file = _getConfigurationFilename()
+  oldmask = os.umask(0)
   with open(lock_file, 'w') as lock:
     # acquire lock
     __acquire_lock(lock)
@@ -222,5 +227,6 @@ def getBusyPorts():
     # release lock
     __release_lock(lock)
 
-    return busy_ports
+  os.umask(oldmask)
+  return busy_ports
 #
