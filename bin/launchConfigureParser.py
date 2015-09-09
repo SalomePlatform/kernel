@@ -496,7 +496,7 @@ def store_boolean (option, opt, value, parser, *args):
         for attribute in args:
             setattr(parser.values, attribute, value)
 
-def CreateOptionParser (theAdditionalOptions=None):
+def CreateOptionParser (theAdditionalOptions=None, exeName=None):
     if theAdditionalOptions is None:
         theAdditionalOptions = []
     # GUI/Terminal. Default: GUI
@@ -831,9 +831,12 @@ def CreateOptionParser (theAdditionalOptions=None):
 
     opt_list += theAdditionalOptions
 
-    a_usage = """%prog [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+    if not exeName:
+      exeName = "%prog"
+
+    a_usage = """%s [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
 Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
-"""
+"""%exeName
     version_str = "Salome %s" % version()
     pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
 
@@ -849,7 +852,7 @@ Python file arguments, if any, must be comma-separated (without blank characters
 args = {}
 #def get_env():
 #args = []
-def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgname):
+def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgname, exeName=None):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -889,7 +892,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
 
     ############################
     # parse command line options
-    pars = CreateOptionParser(theAdditionalOptions)
+    pars = CreateOptionParser(theAdditionalOptions, exeName=exeName)
     (cmd_opts, cmd_args) = pars.parse_args(sys.argv[1:])
     ############################
 

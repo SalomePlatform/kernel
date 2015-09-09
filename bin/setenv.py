@@ -78,7 +78,7 @@ def get_lib_dir():
 
 # -----------------------------------------------------------------------------
 
-def get_config(silent=False):
+def get_config(silent=False, exeName=None):
     """
     Get list of modules, paths.
 
@@ -95,7 +95,7 @@ def get_config(silent=False):
     #*** o_j = optparse.Option("-j", "--join", action="store_true", dest="join", help=help_str)
 
     import launchConfigureParser
-    args = launchConfigureParser.get_env()
+    args = launchConfigureParser.get_env(exeName=exeName)
 
     #*** Test additional option
     #*** args = launchConfigureParser.get_env([o_j])
@@ -242,8 +242,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
 
 # -----------------------------------------------------------------------------
 
-def main(silent=False):
-    args, modules_list, modules_root_dir = get_config(silent=silent)
+def main(silent=False, exeName=None):
+    args, modules_list, modules_root_dir = get_config(silent=silent, exeName=exeName)
     set_env(args, modules_list, modules_root_dir, silent=silent)
     return args
 

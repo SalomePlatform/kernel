@@ -742,7 +742,7 @@ def no_main():
 
 # -----------------------------------------------------------------------------
 
-def main():
+def main(exeName=None):
     """Salome launch as a main application"""
 
     # define folder to store omniorb config (initially in virtual application folder)
@@ -754,7 +754,7 @@ def main():
         sys.exit(1)
 
     from salome_utils import getHostName
-    args, modules_list, modules_root_dir = setenv.get_config()
+    args, modules_list, modules_root_dir = setenv.get_config(exeName=exeName)
     print "runSalome running on %s" % getHostName()
 
     kill_salome(args)

@@ -38,17 +38,20 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start           Starts a SALOME session (through virtual application)
-    context         Initializes SALOME context.
-    shell           Initializes SALOME context, and executes scripts passed
-                    as command arguments
-    connect         Connects a Python console to the active SALOME session
-    kill <port(s)>  Terminate SALOME session running on given ports for current user
-                    Port numbers must be separated by blank characters
-    killall         Kill *all* SALOME running sessions for current user
+    start           Start a new SALOME instance.
+    context         Initialize SALOME context. Current environment is extended.
+    shell           Initialize SALOME context, attached to the last created SALOME
+                    instance if any, and executes scripts passed as command arguments.
+                    User works in a Shell terminal; SALOME environment is set but
+                    application is not started.
+    connect         Connect a Python console to the active SALOME instance.
+    kill <port(s)>  Terminate SALOME instances running on given ports for current user.
+                    Port numbers must be separated by blank characters.
+    killall         Terminate *all* SALOME running instances for current user.
+                    Do not start a new one.
     test            Run SALOME tests.
-    info            Display some information about SALOME
-    help            Show this message
+    info            Display some information about SALOME.
+    help            Show this message.
 
 If no command is given, default to start.
 
@@ -336,7 +339,7 @@ class SalomeContext:
     # Initialize SALOME environment
     sys.argv = ['runSalome'] + args
     import setenv
-    setenv.main(True)
+    setenv.main(True, exeName="salome start")
 
     import runSalome
     runSalome.runSalome()
