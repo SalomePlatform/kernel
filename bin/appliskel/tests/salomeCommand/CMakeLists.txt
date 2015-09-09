@@ -17,37 +17,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import unittest
+FILE(GLOB scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
 
-import os
-import sys
-import imp
-import logging
+# Application tests
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${KERNEL_TEST_DIR}/salomeCommand
+        RENAME CTestTestfile.cmake)
 
-class TestLauncher(unittest.TestCase):
-
-  def setUp(self):
-    path_to_launcher = os.getenv("SALOME_LAUNCHER")
-    appli_dir = os.path.dirname(path_to_launcher)
-    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
-
-    self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
-   #
-
-  def testHello(self):
-    try:
-      self.SALOME.main(["shell", "hello.py"])
-    except SystemExit, e:
-      if str(e) != '0':
-        logging.error(e)
-  #
-#
-
-if __name__ == "__main__":
-  path_to_launcher = os.getenv("SALOME_LAUNCHER")
-  if not path_to_launcher:
-    msg = "Error: please set SALOME_LAUNCHER variable to the salome command of your application folder."
-    raise Exception(msg)
-
-  unittest.main()
-#
+INSTALL(FILES ${scripts}
+        DESTINATION ${KERNEL_TEST_DIR}/salomeCommand)

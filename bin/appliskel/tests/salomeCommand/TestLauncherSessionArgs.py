@@ -51,27 +51,27 @@ class TestSessionArgs(unittest.TestCase):
   linesUnreadableMsg = "hello.py is 35 lines longadd.py is 37 lines longFile '1' cannot be readFile '2' cannot be read"
   #
   def setUp(self):
-    # Initialize path to SALOME application
-    path_to_launcher = os.getenv("SALOME_LAUNCHER")
-    appli_dir = os.path.dirname(path_to_launcher)
-    envd_dir = os.path.join(appli_dir, "env.d")
-    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
-
-    # Configure session startup
-    self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
-    self.SALOME_args = ["shell", "--config="+envd_dir]
+    from salome_instance import SalomeInstance
+    self.instance = SalomeInstance.start()
+    print "Instance created and now running on port", self.instance.get_port()
 
     sys.stdout = StringIO()
     self.removeLogFile()
   #
   def tearDown(self):
     self.removeLogFile()
+    print "Terminate instance running on port", self.instance.get_port()
+    self.instance.stop()
   #
   def session(self, args=None):
     if args is None:
       args = []
     try:
-      self.SALOME.main(self.SALOME_args + args)
+      import setenv
+      setenv.main(True)
+      import runSession
+      params, args = runSession.configureSession(args, exe="salome shell")
+      return runSession.runSession(params, args)
     except SystemExit, e:
       if str(e) != '0':
         logger.error(e)
@@ -147,12 +147,6 @@ class TestSessionArgs(unittest.TestCase):
   #
 #
 
-
 if __name__ == "__main__":
-  path_to_launcher = os.getenv("SALOME_LAUNCHER")
-  if not path_to_launcher:
-    msg = "Error: please set SALOME_LAUNCHER variable to the salome command of your application folder."
-    raise Exception(msg)
-
   unittest.main()
 #

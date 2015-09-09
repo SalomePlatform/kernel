@@ -36,8 +36,10 @@ SUBDIRS( Launcher
          KernelHelpers
          SALOMEDS
          SALOMEDSImpl
-	 SALOMESDS
+         SALOMESDS
          Utils
          UnitTests
-         connect
+         salomeInstance
+         salomeCommand
+         concurrentSession
     )

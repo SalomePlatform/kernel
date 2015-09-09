@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,15 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-FILE(GLOB py_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
-FILE(GLOB sh_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.sh")
+SET(TEST_NAMES instances)
 
-LIST(APPEND scripts ${py_scripts} ${sh_scripts})
-
-# Application tests
-INSTALL(FILES CTestTestfileInstall.cmake
-        DESTINATION ${KERNEL_TEST_DIR}/concurrentSession
-        RENAME CTestTestfile.cmake)
-
-INSTALL(FILES ${scripts}
-        DESTINATION ${KERNEL_TEST_DIR}/concurrentSession)
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME SALOME_INSTANCE_${tfile})
+  ADD_TEST(${TEST_NAME} python ${tfile}.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}")
+ENDFOREACH()

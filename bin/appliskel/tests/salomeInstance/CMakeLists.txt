@@ -23,8 +23,8 @@ LIST(APPEND scripts ${py_scripts})
 
 # Application tests
 INSTALL(FILES CTestTestfileInstall.cmake
-        DESTINATION ${KERNEL_TEST_DIR}/connect
+        DESTINATION ${KERNEL_TEST_DIR}/salomeInstance
         RENAME CTestTestfile.cmake)
 
 INSTALL(FILES ${scripts}
-        DESTINATION ${KERNEL_TEST_DIR}/connect)
+        DESTINATION ${KERNEL_TEST_DIR}/salomeInstance)

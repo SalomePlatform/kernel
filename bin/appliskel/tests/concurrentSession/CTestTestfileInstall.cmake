@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,5 +17,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-FILE(GLOB scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
-SALOME_INSTALL_SCRIPTS("${scripts}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel/tests/launcher)
+SET(TEST_NAMES
+  TestMinimalExample
+  TestConcurrentSession
+  )
+
+FOREACH(tfile ${TEST_NAMES})
+  SET(TEST_NAME SALOME_CONCURRENT_${tfile})
+  ADD_TEST(${TEST_NAME} python ${tfile}.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}")
+ENDFOREACH()

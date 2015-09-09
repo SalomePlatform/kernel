@@ -17,10 +17,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(TEST_NAMES instances)
+SET(TEST_NAMES
+  TestLauncherSimple
+  TestLauncherSessionArgs
+  )
 
 FOREACH(tfile ${TEST_NAMES})
-  SET(TEST_NAME CONNECT_${tfile})
+  SET(TEST_NAME SALOME_COMMAND_${tfile})
   ADD_TEST(${TEST_NAME} python ${tfile}.py)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}")
 ENDFOREACH()

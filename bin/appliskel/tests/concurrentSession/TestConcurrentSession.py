@@ -27,26 +27,38 @@ from cStringIO import StringIO
 import multiprocessing
 import logging
 
-class TestConcurrentLaunch(unittest.TestCase):
-  def setUp(self):
-    # Initialize path to SALOME application
-    path_to_launcher = os.getenv("SALOME_LAUNCHER")
-    appli_dir = os.path.dirname(path_to_launcher)
-    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
+def new_instance(running_instances):
+  from salome_instance import SalomeInstance
+  instance = SalomeInstance.start()
+  print "Instance created and now running on port", instance.get_port()
+  running_instances.put(instance)
+#
 
-    # Configure session startup
-    self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
-    self.SALOME_appli_args = ["start", "-t"]
-    self.SALOME_shell_args = ["shell"]
+class TestConcurrentLaunch(unittest.TestCase):
+  def __createInstances(self, nb):
+    running_instances = multiprocessing.Queue()
+    processes = [
+      multiprocessing.Process(target=new_instance, args=(running_instances,))
+      for i in range(nb)
+      ]
+    return running_instances, processes
   #
-  def tearDown(self):
-    pass
+  def __terminateInstances(self, running_instances):
+    while not running_instances.empty():
+      instance = running_instances.get()
+      print "Terminate instance running on port", instance.get_port()
+      instance.stop()
   #
+
   def appli(self, args=None):
     if args is None:
       args = []
     try:
-      self.SALOME.main(self.SALOME_appli_args + args)
+      sys.argv = ['runSalome', '-t']
+      import setenv
+      setenv.main(True, exeName="salome start")
+      import runSalome
+      runSalome.runSalome()
     except SystemExit, e:
       if str(e) != '0':
         logging.error(e)
@@ -56,7 +68,11 @@ class TestConcurrentLaunch(unittest.TestCase):
     if args is None:
       args = []
     try:
-      self.SALOME.main(self.SALOME_shell_args + args)
+      import setenv
+      setenv.main(True)
+      import runSession
+      params, args = runSession.configureSession(args, exe="salome shell")
+      return runSession.runSession(params, args)
     except SystemExit, e:
       if str(e) != '0':
         logging.error(e)
@@ -79,37 +95,33 @@ class TestConcurrentLaunch(unittest.TestCase):
   #
   def test03_SingleAppli(self):
     print "** Testing single appli **"
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    session_log = tempfile.NamedTemporaryFile(prefix='session_', suffix='.log')
-    self.appli(["--ns-port-log=%s"%session_log.name])
-    port_number = None
-    with open(session_log.name, "r") as f:
-      port_number = f.readline()
+    running_instances, processes = self.__createInstances(1)
+    for p in processes:
+      p.start()
+      pass
+    for p in processes:
+      p.join()
+      pass
+
     self.session(["hello.py"])
-    self.session(["-p", port_number, "killSalomeWithPort.py", "args:%s"%port_number])
-    session_log.close()
+    self.__terminateInstances(running_instances)
   #
   def test04_MultiAppli(self):
     print "** Testing multi appli **"
-    jobs = []
-    for i in range(9):
-      p = multiprocessing.Process(target=self.test03_SingleAppli)
-      jobs.append(p)
+    running_instances, processes = self.__createInstances(9)
+    for p in processes:
       p.start()
+      pass
+    for p in processes:
+      p.join()
+      pass
 
-    for j in jobs:
-      j.join()
+    self.session(["hello.py"])
+    self.__terminateInstances(running_instances)
   #
 #
 
 if __name__ == "__main__":
-  path_to_launcher = os.getenv("SALOME_LAUNCHER")
-  if not path_to_launcher:
-    msg = "\n"
-    msg += "Error: please set SALOME_LAUNCHER variable to the salome command in your application folder.\n"
-    logging.error(msg)
-    sys.exit(1)
-
   if not os.path.isfile("hello.py"):
     with open("hello.py", "w") as f:
       f.write("print 'Hello!'")

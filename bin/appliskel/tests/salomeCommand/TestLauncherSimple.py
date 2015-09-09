@@ -17,15 +17,36 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-FILE(GLOB py_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
-FILE(GLOB sh_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.sh")
+import unittest
+import logging
 
-LIST(APPEND scripts ${py_scripts} ${sh_scripts})
+class TestLauncher(unittest.TestCase):
 
-# Application tests
-INSTALL(FILES CTestTestfileInstall.cmake
-        DESTINATION ${KERNEL_TEST_DIR}/concurrentSession
-        RENAME CTestTestfile.cmake)
+  def setUp(self):
+    from salome_instance import SalomeInstance
+    self.instance = SalomeInstance.start()
+    print "Instance created and now running on port", self.instance.get_port()
+   #
 
-INSTALL(FILES ${scripts}
-        DESTINATION ${KERNEL_TEST_DIR}/concurrentSession)
+  def tearDown(self):
+    print "Terminate instance running on port", self.instance.get_port()
+    self.instance.stop()
+  #
+
+  def testHello(self):
+    try:
+      import setenv
+      setenv.main(True)
+      import runSession
+      args = ["hello.py"]
+      params, args = runSession.configureSession(args, exe="salome shell")
+      return runSession.runSession(params, args)
+    except SystemExit, e:
+      if str(e) != '0':
+        logging.error(e)
+  #
+#
+
+if __name__ == "__main__":
+  unittest.main()
+#
