@@ -233,7 +233,7 @@ module Engines
     PyNode createPyNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
 
     //! Retrieves the last created PyNode instance with createPyNode.
-    PyNode getDefaultPyNode();
+    PyNode getDefaultPyNode(in string nodeName);
 
     //! Create a PyScriptNode in the container
     /*!
@@ -243,7 +243,7 @@ module Engines
     PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
 
     //! Retrieves the last created PyScriptNode instance with createPyScriptNode.
-    PyScriptNode getDefaultPyScriptNode();
+    PyScriptNode getDefaultPyScriptNode(in string nodeName);
   };
 
   /*! \brief Interface of the %component.

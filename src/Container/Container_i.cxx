@@ -1706,7 +1706,7 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
  *
  */
 //=============================================================================
-Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode()
+Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode(const char *nodeName)
 {
   if(!CORBA::is_nil(_dftPyNode))
     return Engines::PyNode::_duplicate(_dftPyNode);
@@ -1772,7 +1772,7 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
  *
  */
 //=============================================================================
-Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode()
+Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode(const char *nodeName)
 {
   if(!CORBA::is_nil(_dftPyScriptNode))
     return Engines::PyScriptNode::_duplicate(_dftPyScriptNode);

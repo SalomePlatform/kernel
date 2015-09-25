@@ -1135,7 +1135,7 @@ Engines_Parallel_Container_i::createPyNode(const char* nodeName, const char* cod
   return node._retn();
 }
 
-Engines::PyNode_ptr Engines_Parallel_Container_i::getDefaultPyNode()
+Engines::PyNode_ptr Engines_Parallel_Container_i::getDefaultPyNode(const char *nodeName)
 {
   INFOS("Python component not yet implemented");
   return Engines::PyNode::_nil();
@@ -1149,7 +1149,7 @@ Engines_Parallel_Container_i::createPyScriptNode(const char* nodeName, const cha
   return node._retn();
 }
 
-Engines::PyScriptNode_ptr Engines_Parallel_Container_i::getDefaultPyScriptNode()
+Engines::PyScriptNode_ptr Engines_Parallel_Container_i::getDefaultPyScriptNode(const char *nodeName)
 {
   INFOS("Python script node not yet implemented");
   return Engines::PyScriptNode::_nil();
