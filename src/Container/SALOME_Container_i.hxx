@@ -30,6 +30,7 @@
 #define _SALOME_CONTAINER_I_HXX_
 
 #include "SALOME_Container.hxx"
+#include "Utils_Mutex.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
@@ -161,8 +162,9 @@ protected:
   std::map<std::string,Engines::EngineComponent_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
   std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
-  Engines::PyScriptNode_var _dftPyScriptNode;
-  Engines::PyNode_var _dftPyNode;
+  std::map<std::string,Engines::PyScriptNode_var> _dftPyScriptNode;
+  std::map<std::string,Engines::PyNode_var> _dftPyNode;
+  Utils_Mutex _mutexForDftPy;
   std::list<std::string> _tmp_files;
   Engines::fileTransfer_var _fileTransfer;
 
