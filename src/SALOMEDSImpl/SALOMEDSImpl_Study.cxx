@@ -44,6 +44,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 // comment out the following define to enable \t symbols in in the python dump files
 #define WITHOUT_TABS
@@ -1226,11 +1227,30 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   for (; itcomponent.More(); itcomponent.Next()) {
     SALOMEDSImpl_SComponent sco = itcomponent.Value();
     aCompType = sco.ComponentDataType();
-    //GEOM and MED are independent components
-    if (aCompType == "GEOM" || aCompType == "MED")
+   if (aCompType == "GEOM")
       aSeq.insert(aSeq.begin(), aCompType);
     else
       aSeq.push_back(aCompType);
+  }
+  // re-arrange modules in the sequence, if specific order is given via SALOME_MODULES_ORDER environment variable.
+  if ( getenv("SALOME_MODULES_ORDER") != 0 ) {
+    std::string order = getenv("SALOME_MODULES_ORDER");
+    std::vector<std::string> mlist;
+    while ( !order.empty() ) {
+      size_t idx = order.find( "," );
+      std::string m = order.substr(0, idx);
+      order = order.substr( ( idx == std::string::npos ) ? order.size() : idx+1 );
+      if ( m.empty() || std::find( mlist.begin(), mlist.end(), m ) != mlist.end() ) continue;
+      mlist.push_back( m );
+    }
+
+    for ( std::vector<std::string>::reverse_iterator mit = mlist.rbegin(); mit != mlist.rend(); ++mit ) {
+      std::vector<std::string>::iterator it = std::find( aSeq.begin(), aSeq.end(), *mit );
+      if ( it != aSeq.end() ) {
+        aSeq.erase( it );
+        aSeq.insert( aSeq.begin(), *mit );
+      }
+    }
   }
 
 #ifdef WIN32
