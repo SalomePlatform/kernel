@@ -483,4 +483,17 @@ def setVerbose(level):
     global _verbose
     _verbose = level
     return
+
+# --
+
+def win32killpid(pid):
+    """
+    Kill process by pid on windows platform.
+    """
+    if verbose(): print "######## win32killpid pid = ", pid
+    import ctypes
+    handle = ctypes.windll.kernel32.OpenProcess(1, False, pid)
+    ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
+    ctypes.windll.kernel32.CloseHandle(handle)
+    return ret
 # --

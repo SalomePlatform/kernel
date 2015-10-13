@@ -99,11 +99,8 @@ class InterpServer(Server):
         global process_id
         command = self.CMD
         print "INTERPSERVER::command = ", command
-        if sys.platform == "win32":
-          import win32pm
-          pid = win32pm.spawnpid( string.join(command, " "),'-nc' )
-        else:
-          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        import subprocess
+        pid = subprocess.Popen(command).pid
         process_id[pid]=self.CMD
         self.PID = pid
 

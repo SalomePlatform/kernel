@@ -1000,7 +1000,7 @@ void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream, SALOM
 void SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(std::string& command)
 {
 #ifdef WIN32
-    command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
+    command = "%PYTHONBIN% -c \"import subprocess ; subprocess.Popen(command).pid\"";
 #else
     command += " &";
 #endif
