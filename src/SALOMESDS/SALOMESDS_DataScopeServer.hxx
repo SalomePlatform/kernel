@@ -131,6 +131,7 @@ namespace SALOMESDS
     SALOME::ByteVec *waitForMonoThrRev(SALOME::KeyWaiter_ptr kw);
   public://remotely callable
     char *getAccessOfVar(const char *varName);
+    void fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtInitVarTransac(const char *varName, const SALOME::ByteVec& constValue);

@@ -115,6 +115,7 @@ module SALOME
   interface DataScopeServerTransaction : DataScopeServerBase
   {
     string getAccessOfVar(in string varName) raises (SALOME::SALOME_Exception);
+    void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME::SALOME_Exception);
     Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdExtInitVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);

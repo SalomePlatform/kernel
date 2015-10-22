@@ -515,6 +515,15 @@ char *DataScopeServerTransaction::getAccessOfVar(const char *varName)
   return CORBA::string_dup(ret.c_str());
 }
 
+/*!
+ * This method is here to retrieve atomically accessStr and picklization.
+ */
+void DataScopeServerTransaction::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data)
+{
+  access=getAccessOfVar(varName);
+  data=fetchSerializedContent(varName);
+}
+
 void DataScopeServerTransaction::createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
