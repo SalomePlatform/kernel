@@ -385,15 +385,19 @@ void DataScopeServerBase::moveStatusOfVarFromRdExtInitToRdExt(const std::string&
 {
   std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
-  PickelizedPyObjRdExtInitServer *varc(dynamic_cast<PickelizedPyObjRdExtInitServer *>(p.second));
-  if(!varc)
+  PickelizedPyObjRdExtInitServer *varc0(dynamic_cast<PickelizedPyObjRdExtInitServer *>(p.second));
+  PickelizedPyObjRdExtServer *varc1(dynamic_cast<PickelizedPyObjRdExtServer *>(p.second));
+  if(!varc0 && !varc1)
     throw Exception("DataScopeServerBase::moveStatusOfVarFromRdExtInitToRdExt : var is not a RdExtInit !");
-  PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
-  PickelizedPyObjRdExtServer *newVar(new PickelizedPyObjRdExtServer(this,varName,pyobj));
-  CORBA::Object_var obj(newVar->activate());
-  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
-  p.first=obj2; p.second=newVar;
-  varc->decrRef();
+  if(varc0)
+    {
+      PyObject *pyobj(varc0->getPyObj()); Py_XINCREF(pyobj);
+      PickelizedPyObjRdExtServer *newVar(new PickelizedPyObjRdExtServer(this,varName,pyobj));
+      CORBA::Object_var obj(newVar->activate());
+      SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+      p.first=obj2; p.second=newVar;
+      varc0->decrRef();
+    }
 }
 
 std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator DataScopeServerBase::retrieveVarInternal3(const std::string& varName) const
