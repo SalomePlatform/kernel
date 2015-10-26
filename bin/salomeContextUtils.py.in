@@ -270,7 +270,35 @@ def getScriptsAndArgs(args=None, searchPathList=None):
       if not currentKey or callPython:
         raise SalomeContextException("args list must follow corresponding script file in command line.")
       elt = elt.replace(argsPrefix, '')
-      scriptArgs[len(scriptArgs)-1].args = [os.path.expanduser(x) for x in elt.split(",")]
+      # Special process if some items of 'args:' list are themselves lists
+      # Note that an item can be a list, but not a list of lists...
+      # So we can have something like this:
+      # myscript.py args:['file1','file2'],val1,"done",[1,2,3],[True,False],"ok"
+      # With such a call, an elt variable contains the string representing ['file1','file2'],val1,"done",[1,2,3],[True,False],"ok" that is '[file1,file2],val1,done,[1,2,3],[True,False],ok'
+      # We have to split elt to obtain: ['[file1,file2]','val1','done','[1,2,3]','[True,False]','ok']
+      contains_list = re.findall('(\[[^\]]*\])', elt)
+      if contains_list:
+        extracted_args = []
+        x = elt.split(",")
+        # x is ['[file1', 'file2]', 'val1', 'done', '[1', '2', '3]', '[True', 'False]', 'ok']
+        list_begin_indices = [i for i in xrange(len(x)) if x[i].startswith('[')] # [0, 4, 7]
+        list_end_indices = [i for i in xrange(len(x)) if x[i].endswith(']')] # [1, 6, 8]
+        start = 0
+        for lbeg, lend in zip(list_begin_indices,list_end_indices): # [(0, 1), (4, 6), (7, 8)]
+          if lbeg > start:
+            extracted_args += x[start:lbeg]
+            pass
+          extracted_args += [','.join(x[lbeg:lend+1])]
+          start = lend+1
+          pass
+        if start < len(x):
+          extracted_args += x[start:len(x)]
+          pass
+        scriptArgs[len(scriptArgs)-1].args = extracted_args
+        pass
+      else: # a single split is enough
+        scriptArgs[len(scriptArgs)-1].args = [os.path.expanduser(x) for x in elt.split(",")]
+        pass
       currentKey = None
       callPython = False
       afterArgs = True
