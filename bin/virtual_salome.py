@@ -146,6 +146,7 @@ def link_module(options):
     module_sharedoc_gui_dir=os.path.join(module_dir,'share','doc','salome','gui')
     module_sharedoc_tui_dir=os.path.join(module_dir,'share','doc','salome','tui')
     module_sharedoc_examples=os.path.join(module_dir,'share','doc','salome','examples')
+    module_sharedoc_dev=os.path.join(module_dir,'share','doc','salome','dev')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
     test_dir=os.path.join(home_dir,'bin','salome', 'test')
@@ -163,6 +164,7 @@ def link_module(options):
     sharedoc_gui_dir=os.path.join(home_dir,'share','doc','salome','gui')
     sharedoc_tui_dir=os.path.join(home_dir,'share','doc','salome','tui')
     sharedoc_examples_dir=os.path.join(home_dir,'share','doc','salome','examples')
+    sharedoc_dev_dir=os.path.join(home_dir,'share','doc','salome','dev')
 
     if options.clear:
         rmtree(bin_dir)
@@ -270,6 +272,7 @@ def link_module(options):
             if fn == 'gui':continue
             if fn == 'tui':continue
             if fn == 'examples':continue
+            if fn == 'dev':continue
             symlink(os.path.join(module_sharedoc_dir, fn), os.path.join(sharedoc_dir, fn))
             pass
         pass
@@ -295,6 +298,14 @@ def link_module(options):
         mkdir(sharedoc_examples_dir)
         for fn in os.listdir(module_sharedoc_examples):
             symlink(os.path.join(module_sharedoc_examples, fn), os.path.join(sharedoc_examples_dir, fn))
+            pass
+        pass
+
+    #directory share/doc/salome/dev : create it and link content
+    if os.path.exists(module_sharedoc_dev):
+        mkdir(sharedoc_dev_dir)
+        for fn in os.listdir(module_sharedoc_dev):
+            symlink(os.path.join(module_sharedoc_dev, fn), os.path.join(sharedoc_dev_dir, fn))
             pass
         pass
 
