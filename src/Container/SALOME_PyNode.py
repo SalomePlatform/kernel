@@ -64,6 +64,10 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     self.context["my_container"] = self.my_container
     exec ccode in self.context
 
+  def defineNewCustomVar(self,varName,valueOfVar):
+    self.context[varName] = cPickle.loads(valueOfVar)
+    pass
+
   def executeAnotherPieceOfCode(self,code):
     """Called for initialization of container lodging self."""
     try:
@@ -97,6 +101,10 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     self.ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context["my_container"] = self.my_container
+
+  def defineNewCustomVar(self,varName,valueOfVar):
+    self.context[varName] = cPickle.loads(valueOfVar)
+    pass
 
   def executeAnotherPieceOfCode(self,code):
     """Called for initialization of container lodging self."""

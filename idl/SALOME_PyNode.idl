@@ -41,6 +41,12 @@ module Engines
   interface PyNodeBase : SALOME::GenericObj
   {
     /*!
+      This method allows to define a new global var called \a varName. This newly created var will be
+      set to value \a valueOfVar.
+     */
+    void defineNewCustomVar(in string varName, in pickledArgs valueOfVar) raises (SALOME::SALOME_Exception);
+
+    /*!
     This methode executes the python code in \a codeStr and can append/remove symboles in context to make them available or not for future call of execute on this.
     \param [in] codeStr - the python code (without statement) to be executed, that can modify the context initialized at initialization.
      */
