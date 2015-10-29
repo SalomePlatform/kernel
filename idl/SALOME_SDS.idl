@@ -125,6 +125,7 @@ module SALOME
     TransactionMultiKeyAddSession addMultiKeyValueSession(in string varName) raises (SALOME::SALOME_Exception);
     Transaction removeKeyInVarErrorIfNotAlreadyExisting(in string varName, in ByteVec keyValue) raises (SALOME::SALOME_Exception);
     TransactionRdWrAccess createWorkingVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    Transaction killVarTransac(in string varName) raises (SALOME::SALOME_Exception);
     KeyWaiter waitForKeyInVar(in string varName, in ByteVec keyVal) raises (SALOME::SALOME_Exception);
     KeyWaiter waitForKeyInVarAndKillIt(in string varName, in ByteVec keyVal, out Transaction transac) raises (SALOME::SALOME_Exception);
     void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);

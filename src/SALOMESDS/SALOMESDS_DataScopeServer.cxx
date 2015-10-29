@@ -717,6 +717,16 @@ SALOME::TransactionRdWrAccess_ptr DataScopeServerTransaction::createWorkingVarTr
   return SALOME::TransactionRdWrAccess::_narrow(obj2);
 }
 
+SALOME::Transaction_ptr DataScopeServerTransaction::killVarTransac(const char *varName)
+{
+  std::string varNameCpp(varName);
+  checkExistingVar(varNameCpp);
+  //
+  TransactionKillVar *ret(new TransactionKillVar(this,varName));
+  CORBA::Object_var obj2(ret->activate());
+  return SALOME::Transaction::_narrow(obj2);
+}
+
 SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal)
 {
   PickelizedPyObjServer *pickelObj(checkVarExistingAndDict(varName));

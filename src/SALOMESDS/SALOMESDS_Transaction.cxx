@@ -101,6 +101,39 @@ void TransactionRdWrVarCreate::perform()
   _dsct->createRdWrVarInternal(_var_name,data2);
 }
 
+TransactionKillVar::TransactionKillVar(DataScopeServerTransaction *dsct, const std::string& varName):Transaction(dsct,varName)
+{
+}
+
+/*!
+ * TODO
+ */
+void TransactionKillVar::prepareRollBackInCaseOfFailure()
+{
+  checkVarExisting();
+  //BasicDataServer *bds(_dsct->retrieveVarInternal2(_var_name);
+  //bds->clone();
+}
+
+void TransactionKillVar::perform()
+{
+  _dsct->deleteVar(_var_name.c_str());
+}
+
+/*!
+ * TODO
+ */
+void TransactionKillVar::rollBack()
+{
+}
+
+/*!
+ * no implementation it is not a bug ! killVar is not an event.
+ */
+void TransactionKillVar::notify()
+{
+}
+
 TransactionDictModify::TransactionDictModify(DataScopeServerTransaction *dsct, const std::string& varName):Transaction(dsct,varName),_varc(0)
 {
   _varc=checkVarExistingAndDict();

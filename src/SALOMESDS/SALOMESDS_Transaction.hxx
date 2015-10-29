@@ -97,6 +97,16 @@ namespace SALOMESDS
     void perform();
   };
 
+  class TransactionKillVar : public Transaction
+  {
+  public:
+    TransactionKillVar(DataScopeServerTransaction *dsct, const std::string& varName);
+    void prepareRollBackInCaseOfFailure();
+    void perform();
+    void rollBack();
+    void notify();
+  };
+
   class PickelizedPyObjServer;
 
   class TransactionDictModify : public Transaction

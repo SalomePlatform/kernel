@@ -141,6 +141,7 @@ namespace SALOMESDS
     SALOME::TransactionMultiKeyAddSession_ptr addMultiKeyValueSession(const char *varName);
     SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key);
     SALOME::TransactionRdWrAccess_ptr createWorkingVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr killVarTransac(const char *varName);
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
     SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
