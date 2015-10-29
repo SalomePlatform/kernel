@@ -39,6 +39,8 @@ class TestSessionArgs(unittest.TestCase):
   hello1Msg = "Hello to: you"
   helloToAdd = ["hello.py", "args:add.py,1,2,3,outfile="+logFile]
   helloToAddMsg = "Hello to: add.py, 1, 2, 3"
+  helloToList = ["hello.py", "args:['file1','file2'],1,2,3,[True,False],'ok',outfile="+logFile]
+  helloToListMsg = "Hello to: ['file1','file2'], 1, 2, 3, [True,False], 'ok'"
   add0 = ["add.py", "args:outfile="+logFile]
   add0Msg = "No args!"
   add3 = ["add.py", "args:1,2,3,outfile="+logFile]
@@ -120,6 +122,10 @@ class TestSessionArgs(unittest.TestCase):
   def testHelloToAdd(self):
     self.session(self.helloToAdd)
     self.assertLogFileContentsEqual(self.helloToAddMsg)
+  #
+  def testHelloToList(self):
+    self.session(self.helloToList)
+    self.assertLogFileContentsEqual(self.helloToListMsg)
   #
   def testLines0(self):
     self.session(self.lines0)
