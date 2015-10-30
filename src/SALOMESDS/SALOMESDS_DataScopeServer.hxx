@@ -86,7 +86,7 @@ namespace SALOMESDS
     void moveStatusOfVarFromRdWrToRdOnly(const std::string& varName);
     void moveStatusOfVarFromRdOnlyToRdWr(const std::string& varName);
     void moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const std::string& varName);
-    void moveStatusOfVarFromRdExtInitToRdExt(const std::string& varName);
+    void moveStatusOfVarFromRdExtOrRdExtInitToRdExt(const std::string& varName);
   protected:
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator retrieveVarInternal4(const std::string& varName);

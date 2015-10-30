@@ -29,13 +29,13 @@ using namespace SALOMESDS;
 
 const char PickelizedPyObjRdExtInitServer::ACCESS_REPR[]="RdExtInit";
 
-PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
+PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value),_nb_of_clients(0)
 {
   _self_deep_copy=DeepCopyPyObj(_self);
 }
 
 //! obj is consumed
-PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServerModifiable(father,varName,obj),_self_deep_copy(0)
+PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):PickelizedPyObjServerModifiable(father,varName,obj),_self_deep_copy(0),_nb_of_clients(0)
 {
   _self_deep_copy=DeepCopyPyObj(obj);
 }

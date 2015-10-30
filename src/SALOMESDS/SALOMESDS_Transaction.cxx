@@ -294,7 +294,7 @@ void TransactionMultiKeyAddSession::prepareRollBackInCaseOfFailure()
 
 void TransactionMultiKeyAddSession::perform()
 {
-  _dsct->moveStatusOfVarFromRdExtInitToRdExt(_var_name);
+  _dsct->moveStatusOfVarFromRdExtOrRdExtInitToRdExt(_var_name);
 }
 
 /*!

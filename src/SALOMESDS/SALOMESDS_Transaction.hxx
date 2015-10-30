@@ -171,6 +171,9 @@ namespace SALOMESDS
     void notify();
   };
 
+  /*!
+   * This transaction switch from RdExt to RdExtInit in constructor and when perform called RdExtInit to RdExt.
+   */
   class TransactionMultiKeyAddSession : public Transaction, public virtual POA_SALOME::TransactionMultiKeyAddSession
   {
   public:

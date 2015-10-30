@@ -30,6 +30,9 @@
 
 namespace SALOMESDS
 {
+  /*!
+   * State during the producer/consumer phase. Activated by TransactionMultiKeyAddSession transaction returned by dss.addMultiKeyValueSession.
+   */
   class PickelizedPyObjRdExtInitServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME::PickelizedPyObjRdExtInitServer
   {
   public:
@@ -39,10 +42,15 @@ namespace SALOMESDS
   public:
     std::string getAccessStr() const;
     SALOME::ByteVec *fetchSerializedContent();
+  public:
+    void incrNbClients() const { _nb_of_clients++; }
+    bool decrNbClients() const { _nb_of_clients--; return _nb_of_clients<=0; }
   private:
     static PyObject *DeepCopyPyObj(PyObject *pyobj);
   private:
     PyObject *_self_deep_copy;
+    //! this attribute stores number of clients in RdExtInit/RdExt
+    mutable int _nb_of_clients;
   public:
     static const char ACCESS_REPR[];
   };
