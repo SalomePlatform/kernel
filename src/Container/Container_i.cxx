@@ -993,10 +993,11 @@ Engines_Container_i::create_python_service_instance(const char * CompName,
   const char *error;
   PyArg_ParseTuple(result,"ss", &ior, &error);
   reason = CORBA::string_dup(error);
+  char * _ior = CORBA::string_dup(ior);
   Py_DECREF(result);
   PyGILState_Release(gstate);
 
-  return CORBA::string_dup(ior);
+  return _ior;
 }
 
 
