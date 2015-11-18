@@ -483,17 +483,62 @@ def setVerbose(level):
     global _verbose
     _verbose = level
     return
-
 # --
 
-def win32killpid(pid):
+def killpid(pid):
     """
-    Kill process by pid on windows platform.
+    Kill process by pid.
     """
-    if verbose(): print "######## win32killpid pid = ", pid
-    import ctypes
-    handle = ctypes.windll.kernel32.OpenProcess(1, False, pid)
-    ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
-    ctypes.windll.kernel32.CloseHandle(handle)
-    return ret
+    import os,sys,signal
+    if verbose(): print "######## killpid pid = ", pid
+    if sys.platform == "win32":
+        import ctypes
+        handle = ctypes.windll.kernel32.OpenProcess(1, False, int(pid))
+        ctypes.windll.kernel32.TerminateProcess(handle, -1)
+        ctypes.windll.kernel32.CloseHandle(handle)
+    else:
+        os.kill(int(pid),signal.SIGKILL)
+        pass
+# --
+
+def getOmniNamesPid(port):
+    """
+    Return OmniNames pid by port number.
+    """
+    import sys,subprocess,re
+    if sys.platform == "win32":
+        # Get process list by WMI Command Line Utility(WMIC)
+        # Output is formatted with each value listed on a separate line and with the name of the property:
+        #   ...
+        #   Caption=<caption0>
+        #   CommandLine=<commandline0>
+        #   ProcessId=<processid0>
+        #
+        #
+        #
+        #   Caption=<caption1>
+        #   CommandLine=<commandline1>
+        #   ProcessId=<processid1>
+        #   ...
+        cmd = 'WMIC PROCESS get Caption,Commandline,Processid /VALUE'
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        # Get stdout
+        allProc = proc.communicate()[0]
+        # find Pid of omniNames
+        pid = re.findall(r'Caption=.*omniNames.*\n?CommandLine=.*omniNames.*\D%s\D.*\n?ProcessId=(\d*)'%(port),allProc)[0]
+    else:        
+        cmd = r"ps -eo pid,command | grep -v grep | grep -E \"omniNames.*%s\""%(port)
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        pid = proc.communicate()[0]
+        pass
+
+    return pid
+# --
+
+def killOmniNames(port):
+    """
+    Kill OmniNames process by port number.
+    """
+    pid = getOmniNamesPid(port)
+    killpid(pid)
 # --

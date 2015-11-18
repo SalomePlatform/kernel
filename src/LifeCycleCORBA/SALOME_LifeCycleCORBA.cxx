@@ -597,23 +597,6 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 void SALOME_LifeCycleCORBA::killOmniNames()
 {
   std::string portNumber (::getenv ("NSPORT") );
-  if ( !portNumber.empty() )
-  {
-#ifdef WIN32
-#else
-    std::string cmd ;
-    cmd = std::string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
-      + portNumber
-      + std::string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
-    MESSAGE(cmd);
-    try {
-      system ( cmd.c_str() );
-    }
-    catch ( ... ) {
-    }
-#endif
-  }
-
   std::string python_exe;
 
   python_exe = std::string("python");
@@ -625,7 +608,13 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 
   if ( !portNumber.empty() )
   {
-    std::string cmd = ("from killSalomeWithPort import cleanApplication; ");
+    std::string cmd = ("from salome_utils import killOmniNames; ");
+    cmd += std::string("killOmniNames(") + portNumber + "); ";
+    cmd  = python_exe + std::string(" -c \"") + cmd +"\"";
+    MESSAGE(cmd);
+    system( cmd.c_str() );
+
+    cmd = ("from killSalomeWithPort import cleanApplication; ");
     cmd += std::string("cleanApplication(") + portNumber + "); ";
     //cmd  = python_exe + std::string(" -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     cmd  = python_exe + std::string(" -c \"") + cmd +"\"";

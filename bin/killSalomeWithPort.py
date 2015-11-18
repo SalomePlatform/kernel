@@ -229,102 +229,22 @@ def __killMyPort(port, filedict):
 
     try:
         with open(filedict, 'r') as fpid:
-            #
-            from salome_utils import generateFileName, getLogDir
-            fpidomniNames = generateFileName(getLogDir(),
-                                             prefix="",
-                                             suffix="Pid_omniNames",
-                                             extension="log",
-                                             with_port=port)
-            if not sys.platform == 'win32':
-                cmd = 'pid=$(ps -eo pid,command | egrep "[0-9] omniNames -start {0}") ; echo $pid > {1}'.format(port, fpidomniNames )
-                subprocess.call(cmd, shell=True)
-                pass
-            try:
-                with open(fpidomniNames) as fpidomniNamesFile:
-                    lines = fpidomniNamesFile.readlines()
-
-                os.remove(fpidomniNames)
-                for l in lines:
+            process_ids=pickle.load(fpid)
+            for process_id in process_ids:
+                for pid, cmd in process_id.items():
+                    if verbose(): print "stop process %s : %s"% (pid, cmd[0])
                     try:
-                        pidfield = l.split()[0] # pid should be at the first position
-                        if verbose(): print 'stop process '+pidfield+' : omniNames'
-                        if sys.platform == "win32":
-                            from salome_utils import win32killpid
-                            win32killpid(int(pidfield))
-                        else:
-                            os.kill(int(pidfield),signal.SIGKILL)
-                            pass
-                        pass
+                        from salome_utils import killpid
+                        killpid(int(pid))
                     except:
+                        if verbose(): print "  ------------------ process %s : %s not found"% (pid, cmd[0])
                         pass
-                    pass
-                pass
-            except:
-                pass
-            #
-            try:
-                process_ids=pickle.load(fpid)
-                for process_id in process_ids:
-                    for pid, cmd in process_id.items():
-                        if verbose(): print "stop process %s : %s"% (pid, cmd[0])
-                        if cmd[0] == "omniNames":
-                            if not sys.platform == 'win32':
-                                proc1 = subprocess.Popen(shlex.split('ps -eo pid,command'),stdout=subprocess.PIPE)
-                                proc2 = subprocess.Popen(shlex.split('egrep "[0-9] omniNames -start"'),stdin=proc1.stdout, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                                proc1.stdout.close() # Allow proc1 to receive a SIGPIPE if proc2 exits.
-                                out,_ = proc2.communicate()
-                                # out looks like: PID omniNames -start PORT <other args>
-
-                                # extract omninames pid and port number
-                                try:
-                                    import re
-                                    omniNamesPid, omniNamesPort = re.search('(.+?) omniNames -start (.+?) ', out).group(1, 2)
-                                    if omniNamesPort == port:
-                                        if verbose():
-                                            print "stop omniNames [pid=%s] on port %s"%(omniNamesPid, omniNamesPort)
-                                        appliCleanOmniOrbConfig(omniNamesPort)
-                                        from PortManager import releasePort
-                                        releasePort(omniNamesPort)
-                                        os.kill(int(omniNamesPid),signal.SIGKILL)
-                                except (ImportError, AttributeError, OSError):
-                                    pass
-                                except:
-                                    import traceback
-                                    traceback.print_exc()
-
-                        try:
-                            if sys.platform == "win32":
-                                from salome_utils import win32killpid
-                                win32killpid(int(pid))
-                            else:
-                                os.kill(int(pid),signal.SIGKILL)
-                                pass
-                            pass
-                        except:
-                            if verbose(): print "  ------------------ process %s : %s not found"% (pid, cmd[0])
-                            pass
-                        pass # for pid, cmd ...
-                    pass # for process_id ...
-                pass # try...
-            except:
-                pass
-        # end with
-        #
-        os.remove(filedict)
-        cmd='ps -eo pid,command | egrep "[0-9] omniNames -start '+str(port)+'" | sed -e "s%[^0-9]*\([0-9]*\) .*%\\1%g"'
-#        pid = subprocess.check_output(shlex.split(cmd))
-        pid = commands.getoutput(cmd)
-        a = ""
-        while pid and len(a.split()) < 2:
-            a = commands.getoutput("kill -9 " + pid)
-            pid = commands.getoutput(cmd)
-            pass
-        pass
+                    pass # for pid ...
+                pass # for process_id ...
+            # end with
     except:
         print "Cannot find or open SALOME PIDs file for port", port
         pass
-    #
 #
 
 def __guessPiDictFilename(port):
