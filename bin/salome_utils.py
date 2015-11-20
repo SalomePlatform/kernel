@@ -489,6 +489,7 @@ def killpid(pid):
     """
     Kill process by pid.
     """
+    if not pid: return
     import os,sys,signal
     if verbose(): print "######## killpid pid = ", pid
     if sys.platform == "win32":
@@ -527,7 +528,7 @@ def getOmniNamesPid(port):
         # find Pid of omniNames
         pid = re.findall(r'Caption=.*omniNames.*\n?CommandLine=.*omniNames.*\D%s\D.*\n?ProcessId=(\d*)'%(port),allProc)[0]
     else:        
-        cmd = r"ps -eo pid,command | grep -v grep | grep -E \"omniNames.*%s\""%(port)
+        cmd = "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*%s\" | awk '{print $1}'"%(port)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         pid = proc.communicate()[0]
         pass
@@ -539,6 +540,10 @@ def killOmniNames(port):
     """
     Kill OmniNames process by port number.
     """
-    pid = getOmniNamesPid(port)
-    killpid(pid)
+    try:
+        pid = getOmniNamesPid(port)
+        if pid: killpid(pid)
+    except:
+        pass
+    pass
 # --

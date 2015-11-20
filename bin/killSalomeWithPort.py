@@ -245,6 +245,8 @@ def __killMyPort(port, filedict):
     except:
         print "Cannot find or open SALOME PIDs file for port", port
         pass
+    os.remove(filedict)
+    pass
 #
 
 def __guessPiDictFilename(port):
@@ -347,6 +349,7 @@ def cleanApplication(port):
       pass
 
     appliCleanOmniOrbConfig(port)
+    pass
 
 def killMyPortSpy(pid, port):
     dt = 1.0

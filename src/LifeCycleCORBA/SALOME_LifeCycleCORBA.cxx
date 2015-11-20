@@ -608,15 +608,16 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 
   if ( !portNumber.empty() )
   {
-    std::string cmd = ("from salome_utils import killOmniNames; ");
+    std::string cmd;
+
+    cmd  = std::string("from salome_utils import killOmniNames; ");
     cmd += std::string("killOmniNames(") + portNumber + "); ";
     cmd  = python_exe + std::string(" -c \"") + cmd +"\"";
     MESSAGE(cmd);
     system( cmd.c_str() );
 
-    cmd = ("from killSalomeWithPort import cleanApplication; ");
+    cmd  = std::string("from killSalomeWithPort import cleanApplication; ");
     cmd += std::string("cleanApplication(") + portNumber + "); ";
-    //cmd  = python_exe + std::string(" -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     cmd  = python_exe + std::string(" -c \"") + cmd +"\"";
     MESSAGE(cmd);
     system( cmd.c_str() );
@@ -626,9 +627,10 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   // shutdown portmanager
   if ( !portNumber.empty() )
   {
-    std::string cmd = ("from PortManager import releasePort; ");
+    std::string cmd;
+
+    cmd  = std::string("from PortManager import releasePort; ");
     cmd += std::string("releasePort(") + portNumber + "); ";
-    //cmd  = python_exe + std::string(" -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     cmd  = python_exe + std::string(" -c \"") + cmd +"\"";
     MESSAGE(cmd);
     system( cmd.c_str() );
