@@ -354,19 +354,14 @@ def cleanApplication(port):
 def killMyPortSpy(pid, port):
     dt = 1.0
     while 1:
-        if sys.platform == "win32":
-            from salome_utils import win32killpid
-            if win32killpid(int(pid)) != 0:
+        try:
+            from salome_utils import killpid
+            killpid(int(pid))
+        except OSError, e:
+            if e.errno != 3:
                 return
-        else:
-            from os import kill
-            try:
-                kill(int(pid), 0)
-            except OSError, e:
-                if e.errno != 3:
-                    return
-                break
-            pass
+            break
+        pass
         from time import sleep
         sleep(dt)
         pass
