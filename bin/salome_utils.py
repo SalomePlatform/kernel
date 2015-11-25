@@ -485,21 +485,40 @@ def setVerbose(level):
     return
 # --
 
-def killpid(pid):
+import signal
+def killpid(pid, sig = signal.SIGKILL):
     """
-    Kill process by pid.
+    Try to kill process by pid.
+    Returns:
+     1 Success
+     0 Fail, no such process
+    -1 Fail, another reason
+
     """
     if not pid: return
-    import os,sys,signal
+    import os, sys
     if verbose(): print "######## killpid pid = ", pid
-    if sys.platform == "win32":
-        import ctypes
-        handle = ctypes.windll.kernel32.OpenProcess(1, False, int(pid))
-        ctypes.windll.kernel32.TerminateProcess(handle, -1)
-        ctypes.windll.kernel32.CloseHandle(handle)
-    else:
-        os.kill(int(pid),signal.SIGKILL)
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            handle = ctypes.windll.kernel32.OpenProcess(1, False, int(pid))
+            ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
+            ctypes.windll.kernel32.CloseHandle(handle)
+            pass
+        else:
+            os.kill(int(pid),sig)
+            ret = 1
+            pass
         pass
+    except OSError, e:
+        # errno.ESRCH == 3 is 'No such process'
+        if e.errno == 3:
+            ret = 0
+        else:
+            ret = -1
+            pass
+        pass
+    return ret
 # --
 
 def getOmniNamesPid(port):
