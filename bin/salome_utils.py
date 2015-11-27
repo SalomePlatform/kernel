@@ -486,9 +486,17 @@ def setVerbose(level):
 # --
 
 import signal
-def killpid(pid, sig = signal.SIGKILL):
+def killpid(pid, sig = 9):
     """
-    Try to kill process by pid.
+    Send signal sig to the process by pid.
+
+    Parameters:
+    - pid : PID of process
+    - sig : signal for sending
+            Possible values of signals: 
+            9 means kill the process
+            0 only check existing of the process
+            NOTE: Other values are not processed on Windows
     Returns:
      1 Success
      0 Fail, no such process
@@ -497,15 +505,28 @@ def killpid(pid, sig = signal.SIGKILL):
     """
     if not pid: return
     import os, sys
-    if verbose(): print "######## killpid pid = ", pid
+    if sig != 0:
+        if verbose(): print "######## killpid pid = ", pid
     try:
         if sys.platform == "win32":
             import ctypes
-            handle = ctypes.windll.kernel32.OpenProcess(1, False, int(pid))
-            ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
-            ctypes.windll.kernel32.CloseHandle(handle)
+            if sig == 0:
+                # PROCESS_QUERY_INFORMATION (0x0400)	Required to retrieve certain information about a process
+                handle = ctypes.windll.kernel32.OpenProcess(0x0400, False, int(pid))
+                if handle: 
+                    ret = 1
+                    ctypes.windll.kernel32.CloseHandle(handle)
+                else:
+                    ret = 0
+            if sig == 9:
+                # PROCESS_TERMINATE (0x0001)	Required to terminate a process using TerminateProcess.
+                handle = ctypes.windll.kernel32.OpenProcess(0x0001, False, int(pid))
+                ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
+                ctypes.windll.kernel32.CloseHandle(handle)
+                pass
             pass
         else:
+            # Default: signal.SIGKILL = 9
             os.kill(int(pid),sig)
             ret = 1
             pass
