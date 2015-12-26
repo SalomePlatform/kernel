@@ -63,7 +63,7 @@ print "======================================================================"
 print "           %d. Check modules availability in the module catalog " % step; step+=1
 print "======================================================================"
 
-for module in [ "GEOM", "SMESH", "MEDOPFactory", "PVSERVER"]:
+for module in [ "GEOM", "SMESH", "MEDFactory", "PVSERVER"]:
     print
     print "--- Check %s ..." % module
     comp = catalog.GetComponent(module)
@@ -311,16 +311,19 @@ print "======================================================================"
 print "           %d. Test Med " % step; step+=1
 print "======================================================================"
 
-import xmed
-from xmed import properties
-from xmed.fieldproxy import FieldProxy
+import medcalc
+#from medcalc import properties
+from medcalc.fieldproxy import FieldProxy
 
-xmed.setConsoleGlobals(globals())
+medcalc.medconsole.setConsoleGlobals(globals())
+try:
+    med_root=os.environ["MED_ROOT_DIR"]
+except KeyError, e:
+    raise RuntimeError("MED_ROOT_DIR should be defined to load the test data")
 
-# Load some test data in the MedDataManager
-filepath  = properties.testFilePath
-xmed.dataManager.addDatasource(filepath)
-fieldHandlerList = xmed.dataManager.getFieldHandlerList()
+filepath = os.path.join(med_root,"share","salome","resources","med","medcalc_testfiles","smallmesh_varfield.med")
+medcalc.medio.LoadDataSource(filepath)
+fieldHandlerList = medcalc.medevents.dataManager.getFieldHandlerList()
 
 fieldHandler0 = fieldHandlerList[0]
 print "---Field Handler 0:\n%s" % fieldHandler0
@@ -328,7 +331,7 @@ fieldHandler1 = fieldHandlerList[1]
 print "---Field Handler 1:\n%s" % fieldHandler1
 
 print "--- The addition of two fields can be done using field handler directly."
-addFieldHandler = xmed.calculator.add(fieldHandler0, fieldHandler1)
+addFieldHandler = medcalc.fieldproxy.calculator.add(fieldHandler0,fieldHandler1)
 print "--- Result handler:\n%s" % addFieldHandler
 
 print "--- Or with a field proxy that easy the writing of operations."
