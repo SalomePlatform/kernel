@@ -167,7 +167,9 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   setContainerName();
   const CORBA::String_var ior = _orb->object_to_string(_container);
   if(regist)
+  {
     _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
+  }
   if(notif)
     _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 

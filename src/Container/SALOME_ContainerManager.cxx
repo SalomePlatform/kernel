@@ -390,7 +390,8 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
           return ret;
         }
         // A mpi parallel container register on zero node in NS
-        containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname,machFile).c_str());
+        std::string mpiZeroNode = GetMPIZeroNode(resource_selected,machFile).c_str();
+        containerNameInNS = _NS->BuildContainerNameForNS(params, mpiZeroNode.c_str());
       }
       else
         containerNameInNS = _NS->BuildContainerNameForNS(params, hostname.c_str());
@@ -1194,12 +1195,17 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
   std::string zeronode;
   std::string command;
   std::string tmpFile = BuildTemporaryFileName();
+  const ParserResourcesType resInfo(_resManager->GetResourceDefinition(machine));
+  
+  if(resInfo.Protocol == sh)
+  {
+    return resInfo.HostName;
+  }
 
   if( GetenvThreadSafe("LIBBATCH_NODEFILE") == NULL )
     {
       if (_isAppliSalomeDefined)
         {
-          const ParserResourcesType resInfo(_resManager->GetResourceDefinition(machine));
 
           if (resInfo.Protocol == rsh)
             command = "rsh ";
