@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -55,7 +55,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 
 #ifdef WIN32
 #define setenv Kernel_Utils::setenv
-#endif 
+#endif
 
 // ============================================================================
 /*!
@@ -70,10 +70,10 @@ int main(int argc, char* argv[])
 
   setenv("SALOME_trace", "file:./traceUnitTest.log", 1); // 1: overwrite
 
-  system("runSalome -t &");
+  system("salome -t &");
 
   // --- Wait till SALOMEDS server is launched
-  
+
   char hostname[511];
   int size;
   gethostname(hostname, size);
@@ -87,17 +87,17 @@ int main(int argc, char* argv[])
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_var orb = init(argc , argv ) ;
-  
+
   #ifndef WIN32
     sleep(15);
   #else
     Sleep(15000);
   #endif
-  
+
 
   std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
-  if(wait_Superv) host = Kernel_Utils::GetHostname(); 
+  if(wait_Superv) host = Kernel_Utils::GetHostname();
 
   SALOME_NamingService NS(orb);
   if(host.empty())
@@ -126,20 +126,20 @@ int main(int argc, char* argv[])
     // Activate the objects.  This tells the POA that the objects are ready to accept requests.
     PortableServer::ObjectId_var aStudyManager_iid =  poa->activate_object(aStudyManager_i);
     aStudyManager_i->register_name("/myStudyManager_embedded");
-      
+
     // Obtain a POAManager, and tell the POA to start accepting
     // requests on its objects.
     PortableServer::POAManager_var pman = poa->the_POAManager();
     pman->activate();
   }
- 
+
 
   // --- Create the event manager and test controller
   CPPUNIT_NS::TestResult controller;
 
   // ---  Add a listener that colllects test result
   CPPUNIT_NS::TestResultCollector result;
-  controller.addListener( &result );        
+  controller.addListener( &result );
 
   // ---  Add a listener that print dots as test run.
 #ifdef WIN32
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 #else
   CPPUNIT_NS::BriefTestProgressListener progress;
 #endif
-  controller.addListener( &progress );      
+  controller.addListener( &progress );
 
   // ---  Get the top level suite from the registry
 
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
   testFile.open("UnitTestsResult", std::ios::out |  std::ios::trunc);
   //CPPUNIT_NS::CompilerOutputter outputter( &result, std::cerr );
   CPPUNIT_NS::CompilerOutputter outputter( &result, testFile );
-  outputter.write(); 
+  outputter.write();
 
   // ---  Run the tests.
 

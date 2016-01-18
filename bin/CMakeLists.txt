@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -44,7 +44,7 @@ SET(SCRIPTS
   orbmodule.py
   ORBConfigFile.py
   parseConfigFile.py
-  runSalome
+  PortManager.py
   runSalome.py
   runSession.py
   runConsole.py
@@ -63,12 +63,5 @@ SET(SCRIPTS
   waitContainers.py
   waitNS.py
   )
-
-IF(SALOME_USE_PORTMANAGER)
-  SET(PORTMANAGER_SCRIPTS
-    PortManager.py
-    )
-  LIST(APPEND SCRIPTS ${PORTMANAGER_SCRIPTS})
-ENDIF()
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -23,7 +23,7 @@
 
 #clean appli
 
-DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py runAppli runConsole runSession runRemote.sh SalomeApp.xml runSalomeScript update_catalogs.py kill_remote_containers.py salome *.pyc *~ .bashrc"
+DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py runRemote.sh SalomeApp.xml update_catalogs.py kill_remote_containers.py salome *.pyc *~ .bashrc"
 DOIT="false"
 
 if [ $# -gt 0 ]

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -35,7 +35,7 @@
 #ifdef WIN32
 # include <io.h>
 #endif
-BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr) 
+BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr)
 {
 #ifdef WITH_LIBBATCH
   _batch_descr = batch_descr;
@@ -60,7 +60,7 @@ bool
 BatchTest::test()
 {
   bool rtn = false;
-  INFOS(std::endl 
+  INFOS(std::endl
         << "--- Testing batch Machine :" << std::endl
         << "--- Name       : " << _batch_descr.hostname << std::endl
         << "--- hostname      : " << _batch_descr.hostname << std::endl
@@ -94,15 +94,15 @@ BatchTest::test()
         << "--- Submit mpi job      : " << result_jobsubmit_mpi << std::endl
         << "--- Application         : " << result_appli << std::endl
        );
-  
-  if (result_connection == "OK"       && 
+
+  if (result_connection == "OK"       &&
       result_filecopy == "OK"         &&
       result_getresult == "OK"        &&
       result_jobsubmit_simple == "OK" &&
       result_jobsubmit_mpi == "OK"    &&
       result_appli == "OK")
     rtn = true;
-      
+
   return rtn;
 }
 
@@ -227,7 +227,7 @@ BatchTest::test_getresult()
   command = "scp";
   if(protocol == "rsh")
     command = "rcp";
-  command += " " + username + "@" + hostname + ":" + home 
+  command += " " + username + "@" + hostname + ":" + home
           + "/" + _base_filename + " " + _test_filename + "_copy";
 
   // Test
@@ -239,7 +239,7 @@ BatchTest::test_getresult()
     result += oss.str();
     return result;
   }
-  
+
   // Compare files
   std::ifstream src_file(_test_filename.c_str());
   if (!src_file)
@@ -270,8 +270,8 @@ BatchTest::test_getresult()
   return result;
 }
 
-std::string 
-BatchTest::test_jobsubmit_simple() 
+std::string
+BatchTest::test_jobsubmit_simple()
 {
   int status;
   std::string home;
@@ -382,11 +382,11 @@ BatchTest::test_jobsubmit_simple()
   }
   std::getline(file_job, jobid);
   file_job.close();
- 
+
   // Wait the end of the job
   command = protocol + " " + username + "@" + hostname + " qstat -f " + jobid + " > " + file_job_name;
   bool stop = false;
-  while (!stop) 
+  while (!stop)
   {
     status = system(command.c_str());
     if(status && status != 153 && status != 256*153)
@@ -411,7 +411,7 @@ BatchTest::test_jobsubmit_simple()
   command = "scp";
   if(protocol == "rsh")
     command = "rcp";
-  command += " " 
+  command += " "
           + username + "@" + hostname + ":" + home + "/" + _date + "_simple* /tmp";
   status = system(command.c_str());
   if(status) {
@@ -421,7 +421,7 @@ BatchTest::test_jobsubmit_simple()
     result += oss.str();
     return result;
   }
-  
+
   // Test results
   std::string normal_input;
   std::string file_normal_name = "/tmp/" + _date + "_simple_output.log";
@@ -457,8 +457,8 @@ BatchTest::test_jobsubmit_simple()
   return result;
 }
 
-std::string 
-BatchTest::test_jobsubmit_mpi() 
+std::string
+BatchTest::test_jobsubmit_mpi()
 {
 #ifdef WITH_LIBBATCH
   int status;
@@ -605,11 +605,11 @@ BatchTest::test_jobsubmit_mpi()
   }
   std::getline(file_job, jobid);
   file_job.close();
- 
+
   // Wait the end of the job
   command = protocol + " " + username + "@" + hostname + " qstat -f " + jobid + " > " + file_job_name;
   bool stop = false;
-  while (!stop) 
+  while (!stop)
   {
     status = system(command.c_str());
     if(status && status != 153 && status != 256*153)
@@ -634,7 +634,7 @@ BatchTest::test_jobsubmit_mpi()
   command = "scp";
   if(protocol == "rsh")
     command = "rcp";
-  command += " " 
+  command += " "
           + username + "@" + hostname + ":" + home + "/" + _date + "_mpi* /tmp";
   status = system(command.c_str());
   if(status) {
@@ -644,7 +644,7 @@ BatchTest::test_jobsubmit_mpi()
     result += oss.str();
     return result;
   }
-  
+
   // Test results
   std::string normal_input;
   std::string file_normal_name = "/tmp/" + _date + "_mpi_output.log";
@@ -667,14 +667,14 @@ BatchTest::test_jobsubmit_mpi()
     return result;
   }
   result = "OK";
-  return result;  
+  return result;
 #else
   throw LauncherException("Method BatchTest::test_jobsubmit_mpi is not available "
                           "(libBatch was not present at compilation time)");
 #endif
 }
 
-std::string 
+std::string
 BatchTest::test_appli()
 {
   int status;
@@ -685,7 +685,7 @@ BatchTest::test_appli()
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string applipath = _batch_descr.applipath.in();
-  
+
   // Getting home directory
   std::string rst = get_home(&home);
   if(rst != "") {
@@ -697,7 +697,7 @@ BatchTest::test_appli()
   std::ofstream file_appli;
   file_appli.open(_test_file_appli.c_str(), std::ofstream::out);
   file_appli << "#!/bin/bash\n"
-             << "if [ -f " << applipath << "/runAppli ]\n"
+             << "if [ -f " << applipath << "/salome ]\n"
              << "then\n"
              << "  echo OK\n"
              << "else\n"
@@ -722,8 +722,8 @@ BatchTest::test_appli()
   }
 
   // Launch test
-  command = protocol + " " + username + "@" + hostname 
-          + " sh " + home + "/" + _base_filename + "_appli_test > " 
+  command = protocol + " " + username + "@" + hostname
+          + " sh " + home + "/" + _base_filename + "_appli_test > "
           + _test_filename + "_appli_test_result";
 
   status = system(command.c_str());
@@ -746,7 +746,7 @@ BatchTest::test_appli()
   }
   std::getline(file_appli_result, rst_appli);
   file_appli_result.close();
-  
+
   if (rst_appli != "OK")
   {
     result += "Error checking application on remote host ! result = " + rst;
@@ -769,7 +769,7 @@ BatchTest::get_home(std::string * home)
   std::string protocol = _batch_descr.protocol.in();
   std::string file_home_name = _test_filename + "_home";
 
-  command = protocol + " " + username + "@" + hostname + " 'echo $HOME' > " + file_home_name; 
+  command = protocol + " " + username + "@" + hostname + " 'echo $HOME' > " + file_home_name;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;

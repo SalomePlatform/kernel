@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -232,11 +232,7 @@ def install(prefix, config_file, verbose=0):
     for fn in ('envd',
                'getAppliPath.py',
                'kill_remote_containers.py',
-               'runAppli',           # OBSOLETE (replaced by salome)
-               'runConsole',         # OBSOLETE (replaced by salome)
                'runRemote.sh',
-               'runSalomeScript',    # OBSOLETE (replaced by salome)
-               'runSession',         # OBSOLETE (replaced by salome)
                'salome',
                'update_catalogs.py',
                '.bashrc',

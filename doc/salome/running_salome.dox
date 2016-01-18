@@ -2,55 +2,36 @@
 
 \page running_salome_page Running Salome
 
-There are two ways to run %SALOME:
+To run %SALOME, use the python \ref salome_command.
 
-1) Using a python launcher.
+Using this command, you DO NOT need to first set-up proper environment for %SALOME; all is done by the command itself.
 
-For more details see \ref salome_command.
-
-2) Deprecated : Using shell launchers.
-
-For more details see \ref SALOME_Application.
-
-3) Deprecated : Using <b>\c %runSalome</b> script supplied with %SALOME KERNEL module distribution.
-
-To launch %SALOME using \c %runSalome script, you have first to
-set-up proper environment for %SALOME. If you installed %SALOME using
-%SALOME Installation Wizard (Linux), you can use \c salome.sh or
-\c salome.csh script (that is located in the \c KERNEL_&lt;version&gt;
-directory of your %SALOME installation), for example:
+Launch %SALOME session using the following command:
 
 \code
-cd /home/user/salome_6.5.0/KERNEL_6.5.0
-source salome.csh
-\endcode
-
-Launch %SALOME session using the \c %runSalome script located
-in the \c SALOME/KERNEL/bin/salome directory:
-
-\code
-runSalome [options] [STUDY_FILE] [PYTHON_FILE [PYTHON_FILE ...]]
+salome start [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
 \endcode
 
 Optionally, you can specify in the command line:
 - Study (document) file to be opened in %SALOME session passing;
 - One or more Python scripts to be executed after %SALOME
   start-up. Python scripts will be executed in the new or opened study
-  in the order they appear in the command line.
+  in the order they appear in the command line. Passing args to these scripts
+  is possible but require a specific \c args: syntax (see  \ref salome_command).
 
-The \c %runSalome script supports large set of options that allow
+This command supports large set of options that allow
 specifying the way to launch %SALOME session. Complete description of
 all options can be obtained using \c --help or -h option:
 
 \code
-runSalome --help
+salome start --help
 \endcode
 
 Here below is a description of most important options:
 
 - \c --help or \c -h
 
-Print detail help information on the \c %runSalome script.
+Print detail help information on the command.
 
 - \c --version
 
@@ -68,7 +49,7 @@ Launch %SALOME session in terminal mode (without GUI).
 
 Parse application settings from the &lt;file&gt; instead of default resource
 file. Default resource file is situated in user's home directory; for
-example, for %SALOME version 6.5.0, the file is ${HOME}/.config/salome/.SalomeApprc.6.5.0 
+example, for %SALOME version 6.5.0, the file is ${HOME}/.config/salome/.SalomeApprc.6.5.0
 
 - \c --modules=module1,module2,... or \c -m=module1,module2,...
 
