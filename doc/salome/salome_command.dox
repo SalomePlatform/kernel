@@ -89,11 +89,8 @@ For example:
 \section handling_concurrency Handling concurrent starts
 A SALOME instance uses a dedicated TCP port number on which the CORBA name server of each SALOME application will connect. This refers to a technical solution that allows multiple software components belonging to the same application to communicate with each other. This approach is a standard used when multiple applications are running at the same time (components should not interfere with each other), and when application components can be distributed across multiple machines.
 
-Each SALOME application owns a specific port number. This port is determined automatically when application starts. When multiple applications are started at the same time, assigning a number to each port could be conflicting, and the same port could be assigned to several applications. To prevent from such a situation, a Python object named \c Portmanager has been implemented (Linux only). In SALOME 7, this object is available when activating a specific compilation flag of KERNEL module:
-- For gcc: -DWITH_PORTMANAGER
-- With CMake: SALOME_USE_PORTMANAGER=ON
+Each SALOME application owns a specific port number. This port is determined automatically when application starts. When multiple applications are started at the same time, assigning a number to each port could be conflicting, and the same port could be assigned to several applications. To prevent from such a situation, a Python object named \c Portmanager has been implemented. This object has been introduced in SALOME 7 as an optional tool, then evaluated on Linux and Windows. In SALOME 8, this object becomes the standard.
 
-Since SALOME 7.5.0 this flag is switched ON by default.
 Several instances can be safely started concurrently. For example in an automated process, calling several times the following commands (WORK_DIR variable changes at each call):
 \code
 salome start -t --ns-port-log=${WORK_DIR}/session.log

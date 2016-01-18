@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -44,7 +44,7 @@ def createLogger():
 logger = createLogger()
 
 #------------------------------------
-# A file locker (Linux only)
+# A file locker
 def __acquire_lock(lock):
   if sys.platform == "win32":
     import msvcrt
@@ -62,6 +62,7 @@ def __release_lock(lock):
     import fcntl
     fcntl.flock(lock, fcntl.LOCK_UN)
 #
+#------------------------------------
 
 def _getConfigurationFilename():
   omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
@@ -200,7 +201,7 @@ def releasePort(port):
     __release_lock(lock)
 
     logger.debug("released port port: %s"%str(port))
-  
+
   os.umask(oldmask)
 #
 

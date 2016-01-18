@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -61,65 +61,6 @@ def __setup_config(nsport, args, save_config):
       pass
     except:
       pass
-  #
-#
-
-def searchFreePort_withoutPortManager(args={}, save_config=1, use_port=None):
-  # :NOTE: Under windows:
-  #        netstat options -l and -t are unavailable
-  #        grep command is unavailable
-  from subprocess import Popen, PIPE
-  (stdout, stderr) = Popen(['netstat','-an'], stdout=PIPE).communicate()
-  import StringIO
-  buf = StringIO.StringIO(stdout)
-  ports = buf.readlines()
-
-  #
-  def portIsUsed(port, data):
-    import re
-    regObj = re.compile( ".*tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
-    for item in data:
-      try:
-        p = int(regObj.match(item).group(1))
-        if p == port: return True
-        pass
-      except:
-        pass
-      pass
-    return False
-  #
-
-  if use_port:
-    print "Check if port can be used: %d" % use_port,
-    if not portIsUsed(use_port, ports):
-      print "- OK"
-      __setup_config(use_port, args, save_config)
-      return
-    else:
-      print "- KO: port is busy"
-    pass
-  #
-
-  print "Searching for a free port for naming service:",
-  #
-
-  NSPORT=2810
-  limit=NSPORT+100
-  #
-
-  while 1:
-    if not portIsUsed(NSPORT, ports):
-      print "%s - OK"%(NSPORT)
-      __setup_config(NSPORT, args, save_config)
-      break
-    print "%s"%(NSPORT),
-    if NSPORT == limit:
-      msg  = "\n"
-      msg += "Can't find a free port to launch omniNames\n"
-      msg += "Try to kill the running servers and then launch SALOME again.\n"
-      raise RuntimeError, msg
-    NSPORT=NSPORT+1
-    pass
   #
 #
 
@@ -186,6 +127,5 @@ def searchFreePort(args={}, save_config=1, use_port=None):
 
     p.join() # this blocks until the process terminates
   except ImportError:
-    searchFreePort_withoutPortManager(args, save_config, use_port)
-    __savePortToFile(args)
+    raise Exception('PortManager module not found')
 #
