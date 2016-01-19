@@ -507,7 +507,7 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   
   # Override the variable - don't append to it, as it would give precedence
   # to what was stored there before!  
-  IF(DEFINED ENV{${_envvar}})
+  IF(DEFINED ${_envvar})
     SET(CMAKE_PREFIX_PATH "${${_envvar}}")
   ENDIF()
     
