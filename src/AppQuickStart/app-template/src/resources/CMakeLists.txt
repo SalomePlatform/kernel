@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(UseQt4Ext)
+INCLUDE(UseQtExt)
 
 # --- resources ---
 
@@ -31,4 +31,4 @@ SET(_ts_RESOURCES
 
 # --- rules ---
 
-QT4_INSTALL_TS_RESOURCES("${_ts_RESOURCES}" "${SALOME_[NAME_OF_APPLICATION]_PROFILE_INSTALL_RES_DATA}")
+QT_INSTALL_TS_RESOURCES("${_ts_RESOURCES}" "${SALOME_[NAME_OF_APPLICATION]_PROFILE_INSTALL_RES_DATA}")
