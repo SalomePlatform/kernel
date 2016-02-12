@@ -32,7 +32,6 @@
 #ifndef WIN32
 #include <sys/time.h>
 #else
-#include <winsock2.h>
 #include <windows.h>
 #pragma comment(lib,"winmm.lib")
 #endif
