@@ -48,6 +48,7 @@ SET(DATA
 #  FindSalomePython.cmake
   FindSalomePythonLibs.cmake
   FindSalomePythonInterp.cmake
+  FindSalomeNumPySciPy.cmake
   FindSalomeSphinx.cmake
   FindSalomeSWIG.cmake
   FindSphinx.cmake
