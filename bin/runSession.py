@@ -218,7 +218,10 @@ def __runLocalSession(command):
     return ("".join(outmsg), "".join(errmsg))
   else:
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-    cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
+    if sys.platform == "win32":
+      cmd = ["cmd", "/K", "set PROMPT=[SALOME] $P$G"]
+    else:
+      cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
     return proc.communicate()
 #

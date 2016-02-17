@@ -153,7 +153,10 @@ class SalomeContext:
 
   """Append value to LD_LIBRARY_PATH environment variable"""
   def addToLdLibraryPath(self, value):
-    self.addToVariable('LD_LIBRARY_PATH', value)
+    if platform.system() == 'Windows':
+      self.addToVariable('PATH', value)
+    else:
+      self.addToVariable('LD_LIBRARY_PATH', value)
   #
 
   """Append value to DYLD_LIBRARY_PATH environment variable"""
