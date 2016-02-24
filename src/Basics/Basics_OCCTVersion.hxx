@@ -28,6 +28,8 @@
 
 #include <Standard_Version.hxx>
 
+#include <Standard_DefineHandle.hxx>
+
 //
 // NOTE: Since version 6.7.0 OCC_VERSION_DEVELOPMENT macro in the Standard_Version.hxx
 // points to the development status of the OCCT version: for example "dev", "alpha",
@@ -46,6 +48,17 @@
 #  else
 #    define OCC_VERSION_LARGE (OCC_VERSION_MAJOR << 24 | OCC_VERSION_MINOR << 16 | OCC_VERSION_MAINTENANCE << 8)
 #  endif
+#endif
+
+// temporary code for backward compatibility with OCCT
+#if OCC_VERSION_MAJOR < 7
+  #define OCCT_DEFINE_STANDARD_RTTIEXT(C1,C2) DEFINE_STANDARD_RTTI(C1)
+  #define OCCT_IMPLEMENT_STANDARD_RTTIEXT(C1,C2) \
+          IMPLEMENT_STANDARD_HANDLE(C1,C2) \
+          IMPLEMENT_STANDARD_RTTIEXT(C1,C2)
+#else
+  #define OCCT_DEFINE_STANDARD_RTTIEXT(C1,C2) DEFINE_STANDARD_RTTIEXT(C1,C2)
+  #define OCCT_IMPLEMENT_STANDARD_RTTIEXT(C1,C2) IMPLEMENT_STANDARD_RTTIEXT(C1,C2)
 #endif
 
 #endif // BASICS_OCCTVERSION_HXX
