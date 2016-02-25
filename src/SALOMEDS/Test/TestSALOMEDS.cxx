@@ -66,35 +66,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 
 int main(int argc, char* argv[])
 {
-  // --- Run Salome without GUI
-
-  setenv("SALOME_trace", "file:./traceUnitTest.log", 1); // 1: overwrite
-
-  system("salome -t &");
-
-  // --- Wait till SALOMEDS server is launched
-
-  char hostname[511];
-  int size;
-  gethostname(hostname, size);
-  char* chr_port = getenv("SALOMEDS_UNITTESTS_PORT");
-  std::string port;
-  if(chr_port) port = chr_port;
-  if(port.empty()) port = "2810";
-  std::string cfg_file = std::string(getenv("HOME"))+"/.omniORB_"+std::string(hostname)+"_"+port+".cfg";
-  setenv("OMNIORB_CONFIG", cfg_file.c_str(), 1);
-
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_var orb = init(argc , argv ) ;
-
-  #ifndef WIN32
-    sleep(15);
-  #else
-    Sleep(15000);
-  #endif
-
-
   std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
   if(wait_Superv) host = Kernel_Utils::GetHostname();
@@ -172,10 +145,6 @@ int main(int argc, char* argv[])
 
   bool wasSucessful = result.wasSuccessful();
   testFile.close();
-
-  // --- Kill all created Salome process
-
-  system("killSalome.py");
 
   // ---  Return error code 1 if the one of test failed.
 
