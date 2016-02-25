@@ -35,36 +35,14 @@ void SALOMEDSTest::testStudyManager()
   _PTR(Study) study1 = sm->NewStudy("Study1");
   CPPUNIT_ASSERT(study1);
 
-  _PTR(Study) study2 = sm->NewStudy("Study2");
-  CPPUNIT_ASSERT(study2);
-
   //Check method GetStudyByName
   _PTR(Study) study3 = sm->GetStudyByName("Study1");
   CPPUNIT_ASSERT(study3->StudyId() == study1->StudyId());
   CPPUNIT_ASSERT(study3->Name() == study1->Name());
 
-  //Check method GetStudyByName with empty name
-  CPPUNIT_ASSERT(!sm->GetStudyByName(""));
-
-  //Try to create Study with empty name
-  _PTR(Study) study_empty = sm->NewStudy("");
-  CPPUNIT_ASSERT(study_empty);
-  CPPUNIT_ASSERT(sm->GetStudyByName(""));
-  sm->Close(study_empty);
-
-  //Check method FindStudyByID
-  _PTR(Study) study4 = sm->GetStudyByID(study2->StudyId());
-  CPPUNIT_ASSERT(study4->StudyId() == study2->StudyId());
-  CPPUNIT_ASSERT(study4->Name() == study2->Name());
-
   //Check method GetOpenStudies
   std::vector<std::string> v = sm->GetOpenStudies();
-  CPPUNIT_ASSERT(v.size() == 2);
-
-  //Check method Close
-  int id = study2->StudyId();
-  sm->Close(study2);
-  CPPUNIT_ASSERT(!sm->GetStudyByID(id));
+  CPPUNIT_ASSERT(v.size() == 1);
 
   //Check method GetStudyByID for invalid ID
   CPPUNIT_ASSERT(!sm->GetStudyByID(-1));

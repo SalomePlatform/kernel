@@ -33,7 +33,12 @@ void SALOMEDSTest::testAttributeComment()
   CPPUNIT_ASSERT(sm);
 
   //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  std::vector<std::string> ost(sm->GetOpenStudies());
+  _PTR(Study) study;
+  if(ost.empty())
+    study = sm->NewStudy("Test");
+  else
+    study = sm->GetStudyByName(ost[0]);
 
   CPPUNIT_ASSERT(study);
 
