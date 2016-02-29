@@ -89,7 +89,10 @@ def __isNetworkConnectionActiveOnPort(port):
   #        netstat options -l and -t are unavailable
   #        grep command is unavailable
   from subprocess import Popen, PIPE
-  stdout, _ = Popen(['netstat','-an'], stdout=PIPE).communicate()
+  if sys.platform == "win32":
+    stdout, _ = Popen(['netstat','-a','-n','-p tcp'], stdout=PIPE).communicate()
+  else:
+    stdout, _ = Popen(['netstat','-ant'], stdout=PIPE).communicate()
   import StringIO
   buf = StringIO.StringIO(stdout)
   ports = buf.readlines()
@@ -102,6 +105,7 @@ def __isNetworkConnectionActiveOnPort(port):
       if p == port: return True
     except:
       pass
+  return False
 #
 
 def getPort(preferedPort=None):
