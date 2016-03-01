@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -25,4 +25,8 @@ SET(SCRIPTS
   TestLifeCycleCORBA_SWIG.py
 )
 
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
+SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/LifeCycleCORBA_SWIG)
+INSTALL(FILES ${SCRIPTS} DESTINATION ${LOCAL_TEST_DIR})
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${LOCAL_TEST_DIR}
+        RENAME CTestTestfile.cmake)

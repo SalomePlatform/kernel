@@ -1,4 +1,4 @@
-# Copyright (C) 2015  CEA/DEN, EDF R&D
+# Copyright (C) 2015, 2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,11 +18,12 @@
 #
 
 IF(NOT WIN32)
-  ADD_TEST(KernelHelpers python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestKernelHelpers.py)
-  SET_TESTS_PROPERTIES(KernelHelpers PROPERTIES
-                                     LABELS "${COMPONENT_NAME}"
-                                     ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
-  #                                                 TIMEOUT 500
+  SET(TEST_NAME ${COMPONENT_NAME}_KernelHelpers)
+  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestKernelHelpers.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+                                    LABELS "${COMPONENT_NAME}"
+                                    ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+  #                                 TIMEOUT 500
                       )
   # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
   #     BUT PASS TIMEOUT VALUE TO THE DRIVER
