@@ -1,4 +1,4 @@
-# Copyright (C) 2015 CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015, 2016 CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -82,7 +82,7 @@ def __runTest(command, workdir):
 
   while True:
     reads = [p.stdout.fileno(), p.stderr.fileno()]
-    ret = select.select(reads, [], [])
+    ret = select.select(reads, [], [], 0)
 
     for fd in ret[0]:
       if fd == p.stdout.fileno():
@@ -97,7 +97,8 @@ def __runTest(command, workdir):
         pass
       pass
 
-    if p.poll() != None:
+    returncode = p.poll()
+    if not returncode is None:
       break
     pass
 
