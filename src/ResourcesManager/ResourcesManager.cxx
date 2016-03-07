@@ -442,9 +442,8 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
     {
       MapOfParserResourcesType _resourcesList_tmp;
       MapOfParserResourcesType _resourcesBatchList_tmp;
-      SALOME_ResourcesCatalog_Handler* handler =
-        new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp);
-      const char* aFilePath = (*_path_resources_it).c_str();
+      SALOME_ResourcesCatalog_Handler *handler( new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp) );
+      const char *aFilePath( (*_path_resources_it).c_str() );
       FILE* aFile = fopen(aFilePath, "r");
 
       if (aFile != NULL)
@@ -458,8 +457,17 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
           for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
           {
             MapOfParserResourcesType_it j = _resourcesList.find(i->first);
-            if (i->second.HostName == "localhost" || i->second.HostName == Kernel_Utils::GetHostname())
+            if (i->second.HostName == DEFAULT_RESOURCE_NAME || i->second.HostName == Kernel_Utils::GetHostname())
             {
+              MapOfParserResourcesType_it it0(_resourcesList.find(DEFAULT_RESOURCE_NAME));
+              if(it0!=_resourcesList.end())
+                {
+                  ParserResourcesType& localhostElt((*it0).second);
+                  localhostElt.DataForSort._nbOfNodes=(*i).second.DataForSort._nbOfNodes;
+                  localhostElt.DataForSort._nbOfProcPerNode=(*i).second.DataForSort._nbOfProcPerNode;
+                  localhostElt.DataForSort._CPUFreqMHz=(*i).second.DataForSort._CPUFreqMHz;
+                  localhostElt.DataForSort._memInMB=(*i).second.DataForSort._memInMB;
+                }
               RES_MESSAGE("Resource " << i->first << " is not added because it is the same "
                           "machine as default local resource \"" << DEFAULT_RESOURCE_NAME << "\"");
             }
