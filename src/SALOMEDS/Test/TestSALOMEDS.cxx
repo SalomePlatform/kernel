@@ -54,6 +54,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "SALOMEDS_StudyManager_i.hxx"
 
 #ifdef WIN32
+#include <winsock2.h>
 #define setenv Kernel_Utils::setenv
 #endif
 
