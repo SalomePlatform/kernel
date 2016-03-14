@@ -353,6 +353,101 @@ f.close()
       self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
                       "expected")
     
+  ##############################
+  # test of yacs job type using "--init_port" driver option
+  ##############################
+  def test_yacsopt(self):
+    yacs_path = os.getenv("YACS_ROOT_DIR", "")
+    if not os.path.isdir(yacs_path):
+      self.skipTest("Needs YACS module to run. Please define YACS_ROOT_DIR.")
+    
+    case_test_dir = os.path.join(TestCompo.test_dir, "yacs_opt")
+    os.mkdir(case_test_dir)
+    
+    # job script
+    script_text = """<?xml version='1.0' encoding='iso-8859-1' ?>
+<proc name="myschema">
+   <property name="DefaultStudyID" value="1"/>
+   <type name="string" kind="string"/>
+   <type name="bool" kind="bool"/>
+   <type name="double" kind="double"/>
+   <type name="int" kind="int"/>
+   <container name="DefaultContainer">
+      <property name="container_kind" value="Salome"/>
+      <property name="attached_on_cloning" value="0"/>
+      <property name="container_name" value="FactoryServer"/>
+      <property name="name" value="localhost"/>
+   </container>
+   <inline name="mynode">
+      <script><code><![CDATA[
+text_result = "i=%s,d=%s,b=%s,s=%s" % (i,d,b,s)
+f = open('result.txt', 'w')
+f.write(text_result)
+f.close()
+]]></code></script>
+      <load container="DefaultContainer"/>
+      <inport name="i" type="int"/>
+      <inport name="d" type="double"/>
+      <inport name="b" type="bool"/>
+      <inport name="s" type="string"/>
+   </inline>
+</proc>
+"""
+    yacs_file = "simpleSchema.xml"
+    job_script_file = os.path.join(case_test_dir, yacs_file)
+    f = open(job_script_file, "w")
+    f.write(script_text)
+    f.close()
+    
+    local_result_dir = os.path.join(case_test_dir, "result_yacsopt_job")
+    job_params = salome.JobParameters()
+    job_params.job_type = "yacs_file"
+    job_params.job_file = job_script_file
+    #job_params.env_file = os.path.join(case_test_dir,env_file)
+    job_params.out_files = ["result.txt"]
+    
+    # define the interval between two YACS schema dumps (3 seconds)
+    import Engines
+    job_params.specific_parameters = [Engines.Parameter("YACSDriverOptions",
+               "-imynode.i=5 -imynode.d=3.7 -imynode.b=False -imynode.s=lili")]
+    expected_result="i=5,d=3.7,b=False,s=lili"
+    job_params.resource_required = salome.ResourceParameters()
+    job_params.resource_required.nb_proc = 1
+
+    launcher = salome.naming_service.Resolve('/SalomeLauncher')
+    resManager= salome.lcc.getResourcesManager()
+    
+    for resource in self.ressources:
+      print "Testing yacs job with options on ", resource
+      job_params.result_directory = local_result_dir + resource
+      job_params.job_name = "YacsJobOpt_" + resource
+      job_params.resource_required.name = resource
+
+      # use the working directory of the resource
+      resParams = resManager.GetResourceDefinition(resource)
+      wd = os.path.join(resParams.working_directory,
+                        "YacsJobOpt_" + self.suffix)
+      job_params.work_directory = wd
+
+      job_id = launcher.createJob(job_params)
+      launcher.launchJob(job_id)
+      jobState = launcher.getJobState(job_id)
+
+      yacs_dump_success = False
+      print "Job %d state: %s" % (job_id,jobState)
+      while jobState != "FINISHED" and jobState != "FAILED" :
+        time.sleep(5)
+        jobState = launcher.getJobState(job_id)
+        print "Job %d state: %s " % (job_id,jobState)
+        pass
+
+      self.assertEqual(jobState, "FINISHED")
+
+      # getJobResults to default directory (result_directory)
+      launcher.getJobResults(job_id, "")
+      self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
+                      expected_result)
+
 if __name__ == '__main__':
     # creat study
     import salome

@@ -38,6 +38,7 @@ namespace Launcher
 
     protected:
       int _dumpState;
+      std::string _yacsDriverOptions;
   };
 }
 

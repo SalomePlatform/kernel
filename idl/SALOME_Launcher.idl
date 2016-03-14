@@ -153,6 +153,8 @@ struct JobParameters
         when the job type is "yacs_file". It gives the number of seconds
         between two updates of the state dump file. There will be no dump file
         if this parameter is missing or if its value is less than 1.
+      - YACSDriverOptions : options of the driver command when the job type is
+        "yacs_file".
   */
   Engines::ParameterList specific_parameters;
 
