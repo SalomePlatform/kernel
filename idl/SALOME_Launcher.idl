@@ -155,6 +155,7 @@ struct JobParameters
         if this parameter is missing or if its value is less than 1.
       - YACSDriverOptions : options of the driver command when the job type is
         "yacs_file".
+      - LoalLevelerJobType : LL_JOBTYPE.
   */
   Engines::ParameterList specific_parameters;
 
