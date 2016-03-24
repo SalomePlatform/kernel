@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2012-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -56,7 +56,8 @@ ENDIF()
 
 # KERNEL optionals:
 IF(SALOME_BUILD_DOC)
-  FIND_PACKAGE(SalomePython)
+  FIND_PACKAGE(SalomePythonInterp REQUIRED)
+  FIND_PACKAGE(SalomePythonLibs REQUIRED)
   FIND_PACKAGE(SalomeSphinx)
   SALOME_LOG_OPTIONAL_PACKAGE(Sphinx SALOME_BUILD_DOC)
 ENDIF()
