@@ -227,6 +227,12 @@ def install(prefix, config_file, verbose=0):
             pass
         pass
 
+    # Generate CTestCustom.cmake to handle long output
+    ctest_custom = os.path.join(home_dir, 'bin', 'salome', 'test', "CTestCustom.cmake")
+    with open(ctest_custom, 'w') as f:
+      f.write("SET(CTEST_CUSTOM_MAXIMUM_PASSED_TEST_OUTPUT_SIZE 1048576) # 1MB\n")
+      f.write("SET(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE 1048576) # 1MB\n")
+
     appliskel_dir = os.path.join(home_dir, 'bin', 'salome', 'appliskel')
 
     for fn in ('envd',
