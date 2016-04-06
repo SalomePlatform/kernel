@@ -85,6 +85,7 @@ class SalomeContext:
   to .cfg format before setting the context.
   """
   def __init__(self, configFileNames=0):
+    self.getLogger().setLevel(logging.INFO)
     #it could be None explicitely (if user use multiples setVariable...for standalone)
     if configFileNames is None:
        return
