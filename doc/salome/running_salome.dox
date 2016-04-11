@@ -2,13 +2,39 @@
 
 \page running_salome_page Running Salome
 
-There are two ways to run %SALOME:
+There are three ways to run %SALOME:
 
-1) Using <b>Salome Application Concept</b> approach.
+\section S1_run_sal Using the "salome" command
+
+%A simply %SALOME application is defined by :
+- a set of modules (GEOM, SMESH, YACS, ...)
+- a profile: set of informatic resources (images, documentation, tests...) binding the modules together
+- "salome" command is a launcher as a python script that creates a context (set of environment variables usable by the SALOME modules) and runs an instance of SALOME, for more details see \ref salome_command.
+
+How to generation of a profile of an application ?
+
+The user can generate a default profile for its application using the following command:
+\code
+python ${KERNEL_ROOT_DIR}/bin/salome/app-quickstart.py --prefix=<generation directory> --name=<application's name> --modules=<list,of,modules>
+\endcode
+
+Likely, the user would like to personalize its application's profile. Then, the profile
+can be compiled using the standard cmake procedure:
+
+\code
+cmake
+make
+make install
+\endcode
+
+This profile can be used within a python launcher - like the \subpage salome_command - by setting
+context variable <b>SalomeAppConfig</b> to the path where the profile is installed.
+
+\section S2_run_sal Using Salome Application Concept approach
 
 For more details see \ref SALOME_Application.
 
-2) Using <b>\c %runSalome</b> script supplied with %SALOME KERNEL module distribution.
+\section S3_run_sal Using "runSalome" script supplied with SALOME KERNEL module distribution
 
 To launch %SALOME using \c %runSalome script, you have first to
 set-up proper environment for %SALOME. If you installed %SALOME using
