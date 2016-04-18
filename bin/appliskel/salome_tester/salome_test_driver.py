@@ -18,7 +18,7 @@
 #
 
 """
-Usage: salome_test_helper.py <timeout_delay> <test command> [test command arguments]
+Usage: salome_test_driver.py <timeout_delay> <test command> [test command arguments]
 """
 
 import sys
@@ -93,7 +93,7 @@ if __name__ == "__main__":
   # Add explicit call to python executable if a Python script is passed as
   # first argument
   if not args:
-    print "Invalid arguments for salome_test_helper.py. No command defined."
+    print "Invalid arguments for salome_test_driver.py. No command defined."
     exit(1)
   _, ext = os.path.splitext(args[0])
   if ext == ".py":
