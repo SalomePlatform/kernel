@@ -42,12 +42,12 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test001_FindOrLoad_Component_LaunchContainer(self):
         """
         get a local container (no hostname given),
         load an engine, check that the CORBA object is not null.
-        check narrow        
+        check narrow
         """
         containerName = "swMyContainer"
         comp=self.lcc.FindOrLoad_Component(containerName,"SalomeTestComponent")
@@ -60,7 +60,7 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         """
         Check FindOrLoad_Component.
         Call 2 times FindOrLoad_Component with the same parameters,
-        check if we get the same engine      
+        check if we get the same engine
         """
         containerName = "swMyContainer"
         cp1=self.lcc.FindOrLoad_Component(containerName,"SalomeTestComponent")
@@ -87,7 +87,7 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         self.assertNotEqual(cp1,None)
         m1=cp1._narrow(Engines.TestComponent)
         self.assertNotEqual(m1,None)
-        pass        
+        pass
 
     def test004_FindOrLoad_Component_PythonSameInstance(self):
         """
@@ -113,7 +113,7 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         """
         Check FindOrLoad_Component with a component name not in catalog.
         See list of catalog given to module catalog server.
-        Here, we work with KERNEL_SRC/resources/KERNELCatalog.xml that contains 
+        Here, we work with KERNEL_SRC/resources/KERNELCatalog.xml that contains
         only KERNEL, SalomeTestComponent and SALOME_TestComponentPy
         """
         containerName = "swMyContainer"
@@ -167,9 +167,9 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         self.assertEqual(hostname1,hostname2)
         pidc1=c1.getPID()
         pidc2=c2.getPID()
-        self.assertEqual(pidc1,pidc2)        
+        self.assertEqual(pidc1,pidc2)
         pass
-    
+
     def test008_FindOrLoad_Component_UnknownMachine(self):
         """
         Check FindOrLoad_Component: check behaviour when ask for an unknown
@@ -182,8 +182,8 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         except RuntimeError,ex :
             self.assertEqual(ex.args[0],'unknown host')
         pass
-       
-    
+
+
 def suite():
     return unittest.makeSuite(LifeCycleCORBA_SWIGTest,'test')
 
@@ -191,6 +191,5 @@ def main():
     return unittest.TextTestRunner().run(suite())
 
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
-    pass
-
+    #unittest.TextTestRunner(verbosity=2).run(suite())
+    unittest.main()

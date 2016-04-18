@@ -141,6 +141,6 @@ Test with CatalogResources.xml:
     self.assertEqual(rm.Find('best',machineList), "m2")
 
 if __name__ == '__main__':
-  suite = unittest.TestLoader().loadTestsFromTestCase(TestResourceManager)
-  unittest.TextTestRunner().run(suite)
-
+  #suite = unittest.TestLoader().loadTestsFromTestCase(TestResourceManager)
+  #unittest.TextTestRunner().run(suite)
+  unittest.main()
