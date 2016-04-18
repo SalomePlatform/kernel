@@ -57,7 +57,7 @@ class SalomeInstance(object):
   def __run(self, args=None, with_gui=False):
     if args is None:
       args = []
-      
+
     sys.argv = ['runSalome'] + args
 
     if with_gui:
@@ -77,7 +77,7 @@ class SalomeInstance(object):
     setenv.main(True)
     import runSalome
     runSalome.runSalome()
-    
+
     if not with_gui:
       import salome
       salome.salome_init()

@@ -57,7 +57,7 @@ if __name__ == "__main__":
     from threading import Timer
     timer = Timer(timeout_sec, timeoutHandler)
     timer.start()
-  else:    
+  else:
     signal.alarm(timeout_sec)
     signal.signal(signal.SIGALRM, timeoutHandler)
 
