@@ -18,39 +18,13 @@
 #
 
 """
-Usage: salome_test_driver.py <timeout_delay> <test command> [test command arguments]
+Usage: salome_test_driver_gui.py <timeout_delay> <test command> [test command arguments]
 """
 
 import sys
 import os
 import subprocess
 import signal
-
-# Run test
-def runTest(command):
-  print "Running:", " ".join(command)
-  p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  out, err = p.communicate()
-  res = p.returncode
-  # About res value:
-  # A negative value -N indicates that the child was terminated by signal N (Unix only).
-  # On Unix, the value 11 generally corresponds to a segmentation fault.
-  return res, out, err
-#
-
-# Display output and errors
-def processResult(res, out, err):
-  if out:
-    print out
-    pass
-  if err:
-    print "    ** Detected error **"
-    print "Error code: ", res
-    print err,
-    print "    ** end of message **"
-    pass
-  return res
-#
 
 # Timeout management
 class TimeoutException(Exception):
@@ -67,13 +41,10 @@ if __name__ == "__main__":
   # Add explicit call to python executable if a Python script is passed as
   # first argument
   if not args:
-    print "Invalid arguments for salome_test_driver.py. No command defined."
+    print "Invalid arguments for salome_test_driver_gui.py. No command defined."
     exit(1)
   _, ext = os.path.splitext(args[0])
-  if ext == ".py":
-    test_and_args = [sys.executable] + args
-  else:
-    test_and_args = args
+  test_and_args = args
 
   # Ensure OMNIORB_USER_PATH is set
   from salomeContextUtils import setOmniOrbUserPath
@@ -92,12 +63,8 @@ if __name__ == "__main__":
 
   # Run test in a new SALOME instance
   from salome_instance import SalomeInstance
-  res = 1
   try:
-    salome_instance = SalomeInstance.start(shutdown_servers=True)
-    port = salome_instance.get_port()
-    res, out, err = runTest(test_and_args)
-    res = processResult(res, out, err)
+    salome_instance = SalomeInstance.start(with_gui=True, args=test_and_args)
   except TimeoutException:
     print "FAILED : timeout(%s) is reached"%timeout_delay
   except:
@@ -108,6 +75,6 @@ if __name__ == "__main__":
   salome_instance.stop()
   if sys.platform == 'win32':
     timer.cancel()
-  print "Exit test with status code:", res
-  exit(res)
+#  print "Exit test with status code:", res
+#  exit(res)
 #
