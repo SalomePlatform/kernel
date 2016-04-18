@@ -34,7 +34,7 @@ class SalomeInstance(object):
   #
 
   @staticmethod
-  def start(shutdown_servers=False):
+  def start(shutdown_servers=False, with_gui=False, args=[]):
     import tempfile
     log = tempfile.NamedTemporaryFile(suffix='_nsport.log', delete=False)
     log.close()
@@ -42,9 +42,10 @@ class SalomeInstance(object):
     instance_args = [
       "--ns-port-log=%s"%log.name,
       "--shutdown-servers=%d"%shutdown_servers
-      ]
+      ] + args
+
     salome_instance = SalomeInstance()
-    salome_instance.__run(args=instance_args)
+    salome_instance.__run(args=instance_args, with_gui=with_gui)
 
     with open(log.name) as f:
       salome_instance.port = int(f.readline())
@@ -53,12 +54,13 @@ class SalomeInstance(object):
     return salome_instance
   #
 
-  def __run(self, args=None):
+  def __run(self, args=None, with_gui=False):
     if args is None:
       args = []
+      
     sys.argv = ['runSalome'] + args
 
-    if "INGUI" in args:
+    if with_gui:
       # :WARNING: NOT TESTED YET
       sys.argv += ["--gui"]
       sys.argv += ["--show-desktop=1"]
@@ -75,14 +77,15 @@ class SalomeInstance(object):
     setenv.main(True)
     import runSalome
     runSalome.runSalome()
-
-    import salome
-    salome.salome_init()
-    session_server = salome.naming_service.Resolve('/Kernel/Session')
-    if session_server:
-      session_server.emitMessage("connect_to_study")
-      session_server.emitMessage("activate_viewer/ParaView")
-      pass
+    
+    if not with_gui:
+      import salome
+      salome.salome_init()
+      session_server = salome.naming_service.Resolve('/Kernel/Session')
+      if session_server:
+        session_server.emitMessage("connect_to_study")
+        session_server.emitMessage("activate_viewer/ParaView")
+        pass
   #
 
   def stop(self):
