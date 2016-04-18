@@ -38,43 +38,17 @@ def runTest(command):
   return res, out, err
 #
 
-def processResultSpecialParavis(res, out, err):
-  # :TRICKY: Special case of returncode=127
-  # When using paraview in SALOME environment, the following error
-  # systematically appears when exiting paraview (it's also true when using
-  # PARAVIS and exiting SALOME):
-  # Inconsistency detected by ld.so: dl-close.c: 738: _dl_close: Assertion `map->l_init_called' failed!
-  # For PARAVIS tests purpose, paraview functionalities are accessed in each
-  # test; these tests are run in the above subprocess call.
-  # The assertion error implies a subprocess return code of 127, and the test
-  # status is considered as "failed".
-  # The tricky part here is to discard such return codes, waiting for a fix
-  # maybe in paraview...
-  if res == 127 and err.startswith("Inconsistency detected by ld.so: dl-close.c"):
-      print "    ** THE FOLLOWING MESSAGE IS DISCARDED WHEN ANALYZING TEST SUCCESSFULNESS **"
-      print err,
-      print "    ** end of message **"
-      res = 0
-  elif err:
-      print "    ** Detected error **"
-      print "Error code: ", res
-      print err,
-      print "    ** end of message **"
-      pass
-
-  if out:
-      print out
-  return res
-#
-
 # Display output and errors
 def processResult(res, out, err):
   if out:
     print out
     pass
   if err:
-    print err
-  print "Status code: ", res
+    print "    ** Detected error **"
+    print "Error code: ", res
+    print err,
+    print "    ** end of message **"
+    pass
   return res
 #
 
@@ -112,7 +86,7 @@ if __name__ == "__main__":
     from threading import Timer
     timer = Timer(timeout_sec, timeoutHandler)
     timer.start()
-  else:    
+  else:
     signal.alarm(timeout_sec)
     signal.signal(signal.SIGALRM, timeoutHandler)
 
@@ -123,8 +97,7 @@ if __name__ == "__main__":
     salome_instance = SalomeInstance.start(shutdown_servers=True)
     port = salome_instance.get_port()
     res, out, err = runTest(test_and_args)
-    #res = processResult(res, out, err)
-    res = processResultSpecialParavis(res, out, err)
+    res = processResult(res, out, err)
   except TimeoutException:
     print "FAILED : timeout(%s) is reached"%timeout_delay
   except:
