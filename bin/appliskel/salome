@@ -58,7 +58,7 @@ def main(args):
         context.addToVariable(key,val)
 
     # Start SALOME, parsing command line arguments
-    (out, err), returncode = context.runSalome(args)
+    out, err, returncode = context.runSalome(args)
     if out:
       sys.stdout.write(out)
     if err:

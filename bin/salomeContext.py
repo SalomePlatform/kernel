@@ -143,8 +143,8 @@ class SalomeContext:
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True, env=env_copy)
-    msg = proc.communicate()
-    return msg, proc.returncode
+    out, err = proc.communicate()
+    return out, err, proc.returncode
   #
 
   """Append value to PATH environment variable"""
