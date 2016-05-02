@@ -74,35 +74,23 @@ For complete description of available options, pleaser refer to ctest documentat
 # tests must be in ${ABSOLUTE_APPLI_PATH}/${__testSubDir}/
 __testSubDir = "bin/salome/test"
 
-# Both display process stdout&stderr to console and capture them to variables
 def __runTest(command, workdir):
-  p = subprocess.Popen(command, cwd=workdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
-  stdout = []
-  stderr = []
+  p = subprocess.Popen(command, cwd=workdir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
   while True:
-    reads = [p.stdout.fileno(), p.stderr.fileno()]
-    ret = select.select(reads, [], [], 0)
-
-    for fd in ret[0]:
-      if fd == p.stdout.fileno():
-        read = p.stdout.readline()
-        sys.stdout.write(read)
-        stdout.append(read)
-        pass
-      if fd == p.stderr.fileno():
-        read = p.stderr.readline()
-        sys.stderr.write(read)
-        stderr.append(read)
-        pass
+    try:
+      out = p.stdout.readline()
+      sys.stdout.write(out)
+    except: # raised IOError or OSError if output is empty
       pass
 
     returncode = p.poll()
     if not returncode is None:
+      sys.stdout.flush()
       break
     pass
 
-  return p.returncode, "".join(stdout), "".join(stderr)
+  return p.returncode
 #
 
 def runTests(args, exe=None):
@@ -115,7 +103,7 @@ def runTests(args, exe=None):
   testPath = os.path.join(appliPath, __testSubDir)
 
   command = ["ctest"] + args
-  res, out, err = __runTest(command, testPath)
+  res = __runTest(command, testPath)
 
   sys.exit(res)
 #
