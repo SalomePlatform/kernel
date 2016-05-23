@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015-2016  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,12 +17,18 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-IF(NOT WIN32)
-  ADD_TEST(SalomeLauncher python ${SALOME_TEST_DRIVER} ${TIMEOUT} test_launcher.py)
-  SET_TESTS_PROPERTIES(SalomeLauncher PROPERTIES LABELS "${COMPONENT_NAME}"
-    #                                                 TIMEOUT 500
-    )
-  # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
-  #     BUT PASS TIMEOUT VALUE TO THE DRIVER
+SET(TEST_NAMES
+  LifeCycleCORBA_SWIGTest
+#  testresourcemanager
+#  testcontainermanager
+#  TestLifeCycleCORBA_SWIG
+  )
 
+IF(NOT WIN32)
+  FOREACH(tfile ${TEST_NAMES})
+    SET(TEST_NAME ${COMPONENT_NAME}_LC_${tfile})
+    ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} ${tfile}.py)
+    SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
+      )
+  ENDFOREACH()
 ENDIF()

@@ -19,7 +19,7 @@
 
 SET(TEST_NAMES
   TestLauncherSimple
-  TestLauncherSessionArgs
+#  TestLauncherSessionArgs
   )
 
 FOREACH(tfile ${TEST_NAMES})

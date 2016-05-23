@@ -17,10 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-IF(NOT WIN32)
-  ADD_TEST(SALOMEDS python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestSALOMEDS.py)
-  SET_TESTS_PROPERTIES(SALOMEDS PROPERTIES
-                                     LABELS "${COMPONENT_NAME}"
-                                     ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
-                      )
-ENDIF()
+# IF(NOT WIN32)
+#   ADD_TEST(SALOMEDS python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestSALOMEDS.py)
+#   SET_TESTS_PROPERTIES(SALOMEDS PROPERTIES
+#                                      LABELS "${COMPONENT_NAME}"
+#                                      ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+#                       )
+# ENDIF()
