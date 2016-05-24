@@ -600,11 +600,6 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   std::string python_exe;
 
   python_exe = std::string("python");
-#ifdef WIN32
-  #ifdef _DEBUG_
-    python_exe += std::string("_d");
-  #endif
-#endif
 
   if ( !portNumber.empty() )
   {
