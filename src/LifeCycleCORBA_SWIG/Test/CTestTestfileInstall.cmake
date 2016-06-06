@@ -19,8 +19,8 @@
 
 SET(TEST_NAMES
   LifeCycleCORBA_SWIGTest
-  testresourcemanager
-  testcontainermanager
+#  testresourcemanager
+#  testcontainermanager
 #  TestLifeCycleCORBA_SWIG
   )
 
