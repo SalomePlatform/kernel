@@ -91,7 +91,7 @@ const char* duplicate( const char *const str ) ;
 
 const char* get_uname( void )
 {
-        static std::string hostName(256, 0);
+        static std::string hostName(4096, 0);
         static DWORD nSize = hostName.length();
         static int res = ::GetComputerNameEx(ComputerNameDnsFullyQualified, &hostName[0], &nSize);
         ASSERT( res );
@@ -125,7 +125,7 @@ const char* get_adip( void )
 
 const char* const get_pwname( void )
 {
-  static std::string retVal(256, 0);
+  static std::string retVal(4096, 0);
   static DWORD  dwSize = retVal.length() + 1;
   static int res = GetUserName( &retVal[0], &dwSize );
   ASSERT( res );
@@ -138,7 +138,7 @@ PSID getuid() {
         PTOKEN_OWNER pTKowner      = NULL;
         LPVOID buffer = NULL;
         DWORD dwsize = 0;
-        
+
         if (  !OpenProcessToken ( GetCurrentProcess (), TOKEN_QUERY, &hProcessToken )) return 0;
         if (!GetTokenInformation(hProcessToken, TokenOwner, buffer, dwsize, &dwsize)) return 0;
         pTKowner = (PTOKEN_OWNER)buffer;
@@ -146,7 +146,7 @@ PSID getuid() {
                 retVal = pTKowner->Owner;
         }
         if ( hProcessToken != INVALID_HANDLE_VALUE ) CloseHandle ( hProcessToken );
-        
+
         return retVal;
 }
 
@@ -161,13 +161,13 @@ Identity::Identity( const char *name ): _name(duplicate(name)),\
                                                         _adip(get_adip()),\
                                                         _uid(getuid()) ,\
                                                         _pwname(get_pwname()) ,\
-                                                        _dir(getcwd(NULL,256)),\
+                                                        _dir(getcwd(NULL,4096)),\
                                                         _pid(getpid()) ,\
                                                         _start(time(NULL)),\
                                                         _cstart(ctime(&_start))
 //CCRT
 {
-        ASSERT(strlen(_dir)<256);
+        ASSERT(strlen(_dir)<4096);
 }
 
 
@@ -179,7 +179,7 @@ Identity::~Identity(void)
         //delete [] (char*)_dir ;
         //(char*&)_dir = NULL ;
         free((char*)_dir);
-#ifndef WIN32   
+#ifndef WIN32
   // free the memory only on Unix
   // becasue at Windows it is the same static variable
   // (function get_adip() returns the same char* as get_uname() )
