@@ -311,7 +311,7 @@ def killMyPort(port):
 
     # try to shutdown session normally
     import threading, time
-    threading.Thread(target=shutdownMyPort, args=(port,False)).start()
+    threading.Thread(target=shutdownMyPort, args=(port,True)).start()
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
 
     try:
