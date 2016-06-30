@@ -44,7 +44,7 @@ Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_s
   launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" -- driver -k\"$appli_port\" " << _job_file_name_complete;
   if (_dumpState > 0)
     launch_script_stream << " --dump=" << _dumpState;
-  if(not _yacsDriverOptions.empty())
+  if(! _yacsDriverOptions.empty())
     launch_script_stream << " " << _yacsDriverOptions ;
   launch_script_stream << " > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
 }
