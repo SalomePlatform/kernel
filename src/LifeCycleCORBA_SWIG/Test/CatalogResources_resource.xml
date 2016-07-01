@@ -1,0 +1,15 @@
+<!DOCTYPE ResourcesCatalog>
+<resources>
+   <machine hostname="m1" />
+   <machine hostname="m2" />
+   <machine hostname="m3" >
+     <modules moduleName="tutu" />
+   </machine>
+   <machine hostname="m4" >
+     <component name="sub" moduleName="tata" />
+   </machine>
+   <machine hostname="claui2c6" >
+     <modules moduleName="toto" />
+     <component name="add" moduleName="titi" />
+   </machine>
+</resources>

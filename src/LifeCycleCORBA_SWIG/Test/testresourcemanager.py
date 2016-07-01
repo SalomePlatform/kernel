@@ -60,40 +60,43 @@ Test with CatalogResources.xml:
     self.assertRaises(SALOME.SALOME_Exception,rm.GetFittingResources,params)
 
   def test2(self):
-    """component add required"""
+    """component add required.
+    If a resource  doesn't have any module or component defined in the catalog,
+    it means that it has every module and component and it fits for any request.
+    """
     params=LifeCycleCORBA.ResourceParameters(componentList=["add"])
     machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, ['claui2c6', 'm1', 'm2'])
+    self.assertEqual(machineList, ['claui2c6', 'localhost', 'm1', 'm2'])
 
   def test3(self):
     """component tutu required"""
     params=LifeCycleCORBA.ResourceParameters(componentList=["tutu"])
     machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, ['m1', 'm2', 'm3'])
+    self.assertEqual(machineList, ['localhost', 'm1', 'm2', 'm3'])
 
   def test4(self):
     """component tata required"""
     params=LifeCycleCORBA.ResourceParameters(componentList=["tata"])
     machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, ['m1', 'm2'])
+    self.assertEqual(machineList, ['localhost', 'm1', 'm2'])
 
   def test5(self):
     """component titi required"""
     params=LifeCycleCORBA.ResourceParameters(componentList=["titi"])
     machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, ['m1', 'm2'])
+    self.assertEqual(machineList, ['localhost', 'm1', 'm2'])
 
   def test6(self):
     """component toto required"""
     params=LifeCycleCORBA.ResourceParameters(componentList=["toto"])
     machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, ['claui2c6', 'm1', 'm2'])
+    self.assertEqual(machineList, ['claui2c6', 'localhost', 'm1', 'm2'])
 
   def test7(self):
     """components add and toto required"""
     params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
     machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, ['claui2c6', 'm1', 'm2'])
+    self.assertEqual(machineList, ['claui2c6', 'localhost', 'm1', 'm2'])
 
   def test8(self):
     """components add and toto required"""
@@ -105,9 +108,11 @@ Test with CatalogResources.xml:
     params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
     machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('altcycl',machineList), "claui2c6")
+    self.assertEqual(rm.Find('altcycl',machineList), "localhost")
     self.assertEqual(rm.Find('altcycl',machineList), "m1")
     self.assertEqual(rm.Find('altcycl',machineList), "m2")
     self.assertEqual(rm.Find('altcycl',machineList), "claui2c6")
+    self.assertEqual(rm.Find('altcycl',machineList), "localhost")
     self.assertEqual(rm.Find('altcycl',machineList), "m1")
     self.assertEqual(rm.Find('altcycl',machineList), "m2")
 
@@ -116,9 +121,11 @@ Test with CatalogResources.xml:
     params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
     machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('cycl',machineList), "claui2c6")
+    self.assertEqual(rm.Find('cycl',machineList), "localhost")
     self.assertEqual(rm.Find('cycl',machineList), "m1")
     self.assertEqual(rm.Find('cycl',machineList), "m2")
     self.assertEqual(rm.Find('cycl',machineList), "claui2c6")
+    self.assertEqual(rm.Find('cycl',machineList), "localhost")
     self.assertEqual(rm.Find('cycl',machineList), "m1")
     self.assertEqual(rm.Find('cycl',machineList), "m2")
 
@@ -134,9 +141,11 @@ Test with CatalogResources.xml:
     params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
     machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('best',machineList), "claui2c6")
+    self.assertEqual(rm.Find('best',machineList), "localhost")
     self.assertEqual(rm.Find('best',machineList), "m1")
     self.assertEqual(rm.Find('best',machineList), "m2")
     self.assertEqual(rm.Find('best',machineList), "claui2c6")
+    self.assertEqual(rm.Find('best',machineList), "localhost")
     self.assertEqual(rm.Find('best',machineList), "m1")
     self.assertEqual(rm.Find('best',machineList), "m2")
 

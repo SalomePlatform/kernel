@@ -45,27 +45,39 @@ Test with catalog :
     rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
     p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="start",resource_params=rp)
     co=cm.GiveContainer( p )
-    self.assertEqual(co._get_name(), "/Containers/claui2c6/MyContainer")
+    host1=co.getHostName()
+    name1="/Containers/%s/MyContainer" % host1
+    self.assertEqual(co._get_name(), name1)
     co=cm.GiveContainer( p )
-    self.assertEqual(co._get_name(), "/Containers/clt10br/MyContainer")
+    host2=co.getHostName()
+    name2="/Containers/%s/MyContainer" % host2
+    self.assertEqual(co._get_name(), name2)
 
   def test1(self):
     """"""
     rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
     p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="get",resource_params=rp)
     co=cm.GiveContainer( p )
-    self.assertEqual(co._get_name(), "/Containers/claui2c6/MyContainer")
+    host1=co.getHostName()
+    name1="/Containers/%s/MyContainer" % host1
+    self.assertEqual(co._get_name(), name1)
     co=cm.GiveContainer( p )
-    self.assertEqual(co._get_name(), "/Containers/clt10br/MyContainer")
+    host2=co.getHostName()
+    name2="/Containers/%s/MyContainer" % host2
+    self.assertEqual(co._get_name(), name2)
 
   def test2(self):
     """"""
     rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
     p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="getorstart",resource_params=rp)
     co=cm.GiveContainer( p )
-    self.assertEqual(co._get_name(), "/Containers/claui2c6/MyContainer")
+    host1=co.getHostName()
+    name1="/Containers/%s/MyContainer" % host1
+    self.assertEqual(co._get_name(), name1)
     co=cm.GiveContainer( p )
-    self.assertEqual(co._get_name(), "/Containers/clt10br/MyContainer")
+    host2=co.getHostName()
+    name2="/Containers/%s/MyContainer" % host2
+    self.assertEqual(co._get_name(), name2)
 
 
 if __name__ == '__main__':

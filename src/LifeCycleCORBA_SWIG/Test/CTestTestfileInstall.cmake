@@ -19,8 +19,7 @@
 
 SET(TEST_NAMES
   LifeCycleCORBA_SWIGTest
-#  testresourcemanager
-#  testcontainermanager
+  testcontainermanager
 #  TestLifeCycleCORBA_SWIG
   )
 
@@ -31,4 +30,11 @@ IF(NOT WIN32)
     SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
       )
   ENDFOREACH()
+
+  # resource manager test needs specific CatalogResouces file in test directory
+  SET(TEST_NAME ${COMPONENT_NAME}_LC_testresourcemanager)
+  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} testresourcemanager.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
+                                    ENVIRONMENT "USER_CATALOG_RESOURCES_FILE=CatalogResources_resource.xml"
+                      )
 ENDIF()

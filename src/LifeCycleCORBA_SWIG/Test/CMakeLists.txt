@@ -23,6 +23,7 @@ SET(SCRIPTS
   testresourcemanager.py
   testcontainermanager.py
   TestLifeCycleCORBA_SWIG.py
+  CatalogResources_resource.xml
 )
 
 SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/LifeCycleCORBA_SWIG)
