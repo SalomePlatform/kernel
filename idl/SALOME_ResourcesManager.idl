@@ -116,7 +116,8 @@ struct ResourceDefinition
   string username;
   //! salome application to use to start a remote container
   string applipath;
-  //! list of available components 
+  //! list of available components.
+  //! An empty list means every component is available.
   CompoList componentList;
 
   //! operating system 
