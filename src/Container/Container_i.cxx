@@ -1638,10 +1638,10 @@ void Engines_Container_i::copyFile(Engines::Container_ptr container, const char*
       while (toFollow)
         {
           ctr++;
-          SCRUTE(ctr);
+          //SCRUTE(ctr);
           aBlock = fileTransfer->getBlock(fileId);
           toFollow = aBlock->length();
-          SCRUTE(toFollow);
+          //SCRUTE(toFollow);
           CORBA::Octet *buf = aBlock->get_buffer();
           fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
           delete aBlock;

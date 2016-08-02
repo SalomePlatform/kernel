@@ -119,7 +119,7 @@ void fileTransfer_i::close(CORBA::Long fileId)
 
 Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
 {
-  MESSAGE("fileTransfer_i::getBlock");
+  //MESSAGE("fileTransfer_i::getBlock");
   Engines::fileBlock* aBlock = new Engines::fileBlock;
 
   FILE* fp;
@@ -135,7 +135,7 @@ Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
   CORBA::Octet *buf;
   buf = Engines::fileBlock::allocbuf(FILEBLOCK_SIZE);
   int nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
-  SCRUTE(nbRed);
+  //SCRUTE(nbRed);
   aBlock->replace(nbRed, nbRed, buf, 1); // 1 means give ownership
   return aBlock;
 }
