@@ -92,6 +92,15 @@ def killAllPorts():
                 pass
             pass
         pass
+        cmd = "ps -fea | grep '%s' | grep 'ompi-server' | grep -v 'grep' | awk '{print $2}'" % user
+        prc = commands.getoutput(cmd)
+        for field in prc.split():
+            try:
+                os.kill(int(field), signal.SIGKILL)
+            except:
+                pass
+            pass
+        pass
     pass
 
 if __name__ == "__main__":
