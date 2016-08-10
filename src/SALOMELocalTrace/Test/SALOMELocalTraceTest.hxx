@@ -24,6 +24,7 @@
 #define _SALOMELOCALTRACETEST_HXX_
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <string>
 
 #ifdef WIN32
 # if defined SALOMELOCALTRACETEST_EXPORTS || defined SALOMELocalTraceTest_EXPORTS
@@ -50,6 +51,9 @@ public:
   void testSingletonBufferPool();
   void testLoadBufferPoolLocal();
   void testLoadBufferPoolFile();
+
+ private:
+  std::string _getTraceFileName();
 };
 
 #endif

@@ -25,6 +25,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "SALOME_NamingService.hxx"
+#include <string>
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(nstest)
@@ -148,6 +149,9 @@ public:
   void testDestroyDirectory();
   void testDestroyFullDirectory();
   void testGetIorAddr();
+
+ private:
+  std::string _getTraceFileName();
 
 protected:
   void _destroyDirectoryRecurs(std::string path);

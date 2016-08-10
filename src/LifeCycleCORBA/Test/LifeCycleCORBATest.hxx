@@ -24,6 +24,7 @@
 #define _LIFECYCLECORBATEST_HXX_
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <string>
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
@@ -91,6 +92,9 @@ public:
   void testgetLocalFile_remoteComputer();
 //   void testFindOrLoad_Component_();
 //   void testFindOrLoad_Component_();
+
+ private:
+  std::string _getTraceFileName();
 
 protected:
   std::string GetRemoteHost();

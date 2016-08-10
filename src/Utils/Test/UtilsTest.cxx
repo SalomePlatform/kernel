@@ -28,13 +28,12 @@
 #include <cstdlib>
 #include "Utils_SALOME_Exception.hxx"
 #include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 #include "utilities.h"
 
 #ifdef WIN32
 #define setenv Kernel_Utils::setenv
-#endif 
-
-#define TRACEFILE "/tmp/traceUnitTest.log"
+#endif
 
 // ============================================================================
 /*!
@@ -44,7 +43,14 @@
  */
 // ============================================================================
 
-void 
+std::string
+UtilsTest::_getTraceFileName()
+{
+  std::string dir = Kernel_Utils::GetTmpDir();
+  return dir + "traceUnitTest-UtilsTest.log";
+}
+
+void
 UtilsTest::setUp()
 {
   LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
@@ -52,14 +58,14 @@ UtilsTest::setUp()
   bp1->deleteInstance(bp1);
 
   // --- trace on file
-  const char *theFileName = TRACEFILE;
+  std::string theFileName = _getTraceFileName();
 
   std::string s = "file:";
   s += theFileName;
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   std::ofstream traceFile;
-  traceFile.open(theFileName, std::ios::out | std::ios::app);
+  traceFile.open(theFileName.c_str(), std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -73,7 +79,7 @@ UtilsTest::setUp()
  */
 // ============================================================================
 
-void 
+void
 UtilsTest::tearDown()
 {
   LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();

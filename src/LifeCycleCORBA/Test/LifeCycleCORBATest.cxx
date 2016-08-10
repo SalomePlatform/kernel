@@ -26,6 +26,7 @@
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 #include "utilities.h"
 
 #include <iostream>
@@ -47,9 +48,14 @@
 #endif
 #ifdef WIN32
 #define setenv Kernel_Utils::setenv
-#endif 
+#endif
 
-#define TRACEFILE "/tmp/traceUnitTest.log"
+std::string
+LifeCycleCORBATest::_getTraceFileName()
+{
+  std::string dir = Kernel_Utils::GetTmpDir();
+  return dir + "traceUnitTest-LifeCycleCORBATest.log";
+}
 
 // ============================================================================
 /*!
@@ -61,7 +67,7 @@
  */
 // ============================================================================
 
-void 
+void
 LifeCycleCORBATest::setUp()
 {
   LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
@@ -69,7 +75,7 @@ LifeCycleCORBATest::setUp()
   bp1->deleteInstance(bp1);
 
   // --- trace on file
-  const char *theFileName = TRACEFILE;
+  std::string theFileName = _getTraceFileName();
 
   std::string s = "file:";
   s += theFileName;
@@ -79,7 +85,7 @@ LifeCycleCORBATest::setUp()
 
   std::ofstream traceFile;
   //  traceFile.open(theFileName, std::ios::out | std::ios::trunc);
-  traceFile.open(theFileName, std::ios::out | std::ios::app);
+  traceFile.open(theFileName.c_str(), std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -105,7 +111,7 @@ LifeCycleCORBATest::setUp()
  */
 // ============================================================================
 
-void 
+void
 LifeCycleCORBATest::tearDown()
 {
 
@@ -262,7 +268,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_PythonSameInstance()
 /*!
  * Check FindOrLoad_Component with a component name not in catalog.
  * See list of catalog given to module catalog server.
- * Here, we work with KERNEL_SRC/resources/KERNELCatalog.xml that contains 
+ * Here, we work with KERNEL_SRC/resources/KERNELCatalog.xml that contains
  * only KERNEL, SalomeTestComponent and SALOME_TestComponentPy
  */
 // ============================================================================
@@ -435,7 +441,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsEmpty()
 
 // ============================================================================
 /*!
- * Check FindOrLoad_Component params = local container 
+ * Check FindOrLoad_Component params = local container
  */
 // ============================================================================
 
@@ -541,7 +547,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
 // ============================================================================
 /*!
  * Check FindOrLoad_Component with params on remote computer
- * params empty except hostname 
+ * params empty except hostname
  */
 // ============================================================================
 
@@ -553,7 +559,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
   std::string remoteHost = GetRemoteHost();
 
   Engines::ContainerParameters params;
-  _LCC.preSet(params); 
+  _LCC.preSet(params);
   params.resource_params.hostname = remoteHost.c_str();
 
   Engines::EngineComponent_var mycompo1 =
@@ -591,7 +597,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
   std::string remoteHost = GetRemoteHost();
 
   Engines::ContainerParameters params;
-  _LCC.preSet(params); 
+  _LCC.preSet(params);
   params.resource_params.hostname = remoteHost.c_str();
   params.container_name = "anotherContainer";
 

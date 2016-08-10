@@ -26,13 +26,15 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <cstdio>
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
 #include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 
 #ifdef WIN32
 #define setenv Kernel_Utils::setenv
-#endif 
+#endif
 
 // ============================================================================
 /*!
@@ -40,7 +42,7 @@
  */
 // ============================================================================
 
-void 
+void
 SALOMELocalTraceTest::setUp()
 {
 }
@@ -51,12 +53,17 @@ SALOMELocalTraceTest::setUp()
  */
 // ============================================================================
 
-void 
+void
 SALOMELocalTraceTest::tearDown()
 {
 }
 
-#define TRACEFILE "/tmp/traceUnitTest.log"
+std::string
+SALOMELocalTraceTest::_getTraceFileName()
+{
+  std::string dir = Kernel_Utils::GetTmpDir();
+  return dir + "traceUnitTest-SALOMELocalTraceTest.log";
+}
 
 // ============================================================================
 /*!
@@ -64,18 +71,18 @@ SALOMELocalTraceTest::tearDown()
  */
 // ============================================================================
 
-void 
+void
 SALOMELocalTraceTest::testSingletonBufferPool()
 {
   // --- trace on file
-  const char *theFileName = TRACEFILE;
+  std::string theFileName = _getTraceFileName();
 
   std::string s = "file:";
   s += theFileName;
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   std::ofstream traceFile;
-  traceFile.open(theFileName, std::ios::out | std::ios::app);
+  traceFile.open(theFileName.c_str(), std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -98,7 +105,7 @@ void *PrintHello(void *threadid);
  */
 // ============================================================================
 
-void 
+void
 SALOMELocalTraceTest::testLoadBufferPoolLocal()
 {
   std::string s = "local";
@@ -134,10 +141,10 @@ SALOMELocalTraceTest::testLoadBufferPoolLocal()
  */
 // ============================================================================
 
-void 
+void
 SALOMELocalTraceTest::testLoadBufferPoolFile()
 {
-  const char *theFileName = TRACEFILE;
+  std::string theFileName = _getTraceFileName();
 
   std::string s = "file:";
   s += theFileName;
@@ -145,7 +152,7 @@ SALOMELocalTraceTest::testLoadBufferPoolFile()
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   std::ofstream traceFile;
-  traceFile.open(theFileName, std::ios::out | std::ios::trunc);
+  traceFile.open(theFileName.c_str(), std::ios::out | std::ios::trunc);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -186,7 +193,7 @@ void *PrintHello(void *threadid)
 #if defined(_DEBUG_) || defined(_DEBUG)
   long id_thread = (long)threadid;
   for (int i=0; i<NUM_MESSAGES;i++)
-  MESSAGE("Hello World! This is a trace test : " << id_thread 
+  MESSAGE("Hello World! This is a trace test : " << id_thread
         << " - iter " << i);
 #endif
   pthread_exit(NULL);

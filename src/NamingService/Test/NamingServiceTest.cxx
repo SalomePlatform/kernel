@@ -24,6 +24,7 @@
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "utilities.h"
 
@@ -48,9 +49,7 @@
 
 #ifdef WIN32
 #define setenv Kernel_Utils::setenv
-#endif 
-
-#define TRACEFILE "/tmp/traceUnitTest.log"
+#endif
 
 // ============================================================================
 /*!
@@ -111,7 +110,14 @@ NSTEST::echo_ptr NSTEST_aFactory_i::createInstance()
  */
 // ============================================================================
 
-void 
+std::string
+NamingServiceTest::_getTraceFileName()
+{
+  std::string dir = Kernel_Utils::GetTmpDir();
+  return dir + "traceUnitTest-NamingServiceTest.log";
+}
+
+void
 NamingServiceTest::setUp()
 {
   LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
@@ -119,7 +125,7 @@ NamingServiceTest::setUp()
   bp1->deleteInstance(bp1);
 
   // --- trace on file
-  const char *theFileName = TRACEFILE;
+  std::string theFileName = _getTraceFileName();
 
   std::string s = "file:";
   s += theFileName;
@@ -129,7 +135,7 @@ NamingServiceTest::setUp()
 
   std::ofstream traceFile;
   //  traceFile.open(theFileName, ios::out | ios::trunc);
-  traceFile.open(theFileName, std::ios::out | std::ios::app);
+  traceFile.open(theFileName.c_str(), std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -159,7 +165,7 @@ NamingServiceTest::setUp()
   _factoryRef = _myFactory->_this();
   _pman->activate();
   _myFactory->_remove_ref();
-  
+
 }
 
 // ============================================================================
@@ -168,7 +174,7 @@ NamingServiceTest::setUp()
  */
 // ============================================================================
 
-void 
+void
 NamingServiceTest::tearDown()
 {
 
@@ -456,7 +462,7 @@ NamingServiceTest::testResolveFirst()
  * Test register and resolve multiple objects, test resolveFirst, relative path
  * Register a few objects in /nstestfirstrel/echo_n where n is the object id.
  * Resolve all the objects.
- * ResolveFirst echo with a relative path /nstestfirstrel must give 
+ * ResolveFirst echo with a relative path /nstestfirstrel must give
  * /nstestfirst/echo_i, corresponding to the first object.
  */
 // ============================================================================
@@ -684,7 +690,7 @@ NamingServiceTest::testResolveComponentEmptyContainerName()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -716,7 +722,7 @@ NamingServiceTest::testResolveComponentUnknownContainerName()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -744,7 +750,7 @@ NamingServiceTest::testResolveComponentEmptyComponentName()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -768,7 +774,7 @@ NamingServiceTest::testResolveComponentUnknownComponentName()
 
 // ============================================================================
 /*!
- * Test with a false number nbproc. 
+ * Test with a false number nbproc.
  * A positive number not corresponding to a registered component gives nil ref.
  * A negative number is not taken into account and may give a non nil ref.
  */
@@ -801,7 +807,7 @@ NamingServiceTest::testResolveComponentFalseNbproc()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -819,7 +825,7 @@ NamingServiceTest::testContainerName()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -841,7 +847,7 @@ NamingServiceTest::testContainerNameParams()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -859,7 +865,7 @@ NamingServiceTest::testBuildContainerNameForNS()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -882,7 +888,7 @@ NamingServiceTest::testBuildContainerNameForNSParams()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -925,7 +931,7 @@ NamingServiceTest::testFind()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -972,7 +978,7 @@ NamingServiceTest::testCreateDirectory()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -999,11 +1005,11 @@ NamingServiceTest::testChangeDirectory()
   NSTEST::echo_var anEchoRef4 = myFactory->createInstance();
   _NS.Register(anEchoRef4,
                "/Containers/anHostName/oneContainerName/theComponentName");
-  
+
   _NS.Change_Directory("/Containers/theHostName/otherContainerName");
   obj = _NS.Resolve("theComponentName");
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-  
+
   NSTEST::echo_var anEchoRefa = NSTEST::echo::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRefa));
   CPPUNIT_ASSERT(anEchoRefa->getId() == anEchoRef3->getId());
@@ -1011,7 +1017,7 @@ NamingServiceTest::testChangeDirectory()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1031,7 +1037,7 @@ NamingServiceTest::testCurrentDirectory()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1046,7 +1052,7 @@ NamingServiceTest::testList()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1061,7 +1067,7 @@ NamingServiceTest::testListDirectory()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1079,7 +1085,7 @@ NamingServiceTest::testListDirectoryRecurs()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1095,7 +1101,7 @@ NamingServiceTest::testListSubdirs()
 }
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1122,7 +1128,7 @@ NamingServiceTest::testDestroyName()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1193,7 +1199,7 @@ NamingServiceTest::testDestroyFullDirectory()
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 
@@ -1202,12 +1208,12 @@ NamingServiceTest::testGetIorAddr()
 {
   CORBA::String_var root = _NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
-  CPPUNIT_ASSERT(!CORBA::is_nil(obj)); 
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
 }
 
 // ============================================================================
 /*!
- * Test 
+ * Test
  */
 // ============================================================================
 

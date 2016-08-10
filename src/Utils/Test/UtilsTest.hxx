@@ -24,6 +24,7 @@
 #define _UTILSTEST_HXX_
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <string>
 
 #ifdef WIN32
 # if defined UTILSTEST_EXPORTS || defined UtilsTest_EXPORTS
@@ -49,6 +50,9 @@ public:
 
   void testSALOME_ExceptionThrow();
   void testSALOME_ExceptionMessage();
+
+ private:
+  std::string _getTraceFileName();
 };
 
 #endif
