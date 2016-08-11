@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${PROJECT_SOURCE_DIR}/salome_adm/cmake_files/UseOmniORB.cmake)
+INCLUDE(${CONFIGURATION_ROOT_DIR}/cmake/UseOmniORB.cmake)
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}

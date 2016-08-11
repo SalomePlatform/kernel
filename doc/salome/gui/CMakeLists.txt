@@ -17,12 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
-
 SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
-SET(gen_doc "${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/prepare_generating_doc.py")
+SET(gen_doc "${CMAKE_SOURCE_DIR}/salome_adm/prepare_generating_doc.py")
 IF(WIN32)
   STRING(REPLACE "/" "\\" gen_doc ${gen_doc})
 ENDIF(WIN32)
