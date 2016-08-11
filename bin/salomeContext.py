@@ -294,7 +294,8 @@ class SalomeContext:
       file_base = os.path.basename(filename)
       base_no_ext, ext = os.path.splitext(file_base)
       sh_file = os.path.join(file_dir, base_no_ext+'.sh')
-      if ext == ".cfg" and os.path.isfile(sh_file):
+      #if ext == ".cfg" and os.path.isfile(sh_file):
+      if False:
         msg += "Found similar %s file; trying to parse this one instead..."%(base_no_ext+'.sh')
         temp = tempfile.NamedTemporaryFile(suffix='.cfg')
         try:
