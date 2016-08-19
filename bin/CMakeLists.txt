@@ -49,16 +49,13 @@ SET(SCRIPTS
   runSession.py
   runConsole.py
   runTests.py
-  salomeConsole.py
   ${CMAKE_CURRENT_BINARY_DIR}/salomeContextUtils.py
   salomeContext.py
-  salome_session.py
   salome_utils.py
   searchFreePort.py
   server.py
   setenv.py
   showNS.py
-  shutdownSalome.py
   virtual_salome.py
   waitContainers.py
   waitNS.py
