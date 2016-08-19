@@ -77,7 +77,7 @@ _salome()
                     options='-h --help -p --port= -m --machine= -d --directory= -u --user= --with-mpi-module= --config= --extra_env='
                     ;;
                 info)
-                    options='-h --help -p --ports -v --version'
+                    options='-h --help -p --ports -s --softwares -v --version'
                     ;;
                 connect)
                     options='-h --help -c -p'

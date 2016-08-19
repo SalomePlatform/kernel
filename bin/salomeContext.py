@@ -447,6 +447,24 @@ class SalomeContext:
     return runTests.runTests(args, exe="salome test")
   #
 
+  def _showSoftwareVersions(self):
+    config = ConfigParser.SafeConfigParser()
+    absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
+    filename = os.path.join(absoluteAppliPath, ".softwares_versions")
+    try:
+      config.read(filename)
+      sections = config.sections()
+      for section in sections:
+        entries = config.items(section, raw=True) # do not use interpolation
+        for key,val in entries:
+          version,text = [ x.strip() for x in val.split(',') ]
+          print "%s: %s"%(text, version)
+    except:
+      import traceback
+      traceback.print_exc()
+      return
+    pass
+
   def _showInfo(self, args=None):
     if args is None:
       args = []
@@ -455,7 +473,8 @@ class SalomeContext:
     epilog  = """\n
 Display some information about SALOME.\n
 Available options are:
-    -p,--ports        Show list of busy ports (running SALOME instances).
+    -p,--ports        Show the list of busy ports (running SALOME instances).
+    -s,--softwares    Show the list and versions of SALOME softwares.
     -v,--version      Show running SALOME version.
     -h,--help         Show this message.
 """
@@ -472,6 +491,9 @@ Available options are:
       print "SALOME instances are running on ports:", ports
       if ports:
         print "Last started instance on port %s"%ports[-1]
+
+    if "-s" in args or "--softwares" in args:
+      self._showSoftwareVersions()
 
     if "-v" in args or "--version" in args:
       print "Running with python", platform.python_version()
