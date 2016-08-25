@@ -102,7 +102,7 @@ def killAllPorts():
             pass
         pass
         cmd = "rm -f " + os.environ['HOME'] + "/.urifile_*"
-        commands.getoutput(cmd)
+        os.system(cmd)
     pass
 
 if __name__ == "__main__":
