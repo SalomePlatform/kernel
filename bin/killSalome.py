@@ -92,6 +92,7 @@ def killAllPorts():
                 pass
             pass
         pass
+        # kill ompi-server needed for MPI containers coupling
         cmd = "ps -fea | grep '%s' | grep 'ompi-server' | grep -v 'grep' | awk '{print $2}'" % user
         prc = commands.getoutput(cmd)
         for field in prc.split():
@@ -101,6 +102,7 @@ def killAllPorts():
                 pass
             pass
         pass
+        # delete uri files needed by ompi-server
         cmd = "rm -f " + os.environ['HOME'] + "/.urifile_*"
         os.system(cmd)
     pass
