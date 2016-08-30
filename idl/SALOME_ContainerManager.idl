@@ -40,9 +40,15 @@ struct ContainerParameters
   string container_name;
 
   //! creation mode for GiveContainer if given else automatic 
-  /*!start creates a new container
-   * get  try to find an existing container
-   * getorstart   use an existing container if it exists or creates a new one
+  /*! List of possible values:
+   * "find" : search the first container whose name is container_name on
+   *          resources listed in resource_params.resList.
+   *          Return nil if none found.
+   * "findorstart" : same as "find", but start a new container if none found.
+   * "start" : create a new container. If there is already a container with the
+   *           same name on the chosen resource, it will be shut down.
+   * "get" : search an existing container on the best fitting resource.
+   * "getorstart" : same as "get", but start a new container if none found.
    */
   string mode;
 
