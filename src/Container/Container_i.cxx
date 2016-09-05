@@ -1049,10 +1049,10 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
 
   if ( !Component_factory )
   {
-    INFOS( "Can't resolve symbol: " + factory_name );
+    MESSAGE( "Can't resolve symbol: " + factory_name );
 #ifndef WIN32
     reason=dlerror();
-    INFOS(reason);
+    MESSAGE(reason);
 #endif
     return Engines::EngineComponent::_nil() ;
   }
