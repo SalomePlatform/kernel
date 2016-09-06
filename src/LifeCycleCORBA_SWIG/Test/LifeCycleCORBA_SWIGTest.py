@@ -29,8 +29,6 @@
 import sys
 import unittest
 from omniORB import CORBA
-import PYHELLO_ORB
-import HELLO_ORB
 import Utils_Identity
 import Engines
 
