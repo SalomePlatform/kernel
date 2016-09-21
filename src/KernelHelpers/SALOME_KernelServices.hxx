@@ -41,7 +41,7 @@ namespace KERNEL {
   KERNELHELPERS_EXPORT SALOME_NamingService *        getNamingService();
   KERNELHELPERS_EXPORT SALOME_LifeCycleCORBA *       getLifeCycleCORBA();
   KERNELHELPERS_EXPORT SALOME::Session_ptr           getSalomeSession();
-  KERNELHELPERS_EXPORT SALOMEDS::StudyManager_ptr    getStudyManager();
+  KERNELHELPERS_EXPORT SALOMEDS::Study_ptr           getStudy();
   KERNELHELPERS_EXPORT Engines::SalomeLauncher_ptr   getSalomeLauncher();
   KERNELHELPERS_EXPORT Engines::ResourcesManager_ptr getResourcesManager();
 
@@ -49,8 +49,6 @@ namespace KERNEL {
   // SALOME KERNEL services to deal with a SALOME study, SObject and
   // SComponent.
   //
-  KERNELHELPERS_EXPORT SALOMEDS::Study_ptr getStudyById(int aStudyId);
-  KERNELHELPERS_EXPORT int                 getStudyId(SALOMEDS::Study_ptr study);
   KERNELHELPERS_EXPORT CORBA::Object_ptr   IORToObject(char * IOR);
   KERNELHELPERS_EXPORT CORBA::Object_ptr   SObjectToObject(SALOMEDS::SObject_ptr);
   

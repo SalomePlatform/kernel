@@ -41,7 +41,6 @@ typedef struct {
   Engines::IORTab* tior;
   std::string compoName;
   std::string nameToRegister;
-  long studyId;
   Engines::EngineComponent_ptr cptr;
 } thread_st;
 
@@ -71,7 +70,6 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   // synchronous version for process 0
   virtual Engines::EngineComponent_ptr
   create_component_instance_env( const char* componentName,
-                                 CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
                                  CORBA::String_out reason);
 
@@ -90,15 +88,13 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
  private:
   bool Lload_component_Library(const char* componentName);
   Engines::EngineComponent_ptr
-  Lcreate_component_instance( const char* componentName,
-                              CORBA::Long studyId); // 0 for multiStudy
+  Lcreate_component_instance(const char* componentName);
   Engines::EngineComponent_ptr Lload_impl(const char* nameToRegister,
                                     const char* componentName);
 
   Engines::EngineComponent_ptr
   createMPIInstance(std::string genericRegisterName,
-                    void *handle,
-                    int studyId);
+                    void *handle);
 
 };
 #endif

@@ -87,8 +87,7 @@ public:
     int theObjectID,
     const SALOMEDSImpl_SObject& theObject) = 0;
 
-  virtual SALOMEDSImpl_TMPFile* DumpPython(SALOMEDSImpl_Study* theStudy, 
-    bool isPublished, 
+  virtual SALOMEDSImpl_TMPFile* DumpPython(bool isPublished,
     bool isMultiFile, 
     bool& isValidScript,
     long& theStreamLength) = 0;

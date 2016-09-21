@@ -32,7 +32,6 @@
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS_SComponent.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
-#include "SALOMEDS_StudyManager.hxx"
 #include "SALOMEDS_StudyBuilder_i.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"

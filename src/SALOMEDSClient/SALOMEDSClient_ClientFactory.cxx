@@ -36,8 +36,6 @@ static void* _libHandle = NULL;
 #define SCOMPONENT_FACTORY   "SComponentFactory"
 #define STUDY_FACTORY        "StudyFactory"
 #define BUILDER_FACTORY      "BuilderFactory"
-#define STUDYMANAGER_FACTORY "StudyManagerFactory"
-#define STUDYMANAGER_CREATE  "CreateStudyManager"
 #define GET_PARAMETERS       "GetIParameters"
 #define CONVERT_SOBJECT      "ConvertSObject"
 #define CONVERT_STUDY        "ConvertStudy"
@@ -46,9 +44,7 @@ static void* _libHandle = NULL;
 typedef SALOMEDSClient_SObject* (*SOBJECT_FACTORY_FUNCTION) (SALOMEDS::SObject_ptr);
 typedef SALOMEDSClient_SComponent* (*SCOMPONENT_FACTORY_FUNCTION) (SALOMEDS::SComponent_ptr);
 typedef SALOMEDSClient_Study* (*STUDY_FACTORY_FUNCTION) (SALOMEDS::Study_ptr);
-typedef SALOMEDSClient_StudyManager* (*STUDYMANAGER_FACTORY_FUNCTION) ();
 typedef SALOMEDSClient_StudyBuilder* (*BUILDER_FACTORY_FUNCTION) (SALOMEDS::StudyBuilder_ptr);
-typedef SALOMEDSClient_StudyManager* (*STUDYMANAGER_CREATE_FUNCTION) (CORBA::ORB_ptr, PortableServer::POA_ptr);
 typedef SALOMEDSClient_IParameters* (*GET_PARAMETERS_FACTORY) (const _PTR(AttributeParameter)&);
 typedef SALOMEDS::SObject_ptr (*CONVERT_SOBJECT_FUNCTION) (const _PTR(SObject)&);
 typedef SALOMEDS::Study_ptr (*CONVERT_STUDY_FUNCTION) (const _PTR(Study)&);
@@ -59,8 +55,6 @@ static SOBJECT_FACTORY_FUNCTION aSObjectFactory = NULL;
 static SCOMPONENT_FACTORY_FUNCTION aSComponentFactory = NULL;
 static STUDY_FACTORY_FUNCTION aStudyFactory = NULL;
 static BUILDER_FACTORY_FUNCTION aBuilderFactory = NULL;
-static STUDYMANAGER_FACTORY_FUNCTION aManagerFactory = NULL;
-static STUDYMANAGER_CREATE_FUNCTION aCreateFactory = NULL;
 static GET_PARAMETERS_FACTORY aGetIParameters = NULL;
 static CONVERT_SOBJECT_FUNCTION aConvertSObject = NULL;
 static CONVERT_STUDY_FUNCTION aConvertStudy = NULL;
@@ -128,38 +122,6 @@ _PTR(StudyBuilder) ClientFactory::StudyBuilder(SALOMEDS::StudyBuilder_ptr theStu
 
   if(aBuilderFactory) studyBuilder = aBuilderFactory(theStudyBuilder); 
   return _PTR(StudyBuilder)(studyBuilder);
-}
-
-_PTR(StudyManager) ClientFactory::StudyManager()
-{
-  SALOMEDSClient_StudyManager* manager = NULL;
-
-#ifdef WIN32
-  if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
-  if(!aManagerFactory) aManagerFactory = (STUDYMANAGER_FACTORY_FUNCTION)::GetProcAddress(_libHandle, STUDYMANAGER_FACTORY);
-#else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
-  if(!aManagerFactory) aManagerFactory = (STUDYMANAGER_FACTORY_FUNCTION) dlsym(_libHandle, STUDYMANAGER_FACTORY);
-#endif
-
-  if(aManagerFactory) manager = aManagerFactory(); 
-  return _PTR(StudyManager)(manager);
-}
-
-_PTR(StudyManager) ClientFactory::createStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa)
-{
-  SALOMEDSClient_StudyManager* manager = NULL;
-
-#ifdef WIN32
-  if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
-  if(!aCreateFactory) aCreateFactory = (STUDYMANAGER_CREATE_FUNCTION)::GetProcAddress(_libHandle, STUDYMANAGER_CREATE);
-#else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
-  if(!aCreateFactory) aCreateFactory = (STUDYMANAGER_CREATE_FUNCTION) dlsym(_libHandle, STUDYMANAGER_CREATE);
-#endif
-
-  if(aCreateFactory)  manager = aCreateFactory(orb, poa);
-  return _PTR(StudyManager)(manager);
 }
 
 _PTR(IParameters) ClientFactory::getIParameters(const _PTR(AttributeParameter)& ap)

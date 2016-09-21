@@ -255,17 +255,17 @@ Engines_Container_i::~Engines_Container_i()
   if(_NS)
     delete _NS;
   for(std::map<std::string,Engines::PyNode_var>::iterator it=_dftPyNode.begin();it!=_dftPyNode.end();it++)
-    {
-      Engines::PyNode_var tmpVar((*it).second);
-      if(!CORBA::is_nil(tmpVar))
-        tmpVar->UnRegister();
-    }
+  {
+    Engines::PyNode_var tmpVar((*it).second);
+    if(!CORBA::is_nil(tmpVar))
+      tmpVar->UnRegister();
+  }
   for(std::map<std::string,Engines::PyScriptNode_var>::iterator it=_dftPyScriptNode.begin();it!=_dftPyScriptNode.end();it++)
-    {
-      Engines::PyScriptNode_var tmpVar((*it).second);
-      if(!CORBA::is_nil(tmpVar))
-        tmpVar->UnRegister();
-    }
+  {
+    Engines::PyScriptNode_var tmpVar((*it).second);
+    if(!CORBA::is_nil(tmpVar))
+      tmpVar->UnRegister();
+  }
 }
 
 //=============================================================================
@@ -370,20 +370,20 @@ void Engines_Container_i::Shutdown()
   */
   std::map<std::string, Engines::EngineComponent_var>::iterator itm;
   for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
+  {
+    try
     {
-      try
-        {
-          itm->second->destroy();
-        }
-      catch(const CORBA::Exception& e)
-        {
-          // ignore this entry and continue
-        }
-      catch(...)
-        {
-          // ignore this entry and continue
-        }
+      itm->second->destroy();
     }
+    catch(const CORBA::Exception& e)
+    {
+      // ignore this entry and continue
+    }
+    catch(...)
+    {
+      // ignore this entry and continue
+    }
+  }
   _listInstances_map.clear();
 
   _NS->Destroy_FullDirectory(_containerName.c_str());
@@ -414,15 +414,15 @@ Engines_Container_i::load_component_Library(const char* componentName, CORBA::St
   //=================================================================
   std::string retso;
   if(load_component_CppImplementation(componentName,retso))
-    {
-      reason=CORBA::string_dup("");
-      return true;
-    }
+  {
+    reason=CORBA::string_dup("");
+    return true;
+  }
   else if(retso != "ImplementationNotFound")
-    {
-      reason=CORBA::string_dup(retso.c_str());
-      return false;
-    }
+  {
+    reason=CORBA::string_dup(retso.c_str());
+    return false;
+  }
 
   retso="Component ";
   retso+=componentName;
@@ -434,15 +434,15 @@ Engines_Container_i::load_component_Library(const char* componentName, CORBA::St
   //=================================================================
   std::string retpy;
   if(load_component_PythonImplementation(componentName,retpy))
-    {
-      reason=CORBA::string_dup("");
-      return true;
-    }
+  {
+    reason=CORBA::string_dup("");
+    return true;
+  }
   else if(retpy != "ImplementationNotFound")
-    {
-      reason=CORBA::string_dup(retpy.c_str());
-      return false;
-    }
+  {
+    reason=CORBA::string_dup(retpy.c_str());
+    return false;
+  }
   
   retpy="Component ";
   retpy+=componentName;
@@ -455,15 +455,15 @@ Engines_Container_i::load_component_Library(const char* componentName, CORBA::St
   //=================================================================
   std::string retex;
   if(load_component_ExecutableImplementation(componentName,retex))
-    {
-      reason=CORBA::string_dup("");
-      return true;
-    }
+  {
+    reason=CORBA::string_dup("");
+    return true;
+  }
   else if(retex != "ImplementationNotFound")
-    {
-      reason=CORBA::string_dup(retex.c_str());
-      return false;
-    }
+  {
+    reason=CORBA::string_dup(retex.c_str());
+    return false;
+  }
 
   retex="Component ";
   retex+=componentName;
@@ -504,63 +504,63 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
   // (see decInstanceCnt, finalize_removal))
   if (_toRemove_map.count(impl_name) != 0) _toRemove_map.erase(impl_name);
   if (_library_map.count(impl_name) != 0)
-    {
-      MESSAGE("Library " << impl_name << " already loaded");
-      _numInstanceMutex.unlock();
-      reason="";
-      return true;
-    }
+  {
+    MESSAGE("Library " << impl_name << " already loaded");
+    _numInstanceMutex.unlock();
+    reason="";
+    return true;
+  }
   _numInstanceMutex.unlock();
 
 #ifndef WIN32
   void* handle;
   handle = dlopen( impl_name.c_str() , RTLD_NOW ) ;
   if ( !handle )
-    {
-      //not loadable. Try to find the lib file in LD_LIBRARY_PATH
-      std::string path;
-      char* p=getenv("LD_LIBRARY_PATH");
-      if(p)path=p;
-      path=path+SEP+"/usr/lib"+SEP+"/lib";
+  {
+    //not loadable. Try to find the lib file in LD_LIBRARY_PATH
+    std::string path;
+    char* p=getenv("LD_LIBRARY_PATH");
+    if(p)path=p;
+    path=path+SEP+"/usr/lib"+SEP+"/lib";
 
-      std::string pth;
-      if(findpathof(path, pth, impl_name))
-        {
-          //found but not loadable
-          reason="Component ";
-          reason+=aCompName;
-          reason+=": C++ implementation found ";
-          reason+=pth;
-          reason+=" but it is not loadable. Error:\n";
-          reason+=dlerror();
-          std::cerr << reason << std::endl;
-          return false;
-        }
-      else
-        {
-          //not found
-          //continue with other implementation
-          reason="ImplementationNotFound";
-          return false;
-        }
+    std::string pth;
+    if(findpathof(path, pth, impl_name))
+    {
+      //found but not loadable
+      reason="Component ";
+      reason+=aCompName;
+      reason+=": C++ implementation found ";
+      reason+=pth;
+      reason+=" but it is not loadable. Error:\n";
+      reason+=dlerror();
+      std::cerr << reason << std::endl;
+      return false;
     }
+    else
+    {
+      //not found
+      //continue with other implementation
+      reason="ImplementationNotFound";
+      return false;
+    }
+  }
 #else
   HINSTANCE handle;
   handle = LoadLibrary( impl_name.c_str() );
   if ( !handle )
-    {
-      reason="ImplementationNotFound";
-    }
+  {
+    reason="ImplementationNotFound";
+  }
 #endif
 
   if ( handle )
-    {
-      _numInstanceMutex.lock();
-      _library_map[impl_name] = handle;
-      _numInstanceMutex.unlock();
-      reason="";
-      return true;
-    }
+  {
+    _numInstanceMutex.lock();
+    _library_map[impl_name] = handle;
+    _numInstanceMutex.unlock();
+    reason="";
+    return true;
+  }
 
   return false;
 
@@ -581,11 +581,11 @@ Engines_Container_i::load_component_PythonImplementation(const char* componentNa
 
   _numInstanceMutex.lock() ; // lock to be alone (stl container write)
   if (_library_map.count(aCompName) != 0)
-    {
-      _numInstanceMutex.unlock() ;
-      reason="";
-      return true; // Python Component, already imported
-    }
+  {
+    _numInstanceMutex.unlock() ;
+    reason="";
+    return true; // Python Component, already imported
+  }
   _numInstanceMutex.unlock() ;
 
   PyGILState_STATE gstate = PyGILState_Ensure();
@@ -599,24 +599,24 @@ Engines_Container_i::load_component_PythonImplementation(const char* componentNa
   PyGILState_Release(gstate);
 
   if (reason=="")
-    {
-      //Python component has been loaded (import componentName)
-      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-      _library_map[aCompName] = (void *)_pyCont; // any non O value OK
-      _numInstanceMutex.unlock() ;
-      MESSAGE("import Python: "<< aCompName <<" OK");
-      return true;
-    }
+  {
+    //Python component has been loaded (import componentName)
+    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+    _library_map[aCompName] = (void *)_pyCont; // any non O value OK
+    _numInstanceMutex.unlock() ;
+    MESSAGE("import Python: "<< aCompName <<" OK");
+    return true;
+  }
   else if(reason=="ImplementationNotFound")
-    {
-      //Python implementation has not been found. Continue with other implementation
-      reason="ImplementationNotFound";
-    }
+  {
+    //Python implementation has not been found. Continue with other implementation
+    reason="ImplementationNotFound";
+  }
   else
-    {
-      //Python implementation has been found but loading has failed
-      std::cerr << reason << std::endl;
-    }
+  {
+    //Python implementation has been found but loading has failed
+    std::cerr << reason << std::endl;
+  }
   return false;
 
 }
@@ -642,27 +642,27 @@ Engines_Container_i::load_component_ExecutableImplementation(const char* compone
   if(p)path=p;
 
   if (findpathof(path, pth, executable))
+  {
+    if(checkifexecutable(pth))
     {
-      if(checkifexecutable(pth))
-        {
-          _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-          _library_map[executable] = (void *)1; // any non O value OK
-          _numInstanceMutex.unlock() ;
-          MESSAGE("import executable: "<< pth <<" OK");
-          reason="";
-          return true;
-        }
-      reason="Component ";
-      reason+=aCompName;
-      reason+=": implementation found ";
-      reason+=pth;
-      reason+=" but it is not executable";
-      std::cerr << reason << std::endl;
+      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+      _library_map[executable] = (void *)1; // any non O value OK
+      _numInstanceMutex.unlock() ;
+      MESSAGE("import executable: "<< pth <<" OK");
+      reason="";
+      return true;
     }
+    reason="Component ";
+    reason+=aCompName;
+    reason+=": implementation found ";
+    reason+=pth;
+    reason+=" but it is not executable";
+    std::cerr << reason << std::endl;
+  }
   else
-    {
-      reason="ImplementationNotFound";
-    }
+  {
+    reason="ImplementationNotFound";
+  }
   return false;
 }
 
@@ -673,19 +673,16 @@ Engines_Container_i::load_component_ExecutableImplementation(const char* compone
 *  The servant registers itself to naming service and Registry.
 *  \param genericRegisterName  Name of the component instance to register
 *                         in Registry & Name Service (without _inst_n suffix)
-*  \param studyId         0 for multiStudy instance, 
-*                         study Id (>0) otherwise
 *  \return a loaded component
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::create_component_instance(const char*genericRegisterName,
-                                               CORBA::Long studyId)
+Engines_Container_i::create_component_instance(const char*genericRegisterName)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
   Engines::EngineComponent_ptr compo =
-    create_component_instance_env(genericRegisterName, studyId, env, reason);
+    create_component_instance_env(genericRegisterName, env, reason);
   CORBA::string_free(reason);
   return compo;
 }
@@ -697,8 +694,6 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 *  The servant registers itself to naming service and Registry.
 *  \param genericRegisterName  Name of the component instance to register
 *                         in Registry & Name Service (without _inst_n suffix)
-*  \param studyId         0 for multiStudy instance, 
-*                         study Id (>0) otherwise
 *  \param env             dict of env variables
 *  \param reason          explains error when create_component_instance_env fails
 *  \return a loaded component
@@ -706,44 +701,36 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 //=============================================================================
 Engines::EngineComponent_ptr
 Engines_Container_i::create_component_instance_env(const char*genericRegisterName,
-                                                   CORBA::Long studyId,
                                                    const Engines::FieldsDict& env,
                                                    CORBA::String_out reason)
 {
-  if (studyId < 0)
-    {
-      INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
-      reason=CORBA::string_dup("studyId must be > 0 for mono study instance, =0 for multiStudy");
-      return Engines::EngineComponent::_nil() ;
-    }
-
   std::string error;
   if (_library_map.count(genericRegisterName) != 0)
-    {
-      // It's a Python component
-      Engines::EngineComponent_ptr compo = createPythonInstance(genericRegisterName, studyId, error);
-      reason=CORBA::string_dup(error.c_str());
-      return compo;
-    }
+  {
+    // It's a Python component
+    Engines::EngineComponent_ptr compo = createPythonInstance(genericRegisterName, error);
+    reason=CORBA::string_dup(error.c_str());
+    return compo;
+  }
 
   std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
   if (_library_map.count(impl_name) != 0)
-    {
-      // It's a C++ component
-      void* handle = _library_map[impl_name];
-      Engines::EngineComponent_ptr compo = createInstance(genericRegisterName, handle, studyId, error);
-      reason=CORBA::string_dup(error.c_str());
-      return compo;
-    }
+  {
+    // It's a C++ component
+    void* handle = _library_map[impl_name];
+    Engines::EngineComponent_ptr compo = createInstance(genericRegisterName, handle, error);
+    reason=CORBA::string_dup(error.c_str());
+    return compo;
+  }
 
   impl_name = std::string(genericRegisterName) + ".exe";
   if (_library_map.count(impl_name) != 0)
-    {
-      //It's an executable component
-      Engines::EngineComponent_ptr compo = createExecutableInstance(genericRegisterName, studyId, env, error);
-      reason=CORBA::string_dup(error.c_str());
-      return compo;
-    }
+  {
+    //It's an executable component
+    Engines::EngineComponent_ptr compo = createExecutableInstance(genericRegisterName, env, error);
+    reason=CORBA::string_dup(error.c_str());
+    return compo;
+  }
 
   error="load_component_Library has probably not been called for component: ";
   error += genericRegisterName;
@@ -756,8 +743,6 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
 //! Create a new component instance (Executable implementation)
 /*! 
 *  \param CompName               Name of the component instance
-*  \param studyId                0 for multiStudy instance, 
-*                                study Id (>0) otherwise
 *  \param env                    dict of env variables
 *  \param reason                 explains error when creation fails
 *  \return a loaded component
@@ -768,7 +753,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
+Engines_Container_i::createExecutableInstance(std::string CompName,
                                               const Engines::FieldsDict& env,
                                               std::string& reason)
 {
@@ -822,35 +807,35 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
   int status;
   pid_t pid = fork();
   if(pid == 0) // child
+  {
+    for (CORBA::ULong i=0; i < env.length(); i++)
     {
-      for (CORBA::ULong i=0; i < env.length(); i++)
-        {
-          if (env[i].value.type()->kind() == CORBA::tk_string)
-            {
-              const char* value;
-              env[i].value >>= value;
-              std::string s(env[i].key);
-              s+='=';
-              s+=value;
-              putenv(strdup(s.c_str()));
-            }
-        }
+      if (env[i].value.type()->kind() == CORBA::tk_string)
+      {
+        const char* value;
+        env[i].value >>= value;
+        std::string s(env[i].key);
+        s+='=';
+        s+=value;
+        putenv(strdup(s.c_str()));
+      }
+    }
 
-      execl("/bin/sh", "sh", "-c", command.c_str() , (char *)0);
-      status=-1;
-    }
+    execl("/bin/sh", "sh", "-c", command.c_str() , (char *)0);
+    status=-1;
+  }
   else if(pid < 0)       // failed to fork
-    {
-      status=-1;
-    }
+  {
+    status=-1;
+  }
   else            //parent
+  {
+    pid_t tpid;
+    do
     {
-      pid_t tpid;
-      do
-        {
-          tpid = wait(&status);
-        } while (tpid != pid);
-    }
+      tpid = wait(&status);
+    } while (tpid != pid);
+  }
 #else
   // launch component with a system call
   int status=system(command.c_str());
@@ -920,14 +905,12 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
 //! Create a new component instance (Python implementation)
 /*! 
 *  \param CompName               Name of the component instance
-*  \param studyId                0 for multiStudy instance, 
-*                                study Id (>0) otherwise
 *  \param reason                 explains error when creation fails
 *  \return a loaded component
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
+Engines_Container_i::createPythonInstance(std::string CompName,
                                           std::string& reason)
 {
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
@@ -947,8 +930,7 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
                                          (char*)"create_component_instance",
                                          (char*)"ssl",
                                          CompName.c_str(),
-                                         instanceName.c_str(),
-                                         studyId);
+                                         instanceName.c_str());
   const char *ior;
   const char *error;
   PyArg_ParseTuple(result,"ss", &ior, &error);
@@ -958,11 +940,11 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
   PyGILState_Release(gstate);
 
   if( iors!="" )
-    {
-      CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-      iobject = Engines::EngineComponent::_narrow( obj ) ;
-      _listInstances_map[instanceName] = iobject;
-    }
+  {
+    CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+    iobject = Engines::EngineComponent::_narrow( obj ) ;
+    _listInstances_map[instanceName] = iobject;
+  }
   return iobject._retn();
 }
 
@@ -1009,8 +991,6 @@ Engines_Container_i::create_python_service_instance(const char * CompName,
 *                                in Registry & Name Service,
 *                                (without _inst_n suffix, like "COMPONENT")
 *  \param handle                 loaded library handle
-*  \param studyId                0 for multiStudy instance, 
-*                                study Id (>0) otherwise
 *  \param reason                 explains error when creation fails
 *  \return a loaded component
 * 
@@ -1026,7 +1006,6 @@ Engines_Container_i::create_python_service_instance(const char * CompName,
 Engines::EngineComponent_ptr
 Engines_Container_i::createInstance(std::string genericRegisterName,
                                     void *handle,
-                                    int studyId,
                                     std::string& reason)
 {
   // --- find the factory
@@ -1080,30 +1059,23 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
     id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
                                                 aGenRegisterName.c_str() ) ;
     if (id == NULL)
-      {
-        reason="Can't get ObjectId from factory";
-        INFOS(reason);
-        return iobject._retn();
-      }
+    {
+      reason="Can't get ObjectId from factory";
+      INFOS(reason);
+      return iobject._retn();
+    }
 
-    // --- get reference & servant from id
+    // --- get reference from id
 
     CORBA::Object_var obj = _poa->id_to_reference(*id);
     iobject = Engines::EngineComponent::_narrow( obj ) ;
 
-    Engines_Component_i *servant =
-      dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
-    ASSERT(servant);
-    //SCRUTE(servant->_refcount_value());
     _numInstanceMutex.lock() ; // lock to be alone (stl container write)
     _listInstances_map[instanceName] = iobject;
     _cntInstances_map[aGenRegisterName] += 1;
     _numInstanceMutex.unlock() ;
     SCRUTE(aGenRegisterName);
     SCRUTE(_cntInstances_map[aGenRegisterName]);
-    servant->setStudyId(studyId);
-    servant->_remove_ref(); // do not need servant any more (remove ref from reference_to_servant)
-    //SCRUTE(servant->_refcount_value());
 
     // --- register the engine under the name
     //     containerName(.dir)/instanceName(.object)
@@ -1125,14 +1097,11 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
 *  CORBA method: Finds a servant instance of a component
 *  \param registeredName  Name of the component in Registry or Name Service,
 *                         without instance suffix number
-*  \param studyId         0 if instance is not associated to a study,
-*                         >0 otherwise (== study id)
-*  \return the first instance found with same studyId
+*  \return the first found instance
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::find_component_instance( const char* registeredName,
-                                              CORBA::Long studyId)
+Engines_Container_i::find_component_instance( const char* registeredName)
 {
   Engines::EngineComponent_var anEngine = Engines::EngineComponent::_nil();
   std::map<std::string,Engines::EngineComponent_var>::iterator itm =_listInstances_map.begin();
@@ -1143,10 +1112,7 @@ Engines_Container_i::find_component_instance( const char* registeredName,
     if (instance.find(registeredName) == 0)
     {
       anEngine = (*itm).second;
-      if (studyId == anEngine->getStudyId())
-      {
-        return anEngine._retn();
-      }
+      return anEngine._retn();
     }
     itm++;
   }
@@ -1312,29 +1278,11 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
       {
         iobject = createInstance(genericRegisterName,
                                  handle,
-                                 0,
-                                 reason); // force multiStudy instance here !
+                                 reason);
       }
       else
       {
         iobject = Engines::EngineComponent::_narrow( obj ) ;
-        Engines_Component_i *servant =
-          dynamic_cast<Engines_Component_i*>
-          (_poa->reference_to_servant(iobject));
-        ASSERT(servant)
-          int studyId = servant->getStudyId();
-        ASSERT (studyId >= 0);
-        if (studyId == 0) // multiStudy instance, OK
-        {
-          // No ReBind !
-          MESSAGE(component_registerBase.c_str()<<" already bound");
-        }
-        else // monoStudy instance: NOK
-        {
-          iobject = Engines::EngineComponent::_nil();
-          INFOS("load_impl & find_component_instance methods "
-            << "NOT SUITABLE for mono study components");
-        }
       }
     }
     catch (...)
@@ -1624,36 +1572,36 @@ void Engines_Container_i::copyFile(Engines::Container_ptr container, const char*
 
   FILE* fp;
   if ((fp = fopen(localFile,"wb")) == NULL)
-    {
-      INFOS("file " << localFile << " cannot be open for writing");
-      return;
-    }
+  {
+    INFOS("file " << localFile << " cannot be open for writing");
+    return;
+  }
 
   CORBA::Long fileId = fileTransfer->open(remoteFile);
   if (fileId > 0)
+  {
+    Engines::fileBlock* aBlock;
+    int toFollow = 1;
+    int ctr=0;
+    while (toFollow)
     {
-      Engines::fileBlock* aBlock;
-      int toFollow = 1;
-      int ctr=0;
-      while (toFollow)
-        {
-          ctr++;
-          //SCRUTE(ctr);
-          aBlock = fileTransfer->getBlock(fileId);
-          toFollow = aBlock->length();
-          //SCRUTE(toFollow);
-          CORBA::Octet *buf = aBlock->get_buffer();
-          fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
-          delete aBlock;
-        }
-      fclose(fp);
-      MESSAGE("end of transfer");
-      fileTransfer->close(fileId);
+      ctr++;
+      //SCRUTE(ctr);
+      aBlock = fileTransfer->getBlock(fileId);
+      toFollow = aBlock->length();
+      //SCRUTE(toFollow);
+      CORBA::Octet *buf = aBlock->get_buffer();
+      fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+      delete aBlock;
     }
+    fclose(fp);
+    MESSAGE("end of transfer");
+    fileTransfer->close(fileId);
+  }
   else
-    {
-      INFOS("open reference file for copy impossible");
-    }
+  {
+    INFOS("open reference file for copy impossible");
+  }
 }
 
 //=============================================================================
@@ -1665,57 +1613,57 @@ void Engines_Container_i::copyFile(Engines::Container_ptr container, const char*
 //=============================================================================
 Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, const char* code)
 {
-    Engines::PyNode_var node= Engines::PyNode::_nil();
+  Engines::PyNode_var node= Engines::PyNode::_nil();
 
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject *res = PyObject_CallMethod(_pyCont,
-      (char*)"create_pynode",
-      (char*)"ss",
-      nodeName,
-      code);
-    if(res==NULL)
-      {
-        //internal error
-        PyErr_Print();
-        PyGILState_Release(gstate);
-        SALOME::ExceptionStruct es;
-        es.type = SALOME::INTERNAL_ERROR;
-        es.text = "can not create a python node";
-        throw SALOME::SALOME_Exception(es);
-      }
-    long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
-    PyObject* result=PyTuple_GetItem(res,1);
-    std::string astr=PyString_AsString(result);
-    Py_DECREF(res);
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *res = PyObject_CallMethod(_pyCont,
+    (char*)"create_pynode",
+    (char*)"ss",
+    nodeName,
+    code);
+  if(res==NULL)
+  {
+    //internal error
+    PyErr_Print();
     PyGILState_Release(gstate);
-    if(ierr==0)
-      {
-        Utils_Locker lck(&_mutexForDftPy);
-        CORBA::Object_var obj=_orb->string_to_object(astr.c_str());
-        node=Engines::PyNode::_narrow(obj);
-        std::map<std::string,Engines::PyNode_var>::iterator it(_dftPyNode.find(nodeName));
-        if(it==_dftPyNode.end())
-          {
-            _dftPyNode[nodeName]=node;
-          }
-        else
-          {
-            Engines::PyNode_var oldNode((*it).second);
-            if(!CORBA::is_nil(oldNode))
-              oldNode->UnRegister();
-            (*it).second=node;
-          }
-        if(!CORBA::is_nil(node))
-          node->Register();
-        return node._retn();
-      }
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "can not create a python node";
+    throw SALOME::SALOME_Exception(es);
+  }
+  long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
+  PyObject* result=PyTuple_GetItem(res,1);
+  std::string astr=PyString_AsString(result);
+  Py_DECREF(res);
+  PyGILState_Release(gstate);
+  if(ierr==0)
+  {
+    Utils_Locker lck(&_mutexForDftPy);
+    CORBA::Object_var obj=_orb->string_to_object(astr.c_str());
+    node=Engines::PyNode::_narrow(obj);
+    std::map<std::string,Engines::PyNode_var>::iterator it(_dftPyNode.find(nodeName));
+    if(it==_dftPyNode.end())
+    {
+      _dftPyNode[nodeName]=node;
+    }
     else
-      {
-        SALOME::ExceptionStruct es;
-        es.type = SALOME::INTERNAL_ERROR;
-        es.text = astr.c_str();
-        throw SALOME::SALOME_Exception(es);
-      }
+    {
+      Engines::PyNode_var oldNode((*it).second);
+      if(!CORBA::is_nil(oldNode))
+        oldNode->UnRegister();
+      (*it).second=node;
+    }
+    if(!CORBA::is_nil(node))
+      node->Register();
+    return node._retn();
+  }
+  else
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = astr.c_str();
+    throw SALOME::SALOME_Exception(es);
+  }
 }
 
 //=============================================================================
@@ -1730,13 +1678,13 @@ Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode(const char *nodeName)
   if(it==_dftPyNode.end())
     return Engines::PyNode::_nil();
   else
-    {
-      Engines::PyNode_var tmpVar((*it).second);
-      if(!CORBA::is_nil(tmpVar))
-        return Engines::PyNode::_duplicate(tmpVar);
-      else
-        return Engines::PyNode::_nil();
-    }
+  {
+    Engines::PyNode_var tmpVar((*it).second);
+    if(!CORBA::is_nil(tmpVar))
+      return Engines::PyNode::_duplicate(tmpVar);
+    else
+      return Engines::PyNode::_nil();
+  }
 }
 
 //=============================================================================
@@ -1748,58 +1696,58 @@ Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode(const char *nodeName)
 //=============================================================================
 Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* nodeName, const char* code)
 {
-    Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
+  Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
 
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject *res = PyObject_CallMethod(_pyCont,
-      (char*)"create_pyscriptnode",
-      (char*)"ss",
-      nodeName,
-      code);
-    if(res==NULL)
-      {
-        //internal error
-        PyErr_Print();
-        PyGILState_Release(gstate);
-        SALOME::ExceptionStruct es;
-        es.type = SALOME::INTERNAL_ERROR;
-        es.text = "can not create a python node";
-        throw SALOME::SALOME_Exception(es);
-      }
-    long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
-    PyObject* result=PyTuple_GetItem(res,1);
-    std::string astr=PyString_AsString(result);
-    Py_DECREF(res);
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *res = PyObject_CallMethod(_pyCont,
+    (char*)"create_pyscriptnode",
+    (char*)"ss",
+    nodeName,
+    code);
+  if(res==NULL)
+  {
+    //internal error
+    PyErr_Print();
     PyGILState_Release(gstate);
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "can not create a python node";
+    throw SALOME::SALOME_Exception(es);
+  }
+  long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
+  PyObject* result=PyTuple_GetItem(res,1);
+  std::string astr=PyString_AsString(result);
+  Py_DECREF(res);
+  PyGILState_Release(gstate);
 
-    if(ierr==0)
-      {
-        Utils_Locker lck(&_mutexForDftPy);
-        CORBA::Object_var obj=_orb->string_to_object(astr.c_str());
-        node=Engines::PyScriptNode::_narrow(obj);
-        std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
-        if(it==_dftPyScriptNode.end())
-          {
-            _dftPyScriptNode[nodeName]=node;
-          }
-        else
-          {
-            Engines::PyScriptNode_var oldNode((*it).second);
-            if(!CORBA::is_nil(oldNode))
-              oldNode->UnRegister();
-            (*it).second=node;
-          }
-        if(!CORBA::is_nil(node))
-          node->Register();
-        return node._retn();
-      }
+  if(ierr==0)
+  {
+    Utils_Locker lck(&_mutexForDftPy);
+    CORBA::Object_var obj=_orb->string_to_object(astr.c_str());
+    node=Engines::PyScriptNode::_narrow(obj);
+    std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
+    if(it==_dftPyScriptNode.end())
+    {
+      _dftPyScriptNode[nodeName]=node;
+    }
     else
-      {
-        SALOME::ExceptionStruct es;
-        es.type = SALOME::INTERNAL_ERROR;
-        es.text = astr.c_str();
-        throw SALOME::SALOME_Exception(es);
-      }
+    {
+      Engines::PyScriptNode_var oldNode((*it).second);
+      if(!CORBA::is_nil(oldNode))
+        oldNode->UnRegister();
+      (*it).second=node;
+    }
+    if(!CORBA::is_nil(node))
+      node->Register();
+    return node._retn();
+  }
+  else
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = astr.c_str();
+    throw SALOME::SALOME_Exception(es);
+  }
 }
 
 //=============================================================================
@@ -1814,13 +1762,13 @@ Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode(const char
   if(it==_dftPyScriptNode.end())
     return Engines::PyScriptNode::_nil();
   else
-    {
-      Engines::PyScriptNode_var tmpVar((*it).second);
-      if(!CORBA::is_nil(tmpVar))
-        return Engines::PyScriptNode::_duplicate(tmpVar);
-      else
-        return Engines::PyScriptNode::_nil();
-    }
+  {
+    Engines::PyScriptNode_var tmpVar((*it).second);
+    if(!CORBA::is_nil(tmpVar))
+      return Engines::PyScriptNode::_duplicate(tmpVar);
+    else
+      return Engines::PyScriptNode::_nil();
+  }
 }
 
 //=============================================================================

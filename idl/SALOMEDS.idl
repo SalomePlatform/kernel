@@ -41,7 +41,7 @@ module SALOMEDS
 {
 /*! \brief Name of the file in which the %Study is saved.
 */
-  typedef string URL;
+  typedef string URLPath;
 
 /*! \brief Main identifier of an object in %SALOME application
 */
@@ -55,12 +55,6 @@ module SALOMEDS
 */
   typedef string SalomeReference;
 
-/*! \brief List of the names of studies which are currently open in this %SALOME session.
-
-Since %SALOME is a multi-study application, it allows to open a lot of studies
-during each working session.
-*/
-  typedef sequence<string> ListOfOpenStudies;
 //! List of file names
   typedef sequence<string> ListOfFileNames;
 //! List of modification dates of a study
@@ -81,7 +75,6 @@ during each working session.
 
   interface GenericAttribute;
   interface Study;
-  interface StudyManager;
   interface StudyBuilder;
   interface SObject;
   interface SComponent;
@@ -104,468 +97,6 @@ during each working session.
 
 //! Exception indicating that this feature hasn't been implemented in %SALOME application.
   exception NotImplemented {};
-
-
-  //===========================================================================
- /*! \brief %Study Interface
-
-    The purpose of the %Study is to manage the data produced by various components of %SALOME platform.
-   Most of the %Study operations are handled by the StudyManager and the StudyBuilder.
-   What is left in the %Study interface are elementary inquiries.
-   (Incidentally, we recall that a CORBA attribute is implemented as a pair of get
-      and set methods.) A %Study is explored by a set of tools, mainly iterators
-    , which are described further. Nevertheless, the %Study
-     interface allows the search of an object by name or by ID.
-     \note
-     <BR><VAR>The Path </VAR>of an object in %SALOME application is much alike a standard path of a file.
-    In general it's a string of names of directories divided by a slash '/'.
-     <BR><VAR>The Context</VAR> is the current directory of an object.</P>
-*/
-
-  interface Study
-  {
-
-//! Invalid study reference
-    exception StudyInvalidReference {};
-//! Invalid study context
-    exception StudyInvalidContext {};
-//! Invalid study component
-    exception StudyInvalidComponent {};
-//! Invalid directory of the %study exception
-    exception StudyInvalidDirectory {};
-//! Exception pointing that this name of the study has already been used.
-    exception StudyNameAlreadyUsed {};
-//! study object already exists
-    exception StudyObjectAlreadyExists {};
-//! Invalid name of the %study exception
-    exception StudyNameError {};
-//! Invalid study comment
-    exception StudyCommentError {};
-
-/*! \brief The name of the %Study
-
-   This is equivalent to the methods setName() & getName()
-*/
-    attribute string     Name; // equivalent to setName() & getName()
-/*! \brief The ID of the %Study
-
-   This is equivalent to the methods setID() & getID()
-*/
-    attribute short      StudyId;
-//! Sequence containing %SObjects
-    typedef sequence<SObject> ListOfSObject;
-//!  Get the persistent reference to the %Study.
-    PersistentReference  GetPersistentReference() raises(StudyInvalidReference);
-//! Get a transient reference to the %Study.
-    SalomeReference      GetTransientReference() raises(StudyInvalidReference);
-
-/*! \brief indicate whether the %Study is empty
-
-    \return True if the %Study is empty
-*/
-    boolean IsEmpty() raises(StudyInvalidReference);
-/*! \brief  Find a %SComponent by its name.
-
-   \param aComponentName    It's a string value in the Comment Attribute of the Component,
-    which is looked for, defining the data type of this Component.
-
-<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
-
-*/
-    SComponent FindComponent  (in string aComponentName) raises(StudyInvalidReference);
-
-/*! \brief  Find a %SComponent by ID of the according %SObject
-*/
-    SComponent FindComponentID(in ID aComponentID) raises(StudyInvalidReference);
-/*! \brief  Find a %SObject by the Name Attribute of this %SObject
-
-    \param anObjectName String parameter defining the name of the object
-    \return The obtained %SObject
-
-<em>See \ref example19 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    SObject       FindObject      (in string anObjectName) raises(StudyInvalidReference);
-/*! \brief  Find a %SObject by its ID
-
-    \param aObjectID This parameter defines the ID of the required object
-    \return The obtained %SObject
-*/
-    SObject       FindObjectID    (in ID aObjectID) raises(StudyInvalidReference);
-/*! \brief Create a %SObject by its ID
-
-    \param aObjectID This parameter defines the ID of the required object
-    \return The created %SObject
-*/
-    SObject       CreateObjectID    (in ID aObjectID) raises(StudyInvalidReference);
-/*!  \brief Find a %SObject by IOR of the object belonging to this %SObject.
-
-    \param anObjectName This parameter defines the IOR of the object
-    \return The obtained %SObject
-*/
-    SObject       FindObjectIOR   (in ID aObjectIOR) raises(StudyInvalidReference);
-/*! \brief  Find in the study all %SObjects produced by a given %Component.
-
-    \param anObjectName The Name Attribute of the searched %SObjects should correspond to <VAR>anObjectName</VAR>.
-    \param aComponentName The name of the component, which objects are searched for.
-*/
-    ListOfSObject FindObjectByName(in string anObjectName, in string aComponentName) raises(StudyInvalidReference);
-/*! \brief  Find a %SObject by the path to it.
-
-    \param thePath The path to the required %SObject.
-    \return The obtained %SObject.
-*/
-    SObject FindObjectByPath(in string thePath) raises(StudyInvalidReference);
-/*! \brief Get the path to the %SObject.
-*/
-    string GetObjectPath(in Object theObject) raises(StudyInvalidReference);
-
-/*! \brief  Set the context of the %Study.
-
-    \param thePath String parameter defining the context of the study.
-
-<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    void SetContext(in string thePath) raises (StudyInvalidReference, StudyInvalidContext);
-/*!  \brief Get the context of the %Study.
-
-<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    string GetContext() raises (StudyInvalidReference, StudyInvalidContext);
-/*!  \brief Get a list of names of objects corresponding to the context.
-
-   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetObjectNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
-/*! \brief Get a list of names of directories and subdirectories corresponding to the context.
-
-   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetDirectoryNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
-/*! \brief  Get a list of names of Files corresponding to the context.
-
-    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetFileNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
-/*! \brief Get a list of names of Components corresponding to the context.
-
-   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetComponentNames(in string theContext) raises(StudyInvalidReference);
-/*!  \brief Create a new iterator of child levels of the given %SObject.
-
-    \param aSO The given %SObject
-    \return A new iterator of child levels of the given %SObject.
-*/
-    ChildIterator NewChildIterator(in SObject aSO) raises(StudyInvalidReference);
-
-/*!  \brief Create a new iterator of the %SComponents.
-
-    \return A new iterator of the %SComponents.
-*/
-    SComponentIterator NewComponentIterator() raises(StudyInvalidReference);
-
-/*! \brief  Create a new %StudyBuilder to add or modify an object in the study.
-
-   \return A new %StudyBuilder.
-
-<em>See \ref example20 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    StudyBuilder NewBuilder() raises(StudyInvalidReference);
-/*! \brief Labels dependency
-
-    Updates the map with IOR attribute. It's an inner method used for optimization.
-*/
-    void UpdateIORLabelMap(in string anIOR, in string anEntry) raises(StudyInvalidReference);
-
-/*! \brief Getting properties of the study
-
-   Returns the attribute, which contains the properties of this study.
-
-<em>See \ref example20 for an example of this method usage in batchmode of %SALOME application.</em>
-
-*/
-    AttributeStudyProperties GetProperties() raises(StudyInvalidReference);
-/*! \brief  Indicate whether the %study has been saved
-*/
-    attribute boolean IsSaved;
-/*! \brief  Indicate whether the %study has been modified and not saved.
-
-  Returns True if the %study has been modified and not saved.
-*/
-    boolean IsModified() raises(StudyInvalidReference);
-
-/*! \brief  Mark the %study as being modified and not saved.
-*/
-    void Modified() raises(StudyInvalidReference);
-
-/*! \brief  Indicate the file where the %study has been saved
-*/
-    attribute string URL;
-
-/*! \brief List of %SObjects
-
-    Returns the list of %SObjects which refers to %anObject.
-*/
-    ListOfSObject FindDependances(in SObject anObject) raises(StudyInvalidReference);
-
-/*! \brief The date of the last saving of the study
-
-    Returns the date of the last saving of study with format: "DD/MM/YYYY HH:MM"
-*/
-    string GetLastModificationDate() raises(StudyInvalidReference);
-/*! \brief The list of modification dates of the study
-
-    Returns the list of modification dates (without creation date) with format "DD/MM/YYYY HH:MM".
-      Note : the first modification begins the list.
-*/
-    ListOfDates GetModificationsDate() raises(StudyInvalidReference);
-/*! \brief Object conversion.
-
-    Converts an object into IOR.
-    \return    IOR
-*/
-    string ConvertObjectToIOR(in Object theObject);
-/*! \brief Object conversion.
-
-    Converts IOR into an object.
-    \return    An object
-*/
-    Object ConvertIORToObject(in string theIOR);
-
-/*!  \brief Get a new %UseCaseBuilder.
-*/
-    UseCaseBuilder  GetUseCaseBuilder() raises(StudyInvalidReference);
-
-/*! \brief  Close the components in the study, remove itself from the %StudyManager.
-*/
-    void Close() raises(StudyInvalidReference);
-
-/*! \brief  Enable (if isEnabled = True)/disable automatic addition of new %SObjects to the use case.
-*/
-    void EnableUseCaseAutoFilling(in boolean isEnabled) raises(StudyInvalidReference);
-
-/*!
-    Functions for internal usage only
-*/
-    void AddPostponed(in string theIOR) raises(StudyInvalidReference);
-
-    void AddCreatedPostponed(in string theIOR) raises(StudyInvalidReference);
-
-    void RemovePostponed(in long theUndoLimit) raises(StudyInvalidReference);
-
-    void UndoPostponed(in long theWay) raises(StudyInvalidReference);
-
-    boolean DumpStudy(in string thePath,
-                      in string theBaseName,
-                      in boolean isPublished,
-                      in boolean isMultiFile) raises(StudyInvalidReference);
-
-/*! \brief  Get an AttributeParameter used to store common parameters for given %theSavePoint.
-
-    \param theID identifies a common parameters set (Example: "Interface Applicative")
-    \param theSavePoint is number of a set of parameters as there can be several sets
-*/
-    AttributeParameter GetCommonParameters(in string theID, in long theSavePoint) raises(StudyInvalidReference);
-
-/*! \brief  Get an AttributeParameter used to store parameters for given %theModuleName.
-
-    \param theID identifies a common parameters set (Example: "Interface Applicative")
-    \param theModuleName is a name of the module (Example: "Geometry")
-    \param theSavePoint is number of a set of parameters as there can be several sets
-*/
-    AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint) raises(StudyInvalidReference);
-
-
-/*! \brief Get a default Python script to restore visual parameters for given %theModuleName.
-
-    \param theModuleName is a name of the module (Example: "Geometry")
-    \param indent is a string to use for script indentation
-*/
-    string GetDefaultScript(in string theModuleName, in string indent) raises(StudyInvalidReference);
-
-/*!
-    Private method, returns an implementation of this Study.
-   \param theHostname is a hostname of the caller
-   \param thePID is a process ID of the caller
-   \param isLocal is set True if the Study is launched locally with the caller
-*/
-    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
-
-
-/*! \brief  Mark this Study as being locked by the given locker.
-
-    The lock status can be checked by method IsStudyLocked
-    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locks the study.
-*/
-    void SetStudyLock(in string theLockerID) raises(StudyInvalidReference);
-
-/*! \brief Indicate if the Study is locked
-
-   Returns True if the Study was marked locked.
-*/
-    boolean IsStudyLocked() raises(StudyInvalidReference);
-
-/*! \brief  Mark this Study as being unlocked by the given locker.
-
-     The lock status can be checked by method IsStudyLocked
-    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that unlocks the study.
-*/
-    void UnLockStudy(in string theLockerID) raises(StudyInvalidReference);
-
-/*! \brief  Get the list of IDs of the Study's lockers.
-*/
-    ListOfStrings GetLockerID() raises(StudyInvalidReference);
-
-/*! \brief  Create real variable with Name theVarName and value theValue
-
-    (or set if variable value into theValue already exists)
-    \param theVarName is a name of the variable
-    \param theVarName is a value of the variable.
-*/
-    void SetReal( in string theVarName, in double theValue ) raises(StudyInvalidReference);
-
-/*! \brief  Create integer variable with Name theVarName and value theValue
-
-    (or set if variable value into theValue already exists)
-    \param theVarName is a name of the variable
-    \param theVarName is a value of the variable.
-*/
-    void SetInteger( in string theVarName, in long theValue ) raises(StudyInvalidReference);
-/*! \brief  Create boolean variable with Name theVarName and value theValue
-
-    (or set if variable value into theValue already exists)
-    \param theVarName is a name of the variable
-    \param theVarName is a value of the variable.
-*/
-    void SetBoolean( in string theVarName, in boolean theValue ) raises(StudyInvalidReference);
-
-/*! \brief  Create string variable with Name theVarName and value theValue
-
-    (or set if variable value into theValue already exists)
-    \param theVarName is a name of the variable
-    \param theVarName is a value of the variable.
-*/
-    void SetString( in string theVarName, in string theValue ) raises(StudyInvalidReference);
-
-/*! \brief  Set current value as double for string variable
-*/
-    void SetStringAsDouble( in string theVarName, in double theValue ) raises(StudyInvalidReference);
-
-/*! \brief Get value of a real variable
-
-    \param theVarName is a name of the variable.
-*/
-    double GetReal( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Get value of an integer variable
-
-    \param theVarName is a name of the variable.
-*/
-    long GetInteger( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Get value of a boolean variable
-
-    \param theVarName is a name of the variable.
-*/
-    boolean GetBoolean( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Get value of a string variable
-
-    \param theVarName is a name of the variable.
-*/
-    string GetString( in string theVarName ) raises(StudyInvalidReference);
-
-
-/*! \brief Indicate if a variable is real
-
-    Return true if variable is real otherwise return false.
-    \param theVarName is a name of the variable.
-*/
-    boolean IsReal( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Indicate if a variable is integer
-
-    Return true if variable is integer otherwise return false.
-    \param theVarName is a name of the variable.
-*/
-    boolean IsInteger( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Indicate if a variable is boolean
-
-    Return true if variable is boolean otherwise return false.
-    \param theVarName is a name of the variable.
-*/
-    boolean IsBoolean( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Indicate if a variable is string
-
-    Return true if variable is string otherwise return false.
-    \param theVarName is a name of the variable.
-*/
-    boolean IsString( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Indicate if a variable exists in the study
-
-    Return true if variable exists in the study,
-    otherwise return false.
-    \param theVarName is a name of the variable.
-*/
-    boolean IsVariable( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Get names of all variables from the study.
-*/
-    ListOfStrings GetVariableNames() raises(StudyInvalidReference);
-
-/*! \brief Remove a variable
-
-   Remove variable with the specified name from the study with substitution of its value.
-
-   \param theVarName Name of the variable.
-   \return Status of operation.
-*/
-    boolean RemoveVariable( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Rename a variable
-
-   Rename variable with the specified name within the study.
-
-   \param theVarName Name of the variable.
-   \param theNewVarName New name for the variable.
-   \return Status of operation.
-*/
-    boolean RenameVariable( in string theVarName, in string theNewVarName ) raises(StudyInvalidReference);
-
-/*! \brief Indicate whether variable is used
-
-   Check that variable is used in the study.
-
-   \param theVarName Name of the variable.
-   \return Variable usage.
-*/
-    boolean IsVariableUsed( in string theVarName ) raises(StudyInvalidReference);
-
-/*! \brief Parse variables used for object creation
-
-   \param string with variables, separated by special symbol.
-   \return Variables list.
-*/
-    ListOfListOfStrings ParseVariables( in string theVars ) raises(StudyInvalidReference);
-
-/*!
-     Attach an observer to the Study
-
-    \param theObserver observer being attached
-    \param modify when \c true, observer receives any object's modification events;
-           otherwise observer receives object's creation events only
-*/
-     void attach(in SALOMEDS::Observer theObserver, in boolean modify);
-/*!
-     Detach an observer from the Study
-
-    \param theObserver observer to be detached
-*/
-     void detach(in SALOMEDS::Observer theObserver);
-  };
 
   //==========================================================================
 /*! \brief %Study Builder Interface
@@ -829,78 +360,271 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     void SetIOR(in SObject theSO, in string theValue) raises (LockProtection);
   };
 
-  //==========================================================================
-/*! \brief %Study Manager interface
+  //===========================================================================
+ /*! \brief %Study Interface
 
-    The purpose of the Manager is to manipulate the %Studies. You will find in this
-    interface the methods to create, open,
-    close, and save a %Study. Since a %SALOME session is multi-document, you will
-    also find the methods allowing to navigate
-    through the collection of studies present in a session.
+    The purpose of the %Study is to manage the data produced by various components of %SALOME platform.
+   Most of the %Study operations are handled by the StudyBuilder.
+   What is left in the %Study interface are elementary inquiries.
+   (Incidentally, we recall that a CORBA attribute is implemented as a pair of get
+      and set methods.) A %Study is explored by a set of tools, mainly iterators
+    , which are described further. Nevertheless, the %Study
+     interface allows the search of an object by name or by ID.
+     \note
+     <BR><VAR>The Path </VAR>of an object in %SALOME application is much alike a standard path of a file.
+    In general it's a string of names of directories divided by a slash '/'.
+     <BR><VAR>The Context</VAR> is the current directory of an object.</P>
 */
-  //==========================================================================
 
-  interface StudyManager
+  interface Study
   {
+
+//! Invalid study reference
+    exception StudyInvalidReference {};
+//! Invalid study context
+    exception StudyInvalidContext {};
+//! Invalid study component
+    exception StudyInvalidComponent {};
+//! Invalid directory of the %study exception
+    exception StudyInvalidDirectory {};
+//! Exception pointing that this name of the study has already been used.
+    exception StudyNameAlreadyUsed {};
+//! study object already exists
+    exception StudyObjectAlreadyExists {};
+//! Invalid name of the %study exception
+    exception StudyNameError {};
+//! Invalid study comment
+    exception StudyCommentError {};
+    
 /*!
     Determines whether the server has already been loaded or not.
 */
     void ping();
-
     void Shutdown();
-
 /*!
     Returns the PID of the server
 */
     long getPID();
 
 /*!
-    Shutdown the StudyManager process.
+    Shutdown the Study process.
 */
     oneway void ShutdownWithExit();
 
-/*! \brief Creation of a new study
+/*! \brief The name of the %Study
 
-     Creates a new study with a definite name.
-
-     \param study_name String parameter defining the name of the study
-
-<em>See \ref example17 for an example of this method usage in batchmode of %SALOME application.</em>
-
+   This is equivalent to the methods setName() & getName()
 */
-    Study NewStudy(in string study_name) raises (SALOME::SALOME_Exception);
+    readonly attribute string Name; // equivalent to getName()
 
-/*! \brief Open a study
+//! Sequence containing %SObjects
+    typedef sequence<SObject> ListOfSObject;
+//!  Get the persistent reference to the %Study.
+    PersistentReference  GetPersistentReference() raises(StudyInvalidReference);
+//! Get a transient reference to the %Study.
+    SalomeReference      GetTransientReference() raises(StudyInvalidReference);
 
-     Reads and activates the structure of the study %Objects.
-     \param aStudyUrl The path to the study
-    \warning This method doesn't activate the corba objects. Only a component can do it.
+/*! \brief indicate whether the %Study is empty
+
+    \return True if the %Study is empty
+*/
+    boolean IsEmpty() raises(StudyInvalidReference);
+/*! \brief  Find a %SComponent by its name.
+
+   \param aComponentName    It's a string value in the Comment Attribute of the Component,
+    which is looked for, defining the data type of this Component.
 
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    Study Open (in URL aStudyUrl) raises (SALOME::SALOME_Exception);
 
-/*! \brief Closing the study
-
-    Closes a study.
 */
-    void  Close(in Study aStudy);
+    SComponent FindComponent  (in string aComponentName) raises(StudyInvalidReference);
+
+/*! \brief  Find a %SComponent by ID of the according %SObject
+*/
+    SComponent FindComponentID(in ID aComponentID) raises(StudyInvalidReference);
+/*! \brief  Find a %SObject by the Name Attribute of this %SObject
+
+    \param anObjectName String parameter defining the name of the object
+    \return The obtained %SObject
+
+<em>See \ref example19 for an example of this method usage in batchmode of %SALOME application.</em>
+*/
+    SObject       FindObject      (in string anObjectName) raises(StudyInvalidReference);
+/*! \brief  Find a %SObject by its ID
+
+    \param aObjectID This parameter defines the ID of the required object
+    \return The obtained %SObject
+*/
+    SObject       FindObjectID    (in ID aObjectID) raises(StudyInvalidReference);
+/*! \brief Create a %SObject by its ID
+
+    \param aObjectID This parameter defines the ID of the required object
+    \return The created %SObject
+*/
+    SObject       CreateObjectID    (in ID aObjectID) raises(StudyInvalidReference);
+/*!  \brief Find a %SObject by IOR of the object belonging to this %SObject.
+
+    \param anObjectName This parameter defines the IOR of the object
+    \return The obtained %SObject
+*/
+    SObject       FindObjectIOR   (in ID aObjectIOR) raises(StudyInvalidReference);
+/*! \brief  Find in the study all %SObjects produced by a given %Component.
+
+    \param anObjectName The Name Attribute of the searched %SObjects should correspond to <VAR>anObjectName</VAR>.
+    \param aComponentName The name of the component, which objects are searched for.
+*/
+    ListOfSObject FindObjectByName(in string anObjectName, in string aComponentName) raises(StudyInvalidReference);
+/*! \brief  Find a %SObject by the path to it.
+
+    \param thePath The path to the required %SObject.
+    \return The obtained %SObject.
+*/
+    SObject FindObjectByPath(in string thePath) raises(StudyInvalidReference);
+/*! \brief Get the path to the %SObject.
+*/
+    string GetObjectPath(in Object theObject) raises(StudyInvalidReference);
+
+/*! \brief  Set the context of the %Study.
+
+    \param thePath String parameter defining the context of the study.
+
+<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
+*/
+    void SetContext(in string thePath) raises (StudyInvalidReference, StudyInvalidContext);
+/*!  \brief Get the context of the %Study.
+
+<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
+*/
+    string GetContext() raises (StudyInvalidReference, StudyInvalidContext);
+/*!  \brief Get a list of names of objects corresponding to the context.
+
+   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetObjectNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
+/*! \brief Get a list of names of directories and subdirectories corresponding to the context.
+
+   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetDirectoryNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
+/*! \brief  Get a list of names of Files corresponding to the context.
+
+    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetFileNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
+/*! \brief Get a list of names of Components corresponding to the context.
+
+   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetComponentNames(in string theContext) raises(StudyInvalidReference);
+/*!  \brief Create a new iterator of child levels of the given %SObject.
+
+    \param aSO The given %SObject
+    \return A new iterator of child levels of the given %SObject.
+*/
+    ChildIterator NewChildIterator(in SObject aSO) raises(StudyInvalidReference);
+
+/*!  \brief Create a new iterator of the %SComponents.
+
+    \return A new iterator of the %SComponents.
+*/
+    SComponentIterator NewComponentIterator() raises(StudyInvalidReference);
+
+/*! \brief  Create a new %StudyBuilder to add or modify an object in the study.
+
+   \return A new %StudyBuilder.
+
+<em>See \ref example20 for an example of this method usage in batchmode of %SALOME application.</em>
+*/
+    StudyBuilder NewBuilder() raises(StudyInvalidReference);
+/*! \brief Labels dependency
+
+    Updates the map with IOR attribute. It's an inner method used for optimization.
+*/
+    void UpdateIORLabelMap(in string anIOR, in string anEntry) raises(StudyInvalidReference);
+
+/*! \brief Getting properties of the study
+
+   Returns the attribute, which contains the properties of this study.
+
+<em>See \ref example20 for an example of this method usage in batchmode of %SALOME application.</em>
+
+*/
+    AttributeStudyProperties GetProperties() raises(StudyInvalidReference);
+/*! \brief  Indicate whether the %study has been saved
+*/
+    attribute boolean IsSaved;
+/*! \brief  Indicate whether the %study has been modified and not saved.
+
+  Returns True if the %study has been modified and not saved.
+*/
+    boolean IsModified() raises(StudyInvalidReference);
+
+/*! \brief  Mark the %study as being modified and not saved.
+*/
+    void Modified() raises(StudyInvalidReference);
+
+/*! \brief  Indicate the file where the %study has been saved
+*/
+    attribute string URL;
+
+/*! \brief List of %SObjects
+
+    Returns the list of %SObjects which refers to %anObject.
+*/
+    ListOfSObject FindDependances(in SObject anObject) raises(StudyInvalidReference);
+
+/*! \brief The date of the last saving of the study
+
+    Returns the date of the last saving of study with format: "DD/MM/YYYY HH:MM"
+*/
+    string GetLastModificationDate() raises(StudyInvalidReference);
+/*! \brief The list of modification dates of the study
+
+    Returns the list of modification dates (without creation date) with format "DD/MM/YYYY HH:MM".
+      Note : the first modification begins the list.
+*/
+    ListOfDates GetModificationsDate() raises(StudyInvalidReference);
+/*! \brief Object conversion.
+
+    Converts an object into IOR.
+    \return    IOR
+*/
+    string ConvertObjectToIOR(in Object theObject);
+/*! \brief Object conversion.
+
+    Converts IOR into an object.
+    \return    An object
+*/
+    Object ConvertIORToObject(in string theIOR);
+
+/*! \brief Get a new %UseCaseBuilder.
+*/
+    UseCaseBuilder  GetUseCaseBuilder() raises(StudyInvalidReference);
+    
+/*! \brief Clear a study object
+*/
+    void Clear();
+    
+/*! \brief Open a study by url
+
+    Reads and activates the structure of the study %Objects.
+    \param aStudyUrl The path to the study
+*/
+    boolean Open (in URLPath aStudyUrl) raises (SALOME::SALOME_Exception);
+    
 /*! \brief Saving the study in a HDF file (or files).
 
     Saves a study.
-
     \param theMultiFile If this parameter is True the study will be saved in several files.
-
-<em>See \ref example19 for an example of this method usage in batchmode of %SALOME application.</em>
-
 */
-    boolean  Save(in  Study aStudy, in boolean theMultiFile);
+    boolean Save(in boolean theMultiFile);
+    
 /*! \brief Saving a study in a ASCII file (or files).
 
     Saves a study in an ASCII format file (or files).
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
-    boolean  SaveASCII(in  Study aStudy, in boolean theMultiFile);
+    boolean  SaveASCII(in boolean theMultiFile);
 /*! \brief Saving the study in a specified HDF file (or files).
 
     Saves the study in a specified file (or files).
@@ -910,9 +634,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
-    boolean  SaveAs(in URL   aUrl, // if the file already exists
-                in Study aStudy,
-                in boolean theMultiFile); // overwrite (as option)
+    boolean  SaveAs(in URLPath aUrl, // if the file already exists
+                    in boolean theMultiFile); // overwrite (as option)
 /*! \brief Saving the study in a specified ASCII file (or files).
 
     Saves the study in a specified ASCII file (or files).
@@ -921,36 +644,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
-    boolean  SaveAsASCII(in URL   aUrl, // if the file already exists
-                      in Study aStudy,
-                      in boolean theMultiFile); // overwrite (as option)
-
-
-/*! \brief List of open studies.
-
-Gets the list of open studies
-
-    \return A list of open studies in the current session.
-*/
-    ListOfOpenStudies GetOpenStudies();
-
-/*! \brief Getting a particular %Study picked by name
-
-    Activates a particular %Study
-    among the session collection picking it by name.
-    \param aStudyName The name of the study
-*/
-    Study GetStudyByName  (in string aStudyName);
-
-/*! \brief Getting a particular %Study picked by ID
-
-    Activates a particular %Study
-    among the session collection picking it by ID.
-    \param aStudyID The ID of the study
-*/
-    Study GetStudyByID  (in short aStudyID);
-
-    // copy/paste methods
+    boolean  SaveAsASCII(in URLPath aUrl, // if the file already exists
+                         in boolean theMultiFile); // overwrite (as option)
 
 /*!
     Returns True, if the given %SObject can be copied to the clipboard.
@@ -974,29 +669,232 @@ Gets the list of open studies
 */
     SObject Paste(in SObject theObject) raises (SALOMEDS::StudyBuilder::LockProtection);
 
-/*! \brief Object conversion.
-
-    Converts an object into IOR.
-    \return    IOR
+/*! \brief  Enable (if isEnabled = True)/disable automatic addition of new %SObjects to the use case.
 */
-    string ConvertObjectToIOR(in Object theObject);
-/*! \brief Object conversion.
-
-    Converts IOR into an object.
-    \return    An object
-*/
-    Object ConvertIORToObject(in string theIOR);
+    void EnableUseCaseAutoFilling(in boolean isEnabled) raises(StudyInvalidReference);
 
 /*!
-    Private method, returns an implementation of this StudyManager.
+    Functions for internal usage only
+*/
+    void AddPostponed(in string theIOR) raises(StudyInvalidReference);
+
+    void AddCreatedPostponed(in string theIOR) raises(StudyInvalidReference);
+
+    void RemovePostponed(in long theUndoLimit) raises(StudyInvalidReference);
+
+    void UndoPostponed(in long theWay) raises(StudyInvalidReference);
+
+    boolean DumpStudy(in string thePath,
+                      in string theBaseName,
+                      in boolean isPublished,
+                      in boolean isMultiFile) raises(StudyInvalidReference);
+
+/*! \brief  Get an AttributeParameter used to store common parameters for given %theSavePoint.
+
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theSavePoint is number of a set of parameters as there can be several sets
+*/
+    AttributeParameter GetCommonParameters(in string theID, in long theSavePoint) raises(StudyInvalidReference);
+
+/*! \brief  Get an AttributeParameter used to store parameters for given %theModuleName.
+
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theModuleName is a name of the module (Example: "Geometry")
+    \param theSavePoint is number of a set of parameters as there can be several sets
+*/
+    AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint) raises(StudyInvalidReference);
+
+
+/*! \brief Get a default Python script to restore visual parameters for given %theModuleName.
+
+    \param theModuleName is a name of the module (Example: "Geometry")
+    \param indent is a string to use for script indentation
+*/
+    string GetDefaultScript(in string theModuleName, in string indent) raises(StudyInvalidReference);
+
+/*!
+    Private method, returns an implementation of this Study.
    \param theHostname is a hostname of the caller
    \param thePID is a process ID of the caller
-   \param isLocal is set True if the StudyManager is launched locally with the caller
+   \param isLocal is set True if the Study is launched locally with the caller
 */
     long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
 
-  };
 
+/*! \brief  Mark this Study as being locked by the given locker.
+
+    The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locks the study.
+*/
+    void SetStudyLock(in string theLockerID) raises(StudyInvalidReference);
+
+/*! \brief Indicate if the Study is locked
+
+   Returns True if the Study was marked locked.
+*/
+    boolean IsStudyLocked() raises(StudyInvalidReference);
+
+/*! \brief  Mark this Study as being unlocked by the given locker.
+
+     The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that unlocks the study.
+*/
+    void UnLockStudy(in string theLockerID) raises(StudyInvalidReference);
+
+/*! \brief  Get the list of IDs of the Study's lockers.
+*/
+    ListOfStrings GetLockerID() raises(StudyInvalidReference);
+
+/*! \brief  Create real variable with Name theVarName and value theValue
+
+    (or set if variable value into theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetReal( in string theVarName, in double theValue ) raises(StudyInvalidReference);
+
+/*! \brief  Create integer variable with Name theVarName and value theValue
+
+    (or set if variable value into theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetInteger( in string theVarName, in long theValue ) raises(StudyInvalidReference);
+/*! \brief  Create boolean variable with Name theVarName and value theValue
+
+    (or set if variable value into theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetBoolean( in string theVarName, in boolean theValue ) raises(StudyInvalidReference);
+
+/*! \brief  Create string variable with Name theVarName and value theValue
+
+    (or set if variable value into theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetString( in string theVarName, in string theValue ) raises(StudyInvalidReference);
+
+/*! \brief  Set current value as double for string variable
+*/
+    void SetStringAsDouble( in string theVarName, in double theValue ) raises(StudyInvalidReference);
+
+/*! \brief Get value of a real variable
+
+    \param theVarName is a name of the variable.
+*/
+    double GetReal( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Get value of an integer variable
+
+    \param theVarName is a name of the variable.
+*/
+    long GetInteger( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Get value of a boolean variable
+
+    \param theVarName is a name of the variable.
+*/
+    boolean GetBoolean( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Get value of a string variable
+
+    \param theVarName is a name of the variable.
+*/
+    string GetString( in string theVarName ) raises(StudyInvalidReference);
+
+
+/*! \brief Indicate if a variable is real
+
+    Return true if variable is real otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsReal( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Indicate if a variable is integer
+
+    Return true if variable is integer otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsInteger( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Indicate if a variable is boolean
+
+    Return true if variable is boolean otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsBoolean( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Indicate if a variable is string
+
+    Return true if variable is string otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsString( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Indicate if a variable exists in the study
+
+    Return true if variable exists in the study,
+    otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsVariable( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Get names of all variables from the study.
+*/
+    ListOfStrings GetVariableNames() raises(StudyInvalidReference);
+
+/*! \brief Remove a variable
+
+   Remove variable with the specified name from the study with substitution of its value.
+
+   \param theVarName Name of the variable.
+   \return Status of operation.
+*/
+    boolean RemoveVariable( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Rename a variable
+
+   Rename variable with the specified name within the study.
+
+   \param theVarName Name of the variable.
+   \param theNewVarName New name for the variable.
+   \return Status of operation.
+*/
+    boolean RenameVariable( in string theVarName, in string theNewVarName ) raises(StudyInvalidReference);
+
+/*! \brief Indicate whether variable is used
+
+   Check that variable is used in the study.
+
+   \param theVarName Name of the variable.
+   \return Variable usage.
+*/
+    boolean IsVariableUsed( in string theVarName ) raises(StudyInvalidReference);
+
+/*! \brief Parse variables used for object creation
+
+   \param string with variables, separated by special symbol.
+   \return Variables list.
+*/
+    ListOfListOfStrings ParseVariables( in string theVars ) raises(StudyInvalidReference);
+
+/*!
+     Attach an observer to the Study
+
+    \param theObserver observer being attached
+    \param modify when \c true, observer receives any object's modification events;
+           otherwise observer receives object's creation events only
+*/
+     void attach(in SALOMEDS::Observer theObserver, in boolean modify);
+/*!
+     Detach an observer from the Study
+
+    \param theObserver observer to be detached
+*/
+     void detach(in SALOMEDS::Observer theObserver);
+  };
 
   //==========================================================================
 /*! \brief %SObject interface
@@ -1374,7 +1272,7 @@ This class represents a common tool for all components integrated into SALOME ap
 can be called by any component and which provide the following functionality:
 <ul>
     <li> publishing in the study of the objects created by a definite component
-    <li> saving/loading of the data created by a definite component. These methods are called by the StudyManager when loading/saving a study containing the data created by a definite component.
+    <li> saving/loading of the data created by a definite component. These methods are called when loading/saving a study containing the data created by a definite component.
     <li> transforming of the transient references into persistant references (or vice versa) of the SObjects when saving (or loading) a study
     <li> copy/paste common functionality. These methods can be called by any component in order to copy/paste its object created in the study
 </ul>
@@ -1386,7 +1284,7 @@ can be called by any component and which provide the following functionality:
 
     /*! \brief Saving the data produced by a definite component.
 
-        This method is called by the StudyManager when saving a study.
+        This method is called when saving a study.
        \param theComponent    %SComponent corresponding to this Component
        \param theURL  The path to the file in which the data will be saved.
        \param isMultiFile  If the value of this boolean parameter is True, the data will be saved in several files.
@@ -1401,7 +1299,7 @@ can be called by any component and which provide the following functionality:
 
 /*! \brief Saving the data in ASCII format produced by a definite component.
 
-        This method is called by the StudyManager when saving a study in ASCII format.
+        This method is called when saving a study in ASCII format.
        \param theComponent    %SComponent corresponding to this Component
        \param theURL  The path to the file in which the data will be saved.
        \param isMultiFile  If the value of this boolean parameter is True, the data will be saved in several files.
@@ -1414,7 +1312,7 @@ can be called by any component and which provide the following functionality:
 
     /*! \brief Loading the data.
 
-       This method is called by the StudyManager when opening a study.
+       This method is called when opening a study.
        \param theComponent      %SComponent corresponding to this Component
        \param theStream   The file which contains all data saved by the component on Save method
        \param isMultiFile  If the value of this boolean parameter is True, the data will be loaded from several files
@@ -1425,7 +1323,7 @@ can be called by any component and which provide the following functionality:
 
     /*! \brief Loading the data from files in ASCII format.
 
-       This method is called by the StudyManager when opening a study.
+       This method is called when opening a study.
        \param theComponent      %SComponent corresponding to this Component
        \param theStream   The file which contains all data saved by the component on Save method
        \param isMultiFile  If the value of this boolean parameter is True, the data will be loaded from several files
@@ -1436,7 +1334,7 @@ can be called by any component and which provide the following functionality:
 
     /*! \brief Closing of the study
 
-      This method Close is called by the StudyManager when closing a study.
+      This method Close is called when closing a study.
     \param aSComponent The according %SComponent
      */
 

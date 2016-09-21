@@ -22,7 +22,7 @@
 
 //  SALOME_ParallelComponent : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelComponent_i.hxx
-//  Author : André RIBES, EDF
+//  Author : Andrï¿½ RIBES, EDF
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //
 #ifndef _SALOME_PARALLEL_COMPONENT_I_HXX_
@@ -80,7 +80,6 @@ public:
   void ping();
   void destroy();
 
-  CORBA::Long getStudyId();
   Engines::Container_ptr GetContainerRef();
 
   void setProperties(const Engines::FieldsDict& dico);
@@ -116,14 +115,13 @@ public:
 
   // Object information
   virtual bool hasObjectInfo() { return false; }
-  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return ""; }
+  virtual char* getObjectInfo(const char* entry) { return ""; }
 
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
   Engines_Parallel_Container_i *GetContainerPtr();
 
-  bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
@@ -146,7 +144,6 @@ public:
                                     Engines::Parallel_Salome_file_proxy_impl * file);
 
 protected:
-  int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;
   static bool _isMultiInstance;
 

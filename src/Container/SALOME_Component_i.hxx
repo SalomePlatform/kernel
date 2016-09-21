@@ -81,7 +81,6 @@ public:
   void ping();
   void destroy();
 
-  CORBA::Long getStudyId();
   Engines::Container_ptr GetContainerRef();
 
   void setProperties(const Engines::FieldsDict& dico);
@@ -118,7 +117,7 @@ public:
 
   // Object information
   virtual bool hasObjectInfo() { return false; }
-  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return CORBA::string_dup(""); }
+  virtual char* getObjectInfo(const char* entry) { return CORBA::string_dup(""); }
 
   // Version information
   virtual char* getVersion();
@@ -130,7 +129,6 @@ public:
   std::string getContainerName();
   void setContainerName();
 
-  virtual bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
@@ -150,7 +148,6 @@ public:
                                     Salome_file_i * file);
 
 protected:
-  int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;
   static bool _isMultiInstance;
 

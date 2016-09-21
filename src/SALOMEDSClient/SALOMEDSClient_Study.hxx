@@ -49,6 +49,11 @@ class SALOMEDSClient_Study
 public:
   virtual ~SALOMEDSClient_Study() {}
 
+  virtual void Init() = 0;
+  virtual void Clear() = 0;
+
+  virtual bool Open(const std::string& theStudyUrl) = 0;
+
   virtual std::string GetPersistentReference() = 0;
   virtual std::string GetTransientReference() = 0;
   virtual bool IsEmpty() = 0;
@@ -71,21 +76,28 @@ public:
   virtual _PTR(SComponentIterator) NewComponentIterator() = 0;
   virtual _PTR(StudyBuilder) NewBuilder() = 0;
   virtual std::string Name() = 0;
-  virtual void  Name(const std::string& name) = 0;
   virtual bool IsSaved() = 0;
   virtual void  IsSaved(bool save) = 0;
   virtual bool IsModified() = 0;
   virtual void Modified() = 0;
   virtual std::string URL() = 0;
   virtual void  URL(const std::string& url) = 0;
-  virtual int StudyId() = 0;
-  virtual void  StudyId(int id) = 0;
   virtual std::vector<_PTR(SObject)> FindDependances(const _PTR(SObject)& theSO) = 0;
   virtual _PTR(AttributeStudyProperties) GetProperties() = 0;
   virtual std::string GetLastModificationDate() = 0;
   virtual std::vector<std::string> GetModificationsDate() = 0;
   virtual _PTR(UseCaseBuilder) GetUseCaseBuilder() = 0;
-  virtual void Close() = 0;
+
+  virtual bool Save(bool theMultiFile) = 0;
+  virtual bool SaveASCII(bool theMultiFile) = 0;
+  virtual bool SaveAs(const std::string& theUrl, bool theMultiFile) = 0;
+  virtual bool SaveAsASCII(const std::string& theUrl, bool theMultiFile) = 0;
+
+  virtual bool CanCopy(const _PTR(SObject)& theSO) = 0;
+  virtual bool Copy(const _PTR(SObject)& theSO) = 0;
+  virtual bool CanPaste(const _PTR(SObject)& theSO) = 0;
+  virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO) = 0;
+
   virtual void EnableUseCaseAutoFilling(bool isEnabled) = 0;
   virtual bool DumpStudy(const std::string& thePath, 
                          const std::string& theBaseName, 

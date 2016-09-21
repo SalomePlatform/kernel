@@ -28,6 +28,7 @@
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS.hxx"
 #include <SALOMEDSImpl_IParameters.hxx>
+#include <SALOME_KernelServices.hxx>
 #include <stdlib.h>
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -316,14 +317,14 @@ std::string SALOMEDS_Driver_i::PasteInto(const unsigned char* theStream,
   return entry;
 }
 
-SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy,
-                                                    bool isPublished,
+SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(bool isPublished,
                                                     bool isMultiFile,
                                                     bool& isValidScript,
                                                     long& theStreamLength)
 {
-  SALOMEDS_Study_i *  st_servant = SALOMEDS_Study_i::GetStudyServant(theStudy, _orb);//new SALOMEDS_Study_i (theStudy, _orb);
-  SALOMEDS::Study_var st  = SALOMEDS::Study::_narrow(st_servant->_this());
+  SALOME_NamingService* namingService = KERNEL::getNamingService();
+  CORBA::Object_var obj = namingService->Resolve("/Study");
+  SALOMEDS::Study_var st = SALOMEDS::Study::_narrow(obj);
 
   SALOMEDS::unlock();
 

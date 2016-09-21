@@ -28,7 +28,6 @@
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -71,7 +70,6 @@ SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::
      }
   }
   _orb = CORBA::ORB::_duplicate(orb);
-   //SALOME::GenericObj_i::myPOA = SALOMEDS_StudyManager_i::GetPOA(GetStudy());
 }
 
 

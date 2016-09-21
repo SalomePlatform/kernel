@@ -61,18 +61,17 @@ namespace KERNEL {
 
 
   /**
-   * This returns a static reference to the SALOME study manager. The
-   * study manager can be used to retrieve a study or to get
-   * informations about a study.
+   * This returns a static reference to the SALOME study. The
+   * study can be used to get informations about it.
    */
-  SALOMEDS::StudyManager_ptr getStudyManager() {
-    static SALOMEDS::StudyManager_ptr aStudyManager;
-    if(CORBA::is_nil(aStudyManager)){
+  SALOMEDS::Study_ptr getStudy() {
+    static SALOMEDS::Study_ptr aStudy;
+    if(CORBA::is_nil(aStudy)){
       SALOME_NamingService *aNamingService = getNamingService();
-      CORBA::Object_ptr anObject = aNamingService->Resolve("/myStudyManager");
-      aStudyManager = SALOMEDS::StudyManager::_narrow(anObject);
+      CORBA::Object_ptr anObject = aNamingService->Resolve("/Study");
+      aStudy = SALOMEDS::Study::_narrow(anObject);
     }
-    return aStudyManager;
+    return aStudy;
   }
 
   /**
@@ -116,27 +115,6 @@ namespace KERNEL {
     }
     return resourcesManager;
   }
-
-  /**
-   * This returns the study with the specified id if it's defined in
-   * the SALOME study manager. Returns null otherwise.
-   * Please not that it is just a shortcut, and you may prefer use
-   * directly the study manager:
-   *    KERNEL::getStudyManager()->GetStudyByID(aStudyId)
-   */
-  SALOMEDS::Study_ptr getStudyById(int aStudyId) {
-    if ( aStudyId < 0 ) {
-      INFOS("ERR: trying to get a study with ID<0");
-      return SALOMEDS::Study::_nil();
-    }
-    return getStudyManager()->GetStudyByID(aStudyId);
-  }
-
-  int getStudyId(SALOMEDS::Study_ptr study) {
-    if( CORBA::is_nil(study) ) return -1;
-    return study->StudyId();
-  }
-
 
   /**
    * This function retrieve the CORBA object reference from the study

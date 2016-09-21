@@ -32,7 +32,6 @@
 class KERNELHELPERS_EXPORT SALOME_StudyEditor {
 
 public:
-  SALOME_StudyEditor(int studyId);
   SALOME_StudyEditor(SALOMEDS::Study_ptr study);
 
   typedef std::vector<SALOMEDS::SObject_ptr> SObjectList;
@@ -58,8 +57,6 @@ public:
 protected:
   SALOME_StudyEditor();
   void setStudy(SALOMEDS::Study_ptr study);
-  void setStudyById(int studyId);
-  int getStudyId();
 
   SALOMEDS::Study_var _study;
 

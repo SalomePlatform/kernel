@@ -63,7 +63,6 @@ SET(COMMON_LIBS
 SET(SalomeDS_SOURCES
   SALOMEDS.cxx
   SALOMEDS_Driver_i.cxx
-  SALOMEDS_StudyManager_i.cxx
   SALOMEDS_UseCaseBuilder_i.cxx
   SALOMEDS_UseCaseIterator_i.cxx
   SALOMEDS_ChildIterator_i.cxx
@@ -112,7 +111,6 @@ SET(SalomeDS_SOURCES
   SALOMEDS_UseCaseBuilder.cxx
   SALOMEDS_StudyBuilder.cxx
   SALOMEDS_Study.cxx
-  SALOMEDS_StudyManager.cxx
   SALOMEDS_AttributeStudyProperties.cxx
   SALOMEDS_AttributeComment.cxx
   SALOMEDS_AttributeDrawable.cxx
@@ -166,9 +164,7 @@ INSTALL(TARGETS SALOMEDS_Server SALOMEDS_Client
 SALOME_INSTALL_SCRIPTS(SALOME_DriverPy.py ${SALOME_INSTALL_SCRIPT_PYTHON})
 
 SET(COMMON_HEADERS_HXX
-  SALOMEDS_StudyManager_i.hxx
   SALOMEDS_Driver_i.hxx
-  SALOMEDS_StudyManager.hxx
   SALOMEDS_Study_i.hxx
   SALOMEDS_Study.hxx
   SALOMEDS_SObject_i.hxx

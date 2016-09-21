@@ -52,6 +52,20 @@ public:
   SALOMEDS_Study(SALOMEDS::Study_ptr theStudy);
   ~SALOMEDS_Study();
 
+  virtual void Clear();
+
+  virtual bool Open(const std::string& theStudyUrl);
+
+  virtual bool Save(bool theMultiFile);
+  virtual bool SaveASCII(bool theMultiFile);
+  virtual bool SaveAs(const std::string& theUrl, bool theMultiFile);
+  virtual bool SaveAsASCII(const std::string& theUrl, bool theMultiFile);
+
+  virtual bool CanCopy(const _PTR(SObject)& theSO);
+  virtual bool Copy(const _PTR(SObject)& theSO);
+  virtual bool CanPaste(const _PTR(SObject)& theSO);
+  virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO);
+
   virtual std::string GetPersistentReference();
   virtual std::string GetTransientReference();
   virtual bool IsEmpty();
@@ -74,21 +88,17 @@ public:
   virtual _PTR(SComponentIterator) NewComponentIterator();
   virtual _PTR(StudyBuilder) NewBuilder();
   virtual std::string Name();
-  virtual void  Name(const std::string& name);
   virtual bool IsSaved();
   virtual void  IsSaved(bool save);
   virtual bool IsModified();
   virtual void Modified();
   virtual std::string URL();
   virtual void  URL(const std::string& url);
-  virtual int StudyId();
-  virtual void  StudyId(int id);
   virtual std::vector<_PTR(SObject)> FindDependances(const _PTR(SObject)& theSO);
   virtual _PTR(AttributeStudyProperties) GetProperties();
   virtual std::string GetLastModificationDate();
   virtual std::vector<std::string> GetModificationsDate();
   virtual _PTR(UseCaseBuilder) GetUseCaseBuilder();
-  virtual void Close();
   virtual void EnableUseCaseAutoFilling(bool isEnabled);
   virtual bool DumpStudy(const std::string& thePath,const std::string& theBaseName,bool isPublished,bool isMultiFile); 
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint);
@@ -131,9 +141,9 @@ public:
   SALOMEDS::Study_ptr GetStudy();
   
   SALOMEDSImpl_Study* GetLocalImpl() { return _local_impl; }
-  
+
 private:
-  void init_orb();
+  void Init();
 
 };
 #endif

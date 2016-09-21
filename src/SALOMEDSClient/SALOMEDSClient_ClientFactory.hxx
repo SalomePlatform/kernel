@@ -32,7 +32,6 @@
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDSClient_SComponent.hxx"
 #include "SALOMEDSClient_Study.hxx"
-#include "SALOMEDSClient_StudyManager.hxx"
 #include "SALOMEDSClient_IParameters.hxx"
 
 #include <string>
@@ -63,16 +62,6 @@ public:
    *  Returns a client StudyBuilder wrapper that corresponds %theStudy
    */
   static _PTR(StudyBuilder) StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);
-
-  /*!
-   *  Returns a client StudyManager wrapper
-   */
-  static _PTR(StudyManager) StudyManager();
-
-  /*!
-   *  Creates and returns a client StudyManager wrapper
-   */
-  static _PTR(StudyManager) createStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
 
   /*!
    * Returns an IParameters interface

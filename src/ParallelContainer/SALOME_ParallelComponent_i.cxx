@@ -22,7 +22,7 @@
 
 //  SALOME_ParallelComponent : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelComponent_i.cxx
-//  Author : André RIBES, EDF
+//  Author : Andrï¿½ RIBES, EDF
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //
 #include "SALOME_ParallelComponent_i.hxx"
@@ -53,7 +53,7 @@ int SIGUSR11 = 1000;
 extern bool _Sleeping ;
 static Engines_Parallel_Component_i * theEngines_Component ;
 
-bool Engines_Parallel_Component_i::_isMultiStudy = true;
+bool Engines_Parallel_Component_i::_isMultiStudy = false;
 bool Engines_Parallel_Component_i::_isMultiInstance = false;
 
 //=============================================================================
@@ -90,7 +90,6 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
   _Executed(false) ,
   _graphName("") ,
   _nodeName(""),
-  _studyId(-1),
   _destroyed(false),
   _CanceledThread(false)
 {
@@ -158,20 +157,6 @@ char* Engines_Parallel_Component_i::instanceName()
 char* Engines_Parallel_Component_i::interfaceName()
 {
   return CORBA::string_dup(_interfaceName.c_str()) ;
-}
-
-//=============================================================================
-/*! 
- *  CORBA method: Get study Id
- *  \return -1: not initialised (Internal Error)
- *           0: multistudy component instance
- *          >0: study id associated to this instance
- */
-//=============================================================================
-
-CORBA::Long Engines_Parallel_Component_i::getStudyId()
-{
-  return _studyId;
 }
 
 //=============================================================================
@@ -515,31 +500,6 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
 Engines_Parallel_Container_i *Engines_Parallel_Component_i::GetContainerPtr()
 {
   return dynamic_cast<Engines_Parallel_Container_i*>(_poa->id_to_servant(*_contId)) ;
-}
-
-//=============================================================================
-/*! 
- *  C++ method: set study Id
- *  \param studyId         0 if instance is not associated to a study, 
- *                         >0 otherwise (== study id)
- *  \return true if the set of study Id is OK
- *  must be set once by Container, at instance creation,
- *  and cannot be changed after.
- */
-//=============================================================================
-
-CORBA::Boolean Engines_Parallel_Component_i::setStudyId(CORBA::Long studyId)
-{
-  ASSERT( studyId >= 0);
-  CORBA::Boolean ret = false;
-  if (_studyId < 0) // --- not yet initialized 
-    {
-      _studyId = studyId;
-      ret = true;
-    }
-  else
-    if ( _studyId == studyId) ret = true;
-  return ret;
 }
 
 //=============================================================================

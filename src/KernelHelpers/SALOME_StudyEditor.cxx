@@ -30,18 +30,6 @@ void SALOME_StudyEditor::setStudy(SALOMEDS::Study_ptr study) {
   _sbuilder = _study->NewBuilder();    
 }
 
-void SALOME_StudyEditor::setStudyById(int studyId) {
-  this->setStudy(KERNEL::getStudyManager()->GetStudyByID(studyId));
-}
-
-int SALOME_StudyEditor::getStudyId() {
-  if ( _study->_is_nil() ) return UNDEFINED; 
-  return _study->StudyId();
-}
-
-SALOME_StudyEditor::SALOME_StudyEditor(int studyId) {
-  this->setStudyById(studyId);
-}
 SALOME_StudyEditor::SALOME_StudyEditor(SALOMEDS::Study_ptr study) {
   this->setStudy(study);
 }

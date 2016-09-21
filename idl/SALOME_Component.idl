@@ -90,12 +90,9 @@ module Engines
       \param componentName Name of the component which will be registered
                            in Registry and Name Service,
                          (instance number suffix added to the registered name)
-      \param studyId        0 if instance is not associated to a study,
-                            >0 otherwise (== study id)
       \return a loaded component
     */
-    Engines::EngineComponent create_component_instance(in string componentName,
-                                                       in long studyId);
+    Engines::EngineComponent create_component_instance(in string componentName);
 
     //! Create a new Python servant instance of a generic service.
         /*!
@@ -118,25 +115,20 @@ module Engines
       \param componentName Name of the component which will be registered
                            in Registry and Name Service,
                          (instance number suffix added to the registered name)
-      \param studyId        0 if instance is not associated to a study,
-                            >0 otherwise (== study id)
       \param env         a dict of env variables
       \param reason      in case of error (return nil) a string explaining the error
       \return a loaded component
     */
     Engines::EngineComponent create_component_instance_env(in string componentName,
-                                                           in long studyId, in FieldsDict env,
+                                                           in FieldsDict env,
                                                            out string reason);
     //! Find a servant instance of a component
     /*!
       \param registeredName  Name of the component in Registry or Name Service,
                              without instance suffix number
-      \param studyId        0 if instance is not associated to a study,
-                            >0 otherwise (== study id)
-      \return the first instance found with same studyId
+      \return the first instance found
     */
-    EngineComponent find_component_instance(in string registeredName,
-                                            in long studyId);
+    EngineComponent find_component_instance(in string registeredName);
 
     //! Find a servant instance of a component, or create a new one.
     /*!
@@ -260,15 +252,6 @@ module Engines
 
     //!  Determines whether the server has already been loaded or not.
     void ping();
-
-    //!  Get study associated to component instance
-    /*!
-      get study associated to component instance
-      \return -1: not initialised (Internal Error)
-               0: multistudy component instance
-              >0: study id associated to this instance
-    */
-    long getStudyId();
 
     //! Remove component instance from container
     /*!
@@ -469,11 +452,10 @@ module Engines
       It is worth using this method only if hasObjectInfo() method returns true.
 
       \param entry object's entry.
-      \param studyId study id
 
       \return an information about the given object.
     */
-    string getObjectInfo(in long studyId, in string entry);
+    string getObjectInfo(in string entry);
 
     //! Get version of the component
     /*!

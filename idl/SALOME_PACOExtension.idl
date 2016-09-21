@@ -39,8 +39,7 @@ module Engines
     // Replicated Method used by the proxy to create
     // a PACO Component
     void create_paco_component_node_instance(in string registeredName,
-					     in string proxy_containerName,
-					     in long studyId) raises(SALOME::SALOME_Exception);
+					     in string proxy_containerName) raises(SALOME::SALOME_Exception);
 
     void updateInstanceNumber();
   };
