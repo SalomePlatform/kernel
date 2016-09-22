@@ -20,19 +20,13 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Container : implementation of container and engine for Kernel
-//  File   : Container_init_python.cxx
-//  Author : Paul RASCLE, EDF
-//  Module : KERNEL
-//  $Header$
-//
 #include <time.h>
 #ifndef WIN32
   #include <sys/time.h>
 #endif
+#include <string>
 
 #include "utilities.h"
-
 #include "Container_init_python.hxx"
 
 void KERNEL_PYTHON::init_python(int argc, char **argv)
@@ -53,6 +47,19 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   Py_Initialize(); // Initialize the interpreter
   PySys_SetArgv(argc, argv);
   PyRun_SimpleString("import threading\n");
+  // VSR (22/09/2016): This is a workaround to prevent invoking qFatal() from PyQt5
+  // causing application aborting
+  std::string script;
+  script += "def _custom_except_hook(exc_type, exc_value, exc_traceback):\n";
+  script += "  import sys\n";
+  script += "  sys.__excepthook__(exc_type, exc_value, exc_traceback)\n";
+  script += "  pass\n";
+  script += "\n";
+  script += "import sys\n";
+  script += "sys.excepthook = _custom_except_hook\n";
+  script += "del _custom_except_hook, sys\n";
+  int res = PyRun_SimpleString(script.c_str());
+  // VSR (22/09/2016): end of workaround
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
   PyThreadState *pts = PyGILState_GetThisThreadState(); 
   PyEval_ReleaseThread(pts);  
