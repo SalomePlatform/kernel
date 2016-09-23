@@ -27,13 +27,8 @@
 
 void SALOMEDSTest::testStudyBuilder()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("TestStudyBuilder");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -48,7 +43,7 @@ void SALOMEDSTest::testStudyBuilder()
   CPPUNIT_ASSERT(sco1 && sco1->ComponentDataType() == "Test");
 
   //Check method DefineComponentInstance
-  std::string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_study);
   studyBuilder->DefineComponentInstance(sco1, ior);
   std::string newior;
   sco1->ComponentIOR(newior);
@@ -165,10 +160,10 @@ void SALOMEDSTest::testStudyBuilder()
   studyBuilder->SetIOR(so1, ior);
   CPPUNIT_ASSERT(so1->GetIOR() == ior);
 
-  sm->Close(study);
+  study->Clear();
 
   //Check method LoadWith
-  _PTR(Study) study2 = sm->NewStudy("Study2");
+  _PTR(Study) study2(new SALOMEDS_Study(new SALOMEDSImpl_Study()));
   
   SALOME_NamingService NS(_orb);
   CORBA::Object_var obj = SALOME_LifeCycleCORBA(&NS).FindOrLoad_Component("FactoryServer", "SMESH");
@@ -185,10 +180,11 @@ void SALOMEDSTest::testStudyBuilder()
   ior = _orb->object_to_string(drv);
   sb2->DefineComponentInstance(sco, ior);
 
-  sm->SaveAs("srn_SALOMEDS_UnitTests.hdf", study2, false);
-  sm->Close(study2);
+  study2->SaveAs("srn_SALOMEDS_UnitTests.hdf", false);
+  study2->Clear();
 
-  _PTR(Study) study3 = sm->Open("srn_SALOMEDS_UnitTests.hdf");
+  _PTR(Study) study3(new SALOMEDS_Study(new SALOMEDSImpl_Study()));
+  study3->Open("srn_SALOMEDS_UnitTests.hdf");
   _PTR(StudyBuilder) sb3 = study3->NewBuilder();
   _PTR(SComponent) aComp = study3->FindComponent("SMESH");
   CPPUNIT_ASSERT(aComp);
@@ -206,7 +202,6 @@ void SALOMEDSTest::testStudyBuilder()
   catch(...) {
     isRaised = true;
   }
-
 
   CPPUNIT_ASSERT(!isRaised);
 
@@ -248,5 +243,5 @@ void SALOMEDSTest::testStudyBuilder()
   }
   CPPUNIT_ASSERT(isRaised);
 
-  sm->Close(study3);  
+  study3->Clear();
 }

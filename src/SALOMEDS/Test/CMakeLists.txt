@@ -40,6 +40,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../DF
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMEDSImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMEDSImpl/Test
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../GenericObj
   ${PROJECT_BINARY_DIR}/idl
 )
 
@@ -62,6 +63,7 @@ SET(COMMON_LIBS
  SalomeDSImpl
  SalomeDSClient
  SalomeDS
+ SalomeGenericObj
  SalomeIDLKernel
 )
 

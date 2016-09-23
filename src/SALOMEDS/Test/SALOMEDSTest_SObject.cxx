@@ -27,13 +27,8 @@
 
 void SALOMEDSTest::testSObject()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("TestSObject");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -71,7 +66,7 @@ void SALOMEDSTest::testSObject()
   _PTR(AttributeName) _attrName = studyBuilder->FindOrCreateAttribute(so, "AttributeName");
   _PTR(AttributeComment) _attrComment = studyBuilder->FindOrCreateAttribute(so, "AttributeComment"); 
 
-   std::string ior = _orb->object_to_string(_sm);
+   std::string ior = _orb->object_to_string(_study);
   _attrIOR->SetValue(ior);
   _attrName->SetValue("SO name");
   _attrComment->SetValue("SO comment");
@@ -93,7 +88,7 @@ void SALOMEDSTest::testSObject()
   CPPUNIT_ASSERT(so2->GetID() == so1->GetID());
 
   //Check method GetStudy
-  CPPUNIT_ASSERT(so->GetStudy()->StudyId() == study->StudyId());
+  CPPUNIT_ASSERT(so->GetStudy() == study);
 
   //Check methods Name
   so->Name("test");
@@ -120,7 +115,7 @@ void SALOMEDSTest::testSObject()
   CORBA::Object_var obj = dynamic_cast<SALOMEDS_SObject*>(so.get())->GetObject();
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
 
-  sm->Close(study);
+  study->Clear();
 }
 
 

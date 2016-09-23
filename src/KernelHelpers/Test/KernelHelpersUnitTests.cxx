@@ -77,30 +77,16 @@ void KernelHelpersUnitTests::TEST_getLifeCycleCORBA() {
   CPPUNIT_ASSERT( strcmp(coucou_res, coucou_ref) == 0 );
 }
 
-void KernelHelpersUnitTests::TEST_getStudyManager() {
-  SALOMEDS::StudyManager_var studyManager = KERNEL::getStudyManager();
-
-  #ifndef ALLOW_MULTI_STUDIES
-  SALOMEDS::ListOfOpenStudies_var _list_open_studies =  studyManager->GetOpenStudies();
-  for (unsigned int ind = 0; ind < _list_open_studies->length();ind++)
-    {
-      LOG("Close study : " << _list_open_studies[ind]);
-      SALOMEDS::Study_var study = studyManager->GetStudyByName(_list_open_studies[0]);
-      if(study)
-        studyManager->Close(study);
-    }
-  #endif
-
-  SALOMEDS::Study_ptr myTestStudy = studyManager->NewStudy("kerneltest");
+void KernelHelpersUnitTests::TEST_getStudy() {
+  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudy();
   CPPUNIT_ASSERT(!CORBA::is_nil(myTestStudy));
 
   // One can use the study to store some general properties
   myTestStudy->SetString("material","wood");
   myTestStudy->SetReal("volume",3.23);
 
-  // The study is characterized by an ID
-  int myTestStudyId = myTestStudy->StudyId();
-  LOG("TestComponentImpl::testkernel: study id = "<<myTestStudyId);
+  // The study with properties was opened
+  LOG("TestComponentImpl::testkernel: study with properties was opened");
 }
 
 void KernelHelpersUnitTests::TEST_getSalomeLauncher() {

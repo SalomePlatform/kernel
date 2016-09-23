@@ -72,7 +72,7 @@ Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
   iGenFact->load_component_Library(componenttName.c_str(),reason);
 #endif
   CORBA::string_free(reason);
-  CORBA::Object_var obj = iGenFact->create_component_instance(componenttName.c_str(), 0);
+  CORBA::Object_var obj = iGenFact->create_component_instance(componenttName.c_str());
   Engines::TestComponent_var anInstance = Engines::TestComponent::_narrow(obj);
   MESSAGE("create anInstance");
   SCRUTE(anInstance->instanceName());

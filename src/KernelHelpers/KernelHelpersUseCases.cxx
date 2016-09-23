@@ -60,8 +60,8 @@ bool TEST_getLifeCycleCORBA() {
   return true;
 }
 
-bool TEST_getStudyManager() {
-  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudyManager()->NewStudy("kerneltest");
+bool TEST_getStudy() {
+  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudy();
   if ( CORBA::is_nil(myTestStudy) ) {
     return false;
   }
@@ -70,9 +70,8 @@ bool TEST_getStudyManager() {
   myTestStudy->SetString("material","wood");
   myTestStudy->SetReal("volume",3.23);
 
-  // The study is characterized by an ID
-  int myTestStudyId = myTestStudy->StudyId();
-  LOG("TestComponentImpl::testkernel: study id = "<<myTestStudyId);
+  // The study with properties was opened
+  LOG("TestComponentImpl::testkernel: study with properties was opened");
   return true;
 }
 
@@ -114,7 +113,7 @@ bool TEST_getSalomeLauncher() {
 int main (int argc, char * argv[]) {
   TEST_corba();
   TEST_getLifeCycleCORBA();
-  TEST_getStudyManager();
+  TEST_getStudy();
   TEST_getSalomeLauncher();
   return 0;
 }

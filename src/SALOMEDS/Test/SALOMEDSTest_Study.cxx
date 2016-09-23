@@ -27,13 +27,8 @@
 
 void SALOMEDSTest::testStudy()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   //Check the creation of the study
   CPPUNIT_ASSERT(study);
@@ -49,15 +44,6 @@ void SALOMEDSTest::testStudy()
 
   //Check method GetTransientReference
   CPPUNIT_ASSERT(!study->GetTransientReference().empty());
-
-  //Check method StudyId
-  CPPUNIT_ASSERT(study->StudyId() > 0);
-
-  //Check method Name (get/set)
-  CPPUNIT_ASSERT(study->Name() == "Test");
-  study->Name("New name");
-  CPPUNIT_ASSERT(study->Name() == "New name");
-  study->Name("Test");
 
   //Check method URL (get/set)
   study->URL("");
@@ -122,7 +108,7 @@ void SALOMEDSTest::testStudy()
   _PTR(AttributeIOR) ior_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeIOR");
   CPPUNIT_ASSERT(ior_attr_so1);
 
-  std::string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_study);
   ior_attr_so1->SetValue(ior);
   
   _PTR(SObject) so2 = studyBuilder->NewObject(so1);
@@ -211,12 +197,6 @@ void SALOMEDSTest::testStudy()
   persref_attr_so1->SetValue("FILE: filename2");
   vs = study->GetFileNames("");
   CPPUNIT_ASSERT(vs.size() == 2 && vs[0] == "filename1" && vs[1] == "filename2");
-
-  //Check method StudyId (get/set)
-  int id = study->StudyId();
-  study->StudyId(-1);
-  CPPUNIT_ASSERT(study->StudyId() == -1);
-  study->StudyId(id);
 
   //Check method FindDependances
   studyBuilder->Addreference(so2, so1);
@@ -337,10 +317,10 @@ void SALOMEDSTest::testStudy()
   system("rm -f SRN.py");
   CPPUNIT_ASSERT(line.substr(0,50) == "### This file is generated automatically by SALOME");
 
-  //Check method Close 
+  //Check method Clear
   bool isException = false;
   try {
-    sm->Close(study);  //Close is called inside StudyManager::Close
+    study->Clear();  //Clear is called inside Study::Clear()
   }
   catch(...) {
     isException = true;
