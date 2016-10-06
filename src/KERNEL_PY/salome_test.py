@@ -163,7 +163,7 @@ print "OK"
 
 # ---- update object browser
 if salome.hasDesktop():
-    salome.sg.updateObjBrowser(1);
+    salome.sg.updateObjBrowser(True);
 
 print
 
@@ -303,7 +303,7 @@ print "OK"
 
 # ---- update object browser
 if salome.hasDesktop():
-    salome.sg.updateObjBrowser(1);
+    salome.sg.updateObjBrowser(True);
 
 print
 
@@ -455,4 +455,4 @@ else: # not in gui mode, Paravis can not be tested
 
 # ---- update object browser
 if salome.hasDesktop():
-    salome.sg.updateObjBrowser(1);
+    salome.sg.updateObjBrowser(True);

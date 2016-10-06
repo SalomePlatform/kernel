@@ -1416,7 +1416,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 
   sfp << std::endl;
   sfp << "if salome.sg.hasDesktop():" << std::endl;
-  sfp << "\tsalome.sg.updateObjBrowser(1)" << std::endl;
+  sfp << "\tsalome.sg.updateObjBrowser(True)" << std::endl;
 
   if(isDumpVisuals) { //Output the call to Session's method restoreVisualState
     sfp << "\tiparameters.getSession().restoreVisualState(1)" << std::endl;
