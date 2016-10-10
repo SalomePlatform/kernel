@@ -1398,7 +1398,6 @@ study is open, these references are transformed into persintent IORs.
 /*! \brief Publishing in the study
 
    Publishes the given object in the %study, using the algorithm of this component.
-    \param theStudy     The %study in which the object is published
     \param theSObject     If this parameter is null the object is published for the first time. Otherwise
     this parameter should contain a reference to the object published earlier
     \param theObject      The object which is published
@@ -1407,7 +1406,7 @@ study is open, these references are transformed into persintent IORs.
 
     \return The published %SObject.
 */
-    SObject PublishInStudy(in Study theStudy, in SObject theSObject, in Object theObject, in string theName);
+    SObject PublishInStudy(in SObject theSObject, in Object theObject, in string theName);
 
     // copy/paste methods
 
