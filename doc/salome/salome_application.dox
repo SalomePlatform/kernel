@@ -289,8 +289,7 @@ python
 \endcode
 
 Import salome module. salome_init() without arguments creates a new study
-in the running session (note: salome_init(n) attachs to a running session whose
-studyId is n):
+in the running session:
 
 \code
 import salome

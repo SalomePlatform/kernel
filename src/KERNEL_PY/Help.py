@@ -53,8 +53,7 @@ variables:
   salome.sg
       methods:
          updateObjBrowser(bool):
-         getActiveStudyId():
-         getActiveStudyName():
+         getStudyName():
          
          SelectedCount():      returns number of selected objects
          getSelected(i):       returns entry of selected object number i
@@ -71,8 +70,7 @@ variables:
 
          IDToObject(Entry):    returns CORBA reference from entry
 
-  salome.myStudyName     : active Study Name
-  salome.myStudyId       : active Study Id
+  salome.myStudyName     : the Study Name
   salome.myStudy         : the active Study itself (CORBA ior)
                            methods : defined in SALOMEDS.idl
                                                          

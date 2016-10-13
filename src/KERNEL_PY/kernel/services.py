@@ -47,8 +47,8 @@ if not is_called_by_sphinx() and salome.lcc is None:
 
 # Note that the salome module provides you with standard SALOME
 # objects: CORBA broker (orb): salome.orb lyfe cycle (lcc) :
-# salome.lcc naming service : salome.naming_service study manager :
-# salome.myStudyManager The default study : salome.myStudy
+# salome.lcc naming service : salome.naming_service 
+# The default study : salome.myStudy
 #
 # Alternatively, you may obtain these objects directly with the
 # following instructions:
@@ -123,27 +123,21 @@ def getComponentList():
         raise RuntimeError, "Can't accesss module catalog"
     return catalog.GetComponentList()
 
-## Get a study manager to create and manage %SALOME studies
-#  \ingroup service
-def getStudyManager():
-    """Get a study manager to create and manage SALOME studies"""
-    return salome.myStudyManager
-
 import SALOMEDS
-## Get a study manager to create and manage SALOME studies. 
-#  \warning you should use instead the variable salome.myStudyManager. 
+## Get a study to create SALOME study. 
+#  \warning you should use instead the variable salome.myStudy. 
 #  This function is given for illustration of usage of the naming service
 #  \ingroup service
-def __getStudyManager_demo():
+def __getStudy_demo():
     """
-    Get a study manager to create and manage SALOME studies. WARN: you
-    should use instead the variable salome.myStudyManager. This
+    Get a study to create SALOME study. WARN: you
+    should use instead the variable salome.myStudy. This
     function is given for illustration of usage of the naming service
     """
     naming_service = SALOME_NamingServicePy_i( orb )
-    obj = naming_service.Resolve( '/myStudyManager' )
-    studyManager = obj._narrow( SALOMEDS.StudyManager)
-    return studyManager
+    obj = naming_service.Resolve( '/Study' )
+    study = obj._narrow( SALOMEDS.Study)
+    return study
 
 
 #

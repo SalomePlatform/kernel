@@ -88,16 +88,10 @@ sg = SALOMEGUI_Swig()
 #create an naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
 
-# get active study name and id
-myStudyName = sg.getActiveStudyName()
+# get active study name
+myStudyName = sg.getStudyName()
 print myStudyName
 
-myStudyId = sg.getActiveStudyId()
-print myStudyId
-
-# get Study Manager reference
-obj = naming_service.Resolve('myStudyManager')
-myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-
-# get active study
-myStudy = myStudyManager.GetStudyByName(myStudyName)
+# get Study reference
+obj = naming_service.Resolve('Study')
+myStudy = obj._narrow(SALOMEDS.Study)

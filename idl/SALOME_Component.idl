@@ -101,8 +101,6 @@ module Engines
           Warning: no internal registration is done, so it is up to the caller to
           manage the various instanciation.
           \param serviceName Name of the service
-
-                                >0 otherwise (== study id)
           \param reason  in case of error (return void string) a string explaining the error
           \return the IOR of the loaded service.
         */

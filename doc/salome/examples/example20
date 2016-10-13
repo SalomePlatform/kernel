@@ -65,7 +65,7 @@ file = str+"/test.hdf"
 
 print " -------  We will save to", file, "-----------"
 
-batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+batchmode_geompy.myStudy.SaveAs(file)
 
 
 #--------------------------------------------------------------------------#
@@ -74,7 +74,7 @@ batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
 
 print" -------------- Open  " + file + "-------------- " 
 
-openedStudy = batchmode_geompy.myStudyManager.Open(file)
+openedStudy = batchmode_geompy.myStudy.Open(file)
 if openedStudy == None:
         raise  RuntimeError, "Can't open saved study!"
 

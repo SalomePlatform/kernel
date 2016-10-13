@@ -178,7 +178,7 @@ from salome.smesh import smeshBuilder
 smesh = salome.lcc.FindOrLoadComponent("FactoryServer", "SMESH")
 if salome.hasDesktop():
     smeshgui = salome.ImportComponentGUI("SMESH")
-    smeshgui.Init(salome.myStudyId);
+    smeshgui.Init();
 else:
     smesh = smeshBuilder.New(salome.myStudy)
 

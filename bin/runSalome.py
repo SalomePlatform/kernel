@@ -502,9 +502,9 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=SalomeDSServer(args)
         myServer.run()
         if sys.platform == "win32":
-          clt.waitNS("/myStudyManager")
+          clt.waitNS("/Study")
         else:
-          clt.waitNSPID("/myStudyManager",myServer.PID)
+          clt.waitNSPID("/Study",myServer.PID)
 
     #
     # Launch LauncherServer

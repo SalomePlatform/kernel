@@ -60,7 +60,7 @@ idedge= batchmode_geompy.addToStudyInFather(face,edge,name)
 smesh =  batchmode_smesh.smesh
 #  --  Init  --
 shape = batchmode_geompy.IDToObject(idbox)
-mesh=smesh.Init(geom, batchmode_geompy.myStudyId, shape)
+mesh=smesh.Init(geom, shape)
 
 orb = batchmode_geompy.orb
 
@@ -72,7 +72,7 @@ batchmode_smesh.SetShape(idbox, idmesh);
 
 print "-------------------------- create Hypothesis ----------------------"
 print "-------------------------- LocalLength"
-hyp1 = smesh.CreateHypothesis("LocalLength", batchmode_geompy.myStudyId )
+hyp1 = smesh.CreateHypothesis("LocalLength")
 hypLen1 = hyp1._narrow(SMESH.SMESH_LocalLength)
 hypLen1.SetLength(100)
 print hypLen1.GetName()
@@ -83,7 +83,7 @@ idlength = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypLen1) );
 batchmode_smesh.SetName(idlength, "Local_Length_100");
 
 print "-------------------------- NumberOfSegments"
-hyp2 =  smesh.CreateHypothesis("NumberOfSegments", batchmode_geompy.myStudyId )
+hyp2 =  smesh.CreateHypothesis("NumberOfSegments")
 hypNbSeg1=hyp2._narrow(SMESH.SMESH_NumberOfSegments)
 hypNbSeg1.SetNumberOfSegments(7)
 print hypNbSeg1.GetName()
@@ -94,7 +94,7 @@ idseg =  batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypNbSeg1) );
 batchmode_smesh.SetName(idseg, "NumberOfSegments_7");
 
 print "-------------------------- MaxElementArea"
-hyp3 = smesh.CreateHypothesis("MaxElementArea",  batchmode_geompy.myStudyId)
+hyp3 = smesh.CreateHypothesis("MaxElementArea")
 hypArea1=hyp3._narrow(SMESH.SMESH_MaxElementArea)
 hypArea1.SetMaxElementArea(2500)
 print hypArea1.GetName()
@@ -105,7 +105,7 @@ idarea1 = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypArea1) );
 batchmode_smesh.SetName(idarea1, "MaxElementArea_2500");
 
 print "-------------------------- MaxElementArea"
-hyp3 = smesh.CreateHypothesis("MaxElementArea",  batchmode_geompy.myStudyId)
+hyp3 = smesh.CreateHypothesis("MaxElementArea")
 hypArea2 = hyp3._narrow(SMESH.SMESH_MaxElementArea)
 hypArea2.SetMaxElementArea(500)
 print hypArea2.GetName()
@@ -116,7 +116,7 @@ idarea2 = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypArea2) );
 batchmode_smesh.SetName(idarea2, "MaxElementArea_500");
 
 print "-------------------------- Regular_1D"
-alg1 = smesh.CreateHypothesis("Regular_1D",  batchmode_geompy.myStudyId)
+alg1 = smesh.CreateHypothesis("Regular_1D")
 algo1 = alg1._narrow(SMESH.SMESH_Algo)
 listHyp = algo1.GetCompatibleHypothesis()
 for hyp in listHyp:
@@ -129,7 +129,7 @@ idreg = batchmode_smesh.AddNewAlgorithms( orb.object_to_string(algoReg) );
 batchmode_smesh.SetName(idreg, "Regular_1D");
 
 print "-------------------------- MEFISTO_2D"
-alg2 = smesh.CreateHypothesis("MEFISTO_2D",  batchmode_geompy.myStudyId)
+alg2 = smesh.CreateHypothesis("MEFISTO_2D")
 algo2 = alg2._narrow(SMESH.SMESH_Algo)
 listHyp=algo2.GetCompatibleHypothesis()
 for hyp in listHyp:
@@ -328,8 +328,8 @@ file = str+"/test.hdf"
 #==================================================
 print " -------  We will save to", file, "-----------"
 
-batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
-batchmode_geompy.myStudyManager.Close(batchmode_geompy.myStudy)
+batchmode_geompy.myStudy.SaveAs(file)
+batchmode_geompy.myStudy.Clear()
 
 #rename the file and try to reread it again
 
@@ -345,7 +345,7 @@ os.rename(file, str+"/test_dir/test_new.hdf")
 print " ------- We try to open " + str + "/test_dir/test_new.hdf"
 
 try:
-        openedStudy=batchmode_geompy.myStudyManager.Open(str+"/test_dir/test_new.hdf")
+        openedStudy=batchmode_geompy.myStudy.Open(str+"/test_dir/test_new.hdf")
 except Exception:
         raise  RuntimeError, "Can't open saved study!"
 
@@ -441,13 +441,13 @@ if names != Names :
 #==================================================
 #4. Save
 #==================================================
-batchmode_geompy.myStudyManager.Save(openedStudy)
-batchmode_geompy.myStudyManager.Close(openedStudy)
+batchmode_geompy.myStudy.Save()
+batchmode_geompy.myStudy.Clear()
 #==================================================
 #5. Open
 #==================================================
 try:
-        openedStudy = batchmode_geompy.myStudyManager.Open(str+"/test_dir/test_new.hdf")
+        openedStudy = batchmode_geompy.myStudy.Open(str+"/test_dir/test_new.hdf")
 except Exception:
         raise  RuntimeError, "Can't open saved study!"
 

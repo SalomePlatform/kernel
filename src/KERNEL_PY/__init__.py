@@ -46,8 +46,6 @@ variables:
   - salome.sg              : salome object to communicate with the graphical user interface (if any)
       - methods:
          - updateObjBrowser(bool):
-         - getActiveStudyId():
-         - getActiveStudyName():
 
          - SelectedCount():      returns number of selected objects
          - getSelected(i):       returns entry of selected object number i
@@ -65,7 +63,6 @@ variables:
          - IDToObject(Entry):    returns CORBA reference from entry
 
   - salome.myStudyName     : active Study Name
-  - salome.myStudyId       : active Study Id
   - salome.myStudy         : the active Study itself (CORBA ior)
       - methods : defined in SALOMEDS.idl
 
@@ -78,7 +75,6 @@ variables:
 #  \param salome.lcc             : instance of lifeCycleCORBA class (SALOME_LifeCycleCORBA)
 #  \param salome.sg              : Salome object to communicate with the graphical user interface, if running (see interface in salome_iapp::SalomeOutsideGUI)
 #  \param salome.myStudyName     : active Study Name
-#  \param salome.myStudyId       : active Study Id
 #  \param salome.myStudy         : the active Study (interface SALOMEDS::Study)
 
 #
@@ -166,62 +162,32 @@ if not flags:
 #    pass
 
 orb, lcc, naming_service, cm,sg=None,None,None,None,None
-myStudyManager, myStudyId, myStudy, myStudyName=None,None,None,None
-
-def setCurrentStudy(theStudy):
-    """
-    Change current study : an existing one given by a study object.
-
-    :param theStudy: the study CORBA object to set as current study
-    """
-    global myStudyId, myStudy, myStudyName
-    myStudyId, myStudy, myStudyName =salome_study.setCurrentStudy(theStudy)
-
-def setCurrentStudyId(theStudyId=0):
-    """
-    Change current study : an existing or new one given by Id.
-
-    :param theStudyId: the study Id (optional argument)
-           0      : create a new study (default).
-           n (>0) : try connection to study with Id = n, or create a new one
-                      if study not found.
-    """
-    global myStudyId, myStudy, myStudyName
-    myStudyId, myStudy, myStudyName =salome_study.setCurrentStudyId(theStudyId)
+myStudy, myStudyName=None,None
 
 salome_initial=1
-def salome_init(theStudyId=0,embedded=0):
+def salome_init(embedded=0):
     """
     Performs only once SALOME general purpose intialisation for scripts.
-    optional argument : theStudyId
-      When in embedded interpreter inside IAPP, theStudyId is not used
-      When used without GUI (external interpreter)
-        0      : create a new study (default).
-        n (>0) : try connection to study with Id = n, or create a new one
-                 if study not found.
-                 If study creation, its Id may be different from theStudyId !
     Provides:
     orb             reference to CORBA
     lcc             a LifeCycleCorba instance
     naming_service  a naming service instance
     cm              reference to the container manager
     sg              access to SALOME GUI (when linked with IAPP GUI)
-    myStudyManager  the study manager
-    myStudyId       active study identifier
     myStudy         active study itself (CORBA reference)
     myStudyName     active study name
     """
     global salome_initial
     global orb, lcc, naming_service, cm
     global sg
-    global myStudyManager, myStudyId, myStudy, myStudyName
+    global myStudy, myStudyName
 
     try:
         if salome_initial:
             salome_initial=0
             sg = salome_iapp_init(embedded)
             orb, lcc, naming_service, cm = salome_kernel_init()
-            myStudyManager, myStudyId, myStudy, myStudyName = salome_study_init(theStudyId)
+            myStudy, myStudyName = salome_study_init()
             pass
         pass
     except RuntimeError, inst:
@@ -240,16 +206,16 @@ def salome_init(theStudyId=0,embedded=0):
         raise
     
 def salome_close():
-    global salome_initial, myStudy, myStudyId, myStudyName
+    global salome_initial, myStudy, myStudyName
     try:
-        # study can be closed either from GUI or directly with salome.myStudy.Close()
-        myStudy.Close()
+        # study can be clear either from GUI or directly with salome.myStudy.Clear()
+        myStudy.Clear()
     except:
         pass
     salome_initial=1
     salome_iapp_close()
     salome_study_close()
-    myStudyId, myStudy, myStudyName=None,None,None
+    myStudy, myStudyName=None,None
     pass
 
 
