@@ -138,7 +138,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   addJobTypeSpecificScript(launch_script_stream);
 
   // End
-  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" shutdownSalome.py" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" killSalomeWithPort.py args:\"$appli_port\"" << std::endl;
   //launch_script_stream << "sleep 10" << std::endl;
 
   // Return
