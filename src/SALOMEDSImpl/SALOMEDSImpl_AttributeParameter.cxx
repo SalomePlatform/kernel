@@ -526,7 +526,7 @@ std::vector<std::string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter
   case PT_STRING: {
     if(_strings.size()) {
       anArray.resize(_strings.size());
-      for(std::map<std::string,std::string>::const_iterator p = _strings.begin(); p!= _strings.end(); p++) 
+      for(std::map<std::string,std::string>::const_iterator p = _strings.begin(); p!= _strings.end(); p++, i++) 
         anArray[i] = p->first;
     }
     break;
@@ -534,7 +534,7 @@ std::vector<std::string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter
   case PT_REALARRAY: {
     if(_realarrays.size()) {
       anArray.resize(_realarrays.size());
-      for(std::map< std::string, std::vector<double> >::const_iterator p = _realarrays.begin(); p!= _realarrays.end(); p++) 
+      for(std::map< std::string, std::vector<double> >::const_iterator p = _realarrays.begin(); p!= _realarrays.end(); p++, i++) 
         anArray[i] = p->first;
     }
     break;
@@ -542,7 +542,7 @@ std::vector<std::string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter
   case PT_INTARRAY: {
     if(_intarrays.size()) {
       anArray.resize(_intarrays.size());
-      for(std::map< std::string, std::vector<int> >::const_iterator p = _intarrays.begin(); p!= _intarrays.end(); p++) 
+      for(std::map< std::string, std::vector<int> >::const_iterator p = _intarrays.begin(); p!= _intarrays.end(); p++, i++) 
         anArray[i] = p->first;
     }
     break;
@@ -550,7 +550,7 @@ std::vector<std::string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter
   case PT_STRARRAY: {
     if(_strarrays.size()) {
       anArray.resize(_strarrays.size());
-      for(std::map< std::string, std::vector<std::string> >::const_iterator p = _strarrays.begin(); p!= _strarrays.end(); p++) 
+      for(std::map< std::string, std::vector<std::string> >::const_iterator p = _strarrays.begin(); p!= _strarrays.end(); p++, i++) 
         anArray[i] = p->first;
     }
     break;
@@ -631,7 +631,6 @@ std::string SALOMEDSImpl_AttributeParameter::Save()
   char *tmpBuffer = new char[255];
 
   buffer << _ints.size() << " ";
-
   for(std::map<std::string,int>::const_iterator p = _ints.begin(); p != _ints.end(); p++) {
     buffer << convertString(p->first) << " " << p->second << " ";
   }
