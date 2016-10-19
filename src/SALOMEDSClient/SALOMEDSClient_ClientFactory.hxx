@@ -59,6 +59,11 @@ public:
   static _PTR(Study) Study(SALOMEDS::Study_ptr theStudy);
 
   /*!
+   *  Creates and returns a client Study wrapper
+   */
+  static _PTR(Study) createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+
+  /*!
    *  Returns a client StudyBuilder wrapper that corresponds %theStudy
    */
   static _PTR(StudyBuilder) StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);

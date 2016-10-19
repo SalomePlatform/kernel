@@ -28,6 +28,7 @@
 //
 #include "SALOMEDS.hxx"
 #include "SALOMEDS_Study.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_StudyBuilder.hxx"
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS_SComponent.hxx"
@@ -100,6 +101,31 @@ extern "C"
   {
     if(CORBA::is_nil(theBuilder)) return NULL;
     return new SALOMEDS_StudyBuilder(theBuilder);
+  }
+
+  SALOMEDS_EXPORT
+  SALOMEDSClient_Study* CreateStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+  {
+    SALOME_NamingService namingService(orb);
+    CORBA::Object_var obj = namingService.Resolve( "/Study" );
+    SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow( obj );
+    SALOMEDS_Study_i* aStudy_i;
+    if( CORBA::is_nil(aStudy) ) {
+      aStudy_i = new SALOMEDS_Study_i(orb);
+
+      // Activate the objects.  This tells the POA that the objects are ready to accept requests.
+      PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
+      aStudy = aStudy_i->_this();
+
+      //give ownership to the poa : the object will be deleted by the poa
+      aStudy_i->_remove_ref();
+      namingService.Register(aStudy.in(), "/Study");
+
+      // Assign the value of the IOR in the study->root
+      CORBA::String_var IORStudy = orb->object_to_string(aStudy);
+      aStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
+    }
+    return new SALOMEDS_Study(aStudy_i->GetImpl());
   }
 
   SALOMEDS_EXPORT
