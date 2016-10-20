@@ -64,7 +64,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     #-------------------------------------------------------------------------
 
     def __init__ (self, orb, poa, contID, containerName,
-                  instanceName, interfaceName, notif=0):
+                  instanceName, interfaceName, notif=False):
         # Notif for notification services
         # NOT YET IMPLEMENTED
         MESSAGE(  "SALOME_ComponentPy_i::__init__" + " " + str (containerName) + " " + str(instanceName) + " " + str(interfaceName) )
