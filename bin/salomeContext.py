@@ -447,22 +447,30 @@ class SalomeContext:
     return runTests.runTests(args, exe="salome test")
   #
 
-  def _showSoftwareVersions(self):
+  def _showSoftwareVersions(self, softwares=None):
     config = ConfigParser.SafeConfigParser()
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
-    filename = os.path.join(absoluteAppliPath, ".softwares_versions")
-    try:
-      config.read(filename)
-      sections = config.sections()
-      for section in sections:
-        entries = config.items(section, raw=True) # do not use interpolation
-        for key,val in entries:
-          version,text = [ x.strip() for x in val.split(',') ]
-          print "%s: %s"%(text, version)
-    except:
-      import traceback
-      traceback.print_exc()
-      return
+    filename = os.path.join(absoluteAppliPath, "sha1_collections.txt")
+    versions = {}
+    max_len = 0
+    with open(filename) as f:
+      for line in f:
+        try:
+          software, version, sha1 = line.split()
+          versions[software.upper()] = version
+          if len(software) > max_len:
+            max_len = len(software)
+        except:
+          pass
+        pass
+      pass
+    if softwares:
+      for soft in softwares:
+        if versions.has_key(soft.upper()):
+          print soft.upper().rjust(max_len), versions[soft.upper()]
+    else:
+      for name, version in versions.items():
+        print name.rjust(max_len), versions[name]
     pass
 
   def _showInfo(self, args=None):

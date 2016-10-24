@@ -43,6 +43,7 @@ import optparse
 appli_tag   = "application"
 prereq_tag  = "prerequisites"
 context_tag = "context"
+sha1_collect_tag = "sha1_collections"
 system_conf_tag  = "system_conf"
 modules_tag = "modules"
 module_tag  = "module"
@@ -92,6 +93,10 @@ class xml_parser:
         # --- if we are analyzing "context" element then store its "path" attribute
         if self.space == [appli_tag, context_tag] and path_att in attrs.getNames():
             self.config["context_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "sha1_collection" element then store its "path" attribute
+        if self.space == [appli_tag, sha1_collect_tag] and path_att in attrs.getNames():
+            self.config["sha1_collect_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "system_conf" element then store its "path" attribute
         if self.space == [appli_tag, system_conf_tag] and path_att in attrs.getNames():
@@ -270,6 +275,14 @@ def install(prefix, config_file, verbose=0):
     if _config.has_key("context_path") and os.path.isfile(_config["context_path"]):
         shutil.copyfile(_config["context_path"],
                         os.path.join(home_dir, 'env.d', 'envProducts.cfg'))
+        pass
+    else:
+        print "WARNING: context file does not exist"
+        pass
+
+    if _config.has_key("sha1_collect_path") and os.path.isfile(_config["sha1_collect_path"]):
+        shutil.copyfile(_config["sha1_collect_path"],
+                        os.path.join(home_dir, 'sha1_collections.txt'))
         pass
     else:
         print "WARNING: context file does not exist"
