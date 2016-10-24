@@ -42,7 +42,7 @@ class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
   """
   def __init__ ( self, orb, poa, contID, containerName, instanceName, interfaceName ):
     SALOME_ComponentPy.SALOME_ComponentPy_i.__init__(self, orb, poa,
-                    contID, containerName, instanceName, interfaceName, 0)
+                    contID, containerName, instanceName, interfaceName, False)
     SALOME_DriverPy.SALOME_DriverPy_i.__init__(self, interfaceName)
     # create the DSC proxy
     self.proxy=calcium.PySupervCompo(orb,poa,contID,instanceName,interfaceName )

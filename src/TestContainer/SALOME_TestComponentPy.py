@@ -42,7 +42,7 @@ class SALOME_TestComponentPy( Engines__POA.TestComponent, SALOME_ComponentPy_i):
         return result
     
     def __init__(self, orb, poa, contID, containerName, instanceName, interfaceName):
-        notif = 0
+        notif = False
         SALOME_ComponentPy_i.__init__(self, orb, poa, contID, containerName,
                                       instanceName, interfaceName, notif)
         print "SALOME_TestComponentPy::__init__"
