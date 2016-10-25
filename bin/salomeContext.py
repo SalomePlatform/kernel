@@ -51,6 +51,8 @@ Commands:
                     Do not start a new one.
     test            Run SALOME tests.
     info            Display some information about SALOME.
+    doc <module(s)> Show online module documentation (if available).
+                    Module names must be separated by blank characters.
     help            Show this message.
 
 If no command is given, default to start.
@@ -225,6 +227,7 @@ class SalomeContext:
       'killall' : '_killAll',
       'test'    : '_runTests',
       'info'    : '_showInfo',
+      'doc'     : '_showDoc',
       'help'    : '_usage',
       'coffee'  : '_makeCoffee',
       'car'     : '_getCar',
@@ -507,6 +510,30 @@ Available options are:
       print "Running with python", platform.python_version()
       self._runAppli(["--version"])
   #
+
+  def _showDoc(self, args=None):
+    if args is None:
+      args = []
+
+    modules = args
+    if not modules:
+      print "Module(s) not provided to command: salome doc <module(s)>"
+      return
+
+    appliPath = os.getenv("ABSOLUTE_APPLI_PATH")
+    if not appliPath:
+      raise SalomeContextException("Unable to find application path. Please check that the variable ABSOLUTE_APPLI_PATH is set.")
+    baseDir = os.path.join(appliPath, "share", "doc", "salome")
+    for module in modules:
+      docfile = os.path.join(baseDir, "gui", module.upper(), "index.html")
+      if not os.path.isfile(docfile):
+        docfile = os.path.join(baseDir, "tui", module.upper(), "index.html")
+      if not os.path.isfile(docfile):
+        docfile = os.path.join(baseDir, "dev", module.upper(), "index.html")
+      if os.path.isfile(docfile):
+        out, err = subprocess.Popen(["xdg-open", docfile]).communicate()
+      else:
+        print "Online documentation is not accessible for module:", module
 
   def _usage(self, unused=None):
     usage()
