@@ -280,6 +280,8 @@ class SessionServer(Server):
             list_modules.reverse()
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
             pass
+        if self.args.has_key('language'):
+            self.SCMD2+=['--language=%s' % self.args['language']]
         pass
 
     def setpath(self,modules_list,modules_root_dir):

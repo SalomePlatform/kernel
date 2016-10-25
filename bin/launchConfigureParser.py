@@ -60,6 +60,7 @@ pinter_nam     = "pinter"
 batch_nam      = "batch"
 test_nam       = "test"
 play_nam       = "play"
+lang_nam       = "language"
 gdb_session_nam = "gdb_session"
 ddd_session_nam = "ddd_session"
 valgrind_session_nam = "valgrind_session"
@@ -330,7 +331,7 @@ class xml_parser:
         # either "launch" or module name -- set section_name
         if self.space == [doc_tag, sec_tag] and nam_att in attrs.getNames():
             section_name = attrs.getValue( nam_att )
-            if section_name == lanch_nam:
+            if section_name in [lanch_nam, lang_nam]:
                 self.section = section_name # launch section
             elif self.opts.has_key( modules_nam ) and \
                  section_name in self.opts[ modules_nam ]:
@@ -793,6 +794,14 @@ def CreateOptionParser (theAdditionalOptions=None, exeName=None):
                              dest="use_port",
                                    help=help_str)
 
+    help_str  = "Force application language. By default, a language specified in "
+    help_str += "the user's preferences is used."
+    o_lang = optparse.Option("-a",
+                             "--language",
+                             action="store",
+                             dest="language",
+                             help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -822,6 +831,7 @@ def CreateOptionParser (theAdditionalOptions=None, exeName=None):
                 o_wake_up,
                 o_slm,   # Server launch mode
                 o_port,  # Use port
+                o_lang,  # Language
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "resources",
@@ -1196,6 +1206,13 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
             print "Error: port number should be in range [%d, %d])" % (min_port, max_port)
             sys.exit(1)
         args[useport_nam] = cmd_opts.use_port
+
+    if cmd_opts.language is not None:
+        langs = args["language_languages"] if "language_languages" in args else []
+        if cmd_opts.language not in langs:
+            print "Error: unsupported language: %s" % cmd_opts.language
+            sys.exit(1)
+        args[lang_nam] = cmd_opts.language
 
     # return arguments
     os.environ[config_var] = os.pathsep.join(dirs)
