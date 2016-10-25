@@ -162,11 +162,12 @@ int main(int argc, char** argv)
       PortableServer::ObjectId_var myStudy_iid = poa->activate_object(myStudy_i);
       SALOMEDS::Study_var Study = myStudy_i->_this();
       NS.Register(Study.in(), "/Study");
-      myStudy_i->_remove_ref();
 
       // Assign the value of the IOR in the study->root
       CORBA::String_var IORStudy = orb->object_to_string(Study);
       myStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
+
+      myStudy_i->_remove_ref();
        
       // Obtain a POAManager, and tell the POA to start accepting
       // requests on its objects.

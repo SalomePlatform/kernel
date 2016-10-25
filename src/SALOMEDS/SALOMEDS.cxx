@@ -116,16 +116,15 @@ extern "C"
       // Activate the objects.  This tells the POA that the objects are ready to accept requests.
       PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
       aStudy = aStudy_i->_this();
-
-      //give ownership to the poa : the object will be deleted by the poa
-      aStudy_i->_remove_ref();
       namingService.Register(aStudy.in(), "/Study");
 
       // Assign the value of the IOR in the study->root
       CORBA::String_var IORStudy = orb->object_to_string(aStudy);
       aStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
     }
-    return new SALOMEDS_Study(aStudy_i->GetImpl());
+    SALOMEDS_Study* study = new SALOMEDS_Study(aStudy_i->GetImpl());
+    aStudy_i->_remove_ref();
+    return study;
   }
 
   SALOMEDS_EXPORT
