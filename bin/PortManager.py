@@ -89,11 +89,24 @@ def __isNetworkConnectionActiveOnPort(port):
   # :NOTE: Under windows:
   #        netstat options -l and -t are unavailable
   #        grep command is unavailable
-  from subprocess import Popen, PIPE
   if sys.platform == "win32":
-    out, _ = Popen(['netstat','-a','-n','-p tcp'], stdout=PIPE).communicate()
+    cmd = ['netstat','-a','-n','-p tcp']
   else:
-    out, _ = Popen(['netstat','-ant'], stdout=PIPE).communicate()
+    cmd = ['netstat','-ant']
+    pass
+
+  err = None
+  try:
+    from subprocess import Popen, PIPE, STDOUT
+    p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
+    out, err = p.communicate()
+  except:
+    print "Error when trying to access active network connections."
+    if err: print err
+    import traceback
+    traceback.print_exc()
+    return False
+
   import StringIO
   buf = StringIO.StringIO(out)
   ports = buf.readlines()

@@ -147,9 +147,9 @@ class TestSessionArgs(unittest.TestCase):
     self.session(self.add3+self.add3+self.hello1)
     self.assertLogFileContentsEqual(self.add3Msg+self.add3Msg+self.hello1Msg)
   #
-#  def testHello0Add3Hello0Add3Hello0(self):
-#    self.session(self.hello1+self.add3+self.hello0+self.add3+self.hello0)
-#    self.assertLogFileContentsEqual(self.hello1Msg+self.add3Msg+self.hello0Msg+self.add3Msg+self.hello0Msg)
+  def testHello0Add3Hello0Add3Hello0(self):
+    self.session(self.hello1+self.add3+self.hello0+self.add3+self.hello0)
+    self.assertLogFileContentsEqual(self.hello1Msg+self.add3Msg+self.hello0Msg+self.add3Msg+self.hello0Msg)
   #
 #
 

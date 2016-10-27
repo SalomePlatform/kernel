@@ -74,25 +74,6 @@ For complete description of available options, pleaser refer to ctest documentat
 # tests must be in ${ABSOLUTE_APPLI_PATH}/${__testSubDir}/
 __testSubDir = "bin/salome/test"
 
-def __runTest(command, workdir):
-  p = subprocess.Popen(command, cwd=workdir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-  while True:
-    try:
-      out = p.stdout.readline()
-      sys.stdout.write(out)
-    except: # raised IOError or OSError if output is empty
-      pass
-
-    returncode = p.poll()
-    if not returncode is None:
-      sys.stdout.flush()
-      break
-    pass
-
-  return p.returncode
-#
-
 def runTests(args, exe=None):
   args = __configureTests(args, exe)
 
@@ -103,7 +84,7 @@ def runTests(args, exe=None):
   testPath = os.path.join(appliPath, __testSubDir)
 
   command = ["ctest"] + args
-  res = __runTest(command, testPath)
-
-  sys.exit(res)
+  p = subprocess.Popen(command, cwd=testPath)
+  p.communicate()
+  sys.exit(p.returncode)
 #
