@@ -41,7 +41,7 @@ Commands:
     context         Initialize SALOME context. Current environment is extended.
     shell           Initialize SALOME context, attached to the last created SALOME
                     instance if any, and executes scripts passed as command arguments.
-                    User works in a Shell terminal; SALOME environment is set but
+                    User works in a Shell terminal. SALOME environment is set but
                     application is not started.
     connect         Connect a Python console to the active SALOME instance.
     kill <port(s)>  Terminate SALOME instances running on given ports for current user.
@@ -54,12 +54,12 @@ Commands:
                     Module names must be separated by blank characters.
     help            Show this message.
 
-If no command is given, default to start.
+If no command is given, default is start.
 
 Command options:
 ================
-    Use salome <command> --help to show help on command ; available for commands:
-    start, shell, connect, test, info.
+    Use salome <command> --help to show help on command. Available for the
+    following commands: start, shell, connect, test, info.
 
 --config=<file,folder,...>
 ==========================

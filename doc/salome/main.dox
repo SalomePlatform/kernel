@@ -15,8 +15,8 @@ introductory documentation, listed below.
     application on several computers.
     See \subpage SALOME_Application to define your own configuration of %SALOME and run it
     on one or several computers. This is the recommended way of configuration.
--# <b>How to launch %SALOME</b>:
-    - Using the python \subpage salome_command.
+-# <b>How to launch %SALOME</b>\n
+    Use the python \subpage salome_command.
 -# <b>How to use KERNEL services in Python scripts</b>\n
     The %SALOME KERNEL offers a list of services available in Python. See \subpage KERNEL_Services.
 -# <b>How to use KERNEL services from a C++ context</b>\n
