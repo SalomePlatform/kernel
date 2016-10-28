@@ -31,43 +31,40 @@ logger.addHandler(logging.StreamHandler())
 
 class TestSessionArgs(unittest.TestCase):
   #
-  logFile = "log.txt"
-  # Set some predefined command args and corresponding output messages
-  hello0 = ["hello.py", "args:outfile="+logFile]
-  hello0Msg = "Hello!"
-  hello1 = ["hello.py", "args:you,outfile="+logFile]
-  hello1Msg = "Hello to: you"
-  helloToAdd = ["hello.py", "args:add.py,1,2,3,outfile="+logFile]
-  helloToAddMsg = "Hello to: add.py, 1, 2, 3"
-  helloToList = ["hello.py", "args:['file1','file2'],1,2,3,[True,False],'ok',outfile="+logFile]
-  helloToListMsg = "Hello to: ['file1','file2'], 1, 2, 3, [True,False], 'ok'"
-  add0 = ["add.py", "args:outfile="+logFile]
-  add0Msg = "No args!"
-  add3 = ["add.py", "args:1,2,3,outfile="+logFile]
-  add3Msg = "1+2+3 = 6"
-  lines0 = ["lines.py", "args:outfile="+logFile]
-  lines0Msg = "No files given"
-  lines2 = ["lines.py", "args:hello.py,add.py,outfile="+logFile]
-  lines2Msg = "hello.py is 35 lines longadd.py is 37 lines long"
-  linesUnreadable = ["lines.py", "args:hello.py,add.py,1,2,outfile="+logFile]
-  linesUnreadableMsg = "hello.py is 35 lines longadd.py is 37 lines longFile '1' cannot be readFile '2' cannot be read"
+  @classmethod
+  def setUpClass(cls):
+    # Set some predefined command args and corresponding output messages
+    cls.hello0 = ["hello.py", "args:outfile=LOGFILE"]
+    cls.hello0Msg = "Hello!"
+    cls.hello1 = ["hello.py", "args:you,outfile=LOGFILE"]
+    cls.hello1Msg = "Hello to: you"
+    cls.helloToAdd = ["hello.py", "args:add.py,1,2,3,outfile=LOGFILE"]
+    cls.helloToAddMsg = "Hello to: add.py, 1, 2, 3"
+    cls.helloToList = ["hello.py", "args:['file1','file2'],1,2,3,[True,False],'ok',outfile=LOGFILE"]
+    cls.helloToListMsg = "Hello to: ['file1','file2'], 1, 2, 3, [True,False], 'ok'"
+    cls.add0 = ["add.py", "args:outfile=LOGFILE"]
+    cls.add0Msg = "No args!"
+    cls.add3 = ["add.py", "args:1,2,3,outfile=LOGFILE"]
+    cls.add3Msg = "1+2+3 = 6"
+    cls.lines0 = ["lines.py", "args:outfile=LOGFILE"]
+    cls.lines0Msg = "No files given"
+    cls.lines2 = ["lines.py", "args:hello.py,add.py,outfile=LOGFILE"]
+    cls.lines2Msg = "hello.py is 35 lines longadd.py is 37 lines long"
+    cls.linesUnreadable = ["lines.py", "args:hello.py,add.py,1,2,outfile=LOGFILE"]
+    cls.linesUnreadableMsg = "hello.py is 35 lines longadd.py is 37 lines longFile '1' cannot be readFile '2' cannot be read"
+    sys.stdout = StringIO()
   #
   def setUp(self):
-    from salome_instance import SalomeInstance
-    self.instance = SalomeInstance.start()
-    print "Instance created and now running on port", self.instance.get_port()
-
-    sys.stdout = StringIO()
-    self.removeLogFile()
+    import tempfile
+    self.logFile = tempfile.NamedTemporaryFile()
   #
   def tearDown(self):
-    self.removeLogFile()
-    print "Terminate instance running on port", self.instance.get_port()
-    self.instance.stop()
+    self.logFile.close()
   #
   def session(self, args=None):
     if args is None:
       args = []
+    args = [x.replace("LOGFILE",self.logFile.name) for x in args]
     try:
       import setenv
       setenv.main(True)
@@ -77,16 +74,12 @@ class TestSessionArgs(unittest.TestCase):
     except SystemExit, e:
       if str(e) != '0':
         logger.error(e)
-      pass
-  #
-  def removeLogFile(self):
-    try:
-      os.remove(self.logFile)
-    except OSError:
+      import traceback
+      traceback.print_exc()
       pass
   #
   def assertLogFileContentsEqual(self, message):
-    with open(self.logFile, "r") as f:
+    with open(self.logFile.name, "r") as f:
       contents = f.read().replace('\n', '')
 
     self.assertTrue(contents==message, "Contents differ!\n\tGenerated contents: %s\n\tExpected contents: %s"%(contents, message))
