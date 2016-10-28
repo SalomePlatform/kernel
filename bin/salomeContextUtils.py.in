@@ -40,12 +40,6 @@ def __listDirectory(path):
     cfgFiles = glob.glob(os.path.join(root,'*.cfg'))
     allFiles += cfgFiles
 
-    shFiles = glob.glob(os.path.join(root,'*.sh'))
-    for f in shFiles:
-      no_ext = os.path.splitext(f)[0]
-      if not os.path.isfile(no_ext+".cfg"):
-        allFiles.append(f)
-
   return allFiles
 #
 

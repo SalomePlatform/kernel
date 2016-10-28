@@ -23,7 +23,6 @@ import logging
 import ConfigParser
 
 from parseConfigFile import parseConfigFile
-from parseConfigFile import convertEnvFileToConfigFile
 
 import tempfile
 import pickle
@@ -81,10 +80,7 @@ class SalomeContext:
   """
   Initialize context from a list of configuration files
   identified by their names.
-  These files should be in appropriate (new .cfg) format.
-  However you can give old .sh environment files; in this case,
-  the SalomeContext class will try to automatically convert them
-  to .cfg format before setting the context.
+  These files should be in appropriate .cfg format.
   """
   def __init__(self, configFileNames=0):
     self.getLogger().setLevel(logging.INFO)
@@ -100,18 +96,6 @@ class SalomeContext:
       basename, extension = os.path.splitext(filename)
       if extension == ".cfg":
         self.__setContextFromConfigFile(filename, reserved)
-      elif extension == ".sh":
-        #new convert procedures, temporary could be use not to be automatically deleted
-        #temp = tempfile.NamedTemporaryFile(suffix='.cfg', delete=False)
-        temp = tempfile.NamedTemporaryFile(suffix='.cfg')
-        try:
-          convertEnvFileToConfigFile(filename, temp.name, reserved)
-          self.__setContextFromConfigFile(temp.name, reserved)
-          temp.close()
-        except (ConfigParser.ParsingError, ValueError) as e:
-          self.getLogger().error("Invalid token found when parsing file: %s\n"%(filename))
-          temp.close()
-          sys.exit(1)
       else:
         self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
   #
@@ -293,29 +277,8 @@ class SalomeContext:
       unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
     except SalomeContextException, e:
       msg = "%s"%e
-      file_dir = os.path.dirname(filename)
-      file_base = os.path.basename(filename)
-      base_no_ext, ext = os.path.splitext(file_base)
-      sh_file = os.path.join(file_dir, base_no_ext+'.sh')
-      #if ext == ".cfg" and os.path.isfile(sh_file):
-      if False:
-        msg += "Found similar %s file; trying to parse this one instead..."%(base_no_ext+'.sh')
-        temp = tempfile.NamedTemporaryFile(suffix='.cfg')
-        try:
-          convertEnvFileToConfigFile(sh_file, temp.name, reserved)
-          self.__setContextFromConfigFile(temp.name, reserved)
-          msg += "OK\n"
-          self.getLogger().warning(msg)
-          temp.close()
-          return
-        except (ConfigParser.ParsingError, ValueError) as e:
-          msg += "Invalid token found when parsing file: %s\n"%(sh_file)
-          self.getLogger().error(msg)
-          temp.close()
-          sys.exit(1)
-      else:
-        self.getLogger().error(msg)
-        sys.exit(1)
+      self.getLogger().error(msg)
+      sys.exit(1)
 
     # unset variables
     for var in unsetVars:
