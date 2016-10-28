@@ -13,7 +13,7 @@ A launcher is a Python script that creates an execution context then starts SALO
 \section salome_launcher The salome command
 Usage of \c salome command is:
 \code
-   salome [command] [options] [--config=<file,folder,...>] [--extra_env=<file,folder,...>]
+   salome [command] [options] [--config=<file,folder,...>]
 \endcode
 
 Commands are:
@@ -45,10 +45,6 @@ This command is equivalent to runSession. It accepts the same options that can b
 
 To connect a Python console, use \code salome connect \endcode
 There is no options to this command. It asks user which SALOME instance to connect to.
-
-
-\section batch_files Batch files that set extra environment
-The <tt>--extra_env</tt> option is used to identify a list of batch files (or directories containing such files) that must be considered to create the SALOME execution context. Typically on linux these files are shell scripts that modify the global environment. The salome command determines environment changes implied by running these files to initialize SALOME context. Note that this functionality is not the recommanded way to set SALOME context ; it is provided for backward compatibility and convenience ; prefer \ref context_files solution.
 
 \section context_files Context files management
 The <tt>--config</tt> option is used to identify the list of configuration files or directories to be used for SALOME context creation. When this option is given, only files provided by user are considered. If user does not specify any context file SALOME will rely on context files detected in the env.d application folder. Two file formats can coexist, with a .cfg or .sh extension that are associated with the new and the former start mechanism, respectively.
@@ -121,9 +117,8 @@ initialize(currentPath, launcherFile)
 - Identify configuration (context) files
 \code
 from salomeContextUtils import getConfigFileNames
-configFileNames, extraEnv, args, unexisting = getConfigFileNames(args, checkExistence=True)
+configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True)
 \endcode
-extraEnv variable
 - Create a context
 \code
 context = SalomeContext(configFileNames)
@@ -134,12 +129,6 @@ The execution context can be set or overloaded using \ref salome_api, for exampl
 # context.addToLdLibraryPath('myldlibrarypath')
 # context.addToPythonPath('mypythonpath')
 # context.setVariable('myvarname', 'value')
-\endcode
-- Initializing extra environment variables parsed from batch files:
-\code
-if extraEnv:
-  for key,val in extraEnv.items():
-    context.addToVariable(key,val)
 \endcode
 - Run SALOME
 \code
