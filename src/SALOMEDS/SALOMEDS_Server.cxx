@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 #else
       CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB3" );
 #endif
-      SALOME_NamingService NS;
+      SALOME_NamingService* NS;
       // Obtain a reference to the root POA.
       long TIMESleep = 500000000;
       int NumberOfTries = 40;
@@ -109,8 +109,8 @@ int main(int argc, char** argv)
                     if(EnvL==1)
                       {
                         CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
-                        NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
-                        NS.init_orb( orb1 ) ;
+                        NS = SINGLETON_<SALOME_NamingService>::Instance() ;
+                        NS->init_orb( orb1 ) ;
                         for(int j=1; j<=NumberOfTries; j++)
                           {
                             if (j!=1) 
@@ -161,7 +161,13 @@ int main(int argc, char** argv)
       // ready to accept requests.
       PortableServer::ObjectId_var myStudy_iid = poa->activate_object(myStudy_i);
       SALOMEDS::Study_var Study = myStudy_i->_this();
-      NS.Register(Study.in(), "/Study");
+
+      if (!NS)
+        {
+          NS = SINGLETON_<SALOME_NamingService>::Instance();
+          NS->init_orb( orb );
+        }
+      NS->Register(Study.in(), "/Study");
 
       // Assign the value of the IOR in the study->root
       CORBA::String_var IORStudy = orb->object_to_string(Study);

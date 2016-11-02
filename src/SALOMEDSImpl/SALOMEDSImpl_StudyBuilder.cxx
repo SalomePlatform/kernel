@@ -1014,10 +1014,7 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
                                                               persist_ref, 
                                                               isMultiFile, 
                                                               isASCII);
-      SALOMEDSImpl_AttributeIOR* iorAttr = SALOMEDSImpl_AttributeIOR::Set (current, ior_string);
-
-      // make myRefCounter of a loaded GenericObj == 1
-      SALOMEDSImpl_Study::UnRegisterGenObj( ior_string, iorAttr->Label());
+      SALOMEDSImpl_AttributeIOR::Set (current, ior_string);
     }
     Translate_persistentID_to_IOR (current, driver, isMultiFile, isASCII);
   }

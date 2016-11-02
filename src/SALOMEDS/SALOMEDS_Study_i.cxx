@@ -179,50 +179,6 @@ namespace SALOMEDS
     CORBA::ORB_var                    _orb;
   };
 
-  class GenObjRegister: public SALOMEDSImpl_AbstractCallback
-  {
-  public:
-    GenObjRegister(CORBA::ORB_ptr orb)
-    {
-      _orb = CORBA::ORB::_duplicate(orb);
-    }
-    virtual void RegisterGenObj  (const std::string& theIOR)
-    {
-      try
-      {
-        CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
-        if ( obj->_non_existent() ) return;
-        SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
-        if(! CORBA::is_nil(gobj) )
-        {
-          gobj->Register();
-        }
-      }
-      catch(const CORBA::Exception& e)
-      {
-      }
-    }
-    virtual void UnRegisterGenObj(const std::string& theIOR)
-    {
-      try
-      {
-        CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
-        if ( obj->_non_existent() ) return;
-        SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
-        if(! CORBA::is_nil(gobj) )
-        {
-          gobj->UnRegister();
-        }
-      }
-      catch(const CORBA::Exception& e)
-      {
-      }
-    }
-
-  private:
-    CORBA::ORB_var _orb;
-  };
-
 } // namespace SALOMEDS
 
 //============================================================================
@@ -260,11 +216,9 @@ void SALOMEDS_Study_i::Init()
 {
   _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
   _notifier       = new SALOMEDS::Notifier(_orb);
-  _genObjRegister = new SALOMEDS::GenObjRegister(_orb);
   _closed         = false;
 
   _impl->setNotifier(_notifier);
-  _impl->setGenObjRegister( _genObjRegister );
 
   // Notify GUI that study was created
   SALOME_NamingService *aNamingService = KERNEL::getNamingService();
@@ -296,7 +250,6 @@ void SALOMEDS_Study_i::Clear()
   _impl->Clear();
   _impl->setNotifier(0);
   delete _notifier;
-  delete _genObjRegister;
 
   SALOMEDS::Locker lock;
 
@@ -1070,23 +1023,6 @@ void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR, const char* anEntry)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->UpdateIORLabelMap(std::string((char*)anIOR), std::string((char*)anEntry));
-}
-
-SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb)
-{
-  SALOMEDS::Locker lock;
-
-  SALOMEDSImpl_AttributeIOR* Att = NULL;
-  if ((Att=(SALOMEDSImpl_AttributeIOR*)theLabel.Root().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))){
-    char* IOR = CORBA::string_dup(Att->Value().c_str());
-    CORBA::Object_var obj = orb->string_to_object(IOR);
-    SALOMEDS::Study_ptr aStudy = SALOMEDS::Study::_narrow(obj) ;
-    ASSERT(!CORBA::is_nil(aStudy));
-    return SALOMEDS::Study::_duplicate(aStudy);
-  } else {
-    MESSAGE("GetStudy: Problem to get study");
-  }
-  return SALOMEDS::Study::_nil();
 }
 
 void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 

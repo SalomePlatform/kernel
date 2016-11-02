@@ -65,19 +65,8 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
   CheckLocked();
 
   Backup();
-  //remove IOR entry in study
-  if(theValue != myString)
-    {
-      SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudy(Label());
-      study->RegisterGenObj(theValue, Label());
-      study->UnRegisterGenObj(myString, Label());
-      study->DeleteIORLabelMapItem(myString);
-    }
 
   myString = theValue;
-
-  //add IOR entry in study
-  SALOMEDSImpl_Study::IORUpdated(this);
   
   //Reason = 5 means that IOR attribute updated
   //Used in the gui module to detect that IOR attribure was assigned to the object
@@ -104,7 +93,6 @@ SALOMEDSImpl_AttributeIOR::SALOMEDSImpl_AttributeIOR()
 
 SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR()
 {
-  SALOMEDSImpl_Study::UnRegisterGenObj(myString, Label());
 }
 
 //=======================================================================

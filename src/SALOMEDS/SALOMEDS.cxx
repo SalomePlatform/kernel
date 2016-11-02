@@ -117,14 +117,9 @@ extern "C"
       PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
       aStudy = aStudy_i->_this();
       namingService.Register(aStudy.in(), "/Study");
-
-      // Assign the value of the IOR in the study->root
-      CORBA::String_var IORStudy = orb->object_to_string(aStudy);
-      aStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
     }
-    SALOMEDS_Study* study = new SALOMEDS_Study(aStudy_i->GetImpl());
     aStudy_i->_remove_ref();
-    return study;
+    return NULL;
   }
 
   SALOMEDS_EXPORT

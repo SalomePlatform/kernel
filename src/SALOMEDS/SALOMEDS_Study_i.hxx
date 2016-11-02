@@ -54,7 +54,6 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   SALOMEDSImpl_AbstractCallback* _notifier;
-  SALOMEDSImpl_AbstractCallback* _genObjRegister;
   SALOMEDS_DriverFactory_i*      _factory;
   bool                           _closed;
 
