@@ -447,10 +447,12 @@ class SalomeContext:
     epilog  = """\n
 Display some information about SALOME.\n
 Available options are:
-    -p,--ports        Show the list of busy ports (running SALOME instances).
-    -s,--softwares    Show the list and versions of SALOME softwares.
-    -v,--version      Show running SALOME version.
-    -h,--help         Show this message.
+    -p,--ports                     Show the list of busy ports (running SALOME instances).
+    -s,--softwares [software(s)]   Show the list and versions of SALOME softwares.
+                                   Software names must be separated by blank characters.
+                                   If no software is given, show version of all softwares.
+    -v,--version                   Show running SALOME version.
+    -h,--help                      Show this message.
 """
     if not args:
       args = ["--version"]
@@ -467,7 +469,14 @@ Available options are:
         print "Last started instance on port %s"%ports[-1]
 
     if "-s" in args or "--softwares" in args:
-      self._showSoftwareVersions()
+      if "-s" in args:
+        index = args.index("-s")
+      else:
+        index = args.index("--softwares")
+      indexEnd=index+1
+      while indexEnd < len(args) and args[indexEnd][0] != "-":
+        indexEnd = indexEnd + 1
+      self._showSoftwareVersions(softwares=args[index+1:indexEnd])
 
     if "-v" in args or "--version" in args:
       print "Running with python", platform.python_version()
