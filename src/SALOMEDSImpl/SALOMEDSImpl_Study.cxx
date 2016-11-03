@@ -138,7 +138,9 @@ SALOMEDSImpl_Study::~SALOMEDSImpl_Study()
 void SALOMEDSImpl_Study::Init()
 {
   static int _id = 0;
-  _name = "Study" + std::to_string(++_id);
+  std::stringstream sstrm;
+  sstrm << ++_id;
+  _name = "Study" + std::string(sstrm.str());
   _doc = _appli->NewDocument("SALOME_STUDY");
   _Saved = false ;
   _URL = "";
