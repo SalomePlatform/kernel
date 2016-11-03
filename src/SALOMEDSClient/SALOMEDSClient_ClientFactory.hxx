@@ -61,7 +61,7 @@ public:
   /*!
    *  Creates and returns a client Study wrapper
    */
-  static _PTR(Study) createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+  static void createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
 
   /*!
    *  Returns a client StudyBuilder wrapper that corresponds %theStudy

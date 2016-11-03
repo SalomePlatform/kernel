@@ -45,7 +45,7 @@ static void* _libHandle = NULL;
 typedef SALOMEDSClient_SObject* (*SOBJECT_FACTORY_FUNCTION) (SALOMEDS::SObject_ptr);
 typedef SALOMEDSClient_SComponent* (*SCOMPONENT_FACTORY_FUNCTION) (SALOMEDS::SComponent_ptr);
 typedef SALOMEDSClient_Study* (*STUDY_FACTORY_FUNCTION) (SALOMEDS::Study_ptr);
-typedef SALOMEDSClient_Study* (*STUDY_CREATE_FUNCTION) (CORBA::ORB_ptr, PortableServer::POA_ptr);
+typedef void                  (*STUDY_CREATE_FUNCTION) (CORBA::ORB_ptr, PortableServer::POA_ptr);
 typedef SALOMEDSClient_StudyBuilder* (*BUILDER_FACTORY_FUNCTION) (SALOMEDS::StudyBuilder_ptr);
 typedef SALOMEDSClient_IParameters* (*GET_PARAMETERS_FACTORY) (const _PTR(AttributeParameter)&);
 typedef SALOMEDS::SObject_ptr (*CONVERT_SOBJECT_FUNCTION) (const _PTR(SObject)&);
@@ -111,7 +111,7 @@ _PTR(Study) ClientFactory::Study(SALOMEDS::Study_ptr theStudy)
   return _PTR(Study)(study);
 }
 
-_PTR(Study) ClientFactory::createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa)
+void ClientFactory::createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa)
 {
   SALOMEDSClient_Study* study = NULL;
 #ifdef WIN32
@@ -122,8 +122,7 @@ _PTR(Study) ClientFactory::createStudy(CORBA::ORB_ptr orb, PortableServer::POA_p
   if(!aCreateFactory) aCreateFactory = (STUDY_CREATE_FUNCTION) dlsym(_libHandle, STUDY_CREATE);
 #endif
 
-  if(aCreateFactory) study = aCreateFactory(orb, poa);
-  return _PTR(Study)(study);
+  if(aCreateFactory) aCreateFactory(orb, poa);
 }
 
 _PTR(StudyBuilder) ClientFactory::StudyBuilder(SALOMEDS::StudyBuilder_ptr theStudyBuilder)
