@@ -180,7 +180,7 @@ if salome.hasDesktop():
     smeshgui = salome.ImportComponentGUI("SMESH")
     smeshgui.Init();
 else:
-    smesh = smeshBuilder.New(salome.myStudy)
+    smesh = smeshBuilder.New()
 
 # ---- create hypotheses 
 
