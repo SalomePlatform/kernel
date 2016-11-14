@@ -113,7 +113,6 @@ _PTR(Study) ClientFactory::Study(SALOMEDS::Study_ptr theStudy)
 
 void ClientFactory::createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa)
 {
-  SALOMEDSClient_Study* study = NULL;
 #ifdef WIN32
   if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
   if(!aCreateFactory) aCreateFactory = (STUDY_CREATE_FUNCTION)::GetProcAddress(_libHandle, STUDY_CREATE);

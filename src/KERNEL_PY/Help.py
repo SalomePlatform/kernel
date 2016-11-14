@@ -52,7 +52,7 @@ variables:
                            with a Server name and an Engine name
   salome.sg
       methods:
-         updateObjBrowser(bool):
+         updateObjBrowser():
          getStudyName():
          
          SelectedCount():      returns number of selected objects

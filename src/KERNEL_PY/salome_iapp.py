@@ -77,7 +77,7 @@ class SalomeOutsideGUI(object):
         """Indicate if GUI is running"""
         return False
     
-    def updateObjBrowser(self, bid):
+    def updateObjBrowser(self):
         """update the GUI object browser"""
         print "SalomeOutsideGUI: no objectBrowser update outside GUI"
         pass

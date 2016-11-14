@@ -45,7 +45,7 @@ variables:
 
   - salome.sg              : salome object to communicate with the graphical user interface (if any)
       - methods:
-         - updateObjBrowser(bool):
+         - updateObjBrowser():
 
          - SelectedCount():      returns number of selected objects
          - getSelected(i):       returns entry of selected object number i

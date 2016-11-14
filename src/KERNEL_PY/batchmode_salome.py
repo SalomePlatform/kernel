@@ -105,7 +105,7 @@ def IDToSObject(id):
 
     #--------------------------------------------------------------------------
 
-def PersistentPresentation(theStudy, theSO, theWithID):
+def PersistentPresentation(theSO, theWithID):
     # put the sobject's content (with subchildren) to the string
     aResult = ""
     attrs = theSO.GetAllAttributes()
@@ -154,9 +154,9 @@ def PersistentPresentation(theStudy, theSO, theWithID):
         aResult = "sobject: " + theSO.GetID() + " nbattrs: " + str(aLen - anUncopied) + aResult + '\n'
     else:
         aResult = " nbattrs: " + str(aLen - anUncopied) + aResult + '\n'
-    anIter = theStudy.NewChildIterator(theSO)
+    anIter = myStudy.NewChildIterator(theSO)
     while anIter.More():
-        aResult += PersistentPresentation(theStudy, anIter.Value(), theWithID)
+        aResult += PersistentPresentation(anIter.Value(), theWithID)
         anIter.Next()
     return aResult
 
@@ -178,7 +178,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     while aRoot.GetID() != "0:":
         aRoot = aRoot.GetFather()
     aTree = GetTree(aRoot)
-    aStudyPersist = PersistentPresentation(myStudy, aRoot, 1)
+    aStudyPersist = PersistentPresentation(aRoot, 1)
 
     if not myStudy.CanCopy(theSO):
         raise RuntimeError, "<CanCopy> for "+theInfo+" returns false"
@@ -191,7 +191,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
         raise RuntimeError, "<CanPaste> for "+theInfo+" returns false"
 
     # check: before paste study is not changed check
-    if aStudyPersist != PersistentPresentation(myStudy, aRoot, 1):
+    if aStudyPersist != PersistentPresentation(aRoot, 1):
         raise RuntimeError, "Study is changed before Paste calling for "+theInfo
     
     aSObj = theSO
