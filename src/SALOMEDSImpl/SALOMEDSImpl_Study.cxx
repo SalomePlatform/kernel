@@ -150,6 +150,7 @@ void SALOMEDSImpl_Study::Init()
   _builder = new SALOMEDSImpl_StudyBuilder(this);
   _cb = new SALOMEDSImpl_Callback(_useCaseBuilder);
   _notifier=0;
+  _genObjRegister=0;
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by DF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
@@ -3198,6 +3199,49 @@ bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theS
 void SALOMEDSImpl_Study::setNotifier(SALOMEDSImpl_AbstractCallback* notifier) 
 {
   _notifier=notifier;
+}
+
+static SALOMEDSImpl_AbstractCallback* & getGenObjRegister( DF_Document* doc )
+{
+  static std::vector< SALOMEDSImpl_AbstractCallback* > _genObjRegVec;
+  if ( doc->GetDocumentID() >= (int)_genObjRegVec.size() )
+    _genObjRegVec.resize( doc->GetDocumentID() + 1, 0 );
+  return _genObjRegVec[ doc->GetDocumentID() ];
+}
+
+//================================================================================
+/*!
+ * \brief Stores theRegister
+ */
+//================================================================================
+
+void SALOMEDSImpl_Study::setGenObjRegister(SALOMEDSImpl_AbstractCallback* theRegister)
+{
+  getGenObjRegister( _doc ) = theRegister;
+}
+
+//================================================================================
+/*!
+ * \brief Indirectly invokes GenericObj_i::Register()
+ */
+//================================================================================
+
+void SALOMEDSImpl_Study::RegisterGenObj  (const std::string& theIOR, DF_Label label)
+{
+  if ( SALOMEDSImpl_AbstractCallback* goRegister = getGenObjRegister( label.GetDocument() ))
+    goRegister->RegisterGenObj( theIOR );
+}
+
+//================================================================================
+/*!
+ * \brief Indirectly invokes GenericObj_i::UnRegister()
+ */
+//================================================================================
+
+void SALOMEDSImpl_Study::UnRegisterGenObj(const std::string& theIOR, DF_Label label)
+{
+  if ( SALOMEDSImpl_AbstractCallback* goRegister = getGenObjRegister( label.GetDocument() ))
+    goRegister->UnRegisterGenObj( theIOR );
 }
 
 //#######################################################################################################
