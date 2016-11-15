@@ -281,6 +281,7 @@ int main(int argc, char** argv)
     // Test basic services
     Test(myStudy);
 
+    delete salomens;
     orb->run();
     orb->destroy();
   }
