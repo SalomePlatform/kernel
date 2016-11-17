@@ -292,11 +292,6 @@ void SALOMEDS_Study_i::Clear()
   PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
   poa->deactivate_object(anObjectId.in());
   _builder->_remove_ref();
-  
-  _impl->Clear();
-  _impl->setNotifier(0);
-  delete _notifier;
-  delete _genObjRegister;
 
   SALOMEDS::Locker lock;
 
@@ -304,37 +299,38 @@ void SALOMEDS_Study_i::Clear()
     throw SALOMEDS::Study::StudyInvalidReference();
 
   RemovePostponed(-1);
-
-  SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
-  for (; itcomponent->More(); itcomponent->Next()) {
-    SALOMEDS::SComponent_var sco = itcomponent->Value();
-    CORBA::String_var compodatatype=sco->ComponentDataType();
-    MESSAGE ( "Look for an engine for data type :"<< compodatatype);
-    // if there is an associated Engine call its method for closing
-    CORBA::String_var IOREngine;
-    if (sco->ComponentIOR(IOREngine)) {
-      // we have found the associated engine to write the data
-      MESSAGE ( "We have found an engine for data type :"<< compodatatype);
-      //_narrow can throw a corba exception
-      try {
-	    CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-	    if (!CORBA::is_nil(obj)) {
-	      SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-	      if (!anEngine->_is_nil())  {
-	        SALOMEDS::unlock();
-	        anEngine->Close(sco);
-	        SALOMEDS::lock();
+  if (_impl->GetDocument()) {
+    SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
+    for (; itcomponent->More(); itcomponent->Next()) {
+      SALOMEDS::SComponent_var sco = itcomponent->Value();
+      CORBA::String_var compodatatype=sco->ComponentDataType();
+      MESSAGE ( "Look for an engine for data type :"<< compodatatype);
+      // if there is an associated Engine call its method for closing
+      CORBA::String_var IOREngine;
+      if (sco->ComponentIOR(IOREngine)) {
+        // we have found the associated engine to write the data
+        MESSAGE ( "We have found an engine for data type :"<< compodatatype);
+        //_narrow can throw a corba exception
+        try {
+	      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+	      if (!CORBA::is_nil(obj)) {
+	        SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+	        if (!anEngine->_is_nil())  {
+	          SALOMEDS::unlock();
+	          anEngine->Close(sco);
+	          SALOMEDS::lock();
+	        }
 	      }
-	    }
+        }
+        catch (CORBA::Exception&) {
+        }
       }
-      catch (CORBA::Exception&) {
-      }
+      sco->UnRegister();
     }
-    sco->UnRegister();
-  }
 
-  //Does not need any more this iterator
-  itcomponent->UnRegister();
+    //Does not need any more this iterator
+    itcomponent->UnRegister();
+  }
 
   // Notify GUI that study is cleared
   SALOME_NamingService *aNamingService = KERNEL::getNamingService();
@@ -348,6 +344,11 @@ void SALOMEDS_Study_i::Clear()
     aSession->emitMessageOneWay(str.c_str());
     SALOMEDS::lock();
   }
+
+  _impl->Clear();
+  _impl->setNotifier(0);
+  delete _notifier;
+  delete _genObjRegister;
 
   _closed = true;
 }
