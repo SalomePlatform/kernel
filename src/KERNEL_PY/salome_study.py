@@ -267,10 +267,9 @@ def FindFileInDataDir(filename):
     #--------------------------------------------------------------------------
 
 def openStudy(theStudyPath):
-    global myStudy
     print "openStudy"
-    theStudy = myStudy.Open(theStudyPath)
-    theStudyName = theStudy._get_Name()
+    salome.myStudy.Open(theStudyPath)
+    theStudyName = salome.myStudy._get_Name()
     print theStudyPath, theStudyName
     return theStudyName
 
