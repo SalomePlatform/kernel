@@ -53,6 +53,7 @@ public:
   ~SALOMEDS_Study();
 
   virtual void Clear();
+  virtual void Init();
 
   virtual bool Open(const std::string& theStudyUrl);
 
@@ -143,7 +144,7 @@ public:
   SALOMEDSImpl_Study* GetLocalImpl() { return _local_impl; }
 
 private:
-  void Init();
+  void InitORB();
 
 };
 #endif

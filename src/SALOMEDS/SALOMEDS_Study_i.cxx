@@ -258,6 +258,9 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 //============================================================================
 void SALOMEDS_Study_i::Init()
 {
+  if ( !_impl->GetDocument() )
+    _impl->Init();
+
   _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
   _notifier       = new SALOMEDS::Notifier(_orb);
   _genObjRegister = new SALOMEDS::GenObjRegister(_orb);

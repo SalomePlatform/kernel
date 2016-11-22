@@ -91,18 +91,28 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
   }
 
-  Init();
+  InitORB();
 }
 
 SALOMEDS_Study::~SALOMEDS_Study()
 {
 }
 
-void SALOMEDS_Study::Init()
+void SALOMEDS_Study::InitORB()
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(0 , 0 ) ;
+}
+
+void SALOMEDS_Study::Init()
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->Init();
+  }
+  else
+    _corba_impl->Init();
 }
 
 void SALOMEDS_Study::Clear()

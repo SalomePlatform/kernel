@@ -604,6 +604,10 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 /*! \brief Clear a study object
 */
     void Clear();
+
+/*! \brief Initialization a study object
+*/
+    void Init();
     
 /*! \brief Open a study by url
 
