@@ -51,6 +51,7 @@ def getStudyEditor():
     """
     Return a :class:`StudyEditor` instance to edit the study.
     """
+    global _editor
     if _editor is None:
         _editor = StudyEditor()
     return _editor
