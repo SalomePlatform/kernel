@@ -167,7 +167,7 @@ myStudy, myStudyName=None,None
 salome_initial=1
 def salome_init(embedded=0):
     """
-    Performs only once SALOME general purpose intialisation for scripts.
+    Performs only once SALOME general purpose initialization for scripts.
     Provides:
     orb             reference to CORBA
     lcc             a LifeCycleCorba instance
@@ -210,12 +210,11 @@ def salome_close():
     try:
         # study can be clear either from GUI or directly with salome.myStudy.Clear()
         myStudy.Clear()
+        myStudy.Init()
     except:
         pass
     salome_initial=1
     salome_iapp_close()
-    salome_study_close()
-    myStudy, myStudyName=None,None
     pass
 
 

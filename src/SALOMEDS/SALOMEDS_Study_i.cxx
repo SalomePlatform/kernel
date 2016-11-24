@@ -269,6 +269,9 @@ void SALOMEDS_Study_i::Init()
   _impl->setNotifier(_notifier);
   _impl->setGenObjRegister( _genObjRegister );
 
+  // update desktop title with new study name
+  NameChanged();
+
   // Notify GUI that study was created
   SALOME_NamingService *aNamingService = KERNEL::getNamingService();
   CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
@@ -370,6 +373,9 @@ bool SALOMEDS_Study_i::Open(const char* aUrl)
   MESSAGE("Begin of SALOMEDS_Study_i::Open");
 
   bool res = _impl->Open(std::string(aUrl));
+
+  // update desktop title with new study name
+  NameChanged();
 
   if ( !res )
     THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
@@ -1064,6 +1070,9 @@ void SALOMEDS_Study_i::URL(const char* url)
   SALOMEDS::Locker lock; 
   // URL is specified as IDL attribute: user exception cannot be raised
   _impl->URL(std::string((char*)url));
+
+  // update desktop title with new study name
+  NameChanged();
 }
 
 void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR, const char* anEntry) 
@@ -1771,4 +1780,20 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 #endif  
   isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   return reinterpret_cast<CORBA::LongLong>(_impl);
+}
+
+void SALOMEDS_Study_i::NameChanged()
+{
+  // Notify GUI that the name of study was changed
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  if ( !CORBA::is_nil(aSession) ) {
+    std::stringstream ss;
+    ss << "studyNameChanged";
+    std::string str = ss.str();
+    SALOMEDS::unlock();
+    aSession->emitMessageOneWay(str.c_str());
+    SALOMEDS::lock();
+  }
 }

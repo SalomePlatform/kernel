@@ -75,7 +75,7 @@ variables:
                            methods : defined in SALOMEDS.idl
                                                          
 methods:
-  salome.DumpStudy(study) : Dump a study, given the ior
+  salome.DumpStudy() : Dump a study, given the ior
 ---
 '''
         print doc_salome

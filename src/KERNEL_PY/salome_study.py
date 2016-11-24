@@ -36,8 +36,9 @@ myStudyName = None
 
 #--------------------------------------------------------------------------
 
-def DumpComponent(Study, SO, Builder,offset):
-  it = Study.NewChildIterator(SO)
+def DumpComponent(SO, Builder,offset):
+  global myStudy
+  it = myStudy.NewChildIterator(SO)
   while it.More():
     CSO = it.Value()
     a=offset*"--" + ">" + CSO.GetID()
@@ -56,17 +57,18 @@ def DumpComponent(Study, SO, Builder,offset):
 
 #--------------------------------------------------------------------------
 
-def DumpStudy(Study):
+def DumpStudy():
     """
     Dump a study, given the ior
     """
-    itcomp = Study.NewComponentIterator()
-    Builder = Study.NewBuilder()
+    global myStudy
+    itcomp = myStudy.NewComponentIterator()
+    Builder = myStudy.NewBuilder()
     while itcomp.More():
       SC = itcomp.Value()
       name = SC.ComponentDataType()
       print "-> ComponentDataType is " + name
-      DumpComponent(Study, SC,Builder, 1)
+      DumpComponent(SC,Builder, 1)
       itcomp.Next()
 
 #--------------------------------------------------------------------------
@@ -84,6 +86,7 @@ def IDToObject(id):
     return myObj
 
 def ObjectToSObject(obj):
+    global myStudy
     mySO = None
     if obj is not None:
         ior =  orb.object_to_string(obj)
@@ -115,6 +118,7 @@ def generateName(prefix = None):
     #--------------------------------------------------------------------------
 
 def PersistentPresentation(theSO, theWithID):
+    global myStudy
     # put the sobject's content (with subchildren) to the string
     aResult = ""
     attrs = theSO.GetAllAttributes()
@@ -268,18 +272,9 @@ def FindFileInDataDir(filename):
 
 def openStudy(theStudyPath):
     print "openStudy"
-    salome.myStudy.Open(theStudyPath)
-    theStudyName = salome.myStudy._get_Name()
-    print theStudyPath, theStudyName
-    return theStudyName
-
-    #--------------------------------------------------------------------------
-def clearStudy():
     global myStudy
-    print "clearStudy"
-    myStudy.Clear()
-    myStudy = None
-    pass
+    myStudy.Open(theStudyPath)
+    print theStudyPath, myStudy._get_Name()
 
     #--------------------------------------------------------------------------
 
@@ -305,12 +300,10 @@ def salome_study_init(theStudyPath=None):
         if verbose(): print "Study found"
         pass
 
-    # get study name
+    import types
+    if theStudyPath and type(theStudyPath) == types.StringType:
+        openStudy(theStudyPath)
+
     myStudyName = myStudy._get_Name()
 
     return myStudy, myStudyName
-
-def salome_study_close():
-    global myStudy, myStudyName
-    myStudy, myStudyName = None, None
-    pass

@@ -179,7 +179,7 @@ window. The output for each object includes its entry ID, name, IOR
 (if there is one) and referenced object ID (for references). I.e.
 this is the same data the user can see in the Object Browser columns.
 \code
-salome.DumpStudy(salome.myStudy)
+salome.DumpStudy()
 \endcode
 
 \li \b IDToSObject() Get SALOMEDS object by its entry ID.

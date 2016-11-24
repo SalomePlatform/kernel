@@ -35,9 +35,10 @@ from SALOME_NamingServicePy import *
 
     #--------------------------------------------------------------------------
 
-def DumpComponent(Study, SO, offset):
-    it = Study.NewChildIterator(SO)
-    Builder = Study.NewBuilder()
+def DumpComponent(SO, offset):
+    global myStudy
+    it = myStudy.NewChildIterator(SO)
+    Builder = myStudy.NewBuilder()
     while it.More():
         CSO = it.Value()
         it.Next()
@@ -60,18 +61,19 @@ def DumpComponent(Study, SO, offset):
                 a = a + "  "
                 ofs = ofs +1
             print a + ">" + RefSO.GetID()
-        DumpComponent(Study, CSO, offset+2)
+        DumpComponent(CSO, offset+2)
 
     #--------------------------------------------------------------------------
 
-def DumpStudy(Study):
-    itcomp = Study.NewComponentIterator()
+def DumpStudy():
+    global myStudy
+    itcomp = myStudy.NewComponentIterator()
     while itcomp.More():
         SC = itcomp.Value()
         itcomp.Next()
         name = SC.ComponentDataType()
         print "-> ComponentDataType is " + name
-        DumpComponent(Study, SC, 1)
+        DumpComponent(SC, 1)
         
 
     #--------------------------------------------------------------------------

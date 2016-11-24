@@ -57,7 +57,7 @@ namespace Kernel_Utils
 
     pos = tmp_str.rfind( _extension_ );
     if( !with_extension && pos >= 0 )
-      tmp_str = pos < (int)file_path.size()-1 ? file_path.substr( 0, pos ) : "";
+      tmp_str = pos < (int)tmp_str.size()-1 ? tmp_str.substr( 0, pos ) : "";
 
     return tmp_str;
   }
