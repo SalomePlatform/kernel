@@ -114,7 +114,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
               void* handle;
               std::string impl_name = std::string ("lib") + traceKind 
                 + std::string("TraceCollector.so");
-              handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+              handle = dlopen( impl_name.c_str() , RTLD_LAZY | RTLD_GLOBAL ) ;
 #else
               HINSTANCE handle;
               std::string impl_name = std::string ("lib") + traceKind + std::string(".dll");

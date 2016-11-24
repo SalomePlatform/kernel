@@ -514,7 +514,7 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
 
 #ifndef WIN32
   void* handle;
-  handle = dlopen( impl_name.c_str() , RTLD_NOW ) ;
+  handle = dlopen( impl_name.c_str() , RTLD_NOW | RTLD_GLOBAL ) ;
   if ( !handle )
     {
       //not loadable. Try to find the lib file in LD_LIBRARY_PATH

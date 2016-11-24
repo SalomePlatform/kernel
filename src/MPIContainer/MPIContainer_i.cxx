@@ -162,7 +162,7 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
     }
   
   void* handle;
-  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+  handle = dlopen( impl_name.c_str() , RTLD_LAZY | RTLD_GLOBAL ) ;
   if ( handle )
     {
       _library_map[impl_name] = handle;
@@ -462,7 +462,7 @@ Engines::EngineComponent_ptr Engines_MPIContainer_i::Lload_impl(
 
   std::string absolute_impl_name(_impl_name);
   MESSAGE("[" << _numproc << "] absolute_impl_name=" << absolute_impl_name);
-  void * handle = dlopen(absolute_impl_name.c_str(), RTLD_LAZY);
+  void * handle = dlopen(absolute_impl_name.c_str(), RTLD_LAZY | RTLD_GLOBAL);
   if(!handle){
     INFOS("[" << _numproc << "] Can't load shared library : " << absolute_impl_name);
     INFOS("[" << _numproc << "] error dlopen: " << dlerror());

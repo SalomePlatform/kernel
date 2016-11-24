@@ -164,7 +164,7 @@ Container_proxy_impl_final::load_component_Library(const char* componentName, CO
 #endif
     void* handle;
 #ifndef WIN32
-    handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+    handle = dlopen( impl_name.c_str() , RTLD_LAZY | RTLD_GLOBAL ) ;
 #else
     handle = dlopen( impl_name.c_str() , 0 ) ;
 #endif
