@@ -603,11 +603,11 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     
 /*! \brief Clear a study object
 */
-    void Clear();
+    void Clear() raises(StudyInvalidReference);
 
 /*! \brief Initialization a study object
 */
-    void Init();
+    void Init() raises(StudyInvalidReference);
     
 /*! \brief Open a study by url
 
@@ -621,14 +621,14 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     Saves a study.
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
-    boolean Save(in boolean theMultiFile);
+    boolean Save(in boolean theMultiFile) raises(StudyInvalidReference);
     
 /*! \brief Saving a study in a ASCII file (or files).
 
     Saves a study in an ASCII format file (or files).
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
-    boolean  SaveASCII(in boolean theMultiFile);
+    boolean  SaveASCII(in boolean theMultiFile) raises(StudyInvalidReference);
 /*! \brief Saving the study in a specified HDF file (or files).
 
     Saves the study in a specified file (or files).
@@ -639,7 +639,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     boolean  SaveAs(in URLPath aUrl, // if the file already exists
-                    in boolean theMultiFile); // overwrite (as option)
+                    in boolean theMultiFile) // overwrite (as option)
+                    raises(StudyInvalidReference); 
 /*! \brief Saving the study in a specified ASCII file (or files).
 
     Saves the study in a specified ASCII file (or files).
@@ -649,22 +650,22 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
     boolean  SaveAsASCII(in URLPath aUrl, // if the file already exists
-                         in boolean theMultiFile); // overwrite (as option)
-
+                         in boolean theMultiFile) // overwrite (as option)
+                         raises(StudyInvalidReference); 
 /*!
     Returns True, if the given %SObject can be copied to the clipboard.
 */
-    boolean CanCopy(in SObject theObject);
+    boolean CanCopy(in SObject theObject) raises(StudyInvalidReference);
 /*!
     Returns True, if the given %SObject is copied to the clipboard.
     \param theObject The %SObject which will be copied
 */
-    boolean Copy(in SObject theObject);
+    boolean Copy(in SObject theObject) raises(StudyInvalidReference);
 /*!
     Returns True, if the object from the clipboard can be pasted to the given %SObject.
     \param theObject The %SObject stored in the clipboard.
 */
-    boolean CanPaste(in SObject theObject);
+    boolean CanPaste(in SObject theObject) raises(StudyInvalidReference);
 /*!
     Returns the %SObject in which the object from the clipboard was pasted to.
     \param theObject The %SObject which will be pasted

@@ -235,6 +235,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb)
   _orb     = CORBA::ORB::_duplicate(orb);
   _impl    = new SALOMEDSImpl_Study();
   _factory = new SALOMEDS_DriverFactory_i(_orb);
+  _closed  = true;
 
   Init();
 }
@@ -260,6 +261,9 @@ void SALOMEDS_Study_i::Init()
 {
   if ( !_impl->GetDocument() )
     _impl->Init();
+
+  if (!_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
 
   _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
   _notifier       = new SALOMEDS::Notifier(_orb);
@@ -293,18 +297,17 @@ void SALOMEDS_Study_i::Init()
 //============================================================================
 void SALOMEDS_Study_i::Clear()
 {
+  SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
   //delete the builder servant
   PortableServer::POA_var poa=_builder->_default_POA();
   PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
   poa->deactivate_object(anObjectId.in());
   _builder->_remove_ref();
 
-  SALOMEDS::Locker lock;
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();
-
   RemovePostponed(-1);
+
   if (_impl->GetDocument()) {
     SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
     for (; itcomponent->More(); itcomponent->Next()) {
@@ -390,12 +393,16 @@ bool SALOMEDS_Study_i::Open(const char* aUrl)
 CORBA::Boolean SALOMEDS_Study_i::Save(CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
   return _impl->Save(_factory, theMultiFile);
 }
 
 CORBA::Boolean SALOMEDS_Study_i::SaveASCII(CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
   return _impl->SaveASCII(_factory, theMultiFile);
 }
 
@@ -407,12 +414,16 @@ CORBA::Boolean SALOMEDS_Study_i::SaveASCII(CORBA::Boolean theMultiFile)
 CORBA::Boolean SALOMEDS_Study_i::SaveAs(const char* aUrl, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
   return _impl->SaveAs(std::string(aUrl), _factory, theMultiFile);
 }
 
 CORBA::Boolean SALOMEDS_Study_i::SaveAsASCII(const char* aUrl, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
   return _impl->SaveAsASCII(std::string(aUrl), _factory, theMultiFile);
 }
 
@@ -424,6 +435,8 @@ CORBA::Boolean SALOMEDS_Study_i::SaveAsASCII(const char* aUrl, CORBA::Boolean th
 CORBA::Boolean SALOMEDS_Study_i::CanCopy(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
 
   CORBA::String_var anID = theObject->GetID();
   SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
@@ -442,6 +455,8 @@ CORBA::Boolean SALOMEDS_Study_i::CanCopy(SALOMEDS::SObject_ptr theObject)
 CORBA::Boolean SALOMEDS_Study_i::Copy(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
 
   CORBA::String_var anID = theObject->GetID();
   SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
@@ -460,6 +475,8 @@ CORBA::Boolean SALOMEDS_Study_i::Copy(SALOMEDS::SObject_ptr theObject)
 CORBA::Boolean SALOMEDS_Study_i::CanPaste(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
 
   CORBA::String_var anID = theObject->GetID();
   SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
