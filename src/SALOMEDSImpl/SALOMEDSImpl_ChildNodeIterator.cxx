@@ -42,7 +42,7 @@
 //purpose  : 
 //=======================================================================
 SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator()
-     : myFirstLevel(0)
+  :myNode(0), myFirstLevel(0)
 {}
 
 //=======================================================================
