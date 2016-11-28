@@ -89,7 +89,7 @@ private:
 
   std::string _GetStudyVariablesScript();
   std::string _GetNoteBookAccessor();
-  std::string _GetNoteBookAccess(const std::string& theStudyVar);
+  std::string _GetNoteBookAccess();
 
 public:
 

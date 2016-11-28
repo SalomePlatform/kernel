@@ -292,10 +292,10 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
 
     #-------------------------------------------------------------------------
 
-    def DumpPython(self, theStudy, isPublished, isMultiFile):
+    def DumpPython(self, isPublished, isMultiFile):
         aBuffer = "\0"
         if isMultiFile :
-            aBuffer = "def RebuildData(theStudy): pass\n\0"
+            aBuffer = "def RebuildData(): pass\n\0"
         return (aBuffer, 1)
 
     #-------------------------------------------------------------------------

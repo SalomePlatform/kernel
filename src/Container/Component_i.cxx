@@ -869,12 +869,11 @@ std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
  */
 //=============================================================================
 
-Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
-                                                  CORBA::Boolean isPublished,
+Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Boolean isPublished,
                                                   CORBA::Boolean isMultiFile,
                                                   CORBA::Boolean& isValidScript)
 {
-  const char* aScript = isMultiFile ? "def RebuildData(theStudy): pass" : "";
+  const char* aScript = isMultiFile ? "def RebuildData(): pass" : "";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;

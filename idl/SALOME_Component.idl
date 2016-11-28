@@ -336,8 +336,7 @@ module Engines
       Returns a python script, which is being played back reproduces
       the data model of component
     */
-    TMPFile DumpPython(in Object theStudy,
-                       in boolean isPublished,
+    TMPFile DumpPython(in boolean isPublished,
                        in boolean isMultiFile,
                        out boolean isValidScript);
 

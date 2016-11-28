@@ -332,7 +332,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(bool isPublished,
   CORBA::Boolean aValidScript = true; // VSR: maybe should be false by default ???
 
   if ( !CORBA::is_nil( _engine ) )
-    aStream = _engine->DumpPython(st.in(), isPublished, isMultiFile, aValidScript);
+    aStream = _engine->DumpPython(isPublished, isMultiFile, aValidScript);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();

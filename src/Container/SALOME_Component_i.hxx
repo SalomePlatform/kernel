@@ -96,8 +96,7 @@ public:
   bool Resume_impl();
   CORBA::Long CpuUsed_impl() ;
 
-  virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
-                                       CORBA::Boolean isPublished,
+  virtual Engines::TMPFile* DumpPython(CORBA::Boolean isPublished,
                                        CORBA::Boolean isMultiFile,
                                        CORBA::Boolean& isValidScript);
 
