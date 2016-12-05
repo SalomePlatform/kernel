@@ -41,8 +41,10 @@ import optparse
 
 # --- names of tags in XML configuration file
 appli_tag   = "application"
+prereq_tag  = "prerequisites"
 context_tag = "context"
 sha1_collect_tag = "sha1_collections"
+system_conf_tag  = "system_conf"
 modules_tag = "modules"
 module_tag  = "module"
 samples_tag = "samples"
@@ -84,6 +86,10 @@ class xml_parser:
     def startElement(self, name, attrs):
         self.space.append(name)
         self.current = None
+        # --- if we are analyzing "prerequisites" element then store its "path" attribute
+        if self.space == [appli_tag, prereq_tag] and path_att in attrs.getNames():
+            self.config["prereq_path"] = attrs.getValue( path_att )
+            pass
         # --- if we are analyzing "context" element then store its "path" attribute
         if self.space == [appli_tag, context_tag] and path_att in attrs.getNames():
             self.config["context_path"] = attrs.getValue( path_att )
@@ -91,6 +97,10 @@ class xml_parser:
         # --- if we are analyzing "sha1_collection" element then store its "path" attribute
         if self.space == [appli_tag, sha1_collect_tag] and path_att in attrs.getNames():
             self.config["sha1_collect_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "system_conf" element then store its "path" attribute
+        if self.space == [appli_tag, system_conf_tag] and path_att in attrs.getNames():
+            self.config["system_conf_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "resources" element then store its "path" attribute
         if self.space == [appli_tag, resources_tag] and path_att in attrs.getNames():
@@ -254,6 +264,14 @@ def install(prefix, config_file, verbose=0):
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
+    if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
+        shutil.copyfile(_config["prereq_path"],
+                        os.path.join(home_dir, 'env.d', 'envProducts.sh'))
+        pass
+    else:
+        print "WARNING: prerequisite file does not exist"
+        pass
+
     if _config.has_key("context_path") and os.path.isfile(_config["context_path"]):
         shutil.copyfile(_config["context_path"],
                         os.path.join(home_dir, 'env.d', 'envProducts.cfg'))
@@ -270,6 +288,25 @@ def install(prefix, config_file, verbose=0):
         print "WARNING: context file does not exist"
         pass
 
+    if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
+        shutil.copyfile(_config["system_conf_path"],
+                        os.path.join(home_dir, 'env.d', 'envConfSystem.sh'))
+        pass
+
+    # Create environment file: configSalome.sh
+    with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
+        for module in _config.get("modules", []):
+            command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
+            f.write(command)
+            pass
+        if _config.has_key("samples_path"):
+            command = 'export DATA_DIR=' + _config["samples_path"] +'\n'
+            f.write(command)
+            pass
+        if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+            command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
+            f.write(command)
+
     # Create configuration file: configSalome.cfg
     with open(os.path.join(home_dir, 'env.d', 'configSalome.cfg'),'w') as f:
         command = "[SALOME ROOT_DIR (modules) Configuration]\n"
@@ -285,6 +322,16 @@ def install(prefix, config_file, verbose=0):
         if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
             command = 'USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
+
+
+    # Create environment file: configGUI.sh
+    with open(os.path.join(home_dir, 'env.d', 'configGUI.sh'),'w') as f:
+        command = """export SalomeAppConfig=${HOME}/${APPLI}
+export SUITRoot=${HOME}/${APPLI}/share/salome
+export DISABLE_FPE=1
+export MMGT_REENTRANT=1
+"""
+        f.write(command)
 
     # Create configuration file: configGUI.cfg
     with open(os.path.join(home_dir, 'env.d', 'configGUI.cfg'),'w') as f:

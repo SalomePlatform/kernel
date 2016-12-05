@@ -58,7 +58,7 @@ def initialize(launcherPath, launcherFile):
 
   appliPath = os.path.relpath(appliPath, homePath)
   absoluteAppliPath = os.path.join(homePath, appliPath)
-  os.environ['APPLI'] = appliPath
+  os.environ['APPLI'] = appliPath # needed to convert .sh environment files
   os.environ['ABSOLUTE_APPLI_PATH'] = absoluteAppliPath
 
   sys.path[:0] = [os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome", "test"))]
