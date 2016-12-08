@@ -288,6 +288,15 @@ void SALOMEDS_Study_i::Init()
     aSession->emitMessageOneWay(str.c_str());
     SALOMEDS::lock();
   }
+
+  std::string anIOR = _impl->GetTransientReference();
+  if ( anIOR.empty() ) {
+    CORBA::Object_var obj = aNamingService->Resolve("/Study");
+    SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow( obj );
+    CORBA::String_var IORStudy = _orb->object_to_string(aStudy);
+    _impl->SetTransientReference((char*)IORStudy.in());
+  }
+
 }
 
 //============================================================================
