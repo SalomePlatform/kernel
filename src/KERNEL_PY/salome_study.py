@@ -52,7 +52,7 @@ def DumpComponent(SO, Builder,offset):
     if find:
       a=a+":"+RefSO.GetID()
     print a
-    DumpComponent(Study, CSO, Builder,offset+2)
+    DumpComponent(CSO, Builder,offset+2)
     it.Next()
 
 #--------------------------------------------------------------------------
@@ -272,8 +272,9 @@ def FindFileInDataDir(filename):
 
 def openStudy(theStudyPath):
     print "openStudy"
-    global myStudy
+    global myStudy, myStudyName
     myStudy.Open(theStudyPath)
+    myStudyName = myStudy._get_Name()
     print theStudyPath, myStudy._get_Name()
 
     #--------------------------------------------------------------------------
@@ -295,7 +296,7 @@ def salome_study_init(theStudyPath=None):
 
         # get Study reference
         if verbose(): print "looking for study..."
-        obj = naming_service.Resolve('Study')
+        obj = naming_service.Resolve('/Study')
         myStudy = obj._narrow(SALOMEDS.Study)
         if verbose(): print "Study found"
         pass

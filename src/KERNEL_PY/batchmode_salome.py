@@ -276,7 +276,7 @@ step = 0
 sleeping_time = 0.01
 sleeping_time_max = 1.0
 while 1:
-    obj = naming_service.Resolve('Study')
+    obj = naming_service.Resolve('/Study')
     if obj is not None:break
     step = step + 1
     if step > 100: break

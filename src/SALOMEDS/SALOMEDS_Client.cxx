@@ -270,7 +270,7 @@ int main(int argc, char** argv)
     SALOME_NamingService * salomens = new SALOME_NamingService(orb);
 
     MESSAGE("Find Study ");
-    CORBA::Object_ptr obj2 = salomens->Resolve("Study");
+    CORBA::Object_ptr obj2 = salomens->Resolve("/Study");
     SALOMEDS::Study_var myStudy = SALOMEDS::Study::_narrow(obj2);
 
     // Obtain a POAManager, and tell the POA to start accepting

@@ -142,7 +142,7 @@ void SALOMEDSImpl_Study::Init()
   sstrm << ++_id;
   _name = "Study" + std::string(sstrm.str());
   _doc = _appli->NewDocument("SALOME_STUDY");
-  _Saved = false ;
+  _Saved = false;
   _URL = "";
   _autoFill = false;
   _errorCode = "";
@@ -175,6 +175,7 @@ void SALOMEDSImpl_Study::Clear()
   delete _builder;
   delete _cb;
   delete _useCaseBuilder;
+  URL("");
   _appli->Close(_doc);
   _doc = NULL;
   _mapOfSO.clear();
@@ -188,8 +189,6 @@ void SALOMEDSImpl_Study::Clear()
 //============================================================================
 bool SALOMEDSImpl_Study::Open(const std::string& aUrl)
 {
-  Clear();
-  Init();
   // Set "C" locale temporarily to avoid possible localization problems
   Kernel_Utils::Localizer loc;
 

@@ -52,11 +52,11 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
 //============================================================================
 SALOMEDSImpl_StudyBuilder::SALOMEDSImpl_StudyBuilder(const SALOMEDSImpl_Study* theOwner)
 {
-   _errorCode = "";
+  _errorCode = "";
   _callbackOnAdd=NULL;
   _callbackOnRemove = NULL;
-   _study = (SALOMEDSImpl_Study*)theOwner;
-   _doc = _study->GetDocument();
+  _study = (SALOMEDSImpl_Study*)theOwner;
+  _doc = _study->GetDocument();
 }
 
 //============================================================================

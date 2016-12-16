@@ -70,7 +70,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDSImpl_Study* theStudy)
   _isLocal = true;
   _local_impl = theStudy;
   _corba_impl = SALOMEDS::Study::_nil();
-  Init();
+  InitORB();
 }
 
 SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
@@ -100,7 +100,7 @@ SALOMEDS_Study::~SALOMEDS_Study()
 
 void SALOMEDS_Study::InitORB()
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(0 , 0 ) ;
 }

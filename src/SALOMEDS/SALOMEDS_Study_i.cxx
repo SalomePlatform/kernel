@@ -379,6 +379,9 @@ void SALOMEDS_Study_i::Clear()
 bool SALOMEDS_Study_i::Open(const char* aUrl)
   throw(SALOME::SALOME_Exception)
 {
+  if (!_closed)
+    Clear();
+  Init();
   SALOMEDS::Locker lock;
 
   Unexpect aCatch(SalomeException);

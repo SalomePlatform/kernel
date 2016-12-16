@@ -95,5 +95,5 @@ myStudyName = sg.getStudyName()
 print myStudyName
 
 # get Study reference
-obj = naming_service.Resolve('Study')
+obj = naming_service.Resolve('/Study')
 myStudy = obj._narrow(SALOMEDS.Study)
