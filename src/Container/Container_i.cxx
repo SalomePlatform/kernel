@@ -928,7 +928,7 @@ Engines_Container_i::createPythonInstance(std::string CompName,
   PyGILState_STATE gstate = PyGILState_Ensure();
   PyObject *result = PyObject_CallMethod(_pyCont,
                                          (char*)"create_component_instance",
-                                         (char*)"ssl",
+                                         (char*)"ss",
                                          CompName.c_str(),
                                          instanceName.c_str());
   const char *ior;
@@ -967,10 +967,9 @@ Engines_Container_i::create_python_service_instance(const char * CompName,
   PyGILState_STATE gstate = PyGILState_Ensure();
   PyObject *result = PyObject_CallMethod(_pyCont,
                                          (char*)"create_component_instance",
-                                         (char*)"ssl",
+                                         (char*)"ss",
                                          CompName,
-                                         instanceName.c_str(),
-                                         0);
+                                         instanceName.c_str());
   const char *ior;
   const char *error;
   PyArg_ParseTuple(result,"ss", &ior, &error);

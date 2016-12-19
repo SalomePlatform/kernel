@@ -244,7 +244,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     #-------------------------------------------------------------------------
 
     def create_python_service_instance(self, CompName):
-        return self.create_component_instance(CompName, 0)
+        return self.create_component_instance(CompName)
       
     #-------------------------------------------------------------------------
 
