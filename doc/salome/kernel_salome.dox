@@ -114,6 +114,9 @@ salome.myStudy.SaveAsASCII("/home/user/MyStudy.hdf", study, False)
 # clear study
 salome.myStudy.Clear()
 
+# init study
+salome.myStudy.Init()
+
 # find SALOMEDS component by its type
 scomponent = FindComponent("MyComponent")
 

@@ -762,7 +762,7 @@ Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterNa
   PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
   PyObject *result = PyObject_CallMethod(pyCont,
                                          (char*)"create_component_instance",
-                                         (char*)"ssl",
+                                         (char*)"ss",
                                          genericRegisterName.c_str(),
                                          instanceName.c_str());
   const char *ior;

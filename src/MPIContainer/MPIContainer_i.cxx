@@ -272,7 +272,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
     PyObject *result = PyObject_CallMethod(pyCont,
                                            (char*)"create_component_instance",
-                                           (char*)"ssl",
+                                           (char*)"ss",
                                            aCompName.c_str(),
                                            instanceName.c_str());
     const char *ior;

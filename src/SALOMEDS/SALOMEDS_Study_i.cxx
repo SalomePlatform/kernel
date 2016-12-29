@@ -165,10 +165,10 @@ namespace SALOMEDS
     {
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
       {
-	if ( it->first->_is_equivalent(theObs) ) {
-	  myObservers.erase( it );
-	  break;
-	}
+	    if ( it->first->_is_equivalent(theObs) ) {
+	      myObservers.erase( it );
+	      break;
+	    }
       }
     }
 
@@ -308,7 +308,7 @@ void SALOMEDS_Study_i::Clear()
 {
   SALOMEDS::Locker lock;
   if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();
+    return;
   //delete the builder servant
   PortableServer::POA_var poa=_builder->_default_POA();
   PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
@@ -367,6 +367,7 @@ void SALOMEDS_Study_i::Clear()
   _impl->setNotifier(0);
   delete _notifier;
   delete _genObjRegister;
+  _notifier = NULL;
 
   _closed = true;
 }
