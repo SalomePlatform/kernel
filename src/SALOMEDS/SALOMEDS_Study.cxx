@@ -107,22 +107,18 @@ void SALOMEDS_Study::InitORB()
 
 void SALOMEDS_Study::Init()
 {
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->Init();
-  }
-  else
-    _corba_impl->Init();
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
+  _corba_impl->Init();
 }
 
 void SALOMEDS_Study::Clear()
 {
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->Clear();
-  }
-  else
-    _corba_impl->Clear();
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
+  _corba_impl->Clear();
 }
 
 bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
