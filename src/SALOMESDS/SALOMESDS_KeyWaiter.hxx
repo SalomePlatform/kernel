@@ -44,7 +44,7 @@ namespace SALOMESDS
     PyObject *getKeyPyObj() const { return _ze_key; }
     virtual ~KeyWaiter();
     PortableServer::POA_var getPOA() const;
-    SALOME::ByteVec *waitFor();
+    void waitFor();
     void valueJustCome(PyObject *val);
     void go();
     std::string getVarName() const { return _var->getVarNameCpp(); }

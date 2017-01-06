@@ -52,9 +52,11 @@ int main(int argc, char *argv[])
     server=new SALOMESDS::DataScopeServerTransaction(orb,killerObj,scopeName);
   //
   CORBA::PolicyList policies;
-  policies.length(1);
+  policies.length(3);
   PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+  policies[1]=poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION);
+  policies[2]=poa->create_id_uniqueness_policy(PortableServer::UNIQUE_ID);
   PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",mgr,policies));
   threadPol->destroy();
   server->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !

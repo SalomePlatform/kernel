@@ -19,7 +19,8 @@ def waitKey():
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     assert(not isCreated)
     wk=dss.waitForKeyInVar(varName,obj2Str("ef"))
-    return str2Obj(wk.waitFor())==[11,14,100]
+    wk.waitFor()
+    return str2Obj(dss.waitForMonoThrRev(wk))==[11,14,100]
 
 if __name__=="__main__":
     sys.exit(not int(waitKey()))

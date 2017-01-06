@@ -109,7 +109,7 @@ module SALOME
 
   interface KeyWaiter
   {
-    ByteVec waitFor() raises (SALOME::SALOME_Exception);
+    void waitFor() raises (SALOME::SALOME_Exception);
   };
 
   interface DataScopeServerTransaction : DataScopeServerBase

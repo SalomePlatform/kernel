@@ -78,28 +78,11 @@ PortableServer::POA_var KeyWaiter::getPOA() const
  * WARNING : here it is the single method that can be invoked in non SINGLE_THREAD POA.
  * So take care to do avoid collapses (especially in python).
  */
-SALOME::ByteVec *KeyWaiter::waitFor()
+void KeyWaiter::waitFor()
 {
   sem_wait(&_sem);
   if(!_ze_value)
     throw Exception("KeyWaiter::waitFor : internal error 1 !");
-  SALOME::ByteVec *ret(0);
-  {// this section is to guarantee that no concurrent threads are doing python stuff at the same time
-    // Here a pickelization is needed so to guarantee to be alone doing python action the idea is to invoke using monothread POA.
-    DataScopeServerTransaction *dss(getDSS());
-    PortableServer::POA_var poa(dss->getPOA());
-    CORBA::Object_var dssPtr(poa->servant_to_reference(dss));
-    SALOME::DataScopeServerTransaction_var dssPtr2(SALOME::DataScopeServerTransaction::_narrow(dssPtr));
-    if(CORBA::is_nil(dssPtr2))
-      throw Exception("KeyWaiter::waitFor : internal error 2 !");
-    CORBA::Object_var thisPtr(getPOA()->servant_to_reference(this));
-    SALOME::KeyWaiter_var thisPtr2(SALOME::KeyWaiter::_narrow(thisPtr));
-    if(CORBA::is_nil(thisPtr2))
-      throw Exception("KeyWaiter::waitFor : internal error 3 !");
-    ret=dssPtr2->waitForMonoThrRev(thisPtr2);//<- this invokation through SINGLE_THREAD POA here will guarantee thread safety
-  }
-  enforcedRelease();
-  return ret;
 }
 
 /*!

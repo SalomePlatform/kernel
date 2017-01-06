@@ -123,7 +123,8 @@ class SalomeSDSTest(unittest.TestCase):
     #
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
-    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    wk.waitFor()
+    self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
@@ -152,7 +153,8 @@ class SalomeSDSTest(unittest.TestCase):
     #
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
-    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    wk.waitFor()
+    self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
 
   def testTransaction3(self):
     scopeName="Scope1"
@@ -195,7 +197,8 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     wk,t2=dss.waitForKeyInVarAndKillIt(varName,obj2Str("cd"))
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
-    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    wk.waitFor()
+    self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
 
@@ -220,14 +223,16 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("cd"),obj2Str([7,8,9,10]))
-    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    wk.waitFor()
+    self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})# it is not a bug ! commit of t1 not done !
     dss.atomicApply([t1])
     self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
     #
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
-    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    wk.waitFor()
+    self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
     self.assertEqual(keys,['ab','cd'])
 

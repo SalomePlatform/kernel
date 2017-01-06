@@ -759,14 +759,16 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   PortableServer::ServantBase *ret(0);
   try
     {
-      ret=_poa_for_key_waiter->reference_to_servant(kw);
+      ret=_poa_for_key_waiter->reference_to_servant(kw);// Warning ref cnt of ret has been incremented !
     }
   catch(...) { ret=0; }
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();
-  return retc->waitForMonoThr();
+  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  SALOME::ByteVec *zeRet(retc->waitForMonoThr());
+  retc->enforcedRelease();
+  return zeRet;
 }
 
 void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& transactions)
