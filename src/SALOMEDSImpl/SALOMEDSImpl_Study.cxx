@@ -522,7 +522,7 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
   std::string component_name;
 
   // Store previous URL
-  std::string anOldName = Name();
+  std::string anOldName = URL();
 
   // Map to store components' versions
   std::map<std::string, std::string> componentVersions;

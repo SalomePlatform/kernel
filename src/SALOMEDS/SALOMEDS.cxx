@@ -118,8 +118,10 @@ extern "C"
       namingService.Register(aStudy, "/Study");
 
       // Assign the value of the IOR in the study->root
-      CORBA::String_var IORStudy = orb->object_to_string(aStudy);
-      aStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
+      if ( aStudy_i->GetImpl()->GetTransientReference().empty() ) {
+        CORBA::String_var IORStudy = orb->object_to_string(aStudy);
+        aStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
+      }
       aStudy_i->_remove_ref();
     }
   }

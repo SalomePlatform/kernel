@@ -166,11 +166,13 @@ int main(int argc, char** argv)
         NS = SINGLETON_<SALOME_NamingService>::Instance();
         NS->init_orb( orb );
       }
-      NS->Register(Study.in(), "/Study");
+      NS->Register(Study, "/Study");
 
       // Assign the value of the IOR in the study->root
-      CORBA::String_var IORStudy = orb->object_to_string(Study);
-      myStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
+      if ( myStudy_i->GetImpl()->GetTransientReference().empty() ) {
+        CORBA::String_var IORStudy = orb->object_to_string(Study);
+        myStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
+      }
 
       myStudy_i->_remove_ref();
        
