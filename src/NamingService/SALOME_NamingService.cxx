@@ -55,7 +55,6 @@
 
 SALOME_NamingService::SALOME_NamingService()
 {
-  MESSAGE("SALOME_NamingService default constructor");
   _orb = CORBA::ORB::_nil();
   _root_context = CosNaming::NamingContext::_nil();
 }
@@ -70,7 +69,6 @@ SALOME_NamingService::SALOME_NamingService()
 
 SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 {
-  MESSAGE("SALOME_NamingService creation");
   _orb = CORBA::ORB::_duplicate(orb);
   _initialize_root_context();
 }
@@ -101,8 +99,6 @@ SALOME_NamingService::~SALOME_NamingService()
 
 void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
 {
-  MESSAGE("SALOME_NamingService initialisation");
-
   Utils_Locker lock (&_myMutex);
   if(orb)
     _orb = CORBA::ORB::_duplicate(orb);
@@ -140,8 +136,6 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
                                     const char* Path)
   throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Register: " << Path);
-
   Utils_Locker lock (&_myMutex);
 
   // --- _current_context is replaced to the _root_context
@@ -337,8 +331,6 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   throw(ServiceUnreachable)
 {
-//   MESSAGE("BEGIN OF Resolve: " << Path);
-
   Utils_Locker lock (&_myMutex);
 
   // --- _current_context is replaced to the _root_context
@@ -423,10 +415,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
   throw(ServiceUnreachable)
 {
-//   MESSAGE("ResolveFirst");
-
   Utils_Locker lock (&_myMutex);
-//   SCRUTE(Path);
 
   std::string thePath = Path;
   std::string basePath = "";
@@ -457,8 +446,6 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
       
       while (its != listElem.end())
         {
-          MESSAGE(*its);
-          
           if ((*its).find(name) == 0)
             {
               return Resolve((*its).c_str());
@@ -496,8 +483,6 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
                                        const int nbproc)
   throw(ServiceUnreachable)
 {
-//   MESSAGE("ResolveComponent");
-
   Utils_Locker lock (&_myMutex);
 
   std::string name = "/Containers/";
@@ -614,8 +599,8 @@ std::string SALOME_NamingService::ContainerName(const Engines::ContainerParamete
 
   if ( nbproc >= 1 )
     {
-	  std::ostringstream suffix;
-	  suffix << "_" << nbproc;
+          std::ostringstream suffix;
+          suffix << "_" << nbproc;
       ret += suffix.str();
     }
 
@@ -685,8 +670,6 @@ std::string SALOME_NamingService::BuildContainerNameForNS(const Engines::Contain
 int SALOME_NamingService::Find(const char* name)
 throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Find " << name);
-
   Utils_Locker lock (&_myMutex);
 
   CORBA::Long occurence_number = 0 ;
@@ -729,8 +712,6 @@ throw(ServiceUnreachable)
 
 bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Create_Directory");
-
   Utils_Locker lock (&_myMutex);
 
   std::string path(Path);
@@ -744,7 +725,6 @@ bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnrea
 
   if (path == "/")
     {
-      MESSAGE("Create Directory '/', just change to root_context");
       _current_context = _root_context;
       return true;
     }
@@ -773,7 +753,6 @@ bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnrea
 
 bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnreachable)
 {
-//   MESSAGE("BEGIN OF Change_Directory " << Path);
   Utils_Locker lock (&_myMutex);
 
   std::string path(Path);
@@ -787,7 +766,6 @@ bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnrea
 
   if (path == "/")
     {
-//       MESSAGE("Change_Directory is called to go to the root_context");
       _current_context = _root_context;
       return true;
     }
@@ -873,8 +851,6 @@ bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnrea
 
 char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Current_Directory");
-
   Utils_Locker lock (&_myMutex);
 
   CosNaming::NamingContext_var ref_context = _current_context;
@@ -925,8 +901,6 @@ char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
 
 void SALOME_NamingService::list() throw(ServiceUnreachable)
 {
-  MESSAGE("Begin of list");
-
   Utils_Locker lock (&_myMutex)
 
     ;
@@ -949,8 +923,6 @@ void SALOME_NamingService::list() throw(ServiceUnreachable)
 
           if (binding->binding_type == CosNaming::ncontext)
             {
-              MESSAGE( "Context : " << bindingName[0].id );
-
               try
                 {
                   Change_Directory(bindingName[0].id);
@@ -968,7 +940,7 @@ void SALOME_NamingService::list() throw(ServiceUnreachable)
 
           else if (binding->binding_type == CosNaming::nobject)
             {
-              MESSAGE( "Object : " << bindingName[0].id );
+              MESSAGE( "list(): no Object : " << bindingName[0].id );
             }
         }
 
@@ -989,7 +961,6 @@ void SALOME_NamingService::list() throw(ServiceUnreachable)
 
 std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnreachable)
 {
-//   MESSAGE("list_directory");
   Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
   dirList.resize(0);
@@ -1043,7 +1014,6 @@ std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnr
 
 std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnreachable)
 {
-  MESSAGE("list_subdirs");
   Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
   dirList.resize(0);
@@ -1072,8 +1042,8 @@ std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnrea
         }
     }
 
-  for (unsigned int ind = 0; ind < dirList.size(); ind++)
-    MESSAGE("list_directory : Object : " << dirList[ind]);
+  // for (unsigned int ind = 0; ind < dirList.size(); ind++)
+  //   MESSAGE("list_directory : Object : " << dirList[ind]);
 
   binding_iterator->destroy();
 
@@ -1094,8 +1064,6 @@ std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnrea
 std::vector<std::string> SALOME_NamingService::list_directory_recurs()
 throw(ServiceUnreachable)
 {
-  MESSAGE("list_directory_recurs");
-
   Utils_Locker lock (&_myMutex);
 
   std::vector<std::string> dirList ;
@@ -1121,8 +1089,6 @@ throw(ServiceUnreachable)
 void SALOME_NamingService::Destroy_Name(const char* Path)
 throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Destroy_Name " << Path);
-
   Utils_Locker lock (&_myMutex);
 
   std::string path(Path);
@@ -1223,10 +1189,10 @@ throw(ServiceUnreachable)
           context_name[0].id =
             CORBA::string_dup(splitPath[dimension_resultat].c_str());
           context_name[0].kind = CORBA::string_dup("object");
-          SCRUTE(context_name[0].id);
+          //SCRUTE(context_name[0].id);
  
           _current_context->unbind(context_name);
-          MESSAGE("The object " << context_name[0].id << " has been deleted");
+          //MESSAGE("The object " << context_name[0].id << " has been deleted");
         }
 
       catch (CosNaming::NamingContext::NotFound& ex)
@@ -1276,8 +1242,6 @@ throw(ServiceUnreachable)
 
 void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Destroy_Directory " << Path);
-
   Utils_Locker lock (&_myMutex);
 
   std::string path(Path);
@@ -1369,7 +1333,6 @@ void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnre
   try
     {
       _current_context->destroy();
-      MESSAGE( "The context " << path << " has been deleted" );
       isContextDestroyed = true;
     }
 
@@ -1397,9 +1360,6 @@ void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnre
       try
         {
           _current_context->unbind(context_name);
-          MESSAGE( "The bind to the context "
-                   << context_name[0].id
-                   << " has been deleted" );
         }
 
       catch (CosNaming::NamingContext::NotFound& ex)
@@ -1450,7 +1410,6 @@ void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnre
 
 void SALOME_NamingService::Destroy_FullDirectory(const char* Path) throw(ServiceUnreachable)
 {
-  MESSAGE("begin of Destroy_FullDirectory " << Path);
   //no need to lock here because method calls are threadsafe.
   if( Change_Directory(Path) )
     {
@@ -1473,7 +1432,6 @@ void SALOME_NamingService::Destroy_FullDirectory(const char* Path) throw(Service
 
 void SALOME_NamingService::_initialize_root_context()
 {
-  //MESSAGE("Get the root context");
   //no lock here because initialization is expected to be done once.
   try
     {
@@ -1588,8 +1546,6 @@ SALOME_NamingService::_createContextNameDir(std::string path,
 void SALOME_NamingService::_Find(const char* name,
                                  CORBA::Long& occurence_number)
 {
-  MESSAGE("BEGIN OF _Find "<<  occurence_number << " " << name);
-
   CosNaming::BindingList_var binding_list;
   CosNaming::BindingIterator_var binding_iterator;
   CosNaming::Binding_var binding;
@@ -1666,8 +1622,6 @@ _current_directory(std::vector<std::string>& splitPath,
                    CosNaming::NamingContext_var contextToFind,
                    bool& notFound)
 {
-  MESSAGE("BEGIN OF _current_Directory");
-
   CosNaming::BindingList_var binding_list;
   CosNaming::BindingIterator_var binding_iterator;
   CosNaming::Binding_var binding;
@@ -1699,14 +1653,14 @@ _current_directory(std::vector<std::string>& splitPath,
 
               if (temp_context->_is_equivalent(contextToFind))
                 {
-                  MESSAGE("The context is found, we stop the search");
+                  //MESSAGE("The context is found, we stop the search");
                   notFound = false;
-                  SCRUTE(notFound);
+                  //SCRUTE(notFound);
                 }
 
               if (notFound)
                 {
-                  SCRUTE(bindingName[0].id);
+                  //SCRUTE(bindingName[0].id);
                   Change_Directory(bindingName[0].id);
                   _current_directory(splitPath,
                                      lengthResult,
@@ -1719,8 +1673,8 @@ _current_directory(std::vector<std::string>& splitPath,
 
                       _current_context = ref_context;
 
-                      MESSAGE("Just before the delete of "
-                              << splitPath[lengthResult-1]);
+                      // MESSAGE("Just before the delete of "
+                      //         << splitPath[lengthResult-1]);
                       splitPath.pop_back();
                       lengthResult--;
                     }

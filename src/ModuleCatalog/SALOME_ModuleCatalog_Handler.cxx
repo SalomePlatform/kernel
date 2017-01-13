@@ -320,7 +320,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        MESSAGE("Registered objref type: " << aType.name << " " << aType.id );
+                        //MESSAGE("Registered objref type: " << aType.name << " " << aType.id );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }

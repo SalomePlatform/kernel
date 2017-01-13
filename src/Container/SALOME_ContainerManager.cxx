@@ -757,7 +757,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
         nbproc = params.nb_proc;
     }
 
-    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
+    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir
     //  SALOME_Container containerName &"
     command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
 

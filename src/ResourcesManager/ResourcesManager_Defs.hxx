@@ -34,15 +34,19 @@
 #endif
 
 // MESSAGES
-#define RES_MESS_INIT(deb) std::cerr << deb
-#define RES_MESS_BEGIN(deb) RES_MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
-#define RES_MESS_END std::endl;
-#define RES_INFOS(msg) {RES_MESS_BEGIN("- Trace ") << msg << RES_MESS_END}
+#define RES_MESS_INIT(deb) //std::cerr << deb
+#define RES_MESS_BEGIN(deb) //RES_MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
+#define RES_MESS_END //std::endl;
+#define RES_INFOS(msg) {}//{RES_MESS_BEGIN("- Trace ") << msg << RES_MESS_END}
 
 #if defined(_DEBUG_) || defined(_DEBUG)
+//#define __RES_DEGBUG
+#endif
+
+#if defined(__RES_DEGBUG)
 #define RES_MESSAGE(msg) {RES_MESS_BEGIN("- Trace ") << msg << RES_MESS_END}
-#else /* ifdef _DEBUG_*/
+#else /* ifdef __RES_DEGBUG*/
 #define RES_MESSAGE(msg) {}
-#endif /* ifdef _DEBUG_*/
+#endif /* ifdef __RES_DEGBUG*/
 
 #endif // __RESOURCESMANAGER_DEFS_HXX__

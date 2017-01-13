@@ -34,17 +34,21 @@
 # define LAUNCHER_EXPORT
 #endif
 
+#if defined(_DEBUG_) || defined(_DEBUG)
+//#define LAUNCHER_DEGBUG
+#endif
+
 // MESSAGES
 #define LAUNCHER_MESS_INIT(deb) std::cerr << deb
 #define LAUNCHER_MESS_BEGIN(deb) LAUNCHER_MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
 #define LAUNCHER_MESS_END std::endl;
 #define LAUNCHER_INFOS(msg) {LAUNCHER_MESS_BEGIN("- Trace ") << msg << LAUNCHER_MESS_END}
 
-#if defined(_DEBUG_) || defined(_DEBUG)
+#if defined(LAUNCHER_DEGBUG)
 #define LAUNCHER_MESSAGE(msg) {LAUNCHER_MESS_BEGIN("- Trace ") << msg << LAUNCHER_MESS_END}
-#else /* ifdef _DEBUG_*/
+#else /* ifdef LAUNCHER_DEGBUG*/
 #define LAUNCHER_MESSAGE(msg) {}
-#endif /* ifdef _DEBUG_*/
+#endif /* ifdef LAUNCHER_DEGBUG*/
 
 class LAUNCHER_EXPORT LauncherException
 {

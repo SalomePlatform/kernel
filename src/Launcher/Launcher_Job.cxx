@@ -518,7 +518,7 @@ Launcher::Job::getLaunchDate() const
   time_t rawtime;
   time(&rawtime);
   std::string launch_date = ctime(&rawtime);
-  int i = 0 ;
+  size_t i = 0 ;
   for (;i < launch_date.size(); i++)
     if (launch_date[i] == '/' ||
         launch_date[i] == '-' ||
