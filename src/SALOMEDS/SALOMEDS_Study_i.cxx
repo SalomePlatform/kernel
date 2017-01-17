@@ -296,6 +296,7 @@ void SALOMEDS_Study_i::Init()
     CORBA::String_var IORStudy = _orb->object_to_string(aStudy);
     _impl->SetTransientReference((char*)IORStudy.in());
   }
+  _impl->GetDocument()->SetModified(false);
 
 }
 

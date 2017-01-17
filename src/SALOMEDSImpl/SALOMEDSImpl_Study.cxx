@@ -1897,8 +1897,6 @@ bool SALOMEDSImpl_Study::IsModified()
 std::string SALOMEDSImpl_Study::URL()
 {
   _errorCode = "";
-  if ( _URL.empty() )
-    return Kernel_Utils::AddExtension( _name );
   return _URL;
 }
 
