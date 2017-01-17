@@ -64,7 +64,6 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
   test_component_name       = "component-name";
   test_component_username   = "component-username";
   test_component_type       = "component-type" ;
-  test_component_multistudy = "component-multistudy";
   test_component_icon       = "component-icone" ;
   test_component_impltype   = "component-impltype";
   test_component_implname   = "component-implname";
@@ -476,10 +475,6 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               // If it'not in all theses cases, the type is affected to OTHER
               _aModule.type = OTHER ;
           }
-
-          // Tag test_component_multistudy
-          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_multistudy) )
-            _aModule.multistudy = atoi( aContent.c_str() ) != 0;
 
           // Tag test_component_impltype
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_impltype) )

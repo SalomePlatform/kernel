@@ -91,7 +91,6 @@ struct ParserComponent
   std::string         name;
   std::string         username;
   ParserComponentType type;
-  bool                multistudy;
   std::string         icon;
   std::string         constraint;
   ParserInterfaces    interfaces;

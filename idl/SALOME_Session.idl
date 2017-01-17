@@ -54,8 +54,7 @@ module SALOME
         -# running : one or more running studies
 */
     SessionState state ;
-    //! Number of running studies
-    short        runningStudies ;
+
     //! It is True if GUI is active in the session
     boolean      activeGUI ;
   } ;
@@ -70,8 +69,8 @@ module SALOME
   {
 //!  This exception is raised when trying to stop the %session with active GUI
     exception GUIActive {} ;
-//!  This exception is raised when trying to stop the %session with a number of running studies.
-    exception RunningStudies {} ;
+//!  This exception is raised when trying to stop the %session with running study.
+    exception RunningStudy {} ;
 
 //!  Launches GUI in the session
     void GetInterface();
@@ -80,7 +79,7 @@ module SALOME
     Engines::EngineComponent GetComponent(in string theLibraryName);
 
 //!  Stops the %Session (It must be idle)
-    void StopSession() raises(GUIActive, RunningStudies) ;
+    void StopSession() raises(GUIActive, RunningStudy) ;
 
 //!  Gets Session State
     StatSession GetStatSession() ;

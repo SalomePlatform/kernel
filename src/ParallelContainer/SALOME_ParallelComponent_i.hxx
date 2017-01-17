@@ -121,7 +121,6 @@ public:
   PortableServer::ObjectId * getId(); 
   Engines_Parallel_Container_i *GetContainerPtr();
 
-  static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
 
@@ -143,7 +142,6 @@ public:
                                     Engines::Parallel_Salome_file_proxy_impl * file);
 
 protected:
-  static bool _isMultiStudy;
   static bool _isMultiInstance;
 
   std::string _instanceName ;

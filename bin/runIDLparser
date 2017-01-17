@@ -43,7 +43,7 @@ if test "$hh" = "1" ; then
     echo ""
     echo "   to run IDLparser:"
     echo ""
-    echo "        $0 -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,multistudy=<component_multistudy>][,remove=component_name] <file.idl>   "
+    echo "        $0 -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,remove=component_name] <file.idl>   "
     echo ""
     echo "   to have omniidl help:"
     echo ""

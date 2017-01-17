@@ -55,8 +55,6 @@ module SALOMEDS
 */
   typedef string SalomeReference;
 
-//! List of file names
-  typedef sequence<string> ListOfFileNames;
 //! List of modification dates of a study
   typedef sequence<string> ListOfDates ;
 //! An unbounded sequence of strings

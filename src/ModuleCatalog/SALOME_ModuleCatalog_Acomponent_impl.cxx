@@ -42,8 +42,7 @@ static int MYDEBUG = 0;
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_AcomponentImpl
 // Purpose  : Constructor
-//            Affect the component name, type,icone,  a bool to define 
-//            if it's multistudy or not.
+//            Affect the component name, type,icone
 //            Affect too the constraint and the interfaces of the component
 //            and the pathes prefixes for all computers
 //----------------------------------------------------------------------  
@@ -398,16 +397,6 @@ char* SALOME_ModuleCatalog_AcomponentImpl::componentusername()
 {
   return CORBA::string_dup(_Component.username);
 }
-
-//----------------------------------------------------------------------
-// Function : multistudy
-// Purpose  : define if a component can be multistudy or not
-//----------------------------------------------------------------------
-CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::multistudy()
-{
-  return _Component.multistudy ;
-}
-
 
 //----------------------------------------------------------------------
 // Function : implementation type

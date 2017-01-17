@@ -77,7 +77,6 @@
 		<component-author>NRI</component-author>
 		<component-version>@SALOMEKERNEL_VERSION@</component-version>
 		<component-comment>GUI Neutral Context</component-comment>
-		<component-multistudy>1</component-multistudy>
 
 	<constraint>hostname = muna</constraint>
 	</component>
@@ -88,7 +87,6 @@
 		<component-author>NRI</component-author>
 		<component-version>@SALOMEKERNEL_VERSION@</component-version>
 		<component-comment>GUI Neutral Context</component-comment>
-		<component-multistudy>1</component-multistudy>
 		<constraint>'linux' ~ OS</constraint>
 	</component>
 	<component>
@@ -98,7 +96,6 @@
 		<component-author>NRI</component-author>
 		<component-version>@SALOMEKERNEL_VERSION@</component-version>
 		<component-comment>GUI Neutral Context</component-comment>
-		<component-multistudy>1</component-multistudy>
 		<constraint>'linux' ~ OS</constraint>
 	</component>
 </component-list>

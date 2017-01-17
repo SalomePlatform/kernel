@@ -51,7 +51,6 @@ int SIGUSR11 = 1000;
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;
 
-bool Engines_Component_i::_isMultiStudy = false;
 bool Engines_Component_i::_isMultiInstance = false;
 
 /*! \class Engines_Component_i

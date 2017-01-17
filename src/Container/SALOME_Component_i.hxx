@@ -128,7 +128,6 @@ public:
   std::string getContainerName();
   void setContainerName();
 
-  static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
 
@@ -147,7 +146,6 @@ public:
                                     Salome_file_i * file);
 
 protected:
-  static bool _isMultiStudy;
   static bool _isMultiInstance;
 
   std::string _instanceName ;
