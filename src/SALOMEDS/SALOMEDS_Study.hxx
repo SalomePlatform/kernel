@@ -57,10 +57,8 @@ public:
 
   virtual bool Open(const std::string& theStudyUrl);
 
-  virtual bool Save(bool theMultiFile);
-  virtual bool SaveASCII(bool theMultiFile);
-  virtual bool SaveAs(const std::string& theUrl, bool theMultiFile);
-  virtual bool SaveAsASCII(const std::string& theUrl, bool theMultiFile);
+  virtual bool Save(bool theMultiFile, bool theASCII);
+  virtual bool SaveAs(const std::string& theUrl, bool theMultiFile, bool theASCII);
 
   virtual bool CanCopy(const _PTR(SObject)& theSO);
   virtual bool Copy(const _PTR(SObject)& theSO);
@@ -79,12 +77,6 @@ public:
   virtual _PTR(SObject) FindObjectIOR(const std::string& anObjectIOR);
   virtual _PTR(SObject) FindObjectByPath(const std::string& thePath);
   virtual std::string GetObjectPath(const _PTR(SObject)& theSO);
-  virtual void SetContext(const std::string& thePath);
-  virtual std::string GetContext();  
-  virtual std::vector<std::string> GetObjectNames(const std::string& theContext);
-  virtual std::vector<std::string> GetDirectoryNames(const std::string& theContext);
-  virtual std::vector<std::string> GetFileNames(const std::string& theContext);
-  virtual std::vector<std::string> GetComponentNames(const std::string& theContext);
   virtual _PTR(ChildIterator) NewChildIterator(const _PTR(SObject)& theSO);
   virtual _PTR(SComponentIterator) NewComponentIterator();
   virtual _PTR(StudyBuilder) NewBuilder();

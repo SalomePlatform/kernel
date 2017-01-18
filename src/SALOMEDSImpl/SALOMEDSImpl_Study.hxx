@@ -64,7 +64,6 @@ private:
   DF_Document*             _clipboard;
   bool                     _Saved; // True if the Study is saved
   std::string              _URL; //URL of the persistent reference of the study
-  DF_Label                 _current;
   bool                     _autoFill; 
   std::string              _errorCode;
   std::vector<std::string> _lockers;
@@ -111,18 +110,15 @@ public:
   virtual bool Open(const std::string& aStudyUrl);
 
   //! method to save a Study
-  virtual bool Save(SALOMEDSImpl_DriverFactory* aFactory, bool theMultiFile);
-
-  virtual bool SaveASCII(SALOMEDSImpl_DriverFactory* aFactory, bool theMultiFile);
+  virtual bool Save(SALOMEDSImpl_DriverFactory* aFactory,
+                    bool theMultiFile,
+                    bool theASCII);
 
   //! method to save a Study to the persistent reference aUrl
   virtual bool SaveAs(const std::string& aUrl,
                       SALOMEDSImpl_DriverFactory* aFactory,
-                      bool theMultiFile);
-
-  virtual bool SaveAsASCII(const std::string& aUrl,
-                           SALOMEDSImpl_DriverFactory* aFactory,
-                           bool theMultiFile);
+                      bool theMultiFile,
+                      bool theASCII);
 
   bool CopyLabel(SALOMEDSImpl_Driver* theEngine,
                  const int theSourceStartDepth,
@@ -193,24 +189,6 @@ public:
 
   std::string GetObjectPathByIOR(const std::string& theIOR);
 
-  //! method to set a context: root ('/') is UserData component
-  virtual bool SetContext(const std::string& thePath);
-
-  //! method to get a context
-  virtual std::string GetContext();  
-
-  //! method to get all object names in the given context (or in the current context, if 'theContext' is empty)
-  virtual std::vector<std::string> GetObjectNames(const std::string& theContext);
-
-  //! method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
-  virtual std::vector<std::string> GetDirectoryNames(const std::string& theContext);
-
-  //! method to get all file names in the given context (or in the current context, if 'theContext' is empty)
-  virtual std::vector<std::string> GetFileNames(const std::string& theContext);
-
-  //! method to get all components names
-  virtual std::vector<std::string> GetComponentNames(const std::string& theContext);
-
   //! method to Create a ChildIterator from an SObject 
   virtual SALOMEDSImpl_ChildIterator NewChildIterator(const SALOMEDSImpl_SObject& aSO);
 
@@ -264,8 +242,6 @@ public:
   virtual SALOMEDSImpl_SObject GetSObject(const DF_Label& theEntryLabel);
   virtual DF_Attribute* GetAttribute(const std::string& theEntry, 
                                                      const std::string& theType);
-
-  virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   virtual bool DumpStudy(const std::string& thePath, 
                          const std::string& theBaseName, 

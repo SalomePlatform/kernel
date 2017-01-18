@@ -296,7 +296,8 @@ bool SALOMEDSImpl_Study::Open(const std::string& aUrl)
  */
 //============================================================================
 bool SALOMEDSImpl_Study::Save(SALOMEDSImpl_DriverFactory* aFactory,
-                              bool theMultiFile)
+                              bool theMultiFile,
+                              bool theASCII)
 {
   _errorCode = "";
 
@@ -306,24 +307,7 @@ bool SALOMEDSImpl_Study::Save(SALOMEDSImpl_DriverFactory* aFactory,
     return false;
   }
   else {
-    return Impl_SaveAs(url, aFactory, theMultiFile, false);
-  }
-
-  return false;
-}
-
-bool SALOMEDSImpl_Study::SaveASCII(SALOMEDSImpl_DriverFactory* aFactory,
-                                   bool theMultiFile)
-{
-  _errorCode = "";
-
-  std::string url = URL();
-  if (url.empty()) {
-    _errorCode = "No path specified to save the study. Nothing done";
-    return false;
-  }
-  else {
-    return Impl_SaveAs(url, aFactory, theMultiFile, true);
+    return Impl_SaveAs(url, aFactory, theMultiFile, theASCII);
   }
 
   return false;
@@ -336,18 +320,11 @@ bool SALOMEDSImpl_Study::SaveASCII(SALOMEDSImpl_DriverFactory* aFactory,
 //============================================================================
 bool SALOMEDSImpl_Study::SaveAs(const std::string& aUrl,
                                 SALOMEDSImpl_DriverFactory* aFactory,
-                                bool theMultiFile)
+                                bool theMultiFile,
+                                bool theASCII)
 {
   _errorCode = "";
-  return Impl_SaveAs(aUrl, aFactory, theMultiFile, false);
-}
-
-bool SALOMEDSImpl_Study::SaveAsASCII(const std::string& aUrl,
-                                     SALOMEDSImpl_DriverFactory* aFactory,
-                                     bool theMultiFile)
-{
-  _errorCode = "";
-  return Impl_SaveAs(aUrl, aFactory, theMultiFile, true);
+  return Impl_SaveAs(aUrl, aFactory, theMultiFile, theASCII);
 }
 
 //=============================================================================
@@ -1493,7 +1470,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const std::string& the
   bool isRelative = false;
 
   if(aLength == 0) {  //Empty path - return the current context
-    return GetSObject(_current);
+    return aSO;
   }
 
   if(aPath[0] != '/')  //Relative path
@@ -1504,8 +1481,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const std::string& the
   SALOMEDSImpl_AttributeName* anAttr;
 
   if(isRelative) {
-    if(_current.IsNull()) return aSO;
-    anIterator.Init(_current, false);
+    return aSO;
   }
   else {
     if(aPath.size() == 1 && aPath[0] == '/') {    //Root
@@ -1592,212 +1568,6 @@ std::string SALOMEDSImpl_Study::GetObjectPathByIOR(const std::string& theIOR)
   }
 
   return GetObjectPath(so);
-}
-
-
-//============================================================================
-/*! Function : SetContext
- *  Purpose  : Sets the current context
- */
-//============================================================================
-bool SALOMEDSImpl_Study::SetContext(const std::string& thePath)
-{
-  _errorCode = "";
-  if(thePath.empty()) {
-    _errorCode = "InvalidPath";
-    return false;
-  }
-
-  std::string aPath(thePath), aContext("");
-  bool isInvalid = false;
-  SALOMEDSImpl_SObject aSO;
-
-  if(aPath[0] != '/') { //Relative path
-    aContext = GetContext();
-    aContext += '/';
-    aContext += aPath;
-  }
-  else
-    aContext = aPath;
-
-  try {
-    aSO = FindObjectByPath(aContext);
-  }
-  catch( ... ) {
-    isInvalid = true;
-  }
-
-  if(isInvalid || !aSO) {
-    _errorCode = "InvalidContext";
-    return false;
-  }
-
-  DF_Label aLabel = aSO.GetLabel();
-  if(aLabel.IsNull()) {
-    _errorCode = "InvalidContext";
-    return false;
-  }
-  else
-    _current = aLabel;  //Set the current context
-
-  return true;
-}
-
-//============================================================================
-/*! Function : GetContext
- *  Purpose  : Gets the current context
- */
-//============================================================================
-std::string SALOMEDSImpl_Study::GetContext()
-{
-  _errorCode = "";
-
-  if(_current.IsNull()) {
-    _errorCode = "InvaidContext";
-    return "";
-  }
-  SALOMEDSImpl_SObject so = GetSObject(_current);
-  return GetObjectPath(so);
-}
-
-//============================================================================
-/*! Function : GetObjectNames
- *  Purpose  : method to get all object names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-std::vector<std::string> SALOMEDSImpl_Study::GetObjectNames(const std::string& theContext)
-{
-  _errorCode = "";
-
-  std::vector<std::string> aResultSeq;
-  DF_Label aLabel;
-  if (theContext.empty()) {
-    aLabel = _current;
-  } else {
-    DF_Label aTmp = _current;
-    SetContext(theContext);
-    aLabel = _current;
-    _current = aTmp;
-  }
-  if (aLabel.IsNull()) {
-    _errorCode = "InvalidContext";
-    return aResultSeq;
-  }
-
-  DF_ChildIterator anIter (aLabel, true); // iterate all subchildren at all sublevels
-  for (; anIter.More(); anIter.Next()) {
-    DF_Label aLabel = anIter.Value();
-    SALOMEDSImpl_AttributeName* aName;
-    if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
-      aResultSeq.push_back(aName->Value());
-  }
-
-  return aResultSeq;
-}
-
-//============================================================================
-/*! Function : GetDirectoryNames
- *  Purpose  : method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-std::vector<std::string> SALOMEDSImpl_Study::GetDirectoryNames(const std::string& theContext)
-{
-  _errorCode = "";
-
-  std::vector<std::string> aResultSeq;
-  DF_Label aLabel;
-  if (theContext.empty()) {
-    aLabel = _current;
-  } else {
-    DF_Label aTmp = _current;
-    SetContext(theContext);
-    aLabel = _current;
-    _current = aTmp;
-  }
-  if (aLabel.IsNull()) {
-    _errorCode = "InvalidContext";
-    return aResultSeq;
-  }
-
-  DF_ChildIterator anIter (aLabel, true); // iterate first-level children at all sublevels
-  for (; anIter.More(); anIter.Next()) {
-    DF_Label aLabel = anIter.Value();
-    SALOMEDSImpl_AttributeLocalID* anID;
-    if ((anID=(SALOMEDSImpl_AttributeLocalID*)aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
-      if (anID->Value() == DIRECTORYID) {
-        SALOMEDSImpl_AttributeName* aName;
-        if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
-          aResultSeq.push_back(aName->Value());
-        }
-      }
-    }
-  }
-
-  return aResultSeq;
-}
-
-//============================================================================
-/*! Function : GetFileNames
- *  Purpose  : method to get all file names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-std::vector<std::string> SALOMEDSImpl_Study::GetFileNames(const std::string& theContext)
-{
-  _errorCode = "";
-
-  std::vector<std::string> aResultSeq;
-  DF_Label aLabel;
-  if (theContext.empty()) {
-    aLabel = _current;
-  } else {
-    DF_Label aTmp = _current;
-    SetContext(theContext);
-    aLabel = _current;
-    _current = aTmp;
-  }
-  if (aLabel.IsNull()) {
-    _errorCode = "InvalidContext";
-    return aResultSeq;
-  }
-
-  DF_ChildIterator anIter (aLabel, true); // iterate all subchildren at all sublevels
-  for (; anIter.More(); anIter.Next()) {
-    DF_Label aLabel = anIter.Value();
-    SALOMEDSImpl_AttributeLocalID* anID;
-    if ((anID=(SALOMEDSImpl_AttributeLocalID*)aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
-      if (anID->Value() == FILELOCALID) {
-        SALOMEDSImpl_AttributePersistentRef* aName;
-        if ((aName=(SALOMEDSImpl_AttributePersistentRef*)aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
-          std::string aFileName = aName->Value();
-          if (aFileName.size() > 0)
-            aResultSeq.push_back(aFileName.substr(strlen(FILEID), aFileName.size()));
-        }
-      }
-    }
-  }
-
-  return aResultSeq;
-}
-
-//============================================================================
-/*! Function : GetComponentNames
- *  Purpose  : method to get all components names
- */
-//============================================================================
-std::vector<std::string> SALOMEDSImpl_Study::GetComponentNames(const std::string& theContext)
-{
-  _errorCode = "";
-
-  std::vector<std::string> aResultSeq;
-  DF_ChildIterator anIter(_doc->Main(), false); // iterate all subchildren at first level
-  for(; anIter.More(); anIter.Next()) {
-    DF_Label aLabel = anIter.Value();
-    SALOMEDSImpl_AttributeName* aName;
-    if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
-      aResultSeq.push_back(aName->Value());
-  }
-
-  return aResultSeq;
 }
 
 //============================================================================

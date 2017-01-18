@@ -87,10 +87,6 @@ void SALOMEDSTest::testStudy()
   //Try to find component with empty type
   CPPUNIT_ASSERT(!study->FindComponent(""));
 
-  //Check method GetComponentNames
-  std::vector<std::string> components = study->GetComponentNames(""); //The context doesn't matter
-  CPPUNIT_ASSERT(components.size() == 1 && components[0] == "sco1");
-
   //Check method FindComponentID
   _PTR(SComponent) sco3 = study->FindComponentID(sco1->GetID());
   CPPUNIT_ASSERT(sco3 && sco3->GetID() == sco1->GetID());
@@ -157,10 +153,6 @@ void SALOMEDSTest::testStudy()
   path = study->GetObjectPath(emptySO);
   CPPUNIT_ASSERT(path.empty());
 
-  //Check method SetContext
-  study->SetContext("/sco1"); 
-  CPPUNIT_ASSERT(study->GetContext() == "/sco1");
-
   //Check method FindObjectByPath
   _PTR(SObject) so6 = study->FindObjectByPath("so1");
   CPPUNIT_ASSERT(so6 && so6->GetID() == so1->GetID());
@@ -169,34 +161,6 @@ void SALOMEDSTest::testStudy()
   //Try to find SObject with empty path
   _PTR(SObject) tmp = study->FindObjectByPath(""); //Must return the Context SObject
   CPPUNIT_ASSERT(tmp && tmp->GetID() == sco1->GetID());
-
-  study->SetContext("/"); //Root
-
-  //Check method GetObjectNames
-  std::vector<std::string> vs = study->GetObjectNames("/sco1");  
-  CPPUNIT_ASSERT(vs.size() == 2);
-    
-  //Check method GetDirectoryNames
-  _PTR(AttributeLocalID) locid_attr_sco1 = studyBuilder->FindOrCreateAttribute(sco1, "AttributeLocalID");
-  CPPUNIT_ASSERT(locid_attr_sco1);
-  locid_attr_sco1->SetValue(16661); //DIRECTORYID
-  _PTR(AttributeLocalID) locid_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeLocalID");
-  CPPUNIT_ASSERT(locid_attr_so1);
-  locid_attr_so1->SetValue(16661); //DIRECTORYID
-  vs = study->GetDirectoryNames(""); //Empty context (the current is taken)
-  CPPUNIT_ASSERT(vs.size() == 2);
-
-  //Check method GetFileNames
-  locid_attr_sco1->SetValue(26662); //FILELOCALID
-  _PTR(AttributePersistentRef) persref_attr_sco1 = studyBuilder->FindOrCreateAttribute(sco1, "AttributePersistentRef");
-  CPPUNIT_ASSERT(persref_attr_sco1);
-  persref_attr_sco1->SetValue("FILE: filename1");
-  locid_attr_so1->SetValue(26662); //FILELOCALID
-  _PTR(AttributePersistentRef) persref_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributePersistentRef");
-  CPPUNIT_ASSERT(persref_attr_so1);
-  persref_attr_so1->SetValue("FILE: filename2");
-  vs = study->GetFileNames("");
-  CPPUNIT_ASSERT(vs.size() == 2 && vs[0] == "filename1" && vs[1] == "filename2");
 
   //Check method FindDependances
   studyBuilder->Addreference(so2, so1);
@@ -237,7 +201,7 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(date == "08/09/0010 07:06");
 
   //Check method GetModificationsDate
-  vs = study->GetModificationsDate();
+  std::vector<std::string> vs = study->GetModificationsDate();
   CPPUNIT_ASSERT(vs.size() == 2 && vs[0] == "03/04/0005 02:01" && vs[1] == "08/09/0010 07:06");
 
   //Check method GetCommonParameters

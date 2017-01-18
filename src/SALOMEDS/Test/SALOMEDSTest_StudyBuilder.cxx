@@ -180,7 +180,7 @@ void SALOMEDSTest::testStudyBuilder()
   ior = _orb->object_to_string(drv);
   sb2->DefineComponentInstance(sco, ior);
 
-  study2->SaveAs("srn_SALOMEDS_UnitTests.hdf", false);
+  study2->SaveAs("srn_SALOMEDS_UnitTests.hdf", false, false);
   study2->Clear();
 
   _PTR(Study) study3(new SALOMEDS_Study(new SALOMEDSImpl_Study()));
@@ -210,38 +210,6 @@ void SALOMEDSTest::testStudyBuilder()
   CPPUNIT_ASSERT(!ior.empty());
 
   system("rm -f srn_SALOMEDS_UnitTests.hdf");
-
-  //Check method AddDirectory
-  _PTR(AttributeName) na1 = sb3->FindOrCreateAttribute(aComp, "AttributeName");
-  na1->SetValue("Component");
-
-  isRaised = false;
-  try {
-    sb3->AddDirectory("/Component/Dir1");
-  } catch(...) {
-    isRaised = true;
-  }
-
-
-  CPPUNIT_ASSERT(!isRaised);
-  _PTR(SObject) so5 = study3->FindObjectByPath("/Component/Dir1");
-  CPPUNIT_ASSERT(so5);
-
-  isRaised = false;
-  try {
-    sb3->AddDirectory("/Component/Dir1"); //Attempt to create the same directory
-  } catch(...) {
-    isRaised = true;
-  }
-  CPPUNIT_ASSERT(isRaised);
-
-  isRaised = false;
-  try {
-    sb3->AddDirectory("/MyComponent/Dir1"); //Attempt to create the invalid directory
-  } catch(...) {
-    isRaised = true;
-  }
-  CPPUNIT_ASSERT(isRaised);
 
   study3->Clear();
 }

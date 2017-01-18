@@ -404,20 +404,12 @@ bool SALOMEDS_Study_i::Open(const char* aUrl)
  *  Purpose  : Save a Study to it's persistent reference
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_Study_i::Save(CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_Study_i::Save(CORBA::Boolean theMultiFile, CORBA::Boolean theASCII)
 {
   SALOMEDS::Locker lock;
   if (_closed)
     throw SALOMEDS::Study::StudyInvalidReference();
-  return _impl->Save(_factory, theMultiFile);
-}
-
-CORBA::Boolean SALOMEDS_Study_i::SaveASCII(CORBA::Boolean theMultiFile)
-{
-  SALOMEDS::Locker lock;
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();
-  return _impl->SaveASCII(_factory, theMultiFile);
+  return _impl->Save(_factory, theMultiFile, theASCII);
 }
 
 //=============================================================================
@@ -425,20 +417,12 @@ CORBA::Boolean SALOMEDS_Study_i::SaveASCII(CORBA::Boolean theMultiFile)
  *  Purpose  : Save a study to the persistent reference aUrl
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_Study_i::SaveAs(const char* aUrl, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_Study_i::SaveAs(const char* aUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII)
 {
   SALOMEDS::Locker lock;
   if (_closed)
     throw SALOMEDS::Study::StudyInvalidReference();
-  return _impl->SaveAs(std::string(aUrl), _factory, theMultiFile);
-}
-
-CORBA::Boolean SALOMEDS_Study_i::SaveAsASCII(const char* aUrl, CORBA::Boolean theMultiFile)
-{
-  SALOMEDS::Locker lock;
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();
-  return _impl->SaveAsASCII(std::string(aUrl), _factory, theMultiFile);
+  return _impl->SaveAs(std::string(aUrl), _factory, theMultiFile, theASCII);
 }
 
 //============================================================================
@@ -800,157 +784,6 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
   }
 
   return CORBA::string_dup(aPath.c_str());
-}
-
-
-//============================================================================
-/*! Function : SetContext
- *  Purpose  : Sets the current context
- */
-//============================================================================
-void SALOMEDS_Study_i::SetContext(const char* thePath) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  _impl->SetContext(std::string((char*)thePath));
-  if (_impl->IsError() && _impl->GetErrorCode() == "InvalidContext") 
-    throw SALOMEDS::Study::StudyInvalidContext();  
-}
-
-//============================================================================
-/*! Function : GetContext
- *  Purpose  : Gets the current context
- */
-//============================================================================
-char* SALOMEDS_Study_i::GetContext() 
-{
-  SALOMEDS::Locker lock; 
-  
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  if (!_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();
-
-  return CORBA::string_dup(_impl->GetContext().c_str());
-}
-
-//============================================================================
-/*! Function : GetObjectNames
- *  Purpose  : method to get all object names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
-  
-  std::vector<std::string> aSeq = _impl->GetObjectNames(std::string((char*)theContext));
-  if (_impl->GetErrorCode() == "InvalidContext")
-    throw SALOMEDS::Study::StudyInvalidContext();
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for (int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-
-  return aResult._retn();
-}
-
-//============================================================================
-/*! Function : GetDirectoryNames
- *  Purpose  : method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
-  
-  std::vector<std::string> aSeq = _impl->GetDirectoryNames(std::string((char*)theContext));
-  if (_impl->GetErrorCode() == "InvalidContext")
-    throw SALOMEDS::Study::StudyInvalidContext();
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for (int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-  
-  return aResult._retn();
-}
-
-//============================================================================
-/*! Function : GetFileNames
- *  Purpose  : method to get all file names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
-  
-  std::vector<std::string> aSeq = _impl->GetFileNames(std::string((char*)theContext));
-  if (_impl->GetErrorCode() == "InvalidContext")
-    throw SALOMEDS::Study::StudyInvalidContext();
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for (int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-
-  return aResult._retn();
-}
-
-//============================================================================
-/*! Function : GetComponentNames
- *  Purpose  : method to get all components names
- *  SRN:       Note, theContext can be any, it doesn't matter
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  std::vector<std::string> aSeq = _impl->GetComponentNames(std::string((char*)theContext));
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for(int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-
-  return aResult._retn();
 }
 
 //============================================================================

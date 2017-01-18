@@ -12,19 +12,3 @@ anAttrName = anAttr._narrow(SALOMEDS.AttributeName)
 anAttrName.SetValue("User data")
 
 
-#Add a new case 'Case1' to the component 'User data'
-aBuilder.AddDirectory("/User data/Case1")
-
-#Set a study context to '/User data/Case1'
-aStudy.SetContext("/User data/Case1")
-
-#Print the current study context
-print aStudy.GetContext()
-
-#Add a sub directory 'aSubCase' to 'Case1' (under the current context)
-aBuilder.AddDirectory("aSubCase")
-
-
-#Add a new case 'Case2' to component 'User data'
-aBuilder.AddDirectory("/User data/Case2")
-

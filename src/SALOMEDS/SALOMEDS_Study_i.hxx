@@ -79,15 +79,13 @@ public:
   virtual bool Open(const char* aStudyUrl) throw (SALOME::SALOME_Exception);
 
   //! method to save a Study
-  virtual CORBA::Boolean Save(CORBA::Boolean theMultiFile);
-  virtual CORBA::Boolean SaveASCII(CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean Save(CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
 
   //! method to save a Study to the persistent reference aUrl
   /*!
     \param char* arguments, the new URL of the study
   */
-  virtual CORBA::Boolean SaveAs(const char* aUrl, CORBA::Boolean theMultiFile);
-  virtual CORBA::Boolean SaveAsASCII(const char* aUrl, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean SaveAs(const char* aUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
 
   //! method to copy the object
   /*!
@@ -187,36 +185,6 @@ public:
     \return char* arguments, the path of the SObject
   */
   virtual char* GetObjectPath(CORBA::Object_ptr theObject);
-
-  //! method to set a context: root ('/') is UserData component
-  /*!
-  */
-  virtual void SetContext(const char* thePath);
-
-  //! method to get a context
-  /*!
-  */
-  virtual char* GetContext();  
-
-  //! method to get all object names in the given context (or in the current context, if 'theContext' is empty)
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetObjectNames(const char* theContext);
-
-  //! method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetDirectoryNames(const char* theContext);
-
-  //! method to get all file names in the given context (or in the current context, if 'theContext' is empty)
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetFileNames(const char* theContext);
-
-  //! method to get all components names
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetComponentNames(const char* theContext);
 
   //! method to Create a ChildIterator from an SObject 
   /*!

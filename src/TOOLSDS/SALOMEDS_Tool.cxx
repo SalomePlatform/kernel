@@ -44,7 +44,6 @@
 
 #include <iostream> 
 #include <fstream>
-#include <stdlib.h>
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
@@ -132,14 +131,15 @@ std::string SALOMEDS_Tool::GetTmpDir()
 // purpose  : Removes files listed in theFileList
 //============================================================================
 void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory, 
-                                         const std::list<std::string>& theFiles,
+                                         const ListOfFiles& theFiles,
                                          const bool IsDirDeleted)
 {
   std::string aDirName = theDirectory;
 
-  for(std::list<std::string>::const_iterator it = theFiles.begin(); it != theFiles.end(); it++) {
+  int i, aLength = theFiles.size();
+  for(i=1; i<=aLength; i++) {
     std::string aFile(aDirName);
-    aFile += *it;
+    aFile += theFiles[i-1];
     if(!Exists(aFile)) continue;
 
 #ifdef WIN32
@@ -169,11 +169,11 @@ namespace
 {
   SALOMEDS::TMPFile* 
   PutFilesToStream(const std::string& theFromDirectory,
-                   const std::list<std::string>& theFiles,
-                   const std::list<std::string>& theFileNames,
+                   const std::vector<std::string>& theFiles,
+                   const std::vector<std::string>& theFileNames,
                    const int theNamesOnly)
   {
-    int i = 0, aLength = theFiles.size();
+    int i, aLength = theFiles.size();
     if(aLength == 0)
       return (new SALOMEDS::TMPFile);
     
@@ -189,14 +189,12 @@ namespace
     
     //Determine the required size of the buffer
     
-    std::list<std::string>::const_iterator it_files = theFiles.begin();
-    std::list<std::string>::const_iterator it_names = theFileNames.begin();
-    for(; it_files != theFiles.end(); it_files++, it_names++, i++) {
+    for(i=0; i<aLength; i++) {
       
       //Check if the file exists
       
       if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
-        std::string aFullPath = aTmpDir + *it_files;
+        std::string aFullPath = aTmpDir + theFiles[i];
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
         std::ifstream aFile(aFullPath.c_str(), std::ios::binary);
@@ -207,7 +205,7 @@ namespace
         aFileSize[i] = aFile.tellg();
         aBufferSize += aFileSize[i];              //Add a space to store the file
       }
-      aFileNameSize[i] = (*it_names).length()+1;
+      aFileNameSize[i] = theFileNames[i].length()+1;
       aBufferSize += aFileNameSize[i];          //Add a space to store the file name
       aBufferSize += (theNamesOnly)?4:12;       //Add 4 bytes: a length of the file name,
       //    8 bytes: length of the file itself
@@ -228,12 +226,10 @@ namespace
     
     aCurrentPos = 4;
     
-    it_files = theFiles.begin();
-    it_names = theFileNames.begin();
-    for(; it_files != theFiles.end(); it_files++, it_names++, i++) {
+    for(i=0; i<aLength; i++) {
       std::ifstream *aFile;
       if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
-        std::string aFullPath = aTmpDir + *it_files;
+        std::string aFullPath = aTmpDir + theFiles[i];
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
         aFile = new std::ifstream(aFullPath.c_str(), std::ios::binary);
@@ -248,7 +244,7 @@ namespace
       aCurrentPos += 4;
       
       //Copy the file name to the buffer
-      memcpy((aBuffer + aCurrentPos), (*it_names).c_str(), aFileNameSize[i]);
+      memcpy((aBuffer + aCurrentPos), theFileNames[i].c_str(), aFileNameSize[i]);
       aCurrentPos += aFileNameSize[i];
       
       if (!theNamesOnly) { // mpv 15.01.2003: we don't copy file content to the buffer if !theNamesOnly
@@ -280,17 +276,17 @@ namespace
 
 SALOMEDS::TMPFile* 
 SALOMEDS_Tool::PutFilesToStream(const std::string& theFromDirectory,
-                                const std::list<std::string>& theFiles,
+                                const ListOfFiles& theFiles,
                                 const int theNamesOnly)
 {
-  std::list<std::string> aFileNames(theFiles);
+  ListOfFiles aFileNames(theFiles);
   return ::PutFilesToStream(theFromDirectory,theFiles,aFileNames,theNamesOnly);
 }
 
 
 SALOMEDS::TMPFile* 
-SALOMEDS_Tool::PutFilesToStream(const std::list<std::string>& theFiles,
-                                const std::list<std::string>& theFileNames)
+SALOMEDS_Tool::PutFilesToStream(const ListOfFiles& theFiles,
+                                const ListOfFiles& theFileNames)
 {
   return ::PutFilesToStream("",theFiles,theFileNames,0);
 }
@@ -299,12 +295,12 @@ SALOMEDS_Tool::PutFilesToStream(const std::list<std::string>& theFiles,
 // function : PutStreamToFile
 // purpose  : converts the stream "theStream" to the files
 //============================================================================
-std::list<std::string>
+SALOMEDS_Tool::ListOfFiles
 SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
                                 const std::string& theToDirectory,
                                 const int theNamesOnly)
 {
-  std::list<std::string> aFiles;
+  ListOfFiles aFiles;
 
   if(theStream.length() == 0)
     return aFiles;
@@ -322,6 +318,8 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 
   //Copy the number of files in the stream
   memcpy(&aNbFiles, aBuffer, sizeof(int)); 
+
+  aFiles.reserve(aNbFiles);
 
   for(i=0; i<aNbFiles; i++) {
 
@@ -514,6 +512,5 @@ void SALOMEDS_Tool::GetAllChildren( SALOMEDS::Study_var               theStudy,
     }
   }
 }
-
 
 

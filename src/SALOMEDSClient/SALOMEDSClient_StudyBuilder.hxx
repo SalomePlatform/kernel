@@ -43,7 +43,6 @@ public:
   virtual void RemoveComponent(const _PTR(SComponent)& theSCO) = 0;
   virtual _PTR(SObject) NewObject(const _PTR(SObject)& theFatherObject) = 0;
   virtual _PTR(SObject) NewObjectToTag(const _PTR(SObject)& theFatherObject, int theTag) = 0;
-  virtual void AddDirectory(const std::string& thePath) = 0;
   virtual void LoadWith(const _PTR(SComponent)& theSCO, const std::string& theIOR) = 0;
   virtual void Load(const _PTR(SObject)& theSCO) = 0;
   virtual void RemoveObject(const _PTR(SObject)& theSO) = 0;

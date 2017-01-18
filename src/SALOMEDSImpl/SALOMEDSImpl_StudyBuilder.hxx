@@ -64,9 +64,6 @@ public:
   virtual SALOMEDSImpl_SObject NewObjectToTag(const SALOMEDSImpl_SObject& theFatherObject, 
     const int theTag);
 
-  //! The methods adds a new subdirectory, the path can be absolute or relative (then the current context is used)
-  virtual bool AddDirectory(const std::string& thePath);
-
   virtual bool LoadWith(const SALOMEDSImpl_SComponent& sco, SALOMEDSImpl_Driver* Engine);
   virtual bool Load(const SALOMEDSImpl_SObject& sco);
 

@@ -170,23 +170,6 @@ _PTR(SObject) SALOMEDS_StudyBuilder::NewObjectToTag(const _PTR(SObject)& theFath
   return _PTR(SObject)(aSO);
 }
 
-void SALOMEDS_StudyBuilder::AddDirectory(const std::string& thePath)
-{
-  if (_isLocal) {
-    CheckLocked();
-    SALOMEDS::Locker lock;
-
-    _local_impl->AddDirectory((char*)thePath.c_str());
-    if (_local_impl->IsError()) {
-      std::string anErrorCode = _local_impl->GetErrorCode();
-      if (anErrorCode == "StudyNameAlreadyUsed")  throw SALOMEDS::Study::StudyNameAlreadyUsed(); 
-      if (anErrorCode == "StudyInvalidDirectory") throw SALOMEDS::Study::StudyInvalidDirectory(); 
-      if (anErrorCode == "StudyInvalidComponent") throw SALOMEDS::Study::StudyInvalidComponent();  
-    }
-  }
-  else _corba_impl->AddDirectory((char*)thePath.c_str());
-}
-
 void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::string& theIOR)
 {
   if(!theSCO) return;

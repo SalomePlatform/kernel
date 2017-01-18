@@ -97,19 +97,19 @@ documentation.
 studyName = salome.myStudy._get_Name()
 
 # open study from file /home/user/MyStudy.hdf
-study = salome.myStudy.OpenStudy("/home/user/MyStudy.hdf")
+salome.myStudy.Open("/home/user/MyStudy.hdf")
 
 # save study
-salome.myStudy.Save(study, False) # not using multifile save mode
+salome.myStudy.Save(False, False) # not using multifile save mode
 
 # save study in ASCII format
-salome.myStudy.SaveASCII(study, True) # using multifile save mode
+salome.myStudy.Save(True, True) # using multifile save mode
 
 # save study with the new file path
-salome.myStudy.SaveAs("/home/user/MyStudy.hdf", study, False)
+salome.myStudy.SaveAs("/home/user/MyStudy.hdf", False, False)
 
 # save study with the new file path in ASCII format
-salome.myStudy.SaveAsASCII("/home/user/MyStudy.hdf", study, False)
+salome.myStudy.SaveAs("/home/user/MyStudy.hdf", False, True)
 
 # clear study
 salome.myStudy.Clear()

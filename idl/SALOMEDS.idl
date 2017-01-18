@@ -238,15 +238,6 @@ module SALOMEDS
 
     void RemoveReference(in SObject anObject) ;
 
-/*!
-   Adds a directory in the %Study.
-   \param theName String parameter defining the name of the directory.
-
-<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
-
-*/
-    void AddDirectory(in string theName) raises(LockProtection);
-
 /*! \brief Identification of the %SObject's substructure.
 
       Identification of the %SObject's substructure by GUID.
@@ -379,8 +370,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 //! Invalid study reference
     exception StudyInvalidReference {};
-//! Invalid study context
-    exception StudyInvalidContext {};
 //! Invalid study component
     exception StudyInvalidComponent {};
 //! Invalid directory of the %study exception
@@ -482,38 +471,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     string GetObjectPath(in Object theObject) raises(StudyInvalidReference);
 
-/*! \brief  Set the context of the %Study.
-
-    \param thePath String parameter defining the context of the study.
-
-<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    void SetContext(in string thePath) raises (StudyInvalidReference, StudyInvalidContext);
-/*!  \brief Get the context of the %Study.
-
-<em>See \ref example23 for an example of this method usage in batchmode of %SALOME application.</em>
-*/
-    string GetContext() raises (StudyInvalidReference, StudyInvalidContext);
-/*!  \brief Get a list of names of objects corresponding to the context.
-
-   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetObjectNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
-/*! \brief Get a list of names of directories and subdirectories corresponding to the context.
-
-   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetDirectoryNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
-/*! \brief  Get a list of names of Files corresponding to the context.
-
-    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetFileNames(in string theContext) raises (StudyInvalidReference, StudyInvalidContext);
-/*! \brief Get a list of names of Components corresponding to the context.
-
-   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
-*/
-    ListOfStrings GetComponentNames(in string theContext) raises(StudyInvalidReference);
 /*!  \brief Create a new iterator of child levels of the given %SObject.
 
     \param aSO The given %SObject
@@ -614,42 +571,27 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     boolean Open (in URLPath aStudyUrl) raises (SALOME::SALOME_Exception);
     
-/*! \brief Saving the study in a HDF file (or files).
+/*! \brief Saving the study in a file (or files).
 
     Saves a study.
     \param theMultiFile If this parameter is True the study will be saved in several files.
+    \param theASCII If this parameter is True the study will be saved in ASCII format, otherwise in HDF format.
 */
-    boolean Save(in boolean theMultiFile) raises(StudyInvalidReference);
+    boolean Save(in boolean theMultiFile, in boolean theASCII) raises(StudyInvalidReference);
     
-/*! \brief Saving a study in a ASCII file (or files).
-
-    Saves a study in an ASCII format file (or files).
-    \param theMultiFile If this parameter is True the study will be saved in several files.
-*/
-    boolean  SaveASCII(in boolean theMultiFile) raises(StudyInvalidReference);
-/*! \brief Saving the study in a specified HDF file (or files).
+/*! \brief Saving the study in a specified file (or files).
 
     Saves the study in a specified file (or files).
     \param aUrl The path to the definite file in whcih the study will be saved
-    \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
+    \param theASCII If this parameter is True the study will be saved in ASCII format, otherwise in HDF format.
 
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     boolean  SaveAs(in URLPath aUrl, // if the file already exists
-                    in boolean theMultiFile) // overwrite (as option)
+                    in boolean theMultiFile, // overwrite (as option)
+                    in boolean theASCII) 
                     raises(StudyInvalidReference); 
-/*! \brief Saving the study in a specified ASCII file (or files).
-
-    Saves the study in a specified ASCII file (or files).
-
-    \param aUrl The path to the definite file in whcih the study will be saved
-    \param aStudy The study which will be saved
-    \param theMultiFile If this parameter is True the study will be saved in several files.
-*/
-    boolean  SaveAsASCII(in URLPath aUrl, // if the file already exists
-                         in boolean theMultiFile) // overwrite (as option)
-                         raises(StudyInvalidReference); 
 /*!
     Returns True, if the given %SObject can be copied to the clipboard.
 */

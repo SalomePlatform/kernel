@@ -132,28 +132,16 @@ bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
   return true;
 }
 
-bool SALOMEDS_Study::Save(bool theMultiFile)
+bool SALOMEDS_Study::Save(bool theMultiFile, bool theASCII)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case
-  return _corba_impl->Save(theMultiFile);
+  return _corba_impl->Save(theMultiFile, theASCII);
 }
 
-bool SALOMEDS_Study::SaveASCII(bool theMultiFile)
+bool SALOMEDS_Study::SaveAs(const std::string& theUrl, bool theMultiFile, bool theASCII)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case
-  return _corba_impl->SaveASCII(theMultiFile);
-}
-
-bool SALOMEDS_Study::SaveAs(const std::string& theUrl, bool theMultiFile)
-{
-  //SRN: Pure CORBA save as the save operation require CORBA in any case
-  return _corba_impl->SaveAs((char*)theUrl.c_str(), theMultiFile);
-}
-
-bool SALOMEDS_Study::SaveAsASCII(const std::string& theUrl, bool theMultiFile)
-{
-  //SRN: Pure CORBA save as the save operation require CORBA in any case
-  return _corba_impl->SaveAsASCII((char*)theUrl.c_str(), theMultiFile);
+  return _corba_impl->SaveAs((char*)theUrl.c_str(), theMultiFile, theASCII);
 }
 
 SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
@@ -456,91 +444,6 @@ std::string SALOMEDS_Study::GetObjectPath(const _PTR(SObject)& theSO)
   }
   else aPath = _corba_impl->GetObjectPath(aSO->GetCORBAImpl());
   return aPath;
-}
-
-void SALOMEDS_Study::SetContext(const std::string& thePath)
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->SetContext(thePath);
-  }
-  else _corba_impl->SetContext((char*)thePath.c_str());
-}
-
-std::string SALOMEDS_Study::GetContext()  
-{
-  std::string aPath;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aPath = _local_impl->GetContext();
-  }
-  else aPath = _corba_impl->GetContext();
-  return aPath;
-}
-
-std::vector<std::string> SALOMEDS_Study::GetObjectNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetObjectNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back(std::string((std::string)aSeq[i].in()));
-  }
-  return aVector;
-}
- 
-std::vector<std::string> SALOMEDS_Study::GetDirectoryNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetDirectoryNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
-  return aVector;
-}
- 
-std::vector<std::string> SALOMEDS_Study::GetFileNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetFileNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
-  return aVector;
-}
- 
-std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetComponentNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
-  return aVector;
 }
 
 _PTR(ChildIterator) SALOMEDS_Study::NewChildIterator(const _PTR(SObject)& theSO)

@@ -194,7 +194,7 @@ static void Test(SALOMEDS::Study_ptr myStudy)
   DumpStudy(myStudy);
   
   // Save as
-  myStudy->SaveAs("/home/edeville/Study1.hdf", false);
+  myStudy->SaveAs("/home/edeville/Study1.hdf", false, false);
 
   // Get Persistent Reference of the study test
   name = myStudy->GetPersistentReference();

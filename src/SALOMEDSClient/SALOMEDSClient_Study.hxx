@@ -66,12 +66,6 @@ public:
   virtual _PTR(SObject) FindObjectIOR(const std::string& anObjectIOR) = 0;
   virtual _PTR(SObject) FindObjectByPath(const std::string& thePath) = 0;
   virtual std::string GetObjectPath(const _PTR(SObject)& theSO) = 0;
-  virtual void SetContext(const std::string& thePath) = 0;
-  virtual std::string GetContext() = 0;  
-  virtual std::vector<std::string> GetObjectNames(const std::string& theContext) = 0;
-  virtual std::vector<std::string> GetDirectoryNames(const std::string& theContext) = 0;
-  virtual std::vector<std::string> GetFileNames(const std::string& theContext) = 0;
-  virtual std::vector<std::string> GetComponentNames(const std::string& theContext) = 0;
   virtual _PTR(ChildIterator) NewChildIterator(const _PTR(SObject)& theSO) = 0;
   virtual _PTR(SComponentIterator) NewComponentIterator() = 0;
   virtual _PTR(StudyBuilder) NewBuilder() = 0;
@@ -88,10 +82,8 @@ public:
   virtual std::vector<std::string> GetModificationsDate() = 0;
   virtual _PTR(UseCaseBuilder) GetUseCaseBuilder() = 0;
 
-  virtual bool Save(bool theMultiFile) = 0;
-  virtual bool SaveASCII(bool theMultiFile) = 0;
-  virtual bool SaveAs(const std::string& theUrl, bool theMultiFile) = 0;
-  virtual bool SaveAsASCII(const std::string& theUrl, bool theMultiFile) = 0;
+  virtual bool Save(bool theMultiFile, bool theASCII) = 0;
+  virtual bool SaveAs(const std::string& theUrl, bool theMultiFile, bool theASCII) = 0;
 
   virtual bool CanCopy(const _PTR(SObject)& theSO) = 0;
   virtual bool Copy(const _PTR(SObject)& theSO) = 0;
