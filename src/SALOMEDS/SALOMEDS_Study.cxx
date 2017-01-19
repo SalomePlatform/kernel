@@ -977,7 +977,9 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
       SALOME_NamingService* namingService = KERNEL::getNamingService();
       CORBA::Object_var obj = namingService->Resolve("/Study");
       aStudy = SALOMEDS::Study::_narrow(obj);
-      _local_impl->SetTransientReference(_orb->object_to_string(aStudy));
+      if( !CORBA::is_nil( aStudy ) )  { 
+        _local_impl->SetTransientReference(_orb->object_to_string(aStudy));
+      }
     }
     _corba_impl = SALOMEDS::Study::_duplicate(aStudy);
     return aStudy._retn();
