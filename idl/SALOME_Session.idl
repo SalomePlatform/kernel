@@ -51,7 +51,7 @@ module SALOME
 
    It can be:
         -# asleep  : no running study
-        -# running : one or more running studies
+        -# running : one running study
 */
     SessionState state ;
 
