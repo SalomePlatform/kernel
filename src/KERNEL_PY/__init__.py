@@ -210,7 +210,6 @@ def salome_close():
     try:
         # study can be clear either from GUI or directly with salome.myStudy.Clear()
         myStudy.Clear()
-        myStudy.Init()
     except:
         pass
     salome_initial=1
