@@ -71,7 +71,11 @@ int main (int argc, char * argv[])
     containerName += hostName + "/MPIFactoryServer_" + argv[2];
 
     std::string dirn(getenv("KERNEL_ROOT_DIR"));
+#ifdef __APPLE__
+    dirn += "/lib/salome/libSalomeTestMPIComponentEngine.dylib";
+#else
     dirn += "/lib/salome/libSalomeTestMPIComponentEngine.so";
+#endif
     
     // Try to resolve MPI Container
     obj = NS.Resolve(containerName.c_str()) ;

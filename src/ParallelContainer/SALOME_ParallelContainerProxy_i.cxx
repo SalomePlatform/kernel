@@ -158,7 +158,11 @@ Container_proxy_impl_final::load_component_Library(const char* componentName, CO
 
     MESSAGE("Try to load C++ component");
 #ifndef WIN32
+#ifdef __APPLE__
+    std::string impl_name = string ("lib") + aCompName + string("Engine.dylib");
+#else
     std::string impl_name = string ("lib") + aCompName + string("Engine.so");
+#endif
 #else
     std::string impl_name = aCompName + string("Engine.dll");
 #endif
@@ -313,7 +317,11 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
 
   // On commence par créer le proxy
 #ifndef WIN32
+#ifdef __APPLE__
+  std::string impl_name = string ("lib") + aCompName + string("Engine.dylib");
+#else
   std::string impl_name = string ("lib") + aCompName + string("Engine.so");
+#endif
 #else
   std::string impl_name = aCompName + string("Engine.dll");
 #endif

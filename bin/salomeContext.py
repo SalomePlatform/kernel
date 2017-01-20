@@ -91,7 +91,7 @@ class SalomeContext:
     if len(configFileNames) == 0:
       raise SalomeContextException("No configuration files given")
 
-    reserved=['PATH', 'DYLD_LIBRARY_PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'PV_PLUGIN_PATH', 'INCLUDE', 'LIBPATH', 'SALOME_PLUGINS_PATH']
+    reserved=['PATH', 'DYLD_FALLBACK_LIBRARY_PATH', 'DYLD_LIBRARY_PATH', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'MANPATH', 'PV_PLUGIN_PATH', 'INCLUDE', 'LIBPATH', 'SALOME_PLUGINS_PATH']
     for filename in configFileNames:
       basename, extension = os.path.splitext(filename)
       if extension == ".cfg":
@@ -142,6 +142,11 @@ class SalomeContext:
   def addToLdLibraryPath(self, value):
     if platform.system() == 'Windows':
       self.addToVariable('PATH', value)
+    elif platform.system() == 'Darwin':
+      if "LAPACK" in value:
+        self.addToVariable('DYLD_FALLBACK_LIBRARY_PATH', value)
+      else:
+        self.addToVariable('DYLD_LIBRARY_PATH', value)
     else:
       self.addToVariable('LD_LIBRARY_PATH', value)
   #

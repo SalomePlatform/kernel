@@ -29,7 +29,11 @@ static HMODULE _libHandle = 0;
 #else
 #include <dlfcn.h>
 static void* _libHandle = NULL;
+#ifdef __APPLE__
+#define SALOMEDS_LIB_NAME "libSalomeDS.dylib"
+#else
 #define SALOMEDS_LIB_NAME "libSalomeDS.so"
+#endif
 #endif
 
 #define SOBJECT_FACTORY      "SObjectFactory"

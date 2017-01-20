@@ -35,6 +35,9 @@
 
 #include <pthread.h>
 #include <semaphore.h>
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#endif
 #include "BaseTraceCollector.hxx"
 #include "BasicsGenericDestructor.hxx"
 
@@ -68,8 +71,13 @@ class SALOMELOCALTRACE_EXPORT LocalTraceBufferPool : public PROTECTED_DELETE
   static BaseTraceCollector *_myThreadTrace;
 
   LocalTrace_TraceInfo _myBuffer[TRACE_BUFFER_SIZE];
+#ifdef __APPLE__
+  dispatch_semaphore_t _freeBufferSemaphore;       // to wait until there is a free buffer
+  dispatch_semaphore_t _fullBufferSemaphore;       // to wait until there is a buffer to print
+#else
   sem_t _freeBufferSemaphore;       // to wait until there is a free buffer
   sem_t _fullBufferSemaphore;       // to wait until there is a buffer to print
+#endif
   pthread_mutex_t _incrementMutex;  // to lock position variables for increment
   unsigned long _position;
   unsigned long _insertPos;

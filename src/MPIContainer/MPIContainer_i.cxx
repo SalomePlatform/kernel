@@ -149,7 +149,11 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 
   // --- try dlopen C++ component
 
+#ifdef __APPLE__
+  std::string impl_name = std::string ("lib") + aCompName + std::string("Engine.dylib");
+#else
   std::string impl_name = std::string ("lib") + aCompName + std::string("Engine.so");
+#endif
   
   _numInstanceMutex.lock(); // lock to be alone 
   // (see decInstanceCnt, finalize_removal))
@@ -303,7 +307,11 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
   
   //--- try C++
 
+#ifdef __APPLE__
+  std::string impl_name = std::string ("lib") + genericRegisterName +std::string("Engine.dylib");
+#else
   std::string impl_name = std::string ("lib") + genericRegisterName +std::string("Engine.so");
+#endif
   if (_library_map.count(impl_name) != 0) // C++ component
     {
       void* handle = _library_map[impl_name];

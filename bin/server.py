@@ -62,7 +62,11 @@ class Server:
         myargs=self.ARGS
         if self.args.get('xterm'):
             # (Debian) send LD_LIBRARY_PATH to children shells (xterm)
-            if sys.platform != "win32":
+          if sys.platform == "darwin":
+              env_ld_library_path=['env', 'DYLD_LIBRARY_PATH='
+                                   + os.getenv("DYLD_FALLBACK_LIBRARY_PATH")]
+              myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
+          elif sys.platform != "win32":
               env_ld_library_path=['env', 'LD_LIBRARY_PATH='
                                    + os.getenv("LD_LIBRARY_PATH")]
               myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path

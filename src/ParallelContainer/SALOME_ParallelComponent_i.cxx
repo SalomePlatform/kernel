@@ -828,7 +828,11 @@ std::string Engines_Parallel_Component_i::GetDynLibraryName(const char *componen
 #ifndef WIN32
   std::string ret="lib";
   ret+=componentName;
+#ifdef __APPLE__
+  ret+="Engine.dylib";
+#else
   ret+="Engine.so";
+#endif
 #else
   std::string ret=componentName;
   ret+="Engine.dll";

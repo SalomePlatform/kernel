@@ -295,7 +295,11 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName, 
   bool ret = false;
   std::string aCompName = componentName;
 #ifndef WIN32
+#ifdef __APPLE__
+  std::string impl_name = string ("lib") + aCompName + string("Engine.dylib");
+#else
   std::string impl_name = string ("lib") + aCompName + string("Engine.so");
+#endif
 #else
   std::string impl_name = aCompName + string("Engine.dll");
 #endif
@@ -423,7 +427,11 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
 
   std::string aCompName = genericRegisterName;
 #ifndef WIN32
+#ifdef __APPLE__
+  std::string impl_name = string ("lib") + aCompName + string("Engine.dylib");
+#else
   std::string impl_name = string ("lib") + aCompName +string("Engine.so");
+#endif
 #else
   std::string impl_name = aCompName +string("Engine.dll");
 #endif
@@ -935,7 +943,11 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   std::string _proxy_containerName = proxy_containerName;
 
 #ifndef WIN32
+#ifdef __APPLE__
+  string impl_name = string ("lib") + aCompName + string("Engine.dylib");
+#else
   string impl_name = string ("lib") + aCompName +string("Engine.so");
+#endif
 #else
   string impl_name = aCompName +string("Engine.dll");
 #endif

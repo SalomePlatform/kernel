@@ -893,14 +893,19 @@ void Engines_Component_i::sendMessage(const char *event_type,
 
 std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
 {
-#ifndef WIN32
-  std::string ret="lib";
-  ret+=componentName;
-  ret+="Engine.so";
-#else
-  std::string ret=componentName;
-  ret+="Engine.dll";
+  std::string prefix, suffix;
+  std::string cname = componentName;
+#if !defined(WIN32)
+  prefix = "lib";
 #endif
+#if defined(WIN32)
+  suffix = "dll";
+#elif defined(__APPLE__)
+  suffix = "dylib";
+#else
+  suffix = "so";
+#endif
+  std::string ret = prefix + cname + std::string("Engine.") + suffix;
   return ret;
 }
 

@@ -177,6 +177,9 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
             if sys.platform == "win32":
               add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "PATH")
+            elif sys.platform == "darwin":
+              add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
+                     "DYLD_LIBRARY_PATH")
             else:
               add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "LD_LIBRARY_PATH")

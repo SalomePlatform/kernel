@@ -184,10 +184,7 @@ else:
 
 # ---- create hypotheses 
 
-if sys.platform == "win32":
-  stdMeshersEngine = "StdMeshersEngine"
-else:
-  stdMeshersEngine = "libStdMeshersEngine.so"
+stdMeshersEngine = "StdMeshersEngine"
 
 print
 print "--- Create hypotheses ..."

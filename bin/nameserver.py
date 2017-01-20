@@ -105,6 +105,8 @@ class NamingServer(Server):
         Server.initArgs(self)
         if sys.platform == "win32":
           env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
+        elif sys.platform == "darwin":
+          env_ld_library_path = ['env', 'DYLD_LIBRARY_PATH=' + os.getenv("DYLD_LIBRARY_PATH"), 'DYLD_FALLBACK_LIBRARY_PATH=' + os.getenv("DYLD_FALLBACK_LIBRARY_PATH")]
         else:
           env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
         self.CMD = ['xterm', '-e']+ env_ld_library_path + ['python']

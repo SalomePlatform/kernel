@@ -113,7 +113,11 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 #ifndef WIN32
               void* handle;
               std::string impl_name = std::string ("lib") + traceKind 
+#ifdef __APPLE__
+                + std::string("TraceCollector.dylib");
+#else
                 + std::string("TraceCollector.so");
+#endif
               handle = dlopen( impl_name.c_str() , RTLD_LAZY | RTLD_GLOBAL ) ;
 #else
               HINSTANCE handle;
@@ -173,13 +177,16 @@ int LocalTraceBufferPool::insert(int traceType, const char* msg)
 
   // wait until there is a free buffer in the pool
 
+#ifdef __APPLE__
+  dispatch_semaphore_wait(_freeBufferSemaphore, DISPATCH_TIME_FOREVER);
+#else
   int ret = -1;
   while (ret)
     {
       ret = sem_wait(&_freeBufferSemaphore);
       if (ret) perror(" LocalTraceBufferPool::insert, sem_wait");
     }
-
+#endif
   // get the next free buffer available (mutex protected) 
 
   unsigned long myInsertPos = lockedIncrement(_insertPos);
@@ -197,12 +204,20 @@ int LocalTraceBufferPool::insert(int traceType, const char* msg)
   // increment the full buffer semaphore
   // (if previously 0, awake thread in charge of trace)
 
+#ifdef __APPLE__
+  dispatch_semaphore_signal(_fullBufferSemaphore);
+#else
   ret = sem_post(&_fullBufferSemaphore);
+#endif
+
 
   // returns the number of free buffers
-
+#ifdef __APPLE__
+  return 0;
+#else
   sem_getvalue(&_freeBufferSemaphore, &ret);
   return ret;  
+#endif
 }
 
 // ============================================================================
@@ -218,13 +233,16 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
 
   // wait until there is a buffer in the pool, with a message to print
 
+#ifdef __APPLE__
+    dispatch_semaphore_wait(_fullBufferSemaphore, DISPATCH_TIME_FOREVER);
+#else
   int ret = -1;
   while (ret)
     {
       ret = sem_wait(&_fullBufferSemaphore);
       if (ret) MESSAGE (" LocalTraceBufferPool::retrieve, sem_wait");
     }
-
+#endif
   // get the next buffer to print
 
   unsigned long myRetrievePos = lockedIncrement(_retrievePos);
@@ -241,12 +259,20 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
   // threads are waiting to put a trace: the waken up thread is not
   // necessarily the first thread to wait.
 
+#ifdef __APPLE__
+  dispatch_semaphore_signal(_freeBufferSemaphore);
+#else
   ret = sem_post(&_freeBufferSemaphore);
+#endif
 
   // returns the number of full buffers
 
+#ifdef __APPLE__
+  return 0;
+#else
   sem_getvalue(&_fullBufferSemaphore, &ret);
   return ret;
+#endif
 }
 
 // ============================================================================
@@ -282,10 +308,16 @@ LocalTraceBufferPool::LocalTraceBufferPool()
   for (int i=0; i<TRACE_BUFFER_SIZE; i++)
     strcpy(&(_myBuffer[i].trace[MAXMESS_LENGTH]),TRUNCATED_MESSAGE);
   int ret;
+#ifdef __APPLE__
+  dispatch_semaphore_t* sem1 = &_freeBufferSemaphore, *sem2 = &_fullBufferSemaphore;
+  *sem1 = dispatch_semaphore_create(TRACE_BUFFER_SIZE);
+  *sem2 = dispatch_semaphore_create(0);
+#else
   ret=sem_init(&_freeBufferSemaphore, 0, TRACE_BUFFER_SIZE); // all buffer free
   if (ret!=0) IMMEDIATE_ABORT(ret);
   ret=sem_init(&_fullBufferSemaphore, 0, 0);                 // 0 buffer full
   if (ret!=0) IMMEDIATE_ABORT(ret);
+#endif
   ret=pthread_mutex_init(&_incrementMutex,NULL); // default = fast mutex
   if (ret!=0) IMMEDIATE_ABORT(ret);
 
@@ -307,8 +339,13 @@ LocalTraceBufferPool::~LocalTraceBufferPool()
       delete (_myThreadTrace);
       _myThreadTrace = 0;
       int ret;
+#ifdef __APPLE__
+      dispatch_release(_freeBufferSemaphore);
+      dispatch_release(_fullBufferSemaphore);
+#else
       ret=sem_destroy(&_freeBufferSemaphore);
       ret=sem_destroy(&_fullBufferSemaphore);
+#endif
       ret=pthread_mutex_destroy(&_incrementMutex);
       DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()-end");
       _singleton = 0;
@@ -330,4 +367,3 @@ unsigned long LocalTraceBufferPool::lockedIncrement(unsigned long& pos)
   ret = pthread_mutex_unlock(&_incrementMutex); // release lock
   return mypos;
 }
-

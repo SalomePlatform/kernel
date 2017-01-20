@@ -78,7 +78,11 @@ extern "C" {void SigIntHandler( int ) ; }
 
 #ifndef WIN32
 #define LIB "lib"
+#ifdef __APPLE__
+#define ENGINESO "Engine.dylib"
+#else
 #define ENGINESO "Engine.so"
+#endif
 #else
 #define LIB ""
 #define ENGINESO "Engine.dll"
@@ -519,7 +523,11 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
     {
       //not loadable. Try to find the lib file in LD_LIBRARY_PATH
       std::string path;
+#ifdef __APPLE__
+      char* p=getenv("DYLD_LIBRARY_PATH");
+#else
       char* p=getenv("LD_LIBRARY_PATH");
+#endif
       if(p)path=p;
       path=path+SEP+"/usr/lib"+SEP+"/lib";
 

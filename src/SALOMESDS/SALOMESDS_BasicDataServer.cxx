@@ -18,11 +18,10 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
+#include <sstream>
 #include "SALOMESDS_BasicDataServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
-
-#include <sstream>
 
 using namespace SALOMESDS;
 
