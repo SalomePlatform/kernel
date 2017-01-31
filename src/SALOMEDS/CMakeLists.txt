@@ -57,6 +57,7 @@ SET(COMMON_LIBS
   SalomeGenericObj
   SalomeLifeCycleCORBA
   SalomeIDLKernel
+  SalomeDSClient
   ${HDF5_C_LIBRARIES}
 )
 

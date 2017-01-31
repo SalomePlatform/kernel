@@ -107,13 +107,6 @@ public:
   */  
   virtual char* GetPersistentReference();
 
-
-  //! method to Get transient reference of study
-  /*!
-    \return char* arguments, the transient reference of the study
-  */  
-  virtual char* GetTransientReference();
-
   //! method to detect if a study is empty
   /*!
     \return bool arguments, true if study is empty
@@ -243,8 +236,6 @@ public:
     \param url char* arguments, the study URL
   */
   virtual void  URL(const char* url);
-
-  static SALOMEDS::Study_ptr GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb);
 
   static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 

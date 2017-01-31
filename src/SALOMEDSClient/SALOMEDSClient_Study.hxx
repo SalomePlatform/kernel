@@ -55,7 +55,6 @@ public:
   virtual bool Open(const std::string& theStudyUrl) = 0;
 
   virtual std::string GetPersistentReference() = 0;
-  virtual std::string GetTransientReference() = 0;
   virtual bool IsEmpty() = 0;
   virtual _PTR(SComponent) FindComponent (const std::string& aComponentName) = 0;
   virtual _PTR(SComponent) FindComponentID(const std::string& aComponentID) = 0;

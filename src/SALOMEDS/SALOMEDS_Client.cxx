@@ -29,7 +29,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_AttributeName_i.hxx"
-#include "SALOME_NamingService.hxx"
+#include "SALOME_KernelServices.hxx"
 #include "utilities.h"
 #include "HDFOI.hxx"
 
@@ -38,9 +38,9 @@
  *  Purpose  : 
  */
 //============================================================================
-static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, int offset) {
+static void DumpComponent(SALOMEDS::SObject_ptr SO, int offset) {
   SALOMEDS::SObject_var RefSO;
-  SALOMEDS::ChildIterator_var it = Study->NewChildIterator(SO);
+  SALOMEDS::ChildIterator_var it = KERNEL::getStudy()->NewChildIterator(SO);
   for (; it->More();it->Next()){
     SALOMEDS::SObject_var CSO= it->Value();
     SALOMEDS::GenericAttribute_var anAttr;
@@ -57,7 +57,7 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, in
         MESSAGE(" ");
       MESSAGE("*Reference"<<RefSO->GetID());
     }
-    DumpComponent(Study,CSO,offset+2);
+    DumpComponent(CSO,offset+2);
   }
 }
 
@@ -66,17 +66,17 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, in
  *  Purpose  : 
  */
 //============================================================================
-static void DumpStudy (SALOMEDS::Study_ptr Study) {
+static void DumpStudy() {
   MESSAGE("Explore Study and Write name of each object if it exists");
   
   char* name;
-  SALOMEDS::SComponentIterator_var itcomp = Study->NewComponentIterator();
+  SALOMEDS::SComponentIterator_var itcomp = KERNEL::getStudy()->NewComponentIterator();
   int offset = 1;
   for (; itcomp->More(); itcomp->Next()) {
     SALOMEDS::SComponent_var SC = itcomp->Value();
     name = SC->ComponentDataType();
     MESSAGE("-> ComponentDataType is "<<name);  
-    DumpComponent(Study,SC,offset);
+    DumpComponent(SC,offset);
   }
 }
 
@@ -85,10 +85,12 @@ static void DumpStudy (SALOMEDS::Study_ptr Study) {
  *  Purpose  : 
  */
 //============================================================================
-static void Test(SALOMEDS::Study_ptr myStudy)
+static void Test()
 {
   try {
   char* name;
+
+  SALOMEDS::Study_var myStudy = KERNEL::getStudy();
 
   MESSAGE("Create Builder ");
   SALOMEDS::StudyBuilder_var StudyBuild = myStudy->NewBuilder();
@@ -183,15 +185,11 @@ static void Test(SALOMEDS::Study_ptr myStudy)
   Name->SetValue("mesh_cylinder_0");
   StudyBuild->CommitCommand();
 
-  MESSAGE("Test GetStudy");
-  SALOMEDS::Study_var stu = mesh_cylinder->GetStudy();
-  MESSAGE ("-> Study Name is "<<stu->Name());
-
-  DumpStudy(myStudy);
+  DumpStudy();
 
   StudyBuild->Undo();
   // Study should have no trace of object mesh_cylinder
-  DumpStudy(myStudy);
+  DumpStudy();
   
   // Save as
   myStudy->SaveAs("/home/edeville/Study1.hdf", false, false);
@@ -199,10 +197,6 @@ static void Test(SALOMEDS::Study_ptr myStudy)
   // Get Persistent Reference of the study test
   name = myStudy->GetPersistentReference();
   MESSAGE("Persitent Reference of the study " << name);
-
-  // Get Transient Reference of the study test
-  name = myStudy->GetTransientReference();
-  MESSAGE("Transient Reference of the study " << name);
 
   // FindComponent Test
   SALOMEDS::SComponent_var compo = myStudy->FindComponent("GEOM");
@@ -243,7 +237,7 @@ static void Test(SALOMEDS::Study_ptr myStudy)
   else {
     MESSAGE("-> Name is not found");
   }
-  //DumpStudy(myStudy);
+  //DumpStudy();
   }
   catch(HDFexception)
     {
@@ -267,21 +261,14 @@ int main(int argc, char** argv)
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
 
-    SALOME_NamingService * salomens = new SALOME_NamingService(orb);
-
-    MESSAGE("Find Study ");
-    CORBA::Object_ptr obj2 = salomens->Resolve("/Study");
-    SALOMEDS::Study_var myStudy = SALOMEDS::Study::_narrow(obj2);
-
     // Obtain a POAManager, and tell the POA to start accepting
     // requests on its objects.
     PortableServer::POAManager_var pman = poa->the_POAManager();
     pman->activate();
 
     // Test basic services
-    Test(myStudy);
+    Test();
 
-    delete salomens;
     orb->run();
     orb->destroy();
   }

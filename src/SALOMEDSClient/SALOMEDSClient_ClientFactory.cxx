@@ -39,7 +39,6 @@ static void* _libHandle = NULL;
 #define BUILDER_FACTORY      "BuilderFactory"
 #define GET_PARAMETERS       "GetIParameters"
 #define CONVERT_SOBJECT      "ConvertSObject"
-#define CONVERT_STUDY        "ConvertStudy"
 #define CONVERT_BUILDER      "ConvertBuilder"
 
 typedef SALOMEDSClient_SObject* (*SOBJECT_FACTORY_FUNCTION) (SALOMEDS::SObject_ptr);
@@ -49,7 +48,6 @@ typedef void                  (*STUDY_CREATE_FUNCTION) (CORBA::ORB_ptr, Portable
 typedef SALOMEDSClient_StudyBuilder* (*BUILDER_FACTORY_FUNCTION) (SALOMEDS::StudyBuilder_ptr);
 typedef SALOMEDSClient_IParameters* (*GET_PARAMETERS_FACTORY) (const _PTR(AttributeParameter)&);
 typedef SALOMEDS::SObject_ptr (*CONVERT_SOBJECT_FUNCTION) (const _PTR(SObject)&);
-typedef SALOMEDS::Study_ptr (*CONVERT_STUDY_FUNCTION) (const _PTR(Study)&);
 typedef SALOMEDS::StudyBuilder_ptr (*CONVERT_BUILDER_FUNCTION) (const _PTR(StudyBuilder)&);
 
 
@@ -60,7 +58,6 @@ static STUDY_CREATE_FUNCTION aCreateFactory = NULL;
 static BUILDER_FACTORY_FUNCTION aBuilderFactory = NULL;
 static GET_PARAMETERS_FACTORY aGetIParameters = NULL;
 static CONVERT_SOBJECT_FUNCTION aConvertSObject = NULL;
-static CONVERT_STUDY_FUNCTION aConvertStudy = NULL;
 static CONVERT_BUILDER_FUNCTION aConvertBuilder = NULL;
 
 _PTR(SObject) ClientFactory::SObject(SALOMEDS::SObject_ptr theSObject)
@@ -172,25 +169,6 @@ SALOMEDS::SObject_ptr ClientFactory::crbSObject(const _PTR(SObject)& theSObject)
 
   if(CORBA::is_nil(so)) return SALOMEDS::SObject::_nil();
   return so._retn();
-}
-
-
-SALOMEDS::Study_ptr ClientFactory::crbStudy(const _PTR(Study)& theStudy)
-{
-  SALOMEDS::Study_var study;
-
-#ifdef WIN32
-  if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
-  if(!aConvertStudy) aConvertStudy = (CONVERT_STUDY_FUNCTION)::GetProcAddress(_libHandle, CONVERT_STUDY);
-#else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
-  if(!aConvertStudy) aConvertStudy = (CONVERT_STUDY_FUNCTION) dlsym(_libHandle, CONVERT_STUDY);
-#endif
-
-  if(aConvertStudy) study = aConvertStudy(theStudy); 
-  
-  if(CORBA::is_nil(study)) return SALOMEDS::Study::_nil();
-  return study._retn();
 }
 
 SALOMEDS::StudyBuilder_ptr ClientFactory::crbStudyBuilder(const _PTR(StudyBuilder)& theStudyBuilder)

@@ -408,8 +408,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     typedef sequence<SObject> ListOfSObject;
 //!  Get the persistent reference to the %Study.
     PersistentReference  GetPersistentReference() raises(StudyInvalidReference);
-//! Get a transient reference to the %Study.
-    SalomeReference      GetTransientReference() raises(StudyInvalidReference);
 
 /*! \brief indicate whether the %Study is empty
 
@@ -923,11 +921,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 */
     ListOfAttributes     GetAllAttributes();
-
-/*! Gets the study of a given %SObject.
-    \return The study containing the given %SObject.
-*/
-    Study GetStudy();
 
 /*! Gets the CORBA object by its own IOR attribute.
     Returns nil, if can't.

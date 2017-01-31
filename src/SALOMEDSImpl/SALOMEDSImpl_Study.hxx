@@ -92,7 +92,7 @@ private:
 
 public:
 
-  static SALOMEDSImpl_Study* GetStudy(const DF_Label& theLabel);
+  static SALOMEDSImpl_Study* GetStudyImpl(const DF_Label& theLabel);
   static SALOMEDSImpl_SObject SObject(const DF_Label& theLabel);
   static SALOMEDSImpl_SComponent SComponent(const DF_Label& theLabel);
   static void IORUpdated(const SALOMEDSImpl_AttributeIOR* theAttribute);
@@ -149,11 +149,6 @@ public:
 
   //! method to Get persistent reference of study (idem URL())
   virtual std::string GetPersistentReference();
-
-  //! method to Get transient reference of study
-  virtual std::string GetTransientReference();
-
-  virtual void SetTransientReference(const std::string& theIOR);
 
   //! method to detect if a study is empty
   virtual bool IsEmpty();

@@ -131,27 +131,6 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
 }
 
 //============================================================================
-/*! Function :
- *  Purpose  :
- */
-//============================================================================
-SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
-{
-  SALOMEDS::Locker lock;
-  SALOMEDSImpl_Study* aStudy = _impl->GetStudy();
-  if(!aStudy) {
-    MESSAGE("Problem GetStudy");
-    return SALOMEDS::Study::_nil();
-  }
-
-  std::string IOR = aStudy->GetTransientReference();
-  CORBA::Object_var obj = _orb->string_to_object(IOR.c_str());
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(obj) ;
-  ASSERT(!CORBA::is_nil(Study));
-  return SALOMEDS::Study::_duplicate(Study);
-}
-
-//============================================================================
 /*! Function : FindAttribute
  *  Purpose  : Find attribute of given type on this SObject
  */

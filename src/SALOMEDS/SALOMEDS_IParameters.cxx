@@ -21,6 +21,8 @@
 //
 
 #include "SALOMEDS_IParameters.hxx"
+#include <SALOMEDSClient_ClientFactory.hxx>
+#include <SALOME_KernelServices.hxx>
 #include <utilities.h>
 
 #define PT_INTEGER   0
@@ -46,8 +48,6 @@ SALOMEDS_IParameters::SALOMEDS_IParameters(const _PTR(AttributeParameter)& ap)
 {
   if(!ap) return;
   _ap = ap;
-  _PTR(SObject) so = _ap->GetSObject();
-  _study = so->GetStudy();
 }
 
 SALOMEDS_IParameters::~SALOMEDS_IParameters()
@@ -258,14 +258,13 @@ std::string SALOMEDS_IParameters::encodeEntry(const std::string& entry, const st
 
 std::string SALOMEDS_IParameters::decodeEntry(const std::string& entry)
 {
-  if(!_study) return entry;
   int pos = entry.rfind("_");
   if(pos < 0 || pos >= entry.length()) return entry;
 
   std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   
   if(_compNames.find(compName) == _compNames.end()) {
-    _PTR(SObject) so = _study->FindComponent(compName);
+    _PTR(SObject) so = ClientFactory::Study(KERNEL::getStudy())->FindComponent(compName);
     if(!so) return entry;
     compID = so->GetID();
     _compNames[compName] = compID;
@@ -278,23 +277,23 @@ std::string SALOMEDS_IParameters::decodeEntry(const std::string& entry)
   return newEntry;
 }
 
-void SALOMEDS_IParameters::setDumpPython(_PTR(Study) study, const std::string& theID)
+void SALOMEDS_IParameters::setDumpPython(const std::string& theID)
 {
   std::string anID;
   if(theID == "") anID = getDefaultVisualComponent();
   else anID = theID;
 
-  _PTR(AttributeParameter) ap = study->GetCommonParameters(anID, 0);
-  ap->SetBool(_AP_DUMP_PYTHON_, !isDumpPython(study, theID));
+  _PTR(AttributeParameter) ap = ClientFactory::Study(KERNEL::getStudy())->GetCommonParameters(anID, 0);
+  ap->SetBool(_AP_DUMP_PYTHON_, !isDumpPython(theID));
 }
 
-bool SALOMEDS_IParameters::isDumpPython(_PTR(Study) study, const std::string& theID)
+bool SALOMEDS_IParameters::isDumpPython(const std::string& theID)
 {
   std::string anID;
   if(theID == "") anID = getDefaultVisualComponent();
   else anID = theID;
 
-  _PTR(AttributeParameter) ap = study->GetCommonParameters(anID, 0);
+  _PTR(AttributeParameter) ap = ClientFactory::Study(KERNEL::getStudy())->GetCommonParameters(anID, 0);
   if(!ap) return false;
   if(!ap->IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN)) return false;
   return (bool)ap->GetBool(_AP_DUMP_PYTHON_);

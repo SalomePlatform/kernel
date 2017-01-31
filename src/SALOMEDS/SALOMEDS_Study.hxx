@@ -66,7 +66,6 @@ public:
   virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO);
 
   virtual std::string GetPersistentReference();
-  virtual std::string GetTransientReference();
   virtual bool IsEmpty();
   virtual _PTR(SComponent) FindComponent (const std::string& aComponentName);
   virtual _PTR(SComponent) FindComponentID(const std::string& aComponentID);
@@ -130,8 +129,6 @@ public:
 
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
-
-  SALOMEDS::Study_ptr GetStudy();
   
   SALOMEDSImpl_Study* GetLocalImpl() { return _local_impl; }
 

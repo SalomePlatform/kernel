@@ -967,9 +967,6 @@ bool SALOMEDSImpl_Study::Copy(const SALOMEDSImpl_SObject& theObject,
   bool aStructureOnly; // copy only SObjects and attributes without component help
   aStructureOnly = !theObject.GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID());
 
-  // get component-engine
-  SALOMEDSImpl_Study* aStudy = theObject.GetStudy();
-
   if (!_doc) {
     _errorCode = "Document is null";
     return false;
@@ -1194,41 +1191,6 @@ std::string SALOMEDSImpl_Study::GetPersistentReference()
 {
   _errorCode = "";
   return URL();
-}
-//============================================================================
-/*! Function : GetTransientReference
- *  Purpose  : Get IOR of the Study (registred in Document in doc->Root)
- */
-//============================================================================
-std::string SALOMEDSImpl_Study::GetTransientReference()
-{
-  _errorCode = "";
-  std::string IOR = "";
-
-  SALOMEDSImpl_AttributeIOR* Att;
-  DF_Label _lab = _doc->Root();
-  if ((Att=(SALOMEDSImpl_AttributeIOR*)_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
-    IOR = Att->Value();
-  }
-  else {
-    _errorCode = "IOR is empty";
-  }
-
-  return IOR;
-}
-
-void SALOMEDSImpl_Study::SetTransientReference(const std::string& theIOR)
-{
-  _errorCode = "";
-
-  SALOMEDSImpl_AttributeStudyProperties* aProp = GetProperties();
-  int aLocked = aProp->IsLocked();
-  if (aLocked) aProp->SetLocked(false);
-
-  // Assign the value of the IOR in the study->root
-  SALOMEDSImpl_AttributeIOR::Set(_doc->Main().Root(), theIOR);
-
-  if (aLocked) aProp->SetLocked(true);
 }
 
 //============================================================================
@@ -1846,7 +1808,7 @@ void SALOMEDSImpl_Study::DeleteIORLabelMapItem(const std::string& anIOR)
     }
 }
 
-SALOMEDSImpl_Study* SALOMEDSImpl_Study::GetStudy(const DF_Label& theLabel)
+SALOMEDSImpl_Study* SALOMEDSImpl_Study::GetStudyImpl(const DF_Label& theLabel)
 {
   SALOMEDSImpl_StudyHandle* Att;
   if ((Att=(SALOMEDSImpl_StudyHandle*)theLabel.Root().FindAttribute(SALOMEDSImpl_StudyHandle::GetID()))) {
@@ -1857,19 +1819,19 @@ SALOMEDSImpl_Study* SALOMEDSImpl_Study::GetStudy(const DF_Label& theLabel)
 
 SALOMEDSImpl_SObject SALOMEDSImpl_Study::SObject(const DF_Label& theLabel)
 {
-  return GetStudy(theLabel)->GetSObject(theLabel);
+  return GetStudyImpl(theLabel)->GetSObject(theLabel);
 }
 
 SALOMEDSImpl_SComponent SALOMEDSImpl_Study::SComponent(const DF_Label& theLabel)
 {
-  return GetStudy(theLabel)->GetSComponent(theLabel);
+  return GetStudyImpl(theLabel)->GetSComponent(theLabel);
 }
 
 
 void SALOMEDSImpl_Study::IORUpdated(const SALOMEDSImpl_AttributeIOR* theAttribute)
 {
   std::string aString = theAttribute->Label().Entry();
-  GetStudy(theAttribute->Label())->UpdateIORLabelMap(theAttribute->Value(), aString);
+  GetStudyImpl(theAttribute->Label())->UpdateIORLabelMap(theAttribute->Value(), aString);
 }
 
 std::vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindDependances(const SALOMEDSImpl_SObject& anObject)

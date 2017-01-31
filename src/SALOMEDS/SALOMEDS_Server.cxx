@@ -167,13 +167,6 @@ int main(int argc, char** argv)
         NS->init_orb( orb );
       }
       NS->Register(Study, "/Study");
-
-      // Assign the value of the IOR in the study->root
-      if ( myStudy_i->GetImpl()->GetTransientReference().empty() ) {
-        CORBA::String_var IORStudy = orb->object_to_string(Study);
-        myStudy_i->GetImpl()->SetTransientReference((char*)IORStudy.in());
-      }
-
       myStudy_i->_remove_ref();
        
       // Obtain a POAManager, and tell the POA to start accepting

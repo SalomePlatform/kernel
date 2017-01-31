@@ -80,11 +80,6 @@ public:
   static SALOMEDS::SObject_ptr crbSObject(const _PTR(SObject)& theSObject);
 
   /*!
-   *  Returns a CORBA Study that corresponds %theStudy
-   */
-  static SALOMEDS::Study_ptr crbStudy(const _PTR(Study)& theStudy);  
-
-  /*!
    *  Returns a CORBA StudyBuilder that corresponds %theStudyBuilder
    */
   static SALOMEDS::StudyBuilder_ptr crbStudyBuilder(const _PTR(StudyBuilder)& theStudyBuilder);  

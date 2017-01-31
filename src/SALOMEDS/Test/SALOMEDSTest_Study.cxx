@@ -42,9 +42,6 @@ void SALOMEDSTest::testStudy()
 
   CPPUNIT_ASSERT(componentIterator);
 
-  //Check method GetTransientReference
-  CPPUNIT_ASSERT(!study->GetTransientReference().empty());
-
   //Check method URL (get/set)
   study->URL("");
   CPPUNIT_ASSERT(study->URL() == "");

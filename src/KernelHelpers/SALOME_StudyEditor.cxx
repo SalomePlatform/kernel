@@ -23,15 +23,7 @@
 
 /** Canonic constructor. The object can't be used without a setStudy() */
 SALOME_StudyEditor::SALOME_StudyEditor() {
-}
-
-void SALOME_StudyEditor::setStudy(SALOMEDS::Study_ptr study) {
-  _study = study;
-  _sbuilder = _study->NewBuilder();    
-}
-
-SALOME_StudyEditor::SALOME_StudyEditor(SALOMEDS::Study_ptr study) {
-  this->setStudy(study);
+  _sbuilder = KERNEL::getStudy()->NewBuilder();
 }
 
 SALOMEDS::SObject_ptr SALOME_StudyEditor::newObject(SALOMEDS::SObject_ptr parent) {
@@ -39,7 +31,7 @@ SALOMEDS::SObject_ptr SALOME_StudyEditor::newObject(SALOMEDS::SObject_ptr parent
 }
 
 SALOMEDS::SObject_ptr SALOME_StudyEditor::findObject(const char * entry) {
-  SALOMEDS::SObject_var sobject = _study->FindObjectID(entry);
+  SALOMEDS::SObject_var sobject = KERNEL::getStudy()->FindObjectID(entry);
   return sobject._retn();
 }
 
@@ -66,7 +58,7 @@ bool SALOME_StudyEditor::bindEngine(SALOMEDS::SComponent_var studyRoot,
 }
 
 SALOMEDS::SComponent_ptr SALOME_StudyEditor::findRoot(const char * moduleName) {
-  return _study->FindComponent(moduleName);
+  return KERNEL::getStudy()->FindComponent(moduleName);
 }
 
 void SALOME_StudyEditor::setName(SALOMEDS::SObject_var sobject, const char * value) {

@@ -288,16 +288,6 @@ void SALOMEDS_Study_i::Init()
     aSession->emitMessageOneWay(str.c_str());
     SALOMEDS::lock();
   }
-
-  std::string anIOR = _impl->GetTransientReference();
-  if ( anIOR.empty() ) {
-    CORBA::Object_var obj = aNamingService->Resolve("/Study");
-    SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow( obj );
-    CORBA::String_var IORStudy = _orb->object_to_string(aStudy);
-    _impl->SetTransientReference((char*)IORStudy.in());
-  }
-  _impl->GetDocument()->SetModified(false);
-
 }
 
 //============================================================================
@@ -542,18 +532,6 @@ char* SALOMEDS_Study_i::GetPersistentReference()
   if (_closed)
     throw SALOMEDS::Study::StudyInvalidReference();  
   return CORBA::string_dup(_impl->GetPersistentReference().c_str());
-}
-//============================================================================
-/*! Function : GetTransientReference
- *  Purpose  : Get IOR of the Study (registred in OCAF document in doc->Root)
- */
-//============================================================================
-char* SALOMEDS_Study_i::GetTransientReference()
-{
-  SALOMEDS::Locker lock; 
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-  return CORBA::string_dup(_impl->GetTransientReference().c_str());
 }
 
 //============================================================================
@@ -947,23 +925,6 @@ void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR, const char* anEntry)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->UpdateIORLabelMap(std::string((char*)anIOR), std::string((char*)anEntry));
-}
-
-SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb)
-{
-  SALOMEDS::Locker lock;
-
-  SALOMEDSImpl_AttributeIOR* Att = NULL;
-  if ((Att=(SALOMEDSImpl_AttributeIOR*)theLabel.Root().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))){
-    char* IOR = CORBA::string_dup(Att->Value().c_str());
-    CORBA::Object_var obj = orb->string_to_object(IOR);
-    SALOMEDS::Study_ptr aStudy = SALOMEDS::Study::_narrow(obj) ;
-    ASSERT(!CORBA::is_nil(aStudy));
-    return SALOMEDS::Study::_duplicate(aStudy);
-  } else {
-    MESSAGE("GetStudy: Problem to get study");
-  }
-  return SALOMEDS::Study::_nil();
 }
 
 void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 

@@ -134,13 +134,17 @@ bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
 
 bool SALOMEDS_Study::Save(bool theMultiFile, bool theASCII)
 {
-  //SRN: Pure CORBA save as the save operation require CORBA in any case
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+
   return _corba_impl->Save(theMultiFile, theASCII);
 }
 
 bool SALOMEDS_Study::SaveAs(const std::string& theUrl, bool theMultiFile, bool theASCII)
 {
-  //SRN: Pure CORBA save as the save operation require CORBA in any case
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+
   return _corba_impl->SaveAs((char*)theUrl.c_str(), theMultiFile, theASCII);
 }
 
@@ -251,17 +255,6 @@ std::string SALOMEDS_Study::GetPersistentReference()
     aRef = _local_impl->GetPersistentReference();
   }
   else aRef = (CORBA::String_var)_corba_impl->GetPersistentReference();
-  return aRef;
-}
-
-std::string SALOMEDS_Study::GetTransientReference()
-{
-  std::string aRef;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aRef = _local_impl->GetTransientReference();
-  }
-  else aRef = _corba_impl->GetTransientReference();
   return aRef;
 }
  
@@ -658,10 +651,10 @@ bool SALOMEDS_Study::DumpStudy(const std::string& thePath,
                                bool isPublished,
                                bool isMultiFile)
 {
-  //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
-  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
-  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, isMultiFile);
-  return ret;
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+
+  return _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, isMultiFile);
 }     
 
 void SALOMEDS_Study::SetStudyLock(const std::string& theLockerID)
@@ -962,36 +955,6 @@ CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR)
   return _orb->string_to_object(theIOR.c_str()); 
 } 
 
-SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-
-    if (!CORBA::is_nil(_corba_impl)) return SALOMEDS::Study::_duplicate(_corba_impl);
-    std::string anIOR = _local_impl->GetTransientReference();
-    SALOMEDS::Study_var aStudy;
-    if (!_local_impl->IsError() && anIOR != "") {
-      aStudy = SALOMEDS::Study::_narrow(_orb->string_to_object(anIOR.c_str()));
-    }
-    else {
-      SALOME_NamingService* namingService = KERNEL::getNamingService();
-      CORBA::Object_var obj = namingService->Resolve("/Study");
-      aStudy = SALOMEDS::Study::_narrow(obj);
-      if( !CORBA::is_nil( aStudy ) )  { 
-        _local_impl->SetTransientReference(_orb->object_to_string(aStudy));
-      }
-    }
-    _corba_impl = SALOMEDS::Study::_duplicate(aStudy);
-    return aStudy._retn();
-  }
-  else {
-    return SALOMEDS::Study::_duplicate(_corba_impl);
-  }
-
-  return SALOMEDS::Study::_nil();
-}
-
-
 _PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const std::string& theID, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
@@ -1025,12 +988,16 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const std::string& 
 
 void SALOMEDS_Study::attach(SALOMEDS::Observer_ptr theObserver,bool modify)
 {
-  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
   _corba_impl->attach(theObserver,modify);
 }
 
 void SALOMEDS_Study::detach(SALOMEDS::Observer_ptr theObserver)
 {
-  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
   _corba_impl->detach(theObserver);
 }

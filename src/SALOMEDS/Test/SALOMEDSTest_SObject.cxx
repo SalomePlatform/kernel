@@ -87,9 +87,6 @@ void SALOMEDSTest::testSObject()
   CPPUNIT_ASSERT(so->FindSubObject(1, so2));
   CPPUNIT_ASSERT(so2->GetID() == so1->GetID());
 
-  //Check method GetStudy
-  CPPUNIT_ASSERT(so->GetStudy() == study);
-
   //Check methods Name
   so->Name("test");
   CPPUNIT_ASSERT(so->Name() == "test");
