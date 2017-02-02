@@ -322,10 +322,6 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(bool isPublished,
                                                     bool& isValidScript,
                                                     long& theStreamLength)
 {
-  SALOME_NamingService* namingService = KERNEL::getNamingService();
-  CORBA::Object_var obj = namingService->Resolve("/Study");
-  SALOMEDS::Study_var st = SALOMEDS::Study::_narrow(obj);
-
   SALOMEDS::unlock();
 
   Engines::TMPFile_var aStream;

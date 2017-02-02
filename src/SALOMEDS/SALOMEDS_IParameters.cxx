@@ -264,7 +264,7 @@ std::string SALOMEDS_IParameters::decodeEntry(const std::string& entry)
   std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   
   if(_compNames.find(compName) == _compNames.end()) {
-    _PTR(SObject) so = ClientFactory::Study(KERNEL::getStudy())->FindComponent(compName);
+    _PTR(SObject) so = ClientFactory::Study(KERNEL::getStudyServant())->FindComponent(compName);
     if(!so) return entry;
     compID = so->GetID();
     _compNames[compName] = compID;
@@ -283,7 +283,7 @@ void SALOMEDS_IParameters::setDumpPython(const std::string& theID)
   if(theID == "") anID = getDefaultVisualComponent();
   else anID = theID;
 
-  _PTR(AttributeParameter) ap = ClientFactory::Study(KERNEL::getStudy())->GetCommonParameters(anID, 0);
+  _PTR(AttributeParameter) ap = ClientFactory::Study(KERNEL::getStudyServant())->GetCommonParameters(anID, 0);
   ap->SetBool(_AP_DUMP_PYTHON_, !isDumpPython(theID));
 }
 
@@ -293,7 +293,7 @@ bool SALOMEDS_IParameters::isDumpPython(const std::string& theID)
   if(theID == "") anID = getDefaultVisualComponent();
   else anID = theID;
 
-  _PTR(AttributeParameter) ap = ClientFactory::Study(KERNEL::getStudy())->GetCommonParameters(anID, 0);
+  _PTR(AttributeParameter) ap = ClientFactory::Study(KERNEL::getStudyServant())->GetCommonParameters(anID, 0);
   if(!ap) return false;
   if(!ap->IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN)) return false;
   return (bool)ap->GetBool(_AP_DUMP_PYTHON_);

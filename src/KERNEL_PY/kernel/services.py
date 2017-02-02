@@ -123,13 +123,6 @@ def getComponentList():
         raise RuntimeError, "Can't accesss module catalog"
     return catalog.GetComponentList()
 
-## Get a study
-#  \ingroup service
-def getStudy():
-    """Get a study"""
-    return salome.myStudy
-
-
 import SALOMEDS
 ## Get a study to create SALOME study. 
 #  \warning you should use instead the variable salome.myStudy. 

@@ -64,7 +64,7 @@ namespace KERNEL {
    * This returns a static reference to the SALOME study. The
    * study can be used to get informations about it.
    */
-  SALOMEDS::Study_ptr getStudy() {
+  SALOMEDS::Study_ptr getStudyServant() {
     static SALOMEDS::Study_ptr aStudy;
     if(CORBA::is_nil(aStudy)){
       SALOME_NamingService *aNamingService = getNamingService();

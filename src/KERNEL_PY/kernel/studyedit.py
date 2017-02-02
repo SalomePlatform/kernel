@@ -42,9 +42,6 @@ _DEFAULT_CONTAINER = "FactoryServer"
 # The codec to use for strings that are displayed in Salome study tree is Latin-1
 ENCODING_FOR_SALOME_STUDY = "iso-8859-1"
 
-def getStudy():
-    return salome.myStudy
-
 ## Return a \b StudyEditor instance to edit the study. 
 #  \ingroup studyedit
 def getStudyEditor():

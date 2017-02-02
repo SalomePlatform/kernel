@@ -41,7 +41,7 @@ namespace KERNEL {
   KERNELHELPERS_EXPORT SALOME_NamingService *        getNamingService();
   KERNELHELPERS_EXPORT SALOME_LifeCycleCORBA *       getLifeCycleCORBA();
   KERNELHELPERS_EXPORT SALOME::Session_ptr           getSalomeSession();
-  KERNELHELPERS_EXPORT SALOMEDS::Study_ptr           getStudy();
+  KERNELHELPERS_EXPORT SALOMEDS::Study_ptr           getStudyServant();
   KERNELHELPERS_EXPORT Engines::SalomeLauncher_ptr   getSalomeLauncher();
   KERNELHELPERS_EXPORT Engines::ResourcesManager_ptr getResourcesManager();
 

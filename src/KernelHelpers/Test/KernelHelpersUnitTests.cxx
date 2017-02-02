@@ -78,7 +78,7 @@ void KernelHelpersUnitTests::TEST_getLifeCycleCORBA() {
 }
 
 void KernelHelpersUnitTests::TEST_getStudy() {
-  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudy();
+  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudyServant();
   CPPUNIT_ASSERT(!CORBA::is_nil(myTestStudy));
 
   // One can use the study to store some general properties

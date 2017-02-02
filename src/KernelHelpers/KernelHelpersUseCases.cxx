@@ -61,7 +61,7 @@ bool TEST_getLifeCycleCORBA() {
 }
 
 bool TEST_getStudy() {
-  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudy();
+  SALOMEDS::Study_ptr myTestStudy = KERNEL::getStudyServant();
   if ( CORBA::is_nil(myTestStudy) ) {
     return false;
   }

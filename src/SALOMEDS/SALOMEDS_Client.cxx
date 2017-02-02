@@ -40,7 +40,7 @@
 //============================================================================
 static void DumpComponent(SALOMEDS::SObject_ptr SO, int offset) {
   SALOMEDS::SObject_var RefSO;
-  SALOMEDS::ChildIterator_var it = KERNEL::getStudy()->NewChildIterator(SO);
+  SALOMEDS::ChildIterator_var it = KERNEL::getStudyServant()->NewChildIterator(SO);
   for (; it->More();it->Next()){
     SALOMEDS::SObject_var CSO= it->Value();
     SALOMEDS::GenericAttribute_var anAttr;
@@ -70,7 +70,7 @@ static void DumpStudy() {
   MESSAGE("Explore Study and Write name of each object if it exists");
   
   char* name;
-  SALOMEDS::SComponentIterator_var itcomp = KERNEL::getStudy()->NewComponentIterator();
+  SALOMEDS::SComponentIterator_var itcomp = KERNEL::getStudyServant()->NewComponentIterator();
   int offset = 1;
   for (; itcomp->More(); itcomp->Next()) {
     SALOMEDS::SComponent_var SC = itcomp->Value();
@@ -90,7 +90,7 @@ static void Test()
   try {
   char* name;
 
-  SALOMEDS::Study_var myStudy = KERNEL::getStudy();
+  SALOMEDS::Study_var myStudy = KERNEL::getStudyServant();
 
   MESSAGE("Create Builder ");
   SALOMEDS::StudyBuilder_var StudyBuild = myStudy->NewBuilder();
