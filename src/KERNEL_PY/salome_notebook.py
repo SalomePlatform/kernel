@@ -69,8 +69,11 @@ class PseudoStudyForNoteBook(object):
 
 class NoteBook:
     
-    def __init__(self, Study):
-        self.myStudy = Study
+    def __init__(self, theIsEnablePublish = True):
+        if theIsEnablePublish:
+            self.myStudy = salome.myStudy
+        else:
+            self.myStudy = PseudoStudyForNoteBook()
     
     def set(self, variableName, variable):
         """
@@ -171,9 +174,8 @@ class NoteBook:
     pass
 
 def checkThisNoteBook(**kwargs):
-    study = PseudoStudyForNoteBook(**kwargs)
-    note_book = NoteBook(study)
+    note_book = NoteBook( False )
     note_book.check()
     return
 
-notebook = NoteBook(salome.myStudy)
+notebook = NoteBook()

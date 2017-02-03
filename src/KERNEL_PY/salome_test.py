@@ -112,7 +112,7 @@ print "           %d. Test Geometry " % step; step+=1
 print "======================================================================"
 
 from salome.geom import geomBuilder
-geompy = geomBuilder.New(salome.myStudy)
+geompy = geomBuilder.New()
 
 ShapeTypeCompSolid = 1
 ShapeTypeSolid = 2
