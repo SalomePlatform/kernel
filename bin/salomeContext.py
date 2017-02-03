@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -97,7 +97,7 @@ class SalomeContext:
       if extension == ".cfg":
         self.__setContextFromConfigFile(filename, reserved)
       else:
-        self.getLogger().warning("Unrecognized extension for configuration file: %s", filename)
+        self.getLogger().error("Unrecognized extension for configuration file: %s", filename)
   #
 
   def __loadMPI(self, module_name):
@@ -165,11 +165,11 @@ class SalomeContext:
   def setVariable(self, name, value, overwrite=False):
     env = os.getenv(name, '')
     if env and not overwrite:
-      self.getLogger().warning("Environment variable already existing (and not overwritten): %s=%s", name, value)
+      self.getLogger().error("Environment variable already existing (and not overwritten): %s=%s", name, value)
       return
 
     if env:
-      self.getLogger().warning("Overwriting environment variable: %s=%s", name, value)
+      self.getLogger().debug("Overwriting environment variable: %s=%s", name, value)
 
     value = os.path.expandvars(value) # expand environment variables
     self.getLogger().debug("Set environment variable: %s=%s", name, value)
@@ -263,7 +263,7 @@ class SalomeContext:
       return res or (None, None)
     except SystemExit, returncode:
       if returncode != 0:
-        self.getLogger().warning("SystemExit %s in method %s.", returncode, command)
+        self.getLogger().error("SystemExit %s in method %s.", returncode, command)
       sys.exit(returncode)
     except StandardError:
       self.getLogger().error("Unexpected error:")
