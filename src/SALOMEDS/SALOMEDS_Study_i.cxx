@@ -259,11 +259,13 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 //============================================================================
 void SALOMEDS_Study_i::Init()
 {
-  if ( !_impl->GetDocument() )
-    _impl->Init();
-
   if (!_closed)
     throw SALOMEDS::Study::StudyInvalidReference();
+
+  SALOMEDS::Locker lock;
+  
+  if ( !_impl->GetDocument() )
+    _impl->Init();
 
   _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
   _notifier       = new SALOMEDS::Notifier(_orb);
@@ -297,9 +299,11 @@ void SALOMEDS_Study_i::Init()
 //============================================================================
 void SALOMEDS_Study_i::Clear()
 {
-  SALOMEDS::Locker lock;
   if (_closed)
     return;
+
+  SALOMEDS::Locker lock;
+
   //delete the builder servant
   PortableServer::POA_var poa=_builder->_default_POA();
   PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
