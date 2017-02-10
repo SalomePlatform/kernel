@@ -1780,7 +1780,9 @@ std::string SALOMEDSImpl_Study::_GetStudyVariablesScript()
 //============================================================================
 std::string SALOMEDSImpl_Study::_GetNoteBookAccess()
 {
-  return std::string("import salome_notebook\n");
+  std::string notebook = "import salome_notebook\n";
+  notebook += _GetNoteBookAccessor() + " = salome_notebook.NoteBook()" ;
+  return notebook;
 }
 
 bool SALOMEDSImpl_Study::IsLocked()
