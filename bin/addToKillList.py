@@ -34,7 +34,7 @@ def findFileDict():
     """
     from salome_utils import getPortNumber
     port = getPortNumber()
-    if verbose(): print "myport = ", port
+    if verbose(): print("myport = ", port)
     return port
 
 def addToKillList(command_pid, command, port=None):
@@ -60,7 +60,7 @@ def addToKillList(command_pid, command, port=None):
     # check if PID is already in dictionary
     already_in=False
     for process_id in process_ids:
-        for pid in process_id.keys():
+        for pid in list(process_id.keys()):
             if int(pid) == int(command_pid):
                 already_in=True
                 break
@@ -71,17 +71,17 @@ def addToKillList(command_pid, command, port=None):
     # add process to the dictionary
     if not already_in:
         import types
-        if type(command) == types.ListType: command=" ".join([str(c) for c in command])
+        if type(command) == list: command=" ".join([str(c) for c in command])
         command=command.split()[0]
         try:
-            if verbose(): print "addToKillList: %s : %s" % ( str(command_pid), command )
+            if verbose(): print("addToKillList: %s : %s" % ( str(command_pid), command ))
             process_ids.append({int(command_pid): [command]})
             dir = os.path.dirname(filedict)
-            if not os.path.exists(dir): os.makedirs(dir, 0777)
+            if not os.path.exists(dir): os.makedirs(dir, 0o777)
             with open(filedict,'w') as fpid:
                 pickle.dump(process_ids, fpid)
         except:
-            if verbose(): print "addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command )
+            if verbose(): print("addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command ))
             pass
         pass
     pass
@@ -110,11 +110,11 @@ def killList(port=None):
     # kill processes
     for process_id in process_ids:
         #print process_id
-        for pid, cmd in process_id.items():
+        for pid, cmd in list(process_id.items()):
             try:
                 os.kill(int(pid),signal.SIGKILL)
             except:
-                print "  ------------------ process %s : %s inexistant"% (pid, cmd[0])
+                print("  ------------------ process %s : %s inexistant"% (pid, cmd[0]))
                 pass
             pass
         pass
@@ -123,6 +123,6 @@ def killList(port=None):
     pass
 
 if __name__ == "__main__":
-    if verbose(): print sys.argv
+    if verbose(): print(sys.argv)
     addToKillList(sys.argv[1], sys.argv[2])
     pass

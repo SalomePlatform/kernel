@@ -50,7 +50,7 @@ def DumpComponent(Study, SO, offset):
             while ofs <= offset:
                 a = a + "--"
                 ofs = ofs +1
-            print a + ">" + CSO.GetID() + " " + t_name[1]
+            print(a + ">" + CSO.GetID() + " " + t_name[1])
         t_RefSO = CSO.ReferencedObject()
         if t_RefSO[0] == 1:
             RefSO = t_RefSO[1]
@@ -59,7 +59,7 @@ def DumpComponent(Study, SO, offset):
             while ofs <= offset:
                 a = a + "  "
                 ofs = ofs +1
-            print a + ">" + RefSO.GetID()
+            print(a + ">" + RefSO.GetID())
         DumpComponent(Study, CSO, offset+2)
 
     #--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ def DumpStudy(Study):
         SC = itcomp.Value()
         itcomp.Next()
         name = SC.ComponentDataType()
-        print "-> ComponentDataType is " + name
+        print("-> ComponentDataType is " + name)
         DumpComponent(Study, SC, 1)
         
 
@@ -90,10 +90,10 @@ naming_service = SALOME_NamingServicePy_i(orb)
 
 # get active study name and id
 myStudyName = sg.getActiveStudyName()
-print myStudyName
+print(myStudyName)
 
 myStudyId = sg.getActiveStudyId()
-print myStudyId
+print(myStudyId)
 
 # get Study Manager reference
 obj = naming_service.Resolve('myStudyManager')

@@ -337,7 +337,7 @@ def tok_eater(type, tok, spos, epos, line):
                     s = 'static '
                     if params[0] == 'cls':
                         param = string.join(params[1:], ",")
-		s = s+name+"("+param+");\n"
+                s = s+name+"("+param+");\n"
                 if len(name) > 1 \
                    and name[0:2] == '__' \
                    and name[len(name)-2:len(name)] != '__' \
@@ -345,7 +345,7 @@ def tok_eater(type, tok, spos, epos, line):
                        private_member = True
                        output("  private:\n",(def_spos[0]+2,def_spos[1]))
             else:
-	        s = name+"("+param+");\n"
+                s = name+"("+param+");\n"
             if (doc_string!=""): comment_block.append(doc_string)
             print_comment(def_spos)
             output(s,def_spos)
@@ -427,12 +427,12 @@ def filterFile(filename, out=sys.stdout):
         root,ext  = os.path.splitext(filename)
 
         if ext==".py":
-            filter(filename)
+            list(filter(filename))
         else:
             dump(filename)
 
         sys.stderr.write("OK\n")
-    except IOError,e:
+    except IOError as e:
         sys.stderr.write(e[1]+"\n")
 
 
@@ -478,7 +478,7 @@ def convert(srcpath, destpath):
          namespace=namespace+"::"+os.path.split(srcpath)[1]
        else:
          namespace=os.path.split(srcpath)[1]
-       print "It's a package:",namespace
+       print("It's a package:",namespace)
     sp = os.path.join(srcpath,"*")
     sfiles = glob.glob(sp)
     dp = os.path.join(destpath,"*")
@@ -507,7 +507,7 @@ def convert(srcpath, destpath):
 
         destfile = os.path.join(destpath,basename)
         if destfile==srcfile:
-            print "WARNING: Input and output names are identical!"
+            print("WARNING: Input and output names are identical!")
             sys.exit(1)
 
         count+=1
@@ -527,12 +527,12 @@ def convert(srcpath, destpath):
             try:
                 shutil.rmtree(dname)
             except:
-                print "Can't remove obsolete directory '%s'"%dname
+                print("Can't remove obsolete directory '%s'"%dname)
         else:
             try:
                 os.remove(dname)
             except:
-                print "Can't remove obsolete file '%s'"%dname
+                print("Can't remove obsolete file '%s'"%dname)
 
     return count
 
@@ -545,8 +545,8 @@ filter_file = False
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hf", ["help"])
-except getopt.GetoptError,e:
-    print e
+except getopt.GetoptError as e:
+    print(e)
     sys.exit(1)
 
 for o,a in opts:
@@ -564,6 +564,6 @@ else:
         sys.exit(1)
 
     # Filter an entire Python source tree
-    print '"%s" -> "%s"\n'%(args[0],args[1])
+    print('"%s" -> "%s"\n'%(args[0],args[1]))
     c=convert(args[0],args[1])
-    print "%d files"%(c)
+    print("%d files"%(c))

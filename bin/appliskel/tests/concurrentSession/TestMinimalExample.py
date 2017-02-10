@@ -30,7 +30,7 @@ def port_reservation(obtained_ports, prefered=None, test=None, expected=None):
     port = getPort(prefered)
   else:
     port = getPort()
-  print "obtained port = %s"%port
+  print("obtained port = %s"%port)
 
   obtained_ports.put(port)
 
@@ -41,8 +41,8 @@ def port_reservation(obtained_ports, prefered=None, test=None, expected=None):
 class TestMinimalExample(unittest.TestCase):
   def testSequential(self):
     from PortManager import releasePort, getBusyPorts
-    print "\nBEGIN testSequential"
-    print "Busy ports", getBusyPorts()
+    print("\nBEGIN testSequential")
+    print("Busy ports", getBusyPorts())
     obtained_ports = multiprocessing.Queue()
 
     processes = [
@@ -56,7 +56,7 @@ class TestMinimalExample(unittest.TestCase):
     for p in processes:
       p.join()
 
-    print "Busy ports", getBusyPorts()
+    print("Busy ports", getBusyPorts())
     # Try to get specific port number
     p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, self, 2872,))
     p.start()
@@ -73,7 +73,7 @@ class TestMinimalExample(unittest.TestCase):
     p.join()
 
     # Release port
-    print "release port 2812"
+    print("release port 2812")
     p = multiprocessing.Process(target=releasePort, args=(2812,))
     p.start()
     p.join()
@@ -84,21 +84,21 @@ class TestMinimalExample(unittest.TestCase):
     p.join()
 
     # Release ports
-    print "Busy ports", getBusyPorts()
+    print("Busy ports", getBusyPorts())
     while not obtained_ports.empty():
       port = obtained_ports.get()
-      print "release port", port
+      print("release port", port)
       p = multiprocessing.Process(target=releasePort, args=(port,))
       p.start()
       p.join()
 
-    print "END testSequential"
+    print("END testSequential")
   #
 
   def testConcurrent(self):
     from PortManager import releasePort, getBusyPorts
-    print "\nBEGIN testConcurrent"
-    print "Busy ports", getBusyPorts()
+    print("\nBEGIN testConcurrent")
+    print("Busy ports", getBusyPorts())
     obtained_ports = multiprocessing.Queue()
     processes = [
       multiprocessing.Process(target=port_reservation, args=(obtained_ports,))
@@ -125,15 +125,15 @@ class TestMinimalExample(unittest.TestCase):
       p.join()
 
     # Release ports
-    print "Busy ports", getBusyPorts()
+    print("Busy ports", getBusyPorts())
     while not obtained_ports.empty():
       port = obtained_ports.get()
-      print "release port", port
+      print("release port", port)
       p = multiprocessing.Process(target=releasePort, args=(port,))
       p.start()
       p.join()
 
-    print "END testConcurrent"
+    print("END testConcurrent")
   #
 #
 

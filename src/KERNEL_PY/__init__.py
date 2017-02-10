@@ -110,13 +110,13 @@ MATCH_ENDING_PATTERN="site-packages" + os.path.sep + "salome"
 
 def extend_path(pname):
     for dir in sys.path:
-        if not isinstance(dir, basestring) or not os.path.isdir(dir) or not dir.endswith(MATCH_ENDING_PATTERN):
+        if not isinstance(dir, str) or not os.path.isdir(dir) or not dir.endswith(MATCH_ENDING_PATTERN):
             continue
         subdir = os.path.join(dir, pname)
         # XXX This may still add duplicate entries to path on
         # case-insensitive filesystems
         if os.path.isdir(subdir) and subdir not in __path__:
-            if verbose(): print "INFO - The directory %s is appended to sys.path" % subdir
+            if verbose(): print("INFO - The directory %s is appended to sys.path" % subdir)
             __path__.append(subdir)
 
 extend_path(ROOT_PYTHONPACKAGE_NAME)
@@ -224,19 +224,19 @@ def salome_init(theStudyId=0,embedded=0):
             myStudyManager, myStudyId, myStudy, myStudyName = salome_study_init(theStudyId)
             pass
         pass
-    except RuntimeError, inst:
+    except RuntimeError as inst:
         # wait a little to avoid trace mix
         import time
         time.sleep(0.2)
         x = inst
-        print "salome.salome_init():", x
-        print """
+        print("salome.salome_init():", x)
+        print("""
         ============================================
         May be there is no running SALOME session
         salome.salome_init() is intented to be used
         within an already running session
         ============================================
-        """
+        """)
         raise
     
 def salome_close():

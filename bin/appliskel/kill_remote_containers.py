@@ -118,7 +118,7 @@ def main():
   options, args = parser.parse_args()
 
   if not os.path.exists(catalog_file):
-    print "ERROR: the catalog file %s is mandatory" % catalog_file_base
+    print("ERROR: the catalog file %s is mandatory" % catalog_file_base)
     sys.exit(1)
 
   #Parse CatalogResource.xml
@@ -147,7 +147,7 @@ def main():
     else:
       port=os.getenv("NSPORT") or "2810"
     command=command+ " " + get_hostname() + " " + port +" killSalomeWithPort.py " + port
-    print command
+    print(command)
     os.system(command)
 
 if __name__ == '__main__':

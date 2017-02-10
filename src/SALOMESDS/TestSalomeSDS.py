@@ -23,15 +23,15 @@ import SalomeSDSClt
 import SALOME
 import salome
 import unittest
-import cPickle
+import pickle
 import gc
 import time
 import multiprocessing as mp
 
 def obj2Str(obj):
-  return cPickle.dumps(obj,cPickle.HIGHEST_PROTOCOL)
+  return pickle.dumps(obj,pickle.HIGHEST_PROTOCOL)
 def str2Obj(strr):
-  return cPickle.loads(strr)
+  return pickle.loads(strr)
 def generateKey(varName,scopeName):
   dsm=salome.naming_service.Resolve("/DataServerManager")
   dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
@@ -51,8 +51,8 @@ def work(t):
     proc=subprocess.Popen(["python",fname],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
-      print out
-      print err
+      print(out)
+      print(err)
     return proc.returncode
 
 class SalomeSDSTest(unittest.TestCase):
@@ -128,7 +128,7 @@ class SalomeSDSTest(unittest.TestCase):
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
-    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in xrange(nbProc)])
+    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in range(nbProc)])
     self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
 

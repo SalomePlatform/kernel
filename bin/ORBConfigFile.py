@@ -98,4 +98,4 @@ if __name__ == "__main__":
   # RETURN_VALUE_2=$(echo ${RETURN_VALUES} | cut -d' ' -f2)
   # ...
   # IMPORTANT NOTE: this print call MUST BE the first one!!
-  print filename, msgSize
+  print(filename, msgSize)

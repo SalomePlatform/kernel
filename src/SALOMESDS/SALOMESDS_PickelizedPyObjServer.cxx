@@ -111,8 +111,8 @@ SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strT
 PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb)
 {
   std::size_t sz(pickledData.size());
-  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
-  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
+  PyObject *pickledDataPy(PyBytes_FromStringAndSize(NULL,sz));// agy : do not use PyUnicode_FromString because std::string hides a vector of byte.
+  char *buf(PyBytes_AS_STRING(pickledDataPy));// this buf can be used thanks to python documentation.
   const char *inBuf(pickledData.c_str());
   std::copy(inBuf,inBuf+sz,buf);
   PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
@@ -133,8 +133,8 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledD
 PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb)
 {
   std::size_t sz(pickledData.size());
-  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
-  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
+  PyObject *pickledDataPy(PyBytes_FromStringAndSize(NULL,sz));// agy : do not use PyUnicode_FromString because std::string hides a vector of byte.
+  char *buf(PyBytes_AS_STRING(pickledDataPy));// this buf can be used thanks to python documentation.
   const unsigned char *inBuf(&pickledData[0]);
   std::copy(inBuf,inBuf+sz,buf);
   PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
@@ -156,14 +156,14 @@ std::string PickelizedPyObjServer::Pickelize(PyObject *obj, DataScopeServerBase 
 {
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,obj);
-  PyTuple_SetItem(args,1,PyInt_FromLong(2));// because "assert(cPickle.HIGHEST_PROTOCOL is 2)"
+  PyTuple_SetItem(args,1,PyLong_FromLong(2));// because "assert(cPickle.HIGHEST_PROTOCOL is 2)"
   PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"dumps"));
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(selfMeth);
   Py_XDECREF(args);
-  std::size_t sz(PyString_Size(retPy));
+  std::size_t sz(PyBytes_Size(retPy));
   std::string ret(sz,'\0');
-  const char *buf(PyString_AsString(retPy));
+  const char *buf(PyBytes_AS_STRING(retPy));
   char *inBuf(const_cast<char *>(ret.c_str()));
   for(std::size_t i=0;i<sz;i++)
     inBuf[i]=buf[i];
@@ -184,8 +184,8 @@ void PickelizedPyObjServer::setNewPyObj(PyObject *obj)
     throw Exception("PickelizedPyObjServer::setNewPyObj : trying to assign a NULL pyobject in this !");
   if(obj==_self)
     return ;
-  if(PyList_Check(obj)==0 && PyDict_Check(obj)==0 && PyTuple_Check(obj)==0 && PyString_Check(obj)==0 && PyInt_Check(obj)==0 && PyBool_Check(obj)==0 && PyFloat_Check(obj)==0 && obj!=Py_None)
-    throw Exception("PickelizedPyObjServer::setNewPyObj : Supported python types are [list,tuple,dict,str,int,bool,float,None] !");
+  if(PyList_Check(obj)==0 && PyDict_Check(obj)==0 && PyTuple_Check(obj)==0 && PyBytes_Check(obj)==0 && PyLong_Check(obj)==0 && PyBool_Check(obj)==0 && PyFloat_Check(obj)==0 && obj!=Py_None)
+    throw Exception("PickelizedPyObjServer::setNewPyObj : Supported python types are [list,tuple,dict,bytes,int,bool,float,None] !");
   if(_self)
     {
       PyObject *selfType(PyObject_Type(_self));

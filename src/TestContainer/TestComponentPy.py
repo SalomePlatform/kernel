@@ -44,7 +44,7 @@ obj = orb.resolve_initial_references("NameService")
 rootContext = obj._narrow(CosNaming.NamingContext)
 
 if rootContext is None:
-    print "Name Service Reference is invalid"
+    print("Name Service Reference is invalid")
     sys.exit(1)
 
 #resolve the name /Containers.dir/FactoryServerPy.object
@@ -56,16 +56,16 @@ name = [CosNaming.NameComponent("Containers","dir"),
 
 try:
     obj = rootContext.resolve(name)
-except CosNaming.NamingContext.NotFound, ex:
-    print  containerName , " not found in Naming Service"
+except CosNaming.NamingContext.NotFound as ex:
+    print(containerName , " not found in Naming Service")
     sys.exit(1)
 
 container = obj._narrow(Engines.Container)
-print container.getHostName()
+print(container.getHostName())
 comp = container.load_impl("SalomeTestComponent","SalomeTestComponent")
-print comp._get_instanceName()
+print(comp._get_instanceName())
 comp.ping()
 comptest = comp._narrow(Engines.TestComponent)
 if comptest is None:
-    print "probleme cast"
-print comptest.Coucou(1)
+    print("probleme cast")
+print(comptest.Coucou(1))

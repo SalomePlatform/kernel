@@ -52,7 +52,7 @@ def DumpComponent(Study, SO, Builder,offset):
     find,RefSO = CSO.ReferencedObject()
     if find:
       a=a+":"+RefSO.GetID()
-    print a
+    print(a)
     DumpComponent(Study, CSO, Builder,offset+2)
     it.Next()
 
@@ -67,7 +67,7 @@ def DumpStudy(Study):
     while itcomp.More():
       SC = itcomp.Value()
       name = SC.ComponentDataType()
-      print "-> ComponentDataType is " + name
+      print("-> ComponentDataType is " + name)
       DumpComponent(Study, SC,Builder, 1)
       itcomp.Next()
 
@@ -78,7 +78,7 @@ def DumpStudies():
   global myStudyManager
   for name in myStudyManager.GetOpenStudies():
     s = myStudyManager.GetStudyByName(name)
-    print "study:",name, s._get_StudyId()
+    print("study:",name, s._get_StudyId())
     DumpStudy(s)
 
 
@@ -206,25 +206,25 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     aStudyPersist = PersistentPresentation(myStudy, aRoot, 1)
 
     if not myStudyManager.CanCopy(theSO):
-        raise RuntimeError, "<CanCopy> for "+theInfo+" returns false"
+        raise RuntimeError("<CanCopy> for "+theInfo+" returns false")
     
     if not myStudyManager.Copy(theSO):
-        raise RuntimeError, "<Copy> for "+theInfo+" returns false"
+        raise RuntimeError("<Copy> for "+theInfo+" returns false")
 
     
     if not myStudyManager.CanPaste(theSO):
-        raise RuntimeError, "<CanPaste> for "+theInfo+" returns false"
+        raise RuntimeError("<CanPaste> for "+theInfo+" returns false")
 
     # check: before paste study is not changed check
     if aStudyPersist != PersistentPresentation(myStudy, aRoot, 1):
-        raise RuntimeError, "Study is changed before Paste calling for "+theInfo
+        raise RuntimeError("Study is changed before Paste calling for "+theInfo)
     
     aSObj = theSO
     if theComponentPaste:
         aSObj = theSO.GetFatherComponent()
         theInfo = theInfo + "(paste for component)"
     if myStudyManager.Paste(aSObj) == None:
-        raise RuntimeError, "<Paste> for "+theInfo+" returns None object"
+        raise RuntimeError("<Paste> for "+theInfo+" returns None object")
     aNewTree = GetTree(aRoot)
     aLen = len(aTree)
     for a in range(0,aLen):
@@ -234,7 +234,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     if aLen < len(aNewTree):
         return myStudy.FindObjectID(aNewTree[aLen])
     
-    raise RuntimeError, "After Copy calling the tree is not changed"
+    raise RuntimeError("After Copy calling the tree is not changed")
     
     #--------------------------------------------------------------------------
 
@@ -289,11 +289,11 @@ def getActiveStudy(*args):
     global salome_study_ID
 
     if not myStudyManager:
-        print "No active study"
+        print("No active study")
         return None
         pass
 
-    if verbose(): print "getActiveStudy"
+    if verbose(): print("getActiveStudy")
     if salome_study_ID == -1:
         listOpenStudies = myStudyManager.GetOpenStudies()
         if len(listOpenStudies) == 0:
@@ -301,7 +301,7 @@ def getActiveStudy(*args):
         else:
             s = myStudyManager.GetStudyByName(listOpenStudies[0])
             salome_study_ID = s._get_StudyId()
-    if verbose(): print"--- Study Id ", salome_study_ID
+    if verbose(): print("--- Study Id ", salome_study_ID)
     return salome_study_ID
 
     #--------------------------------------------------------------------------
@@ -345,7 +345,7 @@ def setCurrentStudyId(*args):
     myStudyId = getActiveStudy()
     if not myStudyId:
       myStudyId = createNewStudy()
-    if verbose(): print "myStudyId",myStudyId
+    if verbose(): print("myStudyId",myStudyId)
     myStudy = myStudyManager.GetStudyByID(myStudyId)
     myStudyName = myStudy._get_Name()
     return myStudyId, myStudy, myStudyName
@@ -354,21 +354,21 @@ def setCurrentStudyId(*args):
 
 def createNewStudy():
     global myStudyManager
-    print "createNewStudy"
+    print("createNewStudy")
     aStudyName = "extStudy"
     theStudy = myStudyManager.NewStudy(aStudyName)
     theStudyId = theStudy._get_StudyId()
-    print aStudyName, theStudyId
+    print(aStudyName, theStudyId)
     return theStudyId
 
     #--------------------------------------------------------------------------
 
 def openStudy(theStudyPath):
     global myStudyManager
-    print "openStudy"
+    print("openStudy")
     theStudy = myStudyManager.Open(theStudyPath)
     theStudyId = theStudy._get_StudyId()
-    print theStudyPath, theStudyId
+    print(theStudyPath, theStudyId)
     return theStudyId
 
     #--------------------------------------------------------------------------
@@ -384,15 +384,15 @@ def salome_study_init(theStudyPath=None):
     global myStudyManager, myStudyId, myStudy, myStudyName
     global orb, lcc, naming_service, cm
 
-    if verbose(): print "theStudyPath:", theStudyPath
+    if verbose(): print("theStudyPath:", theStudyPath)
     if not myStudyManager:
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
 
         # get Study Manager reference
-        if verbose(): print "looking for studyManager ..."
+        if verbose(): print("looking for studyManager ...")
         obj = naming_service.Resolve('myStudyManager')
         myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-        if verbose(): print "studyManager found"
+        if verbose(): print("studyManager found")
         pass
 
     # get active study Id, ref and name
@@ -400,11 +400,11 @@ def salome_study_init(theStudyPath=None):
     myStudyId = getActiveStudy()
     if myStudyId == None :
         import types
-        if theStudyPath and type(theStudyPath) == types.StringType:
+        if theStudyPath and type(theStudyPath) == bytes:
             myStudyId = openStudy(theStudyPath)
         else:
             myStudyId = createNewStudy()
-    if verbose(): print "myStudyId", myStudyId
+    if verbose(): print("myStudyId", myStudyId)
 
     if myStudy == None:
         myStudy = myStudyManager.GetStudyByID(myStudyId)

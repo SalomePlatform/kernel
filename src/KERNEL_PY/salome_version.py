@@ -49,7 +49,7 @@ def getVersion( mod = "KERNEL", full = False ):
     global _salome_versions
     mod = mod.upper()
     dev_flag = { True : "dev", False : "" }
-    if not _salome_versions.has_key( mod ):
+    if mod not in _salome_versions:
         _salome_versions[ mod ] = [ None, "" ]
         import os
         root_dir = os.getenv( "%s_ROOT_DIR" % mod )

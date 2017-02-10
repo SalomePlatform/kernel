@@ -84,7 +84,7 @@ def getStudyEditor(studyId = None):
     """
     if studyId is None:
         studyId = getActiveStudyId()
-    if not _editors.has_key(studyId):
+    if studyId not in _editors:
         _editors[studyId] = StudyEditor(studyId)
     return _editors[studyId]
 
@@ -541,7 +541,7 @@ class StudyEditor:
     ## Return the name of the object sObject
     def getName(self, sObject):
         val = sObject.GetName()
-        return unicode(val, ENCODING_FOR_SALOME_STUDY)
+        return str(val, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the name of the object sObject
     def setName(self, sObject, name):
@@ -550,7 +550,7 @@ class StudyEditor:
     ## Return the comment of the object sObject
     def getComment(self, sObject):
         val = sObject.GetComment()
-        return unicode(val, ENCODING_FOR_SALOME_STUDY)
+        return str(val, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the comment of the object sObject
     def setComment(self, sObject, comment):
@@ -605,7 +605,7 @@ class StudyEditor:
         `sObject`, or an empty string if it is not set.
         """
         val = self.getAttributeValue(sObject, "AttributeFileType", "")
-        return unicode(val, ENCODING_FOR_SALOME_STUDY)
+        return str(val, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the attribute "AttributeFileType" of the object sObject to the
     #  value value.
@@ -625,7 +625,7 @@ class StudyEditor:
         object `sObject`, or an empty string if it is not set.
         """
         val = self.getAttributeValue(sObject, "AttributeExternalFileDef", "")
-        return unicode(val, ENCODING_FOR_SALOME_STUDY)
+        return str(val, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the attribute "AttributeExternalFileDef" of the object sObject
     #  to the value value.
@@ -648,7 +648,7 @@ class StudyEditor:
         found, attr = self.builder.FindAttribute(sObject, "AttributePixMap")
         if found and attr.HasPixMap():
             value = attr.GetPixMap()
-        return unicode(value, ENCODING_FOR_SALOME_STUDY)
+        return str(value, ENCODING_FOR_SALOME_STUDY)
 
     ## Set the attribute "AttributePixMap" of the object sObject to the
     #  value value.

@@ -63,7 +63,7 @@ gui_att  = "gui"
 
 class xml_parser:
     def __init__(self, fileName ):
-        print "Configure parser: processing %s ..." % fileName
+        print("Configure parser: processing %s ..." % fileName)
         self.space = []
         self.config = {}
         self.config["modules"] = []
@@ -182,21 +182,21 @@ def install(prefix, config_file, verbose=0):
     try:
         parser = xml_parser(filename)
         _config = parser.config
-    except xml.sax.SAXParseException, inst:
-        print inst.getMessage()
-        print "Configure parser: parse error in configuration file %s" % filename
+    except xml.sax.SAXParseException as inst:
+        print(inst.getMessage())
+        print("Configure parser: parse error in configuration file %s" % filename)
         pass
-    except xml.sax.SAXException, inst:
-        print inst.args
-        print "Configure parser: error in configuration file %s" % filename
+    except xml.sax.SAXException as inst:
+        print(inst.args)
+        print("Configure parser: error in configuration file %s" % filename)
         pass
     except:
-        print "Configure parser: Error : can not read configuration file %s, check existence and rights" % filename
+        print("Configure parser: Error : can not read configuration file %s, check existence and rights" % filename)
         pass
 
     if verbose:
-        for cle,val in _config.items():
-            print cle, val
+        for cle,val in list(_config.items()):
+            print(cle, val)
             pass
 
     # Remove CTestTestfile.cmake; this file will be filled by successive calls to link_module and link_extra_test
@@ -207,8 +207,8 @@ def install(prefix, config_file, verbose=0):
       pass
 
     for module in _config.get("modules", []):
-        if _config.has_key(module):
-            print "--- add module ", module, _config[module]
+        if module in _config:
+            print("--- add module ", module, _config[module])
             options = params()
             options.verbose = verbose
             options.clear = 0
@@ -220,8 +220,8 @@ def install(prefix, config_file, verbose=0):
         pass
 
     for extra_test in _config.get("extra_tests", []):
-        if _config.has_key(extra_test):
-            print "--- add extra test ", extra_test, _config[extra_test]
+        if extra_test in _config:
+            print("--- add extra test ", extra_test, _config[extra_test])
             options = params()
             options.verbose = verbose
             options.clear = 0
@@ -264,31 +264,31 @@ def install(prefix, config_file, verbose=0):
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
-    if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
+    if "prereq_path" in _config and os.path.isfile(_config["prereq_path"]):
         shutil.copyfile(_config["prereq_path"],
                         os.path.join(home_dir, 'env.d', 'envProducts.sh'))
         pass
     else:
-        print "WARNING: prerequisite file does not exist"
+        print("WARNING: prerequisite file does not exist")
         pass
 
-    if _config.has_key("context_path") and os.path.isfile(_config["context_path"]):
+    if "context_path" in _config and os.path.isfile(_config["context_path"]):
         shutil.copyfile(_config["context_path"],
                         os.path.join(home_dir, 'env.d', 'envProducts.cfg'))
         pass
     else:
-        print "WARNING: context file does not exist"
+        print("WARNING: context file does not exist")
         pass
 
-    if _config.has_key("sha1_collect_path") and os.path.isfile(_config["sha1_collect_path"]):
+    if "sha1_collect_path" in _config and os.path.isfile(_config["sha1_collect_path"]):
         shutil.copyfile(_config["sha1_collect_path"],
                         os.path.join(home_dir, 'sha1_collections.txt'))
         pass
     else:
-        print "WARNING: context file does not exist"
+        print("WARNING: context file does not exist")
         pass
 
-    if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
+    if "system_conf_path" in _config and os.path.isfile(_config["system_conf_path"]):
         shutil.copyfile(_config["system_conf_path"],
                         os.path.join(home_dir, 'env.d', 'envConfSystem.sh'))
         pass
@@ -299,11 +299,11 @@ def install(prefix, config_file, verbose=0):
             command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
             f.write(command)
             pass
-        if _config.has_key("samples_path"):
+        if "samples_path" in _config:
             command = 'export DATA_DIR=' + _config["samples_path"] +'\n'
             f.write(command)
             pass
-        if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+        if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
             command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
 
@@ -315,11 +315,11 @@ def install(prefix, config_file, verbose=0):
             command = module + '_ROOT_DIR=${HOME}/${APPLI}\n'
             f.write(command)
             pass
-        if _config.has_key("samples_path"):
+        if "samples_path" in _config:
             command = 'DATA_DIR=' + _config["samples_path"] +'\n'
             f.write(command)
             pass
-        if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+        if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
             command = 'USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
 
@@ -376,7 +376,7 @@ MMGT_REENTRANT=1
     #Add USERS directory with 777 permission to store users configuration files
     users_dir = os.path.join(home_dir,'USERS')
     makedirs(users_dir)
-    os.chmod(users_dir, 0777)
+    os.chmod(users_dir, 0o777)
 
 def main():
     parser = optparse.OptionParser(usage=usage)
@@ -392,7 +392,7 @@ def main():
 
     options, args = parser.parse_args()
     if not os.path.exists(options.config):
-        print "ERROR: config file %s does not exist. It is mandatory." % options.config
+        print("ERROR: config file %s does not exist. It is mandatory." % options.config)
         sys.exit(1)
 
     install(prefix=options.prefix, config_file=options.config, verbose=options.verbose)

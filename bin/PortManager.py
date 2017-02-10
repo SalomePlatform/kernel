@@ -101,14 +101,14 @@ def __isNetworkConnectionActiveOnPort(port):
     p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
   except:
-    print "Error when trying to access active network connections."
-    if err: print err
+    print("Error when trying to access active network connections.")
+    if err: print(err)
     import traceback
     traceback.print_exc()
     return False
 
-  import StringIO
-  buf = StringIO.StringIO(out)
+  from io import StringIO
+  buf = StringIO(out.decode())
   ports = buf.readlines()
   # search for TCP - LISTEN connections
   import re
@@ -135,7 +135,7 @@ def getPort(preferedPort=None):
     config = {'busy_ports':[]}
     logger.debug("read configuration file")
     try:
-      with open(config_file, 'r') as f:
+      with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except:
       logger.info("Problem loading PortManager file: %s"%config_file)
@@ -153,7 +153,7 @@ def getPort(preferedPort=None):
           msg  = "\n"
           msg += "Can't find a free port to launch omniNames\n"
           msg += "Try to kill the running servers and then launch SALOME again.\n"
-          raise RuntimeError, msg
+          raise RuntimeError(msg)
         logger.debug("Port %s seems to be busy"%str(port))
         if not port in config["busy_ports"]:
           config["busy_ports"].append(port)
@@ -164,7 +164,7 @@ def getPort(preferedPort=None):
     # write config
     logger.debug("write busy_ports: %s"%str(config["busy_ports"]))
     try:
-      with open(config_file, 'w') as f:
+      with open(config_file, 'wb') as f:
         pickle.dump(config, f)
     except IOError:
       pass
@@ -192,7 +192,7 @@ def releasePort(port):
     config = {'busy_ports':[]}
     logger.debug("read configuration file")
     try:
-      with open(config_file, 'r') as f:
+      with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except IOError: # empty file
       pass
@@ -209,7 +209,7 @@ def releasePort(port):
     # write config
     logger.debug("write busy_ports: %s"%str(config["busy_ports"]))
     try:
-      with open(config_file, 'w') as f:
+      with open(config_file, 'wb') as f:
         pickle.dump(config, f)
     except IOError:
       pass
@@ -234,7 +234,7 @@ def getBusyPorts():
     config = {'busy_ports':[]}
     logger.debug("read configuration file")
     try:
-      with open(config_file, 'r') as f:
+      with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except IOError: # empty file
       pass

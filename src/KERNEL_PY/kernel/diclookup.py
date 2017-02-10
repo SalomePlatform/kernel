@@ -38,7 +38,7 @@ __date__ ="$21 mai 2010 18:00:23$"
 #  \ingroup diclookup
 def find_key(dic, val):
     """return the key of dictionary dic given the value"""
-    return [k for k, v in dic.iteritems() if v == val][0]
+    return [k for k, v in dic.items() if v == val][0]
 
 ## return the value of dictionary dic given the key
 #  \ingroup diclookup
@@ -55,14 +55,14 @@ class Lookup(dict):
     ## items can be a list of pair_lists or a dictionary
     def __init__(self, items=None):
         """items can be a list of pair_lists or a dictionary"""
-	if items is None:
-	    items = []
+        if items is None:
+            items = []
         dict.__init__(self, items)
 
     ## find the key(s) as a list given a value
     def get_keys(self, value):
         """find the key(s) as a list given a value"""
-        return [item[0] for item in self.items() if item[1] == value]
+        return [item[0] for item in list(self.items()) if item[1] == value]
 
     ## find the key associated to the given a value. If several keys exist,
     #  only the first is given. To get the whole list, use get_keys instead.
@@ -100,9 +100,9 @@ def TEST_getTestDictionnary():
 
 def TEST_find_value():
     symbol_dic = TEST_getTestDictionnary()
-    print find_key(symbol_dic, 'boron')  # B
-    print find_value(symbol_dic, 'B')    # boron
-    print find_value(symbol_dic, 'H')    # hydrogen
+    print(find_key(symbol_dic, 'boron'))  # B
+    print(find_value(symbol_dic, 'B'))    # boron
+    print(find_value(symbol_dic, 'H'))    # hydrogen
     if find_key(symbol_dic, 'nitrogen') != 'N':
         return False
     return True
@@ -114,24 +114,24 @@ def TEST_lookup():
     symbol = 'Li'
     # use a dictionary as initialization argument
     look = Lookup(symbol_dic)
-    print look.get_key(name)      # [Li']
+    print(look.get_key(name))      # [Li']
     if look.get_key(name) != symbol:
-        print "get "+str(look.get_key(name))+" while "+str(symbol)+" was expected"
+        print("get "+str(look.get_key(name))+" while "+str(symbol)+" was expected")
         return False
-    print look.get_value(symbol)  # lithium
+    print(look.get_value(symbol))  # lithium
 
     # use a list of pairs instead of a dictionary as initialization argument
     # (will be converted to a dictionary by the class internally)
     age_list = [['Fred', 23], ['Larry', 28], ['Ene', 23]]
     look2 = Lookup(age_list)
-    print look2.get_keys(23)        # ['Ene', 'Fred']
+    print(look2.get_keys(23))        # ['Ene', 'Fred']
     if look2.get_keys(23)[0] != 'Ene' or look2.get_keys(23)[1] != 'Fred':
-        print "get "+str(look2.get_keys(23))+" while ['Ene', 'Fred'] was expected"
+        print("get "+str(look2.get_keys(23))+" while ['Ene', 'Fred'] was expected")
         return False
-    print look2.get_value('Fred')  # 23
+    print(look2.get_value('Fred'))  # 23
     return True
 
 if __name__ == '__main__':
-    import unittester
+    from . import unittester
     unittester.run("diclookup", "TEST_find_value")
     unittester.run("diclookup", "TEST_lookup")

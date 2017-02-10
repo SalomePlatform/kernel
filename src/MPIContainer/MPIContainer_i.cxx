@@ -202,7 +202,7 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
       PyObject *result = PyObject_CallMethod(pyCont,
                                              (char*)"import_component",
                                              (char*)"s",componentName);
-      std::string ret= PyString_AsString(result);
+      std::string ret= PyUnicode_AsUTF8(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
   

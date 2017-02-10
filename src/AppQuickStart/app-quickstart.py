@@ -85,8 +85,8 @@ def profileGenerateSplash( resources_dir, appname, version, subtext ):
     import ImageDraw
     import ImageFont
 
-    uname = unicode(appname, 'UTF-8')
-    uversion = unicode(version, 'UTF-8')
+    uname = str(appname, 'UTF-8')
+    uversion = str(version, 'UTF-8')
 
     # fonts
     fontbig = ImageFont.truetype( os.path.join( resources_dir, 'Anita semi square.ttf' ), 64)
@@ -143,7 +143,7 @@ def profileGenerateLogo( appname, font ):
     import Image
     import ImageDraw
 
-    uname = unicode(appname, 'UTF-8')
+    uname = str(appname, 'UTF-8')
 
     # evaluate size before deleting draw
     im = Image.new( "RGBA", (1, 1), (0, 0, 0, 0) )
@@ -188,8 +188,8 @@ def profileGenerateSources( options, args ) :
     #Check if the directory of the sources already exists and delete it
     if os.path.exists( app_dir ) :
         if not options.force :
-            print "Directory %s already exists." %app_dir
-            print "Use option --force to overwrite it."
+            print("Directory %s already exists." %app_dir)
+            print("Use option --force to overwrite it.")
             return
         else :
             shutil.rmtree( app_dir )
@@ -249,7 +249,7 @@ def profileGenerateSources( options, args ) :
             shutil.copy( about_name, splash_destination )
 
     #End of script
-    print "Sources of %s were generated in %s." %( options.name, app_dir )
+    print("Sources of %s were generated in %s." %( options.name, app_dir ))
 
 
 # -----------------------------------------------------------------------------

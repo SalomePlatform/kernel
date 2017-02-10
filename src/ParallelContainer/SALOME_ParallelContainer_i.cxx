@@ -353,7 +353,7 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName, 
     PyObject *result = PyObject_CallMethod(pyCont,
                                            (char*)"import_component",
                                            (char*)"s",componentName);
-    std::string ret_p= PyString_AsString(result);
+    std::string ret_p= PyUnicode_AsUTF8(result);
     Py_XDECREF(result);
     Py_RELEASE_NEW_THREAD;
 

@@ -44,7 +44,7 @@ try :
     engine=lcc.FindComponent(param,'SalomeTestComponent')
     engine.Coucou(1)
 except :
-    print 'lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent") failed'
+    print('lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent") failed')
 
 import sys
 import CORBA
@@ -71,7 +71,7 @@ try :
     engineCPP=lcc.FindComponent(myContainerparamsCPP,'SalomeTestComponent')
     engineCPP.Coucou(1)
 except :
-    print 'ContainerManager.FindOrStartContainer( myContainerparams , computerlist ) C++ failed'
+    print('ContainerManager.FindOrStartContainer( myContainerparams , computerlist ) C++ failed')
 
 try :
     myContainerparamsPy = LifeCycleCORBA.ContainerParameters()
@@ -85,5 +85,5 @@ try :
     enginePy=lcc.FindComponent(myContainerparamsPy,'SALOME_TestComponentPy')
     enginePy.Coucou(1)
 except :
-    print 'ContainerManager.FindOrStartContainer( myContainerparams , computerlist ) Python failed'
+    print('ContainerManager.FindOrStartContainer( myContainerparams , computerlist ) Python failed')
 

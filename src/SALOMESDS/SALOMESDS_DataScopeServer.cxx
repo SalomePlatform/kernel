@@ -230,7 +230,10 @@ void DataScopeServerBase::initializePython(int argc, char *argv[])
 {
   Py_Initialize();
   PyEval_InitThreads();
-  PySys_SetArgv(argc,argv);
+  wchar_t **changed_argv = new wchar_t*[argc]; // Setting arguments
+  for (int i = 0; i < argc; i++)
+    changed_argv[i] = Py_DecodeLocale(argv[i], NULL);
+  PySys_SetArgv(argc, changed_argv);
   PyObject *mainmod(PyImport_AddModule("__main__"));
   _globals=PyModule_GetDict(mainmod);
   if(PyDict_GetItemString(_globals, "__builtins__") == NULL)
@@ -254,8 +257,8 @@ void DataScopeServerBase::registerToSalomePiDict() const
   if(!meth)
     { Py_XDECREF(mod); return ; }
   PyObject *args(PyTuple_New(2));
-  PyTuple_SetItem(args,0,PyInt_FromLong(getpid()));
-  PyTuple_SetItem(args,1,PyString_FromString("SALOME_DataScopeServerBase"));
+  PyTuple_SetItem(args,0,PyLong_FromLong(getpid()));
+  PyTuple_SetItem(args,1,PyUnicode_FromString("SALOME_DataScopeServerBase"));
   PyObject *res(PyObject_CallObject(meth,args));
   Py_XDECREF(args);
   Py_XDECREF(res);
@@ -624,7 +627,7 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
-      PyInt_AsLong(res);
+      PyLong_AsLong(res);
       if(PyErr_Occurred())
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
@@ -658,7 +661,7 @@ void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject 
           std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
-      long resCpp(PyInt_AsLong(res));
+      long resCpp(PyLong_AsLong(res));
       if(PyErr_Occurred())
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";

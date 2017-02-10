@@ -43,11 +43,11 @@ while(1):
   try:
     ccontext = rootContext.resolve(cname)
     break
-  except CosNaming.NamingContext.NotFound, ex:
+  except CosNaming.NamingContext.NotFound as ex:
     time.sleep(1)
-  except CosNaming.NamingContext.InvalidName, ex:
+  except CosNaming.NamingContext.InvalidName as ex:
     time.sleep(1)
-  except CosNaming.NamingContext.CannotProceed, ex:
+  except CosNaming.NamingContext.CannotProceed as ex:
     time.sleep(1)
   except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
     time.sleep(1)
@@ -68,7 +68,7 @@ def waitContainer(mycont):
               while(ok):
                 for s in bb.binding_name :
                    if s.id == mycont:
-                     print s.id
+                     print(s.id)
                      return
                 ok,bb=bii.next_one()
         ok,b=bi.next_one()

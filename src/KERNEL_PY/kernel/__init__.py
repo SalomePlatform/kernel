@@ -80,18 +80,18 @@ class Callable:
 #
 
 def TEST_serialization():
-    from testdata import TestData
+    from .testdata import TestData
     ref_name = "my study case"
     studyData = TestData()
     studyData.setName(ref_name)
 
-    print "serialize data ..."
+    print("serialize data ...")
     serialString = serialize(studyData)
-    print "unserialize data ..."
+    print("unserialize data ...")
     unserialData = unserialize(serialString)
 
     res_name = unserialData.getName()
-    print res_name
+    print(res_name)
     if ( ref_name != res_name ):
         return False
 
@@ -101,5 +101,5 @@ def TEST_serialization():
     return True
 
 if __name__ == "__main__":
-    import unittester
+    from . import unittester
     unittester.run("salome/kernel/__init__","TEST_serialization")

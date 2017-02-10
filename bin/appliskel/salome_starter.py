@@ -53,7 +53,7 @@ def initialize(launcherPath, launcherFile):
   appliPath = __detectAppliPath(launcherPath, launcherFile)
 
   if appliPath is None:
-    print "ERROR: Unable to find application folder"
+    print("ERROR: Unable to find application folder")
     sys.exit(0)
 
   appliPath = os.path.relpath(appliPath, homePath)
@@ -68,7 +68,7 @@ def initialize(launcherPath, launcherFile):
   try:
     from salomeContextUtils import setOmniOrbUserPath
     setOmniOrbUserPath()
-  except Exception, e:
-    print e
+  except Exception as e:
+    print(e)
     sys.exit(1)
 # End of preliminary work

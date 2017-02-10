@@ -65,12 +65,12 @@ def generateName(prefix = None):
     #WITHOUTIHMgetAllSelected = SalomeGUIgetAllSelected
    
     #WITHOUTIHMdef getDesktop(self) :
-#	return SalomePyQt.getDesktop()
-	#WITHOUTIHMreturn None
+#       return SalomePyQt.getDesktop()
+        #WITHOUTIHMreturn None
 
     #WITHOUTIHMdef getSelection(self) :
-#	return SalomePyQt.getSelection()
-	#WITHOUTIHMreturn None
+#       return SalomePyQt.getSelection()
+        #WITHOUTIHMreturn None
 
     #--------------------------------------------------------------------------
 
@@ -181,25 +181,25 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     aStudyPersist = PersistentPresentation(myStudy, aRoot, 1)
 
     if not myStudyManager.CanCopy(theSO):
-        raise RuntimeError, "<CanCopy> for "+theInfo+" returns false"
+        raise RuntimeError("<CanCopy> for "+theInfo+" returns false")
     
     if not myStudyManager.Copy(theSO):
-        raise RuntimeError, "<Copy> for "+theInfo+" returns false"
+        raise RuntimeError("<Copy> for "+theInfo+" returns false")
 
     
     if not myStudyManager.CanPaste(theSO):
-        raise RuntimeError, "<CanPaste> for "+theInfo+" returns false"
+        raise RuntimeError("<CanPaste> for "+theInfo+" returns false")
 
     # check: before paste study is not changed check
     if aStudyPersist != PersistentPresentation(myStudy, aRoot, 1):
-        raise RuntimeError, "Study is changed before Paste calling for "+theInfo
+        raise RuntimeError("Study is changed before Paste calling for "+theInfo)
     
     aSObj = theSO
     if theComponentPaste:
         aSObj = theSO.GetFatherComponent()
         theInfo = theInfo + "(paste for component)"
     if myStudyManager.Paste(aSObj) == None:
-        raise RuntimeError, "<Paste> for "+theInfo+" returns None object"
+        raise RuntimeError("<Paste> for "+theInfo+" returns None object")
     aNewTree = GetTree(aRoot)
     aLen = len(aTree)
     for a in range(0,aLen):
@@ -209,7 +209,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     if aLen < len(aNewTree):
         return myStudy.FindObjectID(aNewTree[aLen])
     
-    raise RuntimeError, "After Copy calling the tree is not changed"
+    raise RuntimeError("After Copy calling the tree is not changed")
     
     #--------------------------------------------------------------------------
 def FindFileInDataDir(filename):
@@ -246,7 +246,7 @@ while 1:
     pass
     
 if orb is None:
-    print "Warning: ORB has not been initialized !!!"
+    print("Warning: ORB has not been initialized !!!")
 
 # create an LifeCycleCORBA instance
 lcc = LifeCycleCORBA(orb)
@@ -264,7 +264,7 @@ while 1:
     pass
     
 if lcc is None:
-    print "Warning: LifeCycleCORBA object has not been initialized !!!"
+    print("Warning: LifeCycleCORBA object has not been initialized !!!")
     
 #create a naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
@@ -287,7 +287,7 @@ while 1:
 myStudyManager = obj._narrow(SALOMEDS.StudyManager)
 
 if myStudyManager is None:
-    print "Warning: SALOMEDS.StudyManager has not been created !!!"
+    print("Warning: SALOMEDS.StudyManager has not been created !!!")
 
 # create new study
 aListOfOpenStudies = myStudyManager.GetOpenStudies();

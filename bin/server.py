@@ -121,12 +121,13 @@ class Server:
           pid = os.fork()
           if pid > 0:
             #send real pid to parent
-            os.write(c2pwrite,"%d" % pid)
+            pid_str = "%d" % pid
+            os.write(c2pwrite,pid_str.encode())
             os.close(c2pwrite)
             # exit from second parent
             os._exit(0)
-        except OSError, e:
-          print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
+        except OSError as e:
+          print("fork #2 failed: %d (%s)" % (e.errno, e.strerror), file=sys.stderr)
           os.write(c2pwrite,"-1")
           os.close(c2pwrite)
           sys.exit(1)
@@ -136,6 +137,6 @@ class Server:
         os.open("/dev/null", os.O_RDWR)  # redirect standard input (0) to /dev/null
         try:
           os.execvp(args[0], args)
-        except OSError, e:
-          print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
+        except OSError as e:
+          print("(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror), file=sys.stderr)
           os._exit(127)

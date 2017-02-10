@@ -36,7 +36,7 @@ class PseudoStudyForNoteBook(object):
         pass
     
     def GetVariableNames(self):
-        return self.kwargs.keys()
+        return list(self.kwargs.keys())
     
     def IsVariable(self, variableName):
         return variableName in self.kwargs
@@ -124,7 +124,7 @@ class NoteBook:
                     pass
                 try:
                     aResult = eval(aResult)
-                except Exception, e:
+                except Exception as e:
                     msg = str(e)
                     msg += "\n"
                     msg += "A problem occurs while parsing "

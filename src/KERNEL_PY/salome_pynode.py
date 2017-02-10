@@ -28,7 +28,7 @@
  exception
 """
 import omniORB
-import cPickle
+import pickle
 import SALOME
 import Engines
 
@@ -38,17 +38,17 @@ class SmartPyNode(Engines._objref_PyNode):
 
   def execute(self,functionName,*args,**kws):
     try:
-      args=cPickle.dumps((args,kws),-1)
+      args=pickle.dumps((args,kws),-1)
       results=Engines._objref_PyNode.execute(self,functionName,args)
-      x=cPickle.loads(results)
+      x=pickle.loads(results)
       return x
-    except SALOME.SALOME_Exception, e:
+    except SALOME.SALOME_Exception as e:
       raise ValueError(e.details.text)
 
   def __getattr__(self,name):
     """ a trick to be able to call directly a remote method by its name : no need to use execute"""
     if name[0]== '_':
-      raise AttributeError, name
+      raise AttributeError(name)
     def afunc(*args,**kws):
       return self.execute(name,*args,**kws)
     return afunc
@@ -60,11 +60,11 @@ class SmartPyScriptNode(Engines._objref_PyScriptNode):
   def execute(self,outargsname,*args,**kws):
     #the tuple args are ignored
     try:
-      args=cPickle.dumps(((),kws),-1)
+      args=pickle.dumps(((),kws),-1)
       results=Engines._objref_PyScriptNode.execute(self,outargsname,args)
-      x=cPickle.loads(results)
+      x=pickle.loads(results)
       return x
-    except SALOME.SALOME_Exception, e:
+    except SALOME.SALOME_Exception as e:
       raise ValueError(e.details.text)
 
 #Register the new proxy for PyNode

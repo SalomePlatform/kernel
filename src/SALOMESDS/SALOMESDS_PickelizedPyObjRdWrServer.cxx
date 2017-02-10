@@ -80,20 +80,20 @@ SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMet
       if(errTyp)
         {
           PyObject *ob(PyObject_Str(errTyp));
-          oss2 << " type : \"" << (const char *)PyString_AsString(ob) << "\"";
+          oss2 << " type : \"" << (const char *)PyUnicode_AsUTF8(ob) << "\"";
           Py_XDECREF(ob); Py_XDECREF(errTyp);
         }
       if(errValue)
         {
           PyObject *ob(PyObject_Str(errValue));
-          oss2 << " value : \"" << (const char *)PyString_AsString(ob) << "\"";
+          oss2 << " value : \"" << (const char *)PyUnicode_AsUTF8(ob) << "\"";
           Py_XDECREF(ob); Py_XDECREF(errValue);
         }
       oss2 << " )";
       if(errTB)
         {
           PyObject *ob(PyObject_Str(errTB));
-          oss2 << "( traceback : \"" << (const char *)PyString_AsString(ob) << "\"";
+          oss2 << "( traceback : \"" << (const char *)PyUnicode_AsUTF8(ob) << "\"";
           Py_XDECREF(ob); Py_XDECREF(errTB);
         }
       oss2 << " )";

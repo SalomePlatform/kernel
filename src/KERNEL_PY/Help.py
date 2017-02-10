@@ -30,7 +30,7 @@ class SalomeDoc:
     def __init__(self, aDoc):
         self.doc = aDoc
     def __repr__(self):
-        print self.doc
+        print(self.doc)
         return "---"
     def salome(self):
         doc_salome = '''
@@ -80,7 +80,7 @@ methods:
   salome.DumpStudy(study) : Dump a study, given the ior
 ---
 '''
-        print doc_salome
+        print(doc_salome)
         
     def geompy(self):
         doc_geompy = '''
@@ -99,7 +99,7 @@ methods:
   --- all methods of GEOM_Gen.idl that returns a shape are encapsulated,
       with the same interface : shapes are named with their ior
 '''
-        print doc_geompy
+        print(doc_geompy)
         
     def supervision(self):
         doc_supervision = '''
@@ -128,7 +128,7 @@ A new python example avoids references to LifeCycleCORBA
                                    and GraphExample.xml
 ---
 '''
-        print doc_supervision
+        print(doc_supervision)
         
     
 

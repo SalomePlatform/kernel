@@ -225,13 +225,13 @@ def TEST_termcolor():
     """Test function for termcolor module."""
     import sys
     if not canDisplayColor(sys.stdout):
-        print "Standard output does not support colors."
+        print("Standard output does not support colors.")
         return
-    print makeColoredMessage("This message must appear in blue.", BLUE)
-    print makeColoredMessage("This message must appear in red on green " +
-                             "background.", RED + GREEN_BG)
-    print makeColoredMessage("This message must appear in magenta and " +
-                             "crossed-out.", PURPLE + ['09'])
+    print(makeColoredMessage("This message must appear in blue.", BLUE))
+    print(makeColoredMessage("This message must appear in red on green " +
+                             "background.", RED + GREEN_BG))
+    print(makeColoredMessage("This message must appear in magenta and " +
+                             "crossed-out.", PURPLE + ['09']))
 
 
 # Main function only used to test the module

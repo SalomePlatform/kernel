@@ -26,7 +26,7 @@
 #  Module : SALOME
 #  $Header$
 #
-import sys, os,signal,string,commands
+import sys, os,signal,string,subprocess
 import subprocess
 import runSalome
 import setenv

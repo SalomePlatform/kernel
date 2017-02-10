@@ -56,7 +56,7 @@ class client:
           return
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           self.rootContext = None
-          if verbose(): print "Launch Naming Service++",
+          if verbose(): print("Launch Naming Service++", end=' ')
 
       # On lance le Naming Server (doit etre dans le PATH)
       test = True
@@ -66,7 +66,7 @@ class client:
       if test:
         NamingServer(args).run()
         pass
-      print "Searching Naming Service ",
+      print("Searching Naming Service ", end=' ')
       ncount=0
       delta=0.1
       while(ncount < 100):
@@ -82,25 +82,25 @@ class client:
               time.sleep(delta)
 
       if self.rootContext is None:
-          print "Failed to narrow the root naming context"
+          print("Failed to narrow the root naming context")
           sys.exit(1)
-      print " found in %s seconds " % ((ncount-1)*delta)
+      print(" found in %s seconds " % ((ncount-1)*delta))
 
     # --------------------------------------------------------------------------
 
     def showNScontext(self,context,dec=''):
       if not context:
-        print "[NS] No context"
+        print("[NS] No context")
         return
       else:
-        print context
+        print(context)
 
       _,bi = context.list(0)
       if bi is not None:
         ok,b = bi.next_one()
         while(ok):
             for s in b.binding_name :
-              print "%s%s.%s" %(dec,s.id,s.kind)
+              print("%s%s.%s" %(dec,s.id,s.kind))
               if s.kind == "dir":
                   obj = context.resolve([s])
                   scontext = obj._narrow(CosNaming.NamingContext)
@@ -116,7 +116,7 @@ class client:
     # --------------------------------------------------------------------------
 
     def Resolve(self, Path):
-      resolve_path = string.split(Path,'/')
+      resolve_path = Path.split('/')
       if resolve_path[0] == '': del resolve_path[0]
       dir_path = resolve_path[:-1]
       context_name = []
@@ -126,11 +126,11 @@ class client:
 
       try:
           obj = self.rootContext.resolve(context_name)
-      except CosNaming.NamingContext.NotFound, ex:
+      except CosNaming.NamingContext.NotFound as ex:
           obj = None
-      except CosNaming.NamingContext.InvalidName, ex:
+      except CosNaming.NamingContext.InvalidName as ex:
           obj = None
-      except CosNaming.NamingContext.CannotProceed, ex:
+      except CosNaming.NamingContext.CannotProceed as ex:
           obj = None
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
@@ -141,13 +141,13 @@ class client:
     def waitNS(self,name,typobj=None,maxcount=240):
       count = 0
       delta = 0.5
-      print "Searching %s in Naming Service " % name,
+      print("Searching %s in Naming Service " % name, end=' ')
       while(1):
           count += 1
-          if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
+          if count > maxcount : raise RuntimeError("Impossible de trouver %s" % name)
           obj = self.Resolve(name)
           if obj :
-              print " found in %s seconds " % ((count-1)*delta)
+              print(" found in %s seconds " % ((count-1)*delta))
               break
           else:
               sys.stdout.write('+')
@@ -158,7 +158,7 @@ class client:
 
       nobj = obj._narrow(typobj)
       if nobj is None:
-            print "%s exists but is not a %s" % (name,typobj)
+            print("%s exists but is not a %s" % (name,typobj))
       return nobj
 
     if sys.platform != "win32":
@@ -166,16 +166,16 @@ class client:
         aCount = 0
         aDelta = 0.5
         anObj = None
-        print "Searching %s in Naming Service " % theName,
+        print("Searching %s in Naming Service " % theName, end=' ')
         while(1):
           try:
             os.kill(thePID,0)
           except:
-            raise RuntimeError, "Process %d for %s not found" % (thePID,theName)
+            raise RuntimeError("Process %d for %s not found" % (thePID,theName))
           aCount += 1
           anObj = self.Resolve(theName)
           if anObj:
-            print " found in %s seconds " % ((aCount-1)*aDelta)
+            print(" found in %s seconds " % ((aCount-1)*aDelta))
             break
           else:
             sys.stdout.write('+')
@@ -189,7 +189,7 @@ class client:
   
         anObject = anObj._narrow(theTypObj)
         if anObject is None:
-          print "%s exists but is not a %s" % (theName,theTypObj)
+          print("%s exists but is not a %s" % (theName,theTypObj))
         return anObject
 
 
@@ -201,11 +201,11 @@ class client:
 
       try:
           obj = self.rootContext.resolve(context_name)
-      except CosNaming.NamingContext.NotFound, ex:
+      except CosNaming.NamingContext.NotFound as ex:
           obj = None
-      except CosNaming.NamingContext.InvalidName, ex:
+      except CosNaming.NamingContext.InvalidName as ex:
           obj = None
-      except CosNaming.NamingContext.CannotProceed, ex:
+      except CosNaming.NamingContext.CannotProceed as ex:
           obj = None
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
@@ -216,13 +216,13 @@ class client:
     def waitLogger(self,name,typobj=None,maxcount=40):
       count = 0
       delta = 0.5
-      print "Searching %s in Naming Service " % name,
+      print("Searching %s in Naming Service " % name, end=' ')
       while(1):
           count += 1
-          if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
+          if count > maxcount : raise RuntimeError("Impossible de trouver %s" % name)
           obj = self.ResolveLogger(name)
           if obj :
-              print " found in %s seconds " % ((count-1)*delta)
+              print(" found in %s seconds " % ((count-1)*delta))
               break
           else:
               sys.stdout.write('+')
@@ -233,5 +233,5 @@ class client:
 
       nobj = obj._narrow(typobj)
       if nobj is None:
-            print "%s exists but is not a %s" % (name,typobj)
+            print("%s exists but is not a %s" % (name,typobj))
       return nobj

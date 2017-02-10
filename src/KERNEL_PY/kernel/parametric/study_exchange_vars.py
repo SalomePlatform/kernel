@@ -53,7 +53,7 @@ class Variable:
     def __init__(self, name, dimension = None, minValue = None, maxValue = None,
                  initialValue = None):
         if dimension is None:
-	  dimension = []
+            dimension = []
         self.name = name
         
         # Reserved for future use
@@ -105,9 +105,9 @@ class ExchangeVariables:
     def __init__(self, inputVarList = None, outputVarList = None,
                  refEntry = None):
         if inputVarList is None:
-	  inputVarList = []
-	if outputVarList is None:
-	  outputVarList = []
+            inputVarList = []
+        if outputVarList is None:
+            outputVarList = []
         self.inputVarList = inputVarList
         self.outputVarList = outputVarList
         self.refEntry = refEntry

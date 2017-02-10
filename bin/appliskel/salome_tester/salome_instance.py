@@ -102,11 +102,11 @@ class SalomeInstance(object):
 #
 
 if __name__ == "__main__":
-  print "##### Start instance..."
+  print("##### Start instance...")
   salome_instance = SalomeInstance.start()
   port = salome_instance.get_port()
-  print "#####    ...instance started on port %s"%port
+  print("#####    ...instance started on port %s"%port)
 
-  print "##### Terminate instance running on port %s"%port
+  print("##### Terminate instance running on port %s"%port)
   salome_instance.stop()
 #

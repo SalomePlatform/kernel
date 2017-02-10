@@ -46,7 +46,7 @@ class TestCompo(unittest.TestCase):
       text = f.read()
       f.close()
       self.assertEqual(text, content)
-    except IOError,ex:
+    except IOError as ex:
       self.fail("IO exception:" + str(ex));
 
   ##############################
@@ -95,7 +95,7 @@ f.close()
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
     
     for resource in self.ressources:
-      print "Testing python_salome job on ", resource
+      print("Testing python_salome job on ", resource)
       job_params.result_directory = local_result_dir + resource
       job_params.job_name = "PyJob" + resource
       job_params.resource_required.name = resource
@@ -105,11 +105,11 @@ f.close()
       launcher.launchJob(job_id)
 
       jobState = launcher.getJobState(job_id)
-      print "Job %d state: %s" % (job_id,jobState)
+      print("Job %d state: %s" % (job_id,jobState))
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(5)
         jobState = launcher.getJobState(job_id)
-        print "Job %d state: %s" % (job_id,jobState)
+        print("Job %d state: %s" % (job_id,jobState))
         pass
 
       self.assertEqual(jobState, "FINISHED")
@@ -197,7 +197,7 @@ f.close()
     resManager= salome.lcc.getResourcesManager()
 
     for resource in self.ressources:
-      print "Testing command job on ", resource
+      print("Testing command job on ", resource)
       job_params.result_directory = local_result_dir + resource
       job_params.job_name = "CommandJob_" + resource
       job_params.resource_required.name = resource
@@ -212,11 +212,11 @@ f.close()
       launcher.launchJob(job_id)
       # wait for the end of the job
       jobState = launcher.getJobState(job_id)
-      print "Job %d state: %s" % (job_id,jobState)
+      print("Job %d state: %s" % (job_id,jobState))
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(3)
         jobState = launcher.getJobState(job_id)
-        print "Job %d state: %s" % (job_id,jobState)
+        print("Job %d state: %s" % (job_id,jobState))
         pass
 
       # verify the results
@@ -303,7 +303,7 @@ f.close()
     resManager= salome.lcc.getResourcesManager()
     
     for resource in self.ressources:
-      print "Testing yacs job on ", resource
+      print("Testing yacs job on ", resource)
       job_params.result_directory = local_result_dir + resource
       job_params.job_name = "YacsJob_" + resource
       job_params.resource_required.name = resource
@@ -319,14 +319,14 @@ f.close()
       jobState = launcher.getJobState(job_id)
 
       yacs_dump_success = False
-      print "Job %d state: %s" % (job_id,jobState)
+      print("Job %d state: %s" % (job_id,jobState))
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(5)
         jobState = launcher.getJobState(job_id)
 #        yacs_dump_success = launcher.getJobWorkFile(job_id, "dumpState_mySchema.xml",
         yacs_dump_success = launcher.getJobDumpState(job_id,
                                               job_params.result_directory)
-        print "Job %d state: %s - dump: %s" % (job_id,jobState, yacs_dump_success)
+        print("Job %d state: %s - dump: %s" % (job_id,jobState, yacs_dump_success))
         pass
 
       self.assertEqual(jobState, "FINISHED")
@@ -418,7 +418,7 @@ f.close()
     resManager= salome.lcc.getResourcesManager()
     
     for resource in self.ressources:
-      print "Testing yacs job with options on ", resource
+      print("Testing yacs job with options on ", resource)
       job_params.result_directory = local_result_dir + resource
       job_params.job_name = "YacsJobOpt_" + resource
       job_params.resource_required.name = resource
@@ -434,11 +434,11 @@ f.close()
       jobState = launcher.getJobState(job_id)
 
       yacs_dump_success = False
-      print "Job %d state: %s" % (job_id,jobState)
+      print("Job %d state: %s" % (job_id,jobState))
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(5)
         jobState = launcher.getJobState(job_id)
-        print "Job %d state: %s " % (job_id,jobState)
+        print("Job %d state: %s " % (job_id,jobState))
         pass
 
       self.assertEqual(jobState, "FINISHED")

@@ -26,7 +26,7 @@
 __author__="gboulant"
 __date__ ="$15 avr. 2010 19:44:17$"
 
-from uiexception import DevelException
+from .uiexception import DevelException
 
 # Most usable class types
 TypeString= "".__class__
@@ -105,7 +105,7 @@ class DataModeler:
         # Default initialization (if any)
         if defaultmap is not None:
             self._defaultmap.update(defaultmap)
-            for name in self._defaultmap.keys():
+            for name in list(self._defaultmap.keys()):
                 self.__setattr__(name,self._defaultmap[name])
 
     ## %A None argument means that no entry is created in the associated maps.
@@ -133,9 +133,9 @@ class DataModeler:
 
         #__GBO_DEBUG_
         if name == "_typemap":
-            print "WARNING WARNING WARNING : changing value of _typemap by ",val
+            print("WARNING WARNING WARNING : changing value of _typemap by ",val)
 
-        if name not in self._typemap.keys():
+        if name not in list(self._typemap.keys()):
             raise DevelException("The class "+str(self.__class__)+" has no attribute "+str(name))
 
         if val is None:
@@ -158,11 +158,11 @@ class DataModeler:
         if name in UNCHECKED_ATTRIBUTES:
             return self.__dict__[name]
 
-        if name not in self._typemap.keys():
+        if name not in list(self._typemap.keys()):
             raise DevelException("The class "+str(self.__class__)+" has no attribute "+str(name))
         # The attribute coulb be requested while it has not been created yet (for
         # example if we did't call the setter before).
-        if not self.__dict__.has_key(name):
+        if name not in self.__dict__:
             return None
         
         return self.__dict__[name]
@@ -177,7 +177,7 @@ class DataModeler:
     def __isNotValidRange(self, name, val):
         isNotValid = (
             ( self._rangemap is not None) and
-            ( self._rangemap.has_key(name) ) and
+            ( name in self._rangemap ) and
             ( self._rangemap[name] is not None ) and
             ( val not in self._rangemap[name] ) )
 
@@ -186,13 +186,13 @@ class DataModeler:
     def __isVoidAllowed(self,name):
         isVoidAllowed = (
             ( self._voidmap is not None) and
-            ( self._voidmap.has_key(name) ) and
+            ( name in self._voidmap ) and
             ( self._voidmap[name] is True ) )
             
         return isVoidAllowed
 
     def log(self):
-        print "DATAMODELER ["+str(self.__class__)+"]: self._typemap.keys() = "+str(self._typemap.keys())
+        print("DATAMODELER ["+str(self.__class__)+"]: self._typemap.keys() = "+str(list(self._typemap.keys())))
 
 
 
@@ -219,7 +219,7 @@ def TEST_usecase():
     data.anydata = "any value"
     data.anydata = True
 
-    print data.integerdata
+    print(data.integerdata)
     return True
 
 def TEST_addAttribute():
@@ -242,15 +242,15 @@ def TEST_addAttribute():
             return False
         data.myAttr = 5.3
         #data.myAttr = 5
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         return False
 
     try:
         data.myAttr = "bad type value"
         return False
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         return True
 
 def TEST_badAttributeName():
@@ -264,8 +264,8 @@ def TEST_badAttributeName():
     try:
         data.myatt = 3
         return False
-    except Exception, e:
-        print "OK : "+str(e)
+    except Exception as e:
+        print("OK : "+str(e))
         return True
 
 def TEST_badAttributeType():
@@ -278,8 +278,8 @@ def TEST_badAttributeType():
     try:
         data.stringdata = 2
         return False
-    except Exception, e:
-        print "OK : "+str(e)
+    except Exception as e:
+        print("OK : "+str(e))
         return True
 
 def TEST_badAttributeRange():
@@ -296,16 +296,16 @@ def TEST_badAttributeRange():
     try:
         data.integerdata = ref_integervalue
         data.stringdata = "anything (no restriction has been defined)"
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         return False
 
     # this should raise an exception
     try:
         data.integerdata = 9999 # a value not in the range
         return False
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         return True
 
 def TEST_voidAttributeAllowed():
@@ -320,17 +320,17 @@ def TEST_voidAttributeAllowed():
     try:
         # this should not raise an exception
         data.stringdata = None
-        print data.stringdata
-    except Exception, e:
-        print e
+        print(data.stringdata)
+    except Exception as e:
+        print(e)
         return False
     
     try:
         # this should raise an exception
         data.integerdata = None
         return False
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         return True
 
 def TEST_defaultValues():
@@ -343,14 +343,14 @@ def TEST_defaultValues():
     defaultmap["stringdata"] = ref_value
 
     data = DataModeler(typemap=typemap,defaultmap=defaultmap)
-    print data.stringdata
+    print(data.stringdata)
     if data.stringdata != ref_value:
         return False
     else:
         return True
 
 if __name__ == "__main__":
-    from unittester import run
+    from .unittester import run
     run("salome/kernel/datamodeler","TEST_usecase")
     run("salome/kernel/datamodeler","TEST_addAttribute")
     run("salome/kernel/datamodeler","TEST_badAttributeName")

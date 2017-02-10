@@ -155,11 +155,11 @@ class Resource:
       os.mkdir(resource_dir)
       cata_path=os.path.join(appliPath,"share","salome","resources","*Catalog.xml")
       cmd="cp %s %s" % (cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
       cata_path=os.path.join(appliPath,"share","salome","resources","*","*Catalog.xml")
       cmd="cp %s %s" % (cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
     else:
       #remote machine, use rcopy
@@ -167,12 +167,12 @@ class Resource:
       cata_path=os.path.join(appliPath,"share","salome","resources","*Catalog.xml")
       cmd="%s %s@%s:%s %s"
       cmd= cmd%(rcopy,userName,hostname,cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
       cata_path=os.path.join(appliPath,"share","salome","resources","*","*Catalog.xml")
       cmd="%s %s@%s:%s %s"
       cmd= cmd%(rcopy,userName,hostname,cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
 
     schema_cata=os.path.join(resource_dir,"*SchemaCatalog.xml")
@@ -212,7 +212,7 @@ def main():
   options, args = parser.parse_args()
 
   if not os.path.exists(catalog_file_base):
-    print "ERROR: the base catalog file %s is mandatory" % catalog_file_base
+    print("ERROR: the base catalog file %s is mandatory" % catalog_file_base)
     sys.exit(1)
 
   #Parse CatalogResource.xml
@@ -256,7 +256,7 @@ def main():
   doc.write(f)
   f.write('\n')
   f.close()
-  print "%s updated" % catalog_file
+  print("%s updated" % catalog_file)
 
   #update configRemote.sh in env.d directory (environment variable SALOME_CATALOGS_PATH)
   path=[]

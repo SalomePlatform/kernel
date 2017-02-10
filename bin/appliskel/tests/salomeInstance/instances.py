@@ -23,7 +23,7 @@ import multiprocessing
 def new_instance(running_instances):
   from salome_instance import SalomeInstance
   instance = SalomeInstance.start()
-  print "Instance created and now running on port", instance.get_port()
+  print("Instance created and now running on port", instance.get_port())
   running_instances.put(instance)
 #
 
@@ -41,7 +41,7 @@ class TestLauncher(unittest.TestCase):
   def __terminateInstances(self, running_instances):
     while not running_instances.empty():
       instance = running_instances.get()
-      print "Terminate instance running on port", instance.get_port()
+      print("Terminate instance running on port", instance.get_port())
       instance.stop()
   #
 
@@ -92,18 +92,18 @@ class TestLauncher(unittest.TestCase):
     # Connect to one instance
     import runConsole
     port = all_instances[len(all_instances)/2].get_port()
-    print "Connect to instance running on port", port
+    print("Connect to instance running on port", port)
     self.__connectToInstance(port)
 
     # Connect to another instance
     import runConsole
     port = all_instances[len(all_instances)/4].get_port()
-    print "Connect to instance running on port", port
+    print("Connect to instance running on port", port)
     self.__connectToInstance(port)
 
     # Terminate instances
     for instance in all_instances:
-      print "Terminate instance running on port", instance.get_port()
+      print("Terminate instance running on port", instance.get_port())
       instance.stop()
   #
 

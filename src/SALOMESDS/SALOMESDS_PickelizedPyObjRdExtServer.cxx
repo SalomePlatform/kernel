@@ -82,7 +82,7 @@ void PickelizedPyObjRdExtServer::checkRdExtnessOf(const std::string& methodName,
       Py_XDECREF(argsPy);
       throw Exception("PickelizedPyObjRdExtServer::checkRdExtnessOf : self is NULL !");
     }
-  if(PyTuple_Check(_self)==1 || PyString_Check(_self)==1 || PyInt_Check(_self)==1 || PyBool_Check(_self)==1 || PyFloat_Check(_self)==1)
+  if(PyTuple_Check(_self)==1 || PyBytes_Check(_self)==1 || PyLong_Check(_self)==1 || PyBool_Check(_self)==1 || PyFloat_Check(_self)==1)
     return ;//_self is tuple, str, int or float -> immutable in python. So no method can break the RdExtness of _self.
   if(PyList_Check(_self)==1)
     checkListRdExtnessOf(methodName,argsPy);

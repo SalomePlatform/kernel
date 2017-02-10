@@ -65,8 +65,8 @@ def main(input_file, output_file = None):
 
     for line in infile.readlines():
         # 1. remove comments like """some_comments"""
-        n = line.find('"""')
-        n1 = line[(n+2):].find('"""')
+        n = line.find(b'"""')
+        n1 = line[(n+2):].find(b'"""')
         if (n > -1) and (n1 > -1):
             continue
         if isCom:

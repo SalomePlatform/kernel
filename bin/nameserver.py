@@ -42,11 +42,11 @@ class NamingServer(Server):
         from salome_utils import getLogDir
         upath = getLogDir()
         try:
-            os.makedirs(upath, mode=0777)
+            os.makedirs(upath, mode=0o777)
         except:
             pass
 
-        if verbose(): print "Name Service... ",
+        if verbose(): print("Name Service... ", end=' ')
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
           hname = getShortHostName();
@@ -56,7 +56,7 @@ class NamingServer(Server):
 
         with open(os.environ["OMNIORB_CONFIG"]) as f:
           ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-          if verbose(): print "ss = ", ss,
+          if verbose(): print("ss = ", ss, end=' ')
         sl = ss[0]
         ll = sl.split(':')
         aPort = ll[-1]
@@ -97,8 +97,8 @@ class NamingServer(Server):
           self.CMD = ['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
           #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
-        if verbose(): print "... ok"
-        if verbose(): print "to list contexts and objects bound into the context with the specified name : showNS "
+        if verbose(): print("... ok")
+        if verbose(): print("to list contexts and objects bound into the context with the specified name : showNS ")
 
 
     def initArgs(self):

@@ -601,7 +601,7 @@ Engines_Container_i::load_component_PythonImplementation(const char* componentNa
                                          (char*)"import_component",
                                          (char*)"s",componentName);
 
-  reason=PyString_AsString(result);
+  reason=PyUnicode_AsUTF8(result);
   Py_XDECREF(result);
   SCRUTE(reason);
   PyGILState_Release(gstate);
@@ -1691,9 +1691,9 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
         es.text = "can not create a python node";
         throw SALOME::SALOME_Exception(es);
       }
-    long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
+    long ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
     PyObject* result=PyTuple_GetItem(res,1);
-    std::string astr=PyString_AsString(result);
+    std::string astr=PyUnicode_AsUTF8(result);
     Py_DECREF(res);
     PyGILState_Release(gstate);
     if(ierr==0)
@@ -1774,9 +1774,9 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
         es.text = "can not create a python node";
         throw SALOME::SALOME_Exception(es);
       }
-    long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
+    long ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
     PyObject* result=PyTuple_GetItem(res,1);
-    std::string astr=PyString_AsString(result);
+    std::string astr=PyUnicode_AsUTF8(result);
     Py_DECREF(res);
     PyGILState_Release(gstate);
 
@@ -1916,3 +1916,43 @@ void Engines_Container_i::clearTemporaryFiles()
   }
   _tmp_files.clear();
 }
+
+/*
+std::string Engines_Container_i::AnotherMethodeToReplace_PyString_AsString(PyObject * result)
+{
+    std::string my_result = "";
+    if (PyUnicode_Check(result)) {
+        // Convert string to bytes.
+        // strdup() bytes into my_result.
+        PyObject * temp_bytes = PyUnicode_AsEncodedString(result, "ASCII", "strict"); // Owned reference
+        if (temp_bytes != NULL) {
+            my_result = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
+            my_result = strdup(my_result);
+            Py_DECREF(temp_bytes);
+        } else {
+            // TODO PY3: Handle encoding error.
+            Py_DECREF(temp_bytes);
+        }
+
+    } else if (PyBytes_Check(result)) {
+        // strdup() bytes into my_result.
+        my_result = PyBytes_AS_STRING(result); // Borrowed pointer
+        my_result = strdup(my_result);
+    } else {
+        // Convert into your favorite string representation.
+        // Convert string to bytes if it is not already.
+        // strdup() bytes into my_result.
+        // TODO PY3: Check if only bytes is ok. 
+        PyObject * temp_bytes = PyObject_Bytes(result); // Owned reference
+        if (temp_bytes != NULL) {
+            my_result = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
+            my_result = strdup(my_result);
+            Py_DECREF(temp_bytes);
+        } else {
+            // TODO PY3: Handle error.
+            Py_DECREF(temp_bytes);
+        }
+    }
+    return my_result;
+}
+*/

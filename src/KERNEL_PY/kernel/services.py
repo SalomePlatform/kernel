@@ -38,12 +38,12 @@
 # SALOME development).
 
 import salome
-from deprecation import is_called_by_sphinx
+from .deprecation import is_called_by_sphinx
 if not is_called_by_sphinx() and salome.lcc is None:
     try:
         salome.salome_init()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
 
 # Note that the salome module provides you with standard SALOME
 # objects: CORBA broker (orb): salome.orb lyfe cycle (lcc) :
@@ -96,12 +96,12 @@ def getComponent(componentName = "SalomeTestComponent",
     """
     Get a SALOME CORBA component from its name
     """
-    print "INF: getting component %s from CORBA module %s ..."%(componentName,corbaModule)
+    print("INF: getting component %s from CORBA module %s ..."%(componentName,corbaModule))
     __import__(corbaModule)
     component=salome.lcc.FindOrLoadComponent(containerType,componentName)
     if component is None:
-        print "ERR: the SALOME component "+componentName+" can't be reached"
-    print "INF: component %s obtained from CORBA module %s"%(componentName,corbaModule)
+        print("ERR: the SALOME component "+componentName+" can't be reached")
+    print("INF: component %s obtained from CORBA module %s"%(componentName,corbaModule))
     return component
 
 # Note that an alternative (and maybe better) method to get a component
@@ -120,7 +120,7 @@ def getComponentList():
     obj = salome.naming_service.Resolve('Kernel/ModulCatalog')
     catalog = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
     if not catalog:
-        raise RuntimeError, "Can't accesss module catalog"
+        raise RuntimeError("Can't accesss module catalog")
     return catalog.GetComponentList()
 
 ## Get a study manager to create and manage %SALOME studies
@@ -259,14 +259,14 @@ def TEST_objectsManipulation():
 
 
     myObject = IDToObject(myEntry)
-    print myObject
+    print(myObject)
     if myObject is None:
         return False
 
     return True
 
 if __name__ == "__main__":
-    import unittester
+    from . import unittester
     unittester.run("services","TEST_getComponent")
     unittester.run("services","TEST_getComponentList")
     unittester.run("services","TEST_objectsManipulation")

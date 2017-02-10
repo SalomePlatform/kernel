@@ -69,27 +69,27 @@ def searchFreePort_withPortManager(queue, args={}, save_config=1, use_port=None)
   port = getPort(use_port)
 
   if use_port:
-    print "Check if port can be used: %d" % use_port,
+    print("Check if port can be used: %d" % use_port, end=' ')
     if port == use_port and port != -1:
-      print "- OK"
+      print("- OK")
       __setup_config(use_port, args, save_config)
       queue.put([os.environ['OMNIORB_CONFIG'],
                  os.environ['NSPORT'],
                  os.environ['NSHOST']])
       return
     else:
-      print "- KO: port is busy"
+      print("- KO: port is busy")
       pass
   #
-  print "Searching for a free port for naming service:",
+  print("Searching for a free port for naming service:", end=' ')
   if port == -1: # try again
     port = getPort(use_port)
 
   if port != -1:
-    print "%s - OK"%(port)
+    print("%s - OK"%(port))
     __setup_config(port, args, save_config)
   else:
-    print "Unable to obtain port"
+    print("Unable to obtain port")
 
   queue.put([os.environ['OMNIORB_CONFIG'],
              os.environ['NSPORT'],
@@ -99,7 +99,7 @@ def searchFreePort_withPortManager(queue, args={}, save_config=1, use_port=None)
 def __savePortToFile(args):
   # Save Naming service port name into
   # the file args["ns_port_log_file"]
-  if args.has_key('ns_port_log_file'):
+  if 'ns_port_log_file' in args:
     omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
     file_name = os.path.join(omniorbUserPath, args["ns_port_log_file"])
     with open(file_name, "w") as f:

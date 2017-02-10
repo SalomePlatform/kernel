@@ -41,12 +41,10 @@ def getShapeTypeString(aSubId):
 
 def createAndDisplayGO( *args, **kwargs ):
     pass
-			
     #--------------------------------------------------------------------------
 
 def UpdateViewer():
-    pass						
-							
+    pass
     #--------------------------------------------------------------------------
 
 def setDisplayMode(objId, mode):

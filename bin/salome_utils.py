@@ -57,9 +57,9 @@ def _try_bool( arg ):
     If <arg> does not represent a boolean, an exception is raised.
     """
     import types
-    if type( arg ) == types.BooleanType  :
+    if type( arg ) == bool  :
         return arg
-    elif type( arg ) == types.StringType  :
+    elif type( arg ) == bytes  :
         v = str( arg ).lower()
         if   v in [ "yes", "y", "true"  ]: return True
         elif v in [ "no",  "n", "false" ]: return False
@@ -290,7 +290,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
     ### check unsupported parameters
     for kw in kwargs:
         if kw not in supported and verbose():
-            print 'Warning! salome_utilitie.py: generateFileName(): parameter %s is not supported' % kw
+            print('Warning! salome_utilitie.py: generateFileName(): parameter %s is not supported' % kw)
             pass
         pass
     ### process supported keywords
@@ -371,7 +371,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
 
 # ---
 
-def makeTmpDir( path, mode=0777 ):
+def makeTmpDir( path, mode=0o777 ):
     """
     Make temporary directory with the specified path.
     If the directory exists then clear its contents.
@@ -506,12 +506,12 @@ def killpid(pid, sig = 9):
     if not pid: return
     import os, sys
     if sig != 0:
-        if verbose(): print "######## killpid pid = ", pid
+        if verbose(): print("######## killpid pid = ", pid)
     try:
         if sys.platform == "win32":
             import ctypes
             if sig == 0:
-                # PROCESS_QUERY_INFORMATION (0x0400)	Required to retrieve certain information about a process
+                # PROCESS_QUERY_INFORMATION (0x0400)    Required to retrieve certain information about a process
                 handle = ctypes.windll.kernel32.OpenProcess(0x0400, False, int(pid))
                 if handle: 
                     ret = 1
@@ -519,7 +519,7 @@ def killpid(pid, sig = 9):
                 else:
                     ret = 0
             if sig == 9:
-                # PROCESS_TERMINATE (0x0001)	Required to terminate a process using TerminateProcess.
+                # PROCESS_TERMINATE (0x0001)    Required to terminate a process using TerminateProcess.
                 handle = ctypes.windll.kernel32.OpenProcess(0x0001, False, int(pid))
                 ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
                 ctypes.windll.kernel32.CloseHandle(handle)
@@ -531,7 +531,7 @@ def killpid(pid, sig = 9):
             ret = 1
             pass
         pass
-    except OSError, e:
+    except OSError as e:
         # errno.ESRCH == 3 is 'No such process'
         if e.errno == 3:
             ret = 0
