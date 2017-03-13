@@ -138,6 +138,35 @@ void SALOME_ResourcesManager::Shutdown()
   _poa->deactivate_object(oid);
 }
 
+/*!
+ * Return list of resources available (regarding containt of CatalogResources.xml). And for each resource the number of proc available of it.
+ */
+void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines)
+{
+  const MapOfParserResourcesType& zeList(_rm.GetList());
+  std::size_t sz(zeList.size());
+  std::vector<std::string> ret0(sz);
+  std::vector<int> ret1(sz);
+  {
+    std::size_t i(0);
+    for(MapOfParserResourcesType::const_iterator it=zeList.begin();it!=zeList.end();it++,i++)
+      {
+        const ParserResourcesType& elt((*it).second);
+        ret0[i]=elt.HostName;
+        //ret1[i]=elt.nbOfProc;
+        ret1[i]=elt.DataForSort._nbOfNodes*elt.DataForSort._nbOfProcPerNode;
+      }
+  }
+  machines=new Engines::ResourceList;
+  nbProcsOfMachines=new Engines::IntegerList;
+  machines->length(sz); nbProcsOfMachines->length(sz);
+  for(std::size_t j=0;j<sz;j++)
+    {
+      (*machines)[j]=CORBA::string_dup(ret0[j].c_str());
+      (*nbProcsOfMachines)[j]=ret1[j];
+    }
+}
+
 //=============================================================================
 //! get the name of resources fitting the specified constraints (params)
 /*!

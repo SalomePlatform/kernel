@@ -35,7 +35,8 @@ module Engines
 typedef sequence<string> ResourceList;
 //! components list
 typedef sequence<string> CompoList;
-
+typedef sequence<long> IntegerList;
+  
 //! Type to describe required properties of a resource
 struct ResourceParameters
 {
@@ -189,6 +190,9 @@ interface ResourcesManager
   //! Create a machine file for PaCO container
   string getMachineFile(in string resource_name, in long nb_procs, in string parallelLib)
     raises (SALOME::SALOME_Exception);
+
+  //! Return list of resources available (regarding containt of CatalogResources.xml). And for each resource the number of proc available of it.
+  void ListAllAvailableResources(out ResourceList machines, out IntegerList nbProcsOfMachines) raises (SALOME::SALOME_Exception);
 };
 
 };
