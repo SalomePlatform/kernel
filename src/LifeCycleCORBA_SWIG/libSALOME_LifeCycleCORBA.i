@@ -84,7 +84,7 @@ omniORBpyAPI* api;
     return NULL;
   }
   PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
-  api = (omniORBpyAPI*)PyCapsule_New(pyapi,NULL,NULL);
+  api = (omniORBpyAPI*)PyCapsule_GetPointer(pyapi,"_omnipy.API");
   Py_DECREF(pyapi);
 %}
 
