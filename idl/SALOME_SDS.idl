@@ -130,6 +130,7 @@ module SALOME
     KeyWaiter waitForKeyInVarAndKillIt(in string varName, in ByteVec keyVal, out Transaction transac) raises (SALOME::SALOME_Exception);
     void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
     ByteVec waitForMonoThrRev(in KeyWaiter kw) raises (SALOME::SALOME_Exception);
+    ByteVec waitForAndKill(in KeyWaiter kw) raises (SALOME::SALOME_Exception);
   };
 
   interface DataServerManager

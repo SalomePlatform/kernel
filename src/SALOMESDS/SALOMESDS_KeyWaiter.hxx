@@ -49,6 +49,7 @@ namespace SALOMESDS
     void go();
     std::string getVarName() const { return _var->getVarNameCpp(); }
     SALOME::ByteVec *waitForMonoThr();
+    SALOME::ByteVec *waitForAndKill();
   private:
     DataScopeServerTransaction *getDSS() const { return static_cast<DataScopeServerTransaction *>(_var->getFather()); }//thanks to dynamic_cast in constructor
   private:

@@ -129,6 +129,7 @@ namespace SALOMESDS
     void pingKey(PyObject *keyObj);
     void notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj);
     SALOME::ByteVec *waitForMonoThrRev(SALOME::KeyWaiter_ptr kw);
+    SALOME::ByteVec *waitForAndKill(SALOME::KeyWaiter_ptr kw);
   public://remotely callable
     char *getAccessOfVar(const char *varName);
     void fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data);

@@ -97,6 +97,19 @@ SALOME::ByteVec *KeyWaiter::waitForMonoThr()
   return PickelizedPyObjServer::FromCppToByteSeq(st);
 }
 
+SALOME::ByteVec *KeyWaiter::waitForAndKill()
+{
+  if(!_ze_value)
+    throw Exception("KeyWaiter::waitForAndKill : no value ! invalid call of this method !");
+  Py_XINCREF(_ze_value);
+  std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather()));
+  //
+  if(PyDict_DelItem(_var->getPyObj(),_ze_key)!=0)
+    throw Exception("KeyWaiter::waitForAndKill : error during entry removal !");
+  //
+  return PickelizedPyObjServer::FromCppToByteSeq(st);
+}
+
 /*!
  * WARNING call this method before calling go !
  */

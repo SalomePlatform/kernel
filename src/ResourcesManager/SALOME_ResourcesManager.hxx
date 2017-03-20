@@ -72,7 +72,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     char* getMachineFile(const char * resource_name,
                          CORBA::Long nb_procs,
                          const char * parallelLib);
-
+    void ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines);
     // Cpp Methods
     void Shutdown();
     ResourcesManager_cpp *GetImpl() { return &_rm; }
@@ -84,11 +84,6 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     SALOME_NamingService *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
-
-    //
-    //! will contain the informations on the data type catalog(after parsing)
-    MapOfParserResourcesType _resourcesBatchList;
-
     ResourcesManager_cpp _rm;
   };
 
