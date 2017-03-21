@@ -395,11 +395,12 @@ class SalomeContext:
 
       if ports:
         import tempfile
-        for port in ports:
-          with tempfile.NamedTemporaryFile():
-            p = Process(target = killMyPort, args=(port,))
-            p.start()
-            p.join()
+        for port,owner in ports:
+          if owner == "this":
+            with tempfile.NamedTemporaryFile():
+              p = Process(target = killMyPort, args=(port,))
+              p.start()
+              p.join()
     except ImportError:
       # :TODO: should be declared obsolete
       from killSalome import killAllPorts
@@ -473,7 +474,7 @@ Available options are:
       ports = PortManager.getBusyPorts()
       print "SALOME instances are running on ports:", ports
       if ports:
-        print "Last started instance on port %s"%ports[-1]
+        print "Last started instance on port %s"%ports[-1][0]
 
     if "-s" in args or "--softwares" in args:
       if "-s" in args:
