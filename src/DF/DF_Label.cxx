@@ -326,10 +326,21 @@ DF_Label DF_Label::FindChild(int theTag, bool isCreate)
     if(_node->_lastChild->_tag < theTag) aPrevious = _node->_lastChild;
   }
   
-  if(!aPrevious) { 
-    aLabel = _node->_firstChild;
+  if ( !aPrevious && _node->_firstChild )
+  {
+    // IPAL54049: Operations on multiple study objects are very long
+    // Use _node->_firstChild->_previous to store the last found child
+    if ( _node->_firstChild->_previous &&
+         _node->_firstChild->_previous->_tag <= theTag )
+      aLabel = _node->_firstChild->_previous;
+    else
+      aLabel = _node->_firstChild;
+
     while(aLabel) {
-      if(aLabel->_tag == theTag) return DF_Label(aLabel);
+      if(aLabel->_tag == theTag) {
+        _node->_firstChild->_previous = aLabel;
+        return DF_Label(aLabel);
+      }
       if(aLabel->_tag > theTag) {
         aNext = aLabel;
         break;
