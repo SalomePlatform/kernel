@@ -147,8 +147,7 @@ def getPort(preferedPort=None):
     logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
 
     # append port
-    ports_info = config["busy_ports"]
-    busy_ports = [x[0] for x in ports_info]
+    busy_ports = config["busy_ports"]
     port = preferedPort
     if not port or __isPortUsed(port, busy_ports):
       port = __PORT_MIN_NUMBER
@@ -159,16 +158,11 @@ def getPort(preferedPort=None):
           msg += "Try to kill the running servers and then launch SALOME again.\n"
           raise RuntimeError, msg
         logger.debug("Port %s seems to be busy"%str(port))
-        if not port in busy_ports:
-          config["busy_ports"].append((port,"other"))
         port = port + 1
     logger.debug("found free port: %s"%str(port))
-    config["busy_ports"].append((port,"this"))
+    config["busy_ports"].append(port)
 
     # write config, for this application only (i.e. no 'other' ports)
-    logger.debug("all busy_ports: %s"%str(config["busy_ports"]))
-    ports_info = config["busy_ports"]
-    config["busy_ports"] = [x for x in ports_info if x[1] == "this"]
     logger.debug("write busy_ports: %s"%str(config["busy_ports"]))
     try:
       with open(config_file, 'w') as f:
@@ -208,12 +202,9 @@ def releasePort(port):
 
     # remove port from list
     ports_info = config["busy_ports"]
-    config["busy_ports"] = [x for x in ports_info if x[0] != port]
+    config["busy_ports"] = [x for x in ports_info if x != port]
 
     # write config, for this application only (i.e. no 'other' ports)
-    logger.debug("all busy_ports: %s"%str(config["busy_ports"]))
-    ports_info = config["busy_ports"]
-    config["busy_ports"] = [x for x in ports_info if x[1] == "this"]
     logger.debug("write busy_ports: %s"%str(config["busy_ports"]))
     try:
       with open(config_file, 'w') as f:
@@ -248,22 +239,24 @@ def getBusyPorts():
     logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
 
     # Scan all possible ports to determine which ones are owned by other applications
-    ports_info = config["busy_ports"]
-    busy_ports = [x[0] for x in ports_info]
+    ports_info = { 'this': [], 'other': [] }
+    busy_ports = config["busy_ports"]
     for port in range(__PORT_MIN_NUMBER, __PORT_MAX_NUMBER):
       if __isPortUsed(port, busy_ports):
         logger.debug("Port %s seems to be busy"%str(port))
-        if not port in busy_ports:
-          config["busy_ports"].append((port,"other"))
+        if port in busy_ports:
+          ports_info["this"].append(port)
+        else:
+          ports_info["other"].append(port)
 
-    logger.debug("all busy_ports: %s"%str(config["busy_ports"]))
+    logger.debug("all busy_ports: %s"%str(ports_info))
 
-    ports_info = config["busy_ports"]
-    ports_info.sort(key=lambda x: x[0])
+    sorted_ports = { 'this': sorted(ports_info['this']),
+                     'other': sorted(ports_info['other']) }
 
     # release lock
     __release_lock(lock)
 
   os.umask(oldmask)
-  return ports_info
+  return sorted_ports
 #

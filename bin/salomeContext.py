@@ -391,16 +391,15 @@ class SalomeContext:
       import PortManager # mandatory
       from multiprocessing import Process
       from killSalomeWithPort import killMyPort
-      ports = PortManager.getBusyPorts()
+      ports = PortManager.getBusyPorts()['this']
 
       if ports:
         import tempfile
-        for port,owner in ports:
-          if owner == "this":
-            with tempfile.NamedTemporaryFile():
-              p = Process(target = killMyPort, args=(port,))
-              p.start()
-              p.join()
+        for port in ports:
+          with tempfile.NamedTemporaryFile():
+            p = Process(target = killMyPort, args=(port,))
+            p.start()
+            p.join()
     except ImportError:
       # :TODO: should be declared obsolete
       from killSalome import killAllPorts
@@ -472,9 +471,20 @@ Available options are:
     if "-p" in args or "--ports" in args:
       import PortManager
       ports = PortManager.getBusyPorts()
-      print "SALOME instances are running on ports:", ports
-      if ports:
-        print "Last started instance on port %s"%ports[-1][0]
+      this_ports = ports['this']
+      other_ports = ports['other']
+      if this_ports or other_ports:
+          print "SALOME instances are running on the following ports:"
+          if this_ports:
+              print "   This application:", this_ports
+          else:
+              print "   No SALOME instances of this application"
+          if other_ports:
+              print "   Other applications:", other_ports
+          else:
+              print "   No SALOME instances of other applications"
+      else:
+          print "No SALOME instances are running"
 
     if "-s" in args or "--softwares" in args:
       if "-s" in args:
