@@ -31,16 +31,15 @@ This module provides a new class :class:`StudyEditor` to complement
 
 import re
 
-import salome
-from salome.kernel.logger import Logger
 from salome.kernel import termcolor
-logger = Logger("salome.kernel.studyedit", color = termcolor.PURPLE)
+from salome.kernel.logger import Logger
+import salome
+
+
+logger = Logger("salome.kernel.studyedit", color=termcolor.PURPLE)
 
 _editors = {}
 _DEFAULT_CONTAINER = "FactoryServer"
-
-# The codec to use for strings that are displayed in Salome study tree is Latin-1
-ENCODING_FOR_SALOME_STUDY = "iso-8859-1"
 
 ## Return the ID of the active study. In GUI mode, this function is equivalent
 #  to salome.sg.getActiveStudyId(). Outside GUI, it returns <b> salome.myStudyId </b>
@@ -339,19 +338,19 @@ class StudyEditor:
     #  \return new SObject created in the study.
     #
     #  See \b setItem() for the description of the other parameters.
-    def createItem(self, fatherItem, name, fileType = None, fileName = None,
-                   comment = None, icon = None, IOR = None, typeId = None):
+    def createItem(self, fatherItem, name, fileType=None, fileName=None,
+                   comment=None, icon=None, IOR=None, typeId=None):
         """
         Create a new object named `name` under `fatherItem` in the study, with
         the given attributes. If an object named `name` already exists under
         the father object, the new object is created with a new name `name_X`
         where X is the first available index.
-        
+
         :type  fatherItem: SObject
         :param fatherItem: item under which the new item will be added.
-                
+
         :return: new SObject created in the study
-        
+
         See :meth:`setItem` for the description of the other parameters.
         """
         aSObject = self.builder.NewObject(fatherItem)
@@ -366,11 +365,10 @@ class StudyEditor:
             aSObj = aChildIterator.Value()
             aChildIterator.Next()
             aName = aSObj.GetName()
-            if re.match(aNameRE,aName):
+            if re.match(aNameRE, aName):
                 aTmp = aName[aLength:]
-                if re.match(anIdRE,aTmp):
-                    import string
-                    anId = string.atol(aTmp[1:])
+                if re.match(anIdRE, aTmp):
+                    anId = int(aTmp[1:])
                     if aMaxId < anId:
                         aMaxId = anId
                         pass
@@ -380,16 +378,16 @@ class StudyEditor:
                     pass
                 pass
             pass
-        
+
         aMaxId = aMaxId + 1
         aName = name
         if aMaxId > 0:
             aName = aName + aDelim + str(aMaxId)
             pass
-        
+
         self.setItem(aSObject, aName, fileType, fileName, comment, icon,
                      IOR, typeId)
-    
+
         return aSObject
 
     ## Modify the attributes of an item in the study. Unspecified attributes
@@ -540,21 +538,19 @@ class StudyEditor:
 
     ## Return the name of the object sObject
     def getName(self, sObject):
-        val = sObject.GetName()
-        return str(val, ENCODING_FOR_SALOME_STUDY)
+        return sObject.GetName()
 
     ## Set the name of the object sObject
     def setName(self, sObject, name):
-        self.builder.SetName(sObject, name.encode(ENCODING_FOR_SALOME_STUDY))
+        self.builder.SetName(sObject, name)
 
     ## Return the comment of the object sObject
     def getComment(self, sObject):
-        val = sObject.GetComment()
-        return str(val, ENCODING_FOR_SALOME_STUDY)
+        return sObject.GetComment()
 
     ## Set the comment of the object sObject
     def setComment(self, sObject, comment):
-        self.builder.SetComment(sObject, comment.encode(ENCODING_FOR_SALOME_STUDY))
+        self.builder.SetComment(sObject, comment)
 
     ## Return the value of the attribute named \b attributeName on the object
     #  sObject, or \b default if the attribute doesn't exist.
@@ -604,8 +600,7 @@ class StudyEditor:
         Return the value of the attribute "AttributeFileType" of the object
         `sObject`, or an empty string if it is not set.
         """
-        val = self.getAttributeValue(sObject, "AttributeFileType", "")
-        return str(val, ENCODING_FOR_SALOME_STUDY)
+        return self.getAttributeValue(sObject, "AttributeFileType", "")
 
     ## Set the attribute "AttributeFileType" of the object sObject to the
     #  value value.
@@ -615,7 +610,7 @@ class StudyEditor:
         value `value`.
         """
         self.setAttributeValue(sObject, "AttributeFileType",
-                               value.encode(ENCODING_FOR_SALOME_STUDY))
+                               value)
 
     ## Return the value of the attribute "AttributeExternalFileDef" of the
     #  object sObject, or an empty string if it is not set.
@@ -624,8 +619,7 @@ class StudyEditor:
         Return the value of the attribute "AttributeExternalFileDef" of the
         object `sObject`, or an empty string if it is not set.
         """
-        val = self.getAttributeValue(sObject, "AttributeExternalFileDef", "")
-        return str(val, ENCODING_FOR_SALOME_STUDY)
+        return self.getAttributeValue(sObject, "AttributeExternalFileDef", "")
 
     ## Set the attribute "AttributeExternalFileDef" of the object sObject
     #  to the value value.
@@ -635,7 +629,7 @@ class StudyEditor:
         to the value `value`.
         """
         self.setAttributeValue(sObject, "AttributeExternalFileDef",
-                               value.encode(ENCODING_FOR_SALOME_STUDY))
+                               value)
 
     ## Return the value of the attribute "AttributePixMap" of the object
     #  sObject, or an empty string if it is not set.
@@ -648,7 +642,7 @@ class StudyEditor:
         found, attr = self.builder.FindAttribute(sObject, "AttributePixMap")
         if found and attr.HasPixMap():
             value = attr.GetPixMap()
-        return str(value, ENCODING_FOR_SALOME_STUDY)
+        return value
 
     ## Set the attribute "AttributePixMap" of the object sObject to the
     #  value value.
@@ -658,4 +652,4 @@ class StudyEditor:
         value `value`.
         """
         attr = self.builder.FindOrCreateAttribute(sObject, "AttributePixMap")
-        attr.SetPixMap(value.encode(ENCODING_FOR_SALOME_STUDY))
+        attr.SetPixMap(value)

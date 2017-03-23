@@ -55,9 +55,7 @@ def walktree(rootpath, callback, **kwargs):
     calling the callback function for each regular file
     '''
     for f in os.listdir(rootpath):
-        print(f)
         pathname = os.path.join(rootpath, f)
-        print(pathname)
         try:
             mode = os.stat(pathname)[ST_MODE]
         except OSError as e:
