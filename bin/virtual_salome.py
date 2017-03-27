@@ -1,4 +1,3 @@
-#  i*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -20,7 +19,6 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-
 """Create a virtual Salome installation
 
 Based on a script created by Ian Bicking.
@@ -32,7 +30,9 @@ Typical use::
 install module KERNEL in the current directory
 """
 
-import sys, os, optparse, shutil,glob,fnmatch
+import sys, os, optparse, shutil, glob, fnmatch
+
+
 py_version = 'python%s.%s' % (sys.version_info[0], sys.version_info[1])
 
 verbose=0
@@ -380,7 +380,8 @@ def link_extra_test(options):
         symlink(extra_test_dir, os.path.join(test_dir, options.extra_test_name))
         # register extra_test for testing in CTestTestfile.cmake
         with open(os.path.join(test_dir, "CTestTestfile.cmake"), "ab") as f:
-            f.write("SUBDIRS(%s)\n"%options.extra_test_name)
+            aStr = "SUBDIRS(%s)\n" % options.extra_test_name
+            f.write(aStr.encode())
     else:
         if verbose:
             print(extra_test_dir, " doesn't exist")
