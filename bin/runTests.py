@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -86,5 +86,5 @@ def runTests(args, exe=None):
   command = ["ctest"] + args
   p = subprocess.Popen(command, cwd=testPath)
   p.communicate()
-  sys.exit(p.returncode)
+  return p.returncode
 #

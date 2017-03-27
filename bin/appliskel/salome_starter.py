@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2014-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2014-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -54,7 +54,7 @@ def initialize(launcherPath, launcherFile):
 
   if appliPath is None:
     print "ERROR: Unable to find application folder"
-    sys.exit(0)
+    sys.exit(1)
 
   appliPath = os.path.relpath(appliPath, homePath)
   absoluteAppliPath = os.path.join(homePath, appliPath)
