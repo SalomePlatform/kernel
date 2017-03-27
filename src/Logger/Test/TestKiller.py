@@ -21,13 +21,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import sys, os,signal,string,subprocess
+import sys, os,signal,subprocess
 
 def getCurrentPort():
     fic=os.environ['OMNIORB_CONFIG']
     with open(fic,'r') as f:
         line=f.readline()
-    port=string.split(line,':')[-1][0:4]
+    port=line.split(':')[-1][0:4]
     return port
 
 
@@ -52,7 +52,7 @@ def killNamingService():
     command='ps -eo pid,command | grep "omniNames -start '+str(port)+'" | grep --invert-match grep'
     output_com = subprocess.getoutput(command)
     try:
-      pid=string.split(output_com)[0]
+      pid=output_com.split()[0]
       os.kill(int(pid),signal.SIGKILL)
     except:
       print("killNamingService failed.")

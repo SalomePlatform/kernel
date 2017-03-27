@@ -274,7 +274,7 @@ void DataScopeServerBase::initializePython(int argc, char *argv[])
     }
   _locals=PyDict_New();
   PyObject *tmp(PyList_New(0));
-  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
+  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("pickle"),_globals,_locals,tmp,-1);
 }
 
 void DataScopeServerBase::registerToSalomePiDict() const
