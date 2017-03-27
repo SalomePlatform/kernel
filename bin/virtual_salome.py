@@ -380,7 +380,8 @@ def link_extra_test(options):
         symlink(extra_test_dir, os.path.join(test_dir, options.extra_test_name))
         # register extra_test for testing in CTestTestfile.cmake
         with open(os.path.join(test_dir, "CTestTestfile.cmake"), "ab") as f:
-            f.write("SUBDIRS(%s)\n"%options.extra_test_name)
+            aStr ="SUBDIRS(%s)\n"%options.extra_test_name 
+            f.write(aStr.encode())
     else:
         if verbose:
             print(extra_test_dir, " doesn't exist")
