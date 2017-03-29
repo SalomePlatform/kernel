@@ -184,8 +184,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                      "LD_LIBRARY_PATH")
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PATH")
-            if os.path.exists(module_root_dir + "/examples") :
-                add_path(os.path.join(module_root_dir,"examples"),
+            if os.path.exists(os.path.join(module_root_dir, "examples")):
+                add_path(os.path.join(module_root_dir, "examples"),
                          "PYTHONPATH")
                 pass
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
@@ -232,7 +232,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if "SALOME_trace" not in os.environ:
         os.environ["SALOME_trace"]="local"
     if args['file']:
-        os.environ["SALOME_trace"]="file:"+args['file'][0].decode()
+        os.environ["SALOME_trace"] = "file:" + args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 
