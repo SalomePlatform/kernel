@@ -35,10 +35,10 @@ from SALOME_NamingServicePy import *
 def ImportComponentGUI(ComponentName):
     libName = "lib" + ComponentName + "_Swig"
     command = "from " + libName + " import *"
-    exec ( command )
+    exec (command, globals())
     constructor = ComponentName + "GUI_Swig()"
     command = "gui = " + constructor
-    exec ( command )
+    exec (command, globals())
     return gui
 
     #--------------------------------------------------------------------------
