@@ -41,9 +41,9 @@
 #  import sys
 #  from salome.kernel import termcolor
 #  if termcolor.canDisplayColor(sys.stdout):
-#      print termcolor.makeColoredMessage("Hello world!", termcolor.BLUE)
+#      print(termcolor.makeColoredMessage("Hello world!", termcolor.BLUE))
 #  else:
-#      print "Hello world!"
+#      print("Hello world!")
 #  \endcode
 #  \}
 
@@ -65,9 +65,9 @@ Example::
     import sys
     from salome.kernel import termcolor
     if termcolor.canDisplayColor(sys.stdout):
-        print termcolor.makeColoredMessage("Hello world!", termcolor.BLUE)
+        print(termcolor.makeColoredMessage("Hello world!", termcolor.BLUE))
     else:
-        print "Hello world!"
+        print("Hello world!")
 
 """
 

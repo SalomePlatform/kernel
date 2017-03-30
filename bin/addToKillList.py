@@ -109,7 +109,7 @@ def killList(port=None):
         pass
     # kill processes
     for process_id in process_ids:
-        #print process_id
+        # print(process_id)
         for pid, cmd in list(process_id.items()):
             try:
                 os.kill(int(pid),signal.SIGKILL)

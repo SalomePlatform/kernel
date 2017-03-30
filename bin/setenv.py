@@ -98,7 +98,7 @@ def get_config(silent=False, exeName=None):
 
     #*** Test additional option
     #*** args = launchConfigureParser.get_env([o_j])
-    #*** if args.has_key("join"): print args["join"]
+    #*** if args.has_key("join"): print(args["join"])
 
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)

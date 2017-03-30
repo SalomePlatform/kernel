@@ -32,7 +32,7 @@ AC_MSG_CHECKING(for flags used to embed python interpreter)
 changequote(,)dnl
 py_makefile="`$PYTHON -c '
 import sys
-print \"%s/lib/python%s/config/Makefile\"%(sys.exec_prefix, sys.version[:3])'`"
+print(\"%s/lib/python%s/config/Makefile\"%(sys.exec_prefix, sys.version[:3]))'`"
 changequote([,])dnl
 if test ! -f "$py_makefile"; then
    AC_MSG_ERROR([*** Couldn't find the python config makefile.  Maybe you are
@@ -44,11 +44,11 @@ py_lib="`$PYTHON -c '
 import sys
 ver = sys.version[:3]
 pre = sys.exec_prefix
-print \"-L%s/lib/python%s/config\" % (pre, ver),
+print(\"-L%s/lib/python%s/config\" % (pre, ver)),
 if ver == \"1.4\":
-        print \"-lPython -lObjects -lParser\"
+        print(\"-lPython -lObjects -lParser\")
 else:
-        print \"-lpython\" + ver
+        print(\"-lpython\" + ver)
 
 changequote([,])dnl
 
@@ -83,7 +83,7 @@ AC_MSG_CHECKING(for config.c.in)
 changequote(,)dnl
 py_config_in="`$PYTHON -c '
 import sys
-print \"%s/lib/python%s/config/config.c.in\"%(sys.exec_prefix, sys.version[:3])'`"
+print(\"%s/lib/python%s/config/config.c.in\"%(sys.exec_prefix, sys.version[:3]))'`"
 changequote([,])dnl
 if test ! -f "$py_config_in"; then
    AC_MSG_ERROR([*** Couldn't find the config.c.in file.  Maybe you are

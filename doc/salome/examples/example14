@@ -9,7 +9,7 @@ aPixmap = A._narrow(SALOMEDS.AttributePixMap);
 aPixmap.SetPixMap( "ICON_OBJBROWSER_Geometry" );
 
 if aPixmap.GetPixMap() != "ICON_OBJBROWSER_Geometry":
-        print "Error: wrong value of AttributePixMap"
+        print("Error: wrong value of AttributePixMap")
 
 
 #      save / restore study      
@@ -43,5 +43,5 @@ if A == None :
         raise  RuntimeError, "Can't create AttributePixMap attribute"
 
 if A.GetPixMap() != "ICON_OBJBROWSER_Geometry":
-        print "Error: wrong value of AttributePixMap"
+        print("Error: wrong value of AttributePixMap")
 

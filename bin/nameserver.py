@@ -52,7 +52,7 @@ class NamingServer(Server):
           hname = getShortHostName();
         else:
           hname = socket.gethostname();
-        #print "hname=",hname
+        # print("hname=",hname)
 
         with open(os.environ["OMNIORB_CONFIG"]) as f:
           ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
@@ -73,7 +73,7 @@ class NamingServer(Server):
         try:
           os.mkdir(upath)
         except:
-          #print "Can't create " + upath
+          # print("Can't create " + upath)
           pass
 
         #os.system("touch " + upath + "/dummy")
@@ -85,11 +85,11 @@ class NamingServer(Server):
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
         #aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
-        #print "sed command = ", aSedCommand
+        # print("sed command = ", aSedCommand)
         #aPort = commands.getoutput("sed -e\"" + aSedCommand + "\"" + os.environ["OMNIORB_CONFIG"])
-        #print "port=", aPort
+        # print("port=", aPort)
         if sys.platform == "win32":
-          #print "start omniNames -start " + aPort + " -logdir " + upath
+          # print("start omniNames -start " + aPort + " -logdir " + upath)
           self.CMD = ['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:

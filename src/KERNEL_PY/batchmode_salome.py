@@ -301,5 +301,5 @@ else:
 myStudyName = myStudy._get_Name()
 
 myStudyId = myStudy._get_StudyId()
-#print myStudyId
+# print(myStudyId)
 
