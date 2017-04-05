@@ -49,6 +49,7 @@ logger = createLogger()
 #------------------------------------
 # A file locker
 def __acquire_lock(lock):
+  logger.debug("ACQUIRE LOCK")
   if sys.platform == "win32":
     import msvcrt
     # lock 1 byte: file is supposed to be zero-byte long
@@ -56,14 +57,17 @@ def __acquire_lock(lock):
   else:
     import fcntl
     fcntl.flock(lock, fcntl.LOCK_EX)
+  logger.debug("LOCK ACQUIRED")
 #
 def __release_lock(lock):
+  logger.debug("RELEASE LOCK")
   if sys.platform == "win32":
     import msvcrt
     msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
   else:
     import fcntl
     fcntl.flock(lock, fcntl.LOCK_UN)
+  logger.debug("LOCK RELEASED")
 #
 #------------------------------------
 
