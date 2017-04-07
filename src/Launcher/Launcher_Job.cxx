@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@
 #include <libbatch/Constants.hxx>
 #endif
 
-using namespace std;
+#include <sstream>
 
 Launcher::Job::Job()
 {
@@ -590,7 +590,11 @@ Launcher::Job::common_job_params()
     strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
     if(!_resource_definition.working_directory.empty())
     {
-      std::string job_dir = std::string("/job_") + date;
+      std::string date_dir = std::string("/job_") + date;
+      std::ostringstream str_pid;
+      str_pid << ::getpid();
+      std::string job_dir = date_dir + "-" + str_pid.str();
+
       _work_directory = _resource_definition.working_directory + job_dir;
     }
     else

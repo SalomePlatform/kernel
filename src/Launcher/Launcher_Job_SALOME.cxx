@@ -31,6 +31,8 @@
 #define _chmod chmod
 #endif
 
+#include <sstream>
+
 Launcher::Job_SALOME::Job_SALOME() {}
 
 Launcher::Job_SALOME::~Job_SALOME() {}
@@ -63,8 +65,9 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 {
   // parameters
   std::string work_directory = params[Batch::WORKDIR].str();
-
-  std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
+  std::ostringstream str_pid;
+  str_pid << ::getpid();
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + "-" + str_pid.str() + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(),
                             std::ofstream::out

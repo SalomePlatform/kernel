@@ -5,6 +5,17 @@ import unittest
 import os
 import sys
 import time
+import tempfile
+import errno
+
+def mkdir_p(path):
+  try:
+    os.makedirs(path)
+  except OSError as exc:  # Python >2.5
+    if exc.errno == errno.EEXIST and os.path.isdir(path):
+      pass
+    else:
+      raise
 
 # Test of SalomeLauncher.
 # This test should be run in the salome environment, using "salome shell"
@@ -19,12 +30,13 @@ class TestCompo(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
     # Prepare the test directory
-    import shutil
-    cls.test_dir = os.path.join(os.getcwd(), "test_dir")
-    cls.suffix = time.strftime("-%Y-%m-%d-%H-%M-%S")
-    shutil.rmtree(cls.test_dir, ignore_errors=True)
-    os.mkdir(cls.test_dir)
-    
+    temp = tempfile.NamedTemporaryFile()
+    cls.test_dir = os.path.join(temp.name, "test_dir")
+    name = os.path.basename(temp.name)
+    temp.close()
+    cls.suffix = time.strftime("-%Y-%m-%d-%H-%M-%S")+"-%s"%(os.getpid())
+    mkdir_p(cls.test_dir)
+
     # load catalogs
 #    mc = salome.naming_service.Resolve('/Kernel/ModulCatalog')
 #    ior = salome.orb.object_to_string(mc)
@@ -54,11 +66,11 @@ class TestCompo(unittest.TestCase):
   ##############################
   def test_salome_py_job(self):
     case_test_dir = os.path.join(TestCompo.test_dir, "salome_py")
-    os.mkdir(case_test_dir)
-    
+    mkdir_p(case_test_dir)
+
     old_dir = os.getcwd()
     os.chdir(case_test_dir)
-    
+
     # job script
     script_file = "myScript.py"
     job_script_file = os.path.join(case_test_dir, script_file)
@@ -82,8 +94,8 @@ f.close()
     f = open(job_script_file, "w")
     f.write(script_text)
     f.close()
-    
-    local_result_dir = os.path.join(case_test_dir, "result_py_job")
+
+    local_result_dir = os.path.join(case_test_dir, "result_py_job-")
     job_params = salome.JobParameters()
     job_params.job_type = "python_salome"
     job_params.job_file = job_script_file
@@ -91,9 +103,9 @@ f.close()
     job_params.out_files = ["result.txt", "subdir"]
     job_params.resource_required = salome.ResourceParameters()
     job_params.resource_required.nb_proc = 1
-    
+
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
-    
+
     for resource in self.ressources:
       print "Testing python_salome job on ", resource
       job_params.result_directory = local_result_dir + resource
@@ -130,14 +142,14 @@ f.close()
       pass #for
 
     os.chdir(old_dir)
-    
+
   ##############################
   # test of command job type
   ##############################
   def test_command(self):
     case_test_dir = os.path.join(TestCompo.test_dir, "command")
-    os.mkdir(case_test_dir)
-    
+    mkdir_p(case_test_dir)
+
     # job script
     data_file = "in.txt"
     script_file = "myEnvScript.py"
@@ -166,7 +178,7 @@ f.close()
     f.write(script_text)
     f.close()
     os.chmod(abs_script_file, 0o755)
-    
+
     #environement script
     env_file = "myEnv.sh"
     env_text = """export ENV_TEST_VAR="expected"
@@ -174,14 +186,14 @@ f.close()
     f = open(os.path.join(case_test_dir, env_file), "w")
     f.write(env_text)
     f.close()
-    
+
     # write data file
     f = open(os.path.join(case_test_dir, data_file), "w")
     f.write("to be copied")
     f.close()
-    
+
     # job params
-    local_result_dir = os.path.join(case_test_dir, "result_com_job")
+    local_result_dir = os.path.join(case_test_dir, "result_com_job-")
     job_params = salome.JobParameters()
     job_params.job_type = "command"
     job_params.job_file = script_file
@@ -191,7 +203,7 @@ f.close()
     job_params.local_directory = case_test_dir
     job_params.resource_required = salome.ResourceParameters()
     job_params.resource_required.nb_proc = 1
-    
+
     # create and launch the job
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
     resManager= salome.lcc.getResourcesManager()
@@ -205,7 +217,7 @@ f.close()
       # use the working directory of the resource
       resParams = resManager.GetResourceDefinition(resource)
       wd = os.path.join(resParams.working_directory,
-                        "CommandJob_" + self.suffix)
+                        "CommandJob" + self.suffix)
       job_params.work_directory = wd
 
       job_id = launcher.createJob(job_params)
@@ -247,10 +259,10 @@ f.close()
     yacs_path = os.getenv("YACS_ROOT_DIR", "")
     if not os.path.isdir(yacs_path):
       self.skipTest("Needs YACS module to run. Please define YACS_ROOT_DIR.")
-    
+
     case_test_dir = os.path.join(TestCompo.test_dir, "yacs")
-    os.mkdir(case_test_dir)
-    
+    mkdir_p(case_test_dir)
+
     #environement script
     env_file = "myEnv.sh"
     env_text = """export ENV_TEST_VAR="expected"
@@ -258,7 +270,7 @@ f.close()
     f = open(os.path.join(case_test_dir, env_file), "w")
     f.write(env_text)
     f.close()
-    
+
     # job script
     script_text = """<?xml version='1.0' encoding='iso-8859-1' ?>
 <proc name="newSchema_1">
@@ -285,14 +297,14 @@ f.close()
     f = open(job_script_file, "w")
     f.write(script_text)
     f.close()
-    
-    local_result_dir = os.path.join(case_test_dir, "result_yacs_job")
+
+    local_result_dir = os.path.join(case_test_dir, "result_yacs_job-")
     job_params = salome.JobParameters()
     job_params.job_type = "yacs_file"
     job_params.job_file = job_script_file
     job_params.env_file = os.path.join(case_test_dir,env_file)
     job_params.out_files = ["result.txt"]
-    
+
     # define the interval between two YACS schema dumps (3 seconds)
     import Engines
     job_params.specific_parameters = [Engines.Parameter("EnableDumpYACS", "3")]
@@ -301,7 +313,7 @@ f.close()
 
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
     resManager= salome.lcc.getResourcesManager()
-    
+
     for resource in self.ressources:
       print "Testing yacs job on ", resource
       job_params.result_directory = local_result_dir + resource
@@ -311,7 +323,7 @@ f.close()
       # use the working directory of the resource
       resParams = resManager.GetResourceDefinition(resource)
       wd = os.path.join(resParams.working_directory,
-                        "YacsJob_" + self.suffix)
+                        "YacsJob" + self.suffix)
       job_params.work_directory = wd
 
       job_id = launcher.createJob(job_params)
@@ -352,7 +364,7 @@ f.close()
       launcher.getJobResults(job_id, "")
       self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
                       "expected")
-    
+
   ##############################
   # test of yacs job type using "--init_port" driver option
   ##############################
@@ -360,10 +372,10 @@ f.close()
     yacs_path = os.getenv("YACS_ROOT_DIR", "")
     if not os.path.isdir(yacs_path):
       self.skipTest("Needs YACS module to run. Please define YACS_ROOT_DIR.")
-    
+
     case_test_dir = os.path.join(TestCompo.test_dir, "yacs_opt")
-    os.mkdir(case_test_dir)
-    
+    mkdir_p(case_test_dir)
+
     # job script
     script_text = """<?xml version='1.0' encoding='iso-8859-1' ?>
 <proc name="myschema">
@@ -398,14 +410,14 @@ f.close()
     f = open(job_script_file, "w")
     f.write(script_text)
     f.close()
-    
-    local_result_dir = os.path.join(case_test_dir, "result_yacsopt_job")
+
+    local_result_dir = os.path.join(case_test_dir, "result_yacsopt_job-")
     job_params = salome.JobParameters()
     job_params.job_type = "yacs_file"
     job_params.job_file = job_script_file
     #job_params.env_file = os.path.join(case_test_dir,env_file)
     job_params.out_files = ["result.txt"]
-    
+
     # define the interval between two YACS schema dumps (3 seconds)
     import Engines
     job_params.specific_parameters = [Engines.Parameter("YACSDriverOptions",
@@ -416,7 +428,7 @@ f.close()
 
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
     resManager= salome.lcc.getResourcesManager()
-    
+
     for resource in self.ressources:
       print "Testing yacs job with options on ", resource
       job_params.result_directory = local_result_dir + resource
@@ -426,7 +438,7 @@ f.close()
       # use the working directory of the resource
       resParams = resManager.GetResourceDefinition(resource)
       wd = os.path.join(resParams.working_directory,
-                        "YacsJobOpt_" + self.suffix)
+                        "YacsJobOpt" + self.suffix)
       job_params.work_directory = wd
 
       job_id = launcher.createJob(job_params)
