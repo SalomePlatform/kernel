@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2013-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -68,18 +68,18 @@ class TestMinimalExample(unittest.TestCase):
     p.join()
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812, self,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2899, self, 2899,))
     p.start()
     p.join()
 
     # Release port
-    print "release port 2812"
-    p = multiprocessing.Process(target=releasePort, args=(2812,))
+    print "release port 2899"
+    p = multiprocessing.Process(target=releasePort, args=(2899,))
     p.start()
     p.join()
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812, self, 2812,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2899, self, 2899,))
     p.start()
     p.join()
 
