@@ -36,7 +36,7 @@ class SalomeInstance(object):
   @staticmethod
   def start(shutdown_servers=False, with_gui=False, args=[]):
     import tempfile
-    log = tempfile.NamedTemporaryFile(suffix='_nsport', delete=False)
+    log = tempfile.NamedTemporaryFile(suffix='_nsport', delete=True)
     port_log = log.name
     log.close()
     port_log = port_log + "-%s.log"%(os.getpid())
