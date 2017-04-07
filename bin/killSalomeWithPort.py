@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -214,7 +214,7 @@ def shutdownMyPort(port, cleanup=True):
         pass
     except:
         pass
-    exit(0) # see (1)
+    sys.exit(0) # see (1)
     pass
 # (1) If --shutdown-servers option is set to 1, session close procedure is
 # called twice: first explicitely by salome command, second by automatic

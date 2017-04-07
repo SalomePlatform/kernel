@@ -254,7 +254,7 @@ class SalomeContext:
     if command is None:
       if args and args[0] in ["-h","--help","help"]:
         usage()
-        sys.exit(0)
+        return 0
       # try to default to "start" command
       command = "_runAppli"
 
@@ -264,15 +264,15 @@ class SalomeContext:
     except SystemExit, returncode:
       if returncode != 0:
         self.getLogger().error("SystemExit %s in method %s.", returncode, command)
-      sys.exit(returncode)
+      return returncode
     except StandardError:
       self.getLogger().error("Unexpected error:")
       import traceback
       traceback.print_exc()
-      sys.exit(1)
+      return 1
     except SalomeContextException, e:
       self.getLogger().error(e)
-      sys.exit(1)
+      return 1
   #
 
   def __setContextFromConfigFile(self, filename, reserved=None):
@@ -283,7 +283,7 @@ class SalomeContext:
     except SalomeContextException, e:
       msg = "%s"%e
       self.getLogger().error(msg)
-      sys.exit(1)
+      return 1
 
     # unset variables
     for var in unsetVars:
@@ -555,7 +555,6 @@ Available options are:
     print ""
     print "                    SALOME is working for you; what else?"
     print ""
-    sys.exit(0)
   #
 
   def _getCar(self, unused=None):
@@ -589,7 +588,6 @@ Available options are:
     print ""
     print "                                Drive your simulation properly with SALOME!"
     print ""
-    sys.exit(0)
   #
 
   # Add the following two methods since logger is not pickable
@@ -618,11 +616,7 @@ if __name__ == "__main__":
     context = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
 
-    (out, err) = context._startSalome(args)
-    if out:
-      sys.stdout.write(out)
-    if err:
-      sys.stderr.write(err)
+    context._startSalome(args)
   else:
     usage()
 #

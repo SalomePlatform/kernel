@@ -320,13 +320,23 @@ def setOmniOrbUserPath():
       raise Exception("Unable to get write access to directory: %s"%omniorbUserPath)
     pass
   else:
-    homePath = os.path.realpath(os.path.expanduser('~'))
-    #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
-    defaultOmniorbUserPath = homePath
-    if os.getenv("APPLI"):
-      defaultOmniorbUserPath = os.path.join(homePath, os.getenv("APPLI"), "USERS")
-      pass
-    os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
+    # Must be in /tmp (or equivalent) to handle application concurrency
+    try:
+      import tempfile
+      temp = tempfile.NamedTemporaryFile()
+      temp_dir = os.path.dirname(temp.name)
+      temp.close()
+      if not os.access(temp_dir, os.W_OK):
+        raise Exception("Unable to get write access to directory: %s"%temp_dir)
+      os.environ["OMNIORB_USER_PATH"] = temp_dir
+    except:
+      homePath = os.path.realpath(os.path.expanduser('~'))
+      #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
+      defaultOmniorbUserPath = homePath
+      if os.getenv("APPLI"):
+        defaultOmniorbUserPath = os.path.join(homePath, os.getenv("APPLI"), "USERS")
+        pass
+      os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
 #
 
 def getHostname():

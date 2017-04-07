@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -54,7 +54,7 @@ if __name__ == "__main__":
   # first argument
   if not args:
     print "Invalid arguments for salome_test_driver.py. No command defined."
-    exit(1)
+    sys.exit(1)
   _, ext = os.path.splitext(args[0])
   if ext == ".py":
     test_and_args = [sys.executable] + args
@@ -89,10 +89,12 @@ if __name__ == "__main__":
     import traceback
     traceback.print_exc()
     pass
-
-  salome_instance.stop()
+  try:
+    salome_instance.stop()
+  except:
+    pass
   if sys.platform == 'win32':
     timer.cancel()
   print "Exit test with status code:", res
-  exit(res)
+  sys.exit(res)
 #
