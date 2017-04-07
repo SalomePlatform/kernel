@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,8 @@
 #define _chmod chmod
 #endif
 
+#include <sstream>
+
 Launcher::Job_Command::Job_Command() {_job_type = "command";}
 
 Launcher::Job_Command::~Job_Command() {}
@@ -46,7 +48,7 @@ Launcher::Job_Command::update_job()
 }
 
 #ifdef WITH_LIBBATCH
-std::string 
+std::string
 Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string launch_date)
 {
   // parameters
@@ -54,10 +56,12 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
 
   // File name
   std::string launch_date_port_file = launch_date;
-  std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_" + _job_file_name + "_" + launch_date + ".sh";
+  std::ostringstream str_pid;
+  str_pid << ::getpid();
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_" + _job_file_name + "_" + launch_date + "-" + str_pid.str() + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
-   
+
   // Script
   launch_script_stream << "#!/bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -22,6 +22,8 @@
 
 #include "BatchTest.hxx"
 #include "Launcher.hxx"
+#include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
 #include <libbatch/MpiImpl.hxx>
@@ -47,10 +49,8 @@ BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr)
   strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
 
   // Creating test temporary file
-  _test_filename =  "/tmp/";
-  _test_filename += std::string(date) + "_test_cluster_file_";
-  _test_filename += _batch_descr.hostname.in();
   _base_filename = std::string(date) + "_test_cluster_file_" + _batch_descr.hostname.in();
+  _test_filename = Kernel_Utils::GetTmpDir() + _base_filename;
 #endif
 }
 
