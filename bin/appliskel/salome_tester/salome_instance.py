@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -36,21 +36,22 @@ class SalomeInstance(object):
   @staticmethod
   def start(shutdown_servers=False, with_gui=False, args=[]):
     import tempfile
-    log = tempfile.NamedTemporaryFile(suffix='_nsport.log', delete=False)
+    log = tempfile.NamedTemporaryFile(suffix='_nsport', delete=False)
+    port_log = log.name
     log.close()
-
+    port_log = port_log + "-%s.log"%(os.getpid())
     instance_args = [
-      "--ns-port-log=%s"%log.name,
+      "--ns-port-log=%s"%port_log,
       "--shutdown-servers=%d"%shutdown_servers
       ] + args
 
     salome_instance = SalomeInstance()
     salome_instance.__run(args=instance_args, with_gui=with_gui)
 
-    with open(log.name) as f:
+    with open(port_log) as f:
       salome_instance.port = int(f.readline())
 
-    os.remove(log.name)
+    os.remove(port_log)
     return salome_instance
   #
 
