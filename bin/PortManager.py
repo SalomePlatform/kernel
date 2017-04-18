@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -29,6 +29,9 @@ try:
 except:
   import pickle #@Reimport
 
+__PORT_MIN_NUMBER = 2810
+__PORT_MAX_NUMBER = 2910
+
 import logging
 def createLogger():
   logger = logging.getLogger(__name__)
@@ -46,6 +49,7 @@ logger = createLogger()
 #------------------------------------
 # A file locker
 def __acquire_lock(lock):
+  logger.debug("ACQUIRE LOCK")
   if sys.platform == "win32":
     import msvcrt
     # lock 1 byte: file is supposed to be zero-byte long
@@ -53,14 +57,17 @@ def __acquire_lock(lock):
   else:
     import fcntl
     fcntl.flock(lock, fcntl.LOCK_EX)
+  logger.debug("LOCK ACQUIRED")
 #
 def __release_lock(lock):
+  logger.debug("RELEASE LOCK")
   if sys.platform == "win32":
     import msvcrt
     msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
   else:
     import fcntl
     fcntl.flock(lock, fcntl.LOCK_UN)
+  logger.debug("LOCK RELEASED")
 #
 #------------------------------------
 
@@ -69,19 +76,22 @@ def _getConfigurationFilename():
 
   from salome_utils import generateFileName
   portmanager_config = generateFileName(omniorbUserPath,
-                                        prefix="omniORB",
+                                        prefix="salome",
                                         suffix="PortManager",
                                         extension="cfg",
                                         hidden=True)
   import tempfile
   temp = tempfile.NamedTemporaryFile()
-  lock_file = os.path.join(os.path.dirname(temp.name), ".omniORB_PortManager.lock")
+  lock_file = os.path.join(os.path.dirname(temp.name), ".salome_PortManager.lock")
   temp.close()
 
   return (portmanager_config, lock_file)
 #
 
-def __isPortUsed(port, busy_ports):
+def __isPortUsed(port, config):
+  busy_ports = []
+  for ports in config.values():
+    busy_ports += ports
   return (port in busy_ports) or __isNetworkConnectionActiveOnPort(port)
 #
 
@@ -132,7 +142,7 @@ def getPort(preferedPort=None):
     __acquire_lock(lock)
 
     # read config
-    config = {'busy_ports':[]}
+    config = {}
     logger.debug("read configuration file")
     try:
       with open(config_file, 'rb') as f:
@@ -141,28 +151,30 @@ def getPort(preferedPort=None):
       logger.info("Problem loading PortManager file: %s"%config_file)
       # In this case config dictionary is reset
 
-    logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
+    logger.debug("load config: %s"%str(config))
+    appli_path = os.getenv("ABSOLUTE_APPLI_PATH", "unknown")
+    try:
+        config[appli_path]
+    except KeyError:
+        config[appli_path] = []
 
     # append port
-    busy_ports = config["busy_ports"]
     port = preferedPort
-    if not port or __isPortUsed(port, busy_ports):
-      port = 2810
-      while __isPortUsed(port, busy_ports):
-        if port == 2810+100:
+    if not port or __isPortUsed(port, config):
+      port = __PORT_MIN_NUMBER
+      while __isPortUsed(port, config):
+        if port == __PORT_MAX_NUMBER:
           msg  = "\n"
           msg += "Can't find a free port to launch omniNames\n"
           msg += "Try to kill the running servers and then launch SALOME again.\n"
           raise RuntimeError(msg)
         logger.debug("Port %s seems to be busy"%str(port))
-        if not port in config["busy_ports"]:
-          config["busy_ports"].append(port)
         port = port + 1
     logger.debug("found free port: %s"%str(port))
-    config["busy_ports"].append(port)
+    config[appli_path].append(port)
 
     # write config
-    logger.debug("write busy_ports: %s"%str(config["busy_ports"]))
+    logger.debug("write config: %s"%str(config))
     try:
       with open(config_file, 'wb') as f:
         pickle.dump(config, f)
@@ -189,7 +201,7 @@ def releasePort(port):
     __acquire_lock(lock)
 
     # read config
-    config = {'busy_ports':[]}
+    config = {}
     logger.debug("read configuration file")
     try:
       with open(config_file, 'rb') as f:
@@ -197,17 +209,19 @@ def releasePort(port):
     except IOError: # empty file
       pass
 
-    logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
+    logger.debug("load config: %s"%str(config))
+    appli_path = os.getenv("ABSOLUTE_APPLI_PATH", "unknown")
+    try:
+        config[appli_path]
+    except KeyError:
+        config[appli_path] = []
 
     # remove port from list
-    busy_ports = config["busy_ports"]
-
-    if port in busy_ports:
-      busy_ports.remove(port)
-      config["busy_ports"] = busy_ports
+    ports_info = config[appli_path]
+    config[appli_path] = [x for x in ports_info if x != port]
 
     # write config
-    logger.debug("write busy_ports: %s"%str(config["busy_ports"]))
+    logger.debug("write config: %s"%str(config))
     try:
       with open(config_file, 'wb') as f:
         pickle.dump(config, f)
@@ -223,7 +237,6 @@ def releasePort(port):
 #
 
 def getBusyPorts():
-  busy_ports = []
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
   with open(lock_file, 'w') as lock:
@@ -231,7 +244,7 @@ def getBusyPorts():
     __acquire_lock(lock)
 
     # read config
-    config = {'busy_ports':[]}
+    config = {}
     logger.debug("read configuration file")
     try:
       with open(config_file, 'rb') as f:
@@ -239,12 +252,32 @@ def getBusyPorts():
     except IOError: # empty file
       pass
 
-    logger.debug("load busy_ports: %s"%str(config["busy_ports"]))
+    logger.debug("load config: %s"%str(config))
+    appli_path = os.getenv("ABSOLUTE_APPLI_PATH", "unknown")
+    try:
+        config[appli_path]
+    except KeyError:
+        config[appli_path] = []
 
-    busy_ports = config["busy_ports"]
+    # Scan all possible ports to determine which ones are owned by other applications
+    ports_info = { 'this': [], 'other': [] }
+    my_busy_ports = config[appli_path]
+    for port in range(__PORT_MIN_NUMBER, __PORT_MAX_NUMBER):
+      if __isPortUsed(port, config):
+        logger.debug("Port %s seems to be busy"%str(port))
+        if port in my_busy_ports:
+          ports_info["this"].append(port)
+        else:
+          ports_info["other"].append(port)
+
+    logger.debug("all busy_ports: %s"%str(ports_info))
+
+    sorted_ports = { 'this': sorted(ports_info['this']),
+                     'other': sorted(ports_info['other']) }
+
     # release lock
     __release_lock(lock)
 
   os.umask(oldmask)
-  return busy_ports
+  return sorted_ports
 #

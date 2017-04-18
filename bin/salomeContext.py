@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -224,7 +224,7 @@ class SalomeContext:
       'car'     : '_getCar',
       }
 
-    if not command in list(availableCommands.keys()):
+    if command not in availableCommands:
       command = "start"
       options = args
 
@@ -256,7 +256,7 @@ class SalomeContext:
     if command is None:
       if args and args[0] in ["-h","--help","help"]:
         usage()
-        sys.exit(0)
+        return 0
       # try to default to "start" command
       command = "_runAppli"
 
@@ -266,15 +266,15 @@ class SalomeContext:
     except SystemExit as returncode:
       if returncode != 0:
         self.getLogger().warning("SystemExit %s in method %s.", returncode, command)
-      sys.exit(returncode)
+      return returncode
+    except SalomeContextException as e:
+      self.getLogger().error(e)
+      return 1
     except Exception:
       self.getLogger().error("Unexpected error:")
       import traceback
       traceback.print_exc()
-      sys.exit(1)
-    except SalomeContextException as e:
-      self.getLogger().error(e)
-      sys.exit(1)
+      return 1
   #
 
   def __setContextFromConfigFile(self, filename, reserved=None):
@@ -285,7 +285,7 @@ class SalomeContext:
     except SalomeContextException as e:
       msg = "%s"%e
       self.getLogger().error(msg)
-      sys.exit(1)
+      return 1
 
     # unset variables
     for var in unsetVars:
@@ -393,7 +393,7 @@ class SalomeContext:
       import PortManager # mandatory
       from multiprocessing import Process
       from killSalomeWithPort import killMyPort
-      ports = PortManager.getBusyPorts()
+      ports = PortManager.getBusyPorts()['this']
 
       if ports:
         import tempfile
@@ -473,9 +473,20 @@ Available options are:
     if "-p" in args or "--ports" in args:
       import PortManager
       ports = PortManager.getBusyPorts()
-      print("SALOME instances are running on ports:", ports)
-      if ports:
-        print("Last started instance on port %s"%ports[-1])
+      this_ports = ports['this']
+      other_ports = ports['other']
+      if this_ports or other_ports:
+          print("SALOME instances are running on the following ports:")
+          if this_ports:
+              print("   This application:", this_ports)
+          else:
+              print("   No SALOME instances of this application")
+          if other_ports:
+              print("   Other applications:", other_ports)
+          else:
+              print("   No SALOME instances of other applications")
+      else:
+          print("No SALOME instances are running")
 
     if "-s" in args or "--softwares" in args:
       if "-s" in args:
@@ -546,7 +557,6 @@ Available options are:
     print("")
     print("                    SALOME is working for you; what else?")
     print("")
-    sys.exit(0)
   #
 
   def _getCar(self, unused=None):
@@ -580,7 +590,6 @@ Available options are:
     print("")
     print("                                Drive your simulation properly with SALOME!")
     print("")
-    sys.exit(0)
   #
 
   # Add the following two methods since logger is not pickable
@@ -606,17 +615,10 @@ Available options are:
 
 if __name__ == "__main__":
   if len(sys.argv) == 3:
-    context = sys.argv[1]
-    args = sys.argv[2]
+    context = pickle.loads(sys.argv[1].encode())
+    args = pickle.loads(sys.argv[2].encode())
 
-    context = pickle.loads(context.encode())
-    args = pickle.loads(args.encode())
-
-    (out, err) = context._startSalome(args)
-    if out:
-      sys.stdout.write(out)
-    if err:
-      sys.stderr.write(err)
+    context._startSalome(args)
   else:
     usage()
 #

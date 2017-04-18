@@ -110,10 +110,7 @@ bool SALOMEDSImpl_SComponent::ComponentIOR(std::string& IOR)
 bool SALOMEDSImpl_SComponent::IsA(const DF_Label& theLabel)
 {
   // scomponent must contain comment and belong to the 2th depth label
-  if ( theLabel.IsAttribute(SALOMEDSImpl_AttributeComment::GetID()) && theLabel.Depth() == 2) {
-    return true;
-  }
-  return false;
+  return theLabel.Depth() == 2 && theLabel.IsAttribute(SALOMEDSImpl_AttributeComment::GetID());
 }
 
 //============================================================================

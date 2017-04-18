@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -115,10 +115,9 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 
   // Create file for ns-port-log
   launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
-  launch_script_stream << "NS_PORT_FILE_NAME=$(basename \"$NS_PORT_FILE_PATH\") &&\n";
 
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_NAME\" --server-launch-mode=fork ";
+  launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
   launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"
@@ -138,8 +137,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   addJobTypeSpecificScript(launch_script_stream);
 
   // End
-  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" killSalomeWithPort.py args:\"$appli_port\"" << std::endl;
-  //launch_script_stream << "sleep 10" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/salome kill \"$appli_port\"" << std::endl;
 
   // Return
   launch_script_stream.flush();
