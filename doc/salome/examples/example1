@@ -19,7 +19,7 @@ file = str+"/test.hdf"
 
 #file = "/tmp/ggg.hdf"
 
-print " -------  We will save to", file, "-----------"
+print(" -------  We will save to", file, "-----------")
 
 batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
 openedStudy=batchmode_geompy.myStudyManager.Open(file)

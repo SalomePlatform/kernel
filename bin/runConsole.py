@@ -46,7 +46,7 @@ ask user to select a port from list of available SALOME instances.\n
 The -c option can be used to specify the command to execute in the interpreter.
 A script can also be used.
 For example:
-       salome connect -p 2810 -c 'print "Hello"'
+       salome connect -p 2810 -c 'print("Hello")'
        salome connect -p 2810 hello.py
 """
   parser = MyParser(usage=usage, epilog=epilog)

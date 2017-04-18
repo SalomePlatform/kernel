@@ -19,7 +19,7 @@ A.SetTextColor(color)
 c = A.TextColor();
 
 if c.R != 234 or c.G != 345 or c.B != 231:
-        print "Error: wrong value of AttributeTextColor"
+        print("Error: wrong value of AttributeTextColor")
 
 #      save / restore study      
 #============================================================
@@ -53,5 +53,5 @@ if A == None :
 
 c = A.TextColor();
 if c.R != 234 or c.G != 345 or c.B != 231:
-        print "Error: wrong value of AttributeTextColor"
+        print("Error: wrong value of AttributeTextColor")
 

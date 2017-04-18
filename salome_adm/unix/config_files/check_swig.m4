@@ -58,7 +58,7 @@ EOF
    AC_MSG_RESULT($swig_ok) 
 fi
 
-numpydir=`$PYTHON -c "import numpy;print numpy.get_include()" 2>/dev/null`
+numpydir=`$PYTHON -c "import numpy;print(numpy.get_include())" 2>/dev/null`
 if test -d "$numpydir"; then
    numpy_ok=yes
    PYTHON_INCLUDES="-I$numpydir $PYTHON_INCLUDES"

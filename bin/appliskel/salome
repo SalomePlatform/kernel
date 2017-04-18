@@ -59,7 +59,7 @@ def main(args):
       sys.stdout.write(out)
     if err:
       sys.stderr.write(err)
-    #print 'Thank you for using SALOME!'
+    # print('Thank you for using SALOME!')
     sys.exit(returncode)
   except SalomeContextException as e:
     import logging

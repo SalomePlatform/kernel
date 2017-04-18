@@ -501,7 +501,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # and wait until it is registered in naming service
     #
 
-    #print "ARGS = ",args
+    # print("ARGS = ",args)
     if ('study' not in args['embedded']) | (args["gui"] == 0):
         print("RunStudy")
         myServer=SalomeDSServer(args)
@@ -630,7 +630,7 @@ def useSalome(args, modules_list, modules_root_dir):
         print()
         print("--- Error during Salome launch ---")
 
-    #print process_id
+    # print(process_id)
 
     from addToKillList import addToKillList
     from killSalomeWithPort import getPiDict

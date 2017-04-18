@@ -71,7 +71,7 @@ class Server:
                                    + os.getenv("LD_LIBRARY_PATH")]
               myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
-        #print "command = ", command
+        # print("command = ", command)
         if sys.platform == "win32":
           import subprocess
           pid = subprocess.Popen(command).pid

@@ -19,7 +19,7 @@ A.SetTextHighlightColor(highlightcolor)
 
 c = A.TextHighlightColor();
 if c.R != 256 or c.G != 256 or c.B != 256:
-        print "Error: wrong value of AttributeTextHighlightColor"
+        print("Error: wrong value of AttributeTextHighlightColor")
 
 
 #      save / restore study      
@@ -44,7 +44,7 @@ if father is None:
 #============================================================
 
 res, A = father.FindAttribute("AttributeTextHighlightColor")
-print res, A
+print(res, A)
 if res == 0 or A == None:
         raise  RuntimeError, "Error:  not found AttributeTextHighlightColor"
 
@@ -56,5 +56,5 @@ if A == None :
 c = A.TextHighlightColor();
 
 if c.R != 256 or c.G != 256 or c.B != 256:
-        print "Error: wrong value of AttributeTextTextHighlightColor"
+        print("Error: wrong value of AttributeTextTextHighlightColor")
 

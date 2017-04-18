@@ -990,7 +990,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     args = _opts
 
     args['user_config'] = user_config
-    #print "User Configuration file: ", args['user_config']
+    # print("User Configuration file: ", args['user_config'])
 
     # set default values for options which are NOT set in config files
     for aKey in listKeys:
@@ -1183,7 +1183,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
             elif os.path.exists( os.path.join(d2,"{0}.xml".format(salomeappname)) ):
                 dirs.append( d2 )
         else:
-            #print "* '"+m+"' should be deleted from ",args[modules_nam]
+            # print("* '"+m+"' should be deleted from ",args[modules_nam])
             pass
 
     # Test
@@ -1220,5 +1220,5 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
 
     # return arguments
     os.environ[config_var] = os.pathsep.join(dirs)
-    #print "Args: ", args
+    # print("Args: ", args)
     return args

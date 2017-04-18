@@ -124,7 +124,7 @@ class TestConcurrentLaunch(unittest.TestCase):
 if __name__ == "__main__":
   if not os.path.isfile("hello.py"):
     with open("hello.py", "w") as f:
-      f.write("print 'Hello!'")
+      f.write("print('Hello!')")
 
   unittest.main()
 #

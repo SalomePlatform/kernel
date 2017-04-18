@@ -75,6 +75,6 @@ if __name__ == "__main__":
   salome_instance.stop()
   if sys.platform == 'win32':
     timer.cancel()
-#  print "Exit test with status code:", res
+#  print("Exit test with status code:", res)
 #  exit(res)
 #

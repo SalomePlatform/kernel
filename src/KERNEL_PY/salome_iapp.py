@@ -38,11 +38,11 @@ def ImportComponentGUI(ComponentName):
     if IN_SALOME_GUI:
         libName = "lib" + ComponentName + "_Swig"
         command = "from " + libName + " import *"
-        exec ( command )
+        exec (command, globals())
         constructor = ComponentName + "_Swig()"
         command = "gui = " + constructor
-        exec ( command )
-        return gui
+        exec (command, globals())
+        return gui  # @UndefinedVariable
     else:
         print("Warning: ImportComponentGUI(",ComponentName,") outside GUI !")
         print("calls to GUI methods may crash...")
@@ -100,7 +100,7 @@ class SalomeOutsideGUI(object):
     def getSelected(self, i):
         """Get the selection number i """
         print("SalomeOutsideGUI: no selection mecanism available outside GUI")
-        return none
+        return None
     
     def AddIObject(self, Entry):
         """Add an entry"""

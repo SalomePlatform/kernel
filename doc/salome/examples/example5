@@ -11,7 +11,7 @@ if A == None :
 A.SetValue("AttributesTesting")
 
 if A.Value() != "AttributesTesting":
-        print "Wrong  value of AttributeName"
+        print("Wrong  value of AttributeName")
 
 
 #      save / restore study      
@@ -46,5 +46,5 @@ if A == None :
         raise  RuntimeError, "Can't create AttributeName attribute"
 
 if A.Value() != "AttributesTesting":
-        print "Wrong  value of AttributeName"
+        print("Wrong  value of AttributeName")
 

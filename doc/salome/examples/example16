@@ -21,7 +21,7 @@ A.Add(300)
 A.Add(500)
 A.Add(400)
 A.Add(700)
-print "First transaction goes on :  HasOpenCommand() = ", batchmode_geompy.myBuilder.HasOpenCommand()
+print("First transaction goes on :  HasOpenCommand() = ", batchmode_geompy.myBuilder.HasOpenCommand())
 batchmode_geompy.myBuilder.CommitCommand() #--------------
 
 # 2nd transaction ------------------------------------------
@@ -34,7 +34,7 @@ if batchmode_geompy.myBuilder.GetAvailableUndos() == 0:
         raise RuntimeError, "GetAvailableUndos() = 0 but must not !"
 
 if A.Length() != 4:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger"
 
@@ -47,9 +47,9 @@ res, A = batchmode_geompy.myBuilder.FindAttribute(batchmode_geompy.father, "Attr
 if A is None:
         raise  RuntimeError, "After first 'undo' can't find AttributeSequenceOfInteger"
 if A.Length() != 5:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 500 or A.Value(4) != 400 or  A.Value(5) != 700:
-        print  A.Value(1), A.Value(2), A.Value(3), A.Value(4), A.Value(5)
+        print( A.Value(1), A.Value(2), A.Value(3), A.Value(4), A.Value(5))
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger after the first 'undo'!"
 # save 
 file2 = dir + "/test2.hdf"
@@ -73,7 +73,7 @@ res, A = batchmode_geompy.myBuilder.FindAttribute(batchmode_geompy.father, "Attr
 if res ==0 or A== None :
         raise  RuntimeError, "AttributeSequenceOfInteger is not found but must be!"
 if A.Length() != 4:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger"
 
@@ -100,9 +100,9 @@ if res == 0 or A == None:
 A = A._narrow(SALOMEDS.AttributeSequenceOfInteger)
 
 if A.Length() != 4:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
-        print "Wrong  value of  AttributeSequenceOfInteger"
+        print("Wrong  value of  AttributeSequenceOfInteger")
 #----------------------------------------------------------------------
 openedStudy=batchmode_geompy.myStudyManager.Open(file2);
 
@@ -125,7 +125,7 @@ if res == 0 or A == None:
 A = A._narrow(SALOMEDS.AttributeSequenceOfInteger)
 
 if A.Length() != 5:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 500 or A.Value(4) != 400 or  A.Value(5) != 700:
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger after the first 'undo'!"
 
