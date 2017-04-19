@@ -50,9 +50,10 @@ def addToKillList(command_pid, command, port=None):
     from killSalomeWithPort import getPiDict
     if port is None: port=findFileDict()
     filedict = getPiDict(port)
+    #filedict = getPiDict(port).encode()
 
     try:
-        with open(filedict, 'r') as fpid:
+        with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
     except:
         process_ids=[]
@@ -78,7 +79,7 @@ def addToKillList(command_pid, command, port=None):
             process_ids.append({int(command_pid): [command]})
             dir = os.path.dirname(filedict)
             if not os.path.exists(dir): os.makedirs(dir, 0o777)
-            with open(filedict,'w') as fpid:
+            with open(filedict,'wb') as fpid:
                 pickle.dump(process_ids, fpid)
         except:
             if verbose(): print("addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command ))
@@ -102,7 +103,7 @@ def killList(port=None):
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
 
     try:
-        with open(filedict, 'r') as fpid:
+        with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
     except:
         process_ids=[]

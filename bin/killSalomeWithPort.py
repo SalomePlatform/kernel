@@ -228,7 +228,7 @@ def __killMyPort(port, filedict):
         port = int(port)
 
     try:
-        with open(filedict, 'r') as fpid:
+        with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
             for process_id in process_ids:
                 for pid, cmd in list(process_id.items()):

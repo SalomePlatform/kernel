@@ -137,7 +137,7 @@ def getPort(preferedPort=None):
 
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'w') as lock:
+  with open(lock_file, 'wb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
@@ -196,7 +196,7 @@ def releasePort(port):
 
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'w') as lock:
+  with open(lock_file, 'wb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
@@ -239,7 +239,7 @@ def releasePort(port):
 def getBusyPorts():
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'w') as lock:
+  with open(lock_file, 'wb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
