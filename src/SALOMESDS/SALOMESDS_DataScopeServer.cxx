@@ -47,31 +47,15 @@ using namespace SALOMESDS;
 std::size_t DataScopeServerBase::COUNTER=0;
 
 #if PY_VERSION_HEX < 0x03050000
+static char*
+Py_EncodeLocale(const wchar_t *arg, size_t *size)
+{
+	return _Py_wchar2char(arg, size);
+}
 static wchar_t*
 Py_DecodeLocale(const char *arg, size_t *size)
 {
-    wchar_t *res;
-    unsigned char *in;
-    wchar_t *out;
-    size_t argsize = strlen(arg) + 1;
-
-    if (argsize > PY_SSIZE_T_MAX/sizeof(wchar_t))
-        return NULL;
-    res = (wchar_t*) PyMem_RawMalloc(argsize*sizeof(wchar_t));
-    if (!res)
-        return NULL;
-
-    in = (unsigned char*)arg;
-    out = res;
-    while(*in)
-        if(*in < 128)
-            *out++ = *in++;
-        else
-            *out++ = 0xdc00 + *in++;
-    *out = 0;
-    if (size != NULL)
-        *size = out - res;
-    return res;
+	return _Py_char2wchar(arg, size);
 }
 #endif
 
