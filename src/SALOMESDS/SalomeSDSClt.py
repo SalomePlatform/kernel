@@ -263,8 +263,11 @@ class Float(WrappedType,SALOMEWrappedStdType.Float):
     def __imul__(self,*args):
         return self.local_copy().__mul__(*args)
 
-    def __idiv__(self,*args):
-        return self.local_copy().__div__(*args)
+    def __itruediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
+
+    def __ifloordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
 
     def __add__(self,*args):
         return self.local_copy().__add__(*args)
@@ -275,8 +278,11 @@ class Float(WrappedType,SALOMEWrappedStdType.Float):
     def __mul__(self,*args):
         return self.local_copy().__mul__(*args)
 
-    def __div__(self,*args):
-        return self.local_copy().__div__(*args)
+    def __floordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
+
+    def __truediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
     
     def __pow__(self,*args):
         return self.local_copy().__pow__(*args)
@@ -321,8 +327,11 @@ class Int(WrappedType,SALOMEWrappedStdType.Int):
     def __imod__(self,*args):
         return self.local_copy().__mod__(*args)
     
-    def __idiv__(self,*args):
-        return self.local_copy().__div__(*args)
+    def __itruediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
+    
+    def __ifloordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
 
     def __add__(self,*args):
         return self.local_copy().__add__(*args)
@@ -336,9 +345,12 @@ class Int(WrappedType,SALOMEWrappedStdType.Int):
     def __mod__(self,*args):
         return self.local_copy().__mod__(*args)
 
-    def __div__(self,*args):
-        return self.local_copy().__div__(*args)
-    
+    def __truediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
+
+    def __floordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
+
     def __pow__(self,*args):
         return self.local_copy().__pow__(*args)
 

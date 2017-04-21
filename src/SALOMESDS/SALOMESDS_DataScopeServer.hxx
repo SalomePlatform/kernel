@@ -147,8 +147,6 @@ namespace SALOMESDS
     SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
   private:
-    PyObject *getPyCmpFunc();
-  private:
     PortableServer::POA_var _poa_for_key_waiter;
     std::list< KeyWaiter * > _waiting_keys;
   };

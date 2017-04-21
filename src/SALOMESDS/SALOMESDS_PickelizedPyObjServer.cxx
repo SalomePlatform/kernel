@@ -156,7 +156,7 @@ std::string PickelizedPyObjServer::Pickelize(PyObject *obj, DataScopeServerBase 
 {
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,obj);
-  PyTuple_SetItem(args,1,PyLong_FromLong(2));// because "assert(cPickle.HIGHEST_PROTOCOL is 2)"
+  PyTuple_SetItem(args,1,PyLong_FromLong(3));// because "assert(pickle.HIGHEST_PROTOCOL is 3)"
   PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"dumps"));
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(selfMeth);
