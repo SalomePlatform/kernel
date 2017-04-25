@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -1045,6 +1045,9 @@ std::string SALOME_ContainerManager::BuildTemporaryFileName()
 {
   //build more complex file name to support multiple salome session
   std::string aFileName = Kernel_Utils::GetTmpFileName();
+  std::ostringstream str_pid;
+  str_pid << ::getpid();
+  aFileName = aFileName + "-" + str_pid.str();
 #ifndef WIN32
   aFileName += ".sh";
 #else
@@ -1196,7 +1199,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
   std::string command;
   std::string tmpFile = BuildTemporaryFileName();
   const ParserResourcesType resInfo(_resManager->GetResourceDefinition(machine));
-  
+
   if(resInfo.Protocol == sh)
   {
     return resInfo.HostName;
@@ -2055,4 +2058,3 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
   return false;
 }
 #endif
-

@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import os
 import unittest
 import salome
 import Engines
@@ -38,45 +39,46 @@ Test with catalog :
 </resources>
 """
   def setUp(self):
+    self.container_name = "MyContainer-%s"%(os.getpid())
     pass
 
   def test0(self):
     """"""
     rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
-    p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="start",resource_params=rp)
+    p=LifeCycleCORBA.ContainerParameters(container_name=self.container_name,mode="start",resource_params=rp)
     co=cm.GiveContainer( p )
     host1=co.getHostName()
-    name1="/Containers/%s/MyContainer" % host1
+    name1="/Containers/%s/%s" % (host1,self.container_name)
     self.assertEqual(co._get_name(), name1)
     co=cm.GiveContainer( p )
     host2=co.getHostName()
-    name2="/Containers/%s/MyContainer" % host2
+    name2="/Containers/%s/%s" % (host2,self.container_name)
     self.assertEqual(co._get_name(), name2)
 
   def test1(self):
     """"""
     rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
-    p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="get",resource_params=rp)
+    p=LifeCycleCORBA.ContainerParameters(container_name=self.container_name,mode="get",resource_params=rp)
     co=cm.GiveContainer( p )
     host1=co.getHostName()
-    name1="/Containers/%s/MyContainer" % host1
+    name1="/Containers/%s/%s" % (host1,self.container_name)
     self.assertEqual(co._get_name(), name1)
     co=cm.GiveContainer( p )
     host2=co.getHostName()
-    name2="/Containers/%s/MyContainer" % host2
+    name2="/Containers/%s/%s" % (host2,self.container_name)
     self.assertEqual(co._get_name(), name2)
 
   def test2(self):
     """"""
     rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
-    p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="getorstart",resource_params=rp)
+    p=LifeCycleCORBA.ContainerParameters(container_name=self.container_name,mode="getorstart",resource_params=rp)
     co=cm.GiveContainer( p )
     host1=co.getHostName()
-    name1="/Containers/%s/MyContainer" % host1
+    name1="/Containers/%s/%s" % (host1,self.container_name)
     self.assertEqual(co._get_name(), name1)
     co=cm.GiveContainer( p )
     host2=co.getHostName()
-    name2="/Containers/%s/MyContainer" % host2
+    name2="/Containers/%s/%s" % (host2,self.container_name)
     self.assertEqual(co._get_name(), name2)
 
 
