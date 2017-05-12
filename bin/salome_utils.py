@@ -148,7 +148,6 @@ def getHostName():
     3. if fails, try HOST environment variable
     4. if fails, return 'unknown' as default host name
     """
-    import os
     try:
         import socket
         host = socket.gethostname()
@@ -158,6 +157,11 @@ def getHostName():
     if not host: host = os.getenv("HOSTNAME")
     if not host: host = os.getenv("HOST")
     if not host: host = "unknown"           # 'unknown' is default host name
+    try:
+        socket.gethostbyname(host)
+    except:
+        host = "localhost"
+    pass
     return host
 
 # ---

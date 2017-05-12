@@ -29,7 +29,7 @@ import socket
 import subprocess
 import re
 from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs, getShortAndExtraArgs
-from salome_utils import getUserName
+from salome_utils import getUserName, getShortHostName
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -152,7 +152,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
   else:
     if not host:
       # only PORT is given
-      host = socket.gethostname()
+      host = getShortHostName()
     # both MACHINE and PORT are given
     _writeConfigFile(port, host)
   #
@@ -160,7 +160,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
   os.environ['NSHOST'] = host
 
   # determine running mode, taht is either 'local' or 'remote'
-  here = socket.gethostname()
+  here = getShortHostName()
   mode = "local"
   if host != here and host != "localhost" and host != "no_host":
     mode="remote"
