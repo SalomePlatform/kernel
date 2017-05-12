@@ -276,11 +276,12 @@ void TransactionMultiKeyAddSession::addKeyValueInVarErrorIfAlreadyExistingNow(co
   _dsct->checkVarExistingAndDict(_var_name);
   TransactionAddKeyValueErrorIfAlreadyExisting ret(_dsct,_var_name,key,value);
   {
-    bool mustRollback(true);
+    ret.perform();
+    /*bool mustRollback(true);
     TrustTransaction t;
     t.setTransaction(&ret,&mustRollback);
     t.operate();
-    mustRollback=false;//important let this line to notify t that everything was OK
+    mustRollback=false;//important let this line to notify t that everything was OK*/
   }
   ret.notify();
 }
