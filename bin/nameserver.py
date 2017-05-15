@@ -25,7 +25,7 @@
 import os, sys, re, socket
 #import commands
 from server import Server
-from Utils_Identity import getShortHostName
+from salome_utils import getShortHostName
 from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
@@ -46,13 +46,8 @@ class NamingServer(Server):
         except:
             pass
 
-        if verbose(): print "Name Service... ",
-        #hname=os.environ["HOST"] #commands.getoutput("hostname")
-        if sys.platform == "win32":
-          hname = getShortHostName();
-        else:
-          hname = socket.gethostname();
-        #print "hname=",hname
+        if verbose(): print "Name Service... "
+        hname = getShortHostName()
 
         with open(os.environ["OMNIORB_CONFIG"]) as f:
           ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())

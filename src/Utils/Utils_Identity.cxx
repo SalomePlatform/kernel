@@ -71,6 +71,8 @@ const char* get_adip( void )
 #endif
 
         const hostent* pour_adip=gethostbyname(hostid.nodename);
+	if(pour_adip  == NULL)
+	  pour_adip=gethostbyname("localhost");
         ASSERT(pour_adip!=NULL);
         const in_addr ip_addr=*(struct in_addr*)(pour_adip->h_addr) ;
         return duplicate(inet_ntoa(ip_addr));
