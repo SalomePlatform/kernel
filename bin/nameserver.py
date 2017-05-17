@@ -25,7 +25,7 @@
 import os, sys, re, socket
 #import commands
 from server import Server
-from salome_utils import getShortHostName
+from salome_utils import getHostName
 from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ class NamingServer(Server):
             pass
 
         if verbose(): print "Name Service... "
-        hname = getShortHostName()
+        hname = getHostName()
 
         with open(os.environ["OMNIORB_CONFIG"]) as f:
           ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
