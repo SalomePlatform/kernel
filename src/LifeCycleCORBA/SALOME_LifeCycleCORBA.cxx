@@ -599,7 +599,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   std::string portNumber (::getenv ("NSPORT") );
   std::string python_exe;
 
-  python_exe = std::string("python");
+  python_exe = std::string("python3");
 
   if ( !portNumber.empty() )
   {
