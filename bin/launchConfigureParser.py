@@ -488,7 +488,7 @@ def check_standalone(option, opt, value, parser):
     pass
 
 def store_boolean (option, opt, value, parser, *args):
-    if isinstance(value, bytes):
+    if isinstance(value, bytes) or isinstance(value, str):
         try:
             value_conv = booleans[value.strip().lower()]
             for attribute in args:
