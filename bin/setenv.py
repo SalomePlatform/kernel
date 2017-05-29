@@ -88,17 +88,8 @@ def get_config(silent=False, exeName=None):
 
     # read args from launch configure xml file and command line options
 
-    #*** Test additional option
-    #*** import optparse
-    #*** help_str = "Test options addition."
-    #*** o_j = optparse.Option("-j", "--join", action="store_true", dest="join", help=help_str)
-
     import launchConfigureParser
     args = launchConfigureParser.get_env(exeName=exeName)
-
-    #*** Test additional option
-    #*** args = launchConfigureParser.get_env([o_j])
-    #*** if args.has_key("join"): print(args["join"])
 
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)

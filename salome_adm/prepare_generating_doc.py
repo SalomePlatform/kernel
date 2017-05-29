@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
@@ -32,16 +32,16 @@
 # Current the script does:
 # 1. remove Python documentation in triple double quotes (like """some_comments""")
 #
-# Usage: prepare_generating_doc.py [-o <output_file>] <input_file> 
+# Usage: prepare_generating_doc.py [-o <output_file>] <input_file>
 #
 # If <output_file> is not specified, it is generated in the current directory.
 #
-#################################################################################
+###############################################################################
 
-import os, sys, re
+import os, sys
 
 def main(input_file, output_file = None):
-    
+
     # open input file
     try:
         infile = open(input_file, 'rb')
@@ -50,7 +50,7 @@ def main(input_file, output_file = None):
         pass
 
     if not output_file: output_file = os.path.basename(input_file)
-    
+
     # open output file
     try:
         outfile = open(output_file, 'wb')
@@ -92,14 +92,13 @@ def main(input_file, output_file = None):
     pass
 
 if __name__ == "__main__":
-    import optparse
-    parser = optparse.OptionParser(usage="%prog [options] input_file")
+    import argparse
+    parser = argparse.ArgumentParser()
     h  = "Output file (if not specified, generated in the current directory)"
-    parser.add_option("-o", "--output", dest="output",
-                      action="store", default=None, metavar="file",
-                      help=h)
-    (options, args) = parser.parse_args()
-
-    if len( args ) < 1: sys.exit("Input file is not specified")
-    main( args[0], options.output )
+    parser.add_argument("-o", "--output", dest="output",
+                        action="store", default=None, metavar="file",
+                        help=h)
+    parser.add_argument('input_file')
+    args = parser.parse_args()
+    main( args.input_file, args.output )
     pass

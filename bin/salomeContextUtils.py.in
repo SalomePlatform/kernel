@@ -221,17 +221,18 @@ def getScriptsAndArgs(args=None, searchPathList=None):
       callPython = True
       afterArgs = False
     else:
+      file_extension = os.path.splitext(elt)[-1]
       if not os.path.isfile(elt) and not os.path.isfile(elt+".py"):
         eltInSearchPath = __getScriptPath(elt, searchPathList)
         if eltInSearchPath is None or (not os.path.isfile(eltInSearchPath) and not os.path.isfile(eltInSearchPath+".py")):
-          if elt[-3:] == ".py":
+          if file_extension == ".py":
             raise SalomeContextException("Script not found: %s"%elt)
           scriptArgs.append(ScriptAndArgs(script=elt))
           continue
         elt = eltInSearchPath
 
-      if elt[-4:] != ".hdf":
-        if elt[-3:] == ".py" or isDriver:
+      if file_extension != ".hdf":
+        if file_extension == ".py" or isDriver:
           currentScript = os.path.abspath(elt)
         elif os.path.isfile(elt+".py"):
           currentScript = os.path.abspath(elt+".py")
@@ -244,6 +245,7 @@ def getScriptsAndArgs(args=None, searchPathList=None):
         scriptArgs.append(ScriptAndArgs(script=currentKey))
         callPython = False
       elif currentScript:
+        script_extension = os.path.splitext(currentScript)[-1]
         if isDriver:
           currentKey = currentScript
           scriptArgs.append(ScriptAndArgs(script=currentKey))
@@ -264,7 +266,7 @@ def getScriptsAndArgs(args=None, searchPathList=None):
             fn.close()
           except:
             pass
-          if not ispython and currentScript[-3:] == ".py":
+          if not ispython and script_extension == ".py":
             currentKey = "@PYTHONBIN@ "+currentScript
           else:
             currentKey = currentScript

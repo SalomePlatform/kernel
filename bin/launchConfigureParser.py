@@ -21,13 +21,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os, glob, string, sys, re
+import argparse
+import glob
+import os
+import re
+import sys
 import xml.sax
-import optparse
-import types
 
 from salome_utils import verbose, getPortNumber, getHomeDir
-from six import string_types
+
 
 # names of tags in XML configuration file
 doc_tag = "document"
@@ -214,7 +216,7 @@ def userFile(appname, cfgname):
         files += glob.glob(os.path.join(getHomeDir(), filetmpl2.format(appname)))
     pass
 
-    # ... loop through all files and find most appopriate file (with closest id)
+    # ... loop through all files and find most appropriate file (with closest id)
     appr_id   = -1
     appr_file = ""
     for f in files:
@@ -285,11 +287,11 @@ class xml_parser:
 
     def boolValue( self, item):
         strloc = item
-        if isinstance(strloc, string_types):
+        if isinstance(strloc, str):
             strloc = strloc.encode().strip()
         if isinstance(strloc, bytes):
             strlow = strloc.decode().lower()
-            if strlow in   ("1", "yes", "y", "on", "true", "ok"):
+            if strlow in ("1", "yes", "y", "on", "true", "ok"):
                 return True
             elif strlow in ("0", "no", "n", "off", "false", "cancel"):
                 return False
@@ -298,11 +300,11 @@ class xml_parser:
 
     def intValue( self, item):
         strloc = item
-        if isinstance(strloc, string_types):
+        if isinstance(strloc, str):
             strloc = strloc.encode().strip()
         if isinstance(strloc, bytes):
             strlow = strloc.decode().lower()
-            if strlow in   ("1", "yes", "y", "on", "true", "ok"):
+            if strlow in ("1", "yes", "y", "on", "true", "ok"):
                 return 1
             elif strlow in ("0", "no", "n", "off", "false", "cancel"):
                 return 0
@@ -421,7 +423,7 @@ class xml_parser:
             # import file
             imp = xml_parser(absfname, opts, self.importHistory)
             # merge results
-            for key in list(imp.opts.keys()):
+            for key in imp.opts:
                 if key not in self.opts:
                     self.opts[key] = imp.opts[key]
                     pass
@@ -434,425 +436,367 @@ class xml_parser:
 
 # -----------------------------------------------------------------------------
 
-booleans = { '1': True , 'yes': True , 'y': True , 'on' : True , 'true' : True , 'ok'     : True,
-             '0': False, 'no' : False, 'n': False, 'off': False, 'false': False, 'cancel' : False }
+booleans = {'1': True , 'yes': True , 'y': True , 'on' : True , 'true' : True , 'ok'     : True,
+            '0': False, 'no' : False, 'n': False, 'off': False, 'false': False, 'cancel' : False}
 
 boolean_choices = list(booleans.keys())
 
-def check_embedded(option, opt, value, parser):
-    from optparse import OptionValueError
-    assert value is not None
-    if parser.values.embedded:
-        embedded = [a for a in re.split( "[:;,]", parser.values.embedded ) if a.strip()]
-    else:
-        embedded = []
-    if parser.values.standalone:
-        standalone = [a for a in re.split( "[:;,]", parser.values.standalone ) if a.strip()]
-    else:
-        standalone = []
-    vals = [a for a in re.split( "[:;,]", value ) if a.strip()]
-    for v in vals:
-        if v not in embedded_choices:
-            raise OptionValueError( "option %s: invalid choice: %r (choose from %s)" % ( opt, v, ", ".join( map( repr, embedded_choices ) ) ) )
-        if v not in embedded:
-            embedded.append( v )
-            if v in standalone:
-                del standalone[ standalone.index( v ) ]
-                pass
-    parser.values.embedded = ",".join( embedded )
-    parser.values.standalone = ",".join( standalone )
-    pass
 
-def check_standalone(option, opt, value, parser):
-    from optparse import OptionValueError
-    assert value is not None
-    if parser.values.embedded:
-        embedded = [a for a in re.split( "[:;,]", parser.values.embedded ) if a.strip()]
-    else:
-        embedded = []
-    if parser.values.standalone:
-        standalone = [a for a in re.split( "[:;,]", parser.values.standalone ) if a.strip()]
-    else:
-        standalone = []
-    vals = [a for a in re.split( "[:;,]", value ) if a.strip()]
-    for v in vals:
-        if v not in standalone_choices:
-            raise OptionValueError( "option %s: invalid choice: %r (choose from %s)" % ( opt, v, ", ".join( map( repr, standalone_choices ) ) ) )
-        if v not in standalone:
-            standalone.append( v )
-            if v in embedded:
-                del embedded[ embedded.index( v ) ]
-                pass
-    parser.values.embedded = ",".join( embedded )
-    parser.values.standalone = ",".join( standalone )
-    pass
+class CheckEmbeddedAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        assert value is not None
+        if namespace.embedded:
+            embedded = [a for a in re.split("[:;,]", namespace.embedded) if a.strip()]
+        else:
+            embedded = []
+        if namespace.standalone:
+            standalone = [a for a in re.split("[:;,]", namespace.standalone) if a.strip()]
+        else:
+            standalone = []
+        vals = [a for a in re.split("[:;,]", value) if a.strip()]
+        for v in vals:
+            if v not in embedded_choices:
+                raise argparse.ArgumentError("option %s: invalid choice: %r (choose from %s)"
+                                             % (self.dest, v, ", ".join(map(repr, embedded_choices))))
+            if v not in embedded:
+                embedded.append(v)
+                if v in standalone:
+                    del standalone[standalone.index(v)]
+                    pass
+        namespace.embedded = ",".join(embedded)
+        namespace.standalone = ",".join(standalone)
+        pass
 
-def store_boolean (option, opt, value, parser, *args):
-    if isinstance(value, bytes) or isinstance(value, str):
-        try:
-            value_conv = booleans[value.strip().lower()]
-            for attribute in args:
-                setattr(parser.values, attribute, value_conv)
-        except KeyError:
-            raise optparse.OptionValueError(
-                "option %s: invalid boolean value: %s (choose from %s)"
-                % (opt, value, boolean_choices))
-    else:
-        for attribute in args:
-            setattr(parser.values, attribute, value)
 
-def CreateOptionParser (theAdditionalOptions=None, exeName=None):
-    if theAdditionalOptions is None:
-        theAdditionalOptions = []
+class CheckStandaloneAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        assert value is not None
+        if namespace.embedded:
+            embedded = [a for a in re.split("[:;,]", namespace.embedded) if a.strip()]
+        else:
+            embedded = []
+        if namespace.standalone:
+            standalone = [a for a in re.split("[:;,]", namespace.standalone) if a.strip()]
+        else:
+            standalone = []
+        vals = [a for a in re.split("[:;,]", value) if a.strip()]
+        for v in vals:
+            if v not in standalone_choices:
+                raise argparse.ArgumentError("option %s: invalid choice: %r (choose from %s)"
+                                             % (self.dest, v, ", ".join(map(repr, standalone_choices))))
+            if v not in standalone:
+                standalone.append(v)
+                if v in embedded:
+                    del embedded[embedded.index(v)]
+                    pass
+        namespace.embedded = ",".join(embedded)
+        namespace.standalone = ",".join(standalone)
+
+
+class StoreBooleanAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        if isinstance(value, bytes):
+            value = value.decode()
+        if isinstance(value, str):
+            try:
+                value_conv = booleans[value.strip().lower()]
+                setattr(namespace, self.dest, value_conv)
+            except KeyError:
+                raise argparse.ArgumentError(
+                    "option %s: invalid boolean value: %s (choose from %s)"
+                    % (self.dest, value, boolean_choices))
+        else:
+            setattr(namespace, self.dest, value)
+
+
+def CreateOptionParser(exeName=None):
+
+    if not exeName:
+        exeName = "%(prog)s"
+
+    a_usage = """%s [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
+""" % exeName
+    version_str = "Salome %s" % version()
+    pars = argparse.ArgumentParser(usage=a_usage)
+
+    # Version
+    pars.add_argument('-v', '--version', action='version', version=version_str)
+
     # GUI/Terminal. Default: GUI
     help_str = "Launch without GUI (in the terminal mode)."
-    o_t = optparse.Option("-t",
-                          "--terminal",
-                          action="store_false",
-                          dest="gui",
-                          help=help_str)
+    pars.add_argument("-t",
+                      "--terminal",
+                      action="store_false",
+                      dest="gui",
+                      help=help_str)
 
     help_str = "Launch in Batch Mode. (Without GUI on batch machine)"
-    o_b = optparse.Option("-b",
-                          "--batch",
-                          action="store_true",
-                          dest="batch",
-                          help=help_str)
+    pars.add_argument("-b",
+                      "--batch",
+                      action="store_true",
+                      dest="batch",
+                      help=help_str)
 
     help_str = "Launch in GUI mode [default]."
-    o_g = optparse.Option("-g",
-                          "--gui",
-                          action="store_true",
-                          dest="gui",
-                          help=help_str)
+    pars.add_argument("-g",
+                      "--gui",
+                      action="store_true",
+                      dest="gui",
+                      help=help_str)
 
     # Show Desktop (inly in GUI mode). Default: True
     help_str  = "1 to activate GUI desktop [default], "
     help_str += "0 to not activate GUI desktop (Session_Server starts, but GUI is not shown). "
     help_str += "Ignored in the terminal mode."
-    o_d = optparse.Option("-d",
-                          "--show-desktop",
-                          metavar="<1/0>",
-                          #type="choice", choices=boolean_choices,
-                          type="string",
-                          action="callback", callback=store_boolean, callback_args=('desktop',),
-                          dest="desktop",
-                          help=help_str)
+    pars.add_argument("-d",
+                      "--show-desktop",
+                      metavar="<1/0>",
+                      action=StoreBooleanAction,
+                      dest="desktop",
+                      help=help_str)
     help_str  = "Do not activate GUI desktop (Session_Server starts, but GUI is not shown). "
     help_str += "The same as --show-desktop=0."
-    o_o = optparse.Option("-o",
-                          "--hide-desktop",
-                          action="store_false",
-                          dest="desktop",
-                          help=help_str)
+    pars.add_argument("-o",
+                      "--hide-desktop",
+                      action="store_false",
+                      dest="desktop",
+                      help=help_str)
 
     # Use logger or log-file. Default: nothing.
     help_str = "Redirect messages to the CORBA collector."
-    #o4 = optparse.Option("-l", "--logger", action="store_true", dest="logger", help=help_str)
-    o_l = optparse.Option("-l",
-                          "--logger",
-                          action="store_const", const="CORBA",
-                          dest="log_file",
-                          help=help_str)
+    pars.add_argument("-l",
+                      "--logger",
+                      action="store_const", const="CORBA",
+                      dest="log_file",
+                      help=help_str)
     help_str = "Redirect messages to the <log-file>"
-    o_f = optparse.Option("-f",
-                          "--log-file",
-                          metavar="<log-file>",
-                          type="string",
-                          action="store",
-                          dest="log_file",
-                          help=help_str)
+    pars.add_argument("-f",
+                      "--log-file",
+                      metavar="<log-file>",
+                      dest="log_file",
+                      help=help_str)
 
     # Configuration XML file. Default: see defaultUserFile() function
-    help_str  = "Parse application settings from the <file> "
+    help_str = "Parse application settings from the <file> "
     help_str += "instead of default %s" % defaultUserFile()
-    o_r = optparse.Option("-r",
-                          "--resources",
-                          metavar="<file>",
-                          type="string",
-                          action="store",
-                          dest="resources",
-                          help=help_str)
+    pars.add_argument("-r",
+                      "--resources",
+                      metavar="<file>",
+                      dest="resources",
+                      help=help_str)
 
     # Use own xterm for each server. Default: False.
     help_str = "Launch each SALOME server in own xterm console"
-    o_x = optparse.Option("-x",
-                          "--xterm",
-                          action="store_true",
-                          dest="xterm",
-                          help=help_str)
+    pars.add_argument("-x",
+                      "--xterm",
+                      action="store_true",
+                      dest="xterm",
+                      help=help_str)
 
     # Modules. Default: Like in configuration files.
     help_str  = "SALOME modules list (where <module1>, <module2> are the names "
     help_str += "of SALOME modules which should be available in the SALOME session)"
-    o_m = optparse.Option("-m",
-                          "--modules",
-                          metavar="<module1,module2,...>",
-                          type="string",
-                          action="append",
-                          dest="modules",
-                          help=help_str)
+    pars.add_argument("-m",
+                      "--modules",
+                      metavar="<module1,module2,...>",
+                      action="append",
+                      dest="modules",
+                      help=help_str)
 
     # Embedded servers. Default: Like in configuration files.
     help_str  = "CORBA servers to be launched in the Session embedded mode. "
     help_str += "Valid values for <serverN>: %s " % ", ".join( embedded_choices )
     help_str += "[by default the value from the configuration files is used]"
-    o_e = optparse.Option("-e",
-                          "--embedded",
-                          metavar="<server1,server2,...>",
-                          type="string",
-                          action="callback",
-                          dest="embedded",
-                          callback=check_embedded,
-                          help=help_str)
+    pars.add_argument("-e",
+                      "--embedded",
+                      metavar="<server1,server2,...>",
+                      action=CheckEmbeddedAction,
+                      dest="embedded",
+                      help=help_str)
 
     # Standalone servers. Default: Like in configuration files.
     help_str  = "CORBA servers to be launched in the standalone mode (as separate processes). "
     help_str += "Valid values for <serverN>: %s " % ", ".join( standalone_choices )
     help_str += "[by default the value from the configuration files is used]"
-    o_s = optparse.Option("-s",
-                          "--standalone",
-                          metavar="<server1,server2,...>",
-                          type="string",
-                          action="callback",
-                          dest="standalone",
-                          callback=check_standalone,
-                          help=help_str)
+    pars.add_argument("-s",
+                      "--standalone",
+                      metavar="<server1,server2,...>",
+                      action=CheckStandaloneAction,
+                      dest="standalone",
+                      help=help_str)
 
     # Kill with port. Default: False.
     help_str = "Kill SALOME with the current port"
-    o_p = optparse.Option("-p",
-                          "--portkill",
-                          action="store_true",
-                          dest="portkill",
-                          help=help_str)
+    pars.add_argument("-p",
+                      "--portkill",
+                      action="store_true",
+                      dest="portkill",
+                      help=help_str)
 
     # Kill all. Default: False.
     help_str = "Kill all running SALOME sessions"
-    o_k = optparse.Option("-k",
-                          "--killall",
-                          action="store_true",
-                          dest="killall",
-                          help=help_str)
+    pars.add_argument("-k",
+                      "--killall",
+                      action="store_true",
+                      dest="killall",
+                      help=help_str)
 
     # Additional python interpreters. Default: 0.
     help_str  = "The number of additional external python interpreters to run. "
     help_str += "Each additional python interpreter is run in separate "
     help_str += "xterm session with properly set SALOME environment"
-    o_i = optparse.Option("-i",
-                          "--interp",
-                          metavar="<N>",
-                          type="int",
-                          action="store",
-                          dest="interp",
-                          help=help_str)
+    pars.add_argument("-i",
+                      "--interp",
+                      metavar="<N>",
+                      type=int,
+                      dest="interp",
+                      help=help_str)
 
     # Splash. Default: True.
     help_str  = "1 to display splash screen [default], "
     help_str += "0 to disable splash screen. "
     help_str += "This option is ignored in the terminal mode. "
     help_str += "It is also ignored if --show-desktop=0 option is used."
-    o_z = optparse.Option("-z",
-                          "--splash",
-                          metavar="<1/0>",
-                          #type="choice", choices=boolean_choices,
-                          type="string",
-                          action="callback", callback=store_boolean, callback_args=('splash',),
-                          dest="splash",
-                          help=help_str)
+    pars.add_argument("-z",
+                      "--splash",
+                      metavar="<1/0>",
+                      action=StoreBooleanAction,
+                      dest="splash",
+                      help=help_str)
 
     # Catch exceptions. Default: True.
     help_str  = "1 (yes,true,on,ok) to enable centralized exception handling [default], "
     help_str += "0 (no,false,off,cancel) to disable centralized exception handling."
-    o_c = optparse.Option("-c",
-                          "--catch-exceptions",
-                          metavar="<1/0>",
-                          #type="choice", choices=boolean_choices,
-                          type="string",
-                          action="callback", callback=store_boolean, callback_args=('catch_exceptions',),
-                          dest="catch_exceptions",
-                          help=help_str)
+    pars.add_argument("-c",
+                      "--catch-exceptions",
+                      metavar="<1/0>",
+                      action=StoreBooleanAction,
+                      dest="catch_exceptions",
+                      help=help_str)
 
     # Print free port and exit
     help_str = "Print free port and exit"
-    o_a = optparse.Option("--print-port",
-                          action="store_true",
-                          dest="print_port", default=False,
-                          help=help_str)
+    pars.add_argument("--print-port",
+                      action="store_true",
+                      dest="print_port",
+                      help=help_str)
 
     # Do not relink ${HOME}/.omniORB_last.cfg
     help_str = "Do not save current configuration ${HOME}/.omniORB_last.cfg"
-    o_n = optparse.Option("--nosave-config",
-                          action="store_false",
-                          dest="save_config", default=True,
-                          help=help_str)
+    pars.add_argument("--nosave-config",
+                      action="store_false",
+                      dest="save_config",
+                      help=help_str)
 
     # Launch with interactive python console. Default: False.
     help_str = "Launch with interactive python console."
-    o_pi = optparse.Option("--pinter",
-                          action="store_true",
-                          dest="pinter",
-                          help=help_str)
+    pars.add_argument("--pinter",
+                      action="store_true",
+                      dest="pinter",
+                      help=help_str)
 
     # Print Naming service port into a user file. Default: False.
     help_str = "Print Naming Service Port into a user file."
-    o_nspl = optparse.Option("--ns-port-log",
-                             metavar="<ns_port_log_file>",
-                             type="string",
-                             action="store",
-                             dest="ns_port_log_file",
-                             help=help_str)
+    pars.add_argument("--ns-port-log",
+                      metavar="<ns_port_log_file>",
+                      dest="ns_port_log_file",
+                      help=help_str)
 
     # Write/read test script file with help of TestRecorder. Default: False.
     help_str = "Write/read test script file with help of TestRecorder."
-    o_test = optparse.Option("--test",
-                             metavar="<test_script_file>",
-                             type="string",
-                             action="store",
-                             dest="test_script_file",
-                             help=help_str)
+    pars.add_argument("--test",
+                      metavar="<test_script_file>",
+                      dest="test_script_file",
+                      help=help_str)
 
     # Reproducing test script with help of TestRecorder. Default: False.
     help_str = "Reproducing test script with help of TestRecorder."
-    o_play = optparse.Option("--play",
-                             metavar="<play_script_file>",
-                             type="string",
-                             action="store",
-                             dest="play_script_file",
-                             help=help_str)
+    pars.add_argument("--play",
+                      metavar="<play_script_file>",
+                      dest="play_script_file",
+                      help=help_str)
 
     # gdb session
     help_str = "Launch session with gdb"
-    o_gdb = optparse.Option("--gdb-session",
-                            action="store_true",
-                            dest="gdb_session", default=False,
-                            help=help_str)
+    pars.add_argument("--gdb-session",
+                      action="store_true",
+                      dest="gdb_session",
+                      help=help_str)
 
     # ddd session
     help_str = "Launch session with ddd"
-    o_ddd = optparse.Option("--ddd-session",
-                            action="store_true",
-                            dest="ddd_session", default=False,
-                            help=help_str)
+    pars.add_argument("--ddd-session",
+                      action="store_true",
+                      dest="ddd_session",
+                      help=help_str)
 
 
     # valgrind session
     help_str = "Launch session with valgrind $VALGRIND_OPTIONS"
-    o_valgrind = optparse.Option("--valgrind-session",
-                                 action="store_true",
-                                 dest="valgrind_session", default=False,
-                                 help=help_str)
+    pars.add_argument("--valgrind-session",
+                      action="store_true",
+                      dest="valgrind_session",
+                      help=help_str)
 
     # shutdown-servers. Default: False.
     help_str  = "1 to shutdown standalone servers when leaving python interpreter, "
     help_str += "0 to keep the standalone servers as daemon [default]. "
     help_str += "This option is only useful in batchmode "
     help_str += "(terminal mode or without showing desktop)."
-    o_shutdown = optparse.Option("-w",
-                                 "--shutdown-servers",
-                                 metavar="<1/0>",
-                                 #type="choice", choices=boolean_choices,
-                                 type="string",
-                                 action="callback", callback=store_boolean, callback_args=('shutdown_servers',),
-                                 dest="shutdown_servers",
-                                 help=help_str)
+    pars.add_argument("-w",
+                      "--shutdown-servers",
+                      metavar="<1/0>",
+                      action=StoreBooleanAction,
+                      dest="shutdown_servers",
+                      help=help_str)
 
     # foreground. Default: True.
     help_str  = "0 and runSalome exits after have launched the gui, "
     help_str += "1 to launch runSalome in foreground mode [default]."
-    o_foreground = optparse.Option("--foreground",
-                                   metavar="<1/0>",
-                                   #type="choice", choices=boolean_choices,
-                                   type="string",
-                                   action="callback", callback=store_boolean, callback_args=('foreground',),
-                                   dest="foreground",
-                                   help=help_str)
+    pars.add_argument("--foreground",
+                      metavar="<1/0>",
+                      action=StoreBooleanAction,
+                      dest="foreground",
+                      help=help_str)
 
     # wake up session
     help_str  = "Wake up a previously closed session. "
     help_str += "The session object is found in the naming service pointed by the variable OMNIORB_CONFIG. "
     help_str += "If this variable is not setted, the last configuration is taken. "
-    o_wake_up = optparse.Option("--wake-up-session",
-                                action="store_true",
-                                dest="wake_up_session", default=False,
-                                help=help_str)
+    pars.add_argument("--wake-up-session",
+                      action="store_true",
+                      dest="wake_up_session",
+                      help=help_str)
 
     # server launch mode
     help_str = "Mode used to launch server processes (daemon or fork)."
-    o_slm = optparse.Option("--server-launch-mode",
-                            metavar="<server_launch_mode>",
-                            type="choice",
-                            choices=["daemon","fork"],
-                            action="store",
-                            dest="server_launch_mode",
-                            help=help_str)
+    pars.add_argument("--server-launch-mode",
+                      metavar="<server_launch_mode>",
+                      choices=["daemon", "fork"],
+                      dest="server_launch_mode",
+                      help=help_str)
 
     # use port
     help_str  = "Preferable port SALOME to be started on. "
     help_str += "If specified port is not busy, SALOME session will start on it; "
     help_str += "otherwise, any available port will be searched and used."
-    o_port = optparse.Option("--port",
-                             metavar="<port>",
-                             type="int",
-                                   action="store",
-                             dest="use_port",
-                                   help=help_str)
+    pars.add_argument("--port",
+                      metavar="<port>",
+                      type=int,
+                      dest="use_port",
+                      help=help_str)
 
+    # Language
     help_str  = "Force application language. By default, a language specified in "
     help_str += "the user's preferences is used."
-    o_lang = optparse.Option("-a",
-                             "--language",
-                             action="store",
-                             dest="language",
-                             help=help_str)
+    pars.add_argument("-a",
+                      "--language",
+                      dest="language",
+                      help=help_str)
 
-    # All options
-    opt_list = [o_t,o_g, # GUI/Terminal
-                o_d,o_o, # Desktop
-                o_b,     # Batch
-                o_l,o_f, # Use logger or log-file
-                o_r,     # Configuration XML file
-                o_x,     # xterm
-                o_m,     # Modules
-                o_e,     # Embedded servers
-                o_s,     # Standalone servers
-                o_p,     # Kill with port
-                o_k,     # Kill all
-                o_i,     # Additional python interpreters
-                o_z,     # Splash
-                o_c,     # Catch exceptions
-                o_a,     # Print free port and exit
-                o_n,     # --nosave-config
-                o_pi,    # Interactive python console
-                o_nspl,
-                o_test,  # Write/read test script file with help of TestRecorder
-                o_play,  # Reproducing test script with help of TestRecorder
-                o_gdb,
-                o_ddd,
-                o_valgrind,
-                o_shutdown,
-                o_foreground,
-                o_wake_up,
-                o_slm,   # Server launch mode
-                o_port,  # Use port
-                o_lang,  # Language
-                ]
-
-    #std_options = ["gui", "desktop", "log_file", "resources",
-    #               "xterm", "modules", "embedded", "standalone",
-    #               "portkill", "killall", "interp", "splash",
-    #               "catch_exceptions", "print_port", "save_config", "ns_port_log_file"]
-
-    opt_list += theAdditionalOptions
-
-    if not exeName:
-      exeName = "%prog"
-
-    a_usage = """%s [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
-Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
-"""%exeName
-    version_str = "Salome %s" % version()
-    pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
+    # Positional arguments (hdf file, python file)
+    pars.add_argument("arguments", nargs=argparse.REMAINDER)
 
     return pars
 
@@ -866,7 +810,7 @@ Python file arguments, if any, must be comma-separated (without blank characters
 args = {}
 #def get_env():
 #args = []
-def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgname, exeName=None):
+def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -889,9 +833,6 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     #   specified in configuration file(s)
     ###
 
-    if theAdditionalOptions is None:
-        theAdditionalOptions = []
-
     global args
     config_var = appname+'Config'
 
@@ -906,8 +847,8 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
 
     ############################
     # parse command line options
-    pars = CreateOptionParser(theAdditionalOptions, exeName=exeName)
-    (cmd_opts, cmd_args) = pars.parse_args(sys.argv[1:])
+    pars = CreateOptionParser(exeName=exeName)
+    cmd_opts = pars.parse_args(sys.argv[1:])
     ############################
 
     # Process --print-port option
@@ -936,7 +877,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     gui_available = False
     if os.getenv("GUI_ROOT_DIR"):
         gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
-        if os.path.isdir( gui_resources_dir ):
+        if os.path.isdir(gui_resources_dir):
             gui_available = True
             dirs.append(gui_resources_dir)
         pass
@@ -957,8 +898,8 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     _opts = {} # associative array of options to be filled
 
     # parse SalomeApp.xml files in directories specified by SalomeAppConfig env variable
-    for dir in dirs:
-        filename = os.path.join(dir, appname+'.xml')
+    for directory in dirs:
+        filename = os.path.join(directory, appname + '.xml')
         if not os.path.exists(filename):
             if verbose(): print("Configure parser: Warning : can not find configuration file %s" % filename)
         else:
@@ -1002,7 +943,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
             args[aKey] = 0
 
     if args[file_nam]:
-        afile=args[file_nam]
+        afile = args[file_nam]
         args[file_nam] = [afile]
 
     args[appname_nam] = appname
@@ -1054,26 +995,28 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
 
     # Naming Service port log file
     if cmd_opts.ns_port_log_file is not None:
-      args["ns_port_log_file"] = cmd_opts.ns_port_log_file
+        args["ns_port_log_file"] = cmd_opts.ns_port_log_file
 
     # Study files
-    for arg in cmd_args:
-        if arg[-4:] == ".hdf" and not args["study_hdf"]:
+    for arg in cmd_opts.arguments:
+        file_extension = os.path.splitext(arg)[-1]
+        if file_extension == ".hdf" and not args["study_hdf"]:
             args["study_hdf"] = arg
 
     # Python scripts
     from salomeContextUtils import getScriptsAndArgs, ScriptAndArgs
-    args[script_nam] = getScriptsAndArgs(cmd_args)
+    args[script_nam] = getScriptsAndArgs(cmd_opts.arguments)
     if args[gui_nam] and args["session_gui"]:
         new_args = []
-        for sa_obj in args[script_nam]: # args[script_nam] is a list of ScriptAndArgs objects
+        for sa_obj in args[script_nam]:  # args[script_nam] is a list of ScriptAndArgs objects
             script = re.sub(r'^python.*\s+', r'', sa_obj.script)
             new_args.append(ScriptAndArgs(script=script, args=sa_obj.args, out=sa_obj.out))
         #
         args[script_nam] = new_args
 
     # xterm
-    if cmd_opts.xterm is not None: args[xterm_nam] = cmd_opts.xterm
+    if cmd_opts.xterm is not None:
+        args[xterm_nam] = cmd_opts.xterm
 
     # Modules
     if cmd_opts.modules is not None:
@@ -1153,13 +1096,6 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     # wake up session
     if cmd_opts.wake_up_session is not None:
         args[wake_up_session_nam] = cmd_opts.wake_up_session
-
-    ####################################################
-    # Add <theAdditionalOptions> values to args
-    for add_opt in theAdditionalOptions:
-        cmd = "args[\"{0}\"] = cmd_opts.{0}".format(add_opt.dest)
-        exec(cmd)
-    ####################################################
 
     # disable signals handling
     if args[except_nam] == 1:
