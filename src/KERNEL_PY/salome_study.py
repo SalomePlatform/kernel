@@ -400,7 +400,7 @@ def salome_study_init(theStudyPath=None):
     myStudyId = getActiveStudy()
     if myStudyId == None :
         import types
-        if theStudyPath and type(theStudyPath) == bytes:
+        if theStudyPath and (type(theStudyPath) == bytes or type(theStudyPath) == str):
             myStudyId = openStudy(theStudyPath)
         else:
             myStudyId = createNewStudy()
