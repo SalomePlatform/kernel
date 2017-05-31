@@ -159,13 +159,22 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
  *  Purpose  : Open a Study from it's persistent reference
  */
 //============================================================================
-SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
+SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const wchar_t* aWUrl)
      throw(SALOME::SALOME_Exception)
 {
   SALOMEDS::Locker lock;
 
   Unexpect aCatch(SalomeException);
-  MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
+
+  // Converts UTF8 url to encoded version
+  setlocale(LC_ALL, "");
+  char aUrl[256];
+  int ret;
+  memset( aUrl, 0, 256);
+  ret = wcstombs(aUrl, aWUrl, 255);
+  if (ret==256) aUrl[255]='\0';
+  MESSAGE("Begin of SALOMEDS_StudyManager_i::Open " << aUrl);
+
 
   #ifndef ALLOW_MULTI_STUDIES
   std::vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
@@ -180,8 +189,10 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->Open(std::string(aUrl));
 
-  if ( !aStudyImpl )
-    THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
+  if ( !aStudyImpl ) {
+      std::string errmsg = "Impossible to Open study from file " + std::string(aUrl);
+    THROW_SALOME_CORBA_EXCEPTION(errmsg.c_str(), SALOME::BAD_PARAM)
+  }
 
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 

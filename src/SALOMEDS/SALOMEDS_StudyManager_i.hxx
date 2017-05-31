@@ -89,7 +89,7 @@ public:
     \param char* arguments, the study URL
     \return Study_ptr arguments
   */
-  virtual SALOMEDS::Study_ptr Open(const char* aStudyUrl) throw (SALOME::SALOME_Exception);
+  virtual SALOMEDS::Study_ptr Open(const wchar_t* aStudyUrl) throw (SALOME::SALOME_Exception);
 
 
   //! method to close a Study

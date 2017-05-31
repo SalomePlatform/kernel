@@ -117,7 +117,8 @@ _PTR(Study) SALOMEDS_StudyManager::Open(const std::string& theStudyUrl)
   //SRN: Pure CORBA Open as it does more initialization than the local one
   SALOMEDSClient_Study* aStudy = NULL;
 
-  SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
+  std::wstring wtheStudyUrl = std::wstring(theStudyUrl.begin(), theStudyUrl.end());
+  SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((wchar_t*)theStudyUrl.c_str());
   if(CORBA::is_nil(aStudy_impl)) return  _PTR(Study)(aStudy);
 
   aStudy = new SALOMEDS_Study(aStudy_impl.in());
