@@ -260,7 +260,7 @@ class SalomeContext:
 
     try:
       res = getattr(self, command)(options) # run appropriate method
-      return res or (None, None)
+      return res or 0
     except SystemExit, returncode:
       if returncode != 0:
         self.getLogger().error("SystemExit %s in method %s.", returncode, command)
@@ -616,7 +616,8 @@ if __name__ == "__main__":
     context = pickle.loads(sys.argv[1])
     args = pickle.loads(sys.argv[2])
 
-    context._startSalome(args)
+    status = context._startSalome(args)
+    sys.exit(status)
   else:
     usage()
 #
