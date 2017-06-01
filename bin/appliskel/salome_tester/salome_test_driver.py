@@ -26,18 +26,6 @@ import os
 import subprocess
 import signal
 
-# Run test
-def runTest(command):
-  print "Running:", " ".join(command)
-  p = subprocess.Popen(command)
-  p.communicate()
-  res = p.returncode
-  # About res value:
-  # A negative value -N indicates that the child was terminated by signal N (Unix only).
-  # On Unix, the value 11 generally corresponds to a segmentation fault.
-  return res
-#
-
 # Timeout management
 class TimeoutException(Exception):
   """Exception raised when test timeout is reached."""
@@ -82,7 +70,15 @@ if __name__ == "__main__":
   try:
     salome_instance = SalomeInstance.start(shutdown_servers=True)
     port = salome_instance.get_port()
-    res = runTest(test_and_args)
+    # Run the test
+    print "Running:", " ".join(test_and_args)
+    p = subprocess.Popen(test_and_args)
+    pid = p.pid
+    p.communicate()
+    res = p.returncode
+    # About res value:
+    # A negative value -N indicates that the child was terminated by signal N (Unix only).
+    # On Unix, the value 11 generally corresponds to a segmentation fault.
   except TimeoutException:
     print "FAILED : timeout(%s) is reached"%timeout_delay
   except:
@@ -91,6 +87,7 @@ if __name__ == "__main__":
     pass
   try:
     salome_instance.stop()
+    os.kill(pid, signal.SIGTERM)
   except:
     pass
   if sys.platform == 'win32':
