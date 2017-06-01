@@ -45,6 +45,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <cwchar>
 
 #ifdef WIN32
 #include <process.h>
@@ -166,14 +167,13 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const wchar_t* aWUrl)
 
   Unexpect aCatch(SalomeException);
 
-  // Converts UTF8 url to encoded version
+  // Converts unicode url to encoded version
   setlocale(LC_ALL, "");
-  char aUrl[256];
-  int ret;
-  memset( aUrl, 0, 256);
-  ret = wcstombs(aUrl, aWUrl, 255);
-  if (ret==256) aUrl[255]='\0';
-  MESSAGE("Begin of SALOMEDS_StudyManager_i::Open " << aUrl);
+  size_t urlLen = std::wcslen(aWUrl);
+  char aUrl[urlLen+1];
+  memset( aUrl, 0, urlLen+1);
+  wcstombs(aUrl, aWUrl, sizeof(aUrl));
+  MESSAGE("Begin of SALOMEDS_StudyManager_i::Open " << aUrl << " (" << urlLen << ")");
 
 
   #ifndef ALLOW_MULTI_STUDIES
