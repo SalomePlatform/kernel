@@ -204,13 +204,13 @@ public:
   /*!
     \return char* arguments, the study name
   */
-  virtual char* Name();
+  virtual wchar_t* Name();
 
   //! method to set study name
   /*!
     \param name char* arguments, the study name
   */
-  virtual void  Name(const char* name);
+  virtual void  Name(const wchar_t* name);
 
   //! method to get if study has been saved
   /*!
@@ -237,13 +237,13 @@ public:
   /*!
     \return char* arguments, the study URL 
   */
-  virtual char* URL();
+  virtual wchar_t* URL();
 
  //! method to set URL of the study
   /*!
     \param url char* arguments, the study URL
   */
-  virtual void  URL(const char* url);
+  virtual void  URL(const wchar_t* url);
 
   virtual CORBA::Short StudyId();
   virtual void  StudyId(CORBA::Short id);

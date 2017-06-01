@@ -106,6 +106,36 @@ namespace Kernel_Utils
     return guid;
   }
 
+  const wchar_t* decode(const char* encoded)
+  {
+    setlocale(LC_ALL, "");
+    size_t length = strlen(encoded) + sizeof(char);
+    wchar_t* decoded = new wchar_t[length];
+    memset( decoded, '\0', length);
+    mbstowcs(decoded, encoded, length);
+    return decoded;
+  }
+
+  const wchar_t* decode_s(std::string encoded)
+  {
+    return decode(encoded.c_str());
+  }
+
+  const char* encode(const wchar_t* decoded)
+  {
+    setlocale(LC_ALL, "");
+    size_t length = std::wcslen(decoded) + sizeof(wchar_t);
+    char* encoded = new char[length];
+    memset( encoded, '\0', length);
+    wcstombs(encoded, decoded, length);
+    return encoded;
+  }
+
+  std::string encode_s(const wchar_t* decoded)
+  {
+    return std::string(encode(decoded));
+  }
+
 #ifndef WIN32
   void print_traceback()
   {

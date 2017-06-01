@@ -41,7 +41,7 @@ module SALOMEDS
 {
 /*! \brief Name of the file in which the %Study is saved.
 */
-  typedef string URL;
+  typedef wstring URL;
 
 /*! \brief Main identifier of an object in %SALOME application
 */
@@ -60,7 +60,7 @@ module SALOMEDS
 Since %SALOME is a multi-study application, it allows to open a lot of studies
 during each working session.
 */
-  typedef sequence<string> ListOfOpenStudies;
+  typedef sequence<URL> ListOfOpenStudies;
 //! List of file names
   typedef sequence<string> ListOfFileNames;
 //! List of modification dates of a study
@@ -146,7 +146,7 @@ during each working session.
 
    This is equivalent to the methods setName() & getName()
 */
-    attribute string     Name; // equivalent to setName() & getName()
+    attribute wstring     Name; // equivalent to setName() & getName()
 /*! \brief The ID of the %Study
 
    This is equivalent to the methods setID() & getID()
@@ -300,7 +300,7 @@ during each working session.
 
 /*! \brief  Indicate the file where the %study has been saved
 */
-    attribute string URL;
+    attribute wstring URL;
 
 /*! \brief List of %SObjects
 
@@ -868,7 +868,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 <em>See \ref example17 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
-    Study NewStudy(in string study_name) raises (SALOME::SALOME_Exception);
+    Study NewStudy(in wstring study_name) raises (SALOME::SALOME_Exception);
 
 /*! \brief Open a study
 
@@ -878,7 +878,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 <em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
-    Study Open (in wstring aStudyUrl) raises (SALOME::SALOME_Exception);
+    Study Open (in URL aStudyUrl) raises (SALOME::SALOME_Exception);
 
 /*! \brief Closing the study
 
@@ -940,7 +940,7 @@ Gets the list of open studies
     among the session collection picking it by name.
     \param aStudyName The name of the study
 */
-    Study GetStudyByName  (in string aStudyName);
+    Study GetStudyByName  (in URL aStudyName);
 
 /*! \brief Getting a particular %Study picked by ID
 

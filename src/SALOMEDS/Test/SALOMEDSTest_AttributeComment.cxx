@@ -25,6 +25,8 @@
  * Use code of SALOMEDS_AttributeComment.cxx
  */
 
+//#include "Basics_Utils.hxx"
+
 void SALOMEDSTest::testAttributeComment()
 {
   //Create or find the Study manager
@@ -39,6 +41,7 @@ void SALOMEDSTest::testAttributeComment()
     study = sm->NewStudy("Test");
   else
     study = sm->GetStudyByName(ost[0]);
+//  study = sm->GetStudyByName(Kernel_Utils::decode_s(ost[0]));
 
   CPPUNIT_ASSERT(study);
 

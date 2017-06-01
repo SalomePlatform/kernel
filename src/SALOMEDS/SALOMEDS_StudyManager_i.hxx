@@ -82,7 +82,7 @@ public:
     \param char* arguments, the new study name
     \return Study_ptr arguments
   */
-  virtual SALOMEDS::Study_ptr NewStudy(const char* study_name) throw (SALOME::SALOME_Exception);
+  virtual SALOMEDS::Study_ptr NewStudy(const wchar_t* study_name) throw (SALOME::SALOME_Exception);
 
   //! method to Open a Study from it's persistent reference
   /*!
@@ -111,8 +111,8 @@ public:
     \param char* arguments, the new URL of the study
     \param Study_ptr arguments
   */
-  virtual CORBA::Boolean SaveAs(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
-  virtual CORBA::Boolean SaveAsASCII(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean SaveAs(const wchar_t* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean SaveAsASCII(const wchar_t* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
 
  //! method to Get name list of open studies in the session
   /*!
@@ -125,7 +125,7 @@ public:
     \param char* arguments, the study name
     \return Study_ptr arguments
   */
-  virtual SALOMEDS::Study_ptr GetStudyByName(const char* aStudyName) ;
+  virtual SALOMEDS::Study_ptr GetStudyByName(const wchar_t* aStudyName) ;
 
   //! method to get a Study from it's ID
   /*!

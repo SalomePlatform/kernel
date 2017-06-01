@@ -293,7 +293,7 @@ if myStudyManager is None:
 aListOfOpenStudies = myStudyManager.GetOpenStudies();
 myStudy = None;
 if len(aListOfOpenStudies) == 0 :
-    myStudy = myStudyManager.NewStudy("Study1")
+    myStudy = myStudyManager.NewStudy("étude")
 else:
     myStudyName = aListOfOpenStudies[0]
     myStudy = myStudyManager.GetStudyByName(myStudyName)

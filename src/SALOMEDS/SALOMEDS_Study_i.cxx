@@ -744,11 +744,11 @@ SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
  *  Purpose  : get study name
  */
 //============================================================================
-char* SALOMEDS_Study_i::Name()
+wchar_t* SALOMEDS_Study_i::Name()
 {
   SALOMEDS::Locker lock; 
   // Name is specified as IDL attribute: user exception cannot be raised
-  return CORBA::string_dup(_impl->Name().c_str());
+  return CORBA::wstring_dup(Kernel_Utils::decode_s(_impl->Name()));
 }
 
 //============================================================================
@@ -756,11 +756,11 @@ char* SALOMEDS_Study_i::Name()
  *  Purpose  : set study name
  */
 //============================================================================
-void SALOMEDS_Study_i::Name(const char* name)
+void SALOMEDS_Study_i::Name(const wchar_t* wname)
 {
-  SALOMEDS::Locker lock;  
+  SALOMEDS::Locker lock;
   // Name is specified as IDL attribute: user exception cannot be raised
-  _impl->Name(std::string(name));
+  _impl->Name(Kernel_Utils::encode_s(wname));
 }
 
 //============================================================================
@@ -823,11 +823,11 @@ void SALOMEDS_Study_i::Modified()
  *  Purpose  : get URL of the study (persistent reference of the study)
  */
 //============================================================================
-char* SALOMEDS_Study_i::URL()
+wchar_t* SALOMEDS_Study_i::URL()
 {
-  SALOMEDS::Locker lock; 
+  SALOMEDS::Locker lock;
   // URL is specified as IDL attribute: user exception cannot be raised
-  return CORBA::string_dup(_impl->URL().c_str());
+  return CORBA::wstring_dup(Kernel_Utils::decode_s(_impl->URL()));
 }
 
 //============================================================================
@@ -835,11 +835,11 @@ char* SALOMEDS_Study_i::URL()
  *  Purpose  : set URL of the study (persistent reference of the study)
  */
 //============================================================================
-void SALOMEDS_Study_i::URL(const char* url)
+void SALOMEDS_Study_i::URL(const wchar_t* wurl)
 {
   SALOMEDS::Locker lock; 
   // URL is specified as IDL attribute: user exception cannot be raised
-  _impl->URL(std::string((char*)url));
+  _impl->URL(Kernel_Utils::encode_s(wurl));
 }
 
 CORBA::Short SALOMEDS_Study_i::StudyId()

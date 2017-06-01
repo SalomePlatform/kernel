@@ -105,7 +105,7 @@ _PTR(Study) SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
   //SRN: Pure CORBA NewStudy as it does more initialization than the local one
   SALOMEDSClient_Study* aStudy = NULL;
 
-  SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy((char*)study_name.c_str());
+  SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy(Kernel_Utils::decode_s(study_name));
   if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
   aStudy = new SALOMEDS_Study(aStudy_impl);
 
@@ -151,14 +151,14 @@ bool SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  const _PTR(Study)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  return _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
+  return _corba_impl->SaveAs(Kernel_Utils::decode_s(theUrl), aStudy, theMultiFile);
 }
 
 bool SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  return _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
+  return _corba_impl->SaveAsASCII(Kernel_Utils::decode_s(theUrl), aStudy, theMultiFile);
 }
 
 std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
@@ -178,7 +178,7 @@ std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
     SALOMEDS::ListOfOpenStudies_var aSeq = _corba_impl->GetOpenStudies();
     aLength = aSeq->length();
     for(i = 0; i < aLength; i++)
-      aVector.push_back(aSeq[i].in());
+      aVector.push_back(Kernel_Utils::encode_s(aSeq[i].in()));
   }
   return aVector;
 }
@@ -194,7 +194,7 @@ _PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyNam
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else  {
-    SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByName((char*)theStudyName.c_str());
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByName(Kernel_Utils::decode_s(theStudyName));
     if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }

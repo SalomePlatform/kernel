@@ -91,7 +91,7 @@ void KernelHelpersUnitTests::TEST_getStudyManager() {
     }
   #endif
 
-  SALOMEDS::Study_ptr myTestStudy = studyManager->NewStudy("kerneltest");
+  SALOMEDS::Study_ptr myTestStudy = studyManager->NewStudy(L"kerneltest");
   CPPUNIT_ASSERT(!CORBA::is_nil(myTestStudy));
 
   // One can use the study to store some general properties

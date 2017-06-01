@@ -110,7 +110,7 @@ void SALOMEDS_StudyManager_i::register_name(const char * name)
  *  Purpose  : Create a New Study of name study_name
  */
 //============================================================================
-SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
+SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const wchar_t* study_name)
      throw(SALOME::SALOME_Exception)
 {
   SALOMEDS::Locker lock;
@@ -126,7 +126,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
     }
 #endif // !ALLOW_MULTI_STUDIES
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->NewStudy(study_name);
+  SALOMEDSImpl_Study* aStudyImpl = _impl->NewStudy(Kernel_Utils::encode(study_name));
   if(!aStudyImpl) {
     MESSAGE("NewStudy : Error : " << _impl->GetErrorCode());
     return SALOMEDS::Study::_nil();
@@ -143,7 +143,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
   if(!_name_service->Change_Directory("/Study"))
       MESSAGE( "Unable to access the study directory" )
   else
-      _name_service->Register(Study, study_name);
+      _name_service->Register(Study, Kernel_Utils::encode(study_name));
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
@@ -232,8 +232,8 @@ void SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
 
   // Destroy study name in the naming service
   if(_name_service->Change_Directory("/Study")){
-    CORBA::String_var aString(aStudy->Name());
-    _name_service->Destroy_Name(aString.in());
+    CORBA::WString_var awString(aStudy->Name());
+    _name_service->Destroy_Name(Kernel_Utils::encode(awString.in()));
   }
 
   SALOMEDS::unlock();
@@ -285,30 +285,30 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CO
  *  Purpose  : Save a study to the persistent reference aUrl
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const wchar_t* aWUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) {
-    MESSAGE("SaveASCII error: Study is null");
+    MESSAGE("SaveAs error: Study is null");
     return false;
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAs(std::string(aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAs(std::string(Kernel_Utils::encode(aWUrl)), aStudyImpl, _factory, theMultiFile);
 }
 
-CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const wchar_t* aWUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) {
-    MESSAGE("SaveASCII error: Study is null");
+    MESSAGE("SaveAsASCII error: Study is null");
     return false;
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAsASCII(std::string(aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAsASCII(std::string(Kernel_Utils::encode(aWUrl)), aStudyImpl, _factory, theMultiFile);
 }
 
 //============================================================================
@@ -334,8 +334,9 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
     {
       for (unsigned int ind=0; ind < aLength; ind++)
         {
-          _list_open_studies[ind] = CORBA::string_dup(anOpened[ind]->Name().c_str());
-          SCRUTE(_list_open_studies[ind]) ;
+          SCRUTE(anOpened[ind]->Name()) ;
+          _list_open_studies[ind] = CORBA::wstring_dup(Kernel_Utils::decode_s(anOpened[ind]->Name()));
+          SCRUTE(Kernel_Utils::encode(_list_open_studies[ind])) ;
         }
     }
   return _list_open_studies._retn();
@@ -346,11 +347,11 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
  *  Purpose  : Get a study from its name
  */
 //============================================================================
-SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyName)
+SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const wchar_t* aStudyName)
 {
   SALOMEDS::Locker lock;
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(std::string(aStudyName));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(Kernel_Utils::encode_s(aStudyName));
 
   if (!aStudyImpl)
   {

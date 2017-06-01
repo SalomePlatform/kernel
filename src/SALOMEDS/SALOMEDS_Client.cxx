@@ -30,6 +30,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_AttributeName_i.hxx"
+#include "Basics_Utils.hxx"
 #include "utilities.h"
 #include "HDFOI.hxx"
 
@@ -90,7 +91,7 @@ static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
   try {
   char* name;
   MESSAGE("Create New Study Study1");
-  SALOMEDS::Study_var myStudy = myStudyMgr->NewStudy("Study1");
+  SALOMEDS::Study_var myStudy = myStudyMgr->NewStudy(L"Study1");
  
   MESSAGE("Create Builder ");
   SALOMEDS::StudyBuilder_var StudyBuild = myStudy->NewBuilder();
@@ -206,7 +207,7 @@ static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
 
   for (unsigned int ind = 0; ind < _list_open_studies->length();ind++)
     {
-      MESSAGE("Open studies list : " << _list_open_studies[ind]);  
+      MESSAGE("Open studies list : " << Kernel_Utils::encode(_list_open_studies[ind]));
     }
 
 
@@ -215,7 +216,7 @@ static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
   MESSAGE("GetStudyByName done");
   
   // Save as
-  myStudyMgr->SaveAs("/home/edeville/Study1.hdf",myStudy1, false);
+  myStudyMgr->SaveAs(L"/home/edeville/Study1.hdf",myStudy1, false);
 
   // Get Persistent Reference of the study test
   name = myStudy1->GetPersistentReference();

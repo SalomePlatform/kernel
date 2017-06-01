@@ -299,6 +299,7 @@ def getActiveStudy(*args):
         if len(listOpenStudies) == 0:
             return None
         else:
+            print(listOpenStudies[0])
             s = myStudyManager.GetStudyByName(listOpenStudies[0])
             salome_study_ID = s._get_StudyId()
     if verbose(): print("--- Study Id ", salome_study_ID)
@@ -355,7 +356,7 @@ def setCurrentStudyId(*args):
 def createNewStudy():
     global myStudyManager
     print("createNewStudy")
-    aStudyName = "extStudy"
+    aStudyName = "étudeExt"
     theStudy = myStudyManager.NewStudy(aStudyName)
     theStudyId = theStudy._get_StudyId()
     print(aStudyName, theStudyId)
