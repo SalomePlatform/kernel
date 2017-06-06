@@ -503,18 +503,8 @@ std::string SALOMEDS_Study::URL()
     SALOMEDS::Locker lock;
     aURL = _local_impl->URL();
   }
-  else {
-	  wchar_t* wurl = _corba_impl->URL();
-
-	  // Converts unicode url to encoded version
-	  setlocale(LC_ALL, "");
-	  size_t urlLen = std::wcslen(wurl);
-	  char url[urlLen+1];
-	  memset( url, 0, urlLen+1);
-	  wcstombs(url, wurl, sizeof(url));
-
-	  aURL = std::string(url);
-  }
+  else 
+      aURL = Kernel_Utils::encode_s(_corba_impl->URL());
   return aURL;
 }
 
@@ -524,15 +514,7 @@ void SALOMEDS_Study::URL(const std::string& url)
     SALOMEDS::Locker lock;
     _local_impl->URL(url);
   }
-  else {
-	  setlocale(LC_ALL, "");
-	  size_t urlLen = url.size();
-	  wchar_t wurl[urlLen+1];
-	  memset( wurl, 0, urlLen+1);
-	  mbstowcs(wurl, url.c_str(), sizeof(wurl));
-
-	  _corba_impl->URL(wurl);
-  }
+  else _corba_impl->URL(Kernel_Utils::decode_s(url));
 }
 
 int SALOMEDS_Study::StudyId()

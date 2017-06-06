@@ -167,12 +167,8 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const wchar_t* aWUrl)
 
   Unexpect aCatch(SalomeException);
 
-  // Converts unicode url to encoded version
-  setlocale(LC_ALL, "");
-  size_t urlLen = std::wcslen(aWUrl);
-  char aUrl[urlLen+1];
-  memset( aUrl, 0, urlLen+1);
-  wcstombs(aUrl, aWUrl, sizeof(aUrl));
+  std::string aUrl = Kernel_Utils::encode_s(aWUrl);
+
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open " << aUrl << " (" << urlLen << ")");
 
 
@@ -187,10 +183,10 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const wchar_t* aWUrl)
     }
 #endif // ;ALLOW_MULTI_STUDIES
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(std::string(aUrl));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(aUrl);
 
   if ( !aStudyImpl ) {
-      std::string errmsg = "Impossible to Open study from file " + std::string(aUrl);
+      std::string errmsg = "Impossible to Open study from file " + aUrl;
     THROW_SALOME_CORBA_EXCEPTION(errmsg.c_str(), SALOME::BAD_PARAM)
   }
 
@@ -295,7 +291,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const wchar_t* aWUrl, SALOMEDS::S
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAs(std::string(Kernel_Utils::encode(aWUrl)), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAs(Kernel_Utils::encode_s(aWUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const wchar_t* aWUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
@@ -308,7 +304,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const wchar_t* aWUrl, SALOME
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAsASCII(std::string(Kernel_Utils::encode(aWUrl)), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAsASCII(Kernel_Utils::encode_s(aWUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 //============================================================================
@@ -334,7 +330,6 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
     {
       for (unsigned int ind=0; ind < aLength; ind++)
         {
-          SCRUTE(anOpened[ind]->Name()) ;
           _list_open_studies[ind] = CORBA::wstring_dup(Kernel_Utils::decode_s(anOpened[ind]->Name()));
           SCRUTE(Kernel_Utils::encode(_list_open_studies[ind])) ;
         }
