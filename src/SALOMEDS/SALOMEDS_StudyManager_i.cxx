@@ -169,7 +169,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const wchar_t* aWUrl)
 
   std::string aUrl = Kernel_Utils::encode_s(aWUrl);
 
-  MESSAGE("Begin of SALOMEDS_StudyManager_i::Open " << aUrl << " (" << urlLen << ")");
+  MESSAGE("Begin of SALOMEDS_StudyManager_i::Open " << aUrl );
 
 
   #ifndef ALLOW_MULTI_STUDIES
