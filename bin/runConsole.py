@@ -162,7 +162,7 @@ def start_client():
   if session_server:
     session = clt.waitNS("/Kernel/Session")
   catalog = clt.waitNS("/Kernel/ModulCatalog")
-  studyMgr = clt.waitNS("/myStudyManager")
+  study = clt.waitNS("/Study")
 
   import salome
   salome.salome_init()

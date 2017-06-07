@@ -29,7 +29,7 @@ DF_Document::DF_Document(const std::string& theDocumentType)
 {
   _id = -1;
   _type = theDocumentType;
-  _modified = true;
+  _modified = false;
 }
 
 DF_Document::~DF_Document()

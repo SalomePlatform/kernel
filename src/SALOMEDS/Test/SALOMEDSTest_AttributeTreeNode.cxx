@@ -27,13 +27,8 @@
 #define SALOMEDS_ALL_TESTS
 void SALOMEDSTest::testAttributeTreeNode()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -190,7 +185,7 @@ void SALOMEDSTest::testAttributeTreeNode()
   _PTR(AttributeTreeNode) _attr_guid = studyBuilder->FindOrCreateAttribute(so, "AttributeTreeNodeGUID"+value);
   CPPUNIT_ASSERT(_attr_guid && _attr_guid->GetTreeID() == value);
   
-  sm->Close(study);
+  study->Clear();
 }
 #undef SALOMEDS_ALL_TESTS
 

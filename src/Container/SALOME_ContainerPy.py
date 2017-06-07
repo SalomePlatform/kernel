@@ -199,40 +199,36 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     
     #-------------------------------------------------------------------------
 
-    def create_component_instance_env(self, componentName, studyId, env):
-      return self.create_component_instance(componentName, studyId), ""
+    def create_component_instance_env(self, componentName, env):
+      return self.create_component_instance(componentName), ""
 
-    def create_component_instance(self, componentName, studyId):
-        MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) + ' ' + str(studyId) )
-        if studyId < 0:
-            MESSAGE( "Study ID is lower than 0!" )
-            return None
-        else:
-            self._numInstance = self._numInstance +1
-            instanceName = componentName + "_inst_" + `self._numInstance`
-            comp_iors=""
-            try:
-                component=__import__(componentName)
-                factory=getattr(component,componentName)
-                comp_i=factory(self._orb,
-                               self._poa,
-                               self._this(),
-                               self._containerName,
-                               instanceName,
-                               componentName)
-                
-                MESSAGE( "SALOME_Container_i::create_component_instance : OK")
-                comp_o = comp_i._this()
-                self._listInstances_map[instanceName] = comp_i
-            except:
-                import traceback
-                traceback.print_exc()
-                MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
-            return comp_o
+    def create_component_instance(self, componentName):
+        MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) )
+        self._numInstance = self._numInstance +1
+        instanceName = componentName + "_inst_" + `self._numInstance`
+        comp_iors=""
+        try:
+            component=__import__(componentName)
+            factory=getattr(component,componentName)
+            comp_i=factory(self._orb,
+                           self._poa,
+                           self._this(),
+                           self._containerName,
+                           instanceName,
+                           componentName)
+            
+            MESSAGE( "SALOME_Container_i::create_component_instance : OK")
+            comp_o = comp_i._this()
+            self._listInstances_map[instanceName] = comp_i
+        except:
+            import traceback
+            traceback.print_exc()
+            MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
+        return comp_o
 
     #-------------------------------------------------------------------------
 
-    def find_component_instance(self, registeredName, studyId):
+    def find_component_instance(self, registeredName):
         anEngine = None
         keysList = self._listInstances_map.keys()
         i = 0
@@ -240,8 +236,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             instance = keysList[i]
             if find(instance,registeredName) == 0:
                 anEngine = self._listInstances_map[instance]
-                if studyId == anEngine.getStudyId():
-                    return anEngine._this()
+                return anEngine._this()
             i = i + 1
         return anEngine._this()
         
@@ -249,7 +244,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     #-------------------------------------------------------------------------
 
     def create_python_service_instance(self, CompName):
-        return self.create_component_instance(CompName, 0)
+        return self.create_component_instance(CompName)
       
     #-------------------------------------------------------------------------
 

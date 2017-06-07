@@ -104,7 +104,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_SObject::GetFatherComponent() const
 
   if(LF.IsRoot()) return sco;
 
-  return GetStudy()->GetSComponent(LF);
+  return SALOMEDSImpl_Study::SComponent(LF);
 }
 
 //============================================================================
@@ -114,7 +114,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_SObject::GetFatherComponent() const
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_SObject::GetFather() const
 {
-  return GetStudy()->GetSObject(_lab.Father());
+  return SALOMEDSImpl_Study::SObject(_lab.Father());
 }
 
 //============================================================================
@@ -125,16 +125,6 @@ SALOMEDSImpl_SObject SALOMEDSImpl_SObject::GetFather() const
 int SALOMEDSImpl_SObject::GetLastChildTag() const
 {
   return _lab.LastChildTag();
-}
-
-//============================================================================
-/*! Function : GetStudy
- *  Purpose  :
- */
-//============================================================================
-SALOMEDSImpl_Study* SALOMEDSImpl_SObject::GetStudy() const
-{
-  return SALOMEDSImpl_Study::GetStudy(_lab);
 }
 
 //============================================================================
@@ -182,7 +172,7 @@ bool SALOMEDSImpl_SObject::ReferencedObject(SALOMEDSImpl_SObject& theObject) con
   if (!(Ref=(SALOMEDSImpl_AttributeReference*)_lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID())))
     return false;
   
-  theObject =  GetStudy()->GetSObject(Ref->Get());
+  theObject =  SALOMEDSImpl_Study::SObject(Ref->Get());
   return true;
 }
 
@@ -196,7 +186,7 @@ bool SALOMEDSImpl_SObject::FindSubObject(int theTag, SALOMEDSImpl_SObject& theOb
   DF_Label L = _lab.FindChild(theTag, false);
   if (L.IsNull()) return false;
   
-  theObject = GetStudy()->GetSObject(L);
+  theObject = SALOMEDSImpl_Study::SObject(L);
   return true;
     
 }  

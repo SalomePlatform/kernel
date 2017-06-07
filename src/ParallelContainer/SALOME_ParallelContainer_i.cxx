@@ -380,18 +380,15 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName, 
  *  The servant registers itself to naming service and Registry.
  *  \param genericRegisterName  Name of the component instance to register
  *                         in Registry & Name Service (without _inst_n suffix)
- *  \param studyId         0 for multiStudy instance, 
- *                         study Id (>0) otherwise
  *  \return a loaded component
  */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Parallel_Container_i::create_component_instance(const char*genericRegisterName,
-                                                        CORBA::Long studyId)
+Engines_Parallel_Container_i::create_component_instance(const char*genericRegisterName)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
-  Engines::EngineComponent_ptr compo = create_component_instance_env(genericRegisterName,studyId,env, reason);
+  Engines::EngineComponent_ptr compo = create_component_instance_env(genericRegisterName,env, reason);
   CORBA::string_free(reason);
   return compo;
 }
@@ -403,8 +400,6 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
  *  The servant registers itself to naming service and Registry.
  *  \param genericRegisterName  Name of the component instance to register
  *                         in Registry & Name Service (without _inst_n suffix)
- *  \param studyId         0 for multiStudy instance, 
- *                         study Id (>0) otherwise
  *  \param env             dict of environment variables
  *  \return a loaded component
  */
@@ -412,18 +407,11 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
 
 Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::create_component_instance_env(const char*genericRegisterName,
-                                                            CORBA::Long studyId,
                                                             const Engines::FieldsDict& env,
                                                             CORBA::String_out reason)
 {
   MESSAGE("Begin of create_component_instance in node : " << getMyRank());
   reason=CORBA::string_dup("");
-
-  if (studyId < 0)
-  {
-    INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
-    return Engines::EngineComponent::_nil() ;
-  }
 
   std::string aCompName = genericRegisterName;
 #ifndef WIN32
@@ -456,9 +444,9 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
 
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil();
   if (type_of_lib == "cpp")
-    iobject = createCPPInstance(aCompName, handle, studyId);
+    iobject = createCPPInstance(aCompName, handle);
   else
-    iobject = createPythonInstance(aCompName, studyId);
+    iobject = createPythonInstance(aCompName);
 
   _numInstanceMutex.unlock();
   return iobject._retn();
@@ -470,14 +458,11 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
  *  CORBA method: Finds a servant instance of a component
  *  \param registeredName  Name of the component in Registry or Name Service,
  *                         without instance suffix number
- *  \param studyId         0 if instance is not associated to a study, 
- *                         >0 otherwise (== study id)
- *  \return the first instance found with same studyId
+ *  \return the first found instance
  */
 //=============================================================================
 
-Engines::EngineComponent_ptr Engines_Parallel_Container_i::find_component_instance( const char* registeredName,
-                                                                              CORBA::Long studyId)
+Engines::EngineComponent_ptr Engines_Parallel_Container_i::find_component_instance(const char* registeredName)
 {
   Engines::EngineComponent_var anEngine = Engines::EngineComponent::_nil();
   std::map<std::string,Engines::EngineComponent_var>::iterator itm =_listInstances_map.begin();
@@ -488,10 +473,7 @@ Engines::EngineComponent_ptr Engines_Parallel_Container_i::find_component_instan
     if (instance.find(registeredName) == 0)
     {
       anEngine = (*itm).second;
-      if (studyId == anEngine->getStudyId())
-      {
-        return anEngine._retn();
-      }
+      return anEngine._retn();
     }
     itm++;
   }
@@ -737,22 +719,11 @@ Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegiste
     CORBA::Object_var obj = _NS->ResolveFirst(component_registerBase.c_str());
     if (CORBA::is_nil( obj ))
     {
-      iobject = create_component_instance(genericRegisterName.c_str(), 
-                                          0); // force multiStudy instance here !
+      iobject = create_component_instance(genericRegisterName.c_str());
     }
     else
     { 
       iobject = Engines::EngineComponent::_narrow(obj) ;
-      Engines_Component_i *servant = dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
-      ASSERT(servant)
-      int studyId = servant->getStudyId();
-      ASSERT (studyId >= 0);
-      if (studyId != 0)  // monoStudy instance: NOK
-      {
-        iobject = Engines::EngineComponent::_nil();
-        INFOS("load_impl & find_component_instance methods "
-              << "NOT SUITABLE for mono study components");
-      }
     }
   }
   catch (...)
@@ -770,8 +741,6 @@ Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegiste
  *                                in Registry & Name Service,
  *                                (without _inst_n suffix, like "COMPONENT")
  *  \param handle                 loaded library handle
- *  \param studyId                0 for multiStudy instance, 
- *                                study Id (>0) otherwise
  *  \return a loaded component
  * 
  *  example with names:
@@ -784,7 +753,7 @@ Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegiste
  */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterName, int studyId)
+Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterName)
 {
 
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil();
@@ -801,10 +770,9 @@ Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterNa
   PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
   PyObject *result = PyObject_CallMethod(pyCont,
                                          (char*)"create_component_instance",
-                                         (char*)"ssl",
+                                         (char*)"ss",
                                          genericRegisterName.c_str(),
-                                         instanceName.c_str(),
-                                         studyId);
+                                         instanceName.c_str());
   const char *ior;
   const char *error;
   PyArg_ParseTuple(result,"ss", &ior, &error);
@@ -832,8 +800,6 @@ Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterNa
  *                                in Registry & Name Service,
  *                                (without _inst_n suffix, like "COMPONENT")
  *  \param handle                 loaded library handle
- *  \param studyId                0 for multiStudy instance, 
- *                                study Id (>0) otherwise
  *  \return a loaded component
  * 
  *  example with names:
@@ -847,8 +813,7 @@ Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterNa
 //=============================================================================
 Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
-                                                void *handle,
-                                                int studyId)
+                                                void *handle)
 {
   MESSAGE("Entering Engines_Parallel_Container_i::createCPPInstance");
 
@@ -902,22 +867,12 @@ Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
       return iobject._retn();
     }
 
-    // --- get reference & servant from id
+    // --- get reference from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
     iobject = Engines::EngineComponent::_narrow(obj);
 
-    Engines_Component_i *servant = 
-      dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
-    ASSERT(servant);
-    servant->_remove_ref(); // compensate previous id_to_reference 
     _listInstances_map[instanceName] = iobject;
     _cntInstances_map[aGenRegisterName] += 1;
-#if defined(_DEBUG_) || defined(_DEBUG)
-    bool ret_studyId = servant->setStudyId(studyId);
-    ASSERT(ret_studyId);
-#else
-    servant->setStudyId(studyId);
-#endif
 
     // --- register the engine under the name
     //     containerName(.dir)/instanceName(.object)
@@ -933,8 +888,7 @@ Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
 
 void
 Engines_Parallel_Container_i::create_paco_component_node_instance(const char* componentName,
-                                                                  const char* proxy_containerName,
-                                                                  CORBA::Long studyId)
+                                                                  const char* proxy_containerName)
 {
   // Init de la méthode
   char * proxy_ior;
@@ -1003,7 +957,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     id = (Component_factory) (_orb, proxy_ior, getMyRank(), _poa, _id, instanceName.c_str(), componentName);
     CORBA::string_free(proxy_ior);
 
-    // --- get reference & servant from id
+    // --- get reference from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
     work_node = Engines::EngineComponent_PaCO::_narrow(obj) ;
     if (CORBA::is_nil(work_node))

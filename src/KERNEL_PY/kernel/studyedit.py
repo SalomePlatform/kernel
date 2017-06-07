@@ -36,67 +36,28 @@ from salome.kernel.logger import Logger
 from salome.kernel import termcolor
 logger = Logger("salome.kernel.studyedit", color = termcolor.PURPLE)
 
-_editors = {}
+_editor = None
 _DEFAULT_CONTAINER = "FactoryServer"
 
 # The codec to use for strings that are displayed in Salome study tree is Latin-1
 ENCODING_FOR_SALOME_STUDY = "iso-8859-1"
 
-## Return the ID of the active study. In GUI mode, this function is equivalent
-#  to salome.sg.getActiveStudyId(). Outside GUI, it returns <b> salome.myStudyId </b>
-#  variable.
+## Return a \b StudyEditor instance to edit the study. 
 #  \ingroup studyedit
-def getActiveStudyId():
+def getStudyEditor():
     """
-    Return the ID of the active study. In GUI mode, this function is equivalent
-    to ``salome.sg.getActiveStudyId()``. Outside GUI, it returns
-    ``salome.myStudyId`` variable.
+    Return a :class:`StudyEditor` instance to edit the study.
     """
-    salome.salome_init()
-    # Warning: we don't use salome.getActiveStudy() here because it doesn't
-    # work properly when called from Salome modules (multi-study interpreter
-    # issue)
-    if salome.hasDesktop():
-        return salome.sg.getActiveStudyId()
-    else:
-        return salome.myStudyId
-
-def getActiveStudy():
-    return getStudyFromStudyId(getActiveStudyId())
-
-def getStudyFromStudyId(studyId):
-    salome.salome_init()
-    study = salome.myStudyManager.GetStudyByID(studyId)
-    return study
-
-def getStudyIdFromStudy(study):
-    studyId = study._get_StudyId()
-    return studyId
-
-## Return a \b StudyEditor instance to edit the study with ID studyId. 
-#  If \b studyId is \b None, return an editor for the current study.
-#  \ingroup studyedit
-def getStudyEditor(studyId = None):
-    """
-    Return a :class:`StudyEditor` instance to edit the study with ID
-    `studyId`. If `studyId` is :const:`None`, return an editor for the current
-    study.
-    """
-    if studyId is None:
-        studyId = getActiveStudyId()
-    if not _editors.has_key(studyId):
-        _editors[studyId] = StudyEditor(studyId)
-    return _editors[studyId]
+    global _editor
+    if _editor is None:
+        _editor = StudyEditor()
+    return _editor
 
 ## This class provides utility methods to complement \b Study and
 #  \b StudyBuilder classes. Those methods may be moved in those classes
-#  in the future. The parameter \b studyId defines the ID of the study to
-#  edit. If it is \em None, the edited study will be the current study.
+#  in the future.
 #  The preferred way to get a StudyEditor object is through the method
 #  \b getStudyEditor which allows to reuse existing instances.
-#
-#  \param studyId This instance attribute contains the ID of the edited study. 
-#  This attribute should not be modified.
 #
 #  \param study This instance attribute contains the underlying \b Study object.
 #  It can be used to access the study but the attribute itself should not
@@ -110,15 +71,9 @@ class StudyEditor:
     """
     This class provides utility methods to complement :class:`Study` and
     :class:`StudyBuilder` classes. Those methods may be moved in those classes
-    in the future. The parameter `studyId` defines the ID of the study to
-    edit. If it is :const:`None`, the edited study will be the current study.
+    in the future.
     The preferred way to get a StudyEditor object is through the method
     :meth:`getStudyEditor` which allows to reuse existing instances.
-
-    .. attribute:: studyId
-    
-       This instance attribute contains the ID of the edited study. This
-       attribute should not be modified.
 
     .. attribute:: study
     
@@ -133,15 +88,12 @@ class StudyEditor:
        should not be modified.
 
     """
-    def __init__(self, studyId = None):
+    def __init__(self):
         salome.salome_init()
-        if studyId is None:
-            studyId = getActiveStudyId()
-        self.studyId = studyId
-        self.study = salome.myStudyManager.GetStudyByID(studyId)
+        self.study = salome.myStudy
         if self.study is None:
             raise Exception("Can't create StudyEditor object: "
-                            "Study %d doesn't exist" % studyId)
+                            "Study doesn't exist")
         self.builder = self.study.NewBuilder()
 
     ## Find a component corresponding to the Salome module \b moduleName in

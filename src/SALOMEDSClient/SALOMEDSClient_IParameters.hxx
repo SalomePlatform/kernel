@@ -141,12 +141,12 @@ public:
   /*!
     Enables/Disables the dumping visual parameters, static implementation is supposed
    */
-  virtual void setDumpPython(_PTR(Study) study, const std::string& theID = "") = 0;
+  virtual void setDumpPython(const std::string& theID = "") = 0;
 
   /*!
     Returns whether there is the dumping visual parameters, static implementation is supposed
    */
-  virtual bool isDumpPython(_PTR(Study) study, const std::string& theID = "") = 0;  
+  virtual bool isDumpPython(const std::string& theID = "") = 0;
 
   /*!
     Returns a default name of the component where the visula parameters are stored.

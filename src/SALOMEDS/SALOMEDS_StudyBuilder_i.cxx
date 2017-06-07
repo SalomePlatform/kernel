@@ -320,26 +320,6 @@ void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
   _impl->RemoveReference(aSO);
 }
 
-
-//============================================================================
-/*! Function : AddDirectory
- *  Purpose  : adds a new directory with a path = thePath
- */
-//============================================================================
-void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath) 
-{
-  SALOMEDS::Locker lock;
-  CheckLocked();
-  if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
-  if(!_impl->AddDirectory(std::string(thePath))) {
-    std::string anErrorCode = _impl->GetErrorCode();
-    if(anErrorCode == "StudyNameAlreadyUsed") throw SALOMEDS::Study::StudyNameAlreadyUsed(); 
-    if(anErrorCode == "StudyInvalidDirectory") throw SALOMEDS::Study::StudyInvalidDirectory(); 
-    if(anErrorCode == "StudyInvalidComponent") throw SALOMEDS::Study::StudyInvalidComponent();  
-  }
-}
-
-
 //============================================================================
 /*! Function : SetGUID
  *  Purpose  : 

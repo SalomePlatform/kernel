@@ -30,7 +30,7 @@
 #include "Utils_SINGLETON.hxx"
 
 #include "SALOME_NamingService.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -58,7 +58,8 @@ int main(int argc, char** argv)
       CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
 #else
       CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB3" );
-#endif      
+#endif
+      SALOME_NamingService* NS;
       // Obtain a reference to the root POA.
       long TIMESleep = 500000000;
       int NumberOfTries = 40;
@@ -108,8 +109,8 @@ int main(int argc, char** argv)
                     if(EnvL==1)
                       {
                         CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
-                        SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
-                        NS.init_orb( orb1 ) ;
+                        NS = SINGLETON_<SALOME_NamingService>::Instance() ;
+                        NS->init_orb( orb1 ) ;
                         for(int j=1; j<=NumberOfTries; j++)
                           {
                             if (j!=1) 
@@ -154,13 +155,19 @@ int main(int argc, char** argv)
       // We allocate the objects on the heap.  Since these are reference
       // counted objects, they will be deleted by the POA when they are no
       // longer needed.    
-      SALOMEDS_StudyManager_i * myStudyManager_i = new  SALOMEDS_StudyManager_i(orb,poa);
+      SALOMEDS_Study_i * myStudy_i = new  SALOMEDS_Study_i(orb);
  
       // Activate the objects.  This tells the POA that the objects are
       // ready to accept requests.
-      PortableServer::ObjectId_var myStudyManager_iid = poa->activate_object(myStudyManager_i);
-      myStudyManager_i->register_name("/myStudyManager");
-      myStudyManager_i->_remove_ref();
+      PortableServer::ObjectId_var myStudy_iid = poa->activate_object(myStudy_i);
+      SALOMEDS::Study_var Study = myStudy_i->_this();
+      if (!NS)
+      {
+        NS = SINGLETON_<SALOME_NamingService>::Instance();
+        NS->init_orb( orb );
+      }
+      NS->Register(Study, "/Study");
+      myStudy_i->_remove_ref();
        
       // Obtain a POAManager, and tell the POA to start accepting
       // requests on its objects.

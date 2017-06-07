@@ -124,8 +124,6 @@ std::ostream & operator<< (std::ostream & f,
     << "    name :       " << C.name << std::endl;
   f << "    user name :  " << C.username << std::endl;
   f << "    type :       " << C.type << std::endl;
-  f << "    multistudy : " << (C.multistudy ? "yes" : "no")
-    << std::endl;
   f << "    icon :       " << C.icon << std::endl;
   f << "    constraint : " << C.constraint << std::endl;
 

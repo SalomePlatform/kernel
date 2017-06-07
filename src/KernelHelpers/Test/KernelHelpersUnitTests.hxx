@@ -40,7 +40,7 @@ class KERNELHELPERSTEST_EXPORT KernelHelpersUnitTests : public CppUnit::TestFixt
   CPPUNIT_TEST_SUITE( KernelHelpersUnitTests );
   CPPUNIT_TEST( TEST_corba );
   CPPUNIT_TEST( TEST_getLifeCycleCORBA );
-  CPPUNIT_TEST( TEST_getStudyManager );
+  CPPUNIT_TEST( TEST_getStudy );
   CPPUNIT_TEST( TEST_getSalomeLauncher );
   CPPUNIT_TEST_SUITE_END();
 
@@ -51,7 +51,7 @@ public:
 
   void TEST_corba();
   void TEST_getLifeCycleCORBA();
-  void TEST_getStudyManager();
+  void TEST_getStudy();
   void TEST_getSalomeLauncher();
 };
 

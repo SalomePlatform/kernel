@@ -166,7 +166,6 @@ a path to a component
     ComponentType      type;
     string             name;
     string             username;
-    boolean            multistudy;
     ImplType           implementationType;
     string             implname;
     string             icon;
@@ -268,10 +267,6 @@ a path to a component
 /*!  \brief Get the user name of the component
 */
     readonly attribute string componentusername;
-
-/*!  \brief Get whether the component is multistudy or not
-*/
-    readonly attribute boolean multistudy;
 
 /*!  \brief Get the type of the component
 */

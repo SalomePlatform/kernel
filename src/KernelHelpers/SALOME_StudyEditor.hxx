@@ -32,8 +32,7 @@
 class KERNELHELPERS_EXPORT SALOME_StudyEditor {
 
 public:
-  SALOME_StudyEditor(int studyId);
-  SALOME_StudyEditor(SALOMEDS::Study_ptr study);
+  SALOME_StudyEditor();
 
   typedef std::vector<SALOMEDS::SObject_ptr> SObjectList;
 
@@ -54,14 +53,6 @@ public:
   bool getParameterBool(SALOMEDS::SObject_var sobject, const char * name);
 
   static const int UNDEFINED = -1;
-
-protected:
-  SALOME_StudyEditor();
-  void setStudy(SALOMEDS::Study_ptr study);
-  void setStudyById(int studyId);
-  int getStudyId();
-
-  SALOMEDS::Study_var _study;
 
 private:
   SALOMEDS::StudyBuilder_var _sbuilder;

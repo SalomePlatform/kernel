@@ -62,7 +62,6 @@ public:
   virtual CORBA::Boolean ReferencedObject(SALOMEDS::SObject_out obj) ;
   virtual CORBA::Boolean FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj );
 
-  virtual SALOMEDS::Study_ptr    GetStudy() ;
   virtual char* Name();
   virtual void  Name(const char*);
   virtual SALOMEDS::ListOfAttributes* GetAllAttributes();

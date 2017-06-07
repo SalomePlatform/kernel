@@ -71,25 +71,20 @@ class SalomeOutsideGUI(object):
     Provides a replacement for class SalomeGUI outside GUI process.
     Do almost nothing
     """
-    global myStudyId, myStudyName
+    global myStudyName
     
     def hasDesktop(self):
         """Indicate if GUI is running"""
         return False
     
-    def updateObjBrowser(self, bid):
+    def updateObjBrowser(self):
         """update the GUI object browser"""
         print "SalomeOutsideGUI: no objectBrowser update outside GUI"
         pass
     
-    def getActiveStudyId(self):
-        """Get the active study id"""
-        print "SalomeOutsideGUI.getActiveStudyId: avoid use outside GUI"
-        return myStudyId
-    
-    def getActiveStudyName(self):
-        """Get the active study name"""
-        print "SalomeOutsideGUI.getActiveStudyName: avoid use outside GUI"
+    def getStudyName(self):
+        """Get the study name"""
+        print "SalomeOutsideGUI.getStudyName: avoid use outside GUI"
         return myStudyName
     
     def SelectedCount(self):

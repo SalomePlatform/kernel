@@ -39,7 +39,6 @@ common_data={"AUTHOR"     : "",
              "COMP_TYPE"  : "",
              "COMP_NAME"  : "",
              "COMP_UNAME" : "",
-             "COMP_MULT"  : "",
              "COMP_IMPL"  : ""
              }
 
@@ -437,7 +436,6 @@ class Component(Tree):
         self.addNamedChild('component-author',     common_data["AUTHOR"])
         self.addNamedChild('component-version',    common_data["VERSION"])
         self.addNamedChild('component-comment',    'unknown')
-        self.addNamedChild('component-multistudy', common_data["COMP_MULT"])
         self.addNamedChild('component-impltype',   common_data["COMP_IMPL"])
         self.addNamedChild('component-icone',      common_data["ICON"])
         self.addNamedChild('constraint')
@@ -456,7 +454,7 @@ class Component(Tree):
 
         for i in ['component-username', 'component-author',
                   'component-type', 'component-icone', 'component-version',
-                  'component-multistudy', 'component-impltype', 'constraint']:
+                  'component-impltype', 'constraint']:
             ext = C.getChild(i)
             int = self.getChild(i)
             if int is None:
@@ -833,7 +831,6 @@ def run(tree, args):
     common_data["COMP_NAME"]  = getParamValue("name",       "",                args)
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
     common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
-    common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
     common_data["COMP_IMPL"]  = getParamValue("impltype",   "1",               args)
 
     print common_data
@@ -882,5 +879,5 @@ def run(tree, args):
 
 if __name__ == "__main__":
     print
-    print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>][,impltype=<implementation type : 0 (python), 1 (C++)>] <file.idl>"
+    print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,impltype=<implementation type : 0 (python), 1 (C++)>] <file.idl>"
     print

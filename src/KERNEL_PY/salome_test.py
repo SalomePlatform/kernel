@@ -112,7 +112,7 @@ print "           %d. Test Geometry " % step; step+=1
 print "======================================================================"
 
 from salome.geom import geomBuilder
-geompy = geomBuilder.New(salome.myStudy)
+geompy = geomBuilder.New()
 
 ShapeTypeCompSolid = 1
 ShapeTypeSolid = 2
@@ -163,7 +163,7 @@ print "OK"
 
 # ---- update object browser
 if salome.hasDesktop():
-    salome.sg.updateObjBrowser(True);
+    salome.sg.updateObjBrowser();
 
 print
 
@@ -178,9 +178,9 @@ from salome.smesh import smeshBuilder
 smesh = salome.lcc.FindOrLoadComponent("FactoryServer", "SMESH")
 if salome.hasDesktop():
     smeshgui = salome.ImportComponentGUI("SMESH")
-    smeshgui.Init(salome.myStudyId);
+    smeshgui.Init();
 else:
-    smesh = smeshBuilder.New(salome.myStudy)
+    smesh = smeshBuilder.New()
 
 # ---- create hypotheses 
 
@@ -300,7 +300,7 @@ print "OK"
 
 # ---- update object browser
 if salome.hasDesktop():
-    salome.sg.updateObjBrowser(True);
+    salome.sg.updateObjBrowser();
 
 print
 
@@ -452,4 +452,4 @@ else: # not in gui mode, Paravis can not be tested
 
 # ---- update object browser
 if salome.hasDesktop():
-    salome.sg.updateObjBrowser(True);
+    salome.sg.updateObjBrowser();

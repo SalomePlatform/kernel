@@ -133,7 +133,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Append(const SALOMEDSImpl_SObject& theObject)
   aCurrentNode->Append(aNode);
 
   // Mantis issue 0020136: Drag&Drop in OB
-  theObject.GetStudy()->addSO_Notification(theObject);
+  SALOMEDSImpl_Study::GetStudyImpl(theObject.GetLabel())->addSO_Notification(theObject);
 
   return true;
 }
@@ -208,7 +208,7 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
   bool ret = aFather->Append(aNode);
 
   // Mantis issue 0020136: Drag&Drop in OB
-  theObject.GetStudy()->addSO_Notification(theObject);
+  SALOMEDSImpl_Study::GetStudyImpl(theObject.GetLabel())->addSO_Notification(theObject);
 
   return ret;
 }
@@ -244,7 +244,7 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFi
   bool ret = aNode->InsertBefore(aFirstNode);
 
   // Mantis issue 0020136: Drag&Drop in OB
-  theFirst.GetStudy()->addSO_Notification(theFirst);
+  SALOMEDSImpl_Study::GetStudyImpl(theFirst.GetLabel())->addSO_Notification(theFirst);
 
   return ret;
 }

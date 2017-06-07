@@ -44,14 +44,22 @@
 # define _separator_ '/'
 #endif
 
+#define _extension_ ".hdf"
+
 namespace Kernel_Utils
 {
-  std::string GetBaseName( const std::string& file_path )
+  std::string GetBaseName( const std::string& file_path, const bool with_extension )
   {
+	std::string tmp_str = file_path;
     int pos = file_path.rfind( _separator_ );
     if ( pos >= 0 )
-      return pos < (int)file_path.size()-1 ? file_path.substr( pos+1 ) : "";
-    return file_path;
+      tmp_str = pos < (int)file_path.size()-1 ? file_path.substr( pos+1 ) : "";
+
+    pos = tmp_str.rfind( _extension_ );
+    if( !with_extension && pos >= 0 )
+      tmp_str = pos < (int)tmp_str.size()-1 ? tmp_str.substr( 0, pos ) : "";
+
+    return tmp_str;
   }
 
   std::string GetDirName( const std::string& file_path )
@@ -157,6 +165,15 @@ namespace Kernel_Utils
     return aFilePath;
   }
   
+  std::string AddExtension( const std::string& name )
+  {
+    std::string tmp_str = name;
+    int pos = tmp_str.rfind( _extension_ );
+    if( pos < 0 )
+      return tmp_str.append( _extension_ );
+    return tmp_str;
+  }
+
   //============================================================================
   // function : IsExists
   // purpose  : Returns True(False) if the path (not)exists

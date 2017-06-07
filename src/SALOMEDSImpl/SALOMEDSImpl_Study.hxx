@@ -51,7 +51,7 @@
 #include "SALOMEDSImpl_ChildIterator.hxx" 
 #include "SALOMEDSImpl_GenericVariable.hxx"
 
-class SALOMEDSImpl_StudyManager;
+class HDFgroup;
 class SALOMEDSImpl_GenericAttribute;
 
 
@@ -59,11 +59,11 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Study
 {
 private:
   std::string              _name;  
+  DF_Application*          _appli;
   DF_Document*             _doc;  // Document
+  DF_Document*             _clipboard;
   bool                     _Saved; // True if the Study is saved
   std::string              _URL; //URL of the persistent reference of the study
-  int                      _StudyId; 
-  DF_Label                 _current;
   bool                     _autoFill; 
   std::string              _errorCode;
   std::vector<std::string> _lockers;
@@ -88,28 +88,67 @@ private:
 
   std::string _GetStudyVariablesScript();
   std::string _GetNoteBookAccessor();
-  std::string _GetNoteBookAccess(const std::string& theStudyVar);
+  std::string _GetNoteBookAccess();
 
 public:
 
-  static SALOMEDSImpl_Study* GetStudy(const DF_Label& theLabel);
+  static SALOMEDSImpl_Study* GetStudyImpl(const DF_Label& theLabel);
   static SALOMEDSImpl_SObject SObject(const DF_Label& theLabel);
   static SALOMEDSImpl_SComponent SComponent(const DF_Label& theLabel);
   static void IORUpdated(const SALOMEDSImpl_AttributeIOR* theAttribute);
 
    //! standard constructor
-   SALOMEDSImpl_Study(const DF_Document*, const std::string& study_name);
+   SALOMEDSImpl_Study();
   
   //! standard destructor
   virtual ~SALOMEDSImpl_Study(); 
   
+  virtual void Init();
+  virtual void Clear();
+
+  //! method to Open a Study from it's persistent reference
+  virtual bool Open(const std::string& aStudyUrl);
+
+  //! method to save a Study
+  virtual bool Save(SALOMEDSImpl_DriverFactory* aFactory,
+                    bool theMultiFile,
+                    bool theASCII);
+
+  //! method to save a Study to the persistent reference aUrl
+  virtual bool SaveAs(const std::string& aUrl,
+                      SALOMEDSImpl_DriverFactory* aFactory,
+                      bool theMultiFile,
+                      bool theASCII);
+
+  bool CopyLabel(SALOMEDSImpl_Driver* theEngine,
+                 const int theSourceStartDepth,
+                 const DF_Label& theSource,
+                 const DF_Label& theDestinationMain);
+
+  DF_Label PasteLabel(SALOMEDSImpl_Driver* theEngine,
+                      const DF_Label& theSource,
+                      const DF_Label& theDestinationStart,
+                      const bool isFirstElement);
+
+  virtual bool CanCopy(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+  virtual bool Copy(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+  virtual bool CanPaste(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+  virtual SALOMEDSImpl_SObject Paste(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+
+  // _SaveAs private function called by Save and SaveAs
+  virtual bool Impl_SaveAs(const std::string& aUrl,
+                           SALOMEDSImpl_DriverFactory* aFactory,
+                           bool theMultiFile,
+                           bool theASCII);
+
+  // _SaveObject private function called by _SaveAs
+  virtual bool Impl_SaveObject(const SALOMEDSImpl_SObject& SC, HDFgroup *hdf_group_datatype);
+
+  virtual bool Impl_SaveProperties(HDFgroup *hdf_group);
+
+
   //! method to Get persistent reference of study (idem URL())
   virtual std::string GetPersistentReference();
-
-  //! method to Get transient reference of study
-  virtual std::string GetTransientReference();
-
-  virtual void SetTransientReference(const std::string& theIOR);
 
   //! method to detect if a study is empty
   virtual bool IsEmpty();
@@ -145,24 +184,6 @@ public:
 
   std::string GetObjectPathByIOR(const std::string& theIOR);
 
-  //! method to set a context: root ('/') is UserData component
-  virtual bool SetContext(const std::string& thePath);
-
-  //! method to get a context
-  virtual std::string GetContext();  
-
-  //! method to get all object names in the given context (or in the current context, if 'theContext' is empty)
-  virtual std::vector<std::string> GetObjectNames(const std::string& theContext);
-
-  //! method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
-  virtual std::vector<std::string> GetDirectoryNames(const std::string& theContext);
-
-  //! method to get all file names in the given context (or in the current context, if 'theContext' is empty)
-  virtual std::vector<std::string> GetFileNames(const std::string& theContext);
-
-  //! method to get all components names
-  virtual std::vector<std::string> GetComponentNames(const std::string& theContext);
-
   //! method to Create a ChildIterator from an SObject 
   virtual SALOMEDSImpl_ChildIterator NewChildIterator(const SALOMEDSImpl_SObject& aSO);
 
@@ -174,9 +195,6 @@ public:
  
   //! method to get study name
   virtual std::string Name();
-
-  //! method to set study name
-  virtual void  Name(const std::string& name);
   
   //! method to get if study has been saved
   virtual bool IsSaved();
@@ -195,10 +213,6 @@ public:
 
   virtual bool IsLocked();
   
-  virtual int StudyId();
-
-  virtual void  StudyId(int id);
-  
   virtual void DeleteIORLabelMapItem(const std::string& anIOR);
   virtual void UpdateIORLabelMap(const std::string& anIOR, const std::string& aLabel);
   
@@ -212,8 +226,6 @@ public:
   
   virtual SALOMEDSImpl_UseCaseBuilder* GetUseCaseBuilder();
   
-  virtual void Close();
-  
   void EnableUseCaseAutoFilling(bool isEnabled);
   
   virtual std::string GetErrorCode() { return _errorCode; }
@@ -225,8 +237,6 @@ public:
   virtual SALOMEDSImpl_SObject GetSObject(const DF_Label& theEntryLabel);
   virtual DF_Attribute* GetAttribute(const std::string& theEntry, 
                                                      const std::string& theType);
-
-  virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   virtual bool DumpStudy(const std::string& thePath, 
                          const std::string& theBaseName, 
@@ -326,7 +336,6 @@ public:
   static void UnRegisterGenObj(const std::string& theIOR, DF_Label label);
   void setGenObjRegister(SALOMEDSImpl_AbstractCallback* theRegister);
 
-  friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;
   friend class SALOMEDSImpl_GenericVariable;
 };

@@ -274,7 +274,6 @@ f.close()
     # job script
     script_text = """<?xml version='1.0' encoding='iso-8859-1' ?>
 <proc name="newSchema_1">
-   <property name="DefaultStudyID" value="1"/>
    <container name="DefaultContainer">
       <property name="container_kind" value="Salome"/>
       <property name="attached_on_cloning" value="0"/>
@@ -379,7 +378,6 @@ f.close()
     # job script
     script_text = """<?xml version='1.0' encoding='iso-8859-1' ?>
 <proc name="myschema">
-   <property name="DefaultStudyID" value="1"/>
    <type name="string" kind="string"/>
    <type name="bool" kind="bool"/>
    <type name="double" kind="double"/>

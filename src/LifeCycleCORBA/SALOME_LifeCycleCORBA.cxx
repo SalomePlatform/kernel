@@ -132,14 +132,12 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
  *
  *  \param params         container parameters like type or name...
  *  \param componentName  the name of component class
- *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if not found
  */
 //=============================================================================
 Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
-                                     const char *componentName,
-                                     int studyId)
+                                     const char *componentName)
 {
   if (! isKnownComponentClass(componentName))
     return Engines::EngineComponent::_nil();
@@ -160,7 +158,6 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
 
   Engines::EngineComponent_var compo = _FindComponent(new_params,
                                                 componentName,
-                                                studyId,
                                                 listOfResources);
 
   return compo._retn();
@@ -171,15 +168,13 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
  *
  *  \param params         container parameters like type or name...
  *  \param componentName  the name of component class
- *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
 //=============================================================================
 
 Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
-                                     const char *componentName,
-                                     int studyId)
+                                     const char *componentName)
 {
   // --- Check if Component Name is known in ModuleCatalog
 
@@ -203,8 +198,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
   new_params.resource_params.resList = listOfResources;
 
   Engines::EngineComponent_var compo = _LoadComponent(new_params,
-                                                componentName,
-                                                studyId);
+                                                      componentName);
 
   return compo._retn();
 }
@@ -215,7 +209,6 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
  *
  *  \param params         container parameters like type or name...
  *  \param componentName  the name of component class
- *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
 //=============================================================================
@@ -223,8 +216,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
 Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
 FindOrLoad_Component(const Engines::ContainerParameters& params,
-                     const char *componentName,
-                     int studyId)
+                     const char *componentName)
 {
   // --- Check if Component Name is known in ModuleCatalog
 
@@ -247,16 +239,14 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
     }
 
   Engines::EngineComponent_var compo = _FindComponent(new_params,
-                                                componentName,
-                                                studyId,
-                                                listOfResources);
+                                                      componentName,
+                                                      listOfResources);
 
   if(CORBA::is_nil(compo))
   {
     new_params.resource_params.resList = listOfResources;
     compo = _LoadComponent(new_params,
-                           componentName,
-                           studyId);
+                           componentName);
   }
 
   return compo._retn();
@@ -475,10 +465,10 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   // 2) SALOMEDS
   try
     {
-      CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
-      SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
-      if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
-        studyManager->Shutdown();
+      CORBA::Object_var objSDS = _NS->Resolve("/Study");
+      SALOMEDS::Study_var study = SALOMEDS::Study::_narrow(objSDS) ;
+      if ( !CORBA::is_nil(study) && ( pid != study->getPID() ) )
+        study->Shutdown();
     }
   catch(const CORBA::Exception& e)
     {
@@ -639,7 +629,6 @@ void SALOME_LifeCycleCORBA::killOmniNames()
  *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
- *  \param studyId        default = 0  : multistudy instance
  *  \param listOfMachines list of machine address
  *  \return a CORBA reference of the component instance, or _nil if not found
  */
@@ -649,7 +638,6 @@ Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
 _FindComponent(const Engines::ContainerParameters& params,
                const char *componentName,
-               int studyId,
                const Engines::ResourceList& listOfResources)
 {
   // --- build the list of machines on which the component is already running
@@ -700,7 +688,6 @@ _FindComponent(const Engines::ContainerParameters& params,
  *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
- *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
 //=============================================================================
@@ -708,8 +695,7 @@ _FindComponent(const Engines::ContainerParameters& params,
 Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
 _LoadComponent(const Engines::ContainerParameters& params,
-              const char *componentName,
-              int studyId)
+              const char *componentName)
 {
   MESSAGE("_LoadComponent, required " << params.container_name <<
           " " << componentName << " " << NbProc(params));
@@ -730,7 +716,7 @@ _LoadComponent(const Engines::ContainerParameters& params,
   CORBA::string_free(reason);
 
   Engines::EngineComponent_var myInstance =
-    cont->create_component_instance(componentName, studyId);
+    cont->create_component_instance(componentName);
   return myInstance._retn();
 }
 
@@ -739,14 +725,12 @@ _LoadComponent(const Engines::ContainerParameters& params,
  *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
- *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the parallel component instance, or _nil if problem
  */
 //=============================================================================
 Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters& params,
-                                              const char *componentName,
-                                              int studyId)
+                                              const char *componentName)
 {
   MESSAGE("Entering LoadParallelComponent");
 
@@ -782,7 +766,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
   // @PARALLEL@ permits to identify that the component requested
   // is a parallel component.
   std::string name = std::string(componentName);
-  Engines::EngineComponent_var myInstance = cont->create_component_instance(name.c_str(), studyId);
+  Engines::EngineComponent_var myInstance = cont->create_component_instance(name.c_str());
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");
   return myInstance._retn();

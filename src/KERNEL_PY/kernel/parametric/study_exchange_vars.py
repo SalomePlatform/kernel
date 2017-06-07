@@ -182,8 +182,7 @@ def createSObjectForExchangeVariables(fatherSobj, exchangeVariables,
     :return: the newly created SObject.
 
     """
-    studyId = fatherSobj.GetStudy()._get_StudyId()
-    editor = getStudyEditor(studyId)
+    editor = getStudyEditor()
     sobj = editor.createItem(fatherSobj,
                              name = name,
                              icon = icon,
@@ -210,8 +209,7 @@ def updateSObjectForExchangeVariables(sobj, exchangeVariables,
     other parameters.
 
     """
-    studyId = sobj.GetStudy()._get_StudyId()
-    editor = getStudyEditor(studyId)
+    editor = getStudyEditor()
     editor.setItem(sobj, name = name, icon = icon, typeId = typeId)
     editor.builder.RemoveAttribute(sobj, "AttributeParameter")
     _setSObjectForExchangeVariables(editor, sobj, exchangeVariables)

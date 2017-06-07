@@ -42,6 +42,7 @@
 #include "SALOMEDS_StudyBuilder_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
+#include "SALOMEDS_Driver_i.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
@@ -49,35 +50,62 @@
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
+
+  void                            NameChanged();
   CORBA::ORB_var                 _orb;
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
-  static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
   SALOMEDSImpl_AbstractCallback* _notifier;
   SALOMEDSImpl_AbstractCallback* _genObjRegister;
+  SALOMEDS_DriverFactory_i*      _factory;
   bool                           _closed;
 
 public:
 
   //! standard constructor
-  SALOMEDS_Study_i(SALOMEDSImpl_Study*, CORBA::ORB_ptr);
+  SALOMEDS_Study_i(CORBA::ORB_ptr);
   
   //! standard destructor
-  virtual ~SALOMEDS_Study_i(); 
+  virtual ~SALOMEDS_Study_i();
   
+  virtual void Init();
+  virtual void Clear();
+
+  //! method to Open a Study
+  /*!
+    \param char* arguments, the study URL
+    \return Study_ptr arguments
+  */
+  virtual bool Open(const char* aStudyUrl) throw (SALOME::SALOME_Exception);
+
+  //! method to save a Study
+  virtual CORBA::Boolean Save(CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
+
+  //! method to save a Study to the persistent reference aUrl
+  /*!
+    \param char* arguments, the new URL of the study
+  */
+  virtual CORBA::Boolean SaveAs(const char* aUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
+
+  //! method to copy the object
+  /*!
+    \param theObject object to copy
+  */
+  virtual CORBA::Boolean Copy(SALOMEDS::SObject_ptr theObject);
+  virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr theObject);
+  //! method to paste the object in study
+  /*!
+    \param theObject object to paste
+  */
+  virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual CORBA::Boolean CanPaste(SALOMEDS::SObject_ptr theObject);
+
   //! method to Get persistent reference of study (idem URL())
   /*!
     \sa URL()
     \return char* arguments, the persistent reference of the study
   */  
   virtual char* GetPersistentReference();
-
-
-  //! method to Get transient reference of study
-  /*!
-    \return char* arguments, the transient reference of the study
-  */  
-  virtual char* GetTransientReference();
 
   //! method to detect if a study is empty
   /*!
@@ -151,36 +179,6 @@ public:
   */
   virtual char* GetObjectPath(CORBA::Object_ptr theObject);
 
-  //! method to set a context: root ('/') is UserData component
-  /*!
-  */
-  virtual void SetContext(const char* thePath);
-
-  //! method to get a context
-  /*!
-  */
-  virtual char* GetContext();  
-
-  //! method to get all object names in the given context (or in the current context, if 'theContext' is empty)
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetObjectNames(const char* theContext);
-
-  //! method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetDirectoryNames(const char* theContext);
-
-  //! method to get all file names in the given context (or in the current context, if 'theContext' is empty)
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetFileNames(const char* theContext);
-
-  //! method to get all components names
-  /*!
-  */
-  virtual SALOMEDS::ListOfStrings* GetComponentNames(const char* theContext);
-
   //! method to Create a ChildIterator from an SObject 
   /*!
     \param aSO  SObject_ptr arguments
@@ -205,12 +203,6 @@ public:
     \return char* arguments, the study name
   */
   virtual char* Name();
-
-  //! method to set study name
-  /*!
-    \param name char* arguments, the study name
-  */
-  virtual void  Name(const char* name);
 
   //! method to get if study has been saved
   /*!
@@ -245,12 +237,6 @@ public:
   */
   virtual void  URL(const char* url);
 
-  virtual CORBA::Short StudyId();
-  virtual void  StudyId(CORBA::Short id);
-
-  static SALOMEDS::Study_ptr GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb);
-  static SALOMEDS_Study_i* GetStudyServant(SALOMEDSImpl_Study*, CORBA::ORB_ptr orb);
-
   static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 
   virtual void UpdateIORLabelMap(const char* anIOR, const char* aLabel);
@@ -267,8 +253,6 @@ public:
   virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };
 
   virtual SALOMEDS::UseCaseBuilder_ptr GetUseCaseBuilder();
-
-  virtual void Close();
 
   void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled); 
 
@@ -343,6 +327,12 @@ public:
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  void ping(){};
+  CORBA::Long getPID();
+  void ShutdownWithExit();
+
+  void Shutdown();
 
   virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
   virtual void detach(SALOMEDS::Observer_ptr theObs);

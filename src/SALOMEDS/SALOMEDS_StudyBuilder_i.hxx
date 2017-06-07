@@ -88,11 +88,6 @@ public:
   */
   virtual SALOMEDS::SObject_ptr NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject, CORBA::Long atag);
 
-  /*!
-    The methods adds a new subdirectory, the path can be absolute or relative (then the current context is used)
-  */
-  virtual void AddDirectory(const char* thePath);
-
   virtual void LoadWith(SALOMEDS::SComponent_ptr sco, SALOMEDS::Driver_ptr Engine)
     throw(SALOME::SALOME_Exception);
   virtual void Load(SALOMEDS::SObject_ptr sco);

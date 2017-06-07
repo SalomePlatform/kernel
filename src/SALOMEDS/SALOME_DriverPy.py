@@ -70,7 +70,7 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     def CanPublishInStudy(self, theIOR):
         return 1
 
-    def PublishInStudy(self, theStudy, theSObject, theObject, theName):
+    def PublishInStudy(self, theSObject, theObject, theName):
         return None
 
     def CanCopy(self, theObject):

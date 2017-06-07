@@ -51,7 +51,6 @@ int SIGUSR11 = 1000;
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;
 
-bool Engines_Component_i::_isMultiStudy = true;
 bool Engines_Component_i::_isMultiInstance = false;
 
 /*! \class Engines_Component_i
@@ -101,7 +100,6 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _Executed(false) ,
   _graphName("") ,
   _nodeName(""),
-  _studyId(-1),
   _id(0),
   _contId(0),
   _CanceledThread(false)
@@ -155,7 +153,6 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _Executed(false) ,
   _graphName("") ,
   _nodeName(""),
-  _studyId(-1),
   _id(0),
   _contId(0),
   _CanceledThread(false)
@@ -225,20 +222,6 @@ char* Engines_Component_i::instanceName()
 char* Engines_Component_i::interfaceName()
 {
   return CORBA::string_dup(_interfaceName.c_str()) ;
-}
-
-//=============================================================================
-/*!
- *  CORBA method: Get study Id
- *  \return -1: not initialised (Internal Error)
- *           0: multistudy component instance
- *          >0: study id associated to this instance
- */
-//=============================================================================
-
-CORBA::Long Engines_Component_i::getStudyId()
-{
-  return _studyId;
 }
 
 //=============================================================================
@@ -608,31 +591,6 @@ Engines_Container_i *Engines_Component_i::GetContainerPtr()
 
 //=============================================================================
 /*!
- *  C++ method: set study Id
- *  \param studyId         0 if instance is not associated to a study,
- *                         >0 otherwise (== study id)
- *  \return true if the set of study Id is OK
- *  must be set once by Container, at instance creation,
- *  and cannot be changed after.
- */
-//=============================================================================
-
-CORBA::Boolean Engines_Component_i::setStudyId(CORBA::Long studyId)
-{
-  ASSERT( studyId >= 0);
-  CORBA::Boolean ret = false;
-  if (_studyId < 0) // --- not yet initialized
-    {
-      _studyId = studyId;
-      ret = true;
-    }
-  else
-    if ( _studyId == studyId) ret = true;
-  return ret;
-}
-
-//=============================================================================
-/*!
  *  C++ method: return CORBA instance id, the id is set in derived class
  *  constructor, when instance is activated.
  */
@@ -915,12 +873,11 @@ std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
  */
 //=============================================================================
 
-Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
-                                                  CORBA::Boolean isPublished,
+Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Boolean isPublished,
                                                   CORBA::Boolean isMultiFile,
                                                   CORBA::Boolean& isValidScript)
 {
-  const char* aScript = isMultiFile ? "def RebuildData(theStudy): pass" : "";
+  const char* aScript = isMultiFile ? "def RebuildData(): pass" : "";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;

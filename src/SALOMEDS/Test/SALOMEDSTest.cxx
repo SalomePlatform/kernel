@@ -22,8 +22,6 @@
 
 #include "SALOMEDSTest.hxx"
 
-
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "utilities.h"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_ORB_INIT.hxx"
@@ -37,8 +35,7 @@
 #include <cstdlib>
 
 #include "SALOMEDSClient.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
-#include "SALOMEDS_StudyManager.hxx"
+#include "SALOMEDS_Study.hxx"
 #include "SALOMEDS_SObject.hxx"
 
 
@@ -58,10 +55,10 @@ void SALOMEDSTest::setUp()
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(argc , argv ) ;
   SALOME_NamingService NS(_orb);
-  CORBA::Object_var obj = NS.Resolve( "/myStudyManager" );
-  _sm = SALOMEDS::StudyManager::_narrow( obj );
+  CORBA::Object_var obj = NS.Resolve( "/Study" );
+  _study = SALOMEDS::Study::_narrow( obj );
 
-  CPPUNIT_ASSERT( !CORBA::is_nil(_sm) ); 
+  CPPUNIT_ASSERT( !CORBA::is_nil(_study) );
 }
 
 // ============================================================================
@@ -72,13 +69,9 @@ void SALOMEDSTest::setUp()
 
 void SALOMEDSTest::tearDown()
 {
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-  std::vector<std::string> v = sm->GetOpenStudies();
-  for(int i = 0; i<v.size(); i++) {
-    _PTR(Study) study = sm->GetStudyByName(v[i]);
-    if(study)
-      sm->Close(study);
-  }
+  _PTR(Study) study ( new SALOMEDS_Study(_study) );
+  if(study)
+    study->Clear();
 }
 
 #include "SALOMEDSTest_AttributeComment.cxx"
@@ -116,7 +109,6 @@ void SALOMEDSTest::tearDown()
 #include "SALOMEDSTest_SObject.cxx"
 #include "SALOMEDSTest_Study.cxx"
 #include "SALOMEDSTest_StudyBuilder.cxx"
-#include "SALOMEDSTest_StudyManager.cxx"
 #include "SALOMEDSTest_UseCase.cxx"
 
 
@@ -135,8 +127,8 @@ void SALOMEDSTest_Embedded::setUp()
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(argc , argv ) ;
   SALOME_NamingService NS(_orb);
-  CORBA::Object_var obj = NS.Resolve( "/myStudyManager_embedded" );
-  _sm = SALOMEDS::StudyManager::_narrow( obj );
+  CORBA::Object_var obj = NS.Resolve( "/Study_embedded" );
+  _study = SALOMEDS::Study::_narrow( obj );
 
-  CPPUNIT_ASSERT( !CORBA::is_nil(_sm) ); 
+  CPPUNIT_ASSERT( !CORBA::is_nil(_study) );
 }

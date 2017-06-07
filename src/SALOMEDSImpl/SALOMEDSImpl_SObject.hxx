@@ -60,7 +60,6 @@ public:
   virtual bool ReferencedObject(SALOMEDSImpl_SObject& theObject) const ;
   virtual bool FindSubObject(int theTag, SALOMEDSImpl_SObject& theObject);
 
-  virtual SALOMEDSImpl_Study*  GetStudy() const;
   virtual std::string Name() const { return _name; }
   virtual void Name(const std::string& theName) { _name = theName; }
   virtual std::vector<DF_Attribute*> GetAllAttributes() const; 

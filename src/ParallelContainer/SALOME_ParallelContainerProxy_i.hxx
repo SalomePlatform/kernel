@@ -54,10 +54,8 @@ class Container_proxy_impl_final :
     virtual void Shutdown();
 
     virtual ::CORBA::Boolean load_component_Library(const char* componentName,CORBA::String_out reason);
-    virtual Engines::EngineComponent_ptr create_component_instance (const char* componentName,
-                                                                    ::CORBA::Long studyId);
+    virtual Engines::EngineComponent_ptr create_component_instance (const char* componentName);
     virtual Engines::EngineComponent_ptr create_component_instance_env (const char* componentName,
-                                                                        CORBA::Long studyId,    // 0 for multiStudy
                                                                         const Engines::FieldsDict& env,
                                                                         CORBA::String_out reason);
 

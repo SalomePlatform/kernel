@@ -102,7 +102,7 @@ class SALOME_Container_i:
         
     #-------------------------------------------------------------------------
 
-    def create_component_instance(self, componentName, instanceName, studyId):
+    def create_component_instance(self, componentName, instanceName):
         MESSAGE( "SALOME_Container_i::create_component_instance" )
         comp_iors=""
         ret=""

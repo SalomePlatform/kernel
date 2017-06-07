@@ -105,7 +105,7 @@ def IDToSObject(id):
 
     #--------------------------------------------------------------------------
 
-def PersistentPresentation(theStudy, theSO, theWithID):
+def PersistentPresentation(theSO, theWithID):
     # put the sobject's content (with subchildren) to the string
     aResult = ""
     attrs = theSO.GetAllAttributes()
@@ -154,9 +154,9 @@ def PersistentPresentation(theStudy, theSO, theWithID):
         aResult = "sobject: " + theSO.GetID() + " nbattrs: " + str(aLen - anUncopied) + aResult + '\n'
     else:
         aResult = " nbattrs: " + str(aLen - anUncopied) + aResult + '\n'
-    anIter = theStudy.NewChildIterator(theSO)
+    anIter = myStudy.NewChildIterator(theSO)
     while anIter.More():
-        aResult += PersistentPresentation(theStudy, anIter.Value(), theWithID)
+        aResult += PersistentPresentation(anIter.Value(), theWithID)
         anIter.Next()
     return aResult
 
@@ -178,27 +178,27 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     while aRoot.GetID() != "0:":
         aRoot = aRoot.GetFather()
     aTree = GetTree(aRoot)
-    aStudyPersist = PersistentPresentation(myStudy, aRoot, 1)
+    aStudyPersist = PersistentPresentation(aRoot, 1)
 
-    if not myStudyManager.CanCopy(theSO):
+    if not myStudy.CanCopy(theSO):
         raise RuntimeError, "<CanCopy> for "+theInfo+" returns false"
     
-    if not myStudyManager.Copy(theSO):
+    if not myStudy.Copy(theSO):
         raise RuntimeError, "<Copy> for "+theInfo+" returns false"
 
     
-    if not myStudyManager.CanPaste(theSO):
+    if not myStudy.CanPaste(theSO):
         raise RuntimeError, "<CanPaste> for "+theInfo+" returns false"
 
     # check: before paste study is not changed check
-    if aStudyPersist != PersistentPresentation(myStudy, aRoot, 1):
+    if aStudyPersist != PersistentPresentation(aRoot, 1):
         raise RuntimeError, "Study is changed before Paste calling for "+theInfo
     
     aSObj = theSO
     if theComponentPaste:
         aSObj = theSO.GetFatherComponent()
         theInfo = theInfo + "(paste for component)"
-    if myStudyManager.Paste(aSObj) == None:
+    if myStudy.Paste(aSObj) == None:
         raise RuntimeError, "<Paste> for "+theInfo+" returns None object"
     aNewTree = GetTree(aRoot)
     aLen = len(aTree)
@@ -269,14 +269,14 @@ if lcc is None:
 #create a naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
 
-# get Study Manager reference
+# get Study reference
 obj = None
 
 step = 0
 sleeping_time = 0.01
 sleeping_time_max = 1.0
 while 1:
-    obj = naming_service.Resolve('myStudyManager')
+    obj = naming_service.Resolve('/Study')
     if obj is not None:break
     step = step + 1
     if step > 100: break
@@ -284,22 +284,9 @@ while 1:
     sleeping_time = max(sleeping_time_max, 2*sleeping_time)
     pass
      
-myStudyManager = obj._narrow(SALOMEDS.StudyManager)
+myStudy = obj._narrow(SALOMEDS.Study)
 
-if myStudyManager is None:
-    print "Warning: SALOMEDS.StudyManager has not been created !!!"
-
-# create new study
-aListOfOpenStudies = myStudyManager.GetOpenStudies();
-myStudy = None;
-if len(aListOfOpenStudies) == 0 :
-    myStudy = myStudyManager.NewStudy("Study1")
-else:
-    myStudyName = aListOfOpenStudies[0]
-    myStudy = myStudyManager.GetStudyByName(myStudyName)
+if myStudy is None:
+    print "Warning: SALOMEDS.Study has not been created !!!"
     
 myStudyName = myStudy._get_Name()
-
-myStudyId = myStudy._get_StudyId()
-#print myStudyId
-

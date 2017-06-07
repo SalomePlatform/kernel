@@ -59,7 +59,6 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     _orb = None
     _poa = None
     _fieldsDict = []
-    _studyId = -1
 
     #-------------------------------------------------------------------------
 
@@ -293,16 +292,11 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
 
     #-------------------------------------------------------------------------
 
-    def DumpPython(self, theStudy, isPublished, isMultiFile):
+    def DumpPython(self, isPublished, isMultiFile):
         aBuffer = "\0"
         if isMultiFile :
-            aBuffer = "def RebuildData(theStudy): pass\n\0"
+            aBuffer = "def RebuildData(): pass\n\0"
         return (aBuffer, 1)
-
-    #-------------------------------------------------------------------------
-
-    def getStudyId(self):
-        return self._studyId
 
     #-------------------------------------------------------------------------
 
@@ -311,7 +305,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
 
     #-------------------------------------------------------------------------
 
-    def getObjectInfo(self, studyId, entry):
+    def getObjectInfo(self, entry):
         return ""
 
     #-------------------------------------------------------------------------

@@ -66,18 +66,15 @@ public:
 
   Engines::EngineComponent_ptr 
   FindComponent(const Engines::ContainerParameters& params,
-                const char *componentName,
-                int studyId=0);
+                const char *componentName);
 
   Engines::EngineComponent_ptr
   LoadComponent(const Engines::ContainerParameters& params,
-                const char *componentName,
-                int studyId=0);
+                const char *componentName);
 
   Engines::EngineComponent_ptr 
   FindOrLoad_Component(const Engines::ContainerParameters& params,
-                       const char *componentName,
-                       int studyId =0);
+                       const char *componentName);
 
   Engines::EngineComponent_ptr
   FindOrLoad_Component(const char *containerName,
@@ -86,8 +83,7 @@ public:
   // Parallel extension
   Engines::EngineComponent_ptr 
     Load_ParallelComponent(const Engines::ContainerParameters& params,
-                           const char *componentName,
-                           int studyId);
+                           const char *componentName);
 
   bool isKnownComponentClass(const char *componentName);
 
@@ -115,13 +111,11 @@ protected:
   Engines::EngineComponent_ptr 
   _FindComponent(const Engines::ContainerParameters& params,
                  const char *componentName,
-                 int studyId,
                  const Engines::ResourceList& listOfResources);
 
   Engines::EngineComponent_ptr
   _LoadComponent(const Engines::ContainerParameters& params,
-                 const char *componentName,
-                 int studyId);
+                 const char *componentName);
 
   SALOME_NamingService *_NS;
   SALOME_NamingService *_NSnew;

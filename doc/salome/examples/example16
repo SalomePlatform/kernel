@@ -39,7 +39,7 @@ if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger"
 
 file1 = dir + "/test1.hdf"
-batchmode_geompy.myStudyManager.SaveAs(file1, batchmode_geompy.myStudy)
+batchmode_geompy.myStudy.SaveAs(file1)
 
 # 1st Undo ---------------------------------------
 batchmode_geompy.myBuilder.Undo()
@@ -53,7 +53,7 @@ if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 500 or A.Value(4) != 
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger after the first 'undo'!"
 # save 
 file2 = dir + "/test2.hdf"
-batchmode_geompy.myStudyManager.SaveAs(file2, batchmode_geompy.myStudy)
+batchmode_geompy.myStudy.SaveAs(file2)
 #-------------------------------------------------
 # 2nd Undo ---------------------------------------
 batchmode_geompy.myBuilder.Undo()
@@ -61,7 +61,7 @@ res, attr = batchmode_geompy.myBuilder.FindAttribute(batchmode_geompy.father, "A
 if res !=0 or attr != None :
         raise  RuntimeError, "After the second 'undo' AttributeSequenceOfInteger exists but must not!"
 file3 = dir + "/test3.hdf"
-batchmode_geompy.myStudyManager.SaveAs(file3, batchmode_geompy.myStudy)
+batchmode_geompy.myStudy.SaveAs(file3)
 #-------------------------------------------------
 
 #make redo twice ---------------------------------
@@ -79,7 +79,7 @@ if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 
 
 
 #----------------------------------------------------------------------
-openedStudy=batchmode_geompy.myStudyManager.Open(file1);
+openedStudy=batchmode_geompy.myStudy.Open(file1);
 
 if openedStudy == None:
         raise  RuntimeError, "Can't open saved study!"
@@ -104,7 +104,7 @@ if A.Length() != 4:
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 500:
         print "Wrong  value of  AttributeSequenceOfInteger"
 #----------------------------------------------------------------------
-openedStudy=batchmode_geompy.myStudyManager.Open(file2);
+openedStudy=batchmode_geompy.myStudy.Open(file2);
 
 if openedStudy == None:
         raise  RuntimeError, "Can't open saved study!"
@@ -130,7 +130,7 @@ if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 500 or A.Value(4) != 
         raise  RuntimeError, "Wrong  value of  AttributeSequenceOfInteger after the first 'undo'!"
 
 #----------------------------------------------------------------------
-openedStudy=batchmode_geompy.myStudyManager.Open(file3);
+openedStudy=batchmode_geompy.myStudy.Open(file3);
 
 if openedStudy == None:
         raise  RuntimeError, "Can't open saved study!"

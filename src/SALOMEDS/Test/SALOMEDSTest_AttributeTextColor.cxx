@@ -26,13 +26,8 @@
  */
 void SALOMEDSTest::testAttributeTextColor()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -69,7 +64,7 @@ void SALOMEDSTest::testAttributeTextColor()
 
   CPPUNIT_ASSERT(color.B == color2.B);
 
-  sm->Close(study);  
+  study->Clear();
 }
 
 

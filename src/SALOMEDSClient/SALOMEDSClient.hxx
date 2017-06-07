@@ -61,7 +61,6 @@
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDSClient_Study.hxx"
 #include "SALOMEDSClient_StudyBuilder.hxx"
-#include "SALOMEDSClient_StudyManager.hxx"
 #include "SALOMEDSClient_UseCaseBuilder.hxx"
 #include "SALOMEDSClient_UseCaseIterator.hxx"
 

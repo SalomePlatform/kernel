@@ -68,7 +68,7 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
   //remove IOR entry in study
   if(theValue != myString)
     {
-      SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudy(Label());
+      SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudyImpl(Label());
       study->RegisterGenObj(theValue, Label());
       study->UnRegisterGenObj(myString, Label());
       study->DeleteIORLabelMapItem(myString);

@@ -49,7 +49,6 @@ public:
   virtual bool FindAttribute(_PTR(GenericAttribute)& anAttribute, const std::string& aTypeOfAttribute) = 0;
   virtual bool ReferencedObject(_PTR(SObject)& theObject) = 0;
   virtual bool FindSubObject(int theTag, _PTR(SObject)& theObject) = 0;
-  virtual _PTR(Study) GetStudy() = 0;
   virtual std::string Name() = 0;
   virtual void  Name(const std::string& theName)  = 0;
   virtual std::vector<_PTR(GenericAttribute)> GetAllAttributes() = 0;

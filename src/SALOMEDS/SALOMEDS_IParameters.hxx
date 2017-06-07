@@ -142,12 +142,12 @@ public:
   /*!
     Enables/Disables the dumping visual parameters
    */
-  virtual void setDumpPython(_PTR(Study) study, const std::string& theID = "");
+  virtual void setDumpPython(const std::string& theID = "");
 
   /*!
     Returns whether there is the dumping visual parameters
    */
-  virtual bool isDumpPython(_PTR(Study) study, const std::string& theID = "");  
+  virtual bool isDumpPython(const std::string& theID = "");
 
   /*!
     Returns a default name of the component where the visula parameters are stored.
@@ -156,7 +156,6 @@ public:
 
 private:
   _PTR(AttributeParameter) _ap;
-  _PTR(Study) _study;
   std::map<std::string, std::string> _compNames;
 };
 

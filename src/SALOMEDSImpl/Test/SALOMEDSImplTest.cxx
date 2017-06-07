@@ -30,7 +30,6 @@
 #include "utilities.h"
 
 #include "SALOMEDSImpl_AttributeParameter.hxx"
-#include "SALOMEDSImpl_StudyManager.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
@@ -64,8 +63,7 @@ SALOMEDSImplTest::tearDown()
 // ============================================================================
 void SALOMEDSImplTest::testAttributeParameter()
 {
-  SALOMEDSImpl_StudyManager* sm = new SALOMEDSImpl_StudyManager();
-  SALOMEDSImpl_Study* study = sm->NewStudy("Test");
+  SALOMEDSImpl_Study* study = new SALOMEDSImpl_Study();
   SALOMEDSImpl_AttributeParameter* _ap = study->GetCommonParameters("TestComp", 0);
 
   CPPUNIT_ASSERT(_ap);

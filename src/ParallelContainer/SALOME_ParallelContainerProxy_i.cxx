@@ -275,11 +275,11 @@ Container_proxy_impl_final::load_component_Library(const char* componentName, CO
 }
 
 Engines::EngineComponent_ptr 
-Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
+Container_proxy_impl_final::create_component_instance(const char* componentName)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
-  Engines::EngineComponent_ptr compo = create_component_instance_env(componentName, studyId, env, reason);
+  Engines::EngineComponent_ptr compo = create_component_instance_env(componentName, env, reason);
   CORBA::string_free(reason);
   return compo;
 }
@@ -289,7 +289,7 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
 // Composant parallèle -> création du proxy ici puis appel de la création de chaque objet participant
 // au composant parallèle
 Engines::EngineComponent_ptr 
-Container_proxy_impl_final::create_component_instance_env(const char* componentName, ::CORBA::Long studyId,
+Container_proxy_impl_final::create_component_instance_env(const char* componentName,
                                                           const Engines::FieldsDict& env, CORBA::String_out reason)
 {
   reason=CORBA::string_dup("");
@@ -309,7 +309,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
     _numInstance++;
     _numInstanceMutex.unlock();
     Engines::PACO_Container_proxy_impl::updateInstanceNumber();
-    return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
+    return Engines::Container_proxy_impl::create_component_instance(componentName);
   }
 
   // Parallel Component !
@@ -361,7 +361,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
                                                  instanceName.c_str(), 
                                                  _parallel_object_topology.total);
 
-    // --- get reference & servant from id
+    // --- get reference from id
     CORBA::Object_var obj = _poa->id_to_reference(*(proxy->proxy_id));
     component_proxy = Engines::EngineComponent::_narrow(obj);
     proxy->proxy_corba_ref = component_proxy;
@@ -400,7 +400,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
     {
       try 
       {
-        node->create_paco_component_node_instance(componentName, _containerName.c_str(), studyId);
+        node->create_paco_component_node_instance(componentName, _containerName.c_str());
         MESSAGE("Call create_paco_component_node_instance done on node : " << i);
       }
       catch (SALOME::SALOME_Exception & ex)

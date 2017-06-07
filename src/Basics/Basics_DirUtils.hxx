@@ -32,7 +32,7 @@
 namespace Kernel_Utils
 {
   // Extracts and returns the base name of the specified file name.
-  BASICS_EXPORT std::string GetBaseName( const std::string& file_path );
+  BASICS_EXPORT std::string GetBaseName( const std::string& file_path, bool with_extension = true );
 
   // Extracts and returns the dir name of the specified file name.
   BASICS_EXPORT std::string GetDirName( const std::string& file_path );
@@ -49,10 +49,12 @@ namespace Kernel_Utils
   // /tmp/something/ for Unix or c:\something\ for WIN32
   BASICS_EXPORT std::string GetTmpDir();
 
-
   // Returns the unique temporary file name without any extension
   // /tmp/something/file for Unix or c:\something\file for WIN32
   BASICS_EXPORT std::string GetTmpFileName();
+
+  // Adds extension in the end of the specified file name.
+  BASICS_EXPORT std::string AddExtension( const std::string& name );
 
   // Returns True(False) if the path (not)exists
   BASICS_EXPORT bool IsExists( const std::string& path );

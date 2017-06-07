@@ -28,6 +28,7 @@
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS.hxx"
 #include <SALOMEDSImpl_IParameters.hxx>
+#include <SALOME_KernelServices.hxx>
 #include <stdlib.h>
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -316,22 +317,18 @@ std::string SALOMEDS_Driver_i::PasteInto(const unsigned char* theStream,
   return entry;
 }
 
-SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy,
-                                                    bool isPublished,
+SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(bool isPublished,
                                                     bool isMultiFile,
                                                     bool& isValidScript,
                                                     long& theStreamLength)
 {
-  SALOMEDS_Study_i *  st_servant = SALOMEDS_Study_i::GetStudyServant(theStudy, _orb);//new SALOMEDS_Study_i (theStudy, _orb);
-  SALOMEDS::Study_var st  = SALOMEDS::Study::_narrow(st_servant->_this());
-
   SALOMEDS::unlock();
 
   Engines::TMPFile_var aStream;
   CORBA::Boolean aValidScript = true; // VSR: maybe should be false by default ???
 
   if ( !CORBA::is_nil( _engine ) )
-    aStream = _engine->DumpPython(st.in(), isPublished, isMultiFile, aValidScript);
+    aStream = _engine->DumpPython(isPublished, isMultiFile, aValidScript);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
