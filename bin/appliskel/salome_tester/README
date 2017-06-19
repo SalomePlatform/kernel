@@ -1,4 +1,4 @@
-Copyright (C) 2015-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+Copyright (C) 2015-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -32,11 +32,12 @@ Each module test folder must contain:
       - install test files in <module_install_path>/bin/salome/test/
       - install the CTestTestfileInstall.cmake file (see below) as <module_install_path>/bin/salome/test/CTestTestfile.cmake (rename file)
    - a CTestTestfileInstall.cmake that:
-      - declare tests requiring a SALOME session
+      - declare tests requiring a SALOME session, or tests that do not require a SALOME session but to be tested in SALOME execution environment.
 
-The CTestTestfileInstall.cmake can also declare unit tests already declared in CMakeLists.txt. Actually CTestTestfileInstall.cmake declare all tests that will be runnable from SALOME application. This file MUST NOT use cmake environment variables.
-It can refer the ABSOLUTE_APPLI_PATH variable (automatically set when using application).
-If a test has to be run inside a SALOME session, use the salome_test_driver.py script that need as arguments a timeout, the test file to be run and its arguments.
+The CTestTestfileInstall.cmake can also declare unit tests already declared in CMakeLists.txt. Actually CTestTestfileInstall.cmake declares all tests that will be runnable from SALOME application. For easier maintenance shared tests may be declared in a dedicated tests.set file which is then included in both CMakeLists.txt and CTestTestfileInstall.cmake files:
+      INCLUDE(tests.set)
+
+The CTestTestfileInstall.cmake file MUST NOT use cmake environment variables. It can refer the ABSOLUTE_APPLI_PATH variable (automatically set when using application). If a test has to be run inside a SALOME session, use the salome_test_driver.py script that need as arguments a timeout, the test file to be run and its arguments.
       SET(SALOME_TEST_DRIVER "$ENV{ABSOLUTE_APPLI_PATH}/bin/salome/appliskel/salome_test_driver.py")
       SET(TIMEOUT        500)
       ADD_TEST(SalomeLauncher python ${SALOME_TEST_DRIVER} ${TIMEOUT} test_launcher.py)
