@@ -36,7 +36,7 @@ ShapeType = batchmode_smesh.ShapeType
 subShapeList = batchmode_geompy.SubShapeAll(box,ShapeType["Face"])
 face=subShapeList[0]
 name = "box_face"
-print name
+print(name)
 idface= batchmode_geompy.addToStudyInFather(box,face,name)
 
 # ---- add shell from box  in study
@@ -44,7 +44,7 @@ idface= batchmode_geompy.addToStudyInFather(box,face,name)
 subShellList= batchmode_geompy.SubShapeAll(box,ShapeType["Shell"])
 shell = subShellList[0]
 name = "box_shell"
-print name
+print(name)
 idshell= batchmode_geompy.addToStudyInFather(box,shell,name)
 
 # ---- add first edge of face in study
@@ -52,7 +52,7 @@ idshell= batchmode_geompy.addToStudyInFather(box,shell,name)
 edgeList =  batchmode_geompy.SubShapeAll(face,ShapeType["Edge"])
 edge=edgeList[0];
 name = "face_edge"
-print name
+print(name)
 idedge= batchmode_geompy.addToStudyInFather(face,edge,name)
 
 # ---- launch SMESH, init a Mesh with the box
@@ -70,73 +70,73 @@ batchmode_smesh.SetShape(idbox, idmesh);
 
 # ---- create Hypothesis
 
-print "-------------------------- create Hypothesis ----------------------"
-print "-------------------------- LocalLength"
+print("-------------------------- create Hypothesis ----------------------")
+print("-------------------------- LocalLength")
 hyp1 = smesh.CreateHypothesis("LocalLength")
 hypLen1 = hyp1._narrow(SMESH.SMESH_LocalLength)
 hypLen1.SetLength(100)
-print hypLen1.GetName()
-print hypLen1.GetId()
-print hypLen1.GetLength()
+print(hypLen1.GetName())
+print(hypLen1.GetId())
+print(hypLen1.GetLength())
 
 idlength = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypLen1) );
 batchmode_smesh.SetName(idlength, "Local_Length_100");
 
-print "-------------------------- NumberOfSegments"
+print("-------------------------- NumberOfSegments")
 hyp2 =  smesh.CreateHypothesis("NumberOfSegments")
 hypNbSeg1=hyp2._narrow(SMESH.SMESH_NumberOfSegments)
 hypNbSeg1.SetNumberOfSegments(7)
-print hypNbSeg1.GetName()
-print hypNbSeg1.GetId()
-print hypNbSeg1.GetNumberOfSegments()
+print(hypNbSeg1.GetName())
+print(hypNbSeg1.GetId())
+print(hypNbSeg1.GetNumberOfSegments())
 
 idseg =  batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypNbSeg1) );
 batchmode_smesh.SetName(idseg, "NumberOfSegments_7");
 
-print "-------------------------- MaxElementArea"
+print("-------------------------- MaxElementArea")
 hyp3 = smesh.CreateHypothesis("MaxElementArea")
 hypArea1=hyp3._narrow(SMESH.SMESH_MaxElementArea)
 hypArea1.SetMaxElementArea(2500)
-print hypArea1.GetName()
-print hypArea1.GetId()
-print hypArea1.GetMaxElementArea()
+print(hypArea1.GetName())
+print(hypArea1.GetId())
+print(hypArea1.GetMaxElementArea())
 
 idarea1 = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypArea1) );
 batchmode_smesh.SetName(idarea1, "MaxElementArea_2500");
 
-print "-------------------------- MaxElementArea"
+print("-------------------------- MaxElementArea")
 hyp3 = smesh.CreateHypothesis("MaxElementArea")
 hypArea2 = hyp3._narrow(SMESH.SMESH_MaxElementArea)
 hypArea2.SetMaxElementArea(500)
-print hypArea2.GetName()
-print hypArea2.GetId()
-print hypArea2.GetMaxElementArea()
+print(hypArea2.GetName())
+print(hypArea2.GetId())
+print(hypArea2.GetMaxElementArea())
 
 idarea2 = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypArea2) );
 batchmode_smesh.SetName(idarea2, "MaxElementArea_500");
 
-print "-------------------------- Regular_1D"
+print("-------------------------- Regular_1D")
 alg1 = smesh.CreateHypothesis("Regular_1D")
 algo1 = alg1._narrow(SMESH.SMESH_Algo)
 listHyp = algo1.GetCompatibleHypothesis()
 for hyp in listHyp:
-    print hyp
+    print(hyp)
 algoReg=alg1._narrow(SMESH.SMESH_Regular_1D)
-print algoReg.GetName()
-print algoReg.GetId()
+print(algoReg.GetName())
+print(algoReg.GetId())
 
 idreg = batchmode_smesh.AddNewAlgorithms( orb.object_to_string(algoReg) );
 batchmode_smesh.SetName(idreg, "Regular_1D");
 
-print "-------------------------- MEFISTO_2D"
+print("-------------------------- MEFISTO_2D")
 alg2 = smesh.CreateHypothesis("MEFISTO_2D")
 algo2 = alg2._narrow(SMESH.SMESH_Algo)
 listHyp=algo2.GetCompatibleHypothesis()
 for hyp in listHyp:
-    print hyp
+    print(hyp)
 algoMef=alg2._narrow(SMESH.SMESH_MEFISTO_2D)
-print algoMef.GetName()
-print algoMef.GetId()
+print(algoMef.GetName())
+print(algoMef.GetId())
 
 idmef = batchmode_smesh.AddNewAlgorithms( orb.object_to_string(algoMef) );
 batchmode_smesh.SetName(idmef, "MEFISTO_2D");
@@ -144,13 +144,13 @@ batchmode_smesh.SetName(idmef, "MEFISTO_2D");
 
 # ---- add hypothesis to edge
 
-print "-------------------------- add hypothesis to edge"
+print("-------------------------- add hypothesis to edge")
 edge = batchmode_geompy.IDToObject(idedge)
 submesh = mesh.GetElementsOnShape(edge)
 ret = mesh.AddHypothesis(edge,algoReg)
-print ret
+print(ret)
 ret=mesh.AddHypothesis(edge,hypLen1)
-print ret
+print(ret)
 
 idsm1 = batchmode_smesh.AddSubMeshOnShape( idmesh,
                                            idedge,
@@ -160,11 +160,11 @@ batchmode_smesh.SetName(idsm1, "SubMeshEdge")
 batchmode_smesh.SetAlgorithms( idsm1, idreg );
 batchmode_smesh.SetHypothesis( idsm1, idlength );
 
-print "-------------------------- add hypothesis to face"
+print("-------------------------- add hypothesis to face")
 face=batchmode_geompy.IDToObject(idface)
 submesh=mesh.GetElementsOnShape(face)
 ret=mesh.AddHypothesis(face,hypArea2)
-print ret
+print(ret)
 
 idsm2 = batchmode_smesh.AddSubMeshOnShape( idmesh,
                                     idface,
@@ -175,17 +175,17 @@ batchmode_smesh.SetHypothesis( idsm2, idarea2 );
 
 # ---- add hypothesis to box
 
-print "-------------------------- add hypothesis to box"
+print("-------------------------- add hypothesis to box")
 box=batchmode_geompy.IDToObject(idbox)
 submesh=mesh.GetElementsOnShape(box)
 ret=mesh.AddHypothesis(box,algoReg)
-print ret
+print(ret)
 ret=mesh.AddHypothesis(box,hypNbSeg1)
-print ret
+print(ret)
 ret=mesh.AddHypothesis(box,algoMef)
-print ret
+print(ret)
 ret=mesh.AddHypothesis(box,hypArea1)
-print ret
+print(ret)
 
 batchmode_smesh.SetAlgorithms( idmesh, idreg );
 batchmode_smesh.SetHypothesis( idmesh, idseg );
@@ -194,12 +194,12 @@ batchmode_smesh.SetHypothesis( idmesh, idarea1 );
 
 # ---- compute box
 
-print "-------------------------- compute box"
+print("-------------------------- compute box")
 ret=smesh.Compute(mesh,box)
-print ret
+print(ret)
 log=mesh.GetLog(0); # no erase trace
 for linelog in log:
-    print linelog
+    print(linelog)
 
 
 #=======================================================
@@ -212,12 +212,12 @@ dir= os.getenv("SUPERV_ROOT_DIR")
 if dir == None:
         raise RuntimeError, "SUPERV_ROOT_DIR is not defined"
 xmlfile = dir +"/examples/GraphEssai.xml"
-print "--------------\n"+xmlfile+"\n--------------\n"
+print("--------------\n"+xmlfile+"\n--------------\n")
 
 myGraph = Graph ( xmlfile )
 
 # This DataFlow is "valid" : no loop, correct links between Nodes etc...
-print myGraph.IsValid()
+print(myGraph.IsValid())
 
 # Get Nodes
 myGraph.PrintNodes()
@@ -235,61 +235,61 @@ Mulz = Mul.Port('z')
 Divz = Div.Port('z')
 
 # This DataFlow is "executable" : all pending Ports are defined with Datas
-print myGraph.IsExecutable()
+print(myGraph.IsExecutable())
 
 # Starts only execution of that DataFlow and gets control immediatly
-print myGraph.Run()
+print(myGraph.Run())
 
 # That DataFlow is running ==> 0 (false)
-print myGraph.IsDone()
+print(myGraph.IsDone())
 
 # Events of execution :
 aStatus,aNode,anEvent,aState = myGraph.Event()
 while aStatus :
-    print aNode.Thread(),aNode.SubGraph(),aNode.Name(),anEvent,aState
+    print(aNode.Thread(),aNode.SubGraph(),aNode.Name(),anEvent,aState)
     aStatus,aNode,anEvent,aState = myGraph.Event()
-print myGraph.IsDone()
+print(myGraph.IsDone())
 
 # Wait for Completion (but it is already done after event loop ...)
-print "Done : ",myGraph.DoneW()
+print("Done : ",myGraph.DoneW())
 
 # Get result
-print "Result : ",Divz.ToString()
+print("Result : ",Divz.ToString())
 
 # Intermediate results :
-print "Intermediate Result Add\z : ",Addz.ToString()
-print "Intermediate Result Sub\z : ",Subz.ToString()
-print "Intermediate Result Mul\z : ",Mulz.ToString()
+print("Intermediate Result Add\z : ",Addz.ToString())
+print("Intermediate Result Sub\z : ",Subz.ToString())
+print("Intermediate Result Mul\z : ",Mulz.ToString())
 
-print " "
-#print "Type : print myGraph.IsDone()"
-#print "       If execution is finished ==> 1 (true)"
+print(" ")
+#print("Type : print(myGraph.IsDone()")
+#print("       If execution is finished ==> 1 (true)")
 res=myGraph.IsDone()
 if res != 1:
         raise RuntimeError, "myGraph.Run() is not done"
 
-print " "
-print "Type : print Divz.ToString()"
-print "       You will get the result"
+print(" ")
+print("Type : print(Divz.ToString()")
+print("       You will get the result")
 Divz.ToString()
 
-print " "
-print "Type : myGraph.PrintPorts()"
-print "       to see input and output values of the graph"
+print(" ")
+print("Type : myGraph.PrintPorts()")
+print("       to see input and output values of the graph")
 myGraph.PrintPorts()
 
-print " "
-print "Type : Add.PrintPorts()"
+print(" ")
+print("Type : Add.PrintPorts()")
 Add.PrintPorts()
 
-print "Type : Sub.PrintPorts()"
+print("Type : Sub.PrintPorts()")
 Sub.PrintPorts()
 
-print "Type : Mul.PrintPorts()"
+print("Type : Mul.PrintPorts()")
 Mul.PrintPorts()
 
-print "Type : Div.PrintPorts()"
-print "       to see input and output values of nodes"
+print("Type : Div.PrintPorts()")
+print("       to see input and output values of nodes")
 Div.PrintPorts()
 
 # Export will create newsupervisionexample.xml and the corresponding .py file
@@ -297,21 +297,21 @@ tmpdir=os.getenv("TmpDir")
 if tmpdir is None:
         tmpdir="/tmp"
 file = tmpdir + "/newsupervisionexample"
-print "--------------\n"+file+"\n--------------\n"
+print("--------------\n"+file+"\n--------------\n")
 myGraph.Export(file)
 
 ior = batchmode_geompy.orb.object_to_string(myGraph.G)
 addStudy(ior)
 
 GraphName = myGraph.Name()
-print "Befor save ",
+print("Befor save ",)
 nodes = myGraph.Nodes()
 length_bs = len(nodes)
-print "ListOfNodes length = ", length_bs
+print("ListOfNodes length = ", length_bs)
 names=[]
 for node in nodes:
         names.append(node.Name())
-print names
+print(names)
 
 
 #=================================
@@ -326,7 +326,7 @@ file = str+"/test.hdf"
 #==================================================
 #1. SaveAs
 #==================================================
-print " -------  We will save to", file, "-----------"
+print(" -------  We will save to", file, "-----------")
 
 batchmode_geompy.myStudy.SaveAs(file)
 batchmode_geompy.myStudy.Clear()
@@ -336,13 +336,13 @@ batchmode_geompy.myStudy.Clear()
 os.mkdir(str + "/test_dir")
 
 #2.==================================================
-print " ------- We rename the file as " + str + "/test_dir/test_new.hdf"
+print(" ------- We rename the file as " + str + "/test_dir/test_new.hdf")
 os.rename(file, str+"/test_dir/test_new.hdf")
 
 #==================================================
 #3. Open
 #==================================================
-print " ------- We try to open " + str + "/test_dir/test_new.hdf"
+print(" ------- We try to open " + str + "/test_dir/test_new.hdf")
 
 try:
         openedStudy=batchmode_geompy.myStudy.Open(str+"/test_dir/test_new.hdf")
@@ -417,7 +417,7 @@ aChildIterator = openedStudy.NewChildIterator(father)
 
 #while aChildIterator.More():
 anSObject = aChildIterator.Value()
-#print "iterate: ", anSObject.GetID()
+#print("iterate: ", anSObject.GetID())
 res, anAttr=anSObject.FindAttribute("AttributeIOR")
 if res :
         anAttr=anAttr._narrow(SALOMEDS.AttributeIOR)
@@ -425,7 +425,7 @@ if res :
         Graph=SuperV.getGraph(ior)
         ListOfNodes=Graph.Nodes()
         length_as= len(ListOfNodes)
-        print "ListOfNodes length = ", length_as
+        print("ListOfNodes length = ", length_as)
         if length_as != length_bs:
                 raise RuntimeErrror, "defferent length of nodes after study open"
 #aChildIterator.Next()
@@ -525,7 +525,7 @@ if res :
         Graph=SuperV.getGraph(ior)
         ListOfNodes=Graph.Nodes()
         length_as= len(ListOfNodes)
-        print "ListOfNodes length = ", length_as
+        print("ListOfNodes length = ", length_as)
         if length_as != length_bs:
                 raise RuntimeErrror, "defferent length of nodes after study open"
 #aChildIterator.Next()

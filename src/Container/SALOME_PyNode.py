@@ -26,7 +26,7 @@
 #
 import sys,traceback,string
 import linecache
-import cPickle
+import pickle
 import Engines__POA
 import SALOME__POA
 import SALOME
@@ -47,7 +47,7 @@ class Generic(SALOME__POA.GenericObj):
       self.poa.deactivate_object(oid)
 
   def Destroy(self):
-    print "WARNING SALOME::GenericObj::Destroy() function is obsolete! Use UnRegister() instead."
+    print("WARNING SALOME::GenericObj::Destroy() function is obsolete! Use UnRegister() instead.")
     self.UnRegister()
 
 class PyNode_i (Engines__POA.PyNode,Generic):
@@ -62,27 +62,27 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context["my_container"] = self.my_container
-    exec ccode in self.context
+    exec(ccode, self.context)
 
   def defineNewCustomVar(self,varName,valueOfVar):
-    self.context[varName] = cPickle.loads(valueOfVar)
+    self.context[varName] = pickle.loads(valueOfVar)
     pass
 
   def executeAnotherPieceOfCode(self,code):
     """Called for initialization of container lodging self."""
     try:
       ccode=compile(code,self.nodeName,'exec')
-      exec ccode in self.context
+      exec(ccode, self.context)
     except:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
   def execute(self,funcName,argsin):
     """Execute the function funcName found in local context with pickled args (argsin)"""
     try:
-      argsin,kws=cPickle.loads(argsin)
+      argsin,kws=pickle.loads(argsin)
       func=self.context[funcName]
       argsout=func(*argsin,**kws)
-      argsout=cPickle.dumps(argsout,-1)
+      argsout=pickle.dumps(argsout,-1)
       return argsout
     except:
       exc_typ,exc_val,exc_fr=sys.exc_info()
@@ -103,14 +103,14 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     self.context["my_container"] = self.my_container
 
   def defineNewCustomVar(self,varName,valueOfVar):
-    self.context[varName] = cPickle.loads(valueOfVar)
+    self.context[varName] = pickle.loads(valueOfVar)
     pass
 
   def executeAnotherPieceOfCode(self,code):
     """Called for initialization of container lodging self."""
     try:
       ccode=compile(code,self.nodeName,'exec')
-      exec ccode in self.context
+      exec(ccode, self.context)
     except:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
@@ -124,15 +124,15 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   def execute(self,outargsname,argsin):
     """Execute the script stored in attribute ccode with pickled args (argsin)"""
     try:
-      argsname,kws=cPickle.loads(argsin)
+      argsname,kws=pickle.loads(argsin)
       self.context.update(kws)
-      exec self.ccode in self.context
+      exec(self.ccode, self.context)
       argsout=[]
       for arg in outargsname:
-        if not self.context.has_key(arg):
+        if arg not in self.context:
           raise KeyError("There is no variable %s in context" % arg)
         argsout.append(self.context[arg])
-      argsout=cPickle.dumps(tuple(argsout),-1)
+      argsout=pickle.dumps(tuple(argsout),-1)
       return argsout
     except:
       exc_typ,exc_val,exc_fr=sys.exc_info()

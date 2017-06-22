@@ -25,14 +25,14 @@
 """
 """
 import sys,os,shutil,glob,socket
-import optparse
+import argparse
 from salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))
 APPLI=getAppliPath.relpath(appli_local,os.path.realpath(os.getenv('HOME')))
 
-usage="""usage: %prog [options]
+usage="""%(prog)s [options]
 Typical use is:
   python update_catalogs.py
 
@@ -155,11 +155,11 @@ class Resource:
       os.mkdir(resource_dir)
       cata_path=os.path.join(appliPath,"share","salome","resources","*Catalog.xml")
       cmd="cp %s %s" % (cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
       cata_path=os.path.join(appliPath,"share","salome","resources","*","*Catalog.xml")
       cmd="cp %s %s" % (cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
     else:
       #remote machine, use rcopy
@@ -167,12 +167,12 @@ class Resource:
       cata_path=os.path.join(appliPath,"share","salome","resources","*Catalog.xml")
       cmd="%s %s@%s:%s %s"
       cmd= cmd%(rcopy,userName,hostname,cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
       cata_path=os.path.join(appliPath,"share","salome","resources","*","*Catalog.xml")
       cmd="%s %s@%s:%s %s"
       cmd= cmd%(rcopy,userName,hostname,cata_path,resource_dir)
-      print cmd
+      print(cmd)
       os.system(cmd)
 
     schema_cata=os.path.join(resource_dir,"*SchemaCatalog.xml")
@@ -207,12 +207,11 @@ class Resource:
 
 
 def main():
-  parser = optparse.OptionParser(usage=usage)
-
-  options, args = parser.parse_args()
+  parser = argparse.ArgumentParser(usage=usage)
+  args = parser.parse_args()
 
   if not os.path.exists(catalog_file_base):
-    print "ERROR: the base catalog file %s is mandatory" % catalog_file_base
+    print("ERROR: the base catalog file %s is mandatory" % catalog_file_base)
     sys.exit(1)
 
   #Parse CatalogResource.xml
@@ -251,12 +250,11 @@ def main():
     mach.update()
 
   #dump new CatalogResources.xml
-  f=open(catalog_file,'w')
-  f.write('<?xml version="1.0" ?>\n')
-  doc.write(f)
-  f.write('\n')
-  f.close()
-  print "%s updated" % catalog_file
+  with open(catalog_file,'w') as f:
+      f.write('<?xml version="1.0" ?>\n')
+      doc.write(f)
+      f.write('\n')
+  print("%s updated" % catalog_file)
 
   #update configRemote.sh in env.d directory (environment variable SALOME_CATALOGS_PATH)
   path=[]
@@ -264,9 +262,8 @@ def main():
     if mach.resource_dir:
       path.append(mach.resource_dir)
 
-  f=open(os.path.join(appli_local,"env.d","configRemote.sh"),'w')
-  f.write("export SALOME_CATALOGS_PATH=%s\n" % SEP.join(path))
-  f.close()
+  with open(os.path.join(appli_local,"env.d","configRemote.sh"),'w') as f:
+      f.write("export SALOME_CATALOGS_PATH=%s\n" % SEP.join(path))
 
 
 if __name__ == '__main__':

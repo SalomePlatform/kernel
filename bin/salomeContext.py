@@ -20,7 +20,7 @@
 import os
 import sys
 import logging
-import ConfigParser
+import configparser
 
 from parseConfigFile import parseConfigFile
 
@@ -68,7 +68,7 @@ Command options:
     any blank characters.
 '''
 
-  print msg
+  print(msg)
 #
 
 """
@@ -101,13 +101,13 @@ class SalomeContext:
   #
 
   def __loadMPI(self, module_name):
-    print "Trying to load MPI module: %s..."%module_name,
+    print("Trying to load MPI module: %s..."%module_name)
     try:
       out, err = subprocess.Popen(["modulecmd", "python", "load", module_name], stdout=subprocess.PIPE).communicate()
-      exec out # define specific environment variables
-      print " OK"
+      exec(out) # define specific environment variables
+      print(" OK")
     except:
-      print " ** Failed **"
+      print(" ** Failed **")
       pass
   #
 
@@ -128,7 +128,9 @@ class SalomeContext:
 
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True, env=env_copy)
+    selfBytes= pickle.dumps(self,protocol=0)
+    argsBytes= pickle.dumps(args,protocol=0)
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode(), argsBytes.decode()], shell=False, close_fds=True, env=env_copy)
     out, err = proc.communicate()
     return out, err, proc.returncode
   #
@@ -222,7 +224,7 @@ class SalomeContext:
       'car'     : '_getCar',
       }
 
-    if not command in availableCommands.keys():
+    if command not in availableCommands:
       command = "start"
       options = args
 
@@ -261,16 +263,16 @@ class SalomeContext:
     try:
       res = getattr(self, command)(options) # run appropriate method
       return res or 0
-    except SystemExit, returncode:
+    except SystemExit as returncode:
       if returncode != 0:
         self.getLogger().error("SystemExit %s in method %s.", returncode, command)
       return returncode
-    except StandardError:
+    except Exception:
       self.getLogger().error("Unexpected error:")
       import traceback
       traceback.print_exc()
       return 1
-    except SalomeContextException, e:
+    except SalomeContextException as e:
       self.getLogger().error(e)
       return 1
   #
@@ -280,7 +282,7 @@ class SalomeContext:
       reserved = []
     try:
       unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
-    except SalomeContextException, e:
+    except SalomeContextException as e:
       msg = "%s"%e
       self.getLogger().error(msg)
       return 1
@@ -291,7 +293,7 @@ class SalomeContext:
 
     # set context
     for reserved in reservedDict:
-      a = filter(None, reservedDict[reserved]) # remove empty elements
+      a = [_f for _f in reservedDict[reserved] if _f] # remove empty elements
       a = [ os.path.realpath(x) for x in a ]
       reformattedVals = os.pathsep.join(a)
       if reserved in ["INCLUDE", "LIBPATH"]:
@@ -324,17 +326,17 @@ class SalomeContext:
   def _setContext(self, args=None):
     salome_context_set = os.getenv("SALOME_CONTEXT_SET")
     if salome_context_set:
-      print "***"
-      print "*** SALOME context has already been set."
-      print "*** Enter 'exit' (only once!) to leave SALOME context."
-      print "***"
+      print("***")
+      print("*** SALOME context has already been set.")
+      print("*** Enter 'exit' (only once!) to leave SALOME context.")
+      print("***")
       return
 
     os.environ["SALOME_CONTEXT_SET"] = "yes"
-    print "***"
-    print "*** SALOME context is now set."
-    print "*** Enter 'exit' (only once!) to leave SALOME context."
-    print "***"
+    print("***")
+    print("*** SALOME context is now set.")
+    print("*** Enter 'exit' (only once!) to leave SALOME context.")
+    print("***")
 
     cmd = ["/bin/bash"]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
@@ -372,7 +374,7 @@ class SalomeContext:
       args = []
     ports = args
     if not ports:
-      print "Port number(s) not provided to command: salome kill <port(s)>"
+      print("Port number(s) not provided to command: salome kill <port(s)>")
       return
 
     from multiprocessing import Process
@@ -419,7 +421,7 @@ class SalomeContext:
   #
 
   def _showSoftwareVersions(self, softwares=None):
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
     filename = os.path.join(absoluteAppliPath, "sha1_collections.txt")
     versions = {}
@@ -438,12 +440,12 @@ class SalomeContext:
     if softwares:
       for soft in softwares:
         if versions.has_key(soft.upper()):
-          print soft.upper().rjust(max_len), versions[soft.upper()]
+          print(soft.upper().rjust(max_len), versions[soft.upper()])
     else:
       import collections
       od = collections.OrderedDict(sorted(versions.items()))
       for name, version in od.iteritems():
-        print name.rjust(max_len), versions[name]
+        print(name.rjust(max_len), versions[name])
     pass
 
   def _showInfo(self, args=None):
@@ -465,7 +467,7 @@ Available options are:
       args = ["--version"]
 
     if "-h" in args or "--help" in args:
-      print usage + epilog
+      print(usage + epilog)
       return
 
     if "-p" in args or "--ports" in args:
@@ -474,17 +476,17 @@ Available options are:
       this_ports = ports['this']
       other_ports = ports['other']
       if this_ports or other_ports:
-          print "SALOME instances are running on the following ports:"
+          print("SALOME instances are running on the following ports:")
           if this_ports:
-              print "   This application:", this_ports
+              print("   This application:", this_ports)
           else:
-              print "   No SALOME instances of this application"
+              print("   No SALOME instances of this application")
           if other_ports:
-              print "   Other applications:", other_ports
+              print("   Other applications:", other_ports)
           else:
-              print "   No SALOME instances of other applications"
+              print("   No SALOME instances of other applications")
       else:
-          print "No SALOME instances are running"
+          print("No SALOME instances are running")
 
     if "-s" in args or "--softwares" in args:
       if "-s" in args:
@@ -497,7 +499,7 @@ Available options are:
       self._showSoftwareVersions(softwares=args[index+1:indexEnd])
 
     if "-v" in args or "--version" in args:
-      print "Running with python", platform.python_version()
+      print("Running with python", platform.python_version())
       self._runAppli(["--version"])
   #
 
@@ -507,7 +509,7 @@ Available options are:
 
     modules = args
     if not modules:
-      print "Module(s) not provided to command: salome doc <module(s)>"
+      print("Module(s) not provided to command: salome doc <module(s)>")
       return
 
     appliPath = os.getenv("ABSOLUTE_APPLI_PATH")
@@ -523,71 +525,71 @@ Available options are:
       if os.path.isfile(docfile):
         out, err = subprocess.Popen(["xdg-open", docfile]).communicate()
       else:
-        print "Online documentation is not accessible for module:", module
+        print("Online documentation is not accessible for module:", module)
 
   def _usage(self, unused=None):
     usage()
   #
 
   def _makeCoffee(self, unused=None):
-    print "                        ("
-    print "                          )     ("
-    print "                   ___...(-------)-....___"
-    print "               .-\"\"       )    (          \"\"-."
-    print "         .-\'``\'|-._             )         _.-|"
-    print "        /  .--.|   `\"\"---...........---\"\"`   |"
-    print "       /  /    |                             |"
-    print "       |  |    |                             |"
-    print "        \\  \\   |                             |"
-    print "         `\\ `\\ |                             |"
-    print "           `\\ `|            SALOME           |"
-    print "           _/ /\\            4 EVER           /"
-    print "          (__/  \\             <3            /"
-    print "       _..---\"\"` \\                         /`\"\"---.._"
-    print "    .-\'           \\                       /          \'-."
-    print "   :               `-.__             __.-\'              :"
-    print "   :                  ) \"\"---...---\"\" (                 :"
-    print "    \'._               `\"--...___...--\"`              _.\'"
-    print "      \\\"\"--..__                              __..--\"\"/"
-    print "       \'._     \"\"\"----.....______.....----\"\"\"     _.\'"
-    print "          `\"\"--..,,_____            _____,,..--\"\"`"
-    print "                        `\"\"\"----\"\"\"`"
-    print ""
-    print "                    SALOME is working for you; what else?"
-    print ""
+    print("                        (")
+    print("                          )     (")
+    print("                   ___...(-------)-....___")
+    print("               .-\"\"       )    (          \"\"-.")
+    print("         .-\'``\'|-._             )         _.-|")
+    print("        /  .--.|   `\"\"---...........---\"\"`   |")
+    print("       /  /    |                             |")
+    print("       |  |    |                             |")
+    print("        \\  \\   |                             |")
+    print("         `\\ `\\ |                             |")
+    print("           `\\ `|            SALOME           |")
+    print("           _/ /\\            4 EVER           /")
+    print("          (__/  \\             <3            /")
+    print("       _..---\"\"` \\                         /`\"\"---.._")
+    print("    .-\'           \\                       /          \'-.")
+    print("   :               `-.__             __.-\'              :")
+    print("   :                  ) \"\"---...---\"\" (                 :")
+    print("    \'._               `\"--...___...--\"`              _.\'")
+    print("      \\\"\"--..__                              __..--\"\"/")
+    print("       \'._     \"\"\"----.....______.....----\"\"\"     _.\'")
+    print("          `\"\"--..,,_____            _____,,..--\"\"`")
+    print("                        `\"\"\"----\"\"\"`")
+    print("")
+    print("                    SALOME is working for you; what else?")
+    print("")
   #
 
   def _getCar(self, unused=None):
-    print "                                              _____________"
-    print "                                  ..---:::::::-----------. ::::;;."
-    print "                               .\'\"\"\"\"\"\"                  ;;   \\  \":."
-    print "                            .\'\'                          ;     \\   \"\\__."
-    print "                          .\'                            ;;      ;   \\\\\";"
-    print "                        .\'                              ;   _____;   \\\\/"
-    print "                      .\'                               :; ;\"     \\ ___:\'."
-    print "                    .\'--...........................    : =   ____:\"    \\ \\"
-    print "               ..-\"\"                               \"\"\"\'  o\"\"\"     ;     ; :"
-    print "          .--\"\"  .----- ..----...    _.-    --.  ..-\"     ;       ;     ; ;"
-    print "       .\"\"_-     \"--\"\"-----\'\"\"    _-\"        .-\"\"         ;        ;    .-."
-    print "    .\'  .\'   SALOME             .\"         .\"              ;       ;   /. |"
-    print "   /-./\'         4 EVER <3    .\"          /           _..  ;       ;   ;;;|"
-    print "  :  ;-.______               /       _________==.    /_  \\ ;       ;   ;;;;"
-    print "  ;  / |      \"\"\"\"\"\"\"\"\"\"\".---.\"\"\"\"\"\"\"          :    /\" \". |;       ; _; ;;;"
-    print " /\"-/  |                /   /                  /   /     ;|;      ;-\" | ;\';"
-    print ":-  :   \"\"\"----______  /   /              ____.   .  .\"\'. ;;   .-\"..T\"   ."
-    print "\'. \"  ___            \"\":   \'\"\"\"\"\"\"\"\"\"\"\"\"\"\"    .   ; ;    ;; ;.\" .\"   \'--\""
-    print " \",   __ \"\"\"  \"\"---... :- - - - - - - - - \' \'  ; ;  ;    ;;\"  .\""
-    print "  /. ;  \"\"\"---___                             ;  ; ;     ;|.\"\""
-    print " :  \":           \"\"\"----.    .-------.       ;   ; ;     ;:"
-    print "  \\  \'--__               \\   \\        \\     /    | ;     ;;"
-    print "   \'-..   \"\"\"\"---___      :   .______..\\ __/..-\"\"|  ;   ; ;"
-    print "       \"\"--..       \"\"\"--\"        m l s         .   \". . ;"
-    print "             \"\"------...                  ..--\"\"      \" :"
-    print "                        \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"    \\        /"
-    print "                                               \"------\""
-    print ""
-    print "                                Drive your simulation properly with SALOME!"
-    print ""
+    print("                                              _____________")
+    print("                                  ..---:::::::-----------. ::::;;.")
+    print("                               .\'\"\"\"\"\"\"                  ;;   \\  \":.")
+    print("                            .\'\'                          ;     \\   \"\\__.")
+    print("                          .\'                            ;;      ;   \\\\\";")
+    print("                        .\'                              ;   _____;   \\\\/")
+    print("                      .\'                               :; ;\"     \\ ___:\'.")
+    print("                    .\'--...........................    : =   ____:\"    \\ \\")
+    print("               ..-\"\"                               \"\"\"\'  o\"\"\"     ;     ; :")
+    print("          .--\"\"  .----- ..----...    _.-    --.  ..-\"     ;       ;     ; ;")
+    print("       .\"\"_-     \"--\"\"-----\'\"\"    _-\"        .-\"\"         ;        ;    .-.")
+    print("    .\'  .\'   SALOME             .\"         .\"              ;       ;   /. |")
+    print("   /-./\'         4 EVER <3    .\"          /           _..  ;       ;   ;;;|")
+    print("  :  ;-.______               /       _________==.    /_  \\ ;       ;   ;;;;")
+    print("  ;  / |      \"\"\"\"\"\"\"\"\"\"\".---.\"\"\"\"\"\"\"          :    /\" \". |;       ; _; ;;;")
+    print(" /\"-/  |                /   /                  /   /     ;|;      ;-\" | ;\';")
+    print(":-  :   \"\"\"----______  /   /              ____.   .  .\"\'. ;;   .-\"..T\"   .")
+    print("\'. \"  ___            \"\":   \'\"\"\"\"\"\"\"\"\"\"\"\"\"\"    .   ; ;    ;; ;.\" .\"   \'--\"")
+    print(" \",   __ \"\"\"  \"\"---... :- - - - - - - - - \' \'  ; ;  ;    ;;\"  .\"")
+    print("  /. ;  \"\"\"---___                             ;  ; ;     ;|.\"\"")
+    print(" :  \":           \"\"\"----.    .-------.       ;   ; ;     ;:")
+    print("  \\  \'--__               \\   \\        \\     /    | ;     ;;")
+    print("   \'-..   \"\"\"\"---___      :   .______..\\ __/..-\"\"|  ;   ; ;")
+    print("       \"\"--..       \"\"\"--\"        m l s         .   \". . ;")
+    print("             \"\"------...                  ..--\"\"      \" :")
+    print("                        \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"    \\        /")
+    print("                                               \"------\"")
+    print("")
+    print("                                Drive your simulation properly with SALOME!")
+    print("")
   #
 
   # Add the following two methods since logger is not pickable
@@ -613,8 +615,8 @@ Available options are:
 
 if __name__ == "__main__":
   if len(sys.argv) == 3:
-    context = pickle.loads(sys.argv[1])
-    args = pickle.loads(sys.argv[2])
+    context = pickle.loads(sys.argv[1].encode())
+    args = pickle.loads(sys.argv[2].encode())
 
     status = context._startSalome(args)
     sys.exit(status)

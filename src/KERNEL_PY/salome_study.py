@@ -51,7 +51,7 @@ def DumpComponent(SO, Builder,offset):
     find,RefSO = CSO.ReferencedObject()
     if find:
       a=a+":"+RefSO.GetID()
-    print a
+    print(a)
     DumpComponent(CSO, Builder,offset+2)
     it.Next()
 
@@ -67,7 +67,7 @@ def DumpStudy():
     while itcomp.More():
       SC = itcomp.Value()
       name = SC.ComponentDataType()
-      print "-> ComponentDataType is " + name
+      print("-> ComponentDataType is " + name)
       DumpComponent(SC,Builder, 1)
       itcomp.Next()
 
@@ -197,25 +197,25 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     aStudyPersist = PersistentPresentation(aRoot, 1)
 
     if not myStudy.CanCopy(theSO):
-        raise RuntimeError, "<CanCopy> for "+theInfo+" returns false"
+        raise RuntimeError("<CanCopy> for "+theInfo+" returns false")
     
     if not myStudy.Copy(theSO):
-        raise RuntimeError, "<Copy> for "+theInfo+" returns false"
+        raise RuntimeError("<Copy> for "+theInfo+" returns false")
 
     
     if not myStudy.CanPaste(theSO):
-        raise RuntimeError, "<CanPaste> for "+theInfo+" returns false"
+        raise RuntimeError("<CanPaste> for "+theInfo+" returns false")
 
     # check: before paste study is not changed check
     if aStudyPersist != PersistentPresentation(aRoot, 1):
-        raise RuntimeError, "Study is changed before Paste calling for "+theInfo
+        raise RuntimeError("Study is changed before Paste calling for "+theInfo)
     
     aSObj = theSO
     if theComponentPaste:
         aSObj = theSO.GetFatherComponent()
         theInfo = theInfo + "(paste for component)"
     if myStudy.Paste(aSObj) == None:
-        raise RuntimeError, "<Paste> for "+theInfo+" returns None object"
+        raise RuntimeError("<Paste> for "+theInfo+" returns None object")
     aNewTree = GetTree(aRoot)
     aLen = len(aTree)
     for a in range(0,aLen):
@@ -225,7 +225,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     if aLen < len(aNewTree):
         return myStudy.FindObjectID(aNewTree[aLen])
     
-    raise RuntimeError, "After Copy calling the tree is not changed"
+    raise RuntimeError("After Copy calling the tree is not changed")
     
     #--------------------------------------------------------------------------
 
@@ -271,11 +271,11 @@ def FindFileInDataDir(filename):
     #--------------------------------------------------------------------------
 
 def openStudy(theStudyPath):
-    print "openStudy"
+    print("openStudy")
     global myStudy, myStudyName
     myStudy.Open(theStudyPath)
     myStudyName = myStudy._get_Name()
-    print theStudyPath, myStudy._get_Name()
+    print(theStudyPath, myStudy._get_Name())
 
     #--------------------------------------------------------------------------
 
@@ -290,15 +290,15 @@ def salome_study_init(theStudyPath=None):
     global myStudy, myStudyName
     global orb, lcc, naming_service, cm
 
-    if verbose(): print "theStudyPath:", theStudyPath
+    if verbose(): print("theStudyPath:", theStudyPath)
     if not myStudy:
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
 
         # get Study reference
-        if verbose(): print "looking for study..."
+        if verbose(): print("looking for study...")
         obj = naming_service.Resolve('/Study')
         myStudy = obj._narrow(SALOMEDS.Study)
-        if verbose(): print "Study found"
+        if verbose(): print("Study found")
         pass
 
     import types

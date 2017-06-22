@@ -46,6 +46,19 @@ using namespace SALOMESDS;
 
 std::size_t DataScopeServerBase::COUNTER=0;
 
+#if PY_VERSION_HEX < 0x03050000
+static char*
+Py_EncodeLocale(const wchar_t *arg, size_t *size)
+{
+	return _Py_wchar2char(arg, size);
+}
+static wchar_t*
+Py_DecodeLocale(const char *arg, size_t *size)
+{
+	return _Py_char2wchar(arg, size);
+}
+#endif
+
 void DataScopeKiller::shutdown()
 {
   Py_Finalize();
@@ -230,7 +243,10 @@ void DataScopeServerBase::initializePython(int argc, char *argv[])
 {
   Py_Initialize();
   PyEval_InitThreads();
-  PySys_SetArgv(argc,argv);
+  wchar_t **changed_argv = new wchar_t*[argc]; // Setting arguments
+  for (int i = 0; i < argc; i++)
+    changed_argv[i] = Py_DecodeLocale(argv[i], NULL);
+  PySys_SetArgv(argc, changed_argv);
   PyObject *mainmod(PyImport_AddModule("__main__"));
   _globals=PyModule_GetDict(mainmod);
   if(PyDict_GetItemString(_globals, "__builtins__") == NULL)
@@ -242,7 +258,7 @@ void DataScopeServerBase::initializePython(int argc, char *argv[])
     }
   _locals=PyDict_New();
   PyObject *tmp(PyList_New(0));
-  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
+  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("pickle"),_globals,_locals,tmp,0);
 }
 
 void DataScopeServerBase::registerToSalomePiDict() const
@@ -254,8 +270,8 @@ void DataScopeServerBase::registerToSalomePiDict() const
   if(!meth)
     { Py_XDECREF(mod); return ; }
   PyObject *args(PyTuple_New(2));
-  PyTuple_SetItem(args,0,PyInt_FromLong(getpid()));
-  PyTuple_SetItem(args,1,PyString_FromString("SALOME_DataScopeServerBase"));
+  PyTuple_SetItem(args,0,PyLong_FromLong(getpid()));
+  PyTuple_SetItem(args,1,PyUnicode_FromString("SALOME_DataScopeServerBase"));
   PyObject *res(PyObject_CallObject(meth,args));
   Py_XDECREF(args);
   Py_XDECREF(res);
@@ -607,24 +623,18 @@ void DataScopeServerTransaction::addWaitKey(KeyWaiter *kw)
 
 void DataScopeServerTransaction::pingKey(PyObject *keyObj)
 {
-  PyObject *cmpObj(getPyCmpFunc());
-  if(!keyObj)
-    throw Exception("ataScopeServerTransaction::pingKey : Key Object is NULL !");
-  PyObject *args(PyTuple_New(2));
-  PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
   std::size_t ii(0);
   // this part does nothing except to be sure that in notify key all will be OK.
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
     {
       PyObject *waitKey((*it)->getKeyPyObj());
-      PyTuple_SetItem(args,1,waitKey); Py_XINCREF(waitKey);
-      PyObject *res(PyObject_CallObject(cmpObj,args));
+      PyObject *res(PyObject_CallMethodObjArgs(keyObj, PyUnicode_DecodeASCII("__ne__", 6, NULL), waitKey));
       if(res==NULL)
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
-      PyInt_AsLong(res);
+      PyLong_AsLong(res); // res is bool, but it s ok since __int__ is called
       if(PyErr_Occurred())
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
@@ -636,11 +646,6 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
 
 void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj)
 {
-  PyObject *cmpObj(getPyCmpFunc());
-  if(!keyObj)
-    throw Exception("DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! Key Object is NULL !");
-  PyObject *args(PyTuple_New(2));
-  PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
   std::size_t ii(0);
   std::list< KeyWaiter *> newList,listOfEltToWakeUp;
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
@@ -651,14 +656,13 @@ void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject 
           continue;
         }
       PyObject *waitKey((*it)->getKeyPyObj());
-      PyTuple_SetItem(args,1,waitKey); Py_XINCREF(waitKey);
-      PyObject *res(PyObject_CallObject(cmpObj,args));
+      PyObject *res(PyObject_CallMethodObjArgs(keyObj, PyUnicode_DecodeASCII("__ne__", 6, NULL), waitKey));
       if(res==NULL)
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
-      long resCpp(PyInt_AsLong(res));
+      long resCpp(PyLong_AsLong(res)); // res is bool, but it s ok since __int__ is called
       if(PyErr_Occurred())
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
@@ -827,23 +831,6 @@ void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& tr
   }
   for(std::size_t i=0;i<sz;i++)
     transactionsCpp[i]->notify();
-}
-
-/*!
- * Returns borrowed reference.
- */
-PyObject *DataScopeServerTransaction::getPyCmpFunc()
-{
-  PyObject *builtins(PyDict_GetItemString(_globals,"__builtins__"));//borrowed
-  if(builtins==NULL)
-    throw Exception("Fail to find reference to builtins !");
-  PyObject *builtins2(PyModule_GetDict(builtins));//borrowed
-  if(builtins2==NULL)
-    throw Exception("Fail to invoke __dict__ on builtins !");
-  PyObject *cmpObj(PyDict_GetItemString(builtins2,"cmp"));
-  if(cmpObj==NULL)
-    throw Exception("Fail to find cmp in __builtins__ !");
-  return cmpObj;
 }
 
 DataScopeServerTransaction::~DataScopeServerTransaction()

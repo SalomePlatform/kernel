@@ -97,7 +97,7 @@ From a Python script, use a SalomeInstance object:
 \code
 from salome_instance import SalomeInstance
 instance = SalomeInstance.start()
-print "Instance created and now running on port", instance.get_port()
+print("Instance created and now running on port", instance.get_port())
 ...
 instance.stop()
 \endcode

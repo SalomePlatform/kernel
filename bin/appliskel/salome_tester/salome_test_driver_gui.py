@@ -41,7 +41,7 @@ if __name__ == "__main__":
   # Add explicit call to python executable if a Python script is passed as
   # first argument
   if not args:
-    print "Invalid arguments for salome_test_driver_gui.py. No command defined."
+    print("Invalid arguments for salome_test_driver_gui.py. No command defined.")
     sys.exit(1)
   _, ext = os.path.splitext(args[0])
   test_and_args = args
@@ -51,7 +51,7 @@ if __name__ == "__main__":
   setOmniOrbUserPath()
 
   # Set timeout handler
-  print "Test timeout explicitely set to: %s seconds"%timeout_delay
+  print("Test timeout explicitely set to: %s seconds"%timeout_delay)
   timeout_sec = abs(int(timeout_delay)-10)
   if sys.platform == 'win32':
     from threading import Timer
@@ -66,7 +66,7 @@ if __name__ == "__main__":
   try:
     salome_instance = SalomeInstance.start(with_gui=True, args=test_and_args)
   except TimeoutException:
-    print "FAILED : timeout(%s) is reached"%timeout_delay
+    print("FAILED : timeout(%s) is reached"%timeout_delay)
   except:
     import traceback
     traceback.print_exc()
@@ -77,6 +77,6 @@ if __name__ == "__main__":
     pass
   if sys.platform == 'win32':
     timer.cancel()
-#  print "Exit test with status code:", res
+#  print("Exit test with status code:", res)
 #  sys.exit(res)
 #

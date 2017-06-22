@@ -64,7 +64,7 @@ run_command() {
 # make hello.py
 echo "
 #!/usr/bin/env python
-print 'Hello\!'
+print('Hello\!')
 " > ${BASE_DIR}/hello.py
 
 # Build output folders

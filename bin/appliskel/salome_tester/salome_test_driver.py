@@ -26,6 +26,32 @@ import os
 import subprocess
 import signal
 
+# Run test
+def runTest(command):
+  print("Running:", " ".join(command))
+  p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  out, err = p.communicate()
+  res = p.returncode
+  # About res value:
+  # A negative value -N indicates that the child was terminated by signal N (Unix only).
+  # On Unix, the value 11 generally corresponds to a segmentation fault.
+  return res, out, err
+#
+
+# Display output and errors
+def processResult(res, out, err):
+  if out:
+    print(out)
+    pass
+  if err:
+    print("    ** Detected error **")
+    print("Error code: ", res)
+    print(err, end=' ')
+    print("    ** end of message **")
+    pass
+  return res
+#
+
 # Timeout management
 class TimeoutException(Exception):
   """Exception raised when test timeout is reached."""
@@ -41,7 +67,7 @@ if __name__ == "__main__":
   # Add explicit call to python executable if a Python script is passed as
   # first argument
   if not args:
-    print "Invalid arguments for salome_test_driver.py. No command defined."
+    print("Invalid arguments for salome_test_driver.py. No command defined.")
     sys.exit(1)
   _, ext = os.path.splitext(args[0])
   if ext == ".py":
@@ -54,7 +80,7 @@ if __name__ == "__main__":
   setOmniOrbUserPath()
 
   # Set timeout handler
-  print "Test timeout explicitely set to: %s seconds"%timeout_delay
+  print("Test timeout explicitely set to: %s seconds"%timeout_delay)
   timeout_sec = abs(int(timeout_delay)-10)
   if sys.platform == 'win32':
     from threading import Timer
@@ -70,17 +96,10 @@ if __name__ == "__main__":
   try:
     salome_instance = SalomeInstance.start(shutdown_servers=True)
     port = salome_instance.get_port()
-    # Run the test
-    print "Running:", " ".join(test_and_args)
-    p = subprocess.Popen(test_and_args)
-    pid = p.pid
-    p.communicate()
-    res = p.returncode
-    # About res value:
-    # A negative value -N indicates that the child was terminated by signal N (Unix only).
-    # On Unix, the value 11 generally corresponds to a segmentation fault.
+    res, out, err = runTest(test_and_args)
+    res = processResult(res, out, err)
   except TimeoutException:
-    print "FAILED : timeout(%s) is reached"%timeout_delay
+    print("FAILED : timeout(%s) is reached"%timeout_delay)
   except:
     import traceback
     traceback.print_exc()
@@ -92,6 +111,6 @@ if __name__ == "__main__":
     pass
   if sys.platform == 'win32':
     timer.cancel()
-  print "Exit test with status code:", res
+  print("Exit test with status code:", res)
   sys.exit(res)
 #

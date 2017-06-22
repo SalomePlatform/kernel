@@ -1,5 +1,5 @@
 import SALOME
-import cPickle
+import pickle
 import salome
 import sys
 
@@ -9,10 +9,10 @@ scopeName="Scope1"
 varName="a"
 
 def obj2Str(obj):
-    return cPickle.dumps(obj,cPickle.HIGHEST_PROTOCOL)
+    return pickle.dumps(obj,pickle.HIGHEST_PROTOCOL)
 
 def str2Obj(strr):
-    return cPickle.loads(strr)
+    return pickle.loads(strr)
 
 def waitKey():
     dsm=salome.naming_service.Resolve("/DataServerManager")

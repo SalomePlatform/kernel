@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -82,9 +82,9 @@ def killAllPorts():
         pass
     # kill other processes
     if sys.platform != 'win32':
-        import commands
+        import subprocess
         cmd = "ps -fea | grep '%s' | grep 'ghs3d' | grep 'f /tmp/GHS3D_' | grep -v 'grep' | awk '{print $2}'" % user
-        prc = commands.getoutput(cmd)
+        prc = subprocess.getoutput(cmd)
         for field in prc.split():
             try:
                 os.kill(int(field), signal.SIGKILL)
@@ -94,7 +94,7 @@ def killAllPorts():
         pass
         # kill ompi-server needed for MPI containers coupling
         cmd = "ps -fea | grep '%s' | grep 'ompi-server' | grep -v 'grep' | awk '{print $2}'" % user
-        prc = commands.getoutput(cmd)
+        prc = subprocess.getoutput(cmd)
         for field in prc.split():
             try:
                 os.kill(int(field), signal.SIGKILL)
@@ -111,8 +111,8 @@ if __name__ == "__main__":
     try:
         from salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         sys.exit(1)
     killAllPorts()
     pass

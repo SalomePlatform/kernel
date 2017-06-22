@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -42,16 +42,16 @@ class NamingServer(Server):
         from salome_utils import getLogDir
         upath = getLogDir()
         try:
-            os.makedirs(upath, mode=0777)
+            os.makedirs(upath, mode=0o777)
         except:
             pass
 
-        if verbose(): print "Name Service... "
+        if verbose(): print("Name Service... ", end =' ')
         hname = getHostName()
 
         with open(os.environ["OMNIORB_CONFIG"]) as f:
           ss = re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-          if verbose(): print "ss = ", ss,
+          if verbose(): print("ss = ", ss, end=' ')
         sl = ss[0]
         ll = sl.split(':')
         aPort = ll[-1]
@@ -68,7 +68,7 @@ class NamingServer(Server):
         try:
           os.mkdir(upath)
         except:
-          #print "Can't create " + upath
+          # print("Can't create " + upath)
           pass
 
         #os.system("touch " + upath + "/dummy")
@@ -80,11 +80,11 @@ class NamingServer(Server):
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
         #aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
-        #print "sed command = ", aSedCommand
+        # print("sed command = ", aSedCommand)
         #aPort = commands.getoutput("sed -e\"" + aSedCommand + "\"" + os.environ["OMNIORB_CONFIG"])
-        #print "port=", aPort
+        # print("port=", aPort)
         if sys.platform == "win32":
-          #print "start omniNames -start " + aPort + " -logdir " + upath
+          # print("start omniNames -start " + aPort + " -logdir " + upath)
           self.CMD = ['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
@@ -92,8 +92,8 @@ class NamingServer(Server):
           self.CMD = ['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
           #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
-        if verbose(): print "... ok"
-        if verbose(): print "to list contexts and objects bound into the context with the specified name : showNS "
+        if verbose(): print("... ok")
+        if verbose(): print("to list contexts and objects bound into the context with the specified name : showNS ")
 
 
     def initArgs(self):

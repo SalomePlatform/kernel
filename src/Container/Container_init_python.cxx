@@ -29,6 +29,19 @@
 #include "utilities.h"
 #include "Container_init_python.hxx"
 
+#if PY_VERSION_HEX < 0x03050000
+static char*
+Py_EncodeLocale(const wchar_t *arg, size_t *size)
+{
+	return _Py_wchar2char(arg, size);
+}
+static wchar_t*
+Py_DecodeLocale(const char *arg, size_t *size)
+{
+	return _Py_char2wchar(arg, size);
+}
+#endif
+
 void KERNEL_PYTHON::init_python(int argc, char **argv)
 {
   if (Py_IsInitialized())
@@ -41,11 +54,25 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   MESSAGE("=================================================================");
   // set stdout to line buffering (aka C++ std::cout)
   setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
-  char* salome_python=getenv("SALOME_PYTHON");
-  if(salome_python != 0)
-    Py_SetProgramName(salome_python);
+  wchar_t* salome_python;
+  char* env_python=getenv("SALOME_PYTHON");
+  if(env_python != 0)
+    {
+      wchar_t* salome_python = Py_DecodeLocale(env_python, NULL);
+      Py_SetProgramName(salome_python);
+    }
   Py_Initialize(); // Initialize the interpreter
-  PySys_SetArgv(argc, argv);
+  if (Py_IsInitialized())
+    {
+      MESSAGE("Python initialized eh eh eh");
+    }
+  wchar_t **changed_argv = new wchar_t*[argc]; // Setting arguments
+  for (int i = 0; i < argc; i++)
+  {
+    changed_argv[i] = Py_DecodeLocale(argv[i], NULL);
+  }
+  PySys_SetArgv(argc, changed_argv);
+
   PyRun_SimpleString("import threading\n");
   // VSR (22/09/2016): This is a workaround to prevent invoking qFatal() from PyQt5
   // causing application aborting
@@ -62,6 +89,7 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   // VSR (22/09/2016): end of workaround
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
   PyThreadState *pts = PyGILState_GetThisThreadState(); 
-  PyEval_ReleaseThread(pts);  
+  PyEval_ReleaseThread(pts);
+  //delete[] changed_argv;
 }
 

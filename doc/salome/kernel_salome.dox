@@ -163,7 +163,7 @@ iter = salome.myStudy.NewChildIterator(comp) # initialize from the component
 iter.InitEx(True) # init recursive mode
 while iter.More():
       c = iter.Value()
-      print c.GetID()
+      print(c.GetID())
       iter.Next()
       pass
 

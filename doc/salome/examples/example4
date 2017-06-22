@@ -19,9 +19,9 @@ A.ChangeValue(4,500)
 
 
 if A.Length() != 4:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 700:
-        print "Wrong  value of  AttributeSequenceOfInteger"
+        print("Wrong  value of  AttributeSequenceOfInteger")
 
 
 #      save / restore study      
@@ -52,7 +52,7 @@ if res == 0 or A == None:
 A = A._narrow(SALOMEDS.AttributeSequenceOfInteger)
 
 if A.Length() != 4:
-        print "Wrong length of SequenceOfInteger"
+        print("Wrong length of SequenceOfInteger")
 if A.Value(1) != 100 or A.Value(2) != 300 or A.Value(3) != 400 or A.Value(4) != 700:
-        print "Wrong  value of  AttributeSequenceOfInteger"
+        print("Wrong  value of  AttributeSequenceOfInteger")
 

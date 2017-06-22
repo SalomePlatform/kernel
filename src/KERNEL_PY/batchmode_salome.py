@@ -35,10 +35,10 @@ from SALOME_NamingServicePy import *
 def ImportComponentGUI(ComponentName):
     libName = "lib" + ComponentName + "_Swig"
     command = "from " + libName + " import *"
-    exec ( command )
+    exec (command, globals())
     constructor = ComponentName + "GUI_Swig()"
     command = "gui = " + constructor
-    exec ( command )
+    exec (command, globals())
     return gui
 
     #--------------------------------------------------------------------------
@@ -65,12 +65,12 @@ def generateName(prefix = None):
     #WITHOUTIHMgetAllSelected = SalomeGUIgetAllSelected
    
     #WITHOUTIHMdef getDesktop(self) :
-#	return SalomePyQt.getDesktop()
-	#WITHOUTIHMreturn None
+#       return SalomePyQt.getDesktop()
+        #WITHOUTIHMreturn None
 
     #WITHOUTIHMdef getSelection(self) :
-#	return SalomePyQt.getSelection()
-	#WITHOUTIHMreturn None
+#       return SalomePyQt.getSelection()
+        #WITHOUTIHMreturn None
 
     #--------------------------------------------------------------------------
 
@@ -180,26 +180,28 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     aTree = GetTree(aRoot)
     aStudyPersist = PersistentPresentation(aRoot, 1)
 
+    aStudyPersist = PersistentPresentation(myStudy, aRoot, 1)
+
     if not myStudy.CanCopy(theSO):
-        raise RuntimeError, "<CanCopy> for "+theInfo+" returns false"
+        raise RuntimeError("<CanCopy> for "+theInfo+" returns false")
     
     if not myStudy.Copy(theSO):
-        raise RuntimeError, "<Copy> for "+theInfo+" returns false"
+        raise RuntimeError("<Copy> for "+theInfo+" returns false")
 
     
     if not myStudy.CanPaste(theSO):
-        raise RuntimeError, "<CanPaste> for "+theInfo+" returns false"
+        raise RuntimeError("<CanPaste> for "+theInfo+" returns false")
 
     # check: before paste study is not changed check
     if aStudyPersist != PersistentPresentation(aRoot, 1):
-        raise RuntimeError, "Study is changed before Paste calling for "+theInfo
+        raise RuntimeError("Study is changed before Paste calling for "+theInfo)
     
     aSObj = theSO
     if theComponentPaste:
         aSObj = theSO.GetFatherComponent()
         theInfo = theInfo + "(paste for component)"
     if myStudy.Paste(aSObj) == None:
-        raise RuntimeError, "<Paste> for "+theInfo+" returns None object"
+        raise RuntimeError("<Paste> for "+theInfo+" returns None object")
     aNewTree = GetTree(aRoot)
     aLen = len(aTree)
     for a in range(0,aLen):
@@ -209,7 +211,7 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     if aLen < len(aNewTree):
         return myStudy.FindObjectID(aNewTree[aLen])
     
-    raise RuntimeError, "After Copy calling the tree is not changed"
+    raise RuntimeError("After Copy calling the tree is not changed")
     
     #--------------------------------------------------------------------------
 def FindFileInDataDir(filename):
@@ -246,7 +248,7 @@ while 1:
     pass
     
 if orb is None:
-    print "Warning: ORB has not been initialized !!!"
+    print("Warning: ORB has not been initialized !!!")
 
 # create an LifeCycleCORBA instance
 lcc = LifeCycleCORBA(orb)
@@ -264,7 +266,7 @@ while 1:
     pass
     
 if lcc is None:
-    print "Warning: LifeCycleCORBA object has not been initialized !!!"
+    print("Warning: LifeCycleCORBA object has not been initialized !!!")
     
 #create a naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
@@ -283,10 +285,11 @@ while 1:
     time.sleep(sleeping_time)
     sleeping_time = max(sleeping_time_max, 2*sleeping_time)
     pass
-     
+    
 myStudy = obj._narrow(SALOMEDS.Study)
 
+
 if myStudy is None:
-    print "Warning: SALOMEDS.Study has not been created !!!"
+    print("Warning: SALOMEDS.Study has not been created !!!")
     
 myStudyName = myStudy._get_Name()

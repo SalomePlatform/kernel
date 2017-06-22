@@ -61,7 +61,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         myMachine=getShortHostName()
         Container_path = "/Containers/" + myMachine + "/" + containerName
         self._containerName = Container_path
-        if verbose(): print "container name ",self._containerName
+        if verbose(): print("container name ",self._containerName)
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
@@ -138,7 +138,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     def instance(self, nameToRegister, componentName):
         MESSAGE(  "SALOME_ContainerPy_i::instance " + str(nameToRegister) + ' ' + str(componentName) )
         self._numInstance = self._numInstance +1
-        instanceName = nameToRegister + "_inst_" + `self._numInstance`
+        instanceName = nameToRegister + "_inst_" + repr(self._numInstance)
 
         component=__import__(componentName)
         factory=getattr(component,componentName)
@@ -154,13 +154,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     def load_impl(self, nameToRegister, componentName):
         MESSAGE(  "SALOME_ContainerPy_i::load_impl " + str(nameToRegister) + ' ' + str(componentName) )
         self._numInstance = self._numInstance +1
-        instanceName = nameToRegister + "_inst_" + `self._numInstance`
+        instanceName = nameToRegister + "_inst_" + repr(self._numInstance)
         interfaceName = nameToRegister
         the_command = "import " + nameToRegister + "\n"
         the_command = the_command + "comp_i = " + nameToRegister + "." + nameToRegister
         the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
         MESSAGE( "SALOME_ContainerPy_i::load_impl :" + str (the_command) )
-        exec the_command
+        exec(the_command)
         comp_o = comp_i._this()
         return comp_o
     
@@ -170,19 +170,19 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         MESSAGE( "SALOME_Container_i::import_component" )
         reason = ""
         try:
-            if verbose(): print "try import %s" % componentName
+            if verbose(): print("try import %s" % componentName)
             # try import component
             module=__import__(componentName)
-            if verbose(): print "import %s is done successfully" % componentName
+            if verbose(): print("import %s is done successfully" % componentName)
             # if import successfully, check that component is loadable
             if not hasattr(module, componentName):
                 reason = "module %s is not loadable" % componentName
-                print reason
+                print(reason)
                 pass
             pass
         except:
             import traceback
-            print "cannot import %s" % componentName
+            print("cannot import %s" % componentName)
             traceback.print_exc()
             reason = "cannot import %s" % componentName
         return reason
@@ -192,7 +192,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     def load_component_Library(self, componentName):
         MESSAGE(  "SALOME_ContainerPy_i::load_component_Library " + str(componentName) )
         ret = 0
-        instanceName = componentName + "_inst_" + `self._numInstance`
+        instanceName = componentName + "_inst_" + repr(self._numInstance)
         interfaceName = componentName
         reason = self.import_component(componentName)
         return reason == "", reason
@@ -205,7 +205,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     def create_component_instance(self, componentName):
         MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) )
         self._numInstance = self._numInstance +1
-        instanceName = componentName + "_inst_" + `self._numInstance`
+        instanceName = componentName + "_inst_" + repr(self._numInstance)
         comp_iors=""
         try:
             component=__import__(componentName)
@@ -230,7 +230,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     def find_component_instance(self, registeredName):
         anEngine = None
-        keysList = self._listInstances_map.keys()
+        keysList = list(self._listInstances_map.keys())
         i = 0
         while i < len(keysList):
             instance = keysList[i]
@@ -314,19 +314,19 @@ if __name__ == "__main__":
   # change the stdout buffering to line buffering (same as C++ cout buffering)
   sys.stdout=os.fdopen(1,"w",1)
   #initialise the ORB and find the root POA
-  if verbose():print "Starting ",sys.argv[1]
+  if verbose():print("Starting ",sys.argv[1])
   orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
   poa = orb.resolve_initial_references("RootPOA")
-  if verbose():print "ORB and POA initialized"
+  if verbose():print("ORB and POA initialized")
 
   #create an instance of SALOME_ContainerPy_i and a Container reference
   #containerName = "FactoryServerPy"
   MESSAGE( str(sys.argv) )
   containerName = sys.argv[1]
   cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
-  if verbose():print "SALOME_ContainerPy_i instance created ",cpy_i 
+  if verbose():print("SALOME_ContainerPy_i instance created ",cpy_i) 
   cpy_o = cpy_i._this()
-  if verbose():print "SALOME_ContainerPy_i instance activated ",cpy_o
+  if verbose():print("SALOME_ContainerPy_i instance activated ",cpy_o)
   sys.stdout.flush()
   sys.stderr.flush()
 
@@ -336,4 +336,4 @@ if __name__ == "__main__":
 
   #Block for ever
   orb.run()
-  if verbose():print "SALOME_ContainerPy_i shutdown"
+  if verbose():print("SALOME_ContainerPy_i shutdown")

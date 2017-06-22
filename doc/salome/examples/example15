@@ -9,7 +9,7 @@ A = A._narrow(SALOMEDS.AttributeLocalID)
 A.SetValue(763242882)
 
 if A.Value() != 763242882:
-        print "Error: wrong value of AttributeLocalID"
+        print("Error: wrong value of AttributeLocalID")
 
 #      save / restore study      
 #=================================
@@ -39,5 +39,5 @@ if res == 0 or A == None:
 A = A._narrow(SALOMEDS.AttributeLocalID)
 
 if A.Value() != 763242882:
-        print "Error: wrong value of AttributeLocalID"
+        print("Error: wrong value of AttributeLocalID")
 

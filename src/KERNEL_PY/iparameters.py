@@ -84,10 +84,10 @@ class IParameters:
         self._ap = attributeParameter
         if ( clr ): self.clear()
         pass
-	
+
     def clear(self):
         """Clear parameters"""
-	self._ap.Clear()
+        self._ap.Clear()
 
     def append(self, listName, value):
         """Appends a value to the named list"""

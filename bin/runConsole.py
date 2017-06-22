@@ -24,7 +24,6 @@
 from optparse import OptionParser
 import os
 import sys
-import user
 import pickle
 
 # Use to display newlines (\n) in epilog
@@ -47,7 +46,7 @@ ask user to select a port from list of available SALOME instances.\n
 The -c option can be used to specify the command to execute in the interpreter.
 A script can also be used.
 For example:
-       salome connect -p 2810 -c 'print "Hello"'
+       salome connect -p 2810 -c 'print("Hello")'
        salome connect -p 2810 hello.py
 """
   parser = MyParser(usage=usage, epilog=epilog)
@@ -60,31 +59,31 @@ For example:
                     )
   try:
     (options, args) = parser.parse_args(args)
-  except Exception, e:
-    print e
+  except Exception as e:
+    print(e)
     return
 
   return options, args
 #
 
 def __show_running_instances(list_of_instances):
-  print '-'*10
-  print "Running instances:"
+  print('-'*10)
+  print("Running instances:")
   for i in range(len(list_of_instances)):
     host, port, _ = list_of_instances[i]
-    print "   [%d] %s:%s"%(i+1, host, port)
-  print '-'*10
+    print("   [%d] %s:%s"%(i+1, host, port))
+  print('-'*10)
 #
 
 def __choose_in(choices):
   __show_running_instances(choices)
-  rep = raw_input("Please enter the number of instance to use (0 to cancel): ")
+  rep = input("Please enter the number of instance to use (0 to cancel): ")
   if rep == '0':
     return None, None, None
   elif rep in [str(i) for i in range(1, len(choices)+1)]:
     return choices[int(rep)-1]
   else:
-    print "*** Invalid number! ***"
+    print("*** Invalid number! ***")
     return __choose_in(choices)
 #
 
@@ -102,31 +101,31 @@ def __get_running_session(requested_port=None, lastInstanceByDefault=False):
 
   host, port, filename = None, None, None
   if requested_port:
-    print "Search for running instance on port %s..."%requested_port
+    print("Search for running instance on port %s..."%requested_port)
     found = [(h,p,f) for h,p,f in available_connexions if int(p) == int(requested_port)]
     if not found:
-      print "   ...no running instance found"
+      print("   ...no running instance found")
     elif len(found) == 1:
       host, port, filename = found[0]
-      print "   ...found unique instance: %s:%s"%(host,port)
+      print("   ...found unique instance: %s:%s"%(host,port))
     else:
-      print "   ...multiple instances found ; please choose one in the following:"
+      print("   ...multiple instances found ; please choose one in the following:")
       host, port, filename = __choose_in(found)
   else: # no requested port
     if not available_connexions:
-      print "No running instance found"
+      print("No running instance found")
     elif len(available_connexions) == 1:
       host, port, filename = available_connexions[0]
-      print "Found unique instance: %s:%s"%(host,port)
+      print("Found unique instance: %s:%s"%(host,port))
     else:
-      print "Multiple instances found ; please choose one in the following:"
+      print("Multiple instances found ; please choose one in the following:")
       host, port, filename = __choose_in(available_connexions)
       pass
 
   if port:
-    print "Selected instance: %s:%s"%(host, port)
+    print("Selected instance: %s:%s"%(host, port))
   else:
-    print "Cancel."
+    print("Cancel.")
 
   return host, port, filename
 #
@@ -143,7 +142,7 @@ class client(orbmodule.client):
       self.rootContext = obj._narrow(CosNaming.NamingContext)
       return
     except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
-      print "It's not a valid naming service"
+      print("It's not a valid naming service")
       self.rootContext = None
       sys.stdout.flush()
       raise
@@ -167,7 +166,7 @@ def start_client():
   import salome
   salome.salome_init()
   from salome import lcc
-  print "--> now connected to SALOME"
+  print("--> now connected to SALOME")
 #
 
 def _prompt(environment=None, commands=None, message="Connecting to SALOME"):
@@ -183,10 +182,10 @@ def _prompt(environment=None, commands=None, message="Connecting to SALOME"):
   readline.set_completer(rlcompleter.Completer(environment).complete)
   readline.parse_and_bind("tab: complete")
   # calling this with globals ensures we can see the environment
-  print message
+  print(message)
   shell = code.InteractiveConsole(environment)
   for cmd in commands:
-    print "Execute command:", cmd
+    print("Execute command:", cmd)
     shell.push(cmd)
     pass
   shell.interact()
@@ -208,21 +207,26 @@ def connect(args=None, env=None):
     cmd.append(options.command)
   if args: # unprocessed: may be scripts
     for arg in args:
-      cmd.append("execfile('%s')"%os.path.abspath(os.path.expanduser(arg)))
+      filename = os.path.abspath(os.path.expanduser(arg))
+      pythonLine = "exec(compile(open(%s, \"rb\").read(), %s, 'exec'))"%(filename, filename)
+      cmd.append(pythonLine)
 
   if port:
     import subprocess
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","runConsole.py"), pickle.dumps(cmd)], shell=False, close_fds=True, env=env_copy)
+    cmdDump=pickle.dumps(cmd,protocol=0)
+    cmdString=cmdDump.decode()
+    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","runConsole.py"), cmdString], shell=False, close_fds=True, env=env_copy)
     return proc.communicate()
 #
 
 if __name__ == "__main__":
   if len(sys.argv) == 2:
-    cmd = pickle.loads(sys.argv[1])
+    cmdBytes = sys.argv[1].encode()  
+    cmd = pickle.loads(cmdBytes)
     sys.argv = []
     _prompt(commands=cmd)
   else:
-    print "runConsole.py: incorrect usage!"
+    print("runConsole.py: incorrect usage!")
 #

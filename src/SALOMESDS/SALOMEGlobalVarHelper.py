@@ -21,7 +21,7 @@
 
 # dict,list,tuple,int,float,str
 import SALOME
-import cPickle
+import pickle
 
 class List(object):
     def __init__(self,varPtr,isTemporaryVar=False):
@@ -37,7 +37,7 @@ class List(object):
         pass
 
     def assign(self,elt):
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
+        st=pickle.dumps(elt,pickle.HIGHEST_PROTOCOL)
         self._var_ptr.setSerializedContent(st)
         pass
 
@@ -60,7 +60,7 @@ class List(object):
         return self.local_copy().__repr__()
 
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+        return pickle.loads(self._var_ptr.fetchSerializedContent())
 
     def __reduce__(self):
         return (list,(self.local_copy(),))
@@ -81,7 +81,7 @@ class Tuple(object):
         pass
 
     def assign(self,elt):
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
+        st=pickle.dumps(elt,pickle.HIGHEST_PROTOCOL)
         self._var_ptr.setSerializedContent(st)
         pass
 
@@ -100,7 +100,7 @@ class Tuple(object):
         return self.local_copy().__repr__()
 
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+        return pickle.loads(self._var_ptr.fetchSerializedContent())
 
     def __reduce__(self):
         return (tuple,(self.local_copy(),))
@@ -130,7 +130,7 @@ class Int(object):
         return ret(*args)
 
     def assign(self,elt):
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
+        st=pickle.dumps(elt,pickle.HIGHEST_PROTOCOL)
         self._var_ptr.setSerializedContent(st)
         pass
 
@@ -141,7 +141,7 @@ class Int(object):
         return self.local_copy().__repr__()
 
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+        return pickle.loads(self._var_ptr.fetchSerializedContent())
 
     def __reduce__(self):
         return (int,(self.local_copy(),))
@@ -162,7 +162,7 @@ class Dict(object):
         pass
 
     def assign(self,elt):
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
+        st=pickle.dumps(elt,pickle.HIGHEST_PROTOCOL)
         self._var_ptr.setSerializedContent(st)
         pass
 
@@ -184,7 +184,7 @@ class Dict(object):
         return self.local_copy().__repr__()
 
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+        return pickle.loads(self._var_ptr.fetchSerializedContent())
 
     def __reduce__(self):
         return (dict,(self.local_copy(),))
@@ -199,14 +199,14 @@ class Caller:
         pass
 
     def __call__(self,*args):
-        ret=self._var_ptr.invokePythonMethodOn(self._meth,cPickle.dumps(args,cPickle.HIGHEST_PROTOCOL))
+        ret=self._var_ptr.invokePythonMethodOn(self._meth,pickle.dumps(args,pickle.HIGHEST_PROTOCOL))
         return GetHandlerFromRef(ret,True)
     pass
 
 PyHandlerTypeMap={int:Int,list:List,tuple:Tuple,dict:Dict}
 
 def GetHandlerFromRef(objCorba,isTempVar=False):
-    v=cPickle.loads(objCorba.fetchSerializedContent())
+    v=pickle.loads(objCorba.fetchSerializedContent())
     if v is None:
         return None
     return PyHandlerTypeMap[v.__class__](objCorba,isTempVar)

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -31,7 +31,7 @@
 #  \endcode
 #
 
-import os, sys, pickle, signal, commands,glob
+import os, sys, pickle, signal, subprocess,glob
 import subprocess
 import shlex
 from salome_utils import verbose
@@ -96,7 +96,7 @@ def appliCleanOmniOrbConfig(port):
     the last is removed only if the link points to the first file.
     """
     if verbose():
-        print "clean OmniOrb config for port %s"%port
+        print("clean OmniOrb config for port %s"%port)
 
     from salome_utils import generateFileName, getUserName
     omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
@@ -202,7 +202,7 @@ def shutdownMyPort(port, cleanup=True):
         # shutdown all
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
         lcc = LifeCycleCORBA(orb) # see (1)
-        print "Terminating SALOME on port %s..."%(port)
+        print("Terminating SALOME on port %s..."%(port))
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
@@ -228,22 +228,22 @@ def __killMyPort(port, filedict):
         port = int(port)
 
     try:
-        with open(filedict, 'r') as fpid:
+        with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
             for process_id in process_ids:
-                for pid, cmd in process_id.items():
-                    if verbose(): print "stop process %s : %s"% (pid, cmd[0])
+                for pid, cmd in list(process_id.items()):
+                    if verbose(): print("stop process %s : %s"% (pid, cmd[0]))
                     try:
                         from salome_utils import killpid
                         killpid(int(pid))
                     except:
-                        if verbose(): print "  ------------------ process %s : %s not found"% (pid, cmd[0])
+                        if verbose(): print("  ------------------ process %s : %s not found"% (pid, cmd[0]))
                         pass
                     pass # for pid ...
                 pass # for process_id ...
             # end with
     except:
-        print "Cannot find or open SALOME PIDs file for port", port
+        print("Cannot find or open SALOME PIDs file for port", port)
         pass
     os.remove(filedict)
     pass
@@ -276,7 +276,7 @@ def __guessPiDictFilename(port):
             log_msg += "   ... not found\n"
 
     if verbose():
-        print log_msg
+        print(log_msg)
 
     return filedict
 #
@@ -296,12 +296,12 @@ def killMyPort(port):
         filedict = getPiDict(port)
         if not os.path.isfile(filedict): # removed by previous call, see (1)
             if verbose():
-                print "SALOME on port %s: already removed by previous call"%port
+                print("SALOME on port %s: already removed by previous call"%port)
             # Remove port from PortManager config file
             try:
                 from PortManager import releasePort
                 if verbose():
-                    print "Removing port from PortManager configuration file"
+                    print("Removing port from PortManager configuration file")
                 releasePort(port)
             except ImportError:
                 pass
@@ -391,10 +391,10 @@ def killMyPortSpy(pid, port):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: "
-        print "  %s <port>" % os.path.basename(sys.argv[0])
-        print
-        print "Kills SALOME session running on specified <port>."
+        print("Usage: ")
+        print("  %s <port>" % os.path.basename(sys.argv[0]))
+        print()
+        print("Kills SALOME session running on specified <port>.")
         sys.exit(1)
         pass
     if sys.argv[1] == "--spy":
@@ -408,8 +408,8 @@ if __name__ == "__main__":
     try:
         from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
         setOmniOrbUserPath()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         sys.exit(1)
     for port in sys.argv[1:]:
         killMyPort(port)

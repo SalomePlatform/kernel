@@ -36,7 +36,7 @@ def relpath(target, base):
     """
     target=target.split(os.path.sep)
     base=base.split(os.path.sep)
-    for i in xrange(len(base)):
+    for i in range(len(base)):
       if base[i] != target[i]:
         i=i-1
         #not in base
@@ -61,5 +61,5 @@ if __name__ == "__main__":
         applipath = relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
     else:
         applipath = get_appli_path()
-    print applipath
+    print(applipath)
 #

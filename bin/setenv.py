@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -43,7 +43,7 @@ def add_path(directory, variable_name):
       splitsym = ";"
     else:
       splitsym = ":"
-    if not os.environ.has_key(variable_name):
+    if variable_name not in os.environ:
         os.environ[variable_name] = ""
         pass
     if os.path.exists(directory):
@@ -59,9 +59,8 @@ def add_path(directory, variable_name):
                 if os.path.abspath(_dir) != os.path.abspath(directory):
                   newpath.append(_dir)
             pass
-        import string
         newpath[:0] = [ directory ]
-        newpath = string.join(newpath, splitsym)
+        newpath = splitsym.join(newpath)
         os.environ[variable_name] = newpath
         if variable_name == "PYTHONPATH":
             sys.path[:0] = [os.path.realpath(directory)]
@@ -89,23 +88,14 @@ def get_config(silent=False, exeName=None):
 
     # read args from launch configure xml file and command line options
 
-    #*** Test additional option
-    #*** import optparse
-    #*** help_str = "Test options addition."
-    #*** o_j = optparse.Option("-j", "--join", action="store_true", dest="join", help=help_str)
-
     import launchConfigureParser
     args = launchConfigureParser.get_env(exeName=exeName)
-
-    #*** Test additional option
-    #*** args = launchConfigureParser.get_env([o_j])
-    #*** if args.has_key("join"): print args["join"]
 
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)
 
     modules_list = []
-    if args.has_key("modules"):
+    if "modules" in args:
         modules_list += args["modules"]
     # KERNEL must be last in the list to locate it at the first place in PATH
     if args["gui"] :
@@ -118,14 +108,14 @@ def get_config(silent=False, exeName=None):
     to_remove_list=[]
     for module in modules_list :
         module_variable=module+"_ROOT_DIR"
-        if not os.environ.has_key(module_variable):
+        if module_variable not in os.environ:
             if not silent:
-                print "*******************************************************"
-                print "*"
-                print "* Environment variable",module_variable,"must be set"
-                print "* Module", module, "will be not available"
-                print "*"
-                print "********************************************************"
+                print("*******************************************************")
+                print("*")
+                print("* Environment variable",module_variable,"must be set")
+                print("* Module", module, "will be not available")
+                print("*")
+                print("********************************************************")
                 pass
             to_remove_list.append(module)
             continue
@@ -170,7 +160,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
         modules_list = modules_list[:] + ["GUI"]
     modules_list = modules_list[:] + ["KERNEL"]
     for module in modules_list :
-        if modules_root_dir.has_key(module):
+        if module in modules_root_dir:
             module_root_dir = modules_root_dir[module]
             if module_root_dir not in modules_root_dir_list:
               modules_root_dir_list[:0] = [module_root_dir]
@@ -185,8 +175,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                      "LD_LIBRARY_PATH")
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PATH")
-            if os.path.exists(module_root_dir + "/examples") :
-                add_path(os.path.join(module_root_dir,"examples"),
+            if os.path.exists(os.path.join(module_root_dir, "examples")):
+                add_path(os.path.join(module_root_dir, "examples"),
                          "PYTHONPATH")
                 pass
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
@@ -230,10 +220,10 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
 
     # set trace environment variable
 
-    if not os.environ.has_key("SALOME_trace"):
+    if "SALOME_trace" not in os.environ:
         os.environ["SALOME_trace"]="local"
     if args['file']:
-        os.environ["SALOME_trace"]="file:"+args['file'][0]
+        os.environ["SALOME_trace"] = "file:" + args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 

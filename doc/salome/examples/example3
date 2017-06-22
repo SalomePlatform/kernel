@@ -13,16 +13,16 @@ A.Add(625.1e+2)
 A.Add(0.928e+100)
 A.Add(83.287)
 
-print "initial values ",A.Value(1), A.Value(2), A.Value(3), A.Value(4)
+print("initial values ",A.Value(1), A.Value(2), A.Value(3), A.Value(4))
 A.Remove(3)
-print "after remove ", A.Value(1), A.Value(2), A.Value(3)
+print("after remove ", A.Value(1), A.Value(2), A.Value(3))
 A.ChangeValue(2,76.265)
-print "after second item change", A.Value(1), A.Value(2), A.Value(3)
+print("after second item change", A.Value(1), A.Value(2), A.Value(3))
 
 if A.Length() != 3:
-        print "Error : wrong length of SequenceOfReal"
+        print("Error : wrong length of SequenceOfReal")
 if A.Value(1) != 0.0293 or A.Value(2) != 76.265 or A.Value(3) != 83.287:
-        print "Error : wrong value of  AttributeSequenceOfReal"
+        print("Error : wrong value of  AttributeSequenceOfReal")
 
 #      save / restore study      
 #=================================
@@ -53,8 +53,8 @@ if res == 0 or A == None:
 A = A._narrow(SALOMEDS.AttributeSequenceOfReal)
 
 if A.Length() != 3:
-        print "Error : wrong length of SequenceOfReal"
+        print("Error : wrong length of SequenceOfReal")
 if A.Value(1) != 0.0293 or A.Value(2) != 76.265 or A.Value(3) != 83.287:
-        print "Error : wrong value of  AttributeSequenceOfReal"
-print "after restoring ", A.Value(1), A.Value(2), A.Value(3)
+        print("Error : wrong value of  AttributeSequenceOfReal")
+print("after restoring ", A.Value(1), A.Value(2), A.Value(3))
 

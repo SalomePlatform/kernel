@@ -59,7 +59,7 @@ AC_DEFUN([CHECK_PYTHON],
   AC_SUBST(PYTHONHOME)
 
   changequote(<<, >>)dnl
-  PYTHON_VERSION=`$PYTHON -c "import sys; print sys.version[:3]"`
+  PYTHON_VERSION=`$PYTHON -c "import sys; print(sys.version[:3])"`
   changequote([, ])dnl
   AC_SUBST(PYTHON_VERSION)
 
@@ -98,7 +98,7 @@ AC_DEFUN([CHECK_PYTHON],
   dnl to know which OS Python thinks this is.
 
   AC_SUBST(PYTHON_PLATFORM)
-  PYTHON_PLATFORM=`$PYTHON -c "import sys; print sys.platform"`
+  PYTHON_PLATFORM=`$PYTHON -c "import sys; print(sys.platform)"`
 
   AC_SUBST(PYTHON_SITE)
   AC_ARG_WITH(python-site,

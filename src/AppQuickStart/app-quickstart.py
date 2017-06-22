@@ -21,55 +21,50 @@
 
 import os
 import shutil
-import optparse
+import argparse
 
 # Options of this script
 def profileQuickStartParser() :
 
-    parser = optparse.OptionParser( usage = "usage: python app-quickstart.py [options]" )
+    parser = argparse.ArgumentParser( usage = "usage: python app-quickstart.py [options]" )
 
-    parser.add_option('-p',
+    parser.add_argument('-p',
                       "--prefix",
                       metavar="</Path/to/the/sources/of/application>",
-                      type="string",
                       action="store",
                       dest="prefix",
                       default='.',
                       help="Where the application's sources will be generated. [Default : '.']")
 
-    parser.add_option('-m',
+    parser.add_argument('-m',
                       "--modules",
                       metavar="<module1,module2,...>",
-                      type="string",
                       action="store",
                       dest="modules",
                       default='KERNEL,GUI',
                       help="List of the application's modules. [Default : KERNEL,GUI]")
 
-    parser.add_option('-n',
+    parser.add_argument('-n',
                       "--name",
-                      type="string",
                       action="store",
                       dest="name",
                       help="Name of the application")
 
-    parser.add_option('-v',
+    parser.add_argument('-v',
                       "--version",
-                      type="string",
                       action="store",
                       dest="version",
                       default='1.0',
                       help="Version of the application. [Default : 1.0]")
 
-    parser.add_option('-s',
+    parser.add_argument('-s',
                       "--slogan",
-                      type="string",
                       action="store",
                       dest="slogan",
                       default='',
                       help="Slogan of the application.")
 
-    parser.add_option('-f',
+    parser.add_argument('-f',
                       "--force",
                       action="store_true",
                       dest="force",
@@ -85,8 +80,14 @@ def profileGenerateSplash( resources_dir, appname, version, subtext ):
     import ImageDraw
     import ImageFont
 
-    uname = unicode(appname, 'UTF-8')
-    uversion = unicode(version, 'UTF-8')
+    if isinstance(appname, bytes):
+        uname = str(appname, 'UTF-8')
+    else:
+        uname = appname
+    if isinstance(version, bytes):
+        uversion = str(version, 'UTF-8')
+    else:
+        uversion = version
 
     # fonts
     fontbig = ImageFont.truetype( os.path.join( resources_dir, 'Anita semi square.ttf' ), 64)
@@ -98,7 +99,7 @@ def profileGenerateSplash( resources_dir, appname, version, subtext ):
     nbcar = len(uname)
     width = 600
     if nbcar > 12:
-        width = min( width*nbcar/12, 1024) #a little more
+        width = min( width*nbcar//12, 1024) #a little more
     height = 300
     borderX = 30 #50
     borderY = 3 #30
@@ -143,7 +144,10 @@ def profileGenerateLogo( appname, font ):
     import Image
     import ImageDraw
 
-    uname = unicode(appname, 'UTF-8')
+    if isinstance(appname, bytes):
+        uname = str(appname, 'UTF-8')
+    else:
+        uname = appname
 
     # evaluate size before deleting draw
     im = Image.new( "RGBA", (1, 1), (0, 0, 0, 0) )
@@ -157,28 +161,42 @@ def profileGenerateLogo( appname, font ):
     del draw
     return im
 
-   
+
+# Check if filename is a binary file
+def is_binary(filename):
+    """ returns True if filename is a binary file
+    (from https://stackoverflow.com/a/7392391/2531279)
+    """
+    textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
+    with open(filename, 'rb') as f:
+        s = f.read(512)
+    return bool(s.translate(None, textchars))
+
+
 #Replace strings in the template
-def profileReplaceStrings( src, dst, options ) :
-    with open( dst, "wt" ) as fout:
-        with open( src, "rt" ) as fin:
+def profileReplaceStrings( src, dst, args) :
+    if is_binary(src):
+        shutil.copyfile(src, dst)
+    else:
+        with open( dst, "w") as fout, \
+                open( src, "r") as fin:
             for line in fin:
-                if options.modules == '_NO_' and '[LIST_OF_MODULES]' in line:
+                if args.modules == '_NO_' and '[LIST_OF_MODULES]' in line:
                     line = ''
-                l = line.replace( '[LIST_OF_MODULES]', options.modules )
-                l = l.replace( '[VERSION]', options.version )
-                l = l.replace( '[SLOGAN]', options.slogan )
-                l = l.replace( '[NAME_OF_APPLICATION]', options.name.upper() )
-                l = l.replace( '[Name_of_Application]', options.name )
-                l = l.replace( '(name_of_application)', options.name.lower() )
+                l = line.replace( '[LIST_OF_MODULES]', args.modules )
+                l = l.replace( '[VERSION]', args.version )
+                l = l.replace( '[SLOGAN]', args.slogan )
+                l = l.replace( '[NAME_OF_APPLICATION]', args.name.upper() )
+                l = l.replace( '[Name_of_Application]', args.name )
+                l = l.replace( '(name_of_application)', args.name.lower() )
                 fout.write( l )
 
 
 #Generation of a template profile sources
-def profileGenerateSources( options, args ) :
+def profileGenerateSources( args ) :
 
     #Set name of several directories
-    app_dir = options.prefix
+    app_dir = args.prefix
     app_resources_dir = os.path.join( app_dir, "resources" )
     kernel_root_dir = os.environ["KERNEL_ROOT_DIR"]
     bin_salome_dir = os.path.join( kernel_root_dir, "bin", "salome" )
@@ -187,9 +205,9 @@ def profileGenerateSources( options, args ) :
 
     #Check if the directory of the sources already exists and delete it
     if os.path.exists( app_dir ) :
-        if not options.force :
-            print "Directory %s already exists." %app_dir
-            print "Use option --force to overwrite it."
+        if not args.force :
+            print("Directory %s already exists." %app_dir)
+            print("Use option --force to overwrite it.")
             return
         else :
             shutil.rmtree( app_dir )
@@ -201,7 +219,7 @@ def profileGenerateSources( options, args ) :
         for d in dirs :
             os.mkdir( os.path.join( dst_dir, d ) )
         for f in files :
-            profileReplaceStrings( os.path.join( root, f ), os.path.join( dst_dir, f ), options )
+            profileReplaceStrings( os.path.join( root, f ), os.path.join( dst_dir, f ), args)
 
     #Complete source directory
     contextFiles = [ "salomeContext.py", "salomeContextUtils.py", "parseConfigFile.py" ]
@@ -227,15 +245,15 @@ def profileGenerateSources( options, args ) :
         font = ImageFont.truetype( os.path.join( kernel_resources_dir, "Anita semi square.ttf" ) , 18 )
 
         #Generate and save logo
-        app_logo = profileGenerateLogo( options.name, font )
+        app_logo = profileGenerateLogo( args.name, font )
         app_logo.save( logo_destination, "PNG" )
 
         #Generate and splash screen and about image
-        if options.slogan :
-            subtext = options.slogan
+        if args.slogan :
+            subtext = args.slogan
         else :
             subtext = "Powered by SALOME"
-        im = profileGenerateSplash( kernel_resources_dir, options.name, options.version, subtext )
+        im = profileGenerateSplash( kernel_resources_dir, args.name, args.version, subtext )
         im.save( splash_destination, "PNG" )
         im.save( about_destination, "PNG" )
     else :
@@ -249,22 +267,22 @@ def profileGenerateSources( options, args ) :
             shutil.copy( about_name, splash_destination )
 
     #End of script
-    print "Sources of %s were generated in %s." %( options.name, app_dir )
+    print("Sources of %s were generated in %s." %( args.name, app_dir ))
 
 
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #Get options and args
-    (options, args) = profileQuickStartParser().parse_args()
+    #Get optional and positional args
+    args = profileQuickStartParser().parse_args()
 
     #Check name of the application
-    if not options.name :
+    if not args.name :
         raise RuntimeError( "A name must be given to the application. Please use option --name." )
 
     #Check if the prefix's parent is a directory
-    if not os.path.isdir( os.path.dirname( options.prefix ) ) :
-        raise RuntimeError( "%s is not a directory." % os.path.dirname( options.prefix ) )
+    if not os.path.isdir( os.path.dirname( args.prefix ) ) :
+        raise RuntimeError( "%s is not a directory." % os.path.dirname( args.prefix ) )
 
     #Generate sources of the profile
-    profileGenerateSources( options, args )
+    profileGenerateSources( args )

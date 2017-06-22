@@ -51,7 +51,7 @@ if A == None :
 A.SetValue("AttributesTesting")
 
 if A.Value() != "AttributesTesting":
-        print "Wrong  value of AttributeName"        
+        print("Wrong  value of AttributeName")        
 
 batchmode_geompy.myBuilder.CommitCommand()
 
@@ -130,11 +130,11 @@ batchmode_geompy.myBuilder.CommitCommand()
 #===========================================================
 
 res, A = batchmode_geompy.myBuilder.FindAttribute(child, "AttributeComment")
-print "res = ", res
+print("res = ", res)
 if A != None :
-        print " AttributeComment was found"
+        print(" AttributeComment was found")
 else:
-        print " AttributeComment is not found. It's correct"
+        print(" AttributeComment is not found. It's correct")
 
 attributes=[]
  
@@ -142,12 +142,12 @@ attributes = child.GetAllAttributes()
 
 length = len(attributes)
 
-print "Attributes number = ", length
-print attributes
+print("Attributes number = ", length)
+print(attributes)
 for i in range(0, length) :
         attr = attributes[i]
         if attr is None :
-                print i,"None item of object attributes list"
+                print(i,"None item of object attributes list")
 
 if length != 5 :
         raise RuntimeError, "Wrong number of attributes"

@@ -20,22 +20,22 @@ if A == None :
 A = A._narrow(SALOMEDS.AttributeStudyProperties)
 
 batchmode_geompy.myBuilder.NewCommand();
-print "A.GetUserName()= ", A.GetUserName()
+print("A.GetUserName()= ", A.GetUserName())
 res,mm,hh,dd,mnth,yy=A.GetCreationDate()
-print "A.GetCreationDate() = ", mm,hh,dd,mnth,yy
-print "A.GetCreationMode() = ", A.GetCreationMode()
-print "A.IsModified() = ", A.IsModified()
-print "A.IsLocked() = ", A.IsLocked()
+print("A.GetCreationDate() = ", mm,hh,dd,mnth,yy)
+print("A.GetCreationMode() = ", A.GetCreationMode())
+print("A.IsModified() = ", A.IsModified())
+print("A.IsLocked() = ", A.IsLocked())
 if A.IsLocked() == 0 :
-        A.SetUserName("tester"); print 'A.SetUserName("tester"), A.GetUserName() = ', A.GetUserName()
-        A.SetCreationDate(11,11,11,11,2002); print 'A.SetCreationDate(11,11,11,11,2002), A.GetCreationDate() =', A.GetCreationDate()
-        print "A.IsModified() = ", A.IsModified()
+        A.SetUserName("tester"); print('A.SetUserName("tester"), A.GetUserName() = ', A.GetUserName())
+        A.SetCreationDate(11,11,11,11,2002); print('A.SetCreationDate(11,11,11,11,2002), A.GetCreationDate() =', A.GetCreationDate())
+        print("A.IsModified() = ", A.IsModified())
 A.SetLocked(1)
 
 #check the transaction result 
 batchmode_geompy.myBuilder.CommitCommand()
 if A.GetUserName() != "tester":
-        print 'Control after transaction close : A.GetUserName() = ', A.GetUserName()
+        print('Control after transaction close : A.GetUserName() = ', A.GetUserName())
         raise RuntimeError, "Field 'UserName' was not modified but had to!"
 
 # try to make some changes wrapped by transaction 
@@ -63,7 +63,7 @@ if str == None:
         str = "/tmp"
 file = str+"/test.hdf"
 
-print " -------  We will save to", file, "-----------"
+print(" -------  We will save to", file, "-----------")
 
 batchmode_geompy.myStudy.SaveAs(file)
 
@@ -135,17 +135,17 @@ myBuilder.CommitCommand()
 #4.
 myBuilder.NewCommand()
 A.SetLocked(0);
-print "A.GetUserName()= ", A.GetUserName()
-print "A.GetCreationDate() = ", A.GetCreationDate()
-print "A.GetCreationMode() = ", A.GetCreationMode()
-print "A.IsModified() = ", A.IsModified()
+print("A.GetUserName()= ", A.GetUserName())
+print("A.GetCreationDate() = ", A.GetCreationDate())
+print("A.GetCreationMode() = ", A.GetCreationMode())
+print("A.IsModified() = ", A.IsModified())
 myBuilder.CommitCommand()
 
 #5.
 myBuilder.NewCommand()
 A.SetUserName("tester1")
 myBuilder.CommitCommand()
-print "A.GetUserName()= ", A.GetUserName()
+print("A.GetUserName()= ", A.GetUserName())
 
 #remove the document file
 os.remove(file)

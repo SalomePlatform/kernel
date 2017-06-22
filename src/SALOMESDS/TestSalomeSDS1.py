@@ -21,7 +21,7 @@
 
 import salome
 import SALOME
-import cPickle
+import pickle
 import gc
 import SalomeSDSClt
 
@@ -36,10 +36,10 @@ assert(isinstance(d2s,SALOME._objref_DataScopeServer))
 a=d2s.createRdWrVar("str","c")
 assert(a.getVarName()=="c")
 #
-a.setSerializedContent(cPickle.dumps(st,cPickle.HIGHEST_PROTOCOL))
-assert(cPickle.loads(a.fetchSerializedContent())==st)
-assert(cPickle.loads(a.fetchSerializedContent())==st)
-assert(cPickle.loads(d2s.retrieveVar("c").fetchSerializedContent())==st)
+a.setSerializedContent(pickle.dumps(st,pickle.HIGHEST_PROTOCOL))
+assert(pickle.loads(a.fetchSerializedContent())==st)
+assert(pickle.loads(a.fetchSerializedContent())==st)
+assert(pickle.loads(d2s.retrieveVar("c").fetchSerializedContent())==st)
 assert(isinstance(d2s.retrieveVar("c"),SALOME._objref_PickelizedPyObjRdWrServer))
 assert(dsm.listScopes()==['Default','tonyy'])
 dsm.createDataScope("S2")
@@ -53,17 +53,17 @@ a=dsm.retriveDataScope("S2").createRdWrVar("int","a")
 #
 sname="S7"
 dsm=salome.naming_service.Resolve("/DataServerManager")
-st=cPickle.dumps([],cPickle.HIGHEST_PROTOCOL)
+st=pickle.dumps([],pickle.HIGHEST_PROTOCOL)
 a=dsm.giveADataScopeCalled(sname)[0].createRdWrVar("list","a")
 dsm.giveADataScopeCalled(sname)
-a.setSerializedContent(cPickle.dumps([0,],cPickle.HIGHEST_PROTOCOL))
-assert(cPickle.loads(a.fetchSerializedContent())==[0,])
+a.setSerializedContent(pickle.dumps([0,],pickle.HIGHEST_PROTOCOL))
+assert(pickle.loads(a.fetchSerializedContent())==[0,])
 a.setSerializedContent(st)
-assert(cPickle.loads(a.fetchSerializedContent())==[])
-tmp=a.invokePythonMethodOn("append",cPickle.dumps((0,),cPickle.HIGHEST_PROTOCOL))
-assert(cPickle.loads(a.fetchSerializedContent())==[0])
-for i in xrange(0,1000):
-    tmp=a.invokePythonMethodOn("append",cPickle.dumps((i,),cPickle.HIGHEST_PROTOCOL))
+assert(pickle.loads(a.fetchSerializedContent())==[])
+tmp=a.invokePythonMethodOn("append",pickle.dumps((0,),pickle.HIGHEST_PROTOCOL))
+assert(pickle.loads(a.fetchSerializedContent())==[0])
+for i in range(0,1000):
+    tmp=a.invokePythonMethodOn("append",pickle.dumps((i,),pickle.HIGHEST_PROTOCOL))
     pass
 dsm.removeDataScope(sname)
 #
@@ -72,7 +72,7 @@ d2s,_=dsm.giveADataScopeCalled(sname)
 d2s.createRdWrVar("list","a")
 a=SalomeSDSClt.GetHandlerFromRef(dsm.retriveDataScope(sname).retrieveVar("a"))
 a.append(1)
-for i in xrange(1000):
+for i in range(1000):
     a.append(i)
     pass
 assert(sum(a.local_copy())==499501)

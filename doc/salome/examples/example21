@@ -29,10 +29,10 @@ a=[836,3425,342]
 A.SetColumn(3,a)
 
 # change attribute values
-print "A.GetValue(2,2) = ", A.GetValue(2,2)
-print "A.PutValue(2,2,625323)"
+print("A.GetValue(2,2) = ", A.GetValue(2,2))
+print("A.PutValue(2,2,625323)")
 A.PutValue(625323,2,2)
-print "A.GetValue(2,2) = ", A.GetValue(2,2)
+print("A.GetValue(2,2) = ", A.GetValue(2,2))
 
 #set Titles
 
@@ -48,18 +48,18 @@ A.SetColumnTitle(3,"TC")
 
 
 #check the table
-print "Common title : ",A.GetTitle()
-print "Rows titles : ",  A.GetRowTitles()
+print("Common title : ",A.GetTitle())
+print("Rows titles : ",  A.GetRowTitles())
 rnb = A.GetNbRows()
 for i in range(1, rnb):
         b=A.GetRow(i)
-        print b
+        print(b)
 
 cnb = A.GetNbColumns()
-print "Columns title : ", A.GetColumnTitles()
+print("Columns title : ", A.GetColumnTitles())
 for i in range(1, cnb):
         b=A.GetColumn(i)
-        print b
+        print(b)
 
 # set titles
 #titles=["11","12","13"]
@@ -77,7 +77,7 @@ if str == None:
         str = "/tmp"
 file = str+"/test.hdf"
 
-print " -------  We will save to", file, "-----------"
+print(" -------  We will save to", file, "-----------")
 
 batchmode_geompy.myStudy.SaveAs(file)
 
@@ -104,24 +104,24 @@ if res == 0 or A == None:
 A = A._narrow(SALOMEDS.AttributeTableOfInteger)
 
 #check the table
-print "Common title : ",A.GetTitle()
-print "Rows titles : ",  A.GetRowTitles()
+print("Common title : ",A.GetTitle())
+print("Rows titles : ",  A.GetRowTitles())
 rnb = A.GetNbRows()
 for i in range(1, rnb):
         b=A.GetRow(i)
-        print b
+        print(b)
 
 cnb = A.GetNbColumns()
-print "Columns title : ", A.GetColumnTitles()
+print("Columns title : ", A.GetColumnTitles())
 for i in range(1, cnb):
         b=A.GetColumn(i)
-        print b
+        print(b)
 
 titles=["ff","ss","tt"]
 A.SetRowTitles(titles)
-print "Rows titles : ",  A.GetRowTitles()
+print("Rows titles : ",  A.GetRowTitles())
 
 titles=["ww","zz","cc"]
 A.SetColumnTitles(titles)
-print "Column titles : ",  A.GetColumnTitles()
+print("Column titles : ",  A.GetColumnTitles())
 

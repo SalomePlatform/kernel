@@ -22,7 +22,7 @@ import unittest
 import os
 import sys
 import imp
-from cStringIO import StringIO
+from io import StringIO
 import logging
 
 logger = logging.getLogger("TestLauncherLogger")
@@ -71,7 +71,7 @@ class TestSessionArgs(unittest.TestCase):
       import runSession
       params, args = runSession.configureSession(args, exe="salome shell")
       return runSession.runSession(params, args)
-    except SystemExit, e:
+    except SystemExit as e:
       if str(e) != '0':
         logger.error(e)
       import traceback

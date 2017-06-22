@@ -25,11 +25,11 @@ class TestLauncher(unittest.TestCase):
   def setUp(self):
     from salome_instance import SalomeInstance
     self.instance = SalomeInstance.start()
-    print "Instance created and now running on port", self.instance.get_port()
+    print("Instance created and now running on port", self.instance.get_port())
    #
 
   def tearDown(self):
-    print "Terminate instance running on port", self.instance.get_port()
+    print("Terminate instance running on port", self.instance.get_port())
     self.instance.stop()
   #
 
@@ -41,7 +41,7 @@ class TestLauncher(unittest.TestCase):
       args = ["hello.py"]
       params, args = runSession.configureSession(args, exe="salome shell")
       return runSession.runSession(params, args)
-    except SystemExit, e:
+    except SystemExit as e:
       if str(e) != '0':
         logging.error(e)
   #

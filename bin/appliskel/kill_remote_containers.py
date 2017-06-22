@@ -25,14 +25,14 @@
 """
 """
 import sys,os,shutil,glob,socket
-import optparse
+import argparse
 from salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))
 APPLI=getAppliPath.relpath(appli_local,os.path.realpath(os.getenv('HOME')))
 
-usage="""usage: %prog [options]
+usage="""%(prog)s [options]
 
 This procedure kill all containers that have been launched in a SALOME session on remote machines.
 A SALOME session is identified by a machine name and a port number.
@@ -110,15 +110,14 @@ class Resource:
     return appliPath
 
 def main():
-  parser = optparse.OptionParser(usage=usage)
-  parser.add_option('-p','--port', dest="port",
-                            help="The SALOME session port (default NSPORT or 2810)")
+  parser = argparse.ArgumentParser(usage=usage)
+  parser.add_argument('-p','--port', dest="port",
+                      help="The SALOME session port (default NSPORT or 2810)")
 
-
-  options, args = parser.parse_args()
+  args = parser.parse_args()
 
   if not os.path.exists(catalog_file):
-    print "ERROR: the catalog file %s is mandatory" % catalog_file_base
+    print("ERROR: the catalog file %s is mandatory" % catalog_file)
     sys.exit(1)
 
   #Parse CatalogResource.xml
@@ -142,13 +141,14 @@ def main():
     if resource.get_host() in local_names:continue
     command=resource.get_rsh() +" -l "+resource.get_user()+" "+resource.get_host()
     command=command+ " " + os.path.join(resource.get_appliPath(),"runRemote.sh")
-    if options.port:
-      port=options.port
+    if args.port:
+      port=args.port
     else:
       port=os.getenv("NSPORT") or "2810"
     command=command+ " " + get_hostname() + " " + port +" killSalomeWithPort.py " + port
-    print command
-    os.system(command)
+    print(command)
+    return subprocess.call(command, shell=True)
+
 
 if __name__ == '__main__':
   main()

@@ -26,7 +26,7 @@
 __author__="gboulant"
 __date__ ="$31 mars 2010 11:59:33$"
 
-from enumerate import Enumerate
+from .enumerate import Enumerate
 
 ## This exception should be used for functionnal error management, at least in the GUI
 #  part of the application, for example to set user oriented messages at point
@@ -101,21 +101,21 @@ def TEST_uimessage():
     try:
         somethingGoesWrong()
         return False
-    except UiException, err:
-        print 'ERROR: %s' % str(err)
+    except UiException as err:
+        print('ERROR: %s' % str(err))
         if ( str(err) == "Something goes wrong" ):
             return True
         else:
             return False
 
 def TEST_specificException():
-    print DevelException("err")
-    print AdminException("err")
-    print UserException("err")
+    print(DevelException("err"))
+    print(AdminException("err"))
+    print(UserException("err"))
     return True
 
 if __name__ == "__main__":
-    import unittester
+    from . import unittester
     unittester.run("uiexception","TEST_uimessage")
     unittester.run("uiexception","TEST_specificException")
     

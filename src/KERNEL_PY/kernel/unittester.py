@@ -45,12 +45,12 @@ def run(modulePath, functionName):
     module=sys.modules[moduleName]
     func = getattr(module,functionName)
     tabsize = 70-len(moduleName)-len(functionName)
-    print "[TEST] %s.%s %s test in progress" % (moduleName, functionName,"."*tabsize) 
+    print("[TEST] %s.%s %s test in progress" % (moduleName, functionName,"."*tabsize)) 
     ok = func()
     if ( ok ):
-        print "[TEST] %s.%s %s OK" % (moduleName, functionName,"."*tabsize)
+        print("[TEST] %s.%s %s OK" % (moduleName, functionName,"."*tabsize))
     else:
-        print "[TEST] %s.%s %s NOT OK" % (moduleName, functionName,"."*tabsize)
+        print("[TEST] %s.%s %s NOT OK" % (moduleName, functionName,"."*tabsize))
 
 ## This function is for debug only. It executes the specified function with the
 #  specified arguments in a try/except bloc so that to display the exception in
@@ -64,11 +64,11 @@ def tryfunction(function,*argv):
     the case where an exception is raised (usefull to debug server side of a CORBA
     process).
     """
-    print "[TEST] trying the function %s" % function
+    print("[TEST] trying the function %s" % function)
     try:
         return function(*argv)
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         raise e
 
 

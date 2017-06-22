@@ -1,4 +1,3 @@
-#  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -20,7 +19,6 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-
 """Create a virtual Salome installation
 
 Based on a script created by Ian Bicking.
@@ -32,7 +30,9 @@ Typical use::
 install module KERNEL in the current directory
 """
 
-import sys, os, optparse, shutil,glob,fnmatch
+import sys, os, optparse, shutil, glob, fnmatch
+
+
 py_version = 'python%s.%s' % (sys.version_info[0], sys.version_info[1])
 
 verbose=0
@@ -43,11 +43,11 @@ def mkdir(path):
     """Create a directory and all the intermediate directories if path does not exist"""
     if not os.path.exists(path):
         if verbose:
-            print 'Creating %s' % path
+            print('Creating %s' % path)
         os.makedirs(path)
     else:
         if verbose:
-            print 'Directory %s already exists' % path
+            print('Directory %s already exists' % path)
             pass
         pass
 
@@ -57,15 +57,15 @@ def symlink(src, dest):
     """Create a link if it does not exist"""
     if not os.path.exists(dest):
         if os.path.lexists(dest):
-            print "Do not create symlink %s. It already exists but it's broken" % dest
+            print("Do not create symlink %s. It already exists but it's broken" % dest)
             return
         if verbose:
-            print 'Creating symlink %s' % dest
+            print('Creating symlink %s' % dest)
             pass
         os.symlink(src, dest)
     else:
         if verbose:
-            print 'Symlink %s already exists' % dest
+            print('Symlink %s already exists' % dest)
         pass
     pass
 
@@ -74,11 +74,11 @@ def symlink(src, dest):
 def rmtree(dir):
     """Remove (recursive) a directory if it exists"""
     if os.path.exists(dir):
-        print 'Deleting tree %s' % dir
+        print('Deleting tree %s' % dir)
         shutil.rmtree(dir)
     else:
         if verbose:
-            print 'Do not need to delete %s; already gone' % dir
+            print('Do not need to delete %s; already gone' % dir)
             pass
         pass
     pass
@@ -99,12 +99,12 @@ def link_module(options):
     global verbose
 
     if not options.module_path:
-        print "Option module is mandatory"
+        print("Option module is mandatory")
         return
 
     module_dir=os.path.abspath(options.module_path)
     if not os.path.exists(module_dir):
-        print "Module %s does not exist" % module_dir
+        print("Module %s does not exist" % module_dir)
         return
 
     verbose = options.verbose
@@ -127,7 +127,7 @@ def link_module(options):
       pyversio=versio
     else:
       #incompatible python versions
-      print "incompatible python versions : application has version %s and module %s has not" % (versio,module_dir)
+      print("incompatible python versions : application has version %s and module %s has not" % (versio,module_dir))
       return
 
     module_bin_dir=os.path.join(module_dir,'bin','salome')
@@ -188,20 +188,21 @@ def link_module(options):
         pass
     else:
         if verbose:
-            print module_bin_dir, " doesn't exist"
+            print(module_bin_dir, " doesn't exist")
         pass
 
     #directory bin/salome/test : create it and link content
     if os.path.exists(module_test_dir):
         # link <appli_path>/bin/salome/test/<module> to <module_path>/bin/salome/test
-        print "link %s --> %s"%(os.path.join(test_dir, options.module_name), module_test_dir)
+        print("link %s --> %s"%(os.path.join(test_dir, options.module_name), module_test_dir))
         symlink(module_test_dir, os.path.join(test_dir, options.module_name))
         # register module for testing in CTestTestfile.cmake
         with open(os.path.join(test_dir, "CTestTestfile.cmake"), "ab") as f:
-            f.write("SUBDIRS(%s)\n"%options.module_name)
+            aStr = "SUBDIRS(%s)\n"%options.module_name
+            f.write(aStr.encode())
     else:
         if verbose:
-            print module_test_dir, " doesn't exist"
+            print(module_test_dir, " doesn't exist")
         pass
 
     #directory idl/salome : create it and link content
@@ -211,7 +212,7 @@ def link_module(options):
             symlink(os.path.join(module_idl_dir, fn), os.path.join(idl_dir, fn))
     else:
         if verbose:
-            print module_idl_dir, " doesn't exist"
+            print(module_idl_dir, " doesn't exist")
 
     #directory lib/salome : create it and link content
     if os.path.exists(module_lib_dir):
@@ -222,7 +223,7 @@ def link_module(options):
         pass
     else:
         if verbose:
-            print module_lib_dir, " doesn't exist"
+            print(module_lib_dir, " doesn't exist")
         pass
 
     #directory lib/paraview : create it and link content
@@ -234,12 +235,12 @@ def link_module(options):
         pass
     else:
         if verbose:
-            print module_pvlib_dir, " doesn't exist"
+            print(module_pvlib_dir, " doesn't exist")
         pass
 
     #directory lib/pyversio/site-packages/salome : create it and link content
     if not os.path.exists(module_lib_py_dir):
-        print "Python directory %s does not exist" % module_lib_py_dir
+        print("Python directory %s does not exist" % module_lib_py_dir)
     else:
         # Specific action for the package salome
         module_lib_pypkg_dir=os.path.join(module_lib_py_dir,"salome")
@@ -262,7 +263,7 @@ def link_module(options):
             pass
         else:
             if verbose:
-                print module_lib_py_shared_dir, " doesn't exist"
+                print(module_lib_py_shared_dir, " doesn't exist")
             pass
 
     #directory share/doc/salome (KERNEL doc) : create it and link content
@@ -322,7 +323,7 @@ def link_module(options):
                 #other directories (not resources)
                 symlink(os.path.join(module_share_dir, fn), os.path.join(share_dir, fn))
     else:
-        print "share/salome directory %s does not exist" % module_share_dir
+        print("share/salome directory %s does not exist" % module_share_dir)
         pass
 
     #html files in doc/salome directory
@@ -355,12 +356,12 @@ def link_extra_test(options):
     global verbose
 
     if not options.extra_test_path:
-        print "Option extra_test is mandatory"
+        print("Option extra_test is mandatory")
         return
 
     extra_test_dir=os.path.abspath(options.extra_test_path)
     if not os.path.exists(extra_test_dir):
-        print "Test %s does not exist" % extra_test_dir
+        print("Test %s does not exist" % extra_test_dir)
         return
 
     verbose = options.verbose
@@ -375,14 +376,15 @@ def link_extra_test(options):
     #directory bin/salome/test : create it and link content
     if os.path.exists(extra_test_dir):
         # link <appli_path>/bin/salome/test/<extra_test> to <extra_test_path>/bin/salome/test
-        print "link %s --> %s"%(os.path.join(test_dir, options.extra_test_name), extra_test_dir)
+        print("link %s --> %s"%(os.path.join(test_dir, options.extra_test_name), extra_test_dir))
         symlink(extra_test_dir, os.path.join(test_dir, options.extra_test_name))
         # register extra_test for testing in CTestTestfile.cmake
         with open(os.path.join(test_dir, "CTestTestfile.cmake"), "ab") as f:
-            f.write("SUBDIRS(%s)\n"%options.extra_test_name)
+            aStr = "SUBDIRS(%s)\n" % options.extra_test_name
+            f.write(aStr.encode())
     else:
         if verbose:
-            print extra_test_dir, " doesn't exist"
+            print(extra_test_dir, " doesn't exist")
         pass
 
 # -----------------------------------------------------------------------------

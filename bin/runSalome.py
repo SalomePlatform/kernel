@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -50,7 +50,7 @@ def killLocalPort():
     try:
         killMyPort(my_port)
     except:
-        print "problem in killLocalPort()"
+        print("problem in killLocalPort()")
         pass
     pass
 
@@ -65,7 +65,7 @@ def givenPortKill(port):
     try:
         killMyPort(my_port)
     except:
-        print "problem in LocalPortKill(), killMyPort(%s)"%port
+        print("problem in LocalPortKill(), killMyPort(%s)"%port)
         pass
     pass
 
@@ -101,7 +101,7 @@ class InterpServer(Server):
     def run(self):
         global process_id
         command = self.CMD
-        print "INTERPSERVER::command = ", command
+        print("INTERPSERVER::command = ", command)
         import subprocess
         pid = subprocess.Popen(command).pid
         process_id[pid]=self.CMD
@@ -116,7 +116,7 @@ def get_cata_path(list_modules,modules_root_dir):
     cata_path=[]
 
     for module in list_modules:
-        if modules_root_dir.has_key(module):
+        if module in modules_root_dir:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources",module.lower(), module_cata)
@@ -134,7 +134,7 @@ def get_cata_path(list_modules,modules_root_dir):
         if os.path.exists(path):
             for cata_file in glob.glob(os.path.join(path,"*Catalog.xml")):
                 module_name= os.path.basename(cata_file)[:-11]
-                if not modules_cata.has_key(module_name):
+                if module_name not in modules_cata:
                     cata_path.append(cata_file)
                     modules_cata[module_name]=cata_file
 
@@ -160,7 +160,7 @@ class CatalogServer(Server):
 
         cata_path=get_cata_path(list_modules,modules_root_dir)
 
-        self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
+        self.CMD=self.SCMD1 + ['"' + '"::"'.join(cata_path) + '"'] + self.SCMD2
 
 # ---
 
@@ -207,10 +207,10 @@ class LoggerServer(Server):
                                     with_username=True,
                                     with_hostname=True,
                                     with_port=True)
-        print "==========================================================="
-        print "Logger server: put log to the file:"
-        print logfile
-        print "==========================================================="
+        print("===========================================================")
+        print("Logger server: put log to the file:")
+        print(logfile)
+        print("===========================================================")
         self.CMD=['SALOME_Logger_Server', logfile]
         pass
     pass # end of LoggerServer class
@@ -248,7 +248,7 @@ class SessionServer(Server):
             raise Exception('Python containers no longer supported')
         if self.args['gui']:
             session_gui = True
-            if self.args.has_key('session_gui'):
+            if 'session_gui' in self.args:
                 session_gui = self.args['session_gui']
             if session_gui:
                 self.SCMD2+=['GUI']
@@ -259,7 +259,7 @@ class SessionServer(Server):
                     self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
                     pass
                 pass
-                if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
+                if 'pyscript' in self.args and len(self.args['pyscript']) > 0:
                     msg = json.dumps(self.args['pyscript'], cls=ScriptAndArgsObjectEncoder)
                     self.SCMD2+=['--pyscript=%s'%(msg)]
                     pass
@@ -267,9 +267,9 @@ class SessionServer(Server):
             pass
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
-        if self.args.has_key('user_config'):
+        if 'user_config' in self.args:
             self.SCMD2+=['--resources=%s'%self.args['user_config']]
-        if self.args.has_key('modules'):
+        if 'modules' in self.args:
             list_modules = []
             #keep only modules with GUI
             for m in modules_list:
@@ -283,7 +283,7 @@ class SessionServer(Server):
             list_modules.reverse()
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
             pass
-        if self.args.has_key('language'):
+        if 'language' in self.args:
             self.SCMD2+=['--language=%s' % self.args['language']]
         pass
 
@@ -297,14 +297,14 @@ class SessionServer(Server):
 
         cata_path=get_cata_path(list_modules,modules_root_dir)
 
-        if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
+        if ("gui" in self.args) & ('moduleCatalog' in self.args['embedded']):
             #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
-            self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
+            self.CMD=self.SCMD1 + ['"' + '"::"'.join(cata_path) + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
-        if self.args.has_key('test'):
+        if 'test' in self.args:
             self.CMD+=['-test'] + self.args['test']
-        elif self.args.has_key('play'):
+        elif 'play' in self.args:
             self.CMD+=['-play'] + self.args['play']
 
         if self.args["gdb_session"] or self.args["ddd_session"]:
@@ -363,9 +363,9 @@ class LauncherServer(Server):
 
         cata_path=get_cata_path(list_modules,modules_root_dir)
 
-        if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
+        if ("gui" in self.args) & ('moduleCatalog' in self.args['embedded']):
             #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
-            self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
+            self.CMD=self.SCMD1 + ['"' + '"::"'.join(cata_path) + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
 #
@@ -387,12 +387,12 @@ def startSalome(args, modules_list, modules_root_dir):
     """Launch all SALOME servers requested by args"""
     init_time = os.times()
 
-    if verbose(): print "startSalome ", args
+    if verbose(): print("startSalome ", args)
 
     #
     # Set server launch command
     #
-    if args.has_key('server_launch_mode'):
+    if 'server_launch_mode' in args:
         Server.set_server_launch_mode(args['server_launch_mode'])
 
     #
@@ -501,9 +501,9 @@ def startSalome(args, modules_list, modules_root_dir):
     # and wait until it is registered in naming service
     #
 
-    #print "ARGS = ",args
+    # print("ARGS = ",args)
     if ('study' not in args['embedded']) | (args["gui"] == 0):
-        print "RunStudy"
+        print("RunStudy")
         myServer=SalomeDSServer(args)
         myServer.run()
         if sys.platform == "win32":
@@ -570,9 +570,9 @@ def startSalome(args, modules_list, modules_root_dir):
           session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
         args["session_object"] = session
     end_time = os.times()
-    if verbose(): print
-    print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
-                                                         - init_time[4])
+    if verbose(): print()
+    print("Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
+                                                         - init_time[4]))
 
     # ASV start GUI without Loader
     #if args['gui']:
@@ -589,14 +589,14 @@ def startSalome(args, modules_list, modules_root_dir):
     except:
         import traceback
         traceback.print_exc()
-        print "-------------------------------------------------------------"
-        print "-- to get an external python interpreter:runSalome --interp=1"
-        print "-------------------------------------------------------------"
+        print("-------------------------------------------------------------")
+        print("-- to get an external python interpreter:runSalome --interp=1")
+        print("-------------------------------------------------------------")
 
-    if verbose(): print "additional external python interpreters: ", nbaddi
+    if verbose(): print("additional external python interpreters: ", nbaddi)
     if nbaddi:
         for i in range(nbaddi):
-            print "i=",i
+            print("i=",i)
             anInterp=InterpServer(args)
             anInterp.run()
 
@@ -626,21 +626,21 @@ def useSalome(args, modules_list, modules_root_dir):
     except:
         import traceback
         traceback.print_exc()
-        print
-        print
-        print "--- Error during Salome launch ---"
+        print()
+        print()
+        print("--- Error during Salome launch ---")
 
-    #print process_id
+    # print(process_id)
 
     from addToKillList import addToKillList
     from killSalomeWithPort import getPiDict
 
     filedict = getPiDict(args['port'])
-    for pid, cmd in process_id.items():
+    for pid, cmd in list(process_id.items()):
         addToKillList(pid, cmd, args['port'])
         pass
 
-    if verbose(): print """
+    if verbose(): print("""
     Saving of the dictionary of Salome processes in %s
     To kill SALOME processes from a console (kill all sessions from all ports):
       python killSalome.py
@@ -652,7 +652,7 @@ def useSalome(args, modules_list, modules_root_dir):
 
     runSalome, with --killall option, starts with killing
     the processes resulting from the previous execution.
-    """%filedict
+    """%filedict)
 
     #
     #  Print Naming Service directory list
@@ -660,8 +660,8 @@ def useSalome(args, modules_list, modules_root_dir):
 
     if clt != None:
         if verbose():
-            print
-            print " --- registered objects tree in Naming Service ---"
+            print()
+            print(" --- registered objects tree in Naming Service ---")
             clt.showNS()
             pass
 
@@ -686,14 +686,14 @@ def useSalome(args, modules_list, modules_root_dir):
 
         # run python scripts, passed as command line arguments
         toimport = []
-        if args.has_key('gui') and args.has_key('session_gui'):
+        if 'gui' in args and 'session_gui' in args:
             if not args['gui'] or not args['session_gui']:
-                if args.has_key('study_hdf'):
+                if 'study_hdf' in args:
                     toopen = args['study_hdf']
                     if toopen:
                         import salome
                         salome.salome_init(toopen)
-                if args.has_key('pyscript'):
+                if 'pyscript' in args:
                     toimport = args['pyscript']
         from salomeContextUtils import formatScriptsAndArgs
         command = formatScriptsAndArgs(toimport)
@@ -706,9 +706,9 @@ def useSalome(args, modules_list, modules_root_dir):
     return clt
 
 def execScript(script_path):
-    print 'executing', script_path
+    print('executing', script_path)
     sys.path.insert(0, os.path.realpath(os.path.dirname(script_path)))
-    execfile(script_path,globals())
+    exec(compile(open(script_path).read(), script_path, 'exec'),globals())
     del sys.path[0]
 
 # -----------------------------------------------------------------------------
@@ -751,17 +751,17 @@ def main(exeName=None):
     try:
         from salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         sys.exit(1)
 
     from salome_utils import getHostName
     args, modules_list, modules_root_dir = setenv.get_config(exeName=exeName)
-    print "runSalome running on %s" % getHostName()
+    print("runSalome running on %s" % getHostName())
 
     kill_salome(args)
     save_config = True
-    if args.has_key('save_config'):
+    if 'save_config' in args:
         save_config = args['save_config']
     # --
     test = True
@@ -842,7 +842,6 @@ def foreGround(clt, args):
 #
 
 def runSalome():
-    import user
     clt,args = main()
     # --
     test = args['gui'] and args['session_gui']

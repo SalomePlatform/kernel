@@ -2104,7 +2104,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   sfp << _GetNoteBookAccess() << std::endl;
 
   // extend sys.path with the directory where the script is being dumped to
-  sfp << "sys.path.insert( 0, r\'" << thePath << "\')" << std::endl << std::endl;
+  sfp << "sys.path.insert(0, r\'" << thePath << "\')" << std::endl << std::endl;
 
   // dump NoteBook variables
   sfp << _GetStudyVariablesScript();
@@ -2241,7 +2241,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 std::string SALOMEDSImpl_Study::GetDumpStudyComment(const char* theComponentName)
 {
   std::stringstream txt;
-  txt << "# -*- coding: utf-8 -*-" << std::endl << std::endl;
+  txt << "#!/usr/bin/env python" << std::endl << std::endl;
   txt << "###" << std::endl;
   txt << "### This file is generated automatically by SALOME v"
       << KERNEL_VERSION_STR
