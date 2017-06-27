@@ -30,6 +30,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "SALOME_KernelServices.hxx"
+#include "Basics_Utils.hxx"
 #include "utilities.h"
 #include "HDFOI.hxx"
 
@@ -192,7 +193,7 @@ static void Test()
   DumpStudy();
   
   // Save as
-  myStudy->SaveAs("/home/edeville/Study1.hdf", false, false);
+  myStudy->SaveAs(Kernel_Utils::decode("/home/edeville/Study1.hdf"), false, false);
 
   // Get Persistent Reference of the study test
   name = myStudy->GetPersistentReference();

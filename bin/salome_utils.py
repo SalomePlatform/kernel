@@ -56,10 +56,9 @@ def _try_bool( arg ):
     are supported.
     If <arg> does not represent a boolean, an exception is raised.
     """
-    import types
-    if type( arg ) == bool  :
+    if isinstance(arg, bool)  :
         return arg
-    elif type( arg ) == bytes  :
+    elif isinstance(arg, (str, bytes)):
         v = str( arg ).lower()
         if   v in [ "yes", "y", "true"  ]: return True
         elif v in [ "no",  "n", "false" ]: return False

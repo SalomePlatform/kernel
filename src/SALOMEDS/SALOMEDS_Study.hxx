@@ -80,6 +80,7 @@ public:
   virtual _PTR(SComponentIterator) NewComponentIterator();
   virtual _PTR(StudyBuilder) NewBuilder();
   virtual std::string Name();
+  virtual void  Name(const std::string& name);
   virtual bool IsSaved();
   virtual void  IsSaved(bool save);
   virtual bool IsModified();

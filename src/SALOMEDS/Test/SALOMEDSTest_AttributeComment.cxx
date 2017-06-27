@@ -25,6 +25,8 @@
  * Use code of SALOMEDS_AttributeComment.cxx
  */
 
+//#include "Basics_Utils.hxx"
+
 void SALOMEDSTest::testAttributeComment()
 {
   //Create Study

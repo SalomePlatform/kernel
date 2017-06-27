@@ -125,8 +125,9 @@ bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
 {
   if(CORBA::is_nil(_corba_impl))
     return false;
-
-  if (!_corba_impl->Open(theStudyUrl.c_str()))
+  std::wstring wtheStudyUrl = std::wstring(theStudyUrl.begin(), theStudyUrl.end());
+  
+  if (!_corba_impl->Open( (wchar_t*)wtheStudyUrl.c_str() ) )
     return false;
 
   return true;
@@ -145,7 +146,7 @@ bool SALOMEDS_Study::SaveAs(const std::string& theUrl, bool theMultiFile, bool t
   if(CORBA::is_nil(_corba_impl))
     return false;
 
-  return _corba_impl->SaveAs((char*)theUrl.c_str(), theMultiFile, theASCII);
+  return _corba_impl->SaveAs(Kernel_Utils::decode_s(theUrl), theMultiFile, theASCII);
 }
 
 SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
@@ -497,8 +498,17 @@ std::string SALOMEDS_Study::Name()
     SALOMEDS::Locker lock;
     aName = _local_impl->Name();
   }
-  else aName = _corba_impl->Name();
+  else aName = Kernel_Utils::encode_s(_corba_impl->Name());
   return aName;
+}
+
+void SALOMEDS_Study::Name(const std::string& theName)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->Name(theName);
+  }
+  else _corba_impl->Name(Kernel_Utils::decode_s(theName));
 }
 
 bool SALOMEDS_Study::IsSaved()
@@ -549,7 +559,8 @@ std::string SALOMEDS_Study::URL()
     SALOMEDS::Locker lock;
     aURL = _local_impl->URL();
   }
-  else aURL = _corba_impl->URL();
+  else 
+      aURL = Kernel_Utils::encode_s(_corba_impl->URL());
   return aURL;
 }
 
@@ -559,7 +570,7 @@ void SALOMEDS_Study::URL(const std::string& url)
     SALOMEDS::Locker lock;
     _local_impl->URL(url);
   }
-  else _corba_impl->URL((char*)url.c_str());
+  else _corba_impl->URL(Kernel_Utils::decode_s(url));
 }
 
 std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& theSO)

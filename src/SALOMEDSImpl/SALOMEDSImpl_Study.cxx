@@ -1584,6 +1584,17 @@ std::string SALOMEDSImpl_Study::Name()
 }
 
 //============================================================================
+/*! Function : Name
+ *  Purpose  : set study name
+ */
+//============================================================================
+void SALOMEDSImpl_Study::Name(const std::string& name)
+{
+  _errorCode = "";
+  _name = name;
+}
+
+//============================================================================
 /*! Function : IsSaved
  *  Purpose  : get if study has been saved
  */

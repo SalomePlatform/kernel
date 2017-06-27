@@ -372,7 +372,7 @@ void SALOMEDS_Study_i::Clear()
  *  Purpose  : Open a Study from it's persistent reference
  */
 //============================================================================
-bool SALOMEDS_Study_i::Open(const char* aUrl)
+bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
   throw(SALOME::SALOME_Exception)
 {
   if (!_closed)
@@ -382,7 +382,8 @@ bool SALOMEDS_Study_i::Open(const char* aUrl)
 
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_Study_i::Open");
-
+  
+  std::string aUrl = Kernel_Utils::encode_s(aWUrl);
   bool res = _impl->Open(std::string(aUrl));
 
   // update desktop title with new study name
@@ -411,11 +412,13 @@ CORBA::Boolean SALOMEDS_Study_i::Save(CORBA::Boolean theMultiFile, CORBA::Boolea
  *  Purpose  : Save a study to the persistent reference aUrl
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_Study_i::SaveAs(const char* aUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII)
+CORBA::Boolean SALOMEDS_Study_i::SaveAs(const wchar_t* aWUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII)
 {
   SALOMEDS::Locker lock;
   if (_closed)
     throw SALOMEDS::Study::StudyInvalidReference();
+  
+  std::string aUrl = Kernel_Utils::encode_s(aWUrl);
   return _impl->SaveAs(std::string(aUrl), _factory, theMultiFile, theASCII);
 }
 
@@ -832,11 +835,23 @@ SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
  *  Purpose  : get study name
  */
 //============================================================================
-char* SALOMEDS_Study_i::Name()
+wchar_t* SALOMEDS_Study_i::Name()
 {
   SALOMEDS::Locker lock; 
   // Name is specified as IDL attribute: user exception cannot be raised
-  return CORBA::string_dup(_impl->Name().c_str());
+  return CORBA::wstring_dup(Kernel_Utils::decode_s(_impl->Name()));
+}
+
+//============================================================================
+/*! Function : Name
+ *  Purpose  : set study name
+ */
+//============================================================================
+void SALOMEDS_Study_i::Name(const wchar_t* wname)
+{
+  SALOMEDS::Locker lock;
+  // Name is specified as IDL attribute: user exception cannot be raised
+  _impl->Name(Kernel_Utils::encode_s(wname));
 }
 
 //============================================================================
@@ -899,11 +914,11 @@ void SALOMEDS_Study_i::Modified()
  *  Purpose  : get URL of the study (persistent reference of the study)
  */
 //============================================================================
-char* SALOMEDS_Study_i::URL()
+wchar_t* SALOMEDS_Study_i::URL()
 {
-  SALOMEDS::Locker lock; 
+  SALOMEDS::Locker lock;
   // URL is specified as IDL attribute: user exception cannot be raised
-  return CORBA::string_dup(_impl->URL().c_str());
+  return CORBA::wstring_dup(Kernel_Utils::decode_s(_impl->URL()));
 }
 
 //============================================================================
@@ -911,11 +926,11 @@ char* SALOMEDS_Study_i::URL()
  *  Purpose  : set URL of the study (persistent reference of the study)
  */
 //============================================================================
-void SALOMEDS_Study_i::URL(const char* url)
+void SALOMEDS_Study_i::URL(const wchar_t* wurl)
 {
   SALOMEDS::Locker lock; 
   // URL is specified as IDL attribute: user exception cannot be raised
-  _impl->URL(std::string((char*)url));
+  _impl->URL(Kernel_Utils::encode_s(wurl));
 
   // update desktop title with new study name
   NameChanged();

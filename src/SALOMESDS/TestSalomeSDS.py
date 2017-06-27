@@ -48,7 +48,7 @@ def work(t):
     import TestSalomeSDSHelper0
     import os,subprocess
     fname=os.path.splitext(TestSalomeSDSHelper0.__file__)[0]+".py"
-    proc=subprocess.Popen(["python",fname],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    proc = subprocess.Popen(["python3", fname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
       print(out)

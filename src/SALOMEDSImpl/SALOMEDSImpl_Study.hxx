@@ -195,6 +195,9 @@ public:
  
   //! method to get study name
   virtual std::string Name();
+
+  //! method to set study name
+  virtual void  Name(const std::string& name);
   
   //! method to get if study has been saved
   virtual bool IsSaved();

@@ -91,13 +91,13 @@ class TestLauncher(unittest.TestCase):
 
     # Connect to one instance
     import runConsole
-    port = all_instances[len(all_instances)/2].get_port()
+    port = all_instances[len(all_instances)//2].get_port()
     print("Connect to instance running on port", port)
     self.__connectToInstance(port)
 
     # Connect to another instance
     import runConsole
-    port = all_instances[len(all_instances)/4].get_port()
+    port = all_instances[len(all_instances)//4].get_port()
     print("Connect to instance running on port", port)
     self.__connectToInstance(port)
 

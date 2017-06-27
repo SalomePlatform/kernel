@@ -76,7 +76,7 @@ public:
     \param char* arguments, the study URL
     \return Study_ptr arguments
   */
-  virtual bool Open(const char* aStudyUrl) throw (SALOME::SALOME_Exception);
+  virtual bool Open(const wchar_t* aStudyUrl) throw (SALOME::SALOME_Exception);
 
   //! method to save a Study
   virtual CORBA::Boolean Save(CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
@@ -85,7 +85,7 @@ public:
   /*!
     \param char* arguments, the new URL of the study
   */
-  virtual CORBA::Boolean SaveAs(const char* aUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
+  virtual CORBA::Boolean SaveAs(const wchar_t* aUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);
 
   //! method to copy the object
   /*!
@@ -202,7 +202,13 @@ public:
   /*!
     \return char* arguments, the study name
   */
-  virtual char* Name();
+  virtual wchar_t* Name();
+
+  //! method to set study name
+  /*!
+    \param name char* arguments, the study name
+  */
+  virtual void Name(const wchar_t* name);
 
   //! method to get if study has been saved
   /*!
@@ -229,13 +235,13 @@ public:
   /*!
     \return char* arguments, the study URL 
   */
-  virtual char* URL();
+  virtual wchar_t* URL();
 
  //! method to set URL of the study
   /*!
     \param url char* arguments, the study URL
   */
-  virtual void  URL(const char* url);
+  virtual void URL(const wchar_t* url);
 
   static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 

@@ -302,7 +302,9 @@ def salome_study_init(theStudyPath=None):
         pass
 
     import types
-    if theStudyPath and type(theStudyPath) == types.StringType:
+    if theStudyPath and isinstance(theStudyPath, (str, bytes)):
+        if isinstance(theStudyPath, bytes):
+            theStudyPath = str(theStudyPath, 'UTF8')
         openStudy(theStudyPath)
 
     myStudyName = myStudy._get_Name()

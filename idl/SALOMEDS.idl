@@ -41,7 +41,7 @@ module SALOMEDS
 {
 /*! \brief Name of the file in which the %Study is saved.
 */
-  typedef string URLPath;
+  typedef wstring URLPath;
 
 /*! \brief Main identifier of an object in %SALOME application
 */
@@ -55,6 +55,8 @@ module SALOMEDS
 */
   typedef string SalomeReference;
 
+//! List of file names
+  typedef sequence<string> ListOfFileNames;
 //! List of modification dates of a study
   typedef sequence<string> ListOfDates ;
 //! An unbounded sequence of strings
@@ -125,6 +127,7 @@ module SALOMEDS
 
 */
     SComponent NewComponent(in string ComponentDataType) raises(LockProtection);
+
 /*! \brief Definition of the instance to the %SComponent
 
     Defines the instance to the %SComponent.
@@ -246,8 +249,7 @@ module SALOMEDS
       \param anObject The %SObject which will be identified
       \param theGUID GUID has the following format "00000000-0000-0000-0000-000000000000"
 */
-
-     void SetGUID(in SObject anObject, in string theGUID) raises(LockProtection);
+    void SetGUID(in SObject anObject, in string theGUID) raises(LockProtection);
 /*!
 Searches for a definite %SObject with a definite GUID and returns True if it finds it.
 
@@ -402,7 +404,10 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
    This is equivalent to the methods setName() & getName()
 */
-    readonly attribute string Name; // equivalent to getName()
+    attribute wstring Name; // equivalent to getName()
+
+/*! \brief  Indicate the file where the %study has been saved
+*/
 
 //! Sequence containing %SObjects
     typedef sequence<SObject> ListOfSObject;
@@ -518,7 +523,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 /*! \brief  Indicate the file where the %study has been saved
 */
-    attribute string URL;
+    attribute wstring URL;
 
 /*! \brief List of %SObjects
 
