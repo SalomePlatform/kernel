@@ -20,7 +20,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include <time.h>
+#include <Python.h>
+#include <structmember.h>
 #ifndef WIN32
   #include <sys/time.h>
 #endif
@@ -41,6 +42,122 @@ Py_DecodeLocale(const char *arg, size_t *size)
 	return _Py_char2wchar(arg, size);
 }
 #endif
+
+/*
+  The following functions are used to hook the Python
+  interpreter output.
+*/
+
+static void ContainerPyStdOut_dealloc(ContainerPyStdOut *self)
+{
+  PyObject_Del(self);
+}
+
+static PyObject*
+ContainerPyStdOut_write(ContainerPyStdOut *self, PyObject *args)
+{
+  char *c;
+  if (!PyArg_ParseTuple(args, "s",&c))
+    return NULL;
+  if(self->_cb==NULL) {
+    if ( self->_iscerr )
+      std::cerr << c ;
+    else
+      std::cout << c ;
+  }
+  else {
+    self->_cb(self->_data,c);
+  }
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject*
+ContainerPyStdOut_flush(ContainerPyStdOut *self)
+{
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyMethodDef ContainerPyStdOut_methods[] = {
+  {"write",  (PyCFunction)ContainerPyStdOut_write,  METH_VARARGS, PyDoc_STR("write(string) -> None")},
+  {"flush",  (PyCFunction)ContainerPyStdOut_flush,  METH_NOARGS,  PyDoc_STR("flush() -> None")},
+  {NULL,    NULL}   /* sentinel */
+};
+
+static PyMemberDef ContainerPyStdOut_memberlist[] = {
+      {(char*)"softspace", T_INT,  offsetof(ContainerPyStdOut, softspace), 0,
+       (char*)"flag indicating that a space needs to be printed; used by print"},
+      {NULL} /* Sentinel */
+};
+
+static PyTypeObject ContainerPyStdOut_Type = {
+  /* The ob_type field must be initialized in the module init function
+   * to be portable to Windows without using C++. */
+  PyVarObject_HEAD_INIT(NULL, 0)
+  /*0,*/                                  /*ob_size*/
+  "PyOut",                                /*tp_name*/
+  sizeof(ContainerPyStdOut),              /*tp_basicsize*/
+  0,                                      /*tp_itemsize*/
+  /* methods */
+  (destructor)ContainerPyStdOut_dealloc,  /*tp_dealloc*/
+  0,                                      /*tp_print*/
+  0,                                      /*tp_getattr*/
+  0,                                      /*tp_setattr*/
+  0,                                      /*tp_compare*/
+  0,                                      /*tp_repr*/
+  0,                                      /*tp_as_number*/
+  0,                                      /*tp_as_sequence*/
+  0,                                      /*tp_as_mapping*/
+  0,                                      /*tp_hash*/
+  0,                                      /*tp_call*/
+  0,                                      /*tp_str*/
+  PyObject_GenericGetAttr,                /*tp_getattro*/
+ /* softspace is writable:  we must supply tp_setattro */
+  PyObject_GenericSetAttr,                /* tp_setattro */
+  0,                                      /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT,                     /*tp_flags*/
+  0,                                      /*tp_doc*/
+  0,                                      /*tp_traverse*/
+  0,                                      /*tp_clear*/
+  0,                                      /*tp_richcompare*/
+  0,                                      /*tp_weaklistoffset*/
+  0,                                      /*tp_iter*/
+  0,                                      /*tp_iternext*/
+  ContainerPyStdOut_methods,              /*tp_methods*/
+  ContainerPyStdOut_memberlist,           /*tp_members*/
+  0,                                      /*tp_getset*/
+  0,                                      /*tp_base*/
+  0,                                      /*tp_dict*/
+  0,                                      /*tp_descr_get*/
+  0,                                      /*tp_descr_set*/
+  0,                                      /*tp_dictoffset*/
+  0,                                      /*tp_init*/
+  0,                                      /*tp_alloc*/
+  0,                                      /*tp_new*/
+  0,                                      /*tp_free*/
+  0,                                      /*tp_is_gc*/
+  0,                                      /*tp_bases*/
+  0,                                      /*tp_mro*/
+  0,                                      /*tp_cache*/
+  0,                                      /*tp_subclasses*/
+  0,                                      /*tp_weaklist*/
+  0,                                      /*tp_del*/
+  0,                                      /*tp_version_tag*/
+  0,                                      /*tp_finalize*/
+};
+
+static ContainerPyStdOut* ContainerNewPyStdOut( bool iscerr )
+{
+  ContainerPyStdOut *self;
+  self = PyObject_New(ContainerPyStdOut, &ContainerPyStdOut_Type);
+  if (self == NULL)
+    return NULL;
+  self->softspace = 0;
+  self->_cb = NULL;
+  self->_iscerr = iscerr;
+  return self;
+}
 
 void KERNEL_PYTHON::init_python(int argc, char **argv)
 {
@@ -88,8 +205,14 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   int res = PyRun_SimpleString(script.c_str());
   // VSR (22/09/2016): end of workaround
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
+
+  // Create python objects to capture stdout and stderr
+  PyObject* _vout=(PyObject*)ContainerNewPyStdOut( false ); // stdout
+  PyObject* _verr=(PyObject*)ContainerNewPyStdOut( true );  // stderr
+  PySys_SetObject((char*)"stderr",_verr);
+  PySys_SetObject((char*)"stdout",_vout);
+
   PyThreadState *pts = PyGILState_GetThisThreadState(); 
   PyEval_ReleaseThread(pts);
   //delete[] changed_argv;
 }
-
