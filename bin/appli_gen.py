@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -285,7 +285,7 @@ def install(prefix, config_file, verbose=0):
                         os.path.join(home_dir, 'sha1_collections.txt'))
         pass
     else:
-        print "WARNING: context file does not exist"
+        print "WARNING: sha1 collections file does not exist"
         pass
 
     if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
