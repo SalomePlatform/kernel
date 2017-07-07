@@ -432,7 +432,7 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
   void* handle = _library_map[impl_name];
   if (handle)
     type_of_lib = "cpp";
-  if (_library_map.count(aCompName) != 0 and !handle)
+  if (_library_map.count(aCompName) != 0 && !handle)
     type_of_lib = "python";
   
   if (type_of_lib == "Not Loaded")
