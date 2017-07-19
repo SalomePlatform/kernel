@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2017  CEA/DEN, EDF R&D
+#!/usr/bin/env python
+# Copyright (C) 2017  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,29 +18,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "@CMAKE_INSTALL_PREFIX@/bin/salome/appliskel/salome_test_driver.py")
+import unittest
 
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
+class TestSalomeTest(unittest.TestCase):
 
-SET(KERNEL_TEST_LIB "@CMAKE_INSTALL_PREFIX@/@KERNEL_TEST_LIB@")
+  def testMustPass(self):
+    assert(True)
 
-# Add all test subdirs
-SUBDIRS( Launcher
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+  def testMustFail(self):
+    assert(False)
+
+if __name__ == "__main__":
+  unittest.main()
