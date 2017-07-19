@@ -23,4 +23,4 @@ def waitKey():
     return str2Obj(dss.waitForMonoThrRev(wk))==[11,14,100]
 
 if __name__=="__main__":
-    sys.exit(not int(waitKey()))
+    sys.exit(not waitKey())

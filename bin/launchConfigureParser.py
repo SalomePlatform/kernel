@@ -111,8 +111,9 @@ def version():
         if root_dir and os.path.exists( version_file ):
             filename = version_file
         if filename:
-            str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
-            match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
+            with open(filename, "r") as f:
+                v = f.readline() # v = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
+            match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', v )
             if match :
                 return match.group( 1 )
     except:

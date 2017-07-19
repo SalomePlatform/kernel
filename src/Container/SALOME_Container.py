@@ -34,7 +34,6 @@
 
 import os
 import sys
-import string
 import traceback
 import imp
 from omniORB import CORBA, PortableServer

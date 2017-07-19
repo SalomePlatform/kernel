@@ -24,7 +24,7 @@
 #  Module : SALOME
 #  $Header$
 #
-import sys,traceback,string
+import sys,traceback
 import linecache
 import pickle
 import Engines__POA
@@ -58,7 +58,7 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     self.nodeName=nodeName
     self.code=code
     self.my_container=my_container._container
-    linecache.cache[nodeName]=0,None,string.split(code,'\n'),nodeName
+    linecache.cache[nodeName]=0,None,code.split('\n'),nodeName
     ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context["my_container"] = self.my_container
@@ -97,7 +97,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     self.nodeName=nodeName
     self.code=code
     self.my_container=my_container._container
-    linecache.cache[nodeName]=0,None,string.split(code,'\n'),nodeName
+    linecache.cache[nodeName]=0,None,code.split('\n'),nodeName
     self.ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context["my_container"] = self.my_container
