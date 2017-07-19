@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2017  CEA/DEN, EDF R&D
+# Copyright (C) 2017  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,29 +17,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "@CMAKE_INSTALL_PREFIX@/bin/salome/appliskel/salome_test_driver.py")
+FILE(GLOB py_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
+FILE(GLOB sh_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.sh")
+LIST(APPEND scripts ${py_scripts})
+LIST(APPEND scripts ${sh_scripts})
 
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
+# Application tests
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${KERNEL_TEST_DIR}/salomeTest
+        RENAME CTestTestfile.cmake)
 
-SET(KERNEL_TEST_LIB "@CMAKE_INSTALL_PREFIX@/@KERNEL_TEST_LIB@")
-
-# Add all test subdirs
-SUBDIRS( Launcher
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+INSTALL(FILES ${scripts}
+        DESTINATION ${KERNEL_TEST_DIR}/salomeTest)
