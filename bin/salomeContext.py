@@ -321,6 +321,7 @@ class SalomeContext:
 
     import runSalome
     runSalome.runSalome()
+    return 0
   #
 
   def _setContext(self, args=None):
@@ -330,7 +331,7 @@ class SalomeContext:
       print("*** SALOME context has already been set.")
       print("*** Enter 'exit' (only once!) to leave SALOME context.")
       print("***")
-      return
+      return 0
 
     os.environ["SALOME_CONTEXT_SET"] = "yes"
     print("***")
@@ -340,7 +341,8 @@ class SalomeContext:
 
     cmd = ["/bin/bash"]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-    return proc.communicate()
+    proc.communicate()
+    return proc.returncode()
   #
 
   def _runSession(self, args=None):
@@ -375,7 +377,7 @@ class SalomeContext:
     ports = args
     if not ports:
       print("Port number(s) not provided to command: salome kill <port(s)>")
-      return
+      return 1
 
     from multiprocessing import Process
     from killSalomeWithPort import killMyPort
@@ -385,7 +387,7 @@ class SalomeContext:
         p = Process(target = killMyPort, args=(port,))
         p.start()
         p.join()
-    pass
+    return 0
   #
 
   def _killAll(self, unused=None):
@@ -407,6 +409,7 @@ class SalomeContext:
       from killSalome import killAllPorts
       killAllPorts()
       pass
+    return 0
   #
 
   def _runTests(self, args=None):
@@ -468,7 +471,7 @@ Available options are:
 
     if "-h" in args or "--help" in args:
       print(usage + epilog)
-      return
+      return 0
 
     if "-p" in args or "--ports" in args:
       import PortManager
@@ -500,7 +503,9 @@ Available options are:
 
     if "-v" in args or "--version" in args:
       print("Running with python", platform.python_version())
-      self._runAppli(["--version"])
+      return self._runAppli(["--version"])
+
+    return 0
   #
 
   def _showDoc(self, args=None):
@@ -510,7 +515,7 @@ Available options are:
     modules = args
     if not modules:
       print("Module(s) not provided to command: salome doc <module(s)>")
-      return
+      return 1
 
     appliPath = os.getenv("ABSOLUTE_APPLI_PATH")
     if not appliPath:

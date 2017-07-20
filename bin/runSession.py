@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -123,7 +123,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
     (options, args) = parser.parse_args(short_args)
   except Exception as e:
     print(e)
-    return
+    return None, []
 
   port = options.port
   host = options.host
@@ -215,7 +215,7 @@ def __runLocalSession(command):
           sys.stderr.write("".join(errmsg))
         sys.exit(1)
 
-    return ("".join(outmsg), "".join(errmsg))
+    return 0
   else:
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     if sys.platform == "win32":
@@ -223,7 +223,8 @@ def __runLocalSession(command):
     else:
       cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-    return proc.communicate()
+    proc.communicate()
+    return proc.returncode
 #
 
 def __copyFiles(user, machine, script, infiles, outfiles):
@@ -283,10 +284,10 @@ def __copyFiles(user, machine, script, infiles, outfiles):
 def __runRemoteSession(sa_obj, params):
   if not params.user:
     print("ERROR: The user login on remote machine MUST be given.")
-    return
+    return 1
   if not params.directory:
     print("ERROR: The remote directory MUST be given.")
-    return
+    return 1
 
   # sa_obj.script may be 'python script.py' --> only process .py file
   header = " ".join(sa_obj.script.split()[:-1])
@@ -318,6 +319,7 @@ def __runRemoteSession(sa_obj, params):
   os.system(command)
   os.remove(tmp_script)
 
+  return 0
 #
 
 def runSession(params, args):
@@ -328,6 +330,10 @@ def runSession(params, args):
     return __runLocalSession(command)
 
   elif params.mode == "remote":
+    any_error = 0
     for sa_obj in scriptArgs:
-      __runRemoteSession(sa_obj, params)
+      ok = __runRemoteSession(sa_obj, params)
+      if not ok:
+        any_error = 1
+    return any_error
 #

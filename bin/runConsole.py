@@ -61,7 +61,7 @@ For example:
     (options, args) = parser.parse_args(args)
   except Exception as e:
     print(e)
-    return
+    return {}, []
 
   return options, args
 #
@@ -197,7 +197,7 @@ def connect(args=None, env=None):
   options, args = __parse_args(args)
   host, port, filename = __get_running_session(options.port)
   if not port:
-    return 0
+    return 1
 
   cmd = [
     "os.environ['OMNIORB_CONFIG'] = '%s'"%filename,
@@ -218,7 +218,8 @@ def connect(args=None, env=None):
     cmdDump=pickle.dumps(cmd,protocol=0)
     cmdString=cmdDump.decode()
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","runConsole.py"), cmdString], shell=False, close_fds=True, env=env_copy)
-    return proc.communicate()
+    proc.communicate()
+    return proc.returncode
 #
 
 if __name__ == "__main__":
