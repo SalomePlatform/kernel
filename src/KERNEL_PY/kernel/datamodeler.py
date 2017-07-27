@@ -105,18 +105,18 @@ class DataModeler:
         # Default initialization (if any)
         if defaultmap is not None:
             self._defaultmap.update(defaultmap)
-            for name in list(self._defaultmap.keys()):
+            for name in self._defaultmap:
                 self.__setattr__(name,self._defaultmap[name])
 
     ## %A None argument means that no entry is created in the associated maps.
-    def addAttribute(self, name, type=None, range=None, default=None, void=None):
+    def addAttribute(self, name, a_type=None, a_range=None, default=None, void=None):
         """
         A None argument means that no entry is created in the associated maps.
         """
-        self._typemap[name] = type
+        self._typemap[name] = a_type
 
-        if range is not None:
-            self._rangemap[name] = range
+        if a_range is not None:
+            self._rangemap[name] = a_range
 
         if void is not None:
             self._voidmap[name] = void
@@ -135,7 +135,7 @@ class DataModeler:
         if name == "_typemap":
             print("WARNING WARNING WARNING : changing value of _typemap by ",val)
 
-        if name not in list(self._typemap.keys()):
+        if name not in self._typemap:
             raise DevelException("The class "+str(self.__class__)+" has no attribute "+str(name))
 
         if val is None:
@@ -158,7 +158,7 @@ class DataModeler:
         if name in UNCHECKED_ATTRIBUTES:
             return self.__dict__[name]
 
-        if name not in list(self._typemap.keys()):
+        if name not in self._typemap:
             raise DevelException("The class "+str(self.__class__)+" has no attribute "+str(name))
         # The attribute coulb be requested while it has not been created yet (for
         # example if we did't call the setter before).
@@ -232,8 +232,8 @@ def TEST_addAttribute():
     ref_value = 1.3
     data.addAttribute(
         name    = "myAttr",
-        type    = TypeDouble,
-        range   = None,
+        a_type    = TypeDouble,
+        a_range   = None,
         default = ref_value,
         void    = False)
 

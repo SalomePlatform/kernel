@@ -230,15 +230,11 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     def find_component_instance(self, registeredName):
         anEngine = None
-        keysList = list(self._listInstances_map.keys())
-        i = 0
-        while i < len(keysList):
-            instance = keysList[i]
+        for instance in self._listInstances_map:
             if find(instance,registeredName) == 0:
                 anEngine = self._listInstances_map[instance]
                 return anEngine._this()
-            i = i + 1
-        return anEngine._this()
+        return anEngine
         
 
     #-------------------------------------------------------------------------

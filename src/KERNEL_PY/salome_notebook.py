@@ -80,16 +80,16 @@ class NoteBook:
         Create (or modify) variable with name "variableName" 
         and value equal "theValue".
         """
-        if type(variable) == float:
+        if isinstance(variable, float):
             self.myStudy.SetReal(variableName, variable)
             
-        elif type(variable) == int:
+        elif isinstance(variable, int):
             self.myStudy.SetInteger(variableName, variable)
             
-        elif type(variable) == bool:
+        elif isinstance(variable, bool):
             self.myStudy.SetBoolean(variableName, variable)
             
-        elif type(variable) == str:
+        elif isinstance(variable, str):
             self.myStudy.SetString(variableName, variable)
             
     def get(self, variableName):

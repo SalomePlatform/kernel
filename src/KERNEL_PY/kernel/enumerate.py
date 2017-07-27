@@ -53,6 +53,7 @@ class Enumerate(object):
             value = offset + number
             setattr(self, key, value)
             self._dict_keynumbers[key] = value
+        self._dict_numberkeys = {v: k for k, v in self._dict_keynumbers.items()}
 
     ## Return true if this enumerate contains the specified key string
     #  \param key a key string to test
@@ -61,7 +62,7 @@ class Enumerate(object):
         Return true if this enumerate contains the specified key string
         @key a key string to test
         """
-        return (key in list(self._dict_keynumbers.keys()))
+        return key in self._dict_keynumbers
 
     ## Returns true if the specified integer value is defined as an identifier
     #  in this enumarate.
@@ -72,25 +73,21 @@ class Enumerate(object):
         in this enumarate.
         @value a value to test
         """
-        return (value in list(self._dict_keynumbers.values()))
+        return value in self._dict_numberkeys
 
     ## Returns the list of keys in this enumerate.
     def listkeys(self):
         """
         Returns the list of keys in this enumerate.
         """
-        list = list(self._dict_keynumbers.keys())
-        list.sort()
-        return list
+        return sorted(self._dict_keynumbers)
 
     ## Returns the list of values specified to initiate this enumerate.
     def listvalues(self):
         """
         Returns the list of values specified to initiate this enumerate.
         """
-        list = list(self._dict_keynumbers.values())
-        list.sort()
-        return list
+        return sorted(self._dict_numberkeys)
 
     ## Returns the symbolic key string associated to the specified identifier value.
     #  \param value an integer value whose associated key string is requested.
@@ -104,7 +101,7 @@ class Enumerate(object):
             return None
         # _MEM_ We assume here that the keys and associated values are in the
         # same order in their list.
-        return list(self._dict_keynumbers.keys())[list(self._dict_keynumbers.values()).index(value)]
+        return self._dict_numberkeys[value]
 
         # If not, weshould use a longer implementation such that:
         #for key in self._dict_keynumbers.keys():

@@ -61,7 +61,7 @@ def addToKillList(command_pid, command, port=None):
     # check if PID is already in dictionary
     already_in=False
     for process_id in process_ids:
-        for pid in list(process_id.keys()):
+        for pid in process_id:
             if int(pid) == int(command_pid):
                 already_in=True
                 break
@@ -72,7 +72,7 @@ def addToKillList(command_pid, command, port=None):
     # add process to the dictionary
     if not already_in:
         import types
-        if type(command) == list: command=" ".join([str(c) for c in command])
+        if isinstance(command, list): command=" ".join([str(c) for c in command])
         command=command.split()[0]
         try:
             if verbose(): print("addToKillList: %s : %s" % ( str(command_pid), command ))
