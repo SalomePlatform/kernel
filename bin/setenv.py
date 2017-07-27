@@ -106,7 +106,7 @@ def get_config(silent=False, exeName=None):
 
     modules_list = []
     if args.has_key("modules"):
-        modules_list += args["modules"]
+        modules_list += [a for a in args["modules"] if a.strip()]
     # KERNEL must be last in the list to locate it at the first place in PATH
     if args["gui"] :
         modules_list[:0] = ["GUI"]
