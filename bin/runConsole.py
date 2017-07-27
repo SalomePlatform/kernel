@@ -131,7 +131,7 @@ def __get_running_session(requested_port=None, lastInstanceByDefault=False):
   return host, port, filename
 #
 
-import CORBA
+from omniORB import CORBA
 import CosNaming
 import orbmodule
 

@@ -47,7 +47,7 @@ except :
     print 'lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent") failed'
 
 import sys
-import CORBA
+from omniORB import CORBA
 import CosNaming
 orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
 obj = orb.resolve_initial_references("NameService")
