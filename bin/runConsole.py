@@ -215,9 +215,9 @@ def connect(args=None, env=None):
     import subprocess
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
-    cmdDump=pickle.dumps(cmd,protocol=0)
-    cmdString=cmdDump.decode()
-    proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","runConsole.py"), cmdString], shell=False, close_fds=True, env=env_copy)
+    cmdDump = pickle.dumps(cmd, protocol=0)
+    cmdString = cmdDump.decode()
+    proc = subprocess.Popen(['python3', os.path.join(absoluteAppliPath,"bin","salome","runConsole.py"), cmdString], shell=False, close_fds=True, env=env_copy)
     proc.communicate()
     return proc.returncode
 #

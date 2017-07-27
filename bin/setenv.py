@@ -88,15 +88,17 @@ def get_config(silent=False, exeName=None):
 
     # read args from launch configure xml file and command line options
 
+
     import launchConfigureParser
     args = launchConfigureParser.get_env(exeName=exeName)
+
 
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)
 
     modules_list = []
     if "modules" in args:
-        modules_list += args["modules"]
+        modules_list += [a for a in args["modules"] if a.strip()]
     # KERNEL must be last in the list to locate it at the first place in PATH
     if args["gui"] :
         modules_list[:0] = ["GUI"]
@@ -176,7 +178,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PATH")
             if os.path.exists(os.path.join(module_root_dir, "examples")):
-                add_path(os.path.join(module_root_dir, "examples"),
+                add_path(os.path.join(module_root_dir,"examples"),
                          "PYTHONPATH")
                 pass
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
@@ -223,7 +225,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if "SALOME_trace" not in os.environ:
         os.environ["SALOME_trace"]="local"
     if args['file']:
-        os.environ["SALOME_trace"] = "file:" + args['file'][0]
+        os.environ["SALOME_trace"]="file:"+args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 
