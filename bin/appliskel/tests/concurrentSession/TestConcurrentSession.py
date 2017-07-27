@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -122,9 +122,5 @@ class TestConcurrentLaunch(unittest.TestCase):
 #
 
 if __name__ == "__main__":
-  if not os.path.isfile("hello.py"):
-    with open("hello.py", "w") as f:
-      f.write("print('Hello!')")
-
   unittest.main()
 #
