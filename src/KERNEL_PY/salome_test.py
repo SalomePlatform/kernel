@@ -352,11 +352,8 @@ print("======================================================================")
 if salome.hasDesktop(): # in gui mode
 
     print("**** Importing pvserver... It can take some time.")
-    from presentations import *
     import pvserver
     import pvsimple
-    
-    my_paravis = pvserver.myPVServerService
     
     #====================Stage1: Importing MED file====================
     
@@ -373,75 +370,34 @@ if salome.hasDesktop(): # in gui mode
     else:
         print("OK")
     
-    cell_entity = EntityType.CELL
-    node_entity = EntityType.NODE
+    #====================Stage2: Displaying presentation===============
     
-    #====================Stage2: Displaying vector field===============
-    
-    print("**** Stage3: Displaying vector field")
+    print("**** Stage2: Displaying presentation")
     
     print('Get view...................', end=' ')
     view = pvsimple.GetRenderView()
     if view is None:
         print("FAILED")
     else:
-        reset_view(view)
-        print("OK")
+        print ("OK")
     
-    print("Creating Scalar Map.......", end=' ')
-    scalarmap = ScalarMapOnField(med_reader, node_entity, 'vitesse', 2)
-    if scalarmap is None:
+    print("Creating presentation.......",end='')
+    prs = pvsimple.GetRepresentation(med_reader)
+    if prs is None:
         print("FAILED")
     else:
-        bar = get_bar()
-        bar.Orientation = 'Horizontal'
-        bar.Position = [0.1, 0.1]
-        bar.Position2 = [0.1, 0.25]
-        bar.AspectRatio = 3
+        rep_list = view.Representations
+        for rep in rep_list:
+            if hasattr(rep, 'Visibility'):
+                rep.Visibility = (rep == prs)
+        pvsimple.Render(view=view) 
         
-        display_only(scalarmap, view)
-        print("OK")
-    
-    view.ResetCamera()
-    
-    print("Creating Vectors..........", end=' ')
-    vectors = VectorsOnField(med_reader, node_entity, 'vitesse', 2)
-    if vectors is None:
-        print("FAILED")
-    else:
-        display_only(vectors, view)
-        print("OK")
-    
-    print("Creating Iso Surfaces.....", end=' ')
-    isosurfaces = IsoSurfacesOnField(med_reader, node_entity, 'vitesse', 2)
-    if isosurfaces is None:
-        print("FAILED")
-    else:
-        display_only(isosurfaces, view)
-        print("OK")
-    
-    print("Creating Cut Planes.......", end=' ')
-    cutplanes = CutPlanesOnField(med_reader, node_entity, 'vitesse', 2,
-                                 nb_planes=30, orientation=Orientation.YZ)
-    if cutplanes is None:
-        print("FAILED")
-    else:
-        display_only(cutplanes, view)
-        print("OK")
-    
-    print("Creating Scalar Map On Deformed Shape.......", end=' ')
-    scalarmapondefshape = DeformedShapeAndScalarMapOnField(med_reader,
-                                                           node_entity,
-                                                           'vitesse', 2,
-                                                           None,
-                                                           cell_entity,
-                                                           'pression')
-    if scalarmapondefshape is None:
-        print("FAILED")
-    else:
-        display_only(scalarmapondefshape, view)
-        print("OK")
+        # ---- surface representation
+        prs.SetRepresentationType('Surface')
+        view.ResetCamera()
 
+        print ("OK")
+    
 else: # not in gui mode, Paravis can not be tested
     
     print()
