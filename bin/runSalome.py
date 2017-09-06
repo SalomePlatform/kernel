@@ -189,10 +189,18 @@ class RegistryServer(Server):
 # ---
 
 class ContainerCPPServer(Server):
-    def __init__(self,args):
+    def __init__(self,args,with_gui=False):
         self.args=args
         self.initArgs()
         self.CMD=['SALOME_Container','FactoryServer']
+        if not with_gui and self.args["valgrind_session"]:
+            l = ["valgrind"]
+            val = os.getenv("VALGRIND_OPTIONS")
+            if val:
+                l += val.split()
+                pass
+            self.CMD = l + self.CMD
+            pass
 
 # ---
 
@@ -543,7 +551,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     if ('cppContainer' in args['standalone']) | (args["gui"] == 0) :
-        myServer=ContainerCPPServer(args)
+        myServer=ContainerCPPServer(args, with_gui=args["gui"]!=0)
         myServer.run()
         if sys.platform == "win32":
           clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
