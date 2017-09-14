@@ -261,10 +261,10 @@ class SalomeContext:
     try:
       res = getattr(self, command)(options) # run appropriate method
       return res or (None, None)
-    except SystemExit, returncode:
-      if returncode != 0:
-        self.getLogger().error("SystemExit %s in method %s.", returncode, command)
-      return returncode
+    except SystemExit as ex:
+      if ex.code != 0:
+        self.getLogger().error("SystemExit %s in method %s.", ex.code, command)
+      return ex.code
     except StandardError:
       self.getLogger().error("Unexpected error:")
       import traceback
