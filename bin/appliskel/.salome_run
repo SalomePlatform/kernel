@@ -1,0 +1,73 @@
+#! /usr/bin/env python
+
+# Copyright (C) 2013-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+import os
+import sys
+
+def main(args):
+  # Identify application path then locate configuration files
+  currentPath = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+  launcherFile = os.path.basename(__file__)
+  from salome_starter import initialize
+  initialize(currentPath, launcherFile)
+
+  if len(args) == 1 and args[0] in ['--help', 'help', '-h', '--h']:
+    from salomeContext import usage
+    usage()
+    sys.exit(0)
+
+  from salomeContextUtils import getConfigFileNames
+  configFileNames, args, unexisting = getConfigFileNames(args, checkExistence=True)
+
+  if len(unexisting) > 0:
+    print "ERROR: unexisting configuration/environment file(s): " + ', '.join(unexisting)
+    sys.exit(1)
+
+  # Create a SalomeContext which parses configFileNames to initialize environment
+  from salomeContextUtils import SalomeContextException
+  try:
+    from salomeContext import SalomeContext
+    context = SalomeContext(configFileNames)
+
+    # Here set specific variables, if needed
+    # context.addToPath('mypath')
+    # context.addToLdLibraryPath('myldlibrarypath')
+    # context.addToPythonPath('mypythonpath')
+    # context.setVariable('myvarname', 'value')
+
+    # Start SALOME, parsing command line arguments
+    out, err, returncode = context.runSalome(args)
+    if out:
+      sys.stdout.write(out)
+    if err:
+      sys.stderr.write(err)
+    #print 'Thank you for using SALOME!'
+    sys.exit(returncode)
+  except SalomeContextException, e:
+    import logging
+    logging.getLogger("salome").error(e)
+    sys.exit(1)
+#
+
+if __name__ == "__main__":
+  args = sys.argv[1:]
+  main(args)
+#
