@@ -100,14 +100,14 @@ class SalomeContext:
         self.getLogger().error("Unrecognized extension for configuration file: %s", filename)
   #
 
-  def __loadMPI(self, module_name):
-    print "Trying to load MPI module: %s..."%module_name,
+  def __loadEnvModules(self, env_modules):
+    print("Trying to load env modules: %s..." % ' '.join(env_modules))
     try:
-      out, err = subprocess.Popen(["modulecmd", "python", "load", module_name], stdout=subprocess.PIPE).communicate()
-      exec out # define specific environment variables
-      print " OK"
+      out, err = subprocess.Popen(["modulecmd", "python", "load"] + env_modules, stdout=subprocess.PIPE).communicate()
+      exec(out) # define specific environment variables
+      print("OK")
     except:
-      print " ** Failed **"
+      print("** Failed **")
       pass
   #
 
@@ -115,16 +115,16 @@ class SalomeContext:
     import os
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from context files).
-    mpi_module_option = "--with-mpi-module="
-    mpi_module = [x for x in args if x.startswith(mpi_module_option)]
-    if mpi_module:
-      mpi_module = mpi_module[0][len(mpi_module_option):]
-      self.__loadMPI(mpi_module)
-      args = [x for x in args if not x.startswith(mpi_module_option)]
+    env_modules_option = "--with-env-modules="
+    env_modules_l = [x for x in args if x.startswith(env_modules_option)]
+    if env_modules_l:
+      env_modules = env_modules_l[-1][len(env_modules_option):].split(',')
+      self.__loadEnvModules(env_modules)
+      args = [x for x in args if not x.startswith(env_modules_option)]
     else:
-      mpi_module = os.getenv("SALOME_MPI_MODULE_NAME", None)
-      if mpi_module:
-        self.__loadMPI(mpi_module)
+      env_modules = os.getenv("SALOME_ENV_MODULES", None)
+      if env_modules:
+        self.__loadEnvModules(env_modules.split(','))
 
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()

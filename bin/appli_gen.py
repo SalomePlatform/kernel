@@ -51,6 +51,8 @@ samples_tag = "samples"
 extra_tests_tag = "extra_tests"
 extra_test_tag = "extra_test"
 resources_tag = "resources"
+env_modules_tag = "env_modules"
+env_module_tag = "env_module"
 
 # --- names of attributes in XML configuration file
 nam_att  = "name"
@@ -69,6 +71,7 @@ class xml_parser:
         self.config["modules"] = []
         self.config["guimodules"] = []
         self.config["extra_tests"] = []
+        self.config["env_modules"] = []
         parser = xml.sax.make_parser()
         parser.setContentHandler(self)
         parser.parse(fileName)
@@ -125,6 +128,12 @@ class xml_parser:
             if gui:
                 self.config["guimodules"].append(nam)
                 pass
+            pass
+        # --- if we are analyzing "env_module" element then store its "name" attribute
+        elif self.space == [appli_tag, env_modules_tag, env_module_tag] and \
+                nam_att in attrs.getNames():
+            nam = attrs.getValue( nam_att )
+            self.config["env_modules"].append(nam)
             pass
         # --- if we are analyzing "extra_test" element then store its "name" and "path" attributes
         elif self.space == [appli_tag,extra_tests_tag,extra_test_tag] and \
@@ -190,8 +199,9 @@ def install(prefix, config_file, verbose=0):
         print inst.args
         print "Configure parser: error in configuration file %s" % filename
         pass
-    except:
+    except Exception as e:
         print "Configure parser: Error : can not read configuration file %s, check existence and rights" % filename
+        print(e)
         pass
 
     if verbose:
@@ -244,7 +254,7 @@ def install(prefix, config_file, verbose=0):
                'getAppliPath.py',
                'kill_remote_containers.py',
                'runRemote.sh',
-               'salome',
+               '.salome_run',
                'update_catalogs.py',
                '.bashrc',
                ):
@@ -254,6 +264,19 @@ def install(prefix, config_file, verbose=0):
     if filename != os.path.join(home_dir,"config_appli.xml"):
         shutil.copyfile(filename, os.path.join(home_dir,"config_appli.xml"))
         pass
+
+
+    # Copy salome script 
+    salome_script = open(os.path.join(appliskel_dir, "salome")).read()
+    salome_file = os.path.join(home_dir, "salome")
+    try:
+        os.remove(salome_file)
+    except:
+        pass
+    env_modules = [m.encode('utf8') for m in _config.get('env_modules', [])]
+    with open(salome_file, 'w') as fd:
+        fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
+    os.chmod(salome_file, 0o755)
 
 
     # Add .salome-completion.sh file
