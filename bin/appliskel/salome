@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import os
 import subprocess
@@ -15,8 +15,8 @@ def main(args):
         env_modules_option = "--with-env-modules="
         env_modules_l = [x for x in args if x.startswith(env_modules_option)]
         if env_modules_l:
-          env_modules += env_modules_l[-1][len(env_modules_option):].split(',')
-          args = [x for x in args if not x.startswith(env_modules_option)]
+            env_modules += env_modules_l[-1][len(env_modules_option):].split(',')
+            args = [x for x in args if not x.startswith(env_modules_option)]
         env_modules_option += "%s" % ','.join(env_modules)
         args.append(env_modules_option)
 
@@ -27,5 +27,3 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-#
-
