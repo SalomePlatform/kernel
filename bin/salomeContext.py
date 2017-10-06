@@ -340,7 +340,7 @@ class SalomeContext:
     cmd = ["/bin/bash"]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
     proc.communicate()
-    return proc.returncode()
+    return proc.returncode
   #
 
   def _runSession(self, args=None):
