@@ -51,6 +51,7 @@ public:
   char *      getJobState  (CORBA::Long job_id);
   char *      getAssignedHostnames  (CORBA::Long job_id); // Get names or ids of hosts assigned to the job
   void        getJobResults(CORBA::Long job_id, const char * directory);
+  void        clearJobWorkingDir(CORBA::Long job_id);
   CORBA::Boolean getJobDumpState(CORBA::Long job_id, const char * directory);
   CORBA::Boolean getJobWorkFile(CORBA::Long job_id, const char * work_file, const char * directory);
   void        stopJob      (CORBA::Long job_id);

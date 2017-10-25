@@ -286,6 +286,20 @@ SALOME_Launcher::getJobResults(CORBA::Long job_id, const char * directory)
   }
 }
 
+void
+SALOME_Launcher::clearJobWorkingDir(CORBA::Long job_id)
+{
+  try
+  {
+    _l.clearJobWorkingDir(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
 CORBA::Boolean
 SALOME_Launcher::getJobDumpState(CORBA::Long job_id, const char * directory)
 {
