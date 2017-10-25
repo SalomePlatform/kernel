@@ -39,13 +39,7 @@ AC_DEFUN([CHECK_PYTHON],
  [
   python_ok=yes
  
-  AC_ARG_WITH(python,
-   [AC_HELP_STRING([--with-python=DIR],[root directory path of python installation])],
-   [PYTHON="$withval/bin/python"
-    AC_MSG_RESULT("select python distribution in $withval")
-   ], [
-    AC_PATH_PROG(PYTHON, python)
-    ])
+  AM_PATH_PYTHON([3])
   
   AC_CHECKING([local Python configuration])
 
@@ -55,15 +49,18 @@ AC_DEFUN([CHECK_PYTHON],
   PYTHON_PREFIX=`echo $PYTHON_PREFIX | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
   PYTHONHOME=$PYTHON_PREFIX
 
+  changequote(<<, >>)dnl
+  PYTHON_ABIFLAGS=`$PYTHON -c "import sys; print(sys.abiflags)"`
+  changequote([, ])dnl
+
   AC_SUBST(PYTHON_PREFIX)
   AC_SUBST(PYTHONHOME)
-
-  changequote(<<, >>)dnl
-  PYTHON_VERSION=`$PYTHON -c "import sys; print(sys.version[:3])"`
-  changequote([, ])dnl
-  AC_SUBST(PYTHON_VERSION)
+  AC_SUBST(PYTHON_ABIFLAGS)
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
+  if test ! -f "$PY_MAKEFILE"; then
+    PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os}/Makefile
+  fi
   if test ! -f "$PY_MAKEFILE"; then
     # For Ubuntu >= 13.04
     PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${build_cpu}-${build_os}/Makefile
