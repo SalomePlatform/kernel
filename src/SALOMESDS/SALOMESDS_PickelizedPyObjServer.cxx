@@ -184,8 +184,6 @@ void PickelizedPyObjServer::setNewPyObj(PyObject *obj)
     throw Exception("PickelizedPyObjServer::setNewPyObj : trying to assign a NULL pyobject in this !");
   if(obj==_self)
     return ;
-  if(PyList_Check(obj)==0 && PyDict_Check(obj)==0 && PyTuple_Check(obj)==0 && PyString_Check(obj)==0 && PyInt_Check(obj)==0 && PyBool_Check(obj)==0 && PyFloat_Check(obj)==0 && obj!=Py_None)
-    throw Exception("PickelizedPyObjServer::setNewPyObj : Supported python types are [list,tuple,dict,str,int,bool,float,None] !");
   if(_self)
     {
       PyObject *selfType(PyObject_Type(_self));
