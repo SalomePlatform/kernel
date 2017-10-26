@@ -177,7 +177,7 @@ def getPort(preferedPort=None):
     logger.debug("write config: %s"%str(config))
     try:
       with open(config_file, 'wb') as f:
-        pickle.dump(config, f)
+        pickle.dump(config, f, protocol=0)
     except IOError:
       pass
 
@@ -224,7 +224,7 @@ def releasePort(port):
     logger.debug("write config: %s"%str(config))
     try:
       with open(config_file, 'wb') as f:
-        pickle.dump(config, f)
+        pickle.dump(config, f, protocol=0)
     except IOError:
       pass
 
