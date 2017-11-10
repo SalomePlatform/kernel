@@ -34,11 +34,19 @@ namespace SALOMESDS
     CORBA::Object_var activate()
     {
       PortableServer::POA_var poa(getPOA());
-      PortableServer::ObjectId_var id(poa->activate_object(this));
+      PortableServer::ObjectId_var id;
+      try
+      {
+          id=poa->activate_object(this);
+      }
+      catch(PortableServer::POA::ServantAlreadyActive& e)
+      {
+          id=poa->servant_to_id(this);
+      }
       CORBA::Object_var ret(poa->id_to_reference(id));
       return ret;
     }
-    
+
     void enforcedRelease()
     {
       PortableServer::POA_var poa(getPOA());

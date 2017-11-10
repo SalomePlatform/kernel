@@ -68,6 +68,8 @@ RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb)
   threadPol->destroy();
   PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());
   mgr->activate();
+  //obj=orb->resolve_initial_references ("POACurrent");// agy : usage of POACurrent breaks the hold_requests. Why ?
+  //PortableServer::Current_var current(PortableServer::Current::_narrow(obj));
 }
 
 void RequestSwitcher::holdRequests()
