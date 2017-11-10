@@ -46,6 +46,18 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
   };
   
+  class SALOMESDS_EXPORT RequestSwitcher : public POA_SALOME::RequestSwitcher, public POAHolder
+  {
+  public:
+    RequestSwitcher(CORBA::ORB_ptr orb);
+    void holdRequests();
+    void activeRequests();
+    PortableServer::POA_var getPOA() const { return _poa_for_request_control; }
+  private:
+    PortableServer::POA_var _poa_for_request_control;
+    PortableServer::POAManager_var _poa_manager_under_control;
+  };
+
   class KeyWaiter;
   class PickelizedPyObjServer;
 
@@ -54,6 +66,7 @@ namespace SALOMESDS
   public:
     DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
     DataScopeServerBase(const DataScopeServerBase& other);
+  public: // remote access methods
     void ping();
     char *getScopeName();
     SALOME::StringVec *listVars();
@@ -63,8 +76,9 @@ namespace SALOMESDS
     CORBA::Boolean shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer);
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
-    ~DataScopeServerBase();
+    SALOME::RequestSwitcher_ptr getRequestSwitcher();
   public:
+    ~DataScopeServerBase();
     BasicDataServer *retrieveVarInternal2(const std::string& varName);
     void initializePython(int argc, char *argv[]);
     void registerToSalomePiDict() const;
@@ -99,6 +113,7 @@ namespace SALOMESDS
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
     SALOME::DataScopeKiller_var _killer;
+    AutoServantPtr<RequestSwitcher> _rs;
     static std::size_t COUNTER;
   };
   

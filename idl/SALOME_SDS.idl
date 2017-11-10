@@ -71,6 +71,12 @@ module SALOME
   {
     void shutdown();
   };
+  
+  interface RequestSwitcher
+  {
+    void holdRequests();
+    void activeRequests();
+  };
 
   interface DataScopeServerBase
   {
@@ -82,6 +88,7 @@ module SALOME
     boolean shutdownIfNotHostedByDSM(out DataScopeKiller killer) raises (SALOME::SALOME_Exception);
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME::SALOME_Exception);
+    RequestSwitcher getRequestSwitcher();
   };
 
   interface DataScopeServer : DataScopeServerBase

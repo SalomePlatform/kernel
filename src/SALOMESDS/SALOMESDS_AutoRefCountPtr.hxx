@@ -112,6 +112,7 @@ namespace SALOMESDS
     const T& operator*() const { return *_ptr; }
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
+    bool isNull() const { return _ptr==NULL; }
   private:
     void destroyPtr()
     {
