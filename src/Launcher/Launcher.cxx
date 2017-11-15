@@ -607,6 +607,14 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
                           "(libBatch was not present at compilation time)");
 }
 
+void
+Launcher_cpp::clearJobWorkingDir(int job_id)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot clear directory!!!");
+  throw LauncherException("Method Launcher_cpp::clearJobWorkingDir is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
 bool
 Launcher_cpp::getJobDumpState(int job_id, std::string directory)
 {
