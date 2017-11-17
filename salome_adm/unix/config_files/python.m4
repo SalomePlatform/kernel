@@ -37,25 +37,26 @@ dnl a `module'.
 
 AC_DEFUN([CHECK_PYTHON],
  [
+  AC_BEFORE([$0],[AM_PATH_PYTHON])
+  AC_REQUIRE([AC_LINKER_OPTIONS])dnl
+
   python_ok=yes
  
   AM_PATH_PYTHON([3])
   
-  AC_CHECKING([local Python configuration])
+  AC_MSG_NOTICE([local Python configuration])
 
-  AC_REQUIRE([AC_LINKER_OPTIONS])dnl
-
-  PYTHON_PREFIX=`echo $PYTHON | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-  PYTHON_PREFIX=`echo $PYTHON_PREFIX | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-  PYTHONHOME=$PYTHON_PREFIX
-
-  changequote(<<, >>)dnl
-  PYTHON_ABIFLAGS=`$PYTHON -c "import sys; print(sys.abiflags)"`
-  changequote([, ])dnl
-
-  AC_SUBST(PYTHON_PREFIX)
-  AC_SUBST(PYTHONHOME)
-  AC_SUBST(PYTHON_ABIFLAGS)
+  AC_SUBST([python_bin],
+           [`basename ${PYTHON}`] )
+           
+  AC_SUBST([PYTHON_ABIFLAGS],
+           [`${PYTHON} -c "import sys; print (sys.abiflags)"`] )
+           
+  AC_SUBST([PYTHON_PREFIX],
+           [`${PYTHON} -c "import sys; print (sys.prefix)"`] )
+           
+  AC_SUBST([PYTHONHOME],
+           [`${PYTHON} -c "import sys; print (sys.prefix)"`] )
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
   if test ! -f "$PY_MAKEFILE"; then
@@ -88,6 +89,11 @@ AC_DEFUN([CHECK_PYTHON],
       PYTHON_LIBS="-L${PYTHON_PREFIX}/lib64/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
       PYTHON_LIB=$PYTHON_LIBS
       PYTHON_LIBA=${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
+    fi
+    if test "$PY_MAKEFILE" = "${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os}/Makefile" ; then
+      PYTHON_LIBS="-L${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python${PYTHON_VERSION}/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os} -lpython${PYTHON_VERSION}${PYTHON_ABIFLAGS}"
+      PYTHON_LIB=$PYTHON_LIBS
+      PYTHON_LIBA=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os}/libpython${PYTHON_VERSION}${PYTHON_ABIFLAGS}.a
     fi
   fi
 
