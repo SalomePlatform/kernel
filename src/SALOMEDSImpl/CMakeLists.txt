@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
 
 # This local variable defines the list of FLAGS common to all target in this package.
 ADD_DEFINITIONS(${BOOST_DEFINITIONS})
-# This local variable defines the list of dependant libraries common to all target in this package.  
+# This local variable defines the list of dependent libraries common to all target in this package.  
 SET(COMMON_LIBS
   SALOMEBasics
   SalomeHDFPersist

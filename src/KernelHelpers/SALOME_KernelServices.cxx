@@ -63,7 +63,7 @@ namespace KERNEL {
   /**
    * This returns a static reference to the SALOME study manager. The
    * study manager can be used to retrieve a study or to get
-   * informations about a study.
+   * information about a study.
    */
   SALOMEDS::StudyManager_ptr getStudyManager() {
     static SALOMEDS::StudyManager_ptr aStudyManager;
@@ -157,7 +157,7 @@ namespace KERNEL {
 	  anObject = anORB->string_to_object(aValue);
       }
     }catch(...){
-      INFOS("SObjectToObject - Unknown exception was occured!!!");
+      INFOS("SObjectToObject - Unknown exception has occurred!!!");
     }
     return anObject._retn();
   }

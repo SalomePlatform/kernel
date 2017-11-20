@@ -94,7 +94,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         #shstr = "runSession SALOME_ContainerPy.py "
         shstr += ContainerName
 
-        # mpv: fix for SAL4731 - allways create new file to write log of server
+        # mpv: fix for SAL4731 - always create new file to write log of server
         num = 1
         fileName = ""
         while 1:

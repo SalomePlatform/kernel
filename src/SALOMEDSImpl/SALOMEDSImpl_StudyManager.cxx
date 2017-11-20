@@ -507,7 +507,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   //...........................,
   //component=versions, char(1), char(0)
 
-  //string length: 1 byte = locked flag, 1 byte = modified flag, (12 + name length + 1) for each name and date, 1 byte (char(30) section delimeter)
+  //string length: 1 byte = locked flag, 1 byte = modified flag, (12 + name length + 1) for each name and date, 1 byte (char(30) section delimiter)
   // unit length + 1, comment length, "zero" byte
   
   char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize + 1 + aLength1 ];
@@ -528,7 +528,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
     aProperty[a++] = 1;
   }
 
-  //Write delimeter of the section to define end of the modifications section
+  //Write delimiter of the section to define end of the modifications section
   aProperty[a++] = 30;
 
   //Write units if need
@@ -545,7 +545,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
     a = strlen(aProperty);
   }
   
-  aProperty[a++] = 30; //delimeter of the component versions
+  aProperty[a++] = 30; //delimiter of the component versions
 
   std::map<std::string, std::string>::const_iterator versionsIt;
   for ( versionsIt = versions.begin(); versionsIt != versions.end(); ++versionsIt ) {
@@ -585,11 +585,11 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   // Set "C" locale temporarily to avoid possible localization problems
   Kernel_Utils::Localizer loc;
 
-  // HDF File will be composed of differents part :
+  // HDF File will be composed of different part :
   // * For each ComponentDataType, all data created by the component
-  //   Informations in data group hdf_group_datacomponent
+  //   Information in data group hdf_group_datacomponent
   // * Study Structure -> Exactly what is contained in Document
-  //   Informations in data group hdf_group_study_structure
+  //   Information in data group hdf_group_study_structure
 
   _errorCode = "";
 
@@ -666,7 +666,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
       aStudy->URL(aStudyUrl);
 
       // To change for Save
-      // Do not have to do a new file but just a Open??? Rewrite all informations after erasing evrything??
+      // Do not have to do a new file but just a Open??? Rewrite all information after erasing everything??
       hdf_file = new HDFfile((char*)aUrl.c_str());
       hdf_file->CreateOnDisk();
 
@@ -733,7 +733,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
                   hdf_dataset->WriteOnDisk((void*)(theASCII?"A":"B")); // save: ASCII or BINARY
                   hdf_dataset->CloseOnDisk();
                   hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor
-                  // Creation of the persistance reference  attribute
+                  // Creation of the persistence reference  attribute
                   Translate_IOR_to_persistentID (sco, Engine, theMultiFile, theASCII);
                 }
             }
@@ -955,7 +955,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const SALOMEDSImpl_SObject& SC,
 {
   _errorCode = "";
 
-  // Write in group hdf_group_datatype all informations of SObject SC
+  // Write in group hdf_group_datatype all information of SObject SC
   // Iterative function to parse all SObjects under a SComponent
 
   HDFgroup *hdf_group_sobject = 0;
@@ -1405,7 +1405,7 @@ static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
   if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {
     anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
   } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference") ||
-             !strcmp(hdf_dataset->GetName(),"Reference")) { // Old format maintainance
+             !strcmp(hdf_dataset->GetName(),"Reference")) { // Old format maintenance
     theStudy->NewBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
     delete [] (current_string);
     hdf_dataset->CloseOnDisk();

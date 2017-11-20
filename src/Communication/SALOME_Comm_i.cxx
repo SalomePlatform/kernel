@@ -43,7 +43,7 @@ CORBA::ORB_var &getGlobalORB(){
 #endif
 
 /*! Return the C++ data associated to the array to transmit.
-  Used when sender and receiver are collocalized.
+  Used when sender and receiver are colocalized.
  */
 const void *SALOME_Sender_i::getData(long &size) const{
   size=_lgrTabToSend;
@@ -94,7 +94,7 @@ SALOME::SenderDouble_ptr SALOME_SenderDouble_i::buildOtherWithProtocol(SALOME::T
   return SenderFactory::buildSender(type,this);
 }
 
-/*! Method to establish if the CORBA object refered by pCorba is collocalised.\n
+/*! Method to establish if the CORBA object referred by pCorba is colocalized.\n
   If it is, the pointer to the servant that incarnates the CORBA object is returned.
 */
 SALOME_SenderDouble_i *SALOME_SenderDouble_i::find(SALOME::SenderDouble_ptr pCorba){
@@ -128,7 +128,7 @@ SALOME::SenderInt_ptr SALOME_SenderInt_i::buildOtherWithProtocol(SALOME::TypeOfC
   return SenderFactory::buildSender(type,this);
 }
 
-/*! Method to establish if the CORBA object refered by pCorba is collocalised.\n
+/*! Method to establish if the CORBA object referred by pCorba is colocalized.\n
   If it is, the pointer to the servant that incarnates the CORBA object is returned.
 */
 SALOME_SenderInt_i *SALOME_SenderInt_i::find(SALOME::SenderInt_ptr pCorba){

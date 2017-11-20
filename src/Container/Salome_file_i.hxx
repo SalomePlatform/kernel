@@ -67,7 +67,7 @@ class CONTAINER_EXPORT Salome_file_i:
     virtual void removeFile(const char* file_name);
     virtual void removeFiles();
 
-    // Informations methods:
+    // Information methods:
     virtual void setContainer(Engines::Container_ptr container);
     virtual Engines::files* getFilesInfos();
     virtual Engines::file* getFileInfos(const char* file_name);
@@ -89,7 +89,7 @@ class CONTAINER_EXPORT Salome_file_i:
     // a fd descriptor (FILE*) open on the file.
     typedef std::map<int, FILE*> _t_fileAccess;
 
-    // Contains the informations of the files managed by the Salome_file.
+    // Contains the information of the files managed by the Salome_file.
     typedef std::map<std::string, Engines::file> _t_fileManaged;
 
     // Contains the CORBA reference for each distributed file managed.

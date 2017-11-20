@@ -37,7 +37,7 @@ When the code is assumed to be valid, the release mode
 optimizes execution, in terms of speed, memory, and 
 display only user level messages.
 
-But, some informations must always be displayed in both 
+But, some information must always be displayed in both 
 modes: especially messages concerning environment or 
 internal errors, with version identification. When an 
 end user is confronted to such a message, he may refer 
@@ -73,7 +73,7 @@ given at %SALOME start, writes the messages on the
 standard output, a file, or send them via CORBA, in 
 case of a multi machine configuration.
 
-Three informations are systematically added in front of 
+Three information are systematically added in front of 
 the information displayed:
 - the %thread number from which the message come from;
 - the name of the source file in which the macros is set;
@@ -84,7 +84,7 @@ the information displayed:
 
 - <b>INFOS_COMPILATION</b>\n
    The C++ macro INFOS_COMPILATION writes on the trace 
-   buffer pool informations about the compiling process: 
+   buffer pool information about the compiling process: 
    - the name of the compiler : g++, KCC, CC, pgCC;
    - the date and the time of the compiling processing process.
    .

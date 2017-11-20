@@ -17,7 +17,7 @@ You can choose one of the following approaches:
 
 %A %SALOME user can define several %SALOME applications. These applications are
 runnable from the same user account. These applications may share the same
-KERNEL and modules. Thus, the application configuration is independant of
+KERNEL and modules. Thus, the application configuration is independent of
 KERNEL and must not be put in KERNEL_ROOT_DIR.
 
 Furthermore, prerequisites may not be the same on all the applications.

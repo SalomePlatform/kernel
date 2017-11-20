@@ -138,7 +138,7 @@ void SALOME_Trace::putMessage(std::ostream& msg)
 {
   //if (!isInitialized) std::cout<<"!!! SALOME_Trace is used without initialising !!!"<<std::endl;
   //write resulting string into Logger CORBA server
-  //concatenate string from passing parameters for transfering into Logger CORBA server
+  //concatenate string from passing parameters for transferring into Logger CORBA server
 
   //std::cerr << "-+- " << msg << " ";
 

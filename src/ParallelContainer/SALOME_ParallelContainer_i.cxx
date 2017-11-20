@@ -66,7 +66,7 @@ extern "C" {void SigIntHandler( int ) ; }
 
 //=============================================================================
 /*! 
- *  Construtor
+ *  Constructor
  */
 //=============================================================================
 
@@ -282,7 +282,7 @@ void Engines_Parallel_Container_i::Shutdown()
  *  \param componentName like COMPONENT
  *                          try to make a Python import of COMPONENT,
  *                          then a lib open of libCOMPONENTEngine.so
- *  \return true if dlopen successfull or already done, false otherwise
+ *  \return true if dlopen successful or already done, false otherwise
  */
 //=============================================================================
 
@@ -635,7 +635,7 @@ Engines_Parallel_Container_i::createFileRef(const char* origFileName)
 
   if (origName[0] != '/')
   {
-    INFOS("path of file to copy must be an absolute path begining with '/'");
+    INFOS("path of file to copy must be an absolute path beginning with '/'");
     return Engines::fileRef::_nil();
   }
 
@@ -757,7 +757,7 @@ Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegiste
   }
   catch (...)
   {
-    INFOS( "Container_i::load_impl catched" ) ;
+    INFOS( "Container_i::load_impl caught" ) ;
   }
   return iobject._retn();
 }
@@ -891,7 +891,7 @@ Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
     std::string component_registerName =
       _containerName + "/" + instanceName;
 
-    // --- Instanciate required CORBA object
+    // --- Instantiate required CORBA object
 
     PortableServer::ObjectId *id; //not owner, do not delete (nore use var)
     id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
@@ -926,7 +926,7 @@ Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
   }
   catch (...)
   {
-    INFOS( "Container_i::createInstance exception catched" );
+    INFOS( "Container_i::createInstance exception caught" );
   }
   return iobject._retn();
 }
@@ -998,7 +998,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     std::string instanceName = aCompName + "_inst_" + aNumI + "_work_node_" + aNumI2;
     std::string component_registerName = _containerName + "/" + instanceName;
 
-    // --- Instanciate work node
+    // --- Instantiate work node
     PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
     id = (Component_factory) (_orb, proxy_ior, getMyRank(), _poa, _id, instanceName.c_str(), componentName);
     CORBA::string_free(proxy_ior);
@@ -1021,10 +1021,10 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   }
   catch (...)
   {
-    INFOS("Container_i::create_paco_component_node_instance exception catched");
+    INFOS("Container_i::create_paco_component_node_instance exception caught");
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Container_i::create_paco_component_node_instance exception catched";
+    es.text = "Container_i::create_paco_component_node_instance exception caught";
     throw SALOME::SALOME_Exception(es);
   }
 }

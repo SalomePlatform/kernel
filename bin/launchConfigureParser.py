@@ -767,7 +767,7 @@ def CreateOptionParser (theAdditionalOptions=None, exeName=None):
     # wake up session
     help_str  = "Wake up a previously closed session. "
     help_str += "The session object is found in the naming service pointed by the variable OMNIORB_CONFIG. "
-    help_str += "If this variable is not setted, the last configuration is taken. "
+    help_str += "If this variable is not set, the last configuration is taken. "
     o_wake_up = optparse.Option("--wake-up-session",
                                 action="store_true",
                                 dest="wake_up_session", default=False,

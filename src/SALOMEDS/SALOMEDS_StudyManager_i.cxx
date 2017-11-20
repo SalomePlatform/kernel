@@ -138,7 +138,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
   SALOMEDS::Study_var Study = Study_servant->_this();
 
   // Register study in the naming service
-  // Path to acces the study
+  // Path to access the study
   if(!_name_service->Change_Directory("/Study"))
       MESSAGE( "Unable to access the study directory" )
   else
@@ -197,7 +197,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   _mapOfPOA[Study->StudyId()] = _poa;
 
   // Register study in the naming service
-  // Path to acces the study
+  // Path to access the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
   else _name_service->Register(Study, aStudyImpl->Name().c_str());
 

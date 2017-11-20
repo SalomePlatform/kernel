@@ -26,7 +26,7 @@
 //  Module : SALOME
 //  $Header$
 //
-/* ---  Definition macros file to print informations if _DEBUG_ is defined --- */
+/* ---  Definition macros file to print information if _DEBUG_ is defined --- */
 
 #ifndef UTILITIES_H
 #define UTILITIES_H
@@ -47,7 +47,7 @@
  * This buffer is read later by a specific thread in charge of trace print.
  * Order of trace entries is globally respected. Nevertheless, if there are
  * several threads waiting for a free buffer to trace, the order of
- * thread waken up is not garanteed (no fifo or priority rules in Linux Kernel)
+ * thread waken up is not guaranteed (no fifo or priority rules in Linux Kernel)
  */
 
 #define MESS_INIT(deb) std::ostringstream os; os<<deb

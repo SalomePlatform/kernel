@@ -657,7 +657,7 @@ module SALOMEDS
     \brief Tree node attribute.
 
     By specifying the tree node attributes for the SObjects it is possible to
-    create internal auxillary %object tree with its own structure and identifier.
+    create internal auxiliary %object tree with its own structure and identifier.
 
     Since each such tree is specfied by the unique identifier, it is possible
     to create as many trees as it is required.
@@ -829,7 +829,7 @@ module SALOMEDS
     \brief Attribute storing GUID.
     
     This attribute can be used to store arbitrary GUID. Attribute allowing to store GUID.
-    In contrast to any other atribute (e.g. AttributeLocalID), it is possible to
+    In contrast to any other attribute (e.g. AttributeLocalID), it is possible to
     define as many GUID attributes for the same SObject as it is required provided that
     they have different GUID values.
 
@@ -1068,7 +1068,7 @@ module SALOMEDS
     */
     void RemoveValue(in long row, in long column) raises(IncorrectIndex);
     /*!
-      \brief Sets the maximum number of colums in the table.
+      \brief Sets the maximum number of columns in the table.
 
       If new number of columns is less than the current one, the table is truncated
       (extra columns are removed).
@@ -1677,7 +1677,7 @@ module SALOMEDS
   /*!
     \brief Python %object attribute
 
-    This attribute is used to store pyton objects as a sequence of characters.
+    This attribute is used to store python objects as a sequence of characters.
   */
   //==========================================================================
   interface AttributePythonObject : GenericAttribute

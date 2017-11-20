@@ -34,7 +34,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics/Test
 )
 
-# This local variable defines the list of dependant libraries common to all target in this package.
+# This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
     ${CPPUNIT_LIBRARIES}
     SalomeNS

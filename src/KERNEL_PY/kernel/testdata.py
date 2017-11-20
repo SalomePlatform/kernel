@@ -133,7 +133,7 @@ def TEST_useBadRange():
 def TEST_serialize():
     import salome.kernel
     ref_testdata = TestData()
-    ref_testdata.setName("The firts name")
+    ref_testdata.setName("The first name")
     res_testdata = salome.kernel.unserialize(salome.kernel.serialize(ref_testdata))
 
     print res_testdata.getName()

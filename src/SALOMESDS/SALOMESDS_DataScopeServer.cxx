@@ -63,7 +63,7 @@ RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb)
   PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   // all is in PortableServer::POAManager::_nil. By specifying _nil cf Advanced CORBA Programming with C++ p 506
-  // a new POA manager is created. This POA manager is independant from POA manager of the son ones.
+  // a new POA manager is created. This POA manager is independent from POA manager of the son ones.
   _poa_for_request_control=poa->create_POA("4RqstSwitcher",PortableServer::POAManager::_nil(),policies);
   threadPol->destroy();
   PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());

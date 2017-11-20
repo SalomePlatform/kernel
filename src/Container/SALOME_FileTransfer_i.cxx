@@ -62,7 +62,7 @@ fileTransfer_i::~fileTransfer_i()
  *
  *  CORBA method: try to open the file. If the file is readable, return
  *  a positive integer else return 0;
- *  \param  fileName path to the file to be transfered
+ *  \param  fileName path to the file to be transferred
  *  \return fileId = positive integer > 0 if open OK.
  */
 //=============================================================================
@@ -144,7 +144,7 @@ Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
  *
  *  CORBA method: try to open the file. If the file is writable, 
  *  return a positive integer else return 0;
- *  \param  fileName path to the file to be transfered
+ *  \param  fileName path to the file to be transferred
  *  \return fileId = positive integer > 0 if open OK.
  */
 CORBA::Long fileTransfer_i::openW(const char* fileName)

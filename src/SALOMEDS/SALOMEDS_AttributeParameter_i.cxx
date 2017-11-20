@@ -319,7 +319,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::HasFather()
 //=======================================================================
 /*!
  * Function : IsRoot
- * Purpose  : Returns True is the attribute is highest in an hierachy
+ * Purpose  : Returns True is the attribute is highest in an hierarchy
  */
 //=======================================================================
 CORBA::Boolean SALOMEDS_AttributeParameter_i::IsRoot()

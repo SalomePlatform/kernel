@@ -26,7 +26,7 @@
 #  Module : SALOME
 #
 """ 
-Module salome gives access to Salome ressources.
+Module salome gives access to Salome resources.
 
 variables:
 
@@ -71,7 +71,7 @@ variables:
 
 """
 ## @package salome
-# Module salome gives access to Salome ressources.
+# Module salome gives access to Salome resources.
 #
 #  \param salome.orb             : CORBA orb object
 #  \param salome.naming_service  : instance of naming Service class (SALOME_NamingServicePy::SALOME_NamingServicePy_i)
@@ -233,7 +233,7 @@ def salome_init(theStudyId=0,embedded=0):
         print """
         ============================================
         May be there is no running SALOME session
-        salome.salome_init() is intented to be used
+        salome.salome_init() is intended to be used
         within an already running session
         ============================================
         """

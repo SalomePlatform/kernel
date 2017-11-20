@@ -39,7 +39,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
  *     - i (IN)           : access rank
  *     - name (OUT)       : expected name
  * - Result : 
- *     - if sucess : 0
+ *     - if success : 0
  *     - if failure : -1
  */ 
 

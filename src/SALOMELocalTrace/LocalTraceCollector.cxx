@@ -36,7 +36,7 @@
 /*!
  *  This class is for use without CORBA, inside or outside SALOME.
  *  SALOME uses SALOMETraceCollector, to allow trace collection via CORBA.
- *  Type of trace (and corresponding class) is choosen in LocalTraceBufferPool.
+ *  Type of trace (and corresponding class) is chosen in LocalTraceBufferPool.
  *
  *  Guarantees a unique object instance of the class (singleton thread safe)
  *  a separate thread for loop to print traces is launched.
@@ -68,7 +68,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
 // ============================================================================
 /*!
  *  In a separate thread, loop to print traces.
- *  Mutex garantees intialisation on instance method is done and only one run
+ *  Mutex guarantees intialisation on instance method is done and only one run
  *  allowed (double check ...)
  *  Loop until there is no more buffer to print,
  *  and no ask for end from destructor.

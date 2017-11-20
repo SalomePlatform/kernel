@@ -41,7 +41,7 @@
   Description : This class is intended for storing different object attributes that
                 have only two states (0 and 1).
 
-                Avalable attributes:
+                Available attributes:
 
                 IS_VISIBLE - is equal to 1 if object is visible in 3D view (0 - overwise).
                              This attribute is valid for active view only.

@@ -13,7 +13,7 @@ included in source python files.
   - <a href="group__enumerate.html">enumerate</a> - Emulates a C-like enum for python
   - <a href="group__uiexception.html">uiexception</a> - %Exception for user error management
   - <a href="group__datamodeler.html">datamodeler</a> - Helper for modeling user data
-  - <a href="group__diclookup.html">diclookup</a> - Smart dictionnary with key/value lookup
+  - <a href="group__diclookup.html">diclookup</a> - Smart dictionary with key/value lookup
   - <a href="group__service.html">service</a> - Helper for using %SALOME kernel services
   - <a href="group__studyedit.html">studyedit</a> - Study editor
   - <a href="group__unittester.html">unittester</a> - Run very basic unit tests

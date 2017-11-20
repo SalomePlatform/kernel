@@ -32,7 +32,7 @@
 */
 module Registry
 {
-  //! a struct to collect informations about servers (processes)
+  //! a struct to collect information about servers (processes)
 	struct Infos
 	{
 		string  name;
@@ -50,7 +50,7 @@ module Registry
 		string  ior;		//  client 
 	};
 
-  //! a list of informations
+  //! a list of information
 	typedef sequence<Infos> AllInfos;
 
 /*! \brief interface to use %SALOME registry
@@ -67,7 +67,7 @@ module Registry
 		void remove ( in unsigned long id ) ;
     //! Get the size of the registry
 		unsigned long size() ;
-    //! Get all informations from registry
+    //! Get all information from registry
 		AllInfos getall () ;
     //! Get history information from registry
 		AllInfos history () ;

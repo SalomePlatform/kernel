@@ -372,7 +372,7 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       std::string component_registerName =
         _containerName + "/" + instanceName;
 
-      // --- Instanciate required CORBA object
+      // --- Instantiate required CORBA object
 
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (MPIComponent_factory) ( _orb, _poa, _id, instanceName.c_str(), aGenRegisterName.c_str() ) ;

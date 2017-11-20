@@ -79,7 +79,7 @@ void HDFfile::OpenOnDisk(hdf_access_mode access_mode)
       break;
       
     default :
-      throw HDFexception("Can't open HDF file : bad acces option");
+      throw HDFexception("Can't open HDF file : bad access option");
     }
 }
 

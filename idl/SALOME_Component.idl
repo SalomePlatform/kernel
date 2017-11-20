@@ -80,7 +80,7 @@ module Engines
                            try to make a Python import of COMPONENT,
                            then a lib open of libCOMPONENTEngine.so
       \param reason      in case of error (return false) a string explaining the error
-      \return true if load successfull or already done, false otherwise
+      \return true if load successful or already done, false otherwise
     */
     boolean load_component_Library(in string componentName, out string reason);
 
@@ -102,7 +102,7 @@ module Engines
           This simply loads the service in the current container by importing the
           corresponding Python module.
           Warning: no internal registration is done, so it is up to the caller to
-          manage the various instanciation.
+          manage the various instantiation.
           \param serviceName Name of the service
 
                                 >0 otherwise (== study id)
@@ -369,7 +369,7 @@ module Engines
 
       \return CORBA Ref of the requested file.
 
-      \exception contains informations of what if the component cannot
+      \exception contains information of what if the component cannot
       sends the file's reference.
     */
     Engines::Salome_file getInputFileToService(in string service_name,
@@ -389,7 +389,7 @@ module Engines
 
       \param service_name service's name.
 
-      \exception contains informations about files that are not in a good state.
+      \exception contains information about files that are not in a good state.
     */
     void checkInputFilesToService(in string service_name)           raises(SALOME::SALOME_Exception);
 
@@ -415,7 +415,7 @@ module Engines
 
       \return CORBA Ref of the requested file.
 
-      \exception contains informations of what if the component cannot
+      \exception contains information of what if the component cannot
       sends the file's reference.
     */
     Engines::Salome_file getOutputFileToService(in string service_name,
@@ -435,7 +435,7 @@ module Engines
 
       \param service_name service's name.
 
-      \exception contains informations about files that are not in a good state.
+      \exception contains information about files that are not in a good state.
     */
     void checkOutputFilesToService(in string service_name)        raises(SALOME::SALOME_Exception);
 
@@ -589,7 +589,7 @@ module Engines
 
       \param hdf5_file name (with path) of the hdf5_file.
 
-      \exception contains informations of errors if the loading doesn't succeed.
+      \exception contains information of errors if the loading doesn't succeed.
      */
     void load(in string hdf5_file)                            raises (SALOME::SALOME_Exception);
 
@@ -598,7 +598,7 @@ module Engines
 
       \param  hdf5_file name (with path) of the hdf5_file.
 
-      \exception contains informations of errors if the save doesn't succeed.
+      \exception contains information of errors if the save doesn't succeed.
 
     */
     void save(in string hdf5_file)                            raises (SALOME::SALOME_Exception);
@@ -609,7 +609,7 @@ module Engines
 
       \param  hdf5_file name (with path) of the hdf5_file.
 
-      \exception contains informations of errors if the save doesn't succeed.
+      \exception contains information of errors if the save doesn't succeed.
 
     */
     void save_all(in string hdf5_file)                            raises (SALOME::SALOME_Exception);

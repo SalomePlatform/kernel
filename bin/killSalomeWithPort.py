@@ -217,9 +217,9 @@ def shutdownMyPort(port, cleanup=True):
     sys.exit(0) # see (1)
     pass
 # (1) If --shutdown-servers option is set to 1, session close procedure is
-# called twice: first explicitely by salome command, second by automatic
+# called twice: first explicitly by salome command, second by automatic
 # atexit to handle Ctrl-C. During second call, LCC does not exist anymore and
-# a RuntimeError is raised; we explicitely exit this function with code 0 to
+# a RuntimeError is raised; we explicitly exit this function with code 0 to
 # prevent parent thread from crashing.
 
 def __killMyPort(port, filedict):

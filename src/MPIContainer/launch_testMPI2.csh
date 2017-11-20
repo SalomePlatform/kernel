@@ -19,7 +19,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# debug mode display informations about communication
+# debug mode display information about communication
 if $1 == "--debug" then
   set debug="-debug"
 else

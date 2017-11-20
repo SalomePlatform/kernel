@@ -40,7 +40,7 @@ systematically in your scripts, to allow them to work in all configurations.
 See \ref kernel_salome for a short description of most useful variables and
 functions.
 
-\subsection subsection12 Container and component instanciation
+\subsection subsection12 Container and component instantiation
 
 See SALOME_LifeCycleCORBA for the C++ interface (Python interface obtained with SWIG
 is very similar).
@@ -144,7 +144,7 @@ SalomeAppEngine.object
 See SALOME_FileTransferCORBA for the C++ interface (Python interface obtained with
 SWIG is very similar).
 
-The following example shows how to tranfer a file from a remote host to the
+The following example shows how to transfer a file from a remote host to the
 client computer. Remote hostname is 'cli76cc', we would like to copy
 'tkcvs_8_0_3.tar.gz' from remote to local computer. %A full pathname is
 required. %A container is created on remote computer if it does not exist,

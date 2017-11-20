@@ -45,7 +45,7 @@ def getShortHostName():
     gives Hostname without domain extension.
 
     SALOME naming service needs short Hostnames (without domain extension).
-    HOSTNAME is not allways defined in environment,
+    HOSTNAME is not always defined in environment,
     socket.gethostname() gives short or complete Hostname, depending on
     defined aliases.
     """
@@ -56,7 +56,7 @@ class Identity:
         self._name = name
         self._pid =  os.getpid()
         self._machine = socket.gethostname()
-        self._adip =  socket.gethostbyname(self._machine) # IP adress        
+        self._adip =  socket.gethostbyname(self._machine) # IP address
         if sys.platform == "win32":
           self._uid  = os.getpid() 
           self._pwname = os.environ["USERNAME"]

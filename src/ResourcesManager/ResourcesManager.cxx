@@ -319,7 +319,7 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
 
 //=============================================================================
 /*!
- *  add an entry in the ressources catalog xml file.
+ *  add an entry in the resources catalog xml file.
  */ 
 //=============================================================================
 

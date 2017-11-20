@@ -150,7 +150,7 @@ dnl  MACHINE="PCLINUX"
     fi
  done
 
-dnl use gcc option -MG : asume unknown file will be construct later
+dnl use gcc option -MG : assume unknown file will be construct later
  rm -f conftest.d conftest.err
  ${DEPCC} ${C_DEPEND_FLAG} -MG -c conftest.c 1> conftest.d 2> conftest.err
  if test -f conftest.u ; then
@@ -191,7 +191,7 @@ dnl use gcc option -MG : asume unknown file will be construct later
     fi
  done
 
-dnl use g++ option -MG : asume unknown file will be construct later
+dnl use g++ option -MG : assume unknown file will be construct later
  rm -f conftest.d conftest.err
  ${DEPCXX} ${CXX_DEPEND_FLAG} -MG -c conftest.cxx 1> conftest.d 2> conftest.err
  if test -f conftest.u ; then

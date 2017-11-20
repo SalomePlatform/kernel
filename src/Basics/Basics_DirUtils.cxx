@@ -18,7 +18,7 @@
 //
 
 //  File   : Basics_DirUtils.cxx
-//  Autor  : Alexander A. BORODIN
+//  Author  : Alexander A. BORODIN
 //  Module : SALOME
 //
 #include "Basics_DirUtils.hxx"

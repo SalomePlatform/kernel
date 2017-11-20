@@ -74,7 +74,7 @@ MARK_AS_ADVANCED(SALOME_LIGHT_ONLY SALOME_USE_LIBBATCH SALOME_PACO_PARALLEL)
 
 # Required prerequisites
 #   Find "big" prerequisites first - they reference themselves many others
-#   -> this can help finding the smaller prerequisites and detect conficts.
+#   -> this can help finding the smaller prerequisites and detect conflicts.
 # =======================
 
 # Exception: LibBatch is optional but is loaded first, as it can

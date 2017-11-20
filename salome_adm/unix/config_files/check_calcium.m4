@@ -49,7 +49,7 @@ then
      CALCIUM_IDL_INT_F77="long"
      CALCIUM_CORBA_INT_F77="CORBA::Long"
   else
-     AC_MSG_ERROR([Size of Fortran type integer is neither four nor eigth bytes])
+     AC_MSG_ERROR([Size of Fortran type integer is neither four nor eight bytes])
   fi
 
 elif test "x$withval" = "xint"

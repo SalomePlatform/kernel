@@ -159,7 +159,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
   os.environ['NSPORT'] = port
   os.environ['NSHOST'] = host
 
-  # determine running mode, taht is either 'local' or 'remote'
+  # determine running mode, that is either 'local' or 'remote'
   here = getShortHostName()
   mode = "local"
   if host != here and host != "localhost" and host != "no_host":

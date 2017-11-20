@@ -34,7 +34,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
  * - Description : returns the number of HDF objets in a HDF group
  * - Parameters :
  *     - fid     (IN)     : HDF file ID
- *     - path    (IN)     : acces path to the HDF group in the HDF file
+ *     - path    (IN)     : access path to the HDF group in the HDF file
  * - Results :
  *     - if success : number of objects
  *     - if failure : -1 

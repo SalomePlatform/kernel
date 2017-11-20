@@ -758,7 +758,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     Returns True if at this moment there is a command under execution.
 */
     boolean HasOpenCommand();
-/*! \brief Cancelation of the command
+/*! \brief Cancellation of the command
 
     Cancels all actions declared within the command.
 
@@ -904,7 +904,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 /*! \brief Saving the study in a specified HDF file (or files).
 
     Saves the study in a specified file (or files).
-    \param aUrl The path to the definite file in whcih the study will be saved
+    \param aUrl The path to the definite file in which the study will be saved
     \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 
@@ -917,7 +917,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
     Saves the study in a specified ASCII file (or files).
 
-    \param aUrl The path to the definite file in whcih the study will be saved
+    \param aUrl The path to the definite file in which the study will be saved
     \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
@@ -1375,7 +1375,7 @@ can be called by any component and which provide the following functionality:
 <ul>
     <li> publishing in the study of the objects created by a definite component
     <li> saving/loading of the data created by a definite component. These methods are called by the StudyManager when loading/saving a study containing the data created by a definite component.
-    <li> transforming of the transient references into persistant references (or vice versa) of the SObjects when saving (or loading) a study
+    <li> transforming of the transient references into persistent references (or vice versa) of the SObjects when saving (or loading) a study
     <li> copy/paste common functionality. These methods can be called by any component in order to copy/paste its object created in the study
 </ul>
 

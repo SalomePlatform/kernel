@@ -125,7 +125,7 @@ _numInstance(0),_id(0),_NS(0)
 
 //=============================================================================
 /*! 
-*  Construtor to use
+*  Constructor to use
 */
 //=============================================================================
 
@@ -406,7 +406,7 @@ void Engines_Container_i::Shutdown()
 *  CORBA method
 *  \param componentName         component name
 *  \param reason                explains error when load fails
-*  \return true if dlopen successfull or already done, false otherwise
+*  \return true if dlopen successful or already done, false otherwise
 */
 //=============================================================================
 bool
@@ -494,7 +494,7 @@ Engines_Container_i::load_component_Library(const char* componentName, CORBA::St
 *  C++ method: 
 *  \param componentName      the name of the component (COMPONENT, for example)
 *  \param reason             explains error when load fails
-*  \return true if loading is successfull or already done, false otherwise
+*  \return true if loading is successful or already done, false otherwise
 */
 //=============================================================================
 bool
@@ -579,7 +579,7 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
 *  C++ method: 
 *  \param componentName         name of the component
 *  \param reason                explains error when load fails
-*  \return true if loading is successfull or already done, false otherwise
+*  \return true if loading is successful or already done, false otherwise
 */
 //=============================================================================
 bool
@@ -634,7 +634,7 @@ Engines_Container_i::load_component_PythonImplementation(const char* componentNa
 *  C++ method: 
 *  \param componentName        name of the component
 *  \param reason               explains error when load fails
-*  \return true if loading is successfull or already done, false otherwise
+*  \return true if loading is successful or already done, false otherwise
 */
 //=============================================================================
 bool
@@ -1082,7 +1082,7 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
     std::string component_registerName =
       _containerName + "/" + instanceName;
 
-    // --- Instanciate required CORBA object
+    // --- Instantiate required CORBA object
 
     PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
     id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
@@ -1121,7 +1121,7 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
   }
   catch (...)
   {
-    reason="Container_i::createInstance exception catched";
+    reason="Container_i::createInstance exception caught";
     INFOS(reason) ;
   }
   return iobject._retn();
@@ -1347,7 +1347,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
     }
     catch (...)
     {
-      INFOS( "Container_i::load_impl catched" ) ;
+      INFOS( "Container_i::load_impl caught" ) ;
     }
     return iobject._retn();
   }
@@ -1550,7 +1550,7 @@ Engines_Container_i::createFileRef(const char* origFileName)
 
   if (origName[0] != '/')
   {
-    INFOS("path of file to copy must be an absolute path begining with '/'");
+    INFOS("path of file to copy must be an absolute path beginning with '/'");
     return Engines::fileRef::_nil();
   }
 

@@ -41,7 +41,7 @@ from killSalome import killAllPorts
 
 def killLocalPort():
     """
-    kill servers from a previous SALOME exection, if needed,
+    kill servers from a previous SALOME execution, if needed,
     on the CORBA port given in args of runSalome
     """
 
@@ -56,7 +56,7 @@ def killLocalPort():
 
 def givenPortKill(port):
     """
-    kill servers from a previous SALOME exection, if needed,
+    kill servers from a previous SALOME execution, if needed,
     on the same CORBA port
     """
 
@@ -587,7 +587,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #    session.GetInterface()
 
     #
-    # additionnal external python interpreters
+    # additional external python interpreters
     #
     nbaddi=0
 
@@ -856,7 +856,7 @@ def runSalome():
     test = args['gui'] and args['session_gui']
     test = test or args['wake_up_session']
     # --
-    # The next test covers the --pinter option or var PYTHONINSPECT setted
+    # The next test covers the --pinter option or if var PYTHONINSPECT is set
     # --
     test = test and not os.environ.get('PYTHONINSPECT')
     # --

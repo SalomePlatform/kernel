@@ -106,11 +106,11 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
      */
     void AddDefaultResourceInCatalog();
 
-    //! will contain the path to the ressources catalog
+    //! will contain the path to the resources catalog
     std::list<std::string> _path_resources;
     std::list<std::string>::iterator _path_resources_it;
 
-    //! will contain the informations on the data type catalog(after parsing)
+    //! will contain the information on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesList;
 
     //! a map that contains all the available load rate managers (the key is the name)

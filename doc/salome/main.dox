@@ -54,7 +54,7 @@ releases are identified by a CVS tag.
 
 \section S5_main SALOME programming model
 
-You will find in the next pages informations about
+You will find in the next pages information about
 specific points of %SALOME Kernel :
 
 - \subpage kernel_salome

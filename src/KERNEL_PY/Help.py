@@ -36,7 +36,7 @@ class SalomeDoc:
         doc_salome = '''
 MODULE : salome
 ---------------
-module salome gives access to Salome ressources:
+module salome gives access to Salome resources:
 variables:
 
   salome.orb             : CORBA
@@ -134,7 +134,7 @@ A new python example avoids references to LifeCycleCORBA
 
 Help = SalomeDoc('''
 Availables modules:
-  salome      : gives access to Salome ressources
+  salome      : gives access to Salome resources
   geompy      : encapsulation of GEOM Engine methods
   supervision : gives access to SuperVision Engine
 To obtain specific help on a module "truc", type: Help.truc()

@@ -726,7 +726,7 @@ bool isPythonContainer(const char* ContainerName)
  *  ssh user@machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
  *                   SALOME_Container containerName &"
 
- *  - where user is ommited if not specified in CatalogResources,
+ *  - where user is omitted if not specified in CatalogResources,
  *  - where distant path is always relative to user@machine $HOME, and
  *    equal to $APPLI if not specified in CatalogResources,
  *  - where hostNS is the hostname of CORBA naming server (set by scripts to
@@ -1517,7 +1517,7 @@ SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters
     }
     catch (...)
     {
-      INFOS("[StarPaCOPPContainer] Exception catched from proxy Shutdown...");
+      INFOS("[StarPaCOPPContainer] Exception caught from proxy Shutdown...");
     }
     return ret;
   }

@@ -45,7 +45,7 @@ IF(SALOME_USE_LIBBATCH)
   ADD_DEFINITIONS(-DWITH_LIBBATCH)
 ENDIF(SALOME_USE_LIBBATCH)
 
-# This local variable defines the list of dependant libraries common to all target in this package.
+# This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
   Registry
   SalomeNotification
