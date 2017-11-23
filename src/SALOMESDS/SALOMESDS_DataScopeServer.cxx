@@ -266,6 +266,24 @@ SALOME::RequestSwitcher_ptr DataScopeServerBase::getRequestSwitcher()
   return SALOME::RequestSwitcher::_narrow(obj);
 }
 
+void DataScopeServerBase::takeANap(CORBA::Double napDurationInSec)
+{
+  if(napDurationInSec<0.)
+    throw Exception("DataScopeServerBase::takeANap : negative value !");
+#ifndef WIN32
+  struct timespec req,rem;
+  long nbSec((long)napDurationInSec);
+  double remainTime(napDurationInSec-(double)nbSec);
+  req.tv_sec=nbSec;
+  req.tv_nsec=(long)(remainTime*1000000.);
+  int ret(nanosleep(&req,&rem));
+  if(ret!=0)
+    throw Exception("DataScopeServerBase::takeANap : nap not finished as expected !");
+#else
+  throw Exception("DataScopeServerBase::takeANap : not implemented for Windows !");
+#endif
+}
+
 void DataScopeServerBase::initializePython(int argc, char *argv[])
 {
   Py_Initialize();

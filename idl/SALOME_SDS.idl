@@ -89,6 +89,7 @@ module SALOME
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME::SALOME_Exception);
     RequestSwitcher getRequestSwitcher();
+    void takeANap(in double napDurationInSec) raises (SALOME::SALOME_Exception);
   };
 
   interface DataScopeServer : DataScopeServerBase

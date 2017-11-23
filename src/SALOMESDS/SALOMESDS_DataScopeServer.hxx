@@ -77,6 +77,7 @@ namespace SALOMESDS
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
     SALOME::RequestSwitcher_ptr getRequestSwitcher();
+    void takeANap(CORBA::Double napDurationInSec);
   public:
     ~DataScopeServerBase();
     BasicDataServer *retrieveVarInternal2(const std::string& varName);
