@@ -71,7 +71,7 @@ SALOMEDSImpl_SObject::SALOMEDSImpl_SObject(const DF_Label& theLabel)
 }
 
 //============================================================================
-/*! Function : Desctructor
+/*! Function : Destructor
  *  Purpose  : 
  */
 //============================================================================    

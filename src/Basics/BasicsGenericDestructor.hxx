@@ -127,7 +127,7 @@ public :
  * 
  * Note that neither ptrPoint, nor ptrDestruct should be destroyed by the user.
  * 
- * The destruction object must be created dynamically because it suscribes
+ * The destruction object must be created dynamically because it subscribes
  * itself in the list of destruction to be performed at the end of the process.
  */ 
 // ============================================================================

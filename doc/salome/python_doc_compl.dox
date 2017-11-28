@@ -76,7 +76,7 @@ and all other stuff should be imported and work as before).
 To reach this target, we have to face two problems:
 
 - %A naming conflict with the instruction <b>import salome</b>. The result
-  is unpredictible because of the existence in the <b>sys.path</b> of
+  is unpredictable because of the existence in the <b>sys.path</b> of
   both a file <b>salome.py</b> and a package \b salome.
 - The dispatching of <b>salome.*</b> sub-packages in the different %SALOME
   modules.
