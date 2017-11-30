@@ -31,9 +31,9 @@
 
 herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {
-   *(char**)operator_data = new char[strlen(attr_name)+1];
-   strcpy(*(char**)operator_data, attr_name);
-   return 1;
+  *(char**)operator_data = new char[strlen(attr_name)+1];
+  strcpy(*(char**)operator_data, attr_name);
+  return 1;
 }
 
 HDFgroup::HDFgroup(const char *name, HDFcontainerObject *father)
@@ -104,15 +104,29 @@ int HDFgroup::ExistInternalObject(const char *object_name)
 
   n = this->nInternalObjects(); 
   for (i=0;i<n;i++) 
+  {
+    this->InternalObjectIndentify(i,name);
+    if (!strcmp(name,object_name))
     {
-      this->InternalObjectIndentify(i,name);
-      if (!strcmp(name,object_name))
-	{
-	  ret = 1;
-	  break;
-	}
-    }  
+      ret = 1;
+      break;
+    }
+  }  
   return ret;
+}
+
+void HDFgroup::GetAllObjects(std::vector< std::string > & object_names )
+{
+  int n,i;
+  char name[HDF_NAME_MAX_LEN+1];
+
+  n = this->nInternalObjects();
+  object_names.reserve( object_names.size() + n );
+  for (i=0;i<n;i++)
+  {
+    this->InternalObjectIndentify(i,name);
+    object_names.push_back( name );
+  }
 }
 
 hdf_object_type HDFgroup::InternalObjectType(char *object_name)
@@ -145,10 +159,10 @@ void HDFgroup::FileUnMount()
   hdf_err ret;
 
   if ((ret = HDFfileUmount(_fid,_name)) < 0)
-        throw HDFexception("Can't unmount the file");
+    throw HDFexception("Can't unmount the file");
 
   if ((ret = HDFfileClose(_mid)) < 0)
-        throw HDFexception("Can't unmount the file");
+    throw HDFexception("Can't unmount the file");
 
   _mid = -1;
 }

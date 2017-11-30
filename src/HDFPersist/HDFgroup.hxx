@@ -31,14 +31,17 @@
 #include "HDFcontainerObject.hxx"
 #include "HDFexport.hxx"
 
+#include <vector>
+#include <string>
+
 class HDFPERSIST_EXPORT HDFgroup : public HDFcontainerObject
 {
-private :
+ private :
   HDFcontainerObject *_father;
   hdf_idt _fid;
   hdf_idt _mid;
   char* _attribute;
-public :
+ public :
   HDFgroup(const char *name, HDFcontainerObject *father);
 
   void CreateOnDisk();
@@ -49,12 +52,13 @@ public :
   void FileUnMount();
 
   HDFcontainerObject *GetFather();
-  hdf_object_type GetObjectType();
+  hdf_object_type     GetObjectType();
 
-  int nInternalObjects();
+  int  nInternalObjects();
   void InternalObjectIndentify(int rank, char *object_name);
-  int ExistInternalObject(const char *object_name);
+  int  ExistInternalObject(const char *object_name);
   hdf_object_type InternalObjectType(char *object_name);
+  void GetAllObjects( std::vector< std::string > & object_names );
 
   int nAttributes();
   char* GetAttributeName(unsigned idx);
