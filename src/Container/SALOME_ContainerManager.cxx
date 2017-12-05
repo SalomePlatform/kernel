@@ -1948,7 +1948,7 @@ SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
 
 //=============================================================================
 /*! This method launches the parallel container.
- *  It will may be placed on the ressources manager.
+ *  It will may be placed on the resources manager.
  *
  * \param command to launch
  * \param container's parameters
