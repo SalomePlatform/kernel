@@ -58,7 +58,7 @@ class ResourceParameters (Engines.ResourceParameters):
                                         nb_proc_per_node, policy, resList)
 
 class JobParameters (Engines.JobParameters):
-  def __init__(self, job_name="", job_type="", job_file="", env_file="", in_files=None, out_files=None,
+  def __init__(self, job_name="", job_type="", job_file="", pre_command="", env_file="", in_files=None, out_files=None,
                      work_directory="", local_directory="", result_directory="", maximum_duration="",
                      resource_required=None, queue="", exclusive = False, mem_per_cpu = 0,
                      wckey = "", extra_params = "",
@@ -69,7 +69,7 @@ class JobParameters (Engines.JobParameters):
       out_files = []
     if specific_parameters is None:
       specific_parameters = []
-    Engines.JobParameters.__init__(self, job_name, job_type, job_file, env_file, in_files, out_files,
+    Engines.JobParameters.__init__(self, job_name, job_type, job_file, pre_command, env_file, in_files, out_files,
                                          work_directory, local_directory, result_directory, maximum_duration,
                                          resource_required, queue, exclusive, mem_per_cpu,
                                          wckey, extra_params,

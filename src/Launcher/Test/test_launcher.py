@@ -61,6 +61,13 @@ class TestCompo(unittest.TestCase):
     except IOError,ex:
       self.fail("IO exception:" + str(ex));
 
+  def create_JobParameters(self):
+    job_params = salome.JobParameters()
+    job_params.wckey="P11U50:CARBONES" #needed by edf clusters
+    job_params.resource_required = salome.ResourceParameters()
+    job_params.resource_required.nb_proc = 1
+    return job_params
+
   ##############################
   # test of python_salome job
   ##############################
@@ -96,13 +103,11 @@ f.close()
     f.close()
 
     local_result_dir = os.path.join(case_test_dir, "result_py_job-")
-    job_params = salome.JobParameters()
+    job_params = self.create_JobParameters()
     job_params.job_type = "python_salome"
     job_params.job_file = job_script_file
     job_params.in_files = []
     job_params.out_files = ["result.txt", "subdir"]
-    job_params.resource_required = salome.ResourceParameters()
-    job_params.resource_required.nb_proc = 1
 
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
 
@@ -194,15 +199,13 @@ f.close()
 
     # job params
     local_result_dir = os.path.join(case_test_dir, "result_com_job-")
-    job_params = salome.JobParameters()
+    job_params = self.create_JobParameters()
     job_params.job_type = "command"
     job_params.job_file = script_file
     job_params.env_file = env_file
     job_params.in_files = [data_file]
     job_params.out_files = ["result.txt", "copie"]
     job_params.local_directory = case_test_dir
-    job_params.resource_required = salome.ResourceParameters()
-    job_params.resource_required.nb_proc = 1
 
     # create and launch the job
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
@@ -299,7 +302,7 @@ f.close()
     f.close()
 
     local_result_dir = os.path.join(case_test_dir, "result_yacs_job-")
-    job_params = salome.JobParameters()
+    job_params = self.create_JobParameters()
     job_params.job_type = "yacs_file"
     job_params.job_file = job_script_file
     job_params.env_file = os.path.join(case_test_dir,env_file)
@@ -308,8 +311,6 @@ f.close()
     # define the interval between two YACS schema dumps (3 seconds)
     import Engines
     job_params.specific_parameters = [Engines.Parameter("EnableDumpYACS", "3")]
-    job_params.resource_required = salome.ResourceParameters()
-    job_params.resource_required.nb_proc = 1
 
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
     resManager= salome.lcc.getResourcesManager()
@@ -412,10 +413,9 @@ f.close()
     f.close()
 
     local_result_dir = os.path.join(case_test_dir, "result_yacsopt_job-")
-    job_params = salome.JobParameters()
+    job_params = self.create_JobParameters()
     job_params.job_type = "yacs_file"
     job_params.job_file = job_script_file
-    #job_params.env_file = os.path.join(case_test_dir,env_file)
     job_params.out_files = ["result.txt"]
 
     # define the interval between two YACS schema dumps (3 seconds)
@@ -423,8 +423,6 @@ f.close()
     job_params.specific_parameters = [Engines.Parameter("YACSDriverOptions",
                "-imynode.i=5 -imynode.d=3.7 -imynode.b=False -imynode.s=lili")]
     expected_result="i=5,d=3.7,b=False,s=lili"
-    job_params.resource_required = salome.ResourceParameters()
-    job_params.resource_required.nb_proc = 1
 
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
     resManager= salome.lcc.getResourcesManager()
@@ -459,6 +457,78 @@ f.close()
       launcher.getJobResults(job_id, "")
       self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
                       expected_result)
+
+  ############################################
+  # test of command job type with pre_command
+  ############################################
+  def test_command_pre(self):
+    case_test_dir = os.path.join(TestCompo.test_dir, "command_pre")
+    mkdir_p(case_test_dir)
+
+    # command to be run before the job
+    pre_command = "echo 'it works!' > in.txt"
+    
+    # job script
+    script_file = "myTestScript.py"
+    script_text = """#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+in_f = open("in.txt", "r")
+in_text = in_f.read()
+in_f.close()
+
+f = open('result.txt', 'w')
+f.write(in_text)
+f.close()
+"""
+    abs_script_file = os.path.join(case_test_dir, script_file)
+    f = open(abs_script_file, "w")
+    f.write(script_text)
+    f.close()
+    os.chmod(abs_script_file, 0o755)
+
+    # job params
+    local_result_dir = os.path.join(case_test_dir, "result_com_pre_job-")
+    job_params = self.create_JobParameters()
+    job_params.job_type = "command"
+    job_params.job_file = script_file
+    job_params.pre_command = pre_command
+    job_params.in_files = []
+    job_params.out_files = ["result.txt"]
+    job_params.local_directory = case_test_dir
+
+    # create and launch the job
+    launcher = salome.naming_service.Resolve('/SalomeLauncher')
+    resManager= salome.lcc.getResourcesManager()
+
+    for resource in self.ressources:
+      print "Testing command job on ", resource
+      job_params.result_directory = local_result_dir + resource
+      job_params.job_name = "CommandPreJob_" + resource
+      job_params.resource_required.name = resource
+
+      # use the working directory of the resource
+      resParams = resManager.GetResourceDefinition(resource)
+      wd = os.path.join(resParams.working_directory,
+                        "CommandPreJob" + self.suffix)
+      job_params.work_directory = wd
+
+      job_id = launcher.createJob(job_params)
+      launcher.launchJob(job_id)
+      # wait for the end of the job
+      jobState = launcher.getJobState(job_id)
+      print "Job %d state: %s" % (job_id,jobState)
+      while jobState != "FINISHED" and jobState != "FAILED" :
+        time.sleep(3)
+        jobState = launcher.getJobState(job_id)
+        print "Job %d state: %s" % (job_id,jobState)
+        pass
+
+      # verify the results
+      self.assertEqual(jobState, "FINISHED")
+      launcher.getJobResults(job_id, "")
+      self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
+                      "it works!\n")
 
 if __name__ == '__main__':
     # creat study

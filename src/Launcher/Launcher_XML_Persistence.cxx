@@ -152,6 +152,8 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
     addNode(node, "local_directory", job.getLocalDirectory());
   if (!job.getResultDirectory().empty())
     addNode(node, "result_directory", job.getResultDirectory());
+  if (!job.getPreCommand().empty())
+    addNode(node, "pre_command", job.getPreCommand());
 
   // Parameters for COORM
   if (!job.getLauncherFile().empty())
@@ -300,6 +302,8 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
     }
     else if (node_name == "env_file")
       new_job->setEnvFile(getNodeContent(current_node));
+    else if (node_name == "pre_command")
+      new_job->setPreCommand(getNodeContent(current_node));
     else if (node_name == "work_directory")
       new_job->setWorkDirectory(getNodeContent(current_node));
     else if (node_name == "local_directory")

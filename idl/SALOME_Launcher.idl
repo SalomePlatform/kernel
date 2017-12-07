@@ -66,6 +66,12 @@ struct JobParameters
   */
   string job_file;
 
+  //! Pre processing command.
+  /*! This command is called on the remote resource, from #work_directory, after
+      the copy of #in_files and before submiting the job.
+  */
+  string pre_command;
+
   //! Local path to a script to be sourced in the environment of the job.
   /*! It may contain modifications of environment variables.
   */
@@ -198,6 +204,7 @@ interface SalomeLauncher
   /*! Launching the job consists of:
       - create the working directory on the remote file system
       - copy the input files into the working directory
+      - launch the pre processing command if one is defined
       - submit the job to the batch manager
   */
   void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);

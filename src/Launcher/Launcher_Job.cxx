@@ -40,6 +40,7 @@ Launcher::Job::Job()
   _job_file = "";
   _job_file_name = "";
   _job_file_name_complete = "";
+  _pre_command = "";
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
@@ -443,6 +444,18 @@ Launcher::Job::getReference() const
 }
 
 void
+Launcher::Job::setPreCommand(const std::string & preCommand)
+{
+  _pre_command = preCommand;
+}
+
+std::string
+Launcher::Job::getPreCommand() const
+{
+  return _pre_command;
+}
+
+void
 Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 {
   std::string result("");
@@ -604,6 +617,7 @@ Launcher::Job::common_job_params()
     }
   }
   params[Batch::WORKDIR] = _work_directory;
+  params[Batch::PREPROCESS] = _pre_command;
 
   // Parameters for COORM
   params[Batch::LAUNCHER_FILE] = _launcher_file;

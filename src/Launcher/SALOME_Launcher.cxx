@@ -139,6 +139,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     INFOS(ex.msg.c_str());
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
+  new_job->setPreCommand(job_parameters.pre_command.in());
 
   // Files
   std::string env_file = job_parameters.env_file.in();
@@ -518,6 +519,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   job_parameters->work_directory   = CORBA::string_dup(job->getWorkDirectory().c_str());
   job_parameters->local_directory  = CORBA::string_dup(job->getLocalDirectory().c_str());
   job_parameters->result_directory = CORBA::string_dup(job->getResultDirectory().c_str());
+  job_parameters->pre_command      = CORBA::string_dup(job->getPreCommand().c_str());
 
   // Parameters for COORM
   job_parameters->launcher_file = CORBA::string_dup(job->getLauncherFile().c_str());
