@@ -23,7 +23,7 @@ def main(args):
     appliPath = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
     proc = subprocess.Popen([os.path.join(appliPath, '.salome_run')] + args, close_fds=True)
     out, err = proc.communicate()
-    return out, err, proc.returncode
+    sys.exit(proc.returncode)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
