@@ -22,6 +22,7 @@
 //#define _DEBUG_
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
+#include <boost/filesystem.hpp>
 
 #ifdef WITH_LIBBATCH
 #include <libbatch/Constants.hxx>
@@ -617,7 +618,13 @@ Launcher::Job::common_job_params()
     }
   }
   params[Batch::WORKDIR] = _work_directory;
-  params[Batch::PREPROCESS] = _pre_command;
+  std::string libbatch_pre_command("");
+  if(!_pre_command.empty())
+  {
+    boost::filesystem::path pre_command_path(_pre_command);
+    libbatch_pre_command += "./" + pre_command_path.filename().string();
+  }
+  params[Batch::PREPROCESS] = libbatch_pre_command;
 
   // Parameters for COORM
   params[Batch::LAUNCHER_FILE] = _launcher_file;
@@ -632,6 +639,8 @@ Launcher::Job::common_job_params()
   in_files.push_back(_job_file);
   if (_env_file != "")
           in_files.push_back(_env_file);
+  if(!_pre_command.empty())
+     in_files.push_back(_pre_command);
   for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
   {
     std::string file = *it;

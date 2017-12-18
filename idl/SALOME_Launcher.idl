@@ -66,8 +66,8 @@ struct JobParameters
   */
   string job_file;
 
-  //! Pre processing command.
-  /*! This command is called on the remote resource, from #work_directory, after
+  //! Pre processing script.
+  /*! This script is called on the remote resource, from #work_directory, after
       the copy of #in_files and before submiting the job.
   */
   string pre_command;

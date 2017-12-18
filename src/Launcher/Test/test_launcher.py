@@ -466,7 +466,13 @@ f.close()
     mkdir_p(case_test_dir)
 
     # command to be run before the job
-    pre_command = "echo 'it works!' > in.txt"
+    pre_command = "pre_command.sh"
+    pre_command_text = "echo 'it works!' > in.txt"
+    abs_pre_command_file = os.path.join(case_test_dir, pre_command)
+    f = open(abs_pre_command_file, "w")
+    f.write(pre_command_text)
+    f.close()
+    os.chmod(abs_pre_command_file, 0o755)
     
     # job script
     script_file = "myTestScript.py"
