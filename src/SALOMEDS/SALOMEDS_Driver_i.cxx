@@ -187,7 +187,12 @@ std::string SALOMEDS_Driver_i::ComponentDataType()
 
 std::string SALOMEDS_Driver_i::Version()
 {
-  return !CORBA::is_nil( _engine ) ? _engine->getVersion() : std::string("");
+  std::string ver;
+  if ( !CORBA::is_nil( _engine )) {
+    CORBA::String_var v = _engine->getVersion();
+    ver = v;
+  }
+  return ver;
 }
 
 std::string SALOMEDS_Driver_i::IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
@@ -378,9 +383,9 @@ SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const std::string
     if (!CORBA::is_nil(obj)) {
       SALOME::Session_var session = SALOME::Session::_narrow(obj);
       if (!CORBA::is_nil(session)) {
-	Engines::EngineComponent_var anEngine = session->GetComponent(theComponentType.c_str());
-	if (!CORBA::is_nil(anEngine))
-	  driver = new SALOMEDS_Driver_i(anEngine, _orb);
+        Engines::EngineComponent_var anEngine = session->GetComponent(theComponentType.c_str());
+        if (!CORBA::is_nil(anEngine))
+          driver = new SALOMEDS_Driver_i(anEngine, _orb);
       }
     }
   }

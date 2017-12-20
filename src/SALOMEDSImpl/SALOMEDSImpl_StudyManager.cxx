@@ -73,17 +73,17 @@ namespace {
     void suspend()
     {
       if (myLocked) {
-	myStudy->GetProperties()->SetLocked(true);
-	myPrevLocked = myLocked;
-	myLocked = false;
+        myStudy->GetProperties()->SetLocked(true);
+        myPrevLocked = myLocked;
+        myLocked = false;
       }
     }
     void resume()
     {
       if (myPrevLocked) { 
-	myStudy->GetProperties()->SetLocked(false);
-	myLocked = myPrevLocked;
-	myPrevLocked = false;
+        myStudy->GetProperties()->SetLocked(false);
+        myLocked = myPrevLocked;
+        myPrevLocked = false;
       }
     }
   private:
@@ -456,7 +456,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   int month=0,day=0,year=0,hh=0,mn=0,ss=0;
   SALOMEDSImpl_Tool::GetSystemDate(year, month, day, hh, mn, ss);
   aProp->SetModification(SALOMEDSImpl_Tool::GetUserName(),
-			 mn, hh, day, month, year);
+                         mn, hh, day, month, year);
   
   // lock study back if it was locked initially, to write correct value of Locked flag
   unlock.suspend();
@@ -551,7 +551,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   for ( versionsIt = versions.begin(); versionsIt != versions.end(); ++versionsIt ) {
     sprintf(&(aProperty[a]),"%s=%s",
             (char*)(versionsIt->first.c_str()),
-	    (char*)(versionsIt->second.c_str()));
+            (char*)(versionsIt->second.c_str()));
     a = a + versionsIt->first.size() + versionsIt->second.size() + 1;
     aProperty[a++] = 1;
   }
@@ -636,8 +636,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
           // if there is an associated Engine call its method for saving
           std::string IOREngine;
           try {
-	    SALOMEDSImpl_Driver* aDriver = NULL;
-	    std::string aCompType = sco.GetComment();
+            SALOMEDSImpl_Driver* aDriver = NULL;
+            std::string aCompType = sco.GetComment();
             if (!sco.ComponentIOR(IOREngine)) {
               if (!aCompType.empty()) {
 
@@ -651,10 +651,10 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
                 }
               }
             }
-	    else {
-	      aDriver = aFactory->GetDriverByIOR(IOREngine);
-	    }
-	    aMapTypeDriver[aCompType] = aDriver;
+            else {
+              aDriver = aFactory->GetDriverByIOR(IOREngine);
+            }
+            aMapTypeDriver[aCompType] = aDriver;
           } catch(...) {
             _errorCode = "Can not restore information to resave it";
             return false;
@@ -688,14 +688,14 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
           std::string IOREngine;
           if (sco.ComponentIOR(IOREngine))
             {
-	      // Engine should be already in the map as it was to added before
-	      SALOMEDSImpl_Driver* Engine = aMapTypeDriver[componentDataType];
+              // Engine should be already in the map as it was to added before
+              SALOMEDSImpl_Driver* Engine = aMapTypeDriver[componentDataType];
               if (Engine != NULL)
                 {
                   SALOMEDSImpl_TMPFile* aStream = NULL;
                   long length = 0;
 
-		  componentVersions[ componentDataType ] = Engine->Version();
+                  componentVersions[ componentDataType ] = Engine->Version();
 
                   if (theASCII) aStream = Engine->SaveASCII(sco,
                                                             SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
@@ -838,7 +838,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
       // record component versions
       std::map<std::string, std::string>::const_iterator itVersions;
       for ( itVersions = componentVersions.begin(); itVersions != componentVersions.end(); ++itVersions )
-	aStudy->GetProperties()->SetComponentVersion( itVersions->first, itVersions->second );
+        aStudy->GetProperties()->SetComponentVersion( itVersions->first, itVersions->second );
       
       // lock study back if it was locked initially, to write correct value of Locked flag
       unlock.suspend();
@@ -913,7 +913,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
     if(buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
 #ifdef WIN32
     aCmd = "move /Y \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\"";
-#else 
+#else
     aCmd = "mv -f \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
 #endif
     errors = system(aCmd.c_str());
@@ -925,7 +925,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   //       Perform cleanup
 #ifdef WIN32
   DeleteFileA(aTmpFile.c_str());
-#else 
+#else
   unlink(aTmpFile.c_str());
 #endif
 
@@ -941,6 +941,10 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
     // VSR: finally, if all is done without errors, mark study as Saved
     aStudy->IsSaved(true);
   }
+
+  std::map<std::string, SALOMEDSImpl_Driver*>::iterator n2dr = aMapTypeDriver.begin();
+  for ( ; n2dr != aMapTypeDriver.end(); ++n2dr )
+    delete n2dr->second;
 
   return !errors;
 }
