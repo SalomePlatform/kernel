@@ -65,6 +65,36 @@ void DataScopeKiller::shutdown()
   _orb->shutdown(0);
 }
 
+RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb)
+{
+  CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
+  PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
+  _poa_manager_under_control=poa->the_POAManager();
+  //
+  CORBA::PolicyList policies;
+  policies.length(1);
+  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+  // all is in PortableServer::POAManager::_nil. By specifying _nil cf Advanced CORBA Programming with C++ p 506
+  // a new POA manager is created. This POA manager is independent from POA manager of the son ones.
+  _poa_for_request_control=poa->create_POA("4RqstSwitcher",PortableServer::POAManager::_nil(),policies);
+  threadPol->destroy();
+  PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());
+  mgr->activate();
+  //obj=orb->resolve_initial_references ("POACurrent");// agy : usage of POACurrent breaks the hold_requests. Why ?
+  //PortableServer::Current_var current(PortableServer::Current::_narrow(obj));
+}
+
+void RequestSwitcher::holdRequests()
+{
+  _poa_manager_under_control->hold_requests(true);
+}
+
+void RequestSwitcher::activeRequests()
+{
+  _poa_manager_under_control->activate();
+}
+
 DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
 {
 }
@@ -237,6 +267,34 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
     }
   Py_XDECREF(keys);
   return ret;
+}
+
+SALOME::RequestSwitcher_ptr DataScopeServerBase::getRequestSwitcher()
+{
+  if(_rs.isNull())
+    {
+      _rs=new RequestSwitcher(_orb);
+    }
+  CORBA::Object_var obj(_rs->activate());
+  return SALOME::RequestSwitcher::_narrow(obj);
+}
+
+void DataScopeServerBase::takeANap(CORBA::Double napDurationInSec)
+{
+  if(napDurationInSec<0.)
+    throw Exception("DataScopeServerBase::takeANap : negative value !");
+#ifndef WIN32
+  struct timespec req,rem;
+  long nbSec((long)napDurationInSec);
+  double remainTime(napDurationInSec-(double)nbSec);
+  req.tv_sec=nbSec;
+  req.tv_nsec=(long)(remainTime*1000000.);
+  int ret(nanosleep(&req,&rem));
+  if(ret!=0)
+    throw Exception("DataScopeServerBase::takeANap : nap not finished as expected !");
+#else
+  throw Exception("DataScopeServerBase::takeANap : not implemented for Windows !");
+#endif
 }
 
 void DataScopeServerBase::initializePython(int argc, char *argv[])

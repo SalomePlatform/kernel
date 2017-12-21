@@ -23,7 +23,7 @@
 
 ## \defgroup diclookup diclookup
 #  \{ 
-#  \details Smart dictionnary with key/value lookup
+#  \details Smart dictionary with key/value lookup
 #  \}
 
 __author__="gboulant"

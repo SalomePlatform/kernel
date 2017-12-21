@@ -36,7 +36,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/SALOMETraceCollector
 )
 
-# This local variable defines the list of dependant libraries common to all target in this package.
+# This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
   SalomeContainer
   SalomeNS

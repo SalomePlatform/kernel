@@ -102,7 +102,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
                               // (in SALOMEDS for an example)
   // not enough: set a current directory in naming service is not thread safe
   // if naming service instance is shared among several threads...
-  // ==> allways use absolute path and dot rely on current directory!
+  // ==> always use absolute path and don't rely on current directory!
 
   CORBA::Object_var obj =
     _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);

@@ -80,7 +80,7 @@ if __name__ == "__main__":
   setOmniOrbUserPath()
 
   # Set timeout handler
-  print("Test timeout explicitely set to: %s seconds"%timeout_delay)
+  print("Test timeout explicitly set to: %s seconds"%timeout_delay)
   timeout_sec = abs(int(timeout_delay)-10)
   if sys.platform == 'win32':
     from threading import Timer

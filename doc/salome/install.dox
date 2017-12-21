@@ -18,11 +18,11 @@ You'll find here generic instructions for installing the SALOME platform.
 
 \section S1_install Quick Overview
 
-First of all, you have to check (or install if needed) the dependant
+First of all, you have to check (or install if needed) the dependent
 software programs on your system. These programs are:
 
 - common development tools as gcc, CMake tool.
-- third party softwares used in %SALOME building or runtime process
+- third party software used in %SALOME building or runtime process
   (python, OCC, VTK, ...)
 
 Further details can be found in sections \ref S2_install and \ref S3_install.
@@ -49,7 +49,7 @@ Then, the %SALOME components GEOM, MED, VISU, ... can be installed
 with a similar procedure (cf. \ref S6_install).
 
 Eventually, the platform can be run by executing the shell script
-%runSalome (cf. \ref S7_install). Here, somme additionnal variables have to be set
+%runSalome (cf. \ref S7_install). Here, somme additional variables have to be set
 to describe the %SALOME runtime configuration (<COMPONENT>_ROOT_DIR,
 OMNIORB_CONFIG)
 
@@ -58,7 +58,7 @@ The following provides you with specific instructions for each step.
 
 \section S2_install System configuration
 
-%SALOME is compiled and tested on differents platforms with native packages:
+%SALOME is compiled and tested on different platforms with native packages:
 - Debian sarge
 - Mandrake 10.1
 - ...
@@ -72,11 +72,11 @@ for building process:
 remarks:
 
 - This is the minimum level of CMake, if you need
-  to compile all the third party softwares (included OpenCascade 5.2.x).
+  to compile all the third party software (included OpenCascade 5.2.x).
 
 \section S3_install Third-party dependencies
 
-The %SALOME platform relies on a set of third-party softwares. The
+The %SALOME platform relies on a set of third-party software. The
 current version depends on the following list
 (versions given here are from Debian Sarge, except OpenCascade, VTK and MED,
 which are not Debian packages):
@@ -100,7 +100,7 @@ And, in order to build the documentation:
 - graphviz-2.2.1
 
 
-Additionnal software may be installed for optional features: 
+Additional software may be installed for optional features: 
 
 - netgen4.3 + patch
 - tix8.1.4
@@ -116,7 +116,7 @@ Additionnal software may be installed for optional features:
 
 - See doc/configuration_examples/*
 
-In the following, we assume that all the third-party softwares are
+In the following, we assume that all the third-party software are
 installed in the same root directory, named <salomeroot>/prerequis.
 Then, your file system should probably look like:
 
@@ -135,7 +135,7 @@ process and runtime.
 
 The shell file prerequis.sh, embedded in the KERNEL source package,
 provides a template for setting those variables. In this example, all the
-softwares are supposed to be installed in the same root directory,
+software are supposed to be installed in the same root directory,
 named here INSTALLROOT.
 
 Copy the prerequis.sh in a working directory and adjust the settings
@@ -239,7 +239,7 @@ For example, installing the component SMESH needs the previous
 installation of the KERNEL component, and then the GEOM and MED components.
 
 The building process uses the variables <COMPONENT>_ROOT_DIR to
-localize the dependant components. The variables must be set to the
+localize the dependent components. The variables must be set to the
 install path directory of the components <COMPONENT> (ex:
 KERNEL_ROOT_DIR=<kernel_install>). 
  
@@ -257,7 +257,7 @@ The following explains the general principles.
 
 To run the %SALOME platform, the procedure is:
 
-- set the shell environment to get access to third-party softwares:
+- set the shell environment to get access to third-party software:
   \code
 $ source prerequis.sh
   \endcode
@@ -291,7 +291,7 @@ For convenience or customization, we suggest the following organisation:
 - choose and create a root directory for the %SALOME platform, say
   <salomeroot>.
 
-- install the third-party softwares in a sub-directory "prerequis"
+- install the third-party software in a sub-directory "prerequis"
 
 - install the %SALOME components in a sub-directory "SALOME2"
 

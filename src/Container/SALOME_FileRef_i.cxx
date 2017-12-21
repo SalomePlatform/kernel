@@ -120,7 +120,7 @@ Engines::Container_ptr fileRef_i::getContainer()
  *  CORBA method: after a file transfer on a client computer, registers 
  *  hostname of client and file path of the copied file.
  *  \param machine client hostname
- *  \param fileName asolute path of the transfered file on client computer
+ *  \param fileName absolute path of the transferred file on client computer
  */
 //=============================================================================
 
@@ -133,7 +133,7 @@ CORBA::Boolean fileRef_i::addRef(const char* machine,
 
   if (theFileName[0] != '/')
     {
-      INFOS("destination file path must be absolute, begining with '/'");
+      INFOS("destination file path must be absolute, beginning with '/'");
       return 0;
     }
 

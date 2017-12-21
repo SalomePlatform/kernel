@@ -22,11 +22,19 @@
 
 SALOMESDS::Exception::Exception(const std::string& reason)
 {
+  this->assign(reason.c_str());
+}
+
+SALOMESDS::Exception::Exception(const char *reason)
+{
+  this->assign(reason);
+}
+
+void SALOMESDS::Exception::assign(const char *reason)
+{
   SALOME::ExceptionStruct es;
   es.type=SALOME::INTERNAL_ERROR;
-  es.text=CORBA::string_dup(reason.c_str());
+  es.text=CORBA::string_dup(reason);
   es.lineNumber=0;
   (*this).details=es;
 }
-
-

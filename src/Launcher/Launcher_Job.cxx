@@ -525,7 +525,7 @@ Launcher::Job::getLaunchDate() const
         launch_date[i] == ':' ||
         launch_date[i] == ' ')
       launch_date[i] = '_';
-  launch_date.erase(--launch_date.end()); // Last caracter is a \n
+  launch_date.erase(--launch_date.end()); // Last character is a \n
 
   return launch_date;
 }

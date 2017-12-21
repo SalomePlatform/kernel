@@ -89,7 +89,7 @@ void SALOME_StudyEditor::setIcon(SALOMEDS::SObject_var sobject, const char * res
 
 //
 // MEM: AttributeParameter
-// Note that the AttributeParameter is a multitype dictionnary whose
+// Note that the AttributeParameter is a multitype dictionary whose
 // keys are the names specified when setting the value
 //
 

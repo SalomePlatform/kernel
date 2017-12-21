@@ -334,7 +334,7 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
     for (int i = 0; i < strlen(aFileName); i++)
     {
       if (aFileName[i] == ':')
-	aFileName[i] = '_';
+        aFileName[i] = '_';
     }
 #endif
     aCurrentPos += aFileNameSize;

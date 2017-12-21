@@ -51,7 +51,7 @@ module Engines {
     of the same interface type. When the connection is done, a component can use the "uses port" to use the 
     interface provided by the "provides port".
     
-    The interface DSC implements the component interface that containes the operations that are needed 
+    The interface DSC implements the component interface that contains the operations that are needed 
     to manage declarations into a component and connections between ports.
 
     These operations are logicaly divided in two parts :

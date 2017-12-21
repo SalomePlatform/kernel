@@ -66,9 +66,9 @@ class UiException(Exception):
     def getUIMessage(self):
         return self._UImessage
 
-    ## Specify the type of this exception. To be choosen in the TYPES list.
+    ## Specify the type of this exception. To be chosen in the TYPES list.
     def setType(self, type):
-        """Specify the type of this exception. To be choosen in the TYPES list."""
+        """Specify the type of this exception. To be chosen in the TYPES list."""
         if not self.TYPES.isValid(type):
             raise UiException("The exception type "+str(type)+" can't be used",self.TYPES.DEVEL)
         self._type = type

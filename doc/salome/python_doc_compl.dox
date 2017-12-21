@@ -43,7 +43,7 @@ The motivations of this objective are twice:
   modules coming from different %SALOME modules. Today, the developper
   of a module has to take care of the names used in other modules to
   choose a name.
-- Integrate in %SALOME some python modules initialy developed in the
+- Integrate in %SALOME some python modules initially developed in the
   context of domain specific %SALOME applications (%SALOME-MECA,
   %SALOME-CFD, OPENTURN, PANTHERE) and whose source files are organized
   in a packaged python structure.
@@ -76,7 +76,7 @@ and all other stuff should be imported and work as before).
 To reach this target, we have to face two problems:
 
 - %A naming conflict with the instruction <b>import salome</b>. The result
-  is unpredictible because of the existance in the <b>sys.path</b> of
+  is unpredictable because of the existence in the <b>sys.path</b> of
   both a file <b>salome.py</b> and a package \b salome.
 - The dispatching of <b>salome.*</b> sub-packages in the different %SALOME
   modules.
@@ -184,7 +184,7 @@ module are leaft untouched but the file <b>salome.py</b>.
 
 One special point for the documentation:
 
-- The documentation of the python package API is writen in HTML
+- The documentation of the python package API is written in HTML
   and generated form the source code with doxygen.
 - The *.dox (doxygen file) source files are located in the directory
   <b><srcdir>/doc/salome</b>.

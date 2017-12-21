@@ -807,7 +807,7 @@ long Engines_Component_i::CpuUsed()
       //      << _StartUsed << std::endl ;
     }
 #else
-        // NOT implementet yet
+        // NOT implemented yet
 #endif
 
 

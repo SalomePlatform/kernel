@@ -18,7 +18,7 @@
 //
 
 //  File   : Basics_Utils.cxx
-//  Autor  : Alexander A. BORODIN
+//  Author  : Alexander A. BORODIN
 //  Module : SALOME
 //
 

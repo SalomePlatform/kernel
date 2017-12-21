@@ -183,7 +183,7 @@ Identity::~Identity(void)
         free((char*)_dir);
 #ifndef WIN32
   // free the memory only on Unix
-  // becasue at Windows it is the same static variable
+  // because in Windows it is the same static variable
   // (function get_adip() returns the same char* as get_uname() )
         delete [] (char*)_adip ;
 #endif

@@ -34,6 +34,9 @@ namespace SALOMESDS
   {
   public:
     Exception(const std::string& reason);
+    Exception(const char *reason);
+  private:
+    void assign(const char *reason);
   };
 }
 

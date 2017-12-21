@@ -41,7 +41,7 @@ shared_imported={}
 # Function to return a Python module for the required IDL module name
 def openModule(mname, fname=None):
     # Salome modification start
-    # Be sure to use the right module dictionnary
+    # Be sure to use the right module dictionary
     import sys
     # Salome modification end
 
@@ -87,7 +87,7 @@ def openModule(mname, fname=None):
 # already exist
 def newModule(mname):
     # Salome modification start
-    # Be sure to use the right module dictionnary
+    # Be sure to use the right module dictionary
     import sys
     # Salome modification end
 
@@ -117,7 +117,7 @@ def newModule(mname):
 # partial module map
 def updateModule(mname):
     # Salome modification start
-    # Be sure to use the right module dictionnary
+    # Be sure to use the right module dictionary
     import sys
     # Salome modification end
     if mname in _partialModules:

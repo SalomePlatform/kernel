@@ -60,7 +60,7 @@ int main()
 
       // Transfert d'un fichier ASCII dans un groupe HDF
       HDFConvert::FromAscii("ascii.txt",*hdf_group,"ASCII DATASET");
-      MESSAGE( ">> The Ascii file is transfered " );
+      MESSAGE( ">> The ASCII file is transferred " );
  
       // The HDF group is built, it can be closed
       hdf_group->CloseOnDisk();

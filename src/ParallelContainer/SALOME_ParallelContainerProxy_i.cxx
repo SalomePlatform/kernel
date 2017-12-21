@@ -350,7 +350,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
     string instanceName = aCompName + "_inst_" + aNumI ;
     string component_registerName = _containerName + "/" + instanceName;
 
-    // --- Instanciate required CORBA object
+    // --- Instantiate required CORBA object
     Container_proxy_impl_final::proxy_object * proxy = new Container_proxy_impl_final::proxy_object();
     
     proxy->proxy_id = (component_proxy_factory) (_orb, 
@@ -386,7 +386,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
   }
   catch (...)
   {
-    INFOS( "Exception catched in Proxy creation" );
+    INFOS( "Exception caught in Proxy creation" );
     return Engines::EngineComponent::_nil();
   }
 

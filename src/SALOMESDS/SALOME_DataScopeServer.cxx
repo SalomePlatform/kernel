@@ -36,7 +36,18 @@ int main(int argc, char *argv[])
   std::istringstream isTransacSS(argv[2]);
   int isTransac(0);
   isTransacSS >> isTransac;
-  CORBA::ORB_var orb(CORBA::ORB_init(argc,argv));
+  CORBA::ORB_var orb;
+  {
+    int argc(3);
+    char **argv=new char *[3];
+    char *p0(strdup("DTC")),*p1(strdup("-ORBsupportCurrent")),*p2(strdup("0"));
+    argv[0]=p0;
+    argv[1]=p1;// by disabling supportCurrent it make the POAManager::hold_requests work !
+    argv[2]=p2;
+    orb=CORBA::ORB_init(argc,argv);
+    free(p0); free(p1); free(p2);
+    delete [] argv;
+  }
   CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
   PortableServer::POAManager_var mgr(poa->the_POAManager());

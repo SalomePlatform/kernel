@@ -135,7 +135,7 @@ namespace KERNEL {
 	  anObject = anORB->string_to_object(aValue);
       }
     }catch(...){
-      INFOS("SObjectToObject - Unknown exception was occured!!!");
+      INFOS("SObjectToObject - Unknown exception has occurred!!!");
     }
     return anObject._retn();
   }

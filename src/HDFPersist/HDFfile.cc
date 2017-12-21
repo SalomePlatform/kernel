@@ -85,7 +85,7 @@ void HDFfile::OpenOnDisk(hdf_access_mode access_mode)
 		break;
 
 	default:
-		msgerr = "Can't open HDF file " + std::string(_name) + " : bad acces option";
+		msgerr = "Can't open HDF file " + std::string(_name) + " : bad access option";
 		throw HDFexception(msgerr.c_str());
 	}
 }

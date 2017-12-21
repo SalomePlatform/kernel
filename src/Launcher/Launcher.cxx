@@ -133,7 +133,7 @@ Launcher_cpp::launchJob(int job_id)
     throw LauncherException("Bad state of the job: " + job->getState());
   }
 
-  // Third step search batch manager for the job into the map -> instanciate one if does not exist
+  // Third step search batch manager for the job into the map -> instantiate one if does not exist
 #ifdef WITH_LIBBATCH
   std::map<int, Batch::BatchManager *>::const_iterator it = _batchmap.find(job_id);
   if(it == _batchmap.end())
@@ -426,7 +426,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
 
 //=============================================================================
 /*!
- *  Factory to instanciate the good batch manager for choosen cluster.
+ *  Factory to instantiate the good batch manager for chosen cluster.
  */ 
 //=============================================================================
 Batch::BatchManager *
@@ -524,7 +524,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     LAUNCHER_MESSAGE("Cannot find batch manager factory for " << bmType << ". Check your version of libBatch.");
     throw LauncherException("Cannot find batch manager factory");
   }
-  LAUNCHER_MESSAGE("Instanciation of batch manager of type: " << bmType);
+  LAUNCHER_MESSAGE("Instantiation of batch manager of type: " << bmType);
   Batch::BatchManager * batch_client = (*fact)(hostname.c_str(), params.UserName.c_str(),
                                                protocol, mpi.c_str());
   return batch_client;
@@ -665,7 +665,7 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
 {
   int job_id = job->getNumber();
 
-  // Select a ressource for the job
+  // Select a resource for the job
   std::vector<std::string> ResourceList;
   resourceParams params = job->getResourceRequiredParams();
   // Consider only resources that can launch batch jobs
@@ -788,7 +788,7 @@ Launcher_cpp::loadJobs(const char* jobs_file)
     {
       if (job_state == "CREATED")
       {
-        // In this case, we ignore run_part informations
+        // In this case, we ignore run_part information
         createJob(new_job);
         new_jobs_id_list.push_back(new_job->getNumber());
       }
@@ -814,7 +814,7 @@ Launcher_cpp::loadJobs(const char* jobs_file)
                job_state == "FAILED"   ||
                job_state == "ERROR")
       {
-        // Step 2: We add run_part informations
+        // Step 2: We add run_part information
         addJobDirectlyToMap(new_job);
         new_jobs_id_list.push_back(new_job->getNumber());
       }

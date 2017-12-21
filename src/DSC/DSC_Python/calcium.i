@@ -196,7 +196,7 @@ const char* typecode_string(int typecode) {
         "unsigned short","int","unsigned int","long","unsigned long",
         "longlong","unsigned longlong",
         "float","double","long double","complex float","complex double","complex long double",
-        "object","string","unicode","void","ntypes","notype","char","unkown"};
+        "object","string","unicode","void","ntypes","notype","char","unknown"};
   return type_names[typecode];
 }
 

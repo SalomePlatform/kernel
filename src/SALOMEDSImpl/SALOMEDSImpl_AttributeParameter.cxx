@@ -424,7 +424,7 @@ bool SALOMEDSImpl_AttributeParameter::RemoveID(const std::string& theID, const P
 //=======================================================================
 SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_AttributeParameter::GetFather()
 {
-  SALOMEDSImpl_AttributeParameter* aFather;
+  SALOMEDSImpl_AttributeParameter* aFather = 0;
   DF_Label L = Label();
   if(L.IsRoot()) return aFather;
 
@@ -457,7 +457,7 @@ bool SALOMEDSImpl_AttributeParameter::HasFather()
 //=======================================================================
 /*!
  * Function : IsRoot
- * Purpose  : Returns True is the attribute is highest in an hierachy
+ * Purpose  : Returns True is the attribute is highest in an hierarchy
  */
 //=======================================================================
 bool SALOMEDSImpl_AttributeParameter::IsRoot()
@@ -643,7 +643,7 @@ std::string SALOMEDSImpl_AttributeParameter::Save()
 
   buffer << _bools.size() << " ";
   for(std::map<std::string,bool>::const_iterator p = _bools.begin(); p != _bools.end(); p++) {
-     buffer << convertString(p->first) << " " << p->second << " ";
+    buffer << convertString(p->first) << " " << p->second << " ";
   }
 
   buffer << _strings.size() << " ";
@@ -654,9 +654,9 @@ std::string SALOMEDSImpl_AttributeParameter::Save()
   buffer << _realarrays.size() << " ";
   for(std::map< std::string,std::vector<double> >::const_iterator p = _realarrays.begin(); p != _realarrays.end(); p++) {
     std::vector<double> v(p->second);
-    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), v.size());
+    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), (int)v.size());
     buffer << tmpBuffer;
-    for(int i = 0; i<v.size(); i++) {
+    for(size_t i = 0; i<v.size(); i++) {
       sprintf(tmpBuffer, " %.64e ", v[i]);
       buffer << tmpBuffer;
     }
@@ -665,9 +665,9 @@ std::string SALOMEDSImpl_AttributeParameter::Save()
   buffer << _intarrays.size() << " ";
   for(std::map< std::string,std::vector<int> >::const_iterator p = _intarrays.begin(); p != _intarrays.end(); p++) {
     std::vector<int> v(p->second);
-    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), v.size());
+    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), (int)v.size());
     buffer << tmpBuffer;
-    for(int i = 0; i<v.size(); i++) {
+    for(size_t i = 0; i<v.size(); i++) {
       sprintf(tmpBuffer, " %d ", v[i]);
       buffer << tmpBuffer;
     }
@@ -676,18 +676,18 @@ std::string SALOMEDSImpl_AttributeParameter::Save()
   buffer << _strarrays.size() << " ";
   for(std::map< std::string,std::vector<std::string> >::const_iterator p = _strarrays.begin(); p != _strarrays.end(); p++) {
     std::vector<std::string> v(p->second);
-    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), v.size());
+    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), (int)v.size());
     buffer << tmpBuffer;
-    for(int i = 0; i<v.size(); i++) {
+    for(size_t i = 0; i<v.size(); i++) {
       buffer << " " << convertString(v[i]) << " ";
     }
   }
 
-  delete tmpBuffer;
+  delete [] tmpBuffer;
 
   std::string AS = buffer.str();
 
-  return AS; 
+  return AS;
 }
 
 //=======================================================================
@@ -696,8 +696,8 @@ std::string SALOMEDSImpl_AttributeParameter::Save()
  * Purpose  : Restores the attribute from the string
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::Load(const std::string& theValue) 
-{ 
+void SALOMEDSImpl_AttributeParameter::Load(const std::string& theValue)
+{
   Backup();
 
   _ints.clear();

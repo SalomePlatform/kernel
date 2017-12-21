@@ -288,7 +288,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
     aProperty[a++] = 1;
   }
 
-  //Write delimeter of the section to define end of the modifications section
+  //Write delimiter of the section to define end of the modifications section
   aProperty[a++] = 30;
 
   //Write units if need
@@ -297,7 +297,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
     a = strlen(aProperty);
   }
 
-  aProperty[a++] = 1; //delimeter of the units and comments
+  aProperty[a++] = 1; //delimiter of the units and comments
 
   //Write comments if need
   if(comment.size() > 0) {
@@ -305,7 +305,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
     a = strlen(aProperty);
   }
   
-  aProperty[a++] = 30; //delimeter of the component versions
+  aProperty[a++] = 30; //delimiter of the component versions
 
   std::map<std::string, std::string>::const_iterator versionsIt;
   for ( versionsIt = versions.begin(); versionsIt != versions.end(); ++versionsIt ) {
@@ -455,7 +455,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
   
   //Case when study contains units and comment properties
   if( anIndex < value.size() ) {
-    anIndex++; //skip the delimeter of the sections: char(30)
+    anIndex++; //skip the delimiter of the sections: char(30)
     int unitsSize;
     for(unitsSize = 0; aCopy[anIndex+unitsSize] != 1; unitsSize++);
 

@@ -237,7 +237,7 @@ Divz = Div.Port('z')
 # This DataFlow is "executable" : all pending Ports are defined with Datas
 print(myGraph.IsExecutable())
 
-# Starts only execution of that DataFlow and gets control immediatly
+# Starts only execution of that DataFlow and gets control immediately
 print(myGraph.Run())
 
 # That DataFlow is running ==> 0 (false)

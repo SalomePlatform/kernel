@@ -30,7 +30,7 @@ CMAKE_POLICY(SET CMP0003 NEW)
 STRING(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UC)
 
 SET(${PROJECT_NAME_UC}_MAJOR_VERSION 8)
-SET(${PROJECT_NAME_UC}_MINOR_VERSION 3)
+SET(${PROJECT_NAME_UC}_MINOR_VERSION 4)
 SET(${PROJECT_NAME_UC}_PATCH_VERSION 0)
 SET(${PROJECT_NAME_UC}_VERSION
   ${${PROJECT_NAME_UC}_MAJOR_VERSION}.${${PROJECT_NAME_UC}_MINOR_VERSION}.${${PROJECT_NAME_UC}_PATCH_VERSION})
@@ -74,7 +74,7 @@ MARK_AS_ADVANCED(SALOME_LIGHT_ONLY SALOME_USE_LIBBATCH SALOME_PACO_PARALLEL)
 
 # Required prerequisites
 #   Find "big" prerequisites first - they reference themselves many others
-#   -> this can help finding the smaller prerequisites and detect conficts.
+#   -> this can help finding the smaller prerequisites and detect conflicts.
 # =======================
 
 # Exception: LibBatch is optional but is loaded first, as it can

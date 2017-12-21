@@ -75,7 +75,7 @@ class PyUnitTester():
         for suite in self.__listTestSuite:
             runner.run(suite)
 
-        # Finally close the ouput stream and print the report
+        # Finally close the output stream and print the report
         logfile.close()
         self.printreport()
 

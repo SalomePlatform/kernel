@@ -20,10 +20,10 @@ def mkdir_p(path):
 # Test of SalomeLauncher.
 # This test should be run in the salome environment, using "salome shell"
 # and a salome application should be running.
-# The test will try to launch batch jobs on every available ressources which
+# The test will try to launch batch jobs on every available resources which
 # have the can_launch_batch_jobs parameter set to True.
 # You can use the environment variable USER_CATALOG_RESOURCES_FILE in order to
-# define a customised ressource catalog.
+# define a customised resource catalog.
 # If YACS_ROOT_DIR is not set, the test of submitting a YACS schema will be
 # skiped.
 class TestCompo(unittest.TestCase):

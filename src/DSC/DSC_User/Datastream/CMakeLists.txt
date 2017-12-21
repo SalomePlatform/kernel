@@ -29,7 +29,7 @@ INCLUDE_DIRECTORIES(
 ADD_SUBDIRECTORY(Palm)
 ADD_SUBDIRECTORY(Calcium)
 
-# This local variable defines the list of dependant libraries common to all target in this package.
+# This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
   SalomePalm
   SalomeCalcium

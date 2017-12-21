@@ -149,7 +149,7 @@ public:
  //! method to verify path prefix content
   /*!
     \param pathlist ListOfParserPathPrefix arguments
-    \return true if verfication is OK
+    \return true if verification is OK
   */
   virtual bool _verify_path_prefix(ParserPathPrefixes & pathlist);
 
@@ -157,13 +157,13 @@ public:
   char* _general_path;
   char* _personal_path;
 
-  // These variables will contain the informations on the general common catalog
+  // These variables will contain the information on the general common catalog
   ParserComponents    _general_module_list ;
   ParserPathPrefixes  _general_path_list ;
   ParserTypes _typeMap;
   TypeList _typeList;
 
-  // These variables will contain the informations on the personal catalog
+  // These variables will contain the information on the personal catalog
   ParserComponents    _personal_module_list ;
   ParserPathPrefixes  _personal_path_list ; 
 
@@ -265,8 +265,8 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Verification of _general_path_list content
     if (!myPrivate->_verify_path_prefix(myPrivate->_general_path_list)) {
       if(MYDEBUG) MESSAGE( "Error while parsing the general path list, "
-                           "differents paths are associated to the same computer," 
-                           "the first one will be choosen");
+                           "different paths are associated to the same computer," 
+                           "the first one will be chosen");
     } else {
       if(MYDEBUG) MESSAGE("General path list OK");
     }
@@ -283,8 +283,8 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       // Verification of _general_path_list content
       if(!myPrivate->_verify_path_prefix(myPrivate->_personal_path_list)){
         if(MYDEBUG) MESSAGE("Error while parsing the personal path list, "
-                            "differents paths are associated to the same computer, "
-                            "the first one will be choosen" );
+                            "different paths are associated to the same computer, "
+                            "the first one will be chosen" );
       }else {
         if(MYDEBUG) MESSAGE("Personal path list OK");
       }

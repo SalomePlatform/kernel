@@ -55,7 +55,7 @@ void SALOMEDSTest::testAttributeParameter()
   //Check the attribute creation
   CPPUNIT_ASSERT(_attr);
 
-  //Try to retreive a value with invalid ID
+  //Try to retrieve a value with invalid ID
   bool isRaised = false;
   CPPUNIT_ASSERT(!_attr->IsSet("invalid ID", PT_INTEGER));
   try {

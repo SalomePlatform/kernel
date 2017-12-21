@@ -94,16 +94,16 @@ struct JobParameters
       this directory. A change directory toward this working directory is done
       by the batch system before running the job.
       If not specified (empty string), the launcher will use the working
-      directory of the chosen ressource and if this is also an empty string
+      directory of the chosen resource and if this is also an empty string
       the value used will be $HOME/Batch/workdir_"date" where $HOME is the
-      value of the environment variable on the remote ressource and "date" is
+      value of the environment variable on the remote resource and "date" is
       the current date.
   */
   string work_directory;
 
   //! Prefix to be applied to #in_files.
   /*! It can be used to specify where to find the local input files.
-      It's optionnal if you specify the absolute path name of input files.
+      It's optional if you specify the absolute path name of input files.
   */
   string local_directory;
 
@@ -122,8 +122,8 @@ struct JobParameters
   */
   string maximum_duration; 
 
-  //! Specifies the rules to choose the ressource where to execute the job.
-  /*! The additionnal two following parameters MUST be specified explicitly,
+  //! Specifies the rules to choose the resource where to execute the job.
+  /*! The additional two following parameters MUST be specified explicitly,
       because they are not provided by the resource definition:
       - mem_mb -> Memory expressed in megabytes.
       - nb_proc -> Number of Processors.

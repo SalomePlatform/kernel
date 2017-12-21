@@ -356,7 +356,7 @@ SALOME_Launcher::stopJob(CORBA::Long job_id)
 /*! CORBA Method:
  *  Create a job in the launcher with a file
  *  \param xmlExecuteFile     : .xml to parse that contains job description
- *  \param clusterName        : machine choosed
+ *  \param clusterName        : machine chosen
  */
 //=============================================================================
 CORBA::Long 

@@ -41,8 +41,8 @@ typedef sequence<long> IntegerList;
 struct ResourceParameters
 {
   //! resource name - manual selection
-  /*! If a name is provided, the ressource will be imposed.
-      If the name is an empty string, the ressource will be chosen to match
+  /*! If a name is provided, the resource will be imposed.
+      If the name is an empty string, the resource will be chosen to match
       the other parameters.
   */
   string name;
@@ -73,14 +73,14 @@ struct ResourceParameters
       The parameter specifies the maximum memory value that could be allocated
       for executing the job. This takes into account not only the data that
       could be loaded by the batch process but also the linked dynamic library.
-      A possible problem, for exemple in the case where you use the ssh
+      A possible problem, for example in the case where you use the ssh
       emulation of a batch system, is to get an error message as below
       when libBatch tries to run the ssh command:
 \verbatim
 /usr/bin/ssh: error while loading shared libraries: libcrypto.so.0.9.8: failed
 to map segment from shared object: Cannot allocate memory
 \endverbatim
-      In this exemple, the mem_mb was set to 1MB, value that is not
+      In this example, the mem_mb was set to 1MB, value that is not
       sufficient to load the dynamic libraries linked to the ssh
       executable (libcrypto.so in the error message).
       So, even in the case of a simple test shell script, you should
@@ -191,7 +191,7 @@ interface ResourcesManager
   string getMachineFile(in string resource_name, in long nb_procs, in string parallelLib)
     raises (SALOME::SALOME_Exception);
 
-  //! Return list of resources available (regarding containt of CatalogResources.xml). And for each resource the number of proc available of it.
+  //! Return list of resources available (regarding content of CatalogResources.xml). And for each resource the number of proc available of it.
   void ListAllAvailableResources(out ResourceList machines, out IntegerList nbProcsOfMachines) raises (SALOME::SALOME_Exception);
 };
 

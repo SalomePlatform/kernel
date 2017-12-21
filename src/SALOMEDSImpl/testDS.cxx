@@ -99,7 +99,7 @@ int main (int argc, char * argv[])
   
   aTDFAttr = aBuilder->FindOrCreateAttribute(aSubSO, "AttributeUserID");
   if(aTDFAttr) {
-    std::cout << "Attribute UserID was created succesfully : id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value() << std::endl;
+    std::cout << "Attribute UserID was created successfully : id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value() << std::endl;
   }
   else std::cout << "Can't create AttributeUserID"   << std::endl;
   
@@ -110,7 +110,7 @@ int main (int argc, char * argv[])
   std::string id2 = "0e1c36e6-379b-4d90-ab3b-18a14310e648";
   aTDFAttr = aBuilder->FindOrCreateAttribute(aSubSO, "AttributeUserID"+id2);
   if(aTDFAttr) {
-    std::cout << "Attribute UserID was created succesfully : id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value() << std::endl;
+    std::cout << "Attribute UserID was created successfully : id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value() << std::endl;
   }
   else std::cout << "Can't create AttributeUserID"   << std::endl;
 

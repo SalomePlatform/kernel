@@ -45,7 +45,7 @@ M src/SALOMEDS/Makefile.in
 M src/SALOMEDS/SALOMEDS_SObject_i.cxx
 M src/SALOMEDS/SALOMEDS_StudyBuilder_i.cxx
 
-# detailled modifications:
+# detailed modifications:
 
 - in new files,
 change ExternalFileDef in FileType everywhere

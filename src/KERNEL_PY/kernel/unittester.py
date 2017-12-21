@@ -53,15 +53,15 @@ def run(modulePath, functionName):
         print("[TEST] %s.%s %s NOT OK" % (moduleName, functionName,"."*tabsize))
 
 ## This function is for debug only. It executes the specified function with the
-#  specified arguments in a try/except bloc so that to display the exception in
-#  the case where an exception is raised (usefull to debug server side of a CORBA
+#  specified arguments in a try/except block so as to display the exception in
+#  the case where an exception is raised (useful to debug server side of a CORBA
 #  process).
 #  \ingroup unittester
 def tryfunction(function,*argv):
     """
     This function is for debug only. It executes the specified function with the
-    specified arguments in a try/except bloc so that to display the exception in
-    the case where an exception is raised (usefull to debug server side of a CORBA
+    specified arguments in a try/except block so as to display the exception in
+    the case where an exception is raised (useful to debug server side of a CORBA
     process).
     """
     print("[TEST] trying the function %s" % function)

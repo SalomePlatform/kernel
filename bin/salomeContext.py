@@ -84,7 +84,7 @@ class SalomeContext:
   """
   def __init__(self, configFileNames=0):
     self.getLogger().setLevel(logging.INFO)
-    #it could be None explicitely (if user use multiples setVariable...for standalone)
+    #it could be None explicitly (if user use multiples setVariable...for standalone)
     if configFileNames is None:
        return
     configFileNames = configFileNames or []
@@ -233,7 +233,7 @@ class SalomeContext:
 
   """
   Run SALOME!
-  Args consist in a mandatory command followed by optionnal parameters.
+  Args consist in a mandatory command followed by optional parameters.
   See usage for details on commands.
   """
   def _startSalome(self, args):

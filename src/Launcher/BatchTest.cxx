@@ -435,7 +435,7 @@ BatchTest::test_jobsubmit_simple()
   file_normal.close();
   if (normal_input != "Bonjour")
   {
-    result += "error from simple ouput file ! waiting for Bonjour and get : " + normal_input;
+    result += "error from simple output file ! waiting for Bonjour and get : " + normal_input;
     return result;
   }
   std::string error_input;
@@ -663,7 +663,7 @@ BatchTest::test_jobsubmit_mpi()
   file_normal.close();
   if (!test_ok)
   {
-    result += "error from mpi ouput file ! waiting for HELLO MPI please watch /tmp/" + _date + "_mpi_output.log file";
+    result += "error from mpi output file ! waiting for HELLO MPI please watch /tmp/" + _date + "_mpi_output.log file";
     return result;
   }
   result = "OK";

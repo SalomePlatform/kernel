@@ -764,10 +764,10 @@ Python file arguments, if any, must be comma-separated (without blank characters
     # wake up session
     help_str  = "Wake up a previously closed session. "
     help_str += "The session object is found in the naming service pointed by the variable OMNIORB_CONFIG. "
-    help_str += "If this variable is not setted, the last configuration is taken. "
+    help_str += "If this variable is not set, the last configuration is taken. "
     pars.add_argument("--wake-up-session",
                       action="store_true",
-                      dest="wake_up_session",
+                      dest="wake_up_session", default=False,
                       help=help_str)
 
     # server launch mode

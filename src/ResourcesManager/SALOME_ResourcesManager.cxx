@@ -139,7 +139,7 @@ void SALOME_ResourcesManager::Shutdown()
 }
 
 /*!
- * Return list of resources available (regarding containt of CatalogResources.xml). And for each resource the number of proc available of it.
+ * Return list of resources available (regarding content of CatalogResources.xml). And for each resource the number of proc available of it.
  */
 void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines)
 {
@@ -184,7 +184,7 @@ void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_ou
 Engines::ResourceList *
 SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& params)
 {
-  MESSAGE("ResourcesManager::GetFittingResources");
+  //MESSAGE("ResourcesManager::GetFittingResources");
   Engines::ResourceList_var ret;
 
   // CORBA -> C++
@@ -419,7 +419,7 @@ SALOME_ResourcesManager::getMachineFile(const char * resource_name,
         INFOS("[getMachineFile] Error resource_name MPI implementation was defined for " << resource_name);
       }
       else
-        INFOS("[getMachineFile] Error resource_name MPI implementation not currenly handled for " << resource_name);
+        INFOS("[getMachineFile] Error resource_name MPI implementation not currently handled for " << resource_name);
     }
     else
       INFOS("[getMachineFile] Error resource_name not found in resourcesList -> " << resource_name);

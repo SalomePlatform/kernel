@@ -60,7 +60,7 @@ struct ContainerParameters
   long nb_proc;
   //! if true start a MPI container
   boolean isMPI;
-  //! PaCO specific informations
+  //! PaCO specific information
   string parallelLib;
 
   //! Parameters to choose a resource

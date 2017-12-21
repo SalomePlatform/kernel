@@ -139,7 +139,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   Utils_Locker lock (&_myMutex);
 
   // --- _current_context is replaced to the _root_context
-  //     if the Path begins whith '/'
+  //     if the Path begins with '/'
 
   if (Path[0] == '/'){
     _current_context = _root_context;
@@ -334,7 +334,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   Utils_Locker lock (&_myMutex);
 
   // --- _current_context is replaced to the _root_context
-  //     if the Path begins whith '/'
+  //     if the Path begins with '/'
 
   if (Path[0] == '/')
     {
@@ -403,7 +403,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 /*! \brief get the CORBA object reference associated to an uncomplete name.
  *
  *  get the CORBA object reference associated to an uncomplete name with a
- *  path. Look for the first occurence of name*.
+ *  path. Look for the first occurrence of name*.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
  * \param Path pathname under the form "/path/name" (Absolute reference !)
  *             search the fist reference like "/path(.dir)/name*(.kind)"
@@ -467,7 +467,7 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \param hostname      name of the machine on which the component is searched.
  * \param containerName name of the container in which the component is
-                        instanciated.
+                        instantiated.
  * \param componentName name of the component we are looking for an existing 
                         instance.
  * \param nbproc        in case of multi processor machine, container name is
@@ -614,7 +614,7 @@ std::string SALOME_NamingService::ContainerName(const Engines::ContainerParamete
  *  SALOME_NamingService. This form gives a suffixed containerName in case of
  *  multi processor machine.
  * \param containerName name of the container in which the component is
-                        instanciated.
+                        instantiated.
  * \param hostname name of the host of the container, without domain names.
  * \return the path under the form /Containers/hostname/containerName
  * \sa ContainerName(const Engines::MachineParameters& params)
@@ -657,12 +657,12 @@ std::string SALOME_NamingService::BuildContainerNameForNS(const Engines::Contain
 /*! \brief search a name in current directory.
  *
  *  Search a name in the current directory. after call, the current directory
- *  is changed to the directory containing the last occurence of name found.
- *  If no occurence found (see return value), current directory remains
+ *  is changed to the directory containing the last occurrence of name found.
+ *  If no occurrence found (see return value), current directory remains
  *  unchanged.
  *
  * \param  name the name to search.
- * \return number of occurences found.
+ * \return number of occurrences found.
  * \sa Change_Directory(const char* Path)
  */ 
 // ============================================================================
@@ -702,8 +702,8 @@ throw(ServiceUnreachable)
  *               path, to current context. Prefer absolute pathname, relative
  *               pathname are not safe, when SALOME_NamingService object is
  *               shared or use in multithreaded context.   
- *  \return true if successfull
- *          (creation not strictly garanteed if true, because Register may
+ *  \return true if successful
+ *          (creation not strictly guaranteed if true, because Register may
  *           catch some specific unlikely exception without throw anything
  *           --- to be corrected ---)
  *  \sa RegisterCORBA::Object_ptr ObjRef, const char* Path)
@@ -773,7 +773,7 @@ bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnrea
   CosNaming::NamingContext_var current_context = _current_context;
   bool changeOK = false;
 
-  // --- replace _current_context with _root_context if Path begins whith '/'
+  // --- replace _current_context with _root_context if Path begins with '/'
 
   if (path[0] == '/')
     current_context = _root_context;
@@ -1464,7 +1464,7 @@ void SALOME_NamingService::_initialize_root_context()
  *  \param context_name CosNaming structure to put the path.
  *  \param splitPath    a vector of string with subdirectories and final
  *                      object, if any.
- *  \param onlyDir      if true, final object (if any) is ommited
+ *  \param onlyDir      if true, final object (if any) is omitted
  *                      in context_name.
  *                      if false, final object (if any) is included in
  *                      context_name.
@@ -1534,12 +1534,12 @@ SALOME_NamingService::_createContextNameDir(std::string path,
 /*! \brief search a name in current directory.
  *
  *  Search a name in the current directory. after call, the current directory
- *  is changed to the directory containing the last occurence of name found.
- *  If no occurence found (see return value), current directory remains
+ *  is changed to the directory containing the last occurrence of name found.
+ *  If no occurrence found (see return value), current directory remains
  *  unchanged. The call is recursive.
  *
  * \param  name the name to search.
- * \param  occurence_number number of occurence already found (incremented)
+ * \param  occurence_number number of occurrence already found (incremented)
  */ 
 // ============================================================================
 
@@ -1583,11 +1583,11 @@ void SALOME_NamingService::_Find(const char* name,
               
               if (!strcmp( bindingName[0].id, name))
                 {
-                  //MESSAGE("One occurence was found");
+                  //MESSAGE("One occurrence was found");
                   occurence_number++;
                   
                   // --- We keep in memory the directory where
-                  //     one occurence was found
+                  //     one occurrence was found
                   
                   found_context = _current_context ;
                 }
@@ -1596,7 +1596,7 @@ void SALOME_NamingService::_Find(const char* name,
       
       binding_iterator->destroy();
     }
-  // --- We go to the last directory where an occurence was found
+  // --- We go to the last directory where an occurrence was found
 
   _current_context = found_context;
 
@@ -1685,7 +1685,7 @@ _current_directory(std::vector<std::string>& splitPath,
       binding_iterator->destroy();
     }
 
-  // --- return to the last directory where an occurence was found
+  // --- return to the last directory where an occurrence was found
 
   _current_context = ref_context ;
 }

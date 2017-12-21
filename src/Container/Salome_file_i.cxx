@@ -373,7 +373,7 @@ Salome_file_i::save_all(const char* hdf5_file) {
   }
 
   // For each file we create two groups
-  // First group contains file's informations
+  // First group contains file's information
   // Second group contains the file
   // At the end we create a group and a dataset containing the names
   // of all the files.
@@ -527,7 +527,7 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
   if(fopen(comp_file_name,"rb") != NULL)
     status = "ok";
 
-  // Adding file with is informations
+  // Adding file with its information
   Engines::file infos;
   infos.file_name = CORBA::string_dup(file_name.c_str());
   infos.path = CORBA::string_dup(path.c_str());
@@ -585,7 +585,7 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
     throw SALOME::SALOME_Exception(es);
   }
 
-  // Adding file with his informations
+  // Adding file with its information
   Engines::file infos;
   infos.file_name = CORBA::string_dup(file_name.c_str());
   infos.path = CORBA::string_dup(path.c_str());
@@ -962,7 +962,7 @@ Salome_file_i::getSalome_fileState()
 /*! 
  *  CORBA method: try to open the file given. If the file is readable, return
  *  a positive integer else return 0;
- *  \param  fileName file name to be transfered
+ *  \param  fileName file name to be transferred
  *  \return fileId = positive integer > 0 if open OK.
  */
 //=============================================================================
