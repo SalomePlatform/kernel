@@ -59,7 +59,7 @@ LifeCycleCORBATest::_getTraceFileName()
 
 // ============================================================================
 /*!
- * Set Trace mecanism
+ * Set Trace mechanism
  * - delete preexisting trace classes if any
  * - set trace on file
  * Get or initialize the orb

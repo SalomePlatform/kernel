@@ -64,7 +64,7 @@ Command options:
 --config=<file,folder,...>
 ==========================
     Initialize SALOME context from a list of context files and/or a list
-    of folders containing context files. The list is comma-separated, whithout
+    of folders containing context files. The list is comma-separated, without
     any blank characters.
 '''
 

@@ -39,7 +39,7 @@ Print version of %SALOME platform.
 
 - \c --gui or \c -g
 
-Launch %SALOME sesssion in GUI mode (with GUI desktop).
+Launch %SALOME session in GUI mode (with GUI desktop).
 
 - \c --terminal or \c -t
 

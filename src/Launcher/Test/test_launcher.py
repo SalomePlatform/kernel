@@ -25,7 +25,7 @@ def mkdir_p(path):
 # You can use the environment variable USER_CATALOG_RESOURCES_FILE in order to
 # define a customised resource catalog.
 # If YACS_ROOT_DIR is not set, the test of submitting a YACS schema will be
-# skiped.
+# skipped.
 class TestCompo(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
@@ -179,7 +179,7 @@ f.close()
     f.close()
     os.chmod(abs_script_file, 0o755)
 
-    #environement script
+    #environment script
     env_file = "myEnv.sh"
     env_text = """export ENV_TEST_VAR="expected"
 """
@@ -263,7 +263,7 @@ f.close()
     case_test_dir = os.path.join(TestCompo.test_dir, "yacs")
     mkdir_p(case_test_dir)
 
-    #environement script
+    #environment script
     env_file = "myEnv.sh"
     env_text = """export ENV_TEST_VAR="expected"
 """
@@ -461,7 +461,7 @@ f.close()
                       expected_result)
 
 if __name__ == '__main__':
-    # creat study
+    # create study
     import salome
     salome.salome_init()
     unittest.main()

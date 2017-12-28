@@ -823,7 +823,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
   SALOME::ByteVec *zeRet(retc->waitForMonoThr());
   retc->enforcedRelease();
   return zeRet;
@@ -840,7 +840,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForAndKill(SALOME::KeyWaiter_pt
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
   SALOME::ByteVec *zeRet(retc->waitForAndKill());
   retc->enforcedRelease();
   return zeRet;

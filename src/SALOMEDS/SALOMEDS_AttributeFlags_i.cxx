@@ -34,7 +34,7 @@
                 
                 Available attributes:
                 
-                IS_VISIBLE - is equal to 1 if object is visible in 3D view (0 - overwise).
+                IS_VISIBLE - is equal to 1 if object is visible in 3D view (0 - otherwise).
                              This attribute is valid for active view only.
 */
 

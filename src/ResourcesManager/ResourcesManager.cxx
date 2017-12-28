@@ -124,7 +124,7 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
       user_catalog_file.open(user_file.c_str());
       if (user_catalog_file.fail())
       {
-        RES_INFOS("Error: cannot write in the user catalog resouces files");
+        RES_INFOS("Error: cannot write in the user catalog resources files");
         RES_INFOS("Error: using default CatalogResources.xml file");
         default_catalog_resource = true;
       }

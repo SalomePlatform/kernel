@@ -20,7 +20,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME MPIContainer : implemenation of container based on MPI libraries
+//  SALOME MPIContainer : implementation of container based on MPI libraries
 //  File   : MPIObject_i.hxx
 //  Module : SALOME
 //

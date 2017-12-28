@@ -105,7 +105,7 @@ std::string SALOMEDSImpl_Study::GetPersistentReference()
 }
 //============================================================================
 /*! Function : GetTransientReference
- *  Purpose  : Get IOR of the Study (registred in Document in doc->Root)
+ *  Purpose  : Get IOR of the Study (registered in Document in doc->Root)
  */
 //============================================================================
 std::string SALOMEDSImpl_Study::GetTransientReference()

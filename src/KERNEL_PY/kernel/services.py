@@ -120,7 +120,7 @@ def getComponentList():
     obj = salome.naming_service.Resolve('Kernel/ModulCatalog')
     catalog = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
     if not catalog:
-        raise RuntimeError, "Can't accesss module catalog"
+        raise RuntimeError, "Can't access module catalog"
     return catalog.GetComponentList()
 
 ## Get a study manager to create and manage %SALOME studies

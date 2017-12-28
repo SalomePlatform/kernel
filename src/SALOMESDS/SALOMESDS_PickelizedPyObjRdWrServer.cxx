@@ -98,7 +98,7 @@ SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMet
         }
       oss2 << " )";
       PyErr_Clear();
-      oss << "PickelizedPyObjRdWrServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" ! Details are : " << oss2.str() << "\n\n" << "TraceBack is : " << oss3.str(); 
+      oss << "PickelizedPyObjRdWrServer::invokePythonMethodOn : Problem during invocation serverside of Method \"" << method << "\" ! Details are : " << oss2.str() << "\n\n" << "TraceBack is : " << oss3.str(); 
       throw Exception(oss.str());
     }
   PickelizedPyObjRdWrServer *ret(new PickelizedPyObjRdWrServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));

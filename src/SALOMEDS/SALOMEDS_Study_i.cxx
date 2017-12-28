@@ -288,7 +288,7 @@ char* SALOMEDS_Study_i::GetPersistentReference()
 }
 //============================================================================
 /*! Function : GetTransientReference
- *  Purpose  : Get IOR of the Study (registred in OCAF document in doc->Root)
+ *  Purpose  : Get IOR of the Study (registered in OCAF document in doc->Root)
  */
 //============================================================================
 char* SALOMEDS_Study_i::GetTransientReference()

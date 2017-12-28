@@ -304,7 +304,7 @@ ior = batchmode_geompy.orb.object_to_string(myGraph.G)
 addStudy(ior)
 
 GraphName = myGraph.Name()
-print "Befor save ",
+print "Before save ",
 nodes = myGraph.Nodes()
 length_bs = len(nodes)
 print "ListOfNodes length = ", length_bs
@@ -427,7 +427,7 @@ if res :
         length_as= len(ListOfNodes)
         print "ListOfNodes length = ", length_as
         if length_as != length_bs:
-                raise RuntimeErrror, "defferent length of nodes after study open"
+                raise RuntimeErrror, "different length of nodes after study open"
 #aChildIterator.Next()
 
 Names = []
@@ -436,7 +436,7 @@ for node in ListOfNodes:
 names.sort()
 Names.sort()
 if names != Names :
-        raise RuntimeError, "List of dataflow nodes after save differs from one befor save operation"
+        raise RuntimeError, "List of dataflow nodes after save differs from one before save operation"
 
 #==================================================
 #4. Save
@@ -527,7 +527,7 @@ if res :
         length_as= len(ListOfNodes)
         print "ListOfNodes length = ", length_as
         if length_as != length_bs:
-                raise RuntimeErrror, "defferent length of nodes after study open"
+                raise RuntimeErrror, "different length of nodes after study open"
 #aChildIterator.Next()
 
 Names = []
@@ -536,5 +536,5 @@ for node in ListOfNodes:
 names.sort()
 Names.sort()
 if names != Names :
-        raise RuntimeError, "List of dataflow nodes after save differs from one befor save operation"
+        raise RuntimeError, "List of dataflow nodes after save differs from one before save operation"
 

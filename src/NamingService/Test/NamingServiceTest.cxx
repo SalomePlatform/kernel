@@ -102,7 +102,7 @@ NSTEST::echo_ptr NSTEST_aFactory_i::createInstance()
 
 // ============================================================================
 /*!
- * Set Trace mecanism
+ * Set Trace mechanism
  * - delete preexisting trace classes if any
  * - set trace on file
  * Get or initialize the orb

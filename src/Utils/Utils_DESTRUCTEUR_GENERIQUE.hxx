@@ -89,7 +89,7 @@ public :
  * 
  * <B>Design description</B>
  * 
- *      The destruction object must be created dynamically because it subcribes itself in the list of
+ *      The destruction object must be created dynamically because it subscribes itself in the list of
  *      destruction to be performed at the end of the process.
  * 
  */

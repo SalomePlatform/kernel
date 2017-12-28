@@ -157,7 +157,7 @@ module Engines {
     /*! 
       It can be used by the framework or the component himself.
 
-      If it's the framework that wants the port, the reference has to be gived
+      If it's the framework that wants the port, the reference has to be given
       even if the port is not connected (boolean connection_error to false).
       Contrary, if it's the component that wants the port, the port is given
       in most of cases only if it is connected (boolean connection_error to true). 
@@ -318,7 +318,7 @@ module Engines {
     //!  Release a connection that has been previously created by the ConnectionManager.
     /*!
 
-      \param id The id of the connection previously gived by the connect operation
+      \param id The id of the connection previously given by the connect operation
       of the ConnectionManager.
       \param message state associated with the disconnection.
 

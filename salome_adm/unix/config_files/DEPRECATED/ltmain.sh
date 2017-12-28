@@ -626,7 +626,7 @@ compiler."
       # It is impossible to link a dll without this setting, and
       # we shouldn't force the makefile maintainer to figure out
       # which system we are compiling for in order to pass an extra
-      # flag for every libtool invokation.
+      # flag for every libtool invocation.
       # allow_undefined=no
 
       # FIXME: Unfortunately, there are problems with the above when trying

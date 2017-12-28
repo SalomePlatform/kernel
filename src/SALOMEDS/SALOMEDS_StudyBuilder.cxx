@@ -492,7 +492,7 @@ void SALOMEDS_StudyBuilder::UndoLimit(int theLimit)
  
 void SALOMEDS_StudyBuilder::CheckLocked()
 {
-  //There is only local part as CORBA part throws the correct exeception
+  //There is only local part as CORBA part throws the correct exception
   if (_isLocal) {
     SALOMEDS::Locker lock;
     try {

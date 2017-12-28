@@ -64,12 +64,12 @@ class Enumerate(object):
         return (key in self._dict_keynumbers.keys())
 
     ## Returns true if the specified integer value is defined as an identifier
-    #  in this enumarate.
+    #  in this enumerate.
     #  \param value a value to test
     def isValid(self, value):
         """
         Returns true if the specified integer value is defined as an identifier
-        in this enumarate.
+        in this enumerate.
         @value a value to test
         """
         return (value in self._dict_keynumbers.values())

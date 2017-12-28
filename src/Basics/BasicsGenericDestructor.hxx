@@ -67,7 +67,7 @@
  * This class is utilised with GENERIC_DESTRUCTOR and DESTRUCTOR_OF, 
  * to program automatic deletion of objects at the end of the process, while
  * keeping the possibility of an early destruction, if required. This is used
- * for unit testing and trace mecanism.
+ * for unit testing and trace mechanism.
  */ 
 // ============================================================================
 

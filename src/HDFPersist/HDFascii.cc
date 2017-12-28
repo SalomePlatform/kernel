@@ -723,7 +723,7 @@ std::string GetTmpDir()
   }
 
 #ifdef WIN32
-  //fuction CreateDirectory create only final directory, but not intermediate
+  //function CreateDirectory create only final directory, but not intermediate
   CreateDirectory(aTmpDir.c_str(), NULL);
   CreateDirectory(aDir.c_str(), NULL);
 #else

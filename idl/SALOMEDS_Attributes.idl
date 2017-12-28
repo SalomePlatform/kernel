@@ -503,13 +503,13 @@ module SALOMEDS
     /*!
       \brief Test the value for the specified flag or set of flags.
       \param flags flag or set of flags being tested.
-      \return \c true if all bits correspoding to the \a flags are currently set or \c false otherwise
+      \return \c true if all bits corresponding to the \a flags are currently set or \c false otherwise
     */
     boolean Get(in long flags);
     /*!
       \brief Set/clear specific flag or set of flags.
       \param flags flag or set of flags being set / cleared
-      \param value \c true if all bits correspoding to the \a flags should be set
+      \param value \c true if all bits corresponding to the \a flags should be set
               or \c false if flag(s) should be cleared
     */
     void    Set(in long flags, in boolean value);
@@ -625,7 +625,7 @@ module SALOMEDS
   /*!
     \brief Icon attribute.
     
-    This attribute is used to specifiy the name (file name) of an icon which
+    This attribute is used to specify the name (file name) of an icon which
     should be drawn in the Object browser when rendering an item.
 
     <em>See \ref example14 for an example of this attribute usage in batchmode of %SALOME application.</em>
@@ -659,8 +659,8 @@ module SALOMEDS
     By specifying the tree node attributes for the SObjects it is possible to
     create internal auxiliary %object tree with its own structure and identifier.
 
-    Since each such tree is specfied by the unique identifier, it is possible
-    to create as many trees as it is required.
+    Since each such tree is specified by the unique identifier, it is possible
+    to create as many trees as required.
     
     <em>See \ref example18 for an example of usage of this attribute in batchmode of %SALOME application.</em>
   */
