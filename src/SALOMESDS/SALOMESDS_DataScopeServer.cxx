@@ -52,7 +52,7 @@ void DataScopeKiller::shutdown()
   _orb->shutdown(0);
 }
 
-RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb)
+RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerBase *ds):_ds(ds)
 {
   CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
@@ -80,6 +80,16 @@ void RequestSwitcher::holdRequests()
 void RequestSwitcher::activeRequests()
 {
   _poa_manager_under_control->activate();
+}
+
+SALOME::StringVec *RequestSwitcher::listVars()
+{
+  return _ds->listVars();
+}
+
+SALOME::ByteVec *RequestSwitcher::fetchSerializedContent(const char *varName)
+{
+  return _ds->fetchSerializedContent(varName);
 }
 
 DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
@@ -260,7 +270,7 @@ SALOME::RequestSwitcher_ptr DataScopeServerBase::getRequestSwitcher()
 {
   if(_rs.isNull())
     {
-      _rs=new RequestSwitcher(_orb);
+      _rs=new RequestSwitcher(_orb,this);
     }
   CORBA::Object_var obj(_rs->activate());
   return SALOME::RequestSwitcher::_narrow(obj);

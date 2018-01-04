@@ -76,6 +76,8 @@ module SALOME
   {
     void holdRequests();
     void activeRequests();
+    StringVec listVars();
+    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
   };
 
   interface DataScopeServerBase

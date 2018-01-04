@@ -355,7 +355,7 @@ class SalomeSDSTest(unittest.TestCase):
     l.acquire() ; l2.acquire()
     cv=mp.Condition(mp.Lock())
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
-    #assert(isCreated)
+    self.assertTrue(isCreated)
     p=mp.Process(target=func_test7,args=(scopeName,l,l2,cv))
     p.start()
     l.acquire()
@@ -371,7 +371,7 @@ class SalomeSDSTest(unittest.TestCase):
       rs.holdRequests() # the aim of the test is here. main process is occupied 1s -> holdRequests is Expected to wait
       s=(datetime.now()-s).total_seconds()
       rs.activeRequests()
-      assert(s>=0.99*nbOfSecWait and s<nbOfSecWait*1.01) # expect to be not locked
+      self.assertTrue(s>=0.99*nbOfSecWait and s<nbOfSecWait*1.01) # expect to be not locked
     # finishing
     p.join()
     pass
@@ -382,5 +382,6 @@ class SalomeSDSTest(unittest.TestCase):
   
   pass
 
-unittest.main()
+if __name__=="__main__":
+  unittest.main()
 
