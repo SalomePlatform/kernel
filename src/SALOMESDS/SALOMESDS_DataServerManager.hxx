@@ -71,6 +71,8 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
     //! single thread poa
     PortableServer::POA_var _poa;
+    //! single thread poa and with a specific poa_manager
+    PortableServer::POA_var _poa_for_request_control;
   };
 }
 

@@ -24,6 +24,7 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_SDS)
 
+#include "SALOMESDS_RequestSwitcher.hxx"
 #include "SALOMESDS_RefCountServ.hxx"
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_BasicDataServer.hxx"
@@ -47,23 +48,18 @@ namespace SALOMESDS
   };
 
   class DataScopeServerBase;
-
+  
   /*!
    * Servant activated by a specific POA (single thread) having itself its specific POA_manager.
    * This class is able to hold/active the default POA_manager shared by other POA than this.
    */
-  class SALOMESDS_EXPORT RequestSwitcher : public POA_SALOME::RequestSwitcher, public POAHolder
+  class SALOMESDS_EXPORT RequestSwitcher : public RequestSwitcherBase, public virtual POA_SALOME::RequestSwitcher
   {
   public:
     RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerBase *ds);
-    void holdRequests();
-    void activeRequests();
     SALOME::StringVec *listVars();
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
-    PortableServer::POA_var getPOA() const { return _poa_for_request_control; }
   private:
-    PortableServer::POA_var _poa_for_request_control;
-    PortableServer::POAManager_var _poa_manager_under_control;
     //! handle on its creator to give access to services when _poa_manager_under_control is in hold mode.
     DataScopeServerBase *_ds;
   };

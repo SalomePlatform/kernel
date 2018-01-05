@@ -71,11 +71,15 @@ module SALOME
   {
     void shutdown();
   };
-  
-  interface RequestSwitcher
+
+  interface RequestSwitcherBase
   {
     void holdRequests();
     void activeRequests();
+  };
+  
+  interface RequestSwitcher : RequestSwitcherBase
+  {
     StringVec listVars();
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
   };
