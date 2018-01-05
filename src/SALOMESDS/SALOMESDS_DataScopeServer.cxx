@@ -52,7 +52,7 @@ void DataScopeKiller::shutdown()
   _orb->shutdown(0);
 }
 
-RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerBase *ds):RequestSwitcherBase(orb),_ds(ds)
+RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerTransaction *ds):RequestSwitcherBase(orb),_ds(ds)
 {
 }
 
@@ -64,6 +64,11 @@ SALOME::StringVec *RequestSwitcher::listVars()
 SALOME::ByteVec *RequestSwitcher::fetchSerializedContent(const char *varName)
 {
   return _ds->fetchSerializedContent(varName);
+}
+
+void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data)
+{
+  return _ds->fetchAndGetAccessOfVar(varName,access,data);
 }
 
 DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
@@ -238,16 +243,6 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
     }
   Py_XDECREF(keys);
   return ret;
-}
-
-SALOME::RequestSwitcher_ptr DataScopeServerBase::getRequestSwitcher()
-{
-  if(_rs.isNull())
-    {
-      _rs=new RequestSwitcher(_orb,this);
-    }
-  CORBA::Object_var obj(_rs->activate());
-  return SALOME::RequestSwitcher::_narrow(obj);
 }
 
 void DataScopeServerBase::takeANap(CORBA::Double napDurationInSec)
@@ -892,3 +887,12 @@ DataScopeServerTransaction::~DataScopeServerTransaction()
 {
 }
 
+SALOME::RequestSwitcher_ptr DataScopeServerTransaction::getRequestSwitcher()
+{
+  if(_rs.isNull())
+    {
+      _rs=new RequestSwitcher(_orb,this);
+    }
+  CORBA::Object_var obj(_rs->activate());
+  return SALOME::RequestSwitcher::_narrow(obj);
+}

@@ -47,7 +47,7 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
   };
 
-  class DataScopeServerBase;
+  class DataScopeServerTransaction;
   
   /*!
    * Servant activated by a specific POA (single thread) having itself its specific POA_manager.
@@ -56,12 +56,13 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT RequestSwitcher : public RequestSwitcherBase, public virtual POA_SALOME::RequestSwitcher
   {
   public:
-    RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerBase *ds);
+    RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerTransaction *ds);
     SALOME::StringVec *listVars();
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
+    void fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data);
   private:
     //! handle on its creator to give access to services when _poa_manager_under_control is in hold mode.
-    DataScopeServerBase *_ds;
+    DataScopeServerTransaction *_ds;
   };
 
   class KeyWaiter;
@@ -82,7 +83,6 @@ namespace SALOMESDS
     CORBA::Boolean shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer);
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
-    SALOME::RequestSwitcher_ptr getRequestSwitcher();
     void takeANap(CORBA::Double napDurationInSec);
   public:
     ~DataScopeServerBase();
@@ -120,7 +120,6 @@ namespace SALOMESDS
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
     SALOME::DataScopeKiller_var _killer;
-    AutoServantPtr<RequestSwitcher> _rs;
     static std::size_t COUNTER;
   };
   
@@ -168,11 +167,13 @@ namespace SALOMESDS
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
     SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
+    SALOME::RequestSwitcher_ptr getRequestSwitcher();
   private:
     PyObject *getPyCmpFunc();
   private:
     PortableServer::POA_var _poa_for_key_waiter;
     std::list< KeyWaiter * > _waiting_keys;
+    AutoServantPtr<RequestSwitcher> _rs;
   };
 }
 
