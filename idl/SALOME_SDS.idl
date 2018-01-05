@@ -84,6 +84,11 @@ module SALOME
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
   };
 
+  interface RequestSwitcherDSM : RequestSwitcherBase
+  {
+    StringVec listScopes();
+  };
+
   interface DataScopeServerBase
   {
     void ping();

@@ -33,6 +33,11 @@ const char DataServerManager::NAME_IN_NS[]="/DataServerManager";
 
 const char DataServerManager::DFT_SCOPE_NAME_IN_NS[]="Default";
 
+SALOME::StringVec *RequestSwitcherDSM::listScopes()
+{
+  return _dsm->listScopes();
+}
+
 DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
   DataScopeServer *dftScope(new DataScopeServer(orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
@@ -43,19 +48,6 @@ DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb,
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   _poa=poa->create_POA("SingleThPOA4SDS",pman,policies);
   threadPol->destroy();
-  //An another _poa_for_request_control to give to my boss the pure power
-  {
-    CORBA::PolicyList policies;
-    policies.length(1);
-    PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-    policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-    // all is in PortableServer::POAManager::_nil. By specifying _nil cf Advanced CORBA Programming with C++ p 506
-    // a new POA manager is created. This POA manager is independent from POA manager of the son ones.
-    _poa_for_request_control=poa->create_POA("4RqstSwitcher",PortableServer::POAManager::_nil(),policies);
-    threadPol->destroy();
-    PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());
-    mgr->activate();
-  }
   //
   dftScope->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
   // activate this to be ready to be usable from NS.
@@ -319,4 +311,14 @@ SALOME::DataScopeServerBase_var DataServerManager::getScopePtrGivenName(const st
 {
   SALOME_NamingService ns(_orb);
   return GetScopePtrGivenName(scopeName,listOfScopesCpp(),ns);
+}
+
+SALOME::RequestSwitcherDSM_ptr DataServerManager::getRequestSwitcher()
+{
+  if(_rs.isNull())
+    {
+      _rs=new RequestSwitcherDSM(_orb,this);
+    }
+  CORBA::Object_var obj(_rs->activate());
+  return SALOME::RequestSwitcherDSM::_narrow(obj);
 }
