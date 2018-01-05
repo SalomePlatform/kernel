@@ -20,10 +20,13 @@
 
 #include "SALOMESDS_RequestSwitcher.hxx"
 
+#include <sstream>
+
 using namespace SALOMESDS;
 
 RequestSwitcherBase::RequestSwitcherBase(CORBA::ORB_ptr orb)
 {
+  static int iii=0;
   CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
   _poa_manager_under_control=poa->the_POAManager();
@@ -34,7 +37,9 @@ RequestSwitcherBase::RequestSwitcherBase(CORBA::ORB_ptr orb)
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   // all is in PortableServer::POAManager::_nil. By specifying _nil cf Advanced CORBA Programming with C++ p 506
   // a new POA manager is created. This POA manager is independent from POA manager of the son ones.
-  _poa_for_request_control=poa->create_POA("4RqstSwitcher",PortableServer::POAManager::_nil(),policies);
+  std::ostringstream poaName;
+  poaName << "4RqstSwitcher_" << iii++;
+  _poa_for_request_control=poa->create_POA(poaName.str().c_str(),PortableServer::POAManager::_nil(),policies);
   threadPol->destroy();
   PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());
   mgr->activate();
