@@ -345,21 +345,34 @@ class SalomeSDSTest(unittest.TestCase):
     Warning this method expects a not overloaded machine to be run because test is based on ellapse time.
     """
     scopeName="Scope1"
+    varName="ab"
+    zeObj={"ab":[5,6]}
     dsm=salome.naming_service.Resolve("/DataServerManager")
     dsm.cleanScopesInNS()
     if scopeName in dsm.listScopes():
         dsm.removeDataScope(scopeName)
     # l is for main process sync. to be sure to launch test when sub process is ready
     # l2 lock is for sub process sync.
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
     l=mp.Lock(); l2=mp.Lock()
     l.acquire() ; l2.acquire()
     cv=mp.Condition(mp.Lock())
-    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
-    self.assertTrue(isCreated)
     p=mp.Process(target=func_test7,args=(scopeName,l,l2,cv))
     p.start()
+    ################ agy : Do not invoke using dss before this line (p.start).
+    ################ If you do so, deadlock occurs between next rs.activeRequests() and dss.createRdWrVarTransac in func_test7
+    ################ Why ? Dont know. Omnipy problem ?
+    ################ Sounds like a cache in omnipy. cache is copied on fork (implied by p.start) and this cache is so "shared" between this process and the child process.
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(not isCreated)
+    t0=dss.createRdWrVarTransac(varName,obj2Str(zeObj))
+    dss.atomicApply([t0])
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(not isCreated)
     l.acquire()
     rs=dss.getRequestSwitcher() ; rs.holdRequests() # The aim of the test
+    self.assertEqual(rs.listVars(),[varName]) # call whereas holdRequest is called
     l2.release() # tell slave process that it's ready for micro-test1
     time.sleep(nbOfSecWait)
     rs.activeRequests() # The aim of the test
@@ -370,6 +383,7 @@ class SalomeSDSTest(unittest.TestCase):
       time.sleep(0.01) # let main proc the priority
       rs.holdRequests() # the aim of the test is here. main process is occupied 1s -> holdRequests is Expected to wait
       s=(datetime.now()-s).total_seconds()
+      self.assertTrue(str2Obj(rs.fetchSerializedContent(varName))==zeObj) # call whereas holdRequest is called
       rs.activeRequests()
       self.assertTrue(s>=0.99*nbOfSecWait and s<nbOfSecWait*1.01) # expect to be not locked
     # finishing
