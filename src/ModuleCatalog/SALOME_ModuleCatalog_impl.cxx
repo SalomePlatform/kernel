@@ -141,8 +141,8 @@ public:
   
   //! method to create the path prefix structures from the catalog parsing
   /*!
-    \param pathes ParserPathPrefixes arguments
-    \return the pathes
+    \param paths ParserPathPrefixes arguments
+    \return the paths
   */
   void duplicate(ParserPathPrefixes & p_out, const ParserPathPrefixes & P_in);
 

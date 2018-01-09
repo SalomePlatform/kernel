@@ -192,7 +192,7 @@ def setCurrentStudyId(theStudyId=0):
 salome_initial=1
 def salome_init(theStudyId=0,embedded=0):
     """
-    Performs only once SALOME general purpose intialisation for scripts.
+    Performs only once SALOME general purpose initialisation for scripts.
     optional argument : theStudyId
       When in embedded interpreter inside IAPP, theStudyId is not used
       When used without GUI (external interpreter)

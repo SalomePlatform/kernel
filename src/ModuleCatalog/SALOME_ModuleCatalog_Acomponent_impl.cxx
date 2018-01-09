@@ -42,10 +42,10 @@ static int MYDEBUG = 0;
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_AcomponentImpl
 // Purpose  : Constructor
-//            Affect the component name, type,icone,  a bool to define 
-//            if it's multistudy or not.
+//            Affect the component name, type, icon, and bool to define 
+//            if it's multi-study or not.
 //            Affect too the constraint and the interfaces of the component
-//            and the pathes prefixes for all computers
+//            and the path prefixes for all computers
 //----------------------------------------------------------------------  
 SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl
 (SALOME_ModuleCatalog::ComponentDef &C) : _Component(C)
@@ -294,7 +294,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
       if (strcmp(interfacename, _Component.interfaces[ind].interfacename) == 0)
         {
           // wanted interface
-          // looking for the defautl service of the wanted interface
+          // looking for the default service of the wanted interface
           for (unsigned int ind1 = 0; ind1 <  _Component.interfaces[ind].interfaceservicelist.length() ; ind1++)
             {
               if (_Component.interfaces[ind].interfaceservicelist[ind1].Servicebydefault)
