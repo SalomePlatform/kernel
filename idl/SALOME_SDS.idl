@@ -170,5 +170,6 @@ module SALOME
     void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     void cleanScopesInNS();
     void shutdownScopes() raises (SALOME::SALOME_Exception);
+    RequestSwitcherDSM getRequestSwitcher();
   };
 };
