@@ -43,6 +43,7 @@ namespace SALOMESDS
   public:
     RequestSwitcherDSM(CORBA::ORB_ptr orb, DataServerManager *dsm):RequestSwitcherBase(orb),_dsm(dsm) { }
     SALOME::StringVec *listScopes();
+    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
   private:
     DataServerManager *_dsm;
   };

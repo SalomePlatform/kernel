@@ -85,9 +85,12 @@ module SALOME
     void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME::SALOME_Exception);
   };
 
+  interface DataScopeServerTransaction;
+  
   interface RequestSwitcherDSM : RequestSwitcherBase
   {
     StringVec listScopes();
+    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
   };
 
   interface DataScopeServerBase

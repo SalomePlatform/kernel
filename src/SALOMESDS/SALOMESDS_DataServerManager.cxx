@@ -38,6 +38,11 @@ SALOME::StringVec *RequestSwitcherDSM::listScopes()
   return _dsm->listScopes();
 }
 
+SALOME::DataScopeServerTransaction_ptr RequestSwitcherDSM::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
+{
+  return _dsm->giveADataScopeTransactionCalled(scopeName,isCreated);
+}
+
 DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
   DataScopeServer *dftScope(new DataScopeServer(orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
