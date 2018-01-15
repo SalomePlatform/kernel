@@ -58,16 +58,21 @@ def work(t):
       print err
     return proc.returncode
   
-def func_test7(scopeName,l,l2,cv):
+def func_test7(scopeName,cv,cv2,cv3,sharedNum):
     salome.salome_init()
     varName="a"
     zeValue={"ab":[4,5,6]}
     dsm=salome.naming_service.Resolve("/DataServerManager")
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName) # should be suspended nbOfSecWait s by main process
     assert(not isCreated)
-    l.release() # tell manager that I'm ready
-    l2.acquire() # wait for manager to start micro-test1
     ######### micro-test1 - check that all requests are suspended
+    ######## Barrier
+    with cv2:
+      cv2.notify_all()
+      sharedNum.value=True
+    with cv3:
+      cv3.wait()
+    ####### End Barrier
     s=datetime.now()
     t0=dss.createRdWrVarTransac(varName,obj2Str(zeValue))
     s=(datetime.now()-s).total_seconds()
@@ -351,29 +356,32 @@ class SalomeSDSTest(unittest.TestCase):
     dsm.cleanScopesInNS()
     if scopeName in dsm.listScopes():
         dsm.removeDataScope(scopeName)
-    # l is for main process sync. to be sure to launch test when sub process is ready
-    # l2 lock is for sub process sync.
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     self.assertTrue(isCreated)
-    l=mp.Lock(); l2=mp.Lock()
-    l.acquire() ; l2.acquire()
     cv=mp.Condition(mp.Lock())
-    p=mp.Process(target=func_test7,args=(scopeName,l,l2,cv))
+    cv2=mp.Condition(mp.Lock()) # sharedNum & cv2 & cv3 for the barrier
+    cv3=mp.Condition(mp.Lock())
+    sharedNum=mp.Value('b',False)
+    p=mp.Process(target=func_test7,args=(scopeName,cv,cv2,cv3,sharedNum))
     p.start()
-    ################ agy : Do not invoke using dss before this line (p.start).
-    ################ If you do so, deadlock occurs between next rs.activeRequests() and dss.createRdWrVarTransac in func_test7
-    ################ Why ? Dont know. Omnipy problem ?
-    ################ Sounds like a cache in omnipy. cache is copied on fork (implied by p.start) and this cache is so "shared" between this process and the child process.
+    #
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     self.assertTrue(not isCreated)
     t0=dss.createRdWrVarTransac(varName,obj2Str(zeObj))
     dss.atomicApply([t0])
-    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    rs=dss.getRequestSwitcher()
     self.assertTrue(not isCreated)
-    l.acquire()
-    rs=dss.getRequestSwitcher() ; rs.holdRequests() # The aim of the test
+    ######## Barrier
+    with cv2:
+      if not sharedNum.value:
+        cv2.wait()
+      sharedNum.value=False
+      pass
+    with cv3:
+      cv3.notify_all()
+    ####### End Barrier
+    rs.holdRequests() # The aim of the test
     self.assertEqual(rs.listVars(),[varName]) # call whereas holdRequest is called
-    l2.release() # tell slave process that it's ready for micro-test1
     time.sleep(nbOfSecWait)
     rs.activeRequests() # The aim of the test
     ######### micro-test3 - check that holdRequests is able to wait for a non finished job
