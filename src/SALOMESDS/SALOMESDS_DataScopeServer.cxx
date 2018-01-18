@@ -683,16 +683,25 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
 {
   std::size_t ii(0);
   // this part does nothing except to be sure that in notify key all will be OK.
+  PyObject *args(PyTuple_New(1));
+  PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
     {
       PyObject *waitKey((*it)->getKeyPyObj());
-      PyObject *res(PyObject_CallMethodObjArgs(keyObj, PyUnicode_DecodeASCII("__ne__", 6, NULL), waitKey));
+      PyObject *meth(PyObject_GetAttrString(keyObj,"__eq__"));
+      if(!meth)
+      {
+    	  std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " no __eq__ in pyobj !";
+    	  throw Exception(oss.str());
+      }
+      PyObject *res(PyObject_CallObject(meth,args));
+      Py_XDECREF(meth);
       if(res==NULL)
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
-      PyLong_AsLong(res); // res is bool, but it s ok since __int__ is called
+      PyBool_Check(res);
       if(PyErr_Occurred())
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
@@ -700,11 +709,14 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
         }
       Py_XDECREF(res);
     }
+  Py_XDECREF(args);
 }
 
 void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj)
 {
   std::size_t ii(0);
+  PyObject *args(PyTuple_New(1));
+  PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
   std::list< KeyWaiter *> newList,listOfEltToWakeUp;
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
     {
@@ -714,24 +726,31 @@ void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject 
           continue;
         }
       PyObject *waitKey((*it)->getKeyPyObj());
-      PyObject *res(PyObject_CallMethodObjArgs(keyObj, PyUnicode_DecodeASCII("__ne__", 6, NULL), waitKey));
-      if(res==NULL)
-        {
-          std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during cmp(k,wk[i]) !";
-          throw Exception(oss.str());
-        }
-      long resCpp(PyLong_AsLong(res)); // res is bool, but it s ok since __int__ is called
+      PyObject *meth(PyObject_GetAttrString(keyObj,"__eq__"));
+      if(!meth)
+      {
+    	  std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " no __eq__ in pyobj !";
+    	  throw Exception(oss.str());
+      }
+      PyObject *res(PyObject_CallObject(meth,args));
+      Py_XDECREF(meth);
+      if(!PyBool_Check(res))
+      {
+    	  std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " no __eq__ in pyobj !";
+    	  throw Exception(oss.str());
+      }
       if(PyErr_Occurred())
         {
           std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
-      Py_XDECREF(res);
-      if(resCpp==0)
+      if(res==Py_True)
         listOfEltToWakeUp.push_back(*it);
       else
         newList.push_back(*it);
+      Py_XDECREF(res);
     }
+  Py_XDECREF(args);
   for(std::list< KeyWaiter *>::iterator it=listOfEltToWakeUp.begin();it!=listOfEltToWakeUp.end();it++)
     (*it)->valueJustCome(valueObj);
   for(std::list< KeyWaiter *>::iterator it=listOfEltToWakeUp.begin();it!=listOfEltToWakeUp.end();it++)

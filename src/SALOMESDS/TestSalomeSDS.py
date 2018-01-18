@@ -54,8 +54,10 @@ def work(t):
     proc = subprocess.Popen(["python3", fname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
+      print("-------------- work -----------")
       print(out)
       print(err)
+      print("~~~~~~~~~~~~~~ work ~~~~~~~~~~~")
     return proc.returncode
   
 def func_test7(scopeName,l,l2,cv):
@@ -160,6 +162,7 @@ class SalomeSDSTest(unittest.TestCase):
     nbProc=8
     pool=mp.Pool(processes=nbProc)
     asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in range(nbProc)])
+    print("asyncResult=", asyncResult)
     self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
 
@@ -265,7 +268,7 @@ class SalomeSDSTest(unittest.TestCase):
     wk.waitFor()
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
-    self.assertEqual(keys,['ab','cd'])
+    self.assertEqual(set(keys),set(['ab','cd']))
 
   def testTransaction6(self):
     """ Test to test RdWr global vars with transaction"""
