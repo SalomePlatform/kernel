@@ -69,7 +69,7 @@ Container_proxy_impl_final:: ~Container_proxy_impl_final() {
   if (_NS)
     delete _NS;
 
-  // _fab_thread not deleted beacause fab_thread is managed
+  // _fab_thread not deleted because fab_thread is managed
   // by paco_fabrique_manager
 }
 

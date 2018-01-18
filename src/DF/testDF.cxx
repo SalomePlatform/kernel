@@ -248,7 +248,7 @@ int main (int argc, char * argv[])
   std::string s("012-56");
   
   int pos = s.find('-');
-  std::cout << "Fisrt part : " << s.substr(0, pos) << std::endl;
+  std::cout << "First part : " << s.substr(0, pos) << std::endl;
   std::cout << "Last part : " << s.substr(pos+1, s.size()) << std::endl;
 
   std::vector<std::string> vs = splitString("/dn20/salome/srn/salome2/", '/');

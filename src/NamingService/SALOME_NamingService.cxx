@@ -400,9 +400,9 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 }
 
 // ============================================================================
-/*! \brief get the CORBA object reference associated to an uncomplete name.
+/*! \brief get the CORBA object reference associated to an incomplete name.
  *
- *  get the CORBA object reference associated to an uncomplete name with a
+ *  get the CORBA object reference associated to an incomplete name with a
  *  path. Look for the first occurrence of name*.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
  * \param Path pathname under the form "/path/name" (Absolute reference !)

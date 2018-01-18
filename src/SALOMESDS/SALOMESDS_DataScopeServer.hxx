@@ -24,6 +24,7 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_SDS)
 
+#include "SALOMESDS_RequestSwitcher.hxx"
 #include "SALOMESDS_RefCountServ.hxx"
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_BasicDataServer.hxx"
@@ -45,17 +46,23 @@ namespace SALOMESDS
   private:
     CORBA::ORB_var _orb;
   };
+
+  class DataScopeServerTransaction;
   
-  class SALOMESDS_EXPORT RequestSwitcher : public POA_SALOME::RequestSwitcher, public POAHolder
+  /*!
+   * Servant activated by a specific POA (single thread) having itself its specific POA_manager.
+   * This class is able to hold/active the default POA_manager shared by other POA than this.
+   */
+  class SALOMESDS_EXPORT RequestSwitcher : public RequestSwitcherBase, public virtual POA_SALOME::RequestSwitcher
   {
   public:
-    RequestSwitcher(CORBA::ORB_ptr orb);
-    void holdRequests();
-    void activeRequests();
-    PortableServer::POA_var getPOA() const { return _poa_for_request_control; }
+    RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerTransaction *ds);
+    SALOME::StringVec *listVars();
+    SALOME::ByteVec *fetchSerializedContent(const char *varName);
+    void fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data);
   private:
-    PortableServer::POA_var _poa_for_request_control;
-    PortableServer::POAManager_var _poa_manager_under_control;
+    //! handle on its creator to give access to services when _poa_manager_under_control is in hold mode.
+    DataScopeServerTransaction *_ds;
   };
 
   class KeyWaiter;
@@ -76,7 +83,6 @@ namespace SALOMESDS
     CORBA::Boolean shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer);
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
-    SALOME::RequestSwitcher_ptr getRequestSwitcher();
     void takeANap(CORBA::Double napDurationInSec);
   public:
     ~DataScopeServerBase();
@@ -114,7 +120,6 @@ namespace SALOMESDS
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
     SALOME::DataScopeKiller_var _killer;
-    AutoServantPtr<RequestSwitcher> _rs;
     static std::size_t COUNTER;
   };
   
@@ -162,9 +167,11 @@ namespace SALOMESDS
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
     SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
+    SALOME::RequestSwitcher_ptr getRequestSwitcher();
   private:
     PortableServer::POA_var _poa_for_key_waiter;
     std::list< KeyWaiter * > _waiting_keys;
+    AutoServantPtr<RequestSwitcher> _rs;
   };
 }
 

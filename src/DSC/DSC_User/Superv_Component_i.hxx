@@ -42,7 +42,7 @@
  *  \brief This class implements DSC_User component.
  *
  *  This class allows a higher programming level than DSC_Basic. It enables
- *  a programming level for service's developpers who want to use DSC ports.
+ *  a programming level for service's developers who want to use DSC ports.
  *
  *  This class has two level for using and declare ports. The higher level proposes
  *  operations to add ports that are provided by default by SALOME like Calcium ports.

@@ -71,11 +71,26 @@ module SALOME
   {
     void shutdown();
   };
-  
-  interface RequestSwitcher
+
+  interface RequestSwitcherBase
   {
     void holdRequests();
     void activeRequests();
+  };
+  
+  interface RequestSwitcher : RequestSwitcherBase
+  {
+    StringVec listVars();
+    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
+    void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME::SALOME_Exception);
+  };
+
+  interface DataScopeServerTransaction;
+  
+  interface RequestSwitcherDSM : RequestSwitcherBase
+  {
+    StringVec listScopes();
+    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
   };
 
   interface DataScopeServerBase
@@ -88,7 +103,6 @@ module SALOME
     boolean shutdownIfNotHostedByDSM(out DataScopeKiller killer) raises (SALOME::SALOME_Exception);
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME::SALOME_Exception);
-    RequestSwitcher getRequestSwitcher();
     void takeANap(in double napDurationInSec) raises (SALOME::SALOME_Exception);
   };
 
@@ -139,6 +153,7 @@ module SALOME
     void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
     ByteVec waitForMonoThrRev(in KeyWaiter kw) raises (SALOME::SALOME_Exception);
     ByteVec waitForAndKill(in KeyWaiter kw) raises (SALOME::SALOME_Exception);
+    RequestSwitcher getRequestSwitcher();
   };
 
   interface DataServerManager
@@ -158,5 +173,6 @@ module SALOME
     void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     void cleanScopesInNS();
     void shutdownScopes() raises (SALOME::SALOME_Exception);
+    RequestSwitcherDSM getRequestSwitcher();
   };
 };

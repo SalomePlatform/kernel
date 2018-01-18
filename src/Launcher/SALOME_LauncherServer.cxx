@@ -76,8 +76,19 @@ int main(int argc, char* argv[])
   PortableServer::POA_var root_poa;
   PortableServer::POAManager_var pman;
   CORBA::Object_var obj;
-
-  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  CORBA::ORB_var orb;
+  {
+    int myArgc(argc+2);
+    char **myArgv(new char *[myArgc]);
+    for(int i=0;i<argc;i++)
+      myArgv[i]=strdup(argv[i]);
+    myArgv[argc+0]=strdup("-ORBsupportCurrent");
+    myArgv[argc+1]=strdup("0");
+    orb = CORBA::ORB_init( myArgc , myArgv ) ;
+    for(int i=0;i<myArgc;i++)
+      free(myArgv[i]);
+    delete [] myArgv;
+  }
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);

@@ -65,7 +65,7 @@ SALOME::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonM
   Py_XDECREF(argsPy);
   if(!res)
     {
-      std::ostringstream oss; oss << "PickelizedPyObjRdExtServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" !";
+      std::ostringstream oss; oss << "PickelizedPyObjRdExtServer::invokePythonMethodOn : Problem during invocation serverside of Method \"" << method << "\" !";
       throw Exception(oss.str());
     }
   PickelizedPyObjRdExtServer *ret(new PickelizedPyObjRdExtServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));

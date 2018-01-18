@@ -2,7 +2,7 @@
   \page KERNEL_Services KERNEL Services for end user (Python interface)
 
 In a %SALOME application, distributed components, servers and clients use
-the CORBA middleware for comunication. CORBA interfaces are defined via idl
+the CORBA middleware for communication. CORBA interfaces are defined via idl
 files. All the different CORBA interfaces are available for users in Python,
 see CORBA interfaces below.
 

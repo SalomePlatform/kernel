@@ -82,7 +82,7 @@ BaseTraceCollector* SALOMETraceCollector::instance()
 // ============================================================================
 /*!
  *  In a separate thread, loop to print traces.
- *  Mutex guarantees intialisation on instance method is done and only one run
+ *  Mutex guarantees initialisation on instance method is done and only one run
  *  allowed (double check ...)
  *  Loop until there is no more buffer to print,
  *  and no ask for end from destructor.

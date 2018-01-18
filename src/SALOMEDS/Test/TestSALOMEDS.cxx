@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
      return 1;
   }
 
-  //Set up the environement for Embedded case
+  //Set up the environment for Embedded case
   std::string kernel_root = getenv("KERNEL_ROOT_DIR");
   CPPUNIT_ASSERT(!kernel_root.empty());
   kernel_root+="/share/salome/resources/kernel";

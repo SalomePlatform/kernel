@@ -167,7 +167,7 @@ myStudy, myStudyName=None,None
 salome_initial=1
 def salome_init(embedded=0):
     """
-    Performs only once SALOME general purpose initialization for scripts.
+    Performs only once SALOME general purpose initialisation for scripts.
     Provides:
     orb             reference to CORBA
     lcc             a LifeCycleCorba instance

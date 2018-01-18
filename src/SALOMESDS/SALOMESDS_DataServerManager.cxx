@@ -33,6 +33,16 @@ const char DataServerManager::NAME_IN_NS[]="/DataServerManager";
 
 const char DataServerManager::DFT_SCOPE_NAME_IN_NS[]="Default";
 
+SALOME::StringVec *RequestSwitcherDSM::listScopes()
+{
+  return _dsm->listScopes();
+}
+
+SALOME::DataScopeServerTransaction_ptr RequestSwitcherDSM::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
+{
+  return _dsm->giveADataScopeTransactionCalled(scopeName,isCreated);
+}
+
 DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
   DataScopeServer *dftScope(new DataScopeServer(orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
@@ -306,4 +316,14 @@ SALOME::DataScopeServerBase_var DataServerManager::getScopePtrGivenName(const st
 {
   SALOME_NamingService ns(_orb);
   return GetScopePtrGivenName(scopeName,listOfScopesCpp(),ns);
+}
+
+SALOME::RequestSwitcherDSM_ptr DataServerManager::getRequestSwitcher()
+{
+  if(_rs.isNull())
+    {
+      _rs=new RequestSwitcherDSM(_orb,this);
+    }
+  CORBA::Object_var obj(_rs->activate());
+  return SALOME::RequestSwitcherDSM::_narrow(obj);
 }

@@ -89,13 +89,13 @@ class SalomeOutsideGUI(object):
     
     def SelectedCount(self):
         """Get the number of active selections"""
-        print("SalomeOutsideGUI: no selection mecanism available outside GUI")
+        print("SalomeOutsideGUI: no selection mechanism available outside GUI")
         return 0
     
     def getSelected(self, i):
         """Get the selection number i """
-        print("SalomeOutsideGUI: no selection mecanism available outside GUI")
-        return None
+        print("SalomeOutsideGUI: no selection mechanism available outside GUI")
+        return none
     
     def AddIObject(self, Entry):
         """Add an entry"""

@@ -22,7 +22,7 @@ the unit tests.
 - KERNEL_SRC/doc :\n
    Kit for KERNEL end user documentation production:
    public interfaces, Python, CORBA.
-   Integrator and Developper documentation.
+   Integrator and Developer documentation.
 
 - KERNEL_SRC/idl :\n
    All CORBA interfaces from KERNEL are regrouped here.

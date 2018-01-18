@@ -33,7 +33,7 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):
   if(!var)
     throw Exception("KeyWaiter constructor : Invalid glob var is NULL !");
   if(!dynamic_cast<DataScopeServerTransaction *>(var->getFather()))
-    throw Exception("KeyWaiter constructor : Invalid glob var ! Invalid DataScope hosting it ! DataScopeServerTransaction excpected !");
+    throw Exception("KeyWaiter constructor : Invalid glob var ! Invalid DataScope hosting it ! DataScopeServerTransaction expected !");
   std::string st;
   PickelizedPyObjServer::FromByteSeqToCpp(keyVal,st);
   _ze_key=PickelizedPyObjServer::GetPyObjFromPickled(st,getDSS());

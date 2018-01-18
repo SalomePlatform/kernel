@@ -65,34 +65,23 @@ void DataScopeKiller::shutdown()
   _orb->shutdown(0);
 }
 
-RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb)
+RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerTransaction *ds):RequestSwitcherBase(orb),_ds(ds)
 {
-  CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
-  PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
-  _poa_manager_under_control=poa->the_POAManager();
-  //
-  CORBA::PolicyList policies;
-  policies.length(1);
-  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-  // all is in PortableServer::POAManager::_nil. By specifying _nil cf Advanced CORBA Programming with C++ p 506
-  // a new POA manager is created. This POA manager is independent from POA manager of the son ones.
-  _poa_for_request_control=poa->create_POA("4RqstSwitcher",PortableServer::POAManager::_nil(),policies);
-  threadPol->destroy();
-  PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());
-  mgr->activate();
-  //obj=orb->resolve_initial_references ("POACurrent");// agy : usage of POACurrent breaks the hold_requests. Why ?
-  //PortableServer::Current_var current(PortableServer::Current::_narrow(obj));
 }
 
-void RequestSwitcher::holdRequests()
+SALOME::StringVec *RequestSwitcher::listVars()
 {
-  _poa_manager_under_control->hold_requests(true);
+  return _ds->listVars();
 }
 
-void RequestSwitcher::activeRequests()
+SALOME::ByteVec *RequestSwitcher::fetchSerializedContent(const char *varName)
 {
-  _poa_manager_under_control->activate();
+  return _ds->fetchSerializedContent(varName);
+}
+
+void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data)
+{
+  return _ds->fetchAndGetAccessOfVar(varName,access,data);
 }
 
 DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
@@ -267,16 +256,6 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
     }
   Py_XDECREF(keys);
   return ret;
-}
-
-SALOME::RequestSwitcher_ptr DataScopeServerBase::getRequestSwitcher()
-{
-  if(_rs.isNull())
-    {
-      _rs=new RequestSwitcher(_orb);
-    }
-  CORBA::Object_var obj(_rs->activate());
-  return SALOME::RequestSwitcher::_narrow(obj);
 }
 
 void DataScopeServerBase::takeANap(CORBA::Double napDurationInSec)
@@ -846,7 +825,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
   SALOME::ByteVec *zeRet(retc->waitForMonoThr());
   retc->enforcedRelease();
   return zeRet;
@@ -863,7 +842,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForAndKill(SALOME::KeyWaiter_pt
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
   SALOME::ByteVec *zeRet(retc->waitForAndKill());
   retc->enforcedRelease();
   return zeRet;
@@ -914,3 +893,12 @@ DataScopeServerTransaction::~DataScopeServerTransaction()
 {
 }
 
+SALOME::RequestSwitcher_ptr DataScopeServerTransaction::getRequestSwitcher()
+{
+  if(_rs.isNull())
+    {
+      _rs=new RequestSwitcher(_orb,this);
+    }
+  CORBA::Object_var obj(_rs->activate());
+  return SALOME::RequestSwitcher::_narrow(obj);
+}

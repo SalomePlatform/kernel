@@ -40,7 +40,7 @@ named salome, and then sub-packages could be created for each
 The motivations of this objective are twice:
 
 - Definitively prevent the risk of naming conflict between python
-  modules coming from different %SALOME modules. Today, the developper
+  modules coming from different %SALOME modules. Today, the developer
   of a module has to take care of the names used in other modules to
   choose a name.
 - Integrate in %SALOME some python modules initially developed in the

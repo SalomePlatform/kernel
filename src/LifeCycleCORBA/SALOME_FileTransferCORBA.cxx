@@ -66,7 +66,7 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(Engines::fileRef_ptr
  *         copy, plus an optional Container name on the machine.
  *
  *  \param refMachine    the machine on which is the file to transfer
- *  \param origFileName  abolute file path on refMachine
+ *  \param origFileName  absolute file path on refMachine
  *  \param containerName default container name used (FactoryServer) if empty
  */
 //=============================================================================

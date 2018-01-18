@@ -72,7 +72,7 @@ struct JobParameters
   string env_file; 
 
   //! List of local data files to be copied to #work_directory.
-  /*! #job_file and #env_file are automaticaly copied, without adding them
+  /*! #job_file and #env_file are automatically copied, without adding them
       to this list. If basenames are specified, then the files are supposed
       to be located in #local_directory.
   */

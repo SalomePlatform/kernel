@@ -31,7 +31,7 @@ IF(NOT WIN32)
       )
   ENDFOREACH()
 
-  # resource manager test needs specific CatalogResouces file in test directory
+  # resource manager test needs specific CatalogResources file in test directory
   SET(TEST_NAME ${COMPONENT_NAME}_LC_testresourcemanager)
   ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} testresourcemanager.py)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"

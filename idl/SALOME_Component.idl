@@ -709,7 +709,7 @@ module Engines
      with createFileRef(in string origFileName) method.
      The fileRef object maintains a list of (machine,filename) for copies.
      If a copy exists on myMachine, getRef(myMachine) returns the file name
-     of the copy on myMachine, else returns empy string.
+     of the copy on myMachine, else returns empty string.
      If there is no copy on myMachine, method getFileTransfer() from container
      factoryServer on refMachine provides a fileTransfer object dedicated to
      CORBA file copy.

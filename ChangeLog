@@ -25593,13 +25593,13 @@
 
 	* src/ResourcesManager/: ResourcesManager.cxx:
 
-	Remove debug output from terminal. Avoid using "utilities.h" in standalone (non-CORBA) classes (requested by B.Sécher via mail)
+	Remove debug output from terminal. Avoid using "utilities.h" in standalone (non-CORBA) classes (requested by B.Sï¿½cher via mail)
 
 2008-09-08 08:35  vsr
 
 	* src/Launcher/: Launcher.cxx, SALOME_LauncherServer.cxx:
 
-	Remove debug output from terminal. Avoid using "utilities.h" in standalone (non-CORBA) classes (requested by B.Sécher via mail)
+	Remove debug output from terminal. Avoid using "utilities.h" in standalone (non-CORBA) classes (requested by B.Sï¿½cher via mail)
 
 2008-09-05 13:27  vsr
 
@@ -33370,19 +33370,19 @@
 
 	* idl/Makefile.am, salome_adm/Makefile.am:
 
-	Gestion des tailles illimités des noms de fichiers (tar au cours du make dist)
+	Gestion des tailles illimitï¿½s des noms de fichiers (tar au cours du make dist)
 
 2007-03-22 16:36  fayolle
 
 	* idl/: Calcium_Ports.idl, SALOME_Ports.idl:
 
-	Ajout des types CORBA/CALCIUM pour la gestion des propriétées
+	Ajout des types CORBA/CALCIUM pour la gestion des propriï¿½tï¿½es
 
 2007-03-22 15:25  fayolle
 
 	* configure.ac:
 
-	Gestion de le taille de nom fichiers illimité pour la commande tar (make dist)
+	Gestion de le taille de nom fichiers illimitï¿½ pour la commande tar (make dist)
 	Modification du nom du maintainer de paquet.
 
 2007-03-22 15:24  fayolle
@@ -33411,8 +33411,8 @@
 	  Datastream/Calcium/test_DataIdContainer.cxx:
 
 	Ajout des properties
-	Création de la classe calcium_provides_port (pour appeler directement les
-	méthodes de paramétrage des ports calcium)
+	Crï¿½ation de la classe calcium_provides_port (pour appeler directement les
+	mï¿½thodes de paramï¿½trage des ports calcium)
 
 2007-03-16 10:37  abd
 
@@ -40755,7 +40755,7 @@
 	  salome_adm/unix/DEPRECATED/make_module.in,
 	  salome_adm/unix/DEPRECATED/make_omniorb.in:
 
-	Modifications pour gestion des fichiers obsolètes de salome_adm
+	Modifications pour gestion des fichiers obsolï¿½tes de salome_adm
 
 2006-02-06 15:33  srn
 
@@ -41129,8 +41129,8 @@
 	  src/TestMPIContainer/Makefile.in, src/UnitTests/Makefile.am,
 	  src/UnitTests/Makefile.in:
 
-	- Traitement des Makefile.in modifiés depuis V310a2,
-	- Prise en compte des répertoires de test + nouveaux répertoires
+	- Traitement des Makefile.in modifiï¿½s depuis V310a2,
+	- Prise en compte des rï¿½pertoires de test + nouveaux rï¿½pertoires
 
 2006-01-31 13:52  jfa
 
@@ -41246,7 +41246,7 @@
 
 	* src/Basics/Makefile.am:
 
-	Suppression du subdir Test car il est prévu par le Makefile.am principal (src).
+	Suppression du subdir Test car il est prï¿½vu par le Makefile.am principal (src).
 
 2006-01-26 08:10  srn
 
@@ -42195,7 +42195,7 @@
 	  salome_adm/unix/config_files/check_openpbs.m4,
 	  salome_adm/unix/config_files/check_local.m4:
 
-	Intégration bibliothèque Batch version 0.3.0 (avec gestionnaire local)
+	Intï¿½gration bibliothï¿½que Batch version 0.3.0 (avec gestionnaire local)
 	Finalisation de la partie swig.
 
 2005-12-14 15:42  jfa
@@ -42332,7 +42332,7 @@
 	  src/SALOMELocalTrace/Test/Makefile.in,
 	  src/SALOMETraceCollector/Makefile.am:
 
-	Complétude passage automake:
+	Complï¿½tude passage automake:
 	- bin
 	- resources
 	- idl
@@ -42368,7 +42368,7 @@
 	* bin/: Makefile.am, runIDLparser.in:
 
 	Gestion par Makefile.am
-	runIDLParser est ramené dans le répertoire courant.
+	runIDLParser est ramenï¿½ dans le rï¿½pertoire courant.
 
 2005-12-07 14:10  jfa
 
@@ -42835,9 +42835,9 @@
 	  src/TOOLSDS/Makefile.in, src/TestContainer/Makefile.am,
 	  src/TestContainer/Makefile.in:
 
-	Première version avec la totalité des packages sources en automake.
-	Les répertoires tests ne sont pas encore traités.
-	La compilation et installation sont menées à termes, mais le produit n'est pas validé par la mise en fonctionnement avec le GUI et les autres modules (prochaine étape).
+	Premiï¿½re version avec la totalitï¿½ des packages sources en automake.
+	Les rï¿½pertoires tests ne sont pas encore traitï¿½s.
+	La compilation et installation sont menï¿½es ï¿½ termes, mais le produit n'est pas validï¿½ par la mise en fonctionnement avec le GUI et les autres modules (prochaine ï¿½tape).
 
 2005-12-02 14:07  jfa
 
@@ -42879,7 +42879,7 @@
 	  src/SALOMETraceCollector/Makefile.in, src/Utils/Makefile.am,
 	  src/Utils/Makefile.in:
 
-	Version avec Traitement d'une interface swig (NOTIFICATION_SWIG). Le KERNEL est transformé jusque Container (reste TestContainer LifeCycleCORBA, ...).
+	Version avec Traitement d'une interface swig (NOTIFICATION_SWIG). Le KERNEL est transformï¿½ jusque Container (reste TestContainer LifeCycleCORBA, ...).
 
 2005-12-01 10:19  jfa
 
@@ -43039,7 +43039,7 @@
 	  src/SALOMELocalTrace/Makefile.am,
 	  src/SALOMELocalTrace/Makefile.in:
 
-	Adaptation pour le passage en automake. Seuls les 5 premiers paquets des sources sont passés et le répertoire idl
+	Adaptation pour le passage en automake. Seuls les 5 premiers paquets des sources sont passï¿½s et le rï¿½pertoire idl
 
 2005-11-18 19:40  boulant
 
@@ -43070,7 +43070,7 @@
 	  salome_adm/unix/config_files/DEPRECATED/check_java.m4,
 	  salome_adm/unix/config_files/DEPRECATED/check_mico.m4:
 
-	Epuration des éléments obsolètes après analyse de la procédure de construction.
+	Epuration des ï¿½lï¿½ments obsolï¿½tes aprï¿½s analyse de la procï¿½dure de construction.
 
 2005-11-18 19:35  boulant
 
@@ -43081,7 +43081,7 @@
 	  salome_adm/unix/config_files/check_htmlgen.m4,
 	  salome_adm/unix/config_files/check_mpi.m4:
 
-	Epuration des éléments obsolètes après analyse de la procédure de construction.
+	Epuration des ï¿½lï¿½ments obsolï¿½tes aprï¿½s analyse de la procï¿½dure de construction.
 
 2005-11-18 12:21  mkr
 
@@ -44336,7 +44336,7 @@
 	  Utils_DESTRUCTEUR_GENERIQUE.hxx, Utils_ORB_INIT.cxx,
 	  Utils_SINGLETON.hxx:
 
-	PR: remove explicit calls to Trace mecanism to avoid problems when trace classes are deleted early (temporary fix)
+	PR: remove explicit calls to Trace mechanism to avoid problems when trace classes are deleted early (temporary fix)
 
 2005-10-03 11:47  prascle
 
@@ -48339,7 +48339,7 @@
 
 	Fix on previous integration, that was associated with CCRT_Port_V220.
 	The regression was caused by customisation of compilation between PCLINUX and OSF1 platforms for KERNEL/MEDWrapper library.
-	By the fix we define corresponded C++ preprocessor variable (MACHINE) at configuration step of KERNEL module in SALOMEconfig.h header file. So, every client of KERNEL module will automaticaly be customizing by including of this header file.
+	By the fix we define corresponded C++ preprocessor variable (MACHINE) at configuration step of KERNEL module in SALOMEconfig.h header file. So, every client of KERNEL module will automatically be customizing by including of this header file.
 
 2005-03-17 12:57  apo
 
@@ -48348,7 +48348,7 @@
 
 	Fix on previous integration, that was associated with CCRT_Port_V220.
 	The regression was caused by customisation of compilation between PCLINUX and OSF1 platforms for KERNEL/MEDWrapper library.
-	By the fix we define corresponded C++ preprocessor variable (MACHINE) at configuration step of KERNEL module in SALOMEconfig.h header file. So, every client of KERNEL module will automaticaly be customizing by including of this header file.
+	By the fix we define corresponded C++ preprocessor variable (MACHINE) at configuration step of KERNEL module in SALOMEconfig.h header file. So, every client of KERNEL module will automatically be customizing by including of this header file.
 
 2005-03-17 09:59  prascle
 
@@ -50823,7 +50823,7 @@
 
 	* salome_adm/unix/config_files/: ac_cxx_warnings.m4, production.m4:
 
-	rationalisation des contrôles des options du compilateurs c++
+	rationalisation des contrï¿½les des options du compilateurs c++
 
 2004-11-12 14:05  prascle
 
@@ -52125,14 +52125,14 @@
 
 	* src/Makefile.in:
 
-	Bibliothèque de classes Batch (new)
+	Bibliothï¿½que de classes Batch (new)
 
 2004-10-07 09:21  dutka
 
 	* salome_adm/unix/: config_files/check_openpbs.m4,
 	  config_files/check_boost.m4, make_commence.in:
 
-	Bibliothèque de classes Batch (new)
+	Bibliothï¿½que de classes Batch (new)
 
 2004-10-07 09:17  dutka
 
@@ -55635,7 +55635,7 @@
 
 	* build_configure, salome_adm/unix/make_commence.in:
 
-	Modification des options de l'appel à la commande aclocal.
+	Modification des options de l'appel ï¿½ la commande aclocal.
 
 2003-05-16 12:27  secher
 

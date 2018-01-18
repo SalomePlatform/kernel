@@ -26,6 +26,7 @@
 
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
+#include "SALOMESDS_RequestSwitcher.hxx"
 
 #include "SALOMESDS_Defines.hxx"
 
@@ -35,6 +36,18 @@ class SALOME_NamingService;
 
 namespace SALOMESDS
 {
+  class DataServerManager;
+  
+  class RequestSwitcherDSM : public RequestSwitcherBase, public virtual POA_SALOME::RequestSwitcherDSM
+  {
+  public:
+    RequestSwitcherDSM(CORBA::ORB_ptr orb, DataServerManager *dsm):RequestSwitcherBase(orb),_dsm(dsm) { }
+    SALOME::StringVec *listScopes();
+    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
+  private:
+    DataServerManager *_dsm;
+  };
+  
   class DataScopeServer;
     
   class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME::DataServerManager
@@ -56,6 +69,7 @@ namespace SALOMESDS
     void removeDataScope(const char *scopeName);
     void cleanScopesInNS();
     void shutdownScopes();
+    SALOME::RequestSwitcherDSM_ptr getRequestSwitcher();
   public:
     CORBA::ORB_var getORB() { return _orb; }
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
@@ -71,6 +85,7 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
     //! single thread poa
     PortableServer::POA_var _poa;
+    AutoServantPtr<RequestSwitcherDSM> _rs;
   };
 }
 

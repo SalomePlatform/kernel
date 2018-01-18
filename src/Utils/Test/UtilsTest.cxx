@@ -37,7 +37,7 @@
 
 // ============================================================================
 /*!
- * Set Trace mecanism
+ * Set Trace mechanism
  * - delete preexisting trace classes if any
  * - set trace on file
  */
@@ -94,7 +94,7 @@ int genExcept()
 
 // ============================================================================
 /*!
- * Check basic SALOME_exception mecanism
+ * Check basic SALOME_exception mechanism
  */
 // ============================================================================
 

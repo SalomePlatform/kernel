@@ -39,6 +39,7 @@ SET(SalomeSDS_SOURCES
   SALOMESDS_RefCountServ.cxx
   SALOMESDS_BasicDataServer.cxx
   SALOMESDS_DataScopeServer.cxx
+  SALOMESDS_RequestSwitcher.cxx
   SALOMESDS_DataServerManager.cxx
   SALOMESDS_PickelizedPyObjServer.cxx
   SALOMESDS_PickelizedPyObjRdOnlyServer.cxx

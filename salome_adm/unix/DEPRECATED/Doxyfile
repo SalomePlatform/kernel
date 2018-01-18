@@ -189,7 +189,7 @@ SHOW_INCLUDE_FILES     = YES
 # will interpret the first line (until the first dot) of a JavaDoc-style 
 # comment as the brief description. If set to NO, the JavaDoc 
 # comments  will behave just like the Qt-style comments (thus requiring an 
-# explict @brief command for a brief description.
+# explicit @brief command for a brief description.
 
 JAVADOC_AUTOBRIEF      = NO
 
@@ -585,7 +585,7 @@ COMPACT_RTF            = NO
 RTF_HYPERLINKS         = NO
 
 # Load stylesheet definitions from file. Syntax is similar to doxygen's 
-# config file, i.e. a series of assigments. You only have to provide 
+# config file, i.e. a series of assingments. You only have to provide 
 # replacements, missing definitions are set to their default value.
 
 RTF_STYLESHEET_FILE    = 
