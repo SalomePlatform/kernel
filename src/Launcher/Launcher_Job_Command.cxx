@@ -72,7 +72,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
     std::string::size_type last = _env_file.find_last_of("/");
     launch_script_stream << ". ./" << _env_file.substr(last+1) << std::endl;
   }
-  launch_script_stream << "./" << _job_file_name_complete << " > " << work_directory <<"/logs/command_" << launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << "./" << _job_file_name_complete << std::endl;
 
   // Return
   launch_script_stream.flush();
