@@ -63,5 +63,15 @@ specific points of %SALOME Kernel :
 - \subpage python_documentation : The package salome.kernel provides
   logging tools, high-level functions to handle items in Salome study, and other utilities.
 
+
+\section S6_main SALOME KERNEL module Developer Documentation
+
+To browse the \b SALOME KERNEL module Developer Documentation, follow the links below or use navigation menu at the top of the page:
+<ul>
+<li> <a href="namespaces.html">Namespaces</a> - list of KERNEL namespaces and scripts.</li>
+<li> <a href="annotated.html">Data Structures</a> - list of all data structures and classes with brief descriptions.</li>
+<li> <a href="files.html">Files</a> - list of all files with brief descriptions.</li>
+</ul>
+
 */
 
