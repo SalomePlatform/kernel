@@ -164,6 +164,10 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   std::string queue = job_parameters.queue.in();
   new_job->setQueue(queue);
 
+  // Partition
+  std::string partition = job_parameters.partition.in();
+  new_job->setPartition(partition);
+
   // Exclusive
   new_job->setExclusive(job_parameters.exclusive);
 
@@ -544,6 +548,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
 
   job_parameters->maximum_duration = CORBA::string_dup(job->getMaximumDuration().c_str());
   job_parameters->queue            = CORBA::string_dup(job->getQueue().c_str());
+  job_parameters->partition        = CORBA::string_dup(job->getPartition().c_str());
   job_parameters->exclusive        = job->getExclusive();
   job_parameters->mem_per_cpu      = job->getMemPerCpu();
   job_parameters->wckey            = CORBA::string_dup(job->getWCKey().c_str());

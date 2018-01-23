@@ -48,6 +48,7 @@ Launcher::Job::Job()
   _maximum_duration = "";
   _maximum_duration_in_second = -1;
   _queue = "";
+  _partition = "";
   _job_type = "";
   _exclusive = false;
   _mem_per_cpu = 0;
@@ -308,6 +309,12 @@ Launcher::Job::setQueue(const std::string & queue)
 }
 
 void
+Launcher::Job::setPartition(const std::string & partition)
+{
+  _partition = partition;
+}
+
+void
 Launcher::Job::setExclusive(bool exclusive)
 {
   _exclusive = exclusive;
@@ -406,6 +413,12 @@ std::string
 Launcher::Job::getQueue() const
 {
   return _queue;
+}
+
+std::string
+Launcher::Job::getPartition() const
+{
+  return _partition;
 }
 
 bool
@@ -585,6 +598,9 @@ Launcher::Job::common_job_params()
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
   params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
+  if(_resource_required_params.nb_node > 0)
+    params[Batch::NBNODE] = _resource_required_params.nb_node;
+
   // Memory in megabytes
   if (_resource_required_params.mem_mb > 0)
   {
@@ -692,6 +708,10 @@ Launcher::Job::common_job_params()
   // Queue
   if (_queue != "")
     params[Batch::QUEUE] = _queue;
+
+  // Partition
+  if (_partition != "")
+    params[Batch::PARTITION] = _partition;
 
   // Exclusive
   if (getExclusive())

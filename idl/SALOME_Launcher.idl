@@ -138,7 +138,12 @@ struct JobParameters
 
   //!  Name of the batch queue chosen - optional
   string queue;
-  
+
+  //! Name of the partition - optional
+  /*! It can be used only for slurm batch managers.
+  */
+  string partition;
+
   //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
   boolean exclusive;
 

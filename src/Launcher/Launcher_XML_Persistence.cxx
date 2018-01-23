@@ -196,6 +196,8 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
     addNode(node, "maximum_duration", job.getMaximumDuration());
   if (!job.getQueue().empty())
     addNode(node, "queue", job.getQueue());
+  if (!job.getPartition().empty())
+    addNode(node, "partition", job.getPartition());
   if (job.getExclusive())
     addNode(node, "exclusive", job.getExclusiveStr());
   if (job.getMemPerCpu() > 0)
@@ -336,6 +338,8 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
       new_job->setMaximumDuration(getNodeContent(current_node));
     else if (node_name == "queue")
       new_job->setQueue(getNodeContent(current_node));
+    else if (node_name == "partition")
+      new_job->setPartition(getNodeContent(current_node));
     else if (node_name == "exclusive")
       new_job->setExclusiveStr(getNodeContent(current_node));
     else if (node_name == "mem_per_cpu")

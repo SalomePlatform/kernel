@@ -76,6 +76,7 @@ namespace Launcher
       void setMaximumDuration(const std::string & maximum_duration);
       void setResourceRequiredParams(const resourceParams & resource_required_params);
       void setQueue(const std::string & queue);
+      void setPartition(const std::string & partition);
       void setEnvFile(const std::string & env_file);
       void setExclusive(bool exclusive);
       void setExclusiveStr(const std::string & exclusiveStr);
@@ -98,6 +99,7 @@ namespace Launcher
       std::string getMaximumDuration() const;
       resourceParams getResourceRequiredParams() const;
       std::string getQueue() const;
+      std::string getPartition() const;
       std::string getEnvFile() const;
       std::string getJobType() const;
       bool getExclusive() const;
@@ -160,6 +162,7 @@ namespace Launcher
       long _maximum_duration_in_second;
       resourceParams _resource_required_params;
       std::string _queue;
+      std::string _partition;
       bool _exclusive;
       unsigned long _mem_per_cpu;
       std::string _wckey;
