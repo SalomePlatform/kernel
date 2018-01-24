@@ -32,6 +32,7 @@
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
+#include "Launcher_Job_CommandSALOME.hxx"
 
 #include "utilities.h"
 
@@ -95,21 +96,22 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
   std::string job_type = job_parameters.job_type.in();
 
-  if (job_type != "command" && job_type != "yacs_file" && job_type != "python_salome")
+  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
+
+  if (job_type == Launcher::Job_Command::TYPE_NAME)
+    new_job = new Launcher::Job_Command();
+  else if (job_type == Launcher::Job_CommandSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_CommandSALOME();
+  else if (job_type == Launcher::Job_YACSFile::TYPE_NAME)
+    new_job = new Launcher::Job_YACSFile();
+  else if (job_type == Launcher::Job_PythonSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_PythonSALOME();
+  else
   {
     std::string message("SALOME_Launcher::createJob: bad job type: ");
     message += job_type;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
   }
-
-  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
-
-  if (job_type == "command")
-    new_job = new Launcher::Job_Command();
-  else if (job_type == "yacs_file")
-    new_job = new Launcher::Job_YACSFile();
-  else if (job_type == "python_salome")
-    new_job = new Launcher::Job_PythonSALOME();
 
   // Name
   new_job->setJobName(job_parameters.job_name.in());

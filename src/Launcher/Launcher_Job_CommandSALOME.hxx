@@ -19,30 +19,30 @@
 
 // Author: André RIBES - EDF R&D
 //
-#ifndef _LAUNCHER_JOB_YACSFILE_HXX_
-#define _LAUNCHER_JOB_YACSFILE_HXX_
+#ifndef _LAUNCHER_JOB_COMMAND_SALOME_HXX_
+#define _LAUNCHER_JOB_COMMAND_SALOME_HXX_
 
-#include "Launcher_Job_SALOME.hxx"
+#include "Launcher_Job_Command.hxx"
+#include "Launcher.hxx"
+
+#ifdef WITH_LIBBATCH
+#include <libbatch/Job.hxx>
+#endif
 
 namespace Launcher
 {
-  class LAUNCHER_EXPORT Job_YACSFile : virtual public Launcher::Job_SALOME
+  class LAUNCHER_EXPORT Job_CommandSALOME : virtual public Launcher::Job_Command
   {
     public:
-      Job_YACSFile();
-      virtual ~Job_YACSFile();
-
-      virtual void setJobFile(const std::string & job_file);
-      virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);
-      virtual void checkSpecificParameters();
-
+      Job_CommandSALOME();
+      virtual ~Job_CommandSALOME();
       static const char TYPE_NAME[];
 
+#ifdef WITH_LIBBATCH
     protected:
-      int _dumpState;
-      std::string _yacsDriverOptions;
+      virtual std::string runCommandString();
+#endif
   };
 }
 
 #endif
-

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2009-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -19,30 +19,32 @@
 
 // Author: André RIBES - EDF R&D
 //
-#ifndef _LAUNCHER_JOB_YACSFILE_HXX_
-#define _LAUNCHER_JOB_YACSFILE_HXX_
+#include "Launcher_Job_CommandSALOME.hxx"
 
-#include "Launcher_Job_SALOME.hxx"
-
-namespace Launcher
-{
-  class LAUNCHER_EXPORT Job_YACSFile : virtual public Launcher::Job_SALOME
-  {
-    public:
-      Job_YACSFile();
-      virtual ~Job_YACSFile();
-
-      virtual void setJobFile(const std::string & job_file);
-      virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);
-      virtual void checkSpecificParameters();
-
-      static const char TYPE_NAME[];
-
-    protected:
-      int _dumpState;
-      std::string _yacsDriverOptions;
-  };
-}
-
+#ifdef WITH_LIBBATCH
+#include <libbatch/Constants.hxx>
 #endif
 
+#include <sstream>
+
+const char Launcher::Job_CommandSALOME::TYPE_NAME[] = "command_salome";
+
+Launcher::Job_CommandSALOME::Job_CommandSALOME()
+{
+  _job_type = Launcher::Job_CommandSALOME::TYPE_NAME;
+}
+
+Launcher::Job_CommandSALOME::~Job_CommandSALOME() {}
+
+
+#ifdef WITH_LIBBATCH
+
+std::string Launcher::Job_CommandSALOME::runCommandString()
+{
+  std::ostringstream result;
+  result << _resource_definition.AppliPath
+         << "/salome shell ./"
+         << _job_file_name_complete;
+  return result.str();
+}
+#endif

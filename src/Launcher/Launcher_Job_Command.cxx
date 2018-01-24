@@ -33,7 +33,12 @@
 
 #include <sstream>
 
-Launcher::Job_Command::Job_Command() {_job_type = "command";}
+const char Launcher::Job_Command::TYPE_NAME[] = "command";
+
+Launcher::Job_Command::Job_Command()
+{
+  _job_type = Launcher::Job_Command::TYPE_NAME;
+}
 
 Launcher::Job_Command::~Job_Command() {}
 
@@ -72,7 +77,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
     std::string::size_type last = _env_file.find_last_of("/");
     launch_script_stream << ". ./" << _env_file.substr(last+1) << std::endl;
   }
-  launch_script_stream << "./" << _job_file_name_complete << std::endl;
+  launch_script_stream << runCommandString() << std::endl;
 
   // Return
   launch_script_stream.flush();
@@ -80,5 +85,12 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   chmod(launch_script.c_str(), 0x1ED);
   chmod(_job_file.c_str(), 0x1ED);
   return launch_script;
+}
+
+std::string Launcher::Job_Command::runCommandString()
+{
+  std::ostringstream result;
+  result << "./" << _job_file_name_complete;
+  return result.str();
 }
 #endif

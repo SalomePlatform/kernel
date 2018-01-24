@@ -536,6 +536,117 @@ f.close()
       self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
                       "it works!\n")
 
+  #################################
+  # test of command salome job type
+  #################################
+  def test_command_salome(self):
+    case_test_dir = os.path.join(TestCompo.test_dir, "command_salome")
+    mkdir_p(case_test_dir)
+
+    # job script
+    data_file = "in.txt"
+    script_file = "myEnvScript.py"
+    script_text = """#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os,sys
+# verify import salome
+import salome
+
+text_result = os.getenv("ENV_TEST_VAR","")
+
+f = open('result.txt', 'w')
+f.write(text_result)
+f.close()
+
+in_f = open("in.txt", "r")
+in_text = in_f.read()
+in_f.close()
+
+os.mkdir("copie")
+f = open(os.path.join("copie",'copie.txt'), 'w')
+f.write(in_text)
+f.close()
+"""
+    abs_script_file = os.path.join(case_test_dir, script_file)
+    f = open(abs_script_file, "w")
+    f.write(script_text)
+    f.close()
+    os.chmod(abs_script_file, 0o755)
+
+    #environement script
+    env_file = "myEnv.sh"
+    env_text = """export ENV_TEST_VAR="expected"
+"""
+    f = open(os.path.join(case_test_dir, env_file), "w")
+    f.write(env_text)
+    f.close()
+
+    # write data file
+    f = open(os.path.join(case_test_dir, data_file), "w")
+    f.write("to be copied")
+    f.close()
+
+    # job params
+    local_result_dir = os.path.join(case_test_dir, "result_comsalome_job-")
+    job_params = self.create_JobParameters()
+    job_params.job_type = "command_salome"
+    job_params.job_file = script_file
+    job_params.env_file = env_file
+    job_params.in_files = [data_file]
+    job_params.out_files = ["result.txt", "copie"]
+    job_params.local_directory = case_test_dir
+
+    # create and launch the job
+    launcher = salome.naming_service.Resolve('/SalomeLauncher')
+    resManager= salome.lcc.getResourcesManager()
+
+    for resource in self.ressources:
+      print "Testing command salome job on ", resource
+      job_params.result_directory = local_result_dir + resource
+      job_params.job_name = "CommandSalomeJob_" + resource
+      job_params.resource_required.name = resource
+
+      # use the working directory of the resource
+      resParams = resManager.GetResourceDefinition(resource)
+      wd = os.path.join(resParams.working_directory,
+                        "CommandSalomeJob" + self.suffix)
+      job_params.work_directory = wd
+
+      job_id = launcher.createJob(job_params)
+      launcher.launchJob(job_id)
+      # wait for the end of the job
+      jobState = launcher.getJobState(job_id)
+      print "Job %d state: %s" % (job_id,jobState)
+      while jobState != "FINISHED" and jobState != "FAILED" :
+        time.sleep(3)
+        jobState = launcher.getJobState(job_id)
+        print "Job %d state: %s" % (job_id,jobState)
+        pass
+
+      # verify the results
+      self.assertEqual(jobState, "FINISHED")
+      launcher.getJobResults(job_id, "")
+      self.verifyFile(os.path.join(job_params.result_directory, "result.txt"),
+                      "expected")
+      self.verifyFile(os.path.join(job_params.result_directory,
+                                   "copie",'copie.txt'),
+                      "to be copied")
+
+      # verify getJobWorkFile
+      mydir = os.path.join(case_test_dir, "work_dir" + resource)
+      success = launcher.getJobWorkFile(job_id, "result.txt", mydir)
+      self.assertEqual(success, True)
+      self.verifyFile(os.path.join(mydir, "result.txt"), "expected")
+
+      success = launcher.getJobWorkFile(job_id, "copie", mydir)
+      self.assertEqual(success, True)
+      self.verifyFile(os.path.join(mydir, "copie", "copie.txt"),
+                      "to be copied")
+      pass
+    pass
+  pass
+
 if __name__ == '__main__':
     # creat study
     import salome

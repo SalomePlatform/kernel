@@ -24,6 +24,7 @@
 
 #include "Launcher_XML_Persistence.hxx"
 #include "Launcher_Job_Command.hxx"
+#include "Launcher_Job_CommandSALOME.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
 
@@ -241,11 +242,13 @@ XML_Persistence::createJobFromXmlNode(xmlNodePtr job_node)
   string job_type = getAttrValue(job_node, "type");
   if (job_type.empty())
     throw LauncherException(string("Invalid job \"") + job_name + "\": type is not defined");
-  if (job_type == "command")
+  if (job_type == Launcher::Job_Command::TYPE_NAME)
     new_job = new Launcher::Job_Command();
-  else if (job_type == "yacs_file")
+  else if (job_type == Launcher::Job_CommandSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_CommandSALOME();
+  else if (job_type == Launcher::Job_YACSFile::TYPE_NAME)
     new_job = new Launcher::Job_YACSFile();
-  else if (job_type == "python_salome")
+  else if (job_type == Launcher::Job_PythonSALOME::TYPE_NAME)
     new_job = new Launcher::Job_PythonSALOME();
   else
   {

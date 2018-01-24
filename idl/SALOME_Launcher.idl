@@ -52,6 +52,9 @@ struct JobParameters
   //! Type of the job.
   /*! There are three supported types:
         - "command" : execute #job_file script without %SALOME environment
+        - "command_salome" : execute #job_file script within %SALOME environment
+                             (salome shell) but the %SALOME application is not
+                             launched
         - "python_salome" : execute #job_file python script by %SALOME
         - "yacs_file" : execute #job_file by YACS module as a xml YACS schema
   */

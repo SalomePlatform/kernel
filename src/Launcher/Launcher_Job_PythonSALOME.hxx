@@ -34,6 +34,7 @@ namespace Launcher
 
       virtual void setJobFile(const std::string & job_file);
       virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);
+      static const char TYPE_NAME[];
   };
 }
 
