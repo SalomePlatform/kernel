@@ -39,9 +39,12 @@ namespace Launcher
 
       virtual void update_job();
 
+      static const char TYPE_NAME[];
+
 #ifdef WITH_LIBBATCH
     protected:
       std::string buildCommandScript(Batch::Parametre params, std::string launch_date);
+      virtual std::string runCommandString();
 #endif
   };
 }

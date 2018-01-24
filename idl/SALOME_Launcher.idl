@@ -52,6 +52,9 @@ struct JobParameters
   //! Type of the job.
   /*! There are three supported types:
         - "command" : execute #job_file script without %SALOME environment
+        - "command_salome" : execute #job_file script within %SALOME environment
+                             (salome shell) but the %SALOME application is not
+                             launched
         - "python_salome" : execute #job_file python script by %SALOME
         - "yacs_file" : execute #job_file by YACS module as a xml YACS schema
   */
@@ -65,6 +68,12 @@ struct JobParameters
       on the remote host.
   */
   string job_file;
+
+  //! Pre processing script.
+  /*! This script is called on the remote resource, from #work_directory, after
+      the copy of #in_files and before submiting the job.
+  */
+  string pre_command;
 
   //! Local path to a script to be sourced in the environment of the job.
   /*! It may contain modifications of environment variables.
@@ -132,7 +141,12 @@ struct JobParameters
 
   //!  Name of the batch queue chosen - optional
   string queue;
-  
+
+  //! Name of the partition - optional
+  /*! It can be used only for slurm batch managers.
+  */
+  string partition;
+
   //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
   boolean exclusive;
 
@@ -198,6 +212,7 @@ interface SalomeLauncher
   /*! Launching the job consists of:
       - create the working directory on the remote file system
       - copy the input files into the working directory
+      - launch the pre processing command if one is defined
       - submit the job to the batch manager
   */
   void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
@@ -242,6 +257,12 @@ interface SalomeLauncher
      \see JobParameters::specific_parameters
   */
   boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
+
+  //! Remove the working directory on the remote file system.
+  /*!
+     \param job_id    Job id returned by createJob().
+  */
+  void clearJobWorkingDir(in long job_id) raises (SALOME::SALOME_Exception);
 
   //! Retrieve one sigle file from the working directory.
   /*! Use this method if you don't want to copy all the results of the job,

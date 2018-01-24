@@ -89,7 +89,7 @@ to map segment from shared object: Cannot allocate memory
   long mem_mb;
   //! required frequency
   long cpu_clock;
-  //! required number of nodes
+  //! required number of nodes. Can be used when submitting slurm jobs.
   long nb_node;
   //! required number of proc per node
   long nb_proc_per_node;

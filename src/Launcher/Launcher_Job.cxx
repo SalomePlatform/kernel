@@ -22,6 +22,7 @@
 //#define _DEBUG_
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
+#include <boost/filesystem.hpp>
 
 #ifdef WITH_LIBBATCH
 #include <libbatch/Constants.hxx>
@@ -40,12 +41,14 @@ Launcher::Job::Job()
   _job_file = "";
   _job_file_name = "";
   _job_file_name_complete = "";
+  _pre_command = "";
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
   _maximum_duration = "";
   _maximum_duration_in_second = -1;
   _queue = "";
+  _partition = "";
   _job_type = "";
   _exclusive = false;
   _mem_per_cpu = 0;
@@ -306,6 +309,12 @@ Launcher::Job::setQueue(const std::string & queue)
 }
 
 void
+Launcher::Job::setPartition(const std::string & partition)
+{
+  _partition = partition;
+}
+
+void
 Launcher::Job::setExclusive(bool exclusive)
 {
   _exclusive = exclusive;
@@ -406,6 +415,12 @@ Launcher::Job::getQueue() const
   return _queue;
 }
 
+std::string
+Launcher::Job::getPartition() const
+{
+  return _partition;
+}
+
 bool
 Launcher::Job::getExclusive() const
 {
@@ -440,6 +455,18 @@ std::string
 Launcher::Job::getReference() const
 {
   return _reference;
+}
+
+void
+Launcher::Job::setPreCommand(const std::string & preCommand)
+{
+  _pre_command = preCommand;
+}
+
+std::string
+Launcher::Job::getPreCommand() const
+{
+  return _pre_command;
 }
 
 void
@@ -571,6 +598,9 @@ Launcher::Job::common_job_params()
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
   params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
+  if(_resource_required_params.nb_node > 0)
+    params[Batch::NBNODE] = _resource_required_params.nb_node;
+
   // Memory in megabytes
   if (_resource_required_params.mem_mb > 0)
   {
@@ -604,6 +634,13 @@ Launcher::Job::common_job_params()
     }
   }
   params[Batch::WORKDIR] = _work_directory;
+  std::string libbatch_pre_command("");
+  if(!_pre_command.empty())
+  {
+    boost::filesystem::path pre_command_path(_pre_command);
+    libbatch_pre_command += "./" + pre_command_path.filename().string();
+  }
+  params[Batch::PREPROCESS] = libbatch_pre_command;
 
   // Parameters for COORM
   params[Batch::LAUNCHER_FILE] = _launcher_file;
@@ -618,6 +655,8 @@ Launcher::Job::common_job_params()
   in_files.push_back(_job_file);
   if (_env_file != "")
           in_files.push_back(_env_file);
+  if(!_pre_command.empty())
+     in_files.push_back(_pre_command);
   for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
   {
     std::string file = *it;
@@ -669,6 +708,10 @@ Launcher::Job::common_job_params()
   // Queue
   if (_queue != "")
     params[Batch::QUEUE] = _queue;
+
+  // Partition
+  if (_partition != "")
+    params[Batch::PARTITION] = _partition;
 
   // Exclusive
   if (getExclusive())

@@ -24,6 +24,7 @@
 
 #include "Launcher_XML_Persistence.hxx"
 #include "Launcher_Job_Command.hxx"
+#include "Launcher_Job_CommandSALOME.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
 
@@ -152,6 +153,8 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
     addNode(node, "local_directory", job.getLocalDirectory());
   if (!job.getResultDirectory().empty())
     addNode(node, "result_directory", job.getResultDirectory());
+  if (!job.getPreCommand().empty())
+    addNode(node, "pre_command", job.getPreCommand());
 
   // Parameters for COORM
   if (!job.getLauncherFile().empty())
@@ -194,6 +197,8 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
     addNode(node, "maximum_duration", job.getMaximumDuration());
   if (!job.getQueue().empty())
     addNode(node, "queue", job.getQueue());
+  if (!job.getPartition().empty())
+    addNode(node, "partition", job.getPartition());
   if (job.getExclusive())
     addNode(node, "exclusive", job.getExclusiveStr());
   if (job.getMemPerCpu() > 0)
@@ -237,11 +242,13 @@ XML_Persistence::createJobFromXmlNode(xmlNodePtr job_node)
   string job_type = getAttrValue(job_node, "type");
   if (job_type.empty())
     throw LauncherException(string("Invalid job \"") + job_name + "\": type is not defined");
-  if (job_type == "command")
+  if (job_type == Launcher::Job_Command::TYPE_NAME)
     new_job = new Launcher::Job_Command();
-  else if (job_type == "yacs_file")
+  else if (job_type == Launcher::Job_CommandSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_CommandSALOME();
+  else if (job_type == Launcher::Job_YACSFile::TYPE_NAME)
     new_job = new Launcher::Job_YACSFile();
-  else if (job_type == "python_salome")
+  else if (job_type == Launcher::Job_PythonSALOME::TYPE_NAME)
     new_job = new Launcher::Job_PythonSALOME();
   else
   {
@@ -300,6 +307,8 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
     }
     else if (node_name == "env_file")
       new_job->setEnvFile(getNodeContent(current_node));
+    else if (node_name == "pre_command")
+      new_job->setPreCommand(getNodeContent(current_node));
     else if (node_name == "work_directory")
       new_job->setWorkDirectory(getNodeContent(current_node));
     else if (node_name == "local_directory")
@@ -332,6 +341,8 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
       new_job->setMaximumDuration(getNodeContent(current_node));
     else if (node_name == "queue")
       new_job->setQueue(getNodeContent(current_node));
+    else if (node_name == "partition")
+      new_job->setPartition(getNodeContent(current_node));
     else if (node_name == "exclusive")
       new_job->setExclusiveStr(getNodeContent(current_node));
     else if (node_name == "mem_per_cpu")

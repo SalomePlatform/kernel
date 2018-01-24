@@ -67,6 +67,7 @@ namespace Launcher
       // Common parameters
       void setJobName(const std::string & job_name);
       virtual void setJobFile(const std::string & job_file);
+      void setPreCommand(const std::string & preCommand);
       void setWorkDirectory(const std::string & work_directory);
       void setLocalDirectory(const std::string & local_directory);
       void setResultDirectory(const std::string & result_directory);
@@ -75,6 +76,7 @@ namespace Launcher
       void setMaximumDuration(const std::string & maximum_duration);
       void setResourceRequiredParams(const resourceParams & resource_required_params);
       void setQueue(const std::string & queue);
+      void setPartition(const std::string & partition);
       void setEnvFile(const std::string & env_file);
       void setExclusive(bool exclusive);
       void setExclusiveStr(const std::string & exclusiveStr);
@@ -82,12 +84,13 @@ namespace Launcher
       void setWCKey(const std::string & wckey);
       void setExtraParams(const std::string & extra_params);
       void setReference(const std::string & reference);
-	  // For COORM
-	  void setLauncherFile(const std::string & launcher_file);
-	  void setLauncherArgs(const std::string & launcher_args);
+      // For COORM
+      void setLauncherFile(const std::string & launcher_file);
+      void setLauncherArgs(const std::string & launcher_args);
 
       std::string getJobName() const;
       std::string getJobFile() const;
+      std::string getPreCommand() const;
       std::string getWorkDirectory() const;
       std::string getLocalDirectory() const;
       std::string getResultDirectory() const;
@@ -96,6 +99,7 @@ namespace Launcher
       std::string getMaximumDuration() const;
       resourceParams getResourceRequiredParams() const;
       std::string getQueue() const;
+      std::string getPartition() const;
       std::string getEnvFile() const;
       std::string getJobType() const;
       bool getExclusive() const;
@@ -105,9 +109,9 @@ namespace Launcher
       std::string getExtraParams() const;
       std::string getReference() const;
 
-	  // For COORM
-	  std::string getLauncherFile() const;
-	  std::string getLauncherArgs() const;
+      // For COORM
+      std::string getLauncherFile() const;
+      std::string getLauncherArgs() const;
 
       std::string updateJobState();
 
@@ -146,6 +150,7 @@ namespace Launcher
       std::string _job_file;
       std::string _job_file_name;
       std::string _job_file_name_complete;
+      std::string _pre_command;
 
       std::string _work_directory;
       std::string _local_directory;
@@ -157,15 +162,16 @@ namespace Launcher
       long _maximum_duration_in_second;
       resourceParams _resource_required_params;
       std::string _queue;
+      std::string _partition;
       bool _exclusive;
       unsigned long _mem_per_cpu;
       std::string _wckey;
       std::string _extra_params;
       std::string _reference; //! Reference of the job for the batch manager
 
-	  // Parameters for COORM
-	  std::string _launcher_file;
-	  std::string _launcher_args;
+      // Parameters for COORM
+      std::string _launcher_file;
+      std::string _launcher_args;
 
 #ifdef WITH_LIBBATCH
     // Connection with LIBBATCH

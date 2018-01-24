@@ -21,8 +21,12 @@
 //
 #include "Launcher_Job_PythonSALOME.hxx"
 
+const char Launcher::Job_PythonSALOME::TYPE_NAME[] = "python_salome";
 
-Launcher::Job_PythonSALOME::Job_PythonSALOME() {_job_type = "python_salome";}
+Launcher::Job_PythonSALOME::Job_PythonSALOME()
+{
+  _job_type = Launcher::Job_PythonSALOME::TYPE_NAME;
+}
 
 Launcher::Job_PythonSALOME::~Job_PythonSALOME() {}
 

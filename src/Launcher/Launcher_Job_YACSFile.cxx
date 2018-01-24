@@ -22,10 +22,11 @@
 #include "Launcher_Job_YACSFile.hxx"
 #include <sstream>
 
+const char Launcher::Job_YACSFile::TYPE_NAME[] = "yacs_file";
 
 Launcher::Job_YACSFile::Job_YACSFile()
 {
-  _job_type = "yacs_file";
+  _job_type = Launcher::Job_YACSFile::TYPE_NAME;
   _dumpState = -1;
   _yacsDriverOptions = "";
 }

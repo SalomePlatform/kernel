@@ -32,6 +32,7 @@
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
+#include "Launcher_Job_CommandSALOME.hxx"
 
 #include "utilities.h"
 
@@ -95,21 +96,22 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
   std::string job_type = job_parameters.job_type.in();
 
-  if (job_type != "command" && job_type != "yacs_file" && job_type != "python_salome")
+  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
+
+  if (job_type == Launcher::Job_Command::TYPE_NAME)
+    new_job = new Launcher::Job_Command();
+  else if (job_type == Launcher::Job_CommandSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_CommandSALOME();
+  else if (job_type == Launcher::Job_YACSFile::TYPE_NAME)
+    new_job = new Launcher::Job_YACSFile();
+  else if (job_type == Launcher::Job_PythonSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_PythonSALOME();
+  else
   {
     std::string message("SALOME_Launcher::createJob: bad job type: ");
     message += job_type;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
   }
-
-  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
-
-  if (job_type == "command")
-    new_job = new Launcher::Job_Command();
-  else if (job_type == "yacs_file")
-    new_job = new Launcher::Job_YACSFile();
-  else if (job_type == "python_salome")
-    new_job = new Launcher::Job_PythonSALOME();
 
   // Name
   new_job->setJobName(job_parameters.job_name.in());
@@ -139,6 +141,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     INFOS(ex.msg.c_str());
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
+  new_job->setPreCommand(job_parameters.pre_command.in());
 
   // Files
   std::string env_file = job_parameters.env_file.in();
@@ -162,6 +165,10 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   // Queue
   std::string queue = job_parameters.queue.in();
   new_job->setQueue(queue);
+
+  // Partition
+  std::string partition = job_parameters.partition.in();
+  new_job->setPartition(partition);
 
   // Exclusive
   new_job->setExclusive(job_parameters.exclusive);
@@ -278,6 +285,20 @@ SALOME_Launcher::getJobResults(CORBA::Long job_id, const char * directory)
   try
   {
     _l.getJobResults(job_id, directory);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
+void
+SALOME_Launcher::clearJobWorkingDir(CORBA::Long job_id)
+{
+  try
+  {
+    _l.clearJobWorkingDir(job_id);
   }
   catch(const LauncherException &ex)
   {
@@ -504,6 +525,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   job_parameters->work_directory   = CORBA::string_dup(job->getWorkDirectory().c_str());
   job_parameters->local_directory  = CORBA::string_dup(job->getLocalDirectory().c_str());
   job_parameters->result_directory = CORBA::string_dup(job->getResultDirectory().c_str());
+  job_parameters->pre_command      = CORBA::string_dup(job->getPreCommand().c_str());
 
   // Parameters for COORM
   job_parameters->launcher_file = CORBA::string_dup(job->getLauncherFile().c_str());
@@ -528,6 +550,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
 
   job_parameters->maximum_duration = CORBA::string_dup(job->getMaximumDuration().c_str());
   job_parameters->queue            = CORBA::string_dup(job->getQueue().c_str());
+  job_parameters->partition        = CORBA::string_dup(job->getPartition().c_str());
   job_parameters->exclusive        = job->getExclusive();
   job_parameters->mem_per_cpu      = job->getMemPerCpu();
   job_parameters->wckey            = CORBA::string_dup(job->getWCKey().c_str());
