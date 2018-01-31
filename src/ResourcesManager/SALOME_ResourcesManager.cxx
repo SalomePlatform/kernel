@@ -267,6 +267,11 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     INFOS("Error in AddResourceInCatalog: " << e);
     THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
   }
+  catch (const ResourcesException & e)
+  {
+    INFOS("Error in AddResourceInCatalog: " << e.msg);
+    THROW_SALOME_CORBA_EXCEPTION(e.msg.c_str(), SALOME::BAD_PARAM);
+  }
 }
 
 void
