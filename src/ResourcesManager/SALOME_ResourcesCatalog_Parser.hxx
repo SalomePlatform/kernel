@@ -41,7 +41,7 @@
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
-enum AccessProtocolType {sh, rsh, ssh, srun, pbsdsh, blaunch};
+enum AccessProtocolType {sh, rsh, ssh, srun, pbsdsh, blaunch, rsync};
 
 enum ResourceType {cluster, single_machine};
 

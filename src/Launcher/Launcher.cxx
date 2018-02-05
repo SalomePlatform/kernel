@@ -480,6 +480,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case ssh:
       protocol = Batch::SSH;
       break;
+    case rsync:
+      protocol = Batch::RSYNC;
+      break;
     default:
       throw LauncherException("Unknown protocol for this resource");
       break;

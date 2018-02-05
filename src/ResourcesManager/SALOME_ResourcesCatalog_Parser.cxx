@@ -168,6 +168,8 @@ std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
     return "pbsdsh";
   case blaunch:
     return "blaunch";
+  case rsync:
+    return "rsync";
   default:
     throw ResourcesException("Unknown protocol");
   }
@@ -187,6 +189,8 @@ AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & pro
     return pbsdsh;
   else if (protocolStr == "blaunch")
     return blaunch;
+  else if (protocolStr == "rsync")
+    return rsync;
   else
     throw ResourcesException((string("Unknown protocol ") + protocolStr).c_str());
 }
