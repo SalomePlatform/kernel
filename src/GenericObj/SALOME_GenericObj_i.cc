@@ -31,7 +31,7 @@
 
 // note: in KERNEL _DEBUG_ is not defined by default
 #ifdef _DEBUG_
-static int MYDEBUG = 0;
+static int MYDEBUG = 1;
 #else
 static int MYDEBUG = 0;
 #endif
@@ -92,6 +92,7 @@ namespace SALOME
     else {
       myPOA = PortableServer::POA::_duplicate(thePOA);
     }
+    MESSAGE("GenericObj_i::GenericObj_i thePOA: " << thePOA << " myPOA: " << myPOA);
   }
 
   /*!
@@ -104,6 +105,7 @@ namespace SALOME
   */
   PortableServer::POA_ptr GenericObj_i::_default_POA()
   {
+    MESSAGE("GenericObj_i::_default_POA: " << myPOA);
     return PortableServer::POA::_duplicate(myPOA);
   }
 

@@ -58,7 +58,8 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImp
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::ORB_ptr orb)
+SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::ORB_ptr orb) :
+  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA())
 {
   _impl = 0;
   if(!impl.IsNull()) {
@@ -83,6 +84,23 @@ SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::
 SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
 {
    if(_impl) delete _impl;    
+}
+
+//============================================================================
+/*!
+  \brief Get default POA for the servant object.
+
+  This function is implicitly called from "_this()" function.
+  Default POA can be set via the constructor.
+
+  \return reference to the default POA for the servant
+*/
+//============================================================================
+PortableServer::POA_ptr SALOMEDS_SObject_i::_default_POA()
+{
+  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
+  MESSAGE("SALOMEDS_SObject_i::_default_POA: " << myPOA);
+  return PortableServer::POA::_duplicate(myPOA);
 }
 
 //================================================================================

@@ -48,6 +48,8 @@ public:
 
   ~SALOMEDS_StudyBuilder_i();
 
+  virtual PortableServer::POA_ptr _default_POA();
+
   //! NewComponent
   /*!
     \param ComponentDataType    

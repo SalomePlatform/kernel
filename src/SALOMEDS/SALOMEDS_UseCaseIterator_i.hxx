@@ -53,6 +53,8 @@ public:
   
   //! standard destructor
   ~SALOMEDS_UseCaseIterator_i();
+
+  virtual PortableServer::POA_ptr _default_POA();
   
   virtual void Init(CORBA::Boolean);
   virtual CORBA::Boolean More();
