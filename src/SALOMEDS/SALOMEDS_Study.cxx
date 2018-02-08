@@ -68,6 +68,9 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDSImpl_Study* theStudy)
   _isLocal = true;
   _local_impl = theStudy;
   _corba_impl = SALOMEDS::Study::_nil();
+
+  pthread_mutex_init( &SALOMEDS_StudyBuilder::_remoteBuilderMutex, 0 );
+
   init_orb();
 }
 
@@ -78,6 +81,8 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
 #else
   long pid =  (long)getpid();
 #endif  
+
+  pthread_mutex_init( &SALOMEDS_StudyBuilder::_remoteBuilderMutex, 0 );
 
   long addr = theStudy->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
