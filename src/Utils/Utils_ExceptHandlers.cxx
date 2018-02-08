@@ -39,29 +39,9 @@
 
 //#define NBLINES_BACKTRACE 64
 
-void SalomeException ()
+void printBacktrace(void **stacklines, int nbLines, std::stringstream& txt)
 {
-  void *stacklines[64];
-  char **stackSymbols;
-  size_t nbLines;
-  nbLines = backtrace(stacklines, 64);
-  stackSymbols = backtrace_symbols(stacklines, nbLines);
-  std::stringstream txt;
-  txt << "Salome Exception" << std::endl;
-  for (int i=0; i<nbLines; i++)
-    txt << stackSymbols[i] << std::endl;
-  throw SALOME_Exception(txt.str().c_str());
-}
-
-void SALOME_SalomeException()
-{
-  void *stacklines[64];
-  char **stackSymbols;
-  size_t nbLines;
-  nbLines = backtrace(stacklines, 64);
-  stackSymbols = backtrace_symbols(stacklines, nbLines);
-  std::stringstream txt;
-  txt << "INTERNAL_ERROR, backtrace stack:" << nbLines << std::endl;
+  char **stackSymbols = backtrace_symbols(stacklines, nbLines);
   for (int i = 0; i < nbLines; i++)
     {
       Dl_info infodl;
@@ -86,13 +66,34 @@ void SALOME_SalomeException()
                 }
             }
           txt << " " << infodl.dli_saddr;
-
           txt << std::endl;
           free(demangled);
         }
       else
         txt << i << " " << stackSymbols[i] << std::endl;
     }
+  free(stackSymbols);
+}
+
+void SalomeException ()
+{
+  void *stacklines[64];
+  size_t nbLines;
+  nbLines = backtrace(stacklines, 64);
+  std::stringstream txt;
+  txt << "Salome Exception" << std::endl;
+  printBacktrace(stacklines, nbLines, txt);
+  throw SALOME_Exception(txt.str().c_str());
+}
+
+void SALOME_SalomeException()
+{
+  void *stacklines[64];
+  size_t nbLines;
+  nbLines = backtrace(stacklines, 64);
+  std::stringstream txt;
+  txt << "INTERNAL_ERROR, backtrace stack:" << nbLines << std::endl;
+  printBacktrace(stacklines, nbLines, txt);
   THROW_SALOME_CORBA_EXCEPTION(txt.str().c_str(), SALOME::INTERNAL_ERROR);
 }
 
