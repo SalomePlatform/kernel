@@ -31,7 +31,7 @@
 
 // note: in KERNEL _DEBUG_ is not defined by default
 #ifdef _DEBUG_
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #else
 static int MYDEBUG = 0;
 #endif
