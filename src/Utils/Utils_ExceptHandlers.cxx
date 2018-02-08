@@ -29,15 +29,70 @@
 #include "Utils_CorbaException.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
+#include <sstream>
+#include <execinfo.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 
+//#define NBLINES_BACKTRACE 64
+
 void SalomeException ()
 {
-  throw SALOME_Exception("Salome Exception");
+  void *stacklines[64];
+  char **stackSymbols;
+  size_t nbLines;
+  nbLines = backtrace(stacklines, 64);
+  stackSymbols = backtrace_symbols(stacklines, nbLines);
+  std::stringstream txt;
+  txt << "Salome Exception" << std::endl;
+  for (int i=0; i<nbLines; i++)
+    txt << stackSymbols[i] << std::endl;
+  throw SALOME_Exception(txt.str().c_str());
 }
 
-void SALOME_SalomeException() {
-  THROW_SALOME_CORBA_EXCEPTION("INTERNAL ERROR", SALOME::INTERNAL_ERROR);
+void SALOME_SalomeException()
+{
+  void *stacklines[64];
+  char **stackSymbols;
+  size_t nbLines;
+  nbLines = backtrace(stacklines, 64);
+  stackSymbols = backtrace_symbols(stacklines, nbLines);
+  std::stringstream txt;
+  txt << "INTERNAL_ERROR, backtrace stack:" << nbLines << std::endl;
+  for (int i = 0; i < nbLines; i++)
+    {
+      Dl_info infodl;
+      if (dladdr(stacklines[i], &infodl))
+        {
+          txt << i << " " << infodl.dli_fname << " " << infodl.dli_fbase << " ";
+          char *demangled = NULL;
+          int status = 0;
+          demangled = abi::__cxa_demangle(infodl.dli_sname, NULL, 0, &status);
+          if (status == 0 && demangled != NULL)
+            {
+              std::string demangstr = demangled; // copy
+              txt << demangstr;
+            }
+          else
+            {
+              if (infodl.dli_sname != 0 && infodl.dli_sname[0] != 0)
+                {
+                  std::string sname = infodl.dli_sname;
+                  if (sname.size() > 0)
+                    txt << infodl.dli_sname;
+                }
+            }
+          txt << " " << infodl.dli_saddr;
+
+          txt << std::endl;
+          free(demangled);
+        }
+      else
+        txt << i << " " << stackSymbols[i] << std::endl;
+    }
+  THROW_SALOME_CORBA_EXCEPTION(txt.str().c_str(), SALOME::INTERNAL_ERROR);
 }
 
