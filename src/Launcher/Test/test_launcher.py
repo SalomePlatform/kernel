@@ -574,7 +574,7 @@ f.close()
     f.close()
     os.chmod(abs_script_file, 0o755)
 
-    #environement script
+    #environment script
     env_file = "myEnv.sh"
     env_text = """export ENV_TEST_VAR="expected"
 """

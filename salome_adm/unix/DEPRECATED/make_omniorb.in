@@ -37,7 +37,7 @@
 %$(OMNIORB_IDL_CLN_CXX) %$(OMNIORB_IDL_CLN_H): ${top_builddir}/idl/%.idl
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
-# dependncies between idl files
+# dependencies between idl files
 depend_idl: .depidl
 
 # we use cpp to generate dependencies between idl files.

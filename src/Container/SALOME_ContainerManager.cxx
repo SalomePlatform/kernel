@@ -933,16 +933,16 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 
 void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
 {
-  int lenght = tmpFileName.size();
-  if ( lenght  > 0)
+  int length = tmpFileName.size();
+  if ( length  > 0)
     {
 #ifdef WIN32
       std::string command = "del /F ";
 #else
       std::string command = "rm ";
 #endif
-      if ( lenght > 4 )
-        command += tmpFileName.substr(0, lenght - 3 );
+      if ( length > 4 )
+        command += tmpFileName.substr(0, length - 3 );
       else
         command += tmpFileName;
       command += '*';
