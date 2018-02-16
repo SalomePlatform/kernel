@@ -175,7 +175,7 @@ int main( int argc , char **argv )
       policies.length(1);
       PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
       policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-      PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",manager,policies));
+      PortableServer::POA_var poa2(poa->create_POA("SingleThreadPOA4RegistryStandalone",manager,policies));
       threadPol->destroy();
       //
       PortableServer::ObjectId_var id(poa2->activate_object(ptrRegistry));
