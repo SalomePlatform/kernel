@@ -68,7 +68,7 @@ SALOMEDS_GenericAttribute_i::~SALOMEDS_GenericAttribute_i()
 PortableServer::POA_ptr SALOMEDS_GenericAttribute_i::_default_POA()
 {
   myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
-  MESSAGE("SALOMEDS_GenericAttribute_i::_default_POA: " << myPOA);
+  //MESSAGE("SALOMEDS_GenericAttribute_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }
 

@@ -69,7 +69,7 @@ SALOMEDS_ChildIterator_i::~SALOMEDS_ChildIterator_i()
 PortableServer::POA_ptr SALOMEDS_ChildIterator_i::_default_POA()
 {
   myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
-  MESSAGE("SALOMEDS_ChildIterator_i::_default_POA: " << myPOA);
+  //MESSAGE("SALOMEDS_ChildIterator_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }
 

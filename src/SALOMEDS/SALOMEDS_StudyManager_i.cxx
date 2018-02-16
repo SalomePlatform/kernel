@@ -514,7 +514,7 @@ PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetThePOA()
   if (iter != _mapOfPOA.end())
     {
       PortableServer::POA_ptr aPoa = iter->second;
-      MESSAGE("GetThePOA(): "<< aPoa);
+      //MESSAGE("GetThePOA(): "<< aPoa);
       return aPoa;
     }
   MESSAGE("GetThePOA(): _nil !");

@@ -92,7 +92,8 @@ namespace SALOME
     else {
       myPOA = PortableServer::POA::_duplicate(thePOA);
     }
-    MESSAGE("GenericObj_i::GenericObj_i thePOA: " << thePOA << " myPOA: " << myPOA);
+    if(MYDEBUG)
+      MESSAGE("GenericObj_i::GenericObj_i thePOA: " << thePOA << " myPOA: " << myPOA);
   }
 
   /*!
