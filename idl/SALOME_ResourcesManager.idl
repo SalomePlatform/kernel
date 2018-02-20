@@ -110,8 +110,11 @@ struct ResourceDefinition
   string hostname;
   //! Type of the resource ("cluster" or "single_machine")
   string type;
-  //! protocol to connect to the resource
-  //! protocol used to start a remote container (ssh or rsh)
+  //! protocol to connect to the resource and to start a remote container
+  //! Possible values:
+  //!   "rsh"   : uses rsh and rcp
+  //!   "ssh"   : uses ssh and scp
+  //!   "rsync" : uses ssh and rsync
   string protocol;
   //! login name to use to start a remote container
   string username;
