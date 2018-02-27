@@ -50476,7 +50476,7 @@
 	* src/Container/SALOME_Container.cxx:
 
 	The main thread is now used for the execution of python functions. It is because of Python that allow signal handling only in the main thread. So the SuperVisionEngine may now Kill the execution of a python function.
-	Now the orb is runned in another thread started from the main thread.
+	Now the orb is run in another thread started from the main thread.
 
 2004-12-08 13:30  rahuel
 

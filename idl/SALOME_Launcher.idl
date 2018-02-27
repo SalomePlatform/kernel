@@ -264,7 +264,7 @@ interface SalomeLauncher
   */
   void clearJobWorkingDir(in long job_id) raises (SALOME::SALOME_Exception);
 
-  //! Retrieve one sigle file from the working directory.
+  //! Retrieve one single file from the working directory.
   /*! Use this method if you don't want to copy all the results of the job,
       for instance if you want to obtain a file which contains the computing
       progress while the job is running.

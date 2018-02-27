@@ -144,7 +144,7 @@ class SalomeOutsideGUI(object):
 
     def IsInCurrentView(self, Entry):
         """Indicate if an entry is in current view"""
-        print "SalomeOutsideGUI.IsIncurentView: not available outside GUI"
+        print "SalomeOutsideGUI.IsIncurrentView: not available outside GUI"
         return False
         
     def getComponentName(self, ComponentUserName ):
