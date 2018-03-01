@@ -44,6 +44,7 @@
 
 #ifdef HAVE_MPI2
 #include <mpi.h>
+#include <sys/wait.h>
 #endif
 
 #ifdef WIN32
@@ -107,40 +108,42 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   urifile << GetenvThreadSafeAsString("HOME") << "/.urifile_" << getpid();
   setenv("OMPI_URI_FILE",urifile.str().c_str(),1);
   if( GetenvThreadSafe("OMPI_URI_FILE") != NULL ){
-    // get the pid of all ompi-server
-    std::set<pid_t> thepids1 = getpidofprogram("ompi-server");
-    // launch a new ompi-server
-    std::string command;
-    command = "ompi-server -r ";
-    command += GetenvThreadSafeAsString("OMPI_URI_FILE");
-    int status=SystemThreadSafe(command.c_str());
-    if(status!=0)
-      throw SALOME_Exception("Error when launching ompi-server");
-    // get the pid of all ompi-server
-    std::set<pid_t> thepids2 = getpidofprogram("ompi-server");
-    // my ompi-server is the new one
-    std::set<pid_t>::const_iterator it;
-    for(it=thepids2.begin();it!=thepids2.end();it++)
-      if(thepids1.find(*it) == thepids1.end())
-        _pid_mpiServer = *it;
-    if(_pid_mpiServer < 0)
-      throw SALOME_Exception("Error when getting ompi-server id");
+    // Linux specific code
+    pid_t pid = fork(); // spawn a child process, following code is executed in both processes
+    if ( pid == 0 ) // I'm a child, replace myself with a new ompi-server
+    {
+      std::string uriarg = GetenvThreadSafeAsString("OMPI_URI_FILE");
+      execlp( "ompi-server", "ompi-server", "-r", uriarg.c_str(), NULL );
+      throw SALOME_Exception("Error when launching ompi-server"); // execlp failed
+    }
+    else if ( pid < 0 )
+    {
+      throw SALOME_Exception("fork() failed");
+    }
+    else // I'm a parent
+    {
+      //wait(NULL); // wait(?) for a child end
+      _pid_mpiServer = pid;
+    }
   }
 #elif defined(MPICH)
   _pid_mpiServer = -1;
-  // get the pid of all hydra_nameserver
-  std::set<pid_t> thepids1 = getpidofprogram("hydra_nameserver");
-  // launch a new hydra_nameserver
-  std::string command;
-  command = "hydra_nameserver &";
-  SystemThreadSafe(command.c_str());
-  // get the pid of all hydra_nameserver
-  std::set<pid_t> thepids2 = getpidofprogram("hydra_nameserver");
-  // my hydra_nameserver is the new one
-  std::set<pid_t>::const_iterator it;
-  for(it=thepids2.begin();it!=thepids2.end();it++)
-    if(thepids1.find(*it) == thepids1.end())
-      _pid_mpiServer = *it;
+  // Linux specific code
+  pid_t pid = fork(); // spawn a child process, following code is executed in both processes
+  if ( pid == 0 ) // I'm a child, replace myself with a new hydra_nameserver
+  {
+    execlp( "hydra_nameserver", "hydra_nameserver", NULL );
+    throw SALOME_Exception("Error when launching hydra_nameserver"); // execlp failed
+  }
+  else if ( pid < 0 )
+  {
+    throw SALOME_Exception("fork() failed");
+  }
+  else // I'm a parent
+  {
+    //wait(NULL);
+    _pid_mpiServer = pid;
+  }
 #endif
 #endif
 
@@ -1292,21 +1295,6 @@ std::string SALOME_ContainerManager::machinesFile(const int nbproc)
 
   return machinesFile;
 
-}
-
-std::set<pid_t> SALOME_ContainerManager::getpidofprogram(const std::string program)
-{
-  std::set<pid_t> thepids;
-  std::string tmpFile = Kernel_Utils::GetTmpFileName();
-  std::string cmd;
-  std::string thepid;
-  cmd = "pidof " + program + " > " + tmpFile;
-  SystemThreadSafe(cmd.c_str());
-  std::ifstream fpi(tmpFile.c_str(),std::ios::in);
-  while(fpi >> thepid){
-    thepids.insert(atoi(thepid.c_str()));
-  }
-  return thepids;
 }
 
 std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocolType protocol,
