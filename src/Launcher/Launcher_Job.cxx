@@ -29,6 +29,11 @@
 #endif
 
 #include <sstream>
+#ifdef WIN32
+  static const char SEPARATOR = '\\';
+#else
+  static const char SEPARATOR = '/';
+#endif
 
 Launcher::Job::Job()
 {
@@ -181,7 +186,11 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
   std::string user_name = "";
   if (resource_definition.UserName == "")
   {
+#ifndef WIN32
     user_name = getenv("USER");
+#else
+    user_name = getenv("USERNAME");
+#endif
     if (user_name == "")
       user_name = getenv("LOGNAME");
     if (user_name == "")
@@ -214,7 +223,7 @@ Launcher::Job::setJobFile(const std::string & job_file)
   }
 
   _job_file = job_file;
-  std::string::size_type p1 = _job_file.find_last_of("/");
+  std::string::size_type p1 = _job_file.find_last_of(SEPARATOR);
   std::string::size_type p2 = _job_file.find_last_of(".");
   _job_file_name_complete = _job_file.substr(p1+1);
   _job_file_name = _job_file.substr(p1+1,p2-p1-1);
@@ -629,7 +638,11 @@ Launcher::Job::common_job_params()
     }
     else
     {
+#ifndef WIN32
       _work_directory = std::string("/$HOME/Batch/workdir_");
+#else
+      _work_directory = std::string("%USERPROFILE%\\Batch\\workdir_");
+#endif
       _work_directory += date;
     }
   }
@@ -648,8 +661,11 @@ Launcher::Job::common_job_params()
 
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
+#ifndef WIN32
     _result_directory = getenv("HOME");
-
+#else
+    _result_directory = getenv("USERPROFILE");
+#endif
   // _in_files
   std::list<std::string> in_files(_in_files);
   in_files.push_back(_job_file);
@@ -663,7 +679,12 @@ Launcher::Job::common_job_params()
 
     // local file -> If file is not an absolute path, we apply _local_directory
     std::string local_file;
+#ifndef WIN32
     if (file.substr(0, 1) == std::string("/"))
+#else
+    // On Windows, absolute paths may begin with something like "C:"
+    if (file.substr(1, 1) == std::string(":"))
+#endif
       local_file = file;
     else if (file.substr(0, 1) == std::string("-")) // using rsync options
       local_file = file;
@@ -673,7 +694,7 @@ Launcher::Job::common_job_params()
       // /a/b/./c/f -> _working_directory/c/f
       local_file = _local_directory + "/./" + file;
 #else
-      local_file = file;
+      local_file = _local_directory + SEPARATOR + file;
 #endif
 
     // remote file -> get only file name from in_files
