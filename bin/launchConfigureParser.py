@@ -522,7 +522,7 @@ def CreateOptionParser (theAdditionalOptions=None, exeName=None):
                           dest="gui",
                           help=help_str)
 
-    # Show Desktop (inly in GUI mode). Default: True
+    # Show Desktop (only in GUI mode). Default: True
     help_str  = "1 to activate GUI desktop [default], "
     help_str += "0 to not activate GUI desktop (Session_Server starts, but GUI is not shown). "
     help_str += "Ignored in the terminal mode."

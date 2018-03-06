@@ -607,6 +607,7 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   resource.DataForSort._Name = DEFAULT_RESOURCE_NAME;
   resource.Protocol = sh;
   resource.Batch = none;
+#ifndef WIN32
   if (getenv("HOME") != NULL && getenv("APPLI") != NULL)
   {
     resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
@@ -617,6 +618,18 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   resource.working_directory = tmpdir + "/salome_localres_workdir";
   if (getenv("USER") != NULL)
     resource.working_directory += string("_") + getenv("USER");
+#else
+  if (getenv("USERPROFILE") != NULL && getenv("APPLI") != NULL)
+  {
+    resource.AppliPath = string(getenv("USERPROFILE")) + "\\" + getenv("APPLI");
+  }
+  string tmpdir = "C:\\tmp";
+  if (getenv("TEMP") != NULL)
+    tmpdir = getenv("TEMP");
+  resource.working_directory = tmpdir + "\\salome_localres_workdir";
+  if (getenv("USERNAME") != NULL)
+    resource.working_directory += string("_") + getenv("USERNAME");
+#endif
   resource.can_launch_batch_jobs = true;
   resource.can_run_containers = true;
   _resourcesList[resource.Name] = resource;

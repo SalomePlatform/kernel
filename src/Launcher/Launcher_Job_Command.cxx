@@ -63,11 +63,19 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   std::string launch_date_port_file = launch_date;
   std::ostringstream str_pid;
   str_pid << ::getpid();
-  std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_" + _job_file_name + "_" + launch_date + "-" + str_pid.str() + ".sh";
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_"
+                              + _job_file_name + "_" + launch_date + "-"
+                              + str_pid.str();
+#ifndef WIN32
+  launch_script += ".sh";
+#else
+  launch_script += ".bat";
+#endif
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
 
   // Script
+#ifndef WIN32
   launch_script_stream << "#!/bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
   launch_script_stream << "export PYTHONPATH=" << work_directory << ":$PYTHONPATH" << std::endl;
@@ -77,6 +85,17 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
     std::string::size_type last = _env_file.find_last_of("/");
     launch_script_stream << ". ./" << _env_file.substr(last+1) << std::endl;
   }
+#else
+  launch_script_stream << "echo OFF" << std::endl;
+  launch_script_stream << "cd " << work_directory << std::endl;
+  launch_script_stream << "set PYTHONPATH=" << work_directory << ";%PYTHONPATH%" << std::endl;
+  launch_script_stream << "set PATH=" << work_directory << ";%PATH%" << std::endl;
+  if (_env_file != "")
+  {
+    std::string::size_type last = _env_file.find_last_of("\\");
+    launch_script_stream << "call " << _env_file.substr(last+1) << std::endl;
+  }
+#endif
   launch_script_stream << runCommandString() << std::endl;
 
   // Return
@@ -90,7 +109,11 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
 std::string Launcher::Job_Command::runCommandString()
 {
   std::ostringstream result;
+#ifndef WIN32
   result << "./" << _job_file_name_complete;
+#else
+  result << "call " << _job_file_name_complete;
+#endif
   return result.str();
 }
 #endif

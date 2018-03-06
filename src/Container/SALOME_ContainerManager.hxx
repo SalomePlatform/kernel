@@ -89,8 +89,6 @@ protected:
 
   std::string machinesFile(const int nbproc);
 
-  std::set<pid_t> getpidofprogram(const std::string program);
-
  static std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, const std::string & hostname, const std::string & username);
 
   Engines::Container_ptr
