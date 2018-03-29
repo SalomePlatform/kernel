@@ -48,8 +48,6 @@ public:
   SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb);
   virtual ~SALOMEDS_GenericAttribute_i();
 
-  virtual PortableServer::POA_ptr _default_POA();
-
   void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
   
   virtual char* Type();

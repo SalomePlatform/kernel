@@ -53,8 +53,6 @@ public:
   SALOMEDS_SObject_i(const SALOMEDSImpl_SObject&, CORBA::ORB_ptr);
   
   virtual ~SALOMEDS_SObject_i();
-
-  virtual PortableServer::POA_ptr _default_POA();
   
   virtual CORBA::Boolean IsNull();
   virtual char* GetID();

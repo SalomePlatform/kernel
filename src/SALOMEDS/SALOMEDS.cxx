@@ -36,7 +36,6 @@
 #include "SALOMEDSClient_IParameters.hxx"
 #include "SALOMEDS_IParameters.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
-#include "utilities.h"
 
 #include "SALOMEDS_Defines.hxx"
 
@@ -118,22 +117,10 @@ SALOMEDS_EXPORT
   SALOME_NamingService namingService(orb);
   CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
   SALOMEDS::StudyManager_var theManager = SALOMEDS::StudyManager::_narrow( obj );
-  if( CORBA::is_nil(theManager) )
-  {
-    PortableServer::POAManager_var pman = root_poa->the_POAManager();
-    CORBA::PolicyList policies;
-    policies.length(2);
-    PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-    PortableServer::ImplicitActivationPolicy_var implicitPol(root_poa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION));
-    policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
-    policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
-    PortableServer::POA_var poa = root_poa->create_POA("KERNELStudySingleThreadPOA",pman,policies);
-    MESSAGE("CreateStudyManager: KERNELStudySingleThreadPOA: "<< poa);
-    threadPol->destroy();
-
-    SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, poa);
+  if( CORBA::is_nil(theManager) ) {
+    SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, root_poa);
     // Activate the objects.  This tells the POA that the objects are ready to accept requests.
-    PortableServer::ObjectId_var aStudyManager_iid =  poa->activate_object(aStudyManager_i);
+    PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
     //give ownership to the poa : the object will be deleted by the poa
     aStudyManager_i->_remove_ref();
     aStudyManager_i->register_name((char*)"/myStudyManager");

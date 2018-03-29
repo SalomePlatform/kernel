@@ -27,8 +27,6 @@
 #include "SALOMEDS_SComponentIterator_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
-#include "utilities.h"
 
 //============================================================================
 /*! Function : constructor
@@ -37,8 +35,7 @@
 //============================================================================
 
 SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_SComponentIterator& theImpl, 
-                                                             CORBA::ORB_ptr orb)  :
-  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA())
+                                                             CORBA::ORB_ptr orb) 
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl.GetPersistentCopy();
@@ -52,23 +49,6 @@ SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_
 SALOMEDS_SComponentIterator_i::~SALOMEDS_SComponentIterator_i()
 {
    if(_impl) delete _impl;
-}
-
-//============================================================================
-/*!
-  \brief Get default POA for the servant object.
-
-  This function is implicitly called from "_this()" function.
-  Default POA can be set via the constructor.
-
-  \return reference to the default POA for the servant
-*/
-//============================================================================
-PortableServer::POA_ptr SALOMEDS_SComponentIterator_i::_default_POA()
-{
-  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
-  MESSAGE("SALOMEDS_SComponentIterator_i::_default_POA: " << myPOA);
-  return PortableServer::POA::_duplicate(myPOA);
 }
 
 //============================================================================

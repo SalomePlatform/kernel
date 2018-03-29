@@ -26,7 +26,6 @@
 //
 #include "utilities.h"
 #include "SALOMEDS_StudyBuilder_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
@@ -67,23 +66,6 @@ SALOMEDS_StudyBuilder_i::SALOMEDS_StudyBuilder_i(SALOMEDSImpl_StudyBuilder* theI
 //============================================================================
 SALOMEDS_StudyBuilder_i::~SALOMEDS_StudyBuilder_i()
 {}
-
-//============================================================================
-/*!
-  \brief Get default POA for the servant object.
-
-  This function is implicitly called from "_this()" function.
-  Default POA can be set via the constructor.
-
-  \return reference to the default POA for the servant
-*/
-//============================================================================
-PortableServer::POA_ptr SALOMEDS_StudyBuilder_i::_default_POA()
-{
-  PortableServer::POA_ptr poa = SALOMEDS_StudyManager_i::GetThePOA();
-  MESSAGE("SALOMEDS_StudyBuilder_i::_default_POA: " << poa);
-  return PortableServer::POA::_duplicate(poa);
-}
 
 //============================================================================
 /*! Function : NewComponent

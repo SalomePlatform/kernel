@@ -275,23 +275,6 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 }  
 
 //============================================================================
-/*!
-  \brief Get default POA for the servant object.
-
-  This function is implicitly called from "_this()" function.
-  Default POA can be set via the constructor.
-
-  \return reference to the default POA for the servant
-*/
-//============================================================================
-PortableServer::POA_ptr SALOMEDS_Study_i::_default_POA()
-{
-  PortableServer::POA_ptr poa = SALOMEDS_StudyManager_i::GetThePOA();
-  MESSAGE("SALOMEDS_Study_i::_default_POA: " << poa);
-  return PortableServer::POA::_duplicate(poa);
-}
-
-//============================================================================
 /*! Function : GetPersistentReference
  *  Purpose  : Get persistent reference of study (idem URL())
  */
