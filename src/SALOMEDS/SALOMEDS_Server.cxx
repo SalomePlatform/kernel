@@ -103,8 +103,9 @@ int main(int argc, char** argv)
               PortableServer::POAManager_var pman = defaultPoa->the_POAManager();
               CORBA::PolicyList policies;
               policies.length(2);
-              PortableServer::ThreadPolicy_var threadPol(defaultPoa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-              PortableServer::ImplicitActivationPolicy_var implicitPol(defaultPoa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION));
+              //PortableServer::ThreadPolicy_var threadPol(defaultPoa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+              PortableServer::ThreadPolicy_var threadPol(defaultPoa->create_thread_policy(PortableServer::ORB_CTRL_MODEL)); // default for all POAs
+              PortableServer::ImplicitActivationPolicy_var implicitPol(defaultPoa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION)); // default for Root_POA, NO for others
               policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
               policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
               poa = defaultPoa->create_POA("KERNELStandaloneStudySingleThreadPOA",pman,policies);
