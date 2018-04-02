@@ -123,7 +123,8 @@ SALOMEDS_EXPORT
     PortableServer::POAManager_var pman = root_poa->the_POAManager();
     CORBA::PolicyList policies;
     policies.length(2);
-    PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+    //PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+    PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL));
     PortableServer::ImplicitActivationPolicy_var implicitPol(root_poa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION));
     policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
     policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
