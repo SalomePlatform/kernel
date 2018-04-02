@@ -50,6 +50,8 @@
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
+pthread_mutex_t SALOMEDS_StudyBuilder::_remoteBuilderMutex;
+
 SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDSImpl_StudyBuilder* theBuilder)
 {
   _isLocal = true;
@@ -61,6 +63,7 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDSImpl_StudyBuilder* theBuild
 
 SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder)
 {
+  pthread_mutex_lock( &_remoteBuilderMutex );
   _isLocal = false;
   _local_impl = NULL;
   _corba_impl = SALOMEDS::StudyBuilder::_duplicate(theBuilder);
@@ -70,6 +73,7 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuild
 
 SALOMEDS_StudyBuilder::~SALOMEDS_StudyBuilder() 
 {
+  if (!_isLocal) pthread_mutex_unlock( &_remoteBuilderMutex );
 }
 
 _PTR(SComponent) SALOMEDS_StudyBuilder::NewComponent(const std::string& ComponentDataType)

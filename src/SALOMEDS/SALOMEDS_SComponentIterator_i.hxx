@@ -54,6 +54,8 @@ public:
   SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_SComponentIterator& theImpl, CORBA::ORB_ptr);
   
   ~SALOMEDS_SComponentIterator_i();
+
+  virtual PortableServer::POA_ptr _default_POA();
   
   virtual void Init();
   virtual CORBA::Boolean More();

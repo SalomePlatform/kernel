@@ -71,6 +71,8 @@ public:
   //! standard destructor
   virtual  ~SALOMEDS_StudyManager_i();
 
+  virtual PortableServer::POA_ptr _default_POA();
+
  //! method to Register study Manager in the naming service
   /*!
     \param char* arguments, the context to register the study manager in the NS
@@ -149,6 +151,7 @@ public:
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 
   static PortableServer::POA_ptr GetPOA(const SALOMEDS::Study_ptr theStudy);
+  static PortableServer::POA_ptr GetThePOA();
 
   void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
 };

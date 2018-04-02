@@ -92,6 +92,8 @@ namespace SALOME
     else {
       myPOA = PortableServer::POA::_duplicate(thePOA);
     }
+    if(MYDEBUG)
+      MESSAGE("GenericObj_i::GenericObj_i thePOA: " << thePOA << " myPOA: " << myPOA);
   }
 
   /*!
@@ -104,6 +106,7 @@ namespace SALOME
   */
   PortableServer::POA_ptr GenericObj_i::_default_POA()
   {
+    MESSAGE("GenericObj_i::_default_POA: " << myPOA);
     return PortableServer::POA::_duplicate(myPOA);
   }
 

@@ -38,6 +38,7 @@
 #include <stdio.h>
 
 //SALOMEDS headers
+#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_SComponentIterator_i.hxx"
 #include "SALOMEDS_StudyBuilder_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
@@ -64,6 +65,8 @@ public:
   
   //! standard destructor
   virtual ~SALOMEDS_Study_i(); 
+
+  virtual PortableServer::POA_ptr _default_POA();
   
   //! method to Get persistent reference of study (idem URL())
   /*!

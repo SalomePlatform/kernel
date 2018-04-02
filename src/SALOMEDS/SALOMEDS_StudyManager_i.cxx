@@ -69,6 +69,11 @@ SALOMEDS_StudyManager_i::SALOMEDS_StudyManager_i(CORBA::ORB_ptr orb, PortableSer
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(thePOA);
+  MESSAGE("thePOA, _poa="<<_poa);
+  if (_mapOfPOA.empty())
+    _mapOfPOA[0] = _poa;
+  else
+    MESSAGE("_mapOfPOA[0] already contains: " << _mapOfPOA[0]);
   _name_service = new SALOME_NamingService(_orb);
   // Study directory creation in the naming service : to register all
   // open studies in the session
@@ -89,6 +94,22 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
   delete _name_service;
   delete _factory;
   delete _impl;
+}
+
+//============================================================================
+/*!
+  \brief Get default POA for the servant object.
+
+  This function is implicitly called from "_this()" function.
+  Default POA can be set via the constructor.
+
+  \return reference to the default POA for the servant
+*/
+//============================================================================
+PortableServer::POA_ptr SALOMEDS_StudyManager_i::_default_POA()
+{
+  MESSAGE("SALOMEDS_StudyManager_i::_default_POA: " << _poa);
+  return PortableServer::POA::_duplicate(_poa);
 }
 
 //============================================================================
@@ -484,6 +505,19 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
 
 PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetPOA(const SALOMEDS::Study_ptr theStudy) {
   if (_mapOfPOA.find(theStudy->StudyId()) != _mapOfPOA.end()) return _mapOfPOA[theStudy->StudyId()];
+  return PortableServer::POA::_nil();
+}
+
+PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetThePOA()
+{
+  std::map<int, PortableServer::POA_ptr>::iterator iter = _mapOfPOA.begin();
+  if (iter != _mapOfPOA.end())
+    {
+      PortableServer::POA_ptr aPoa = iter->second;
+      //MESSAGE("GetThePOA(): "<< aPoa);
+      return aPoa;
+    }
+  MESSAGE("GetThePOA(): _nil !");
   return PortableServer::POA::_nil();
 }
 

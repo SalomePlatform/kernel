@@ -53,6 +53,8 @@ public:
   
   //! standard destructor
   ~SALOMEDS_ChildIterator_i();
+
+  virtual PortableServer::POA_ptr _default_POA();
   
   virtual void Init();
   virtual void InitEx(CORBA::Boolean);

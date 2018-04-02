@@ -58,6 +58,8 @@ public:
   
   //! standard destructor
   ~SALOMEDS_UseCaseBuilder_i();
+
+  virtual PortableServer::POA_ptr _default_POA();
   
   virtual CORBA::Boolean Append(SALOMEDS::SObject_ptr theObject);
 

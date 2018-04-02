@@ -31,6 +31,7 @@
 
 #include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
+#include <pthread.h>
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -44,7 +45,9 @@ private:
   SALOMEDS::StudyBuilder_var        _corba_impl;
   CORBA::ORB_var                    _orb;
 
+
 public:
+  static pthread_mutex_t            _remoteBuilderMutex;
 
   SALOMEDS_StudyBuilder(SALOMEDSImpl_StudyBuilder* theBuilder);
   SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);

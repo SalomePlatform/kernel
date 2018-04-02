@@ -70,6 +70,7 @@ int main(int argc, char** argv)
       ts_rem.tv_nsec=0;
       ts_rem.tv_sec=0;
       CosNaming::NamingContext_var inc;
+      PortableServer::POA_var defaultPoa;
       PortableServer::POA_var poa;
       CORBA::Object_var theObj;
       CORBA::Object_var obj;
@@ -95,9 +96,20 @@ int main(int argc, char** argv)
             { 
               obj = orb->resolve_initial_references("RootPOA");
               if(!CORBA::is_nil(obj))
-                poa = PortableServer::POA::_narrow(obj);
-              if(!CORBA::is_nil(poa))
-                pman = poa->the_POAManager();
+                defaultPoa = PortableServer::POA::_narrow(obj);
+              if(!CORBA::is_nil(defaultPoa))
+                pman = defaultPoa->the_POAManager();
+
+              PortableServer::POAManager_var pman = defaultPoa->the_POAManager();
+              CORBA::PolicyList policies;
+              policies.length(2);
+              PortableServer::ThreadPolicy_var threadPol(defaultPoa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+              PortableServer::ImplicitActivationPolicy_var implicitPol(defaultPoa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION));
+              policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+              policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
+              poa = defaultPoa->create_POA("KERNELStandaloneStudySingleThreadPOA",pman,policies);
+              threadPol->destroy();
+
               if(!CORBA::is_nil(orb)) 
                 theObj = orb->resolve_initial_references("NameService"); 
               if (!CORBA::is_nil(theObj)){
