@@ -299,6 +299,15 @@ int SALOMEDS_SObject::Tag()
   return _corba_impl->Tag(); 
 }
 
+int SALOMEDS_SObject::GetLastChildTag()
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    return _local_impl->GetLastChildTag();
+  }
+  return _corba_impl->GetLastChildTag(); 
+}
+
 int SALOMEDS_SObject::Depth()
 {
   if (_isLocal) {
