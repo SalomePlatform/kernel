@@ -329,11 +329,16 @@ std::vector< std::string > DataScopeServerBase::getAllVarNames() const
   return ret;
 }
 
-void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName) const
+bool DataScopeServerBase::isExistingVar(const std::string& varName) const
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
-  if(it!=allNames.end())
+  return it!=allNames.end();
+}
+
+void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName) const
+{
+  if(isExistingVar(varName))
     {
       std::ostringstream oss; oss << "DataScopeServerBase::checkNotAlreadyExistingVar : name \"" << varName << "\" already exists !";
       throw Exception(oss.str());
@@ -409,8 +414,7 @@ void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const s
     throw Exception("DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit : var is neither RdExt nor RdExtInit !");
   if(varc0)
     {
-      PyObject *pyobj(varc0->getPyObj()); Py_XINCREF(pyobj);
-      PickelizedPyObjRdExtInitServer *newVar(new PickelizedPyObjRdExtInitServer(this,varName,pyobj));
+      PickelizedPyObjRdExtInitServer *newVar(varc0->buildInitInstanceFrom(varName));
       newVar->incrNbClients();
       CORBA::Object_var obj(newVar->activate());
       SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
@@ -433,8 +437,7 @@ void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExt(const std::
     {
       if(varc0->decrNbClients())
         {
-          PyObject *pyobj(varc0->getPyObj()); Py_XINCREF(pyobj);
-          PickelizedPyObjRdExtServer *newVar(new PickelizedPyObjRdExtServer(this,varName,pyobj));
+          PickelizedPyObjRdExtServer *newVar(varc0->buildStdInstanceFrom(varName));
           CORBA::Object_var obj(newVar->activate());
           SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
           p.first=obj2; p.second=newVar;
@@ -585,6 +588,35 @@ void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varNa
   _vars.push_back(p);
 }
 
+void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME::ByteVec& constValue, std::vector<unsigned char>&& sha1)
+{
+  if(!isExistingVar(varName))
+    {
+      PickelizedPyObjRdExtFreeStyleServer *tmp(new PickelizedPyObjRdExtFreeStyleServer(this,varName,constValue,std::move(sha1)));
+      CORBA::Object_var ret(tmp->activate());
+      std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+      _vars.push_back(p);
+    }
+  else
+    {
+      BasicDataServer *ds(retrieveVarInternal2(varName));
+      if(!ds)
+        {
+          std::ostringstream oss;
+          oss << "DataScopeServerTransaction::createRdExtVarFreeStyleInternal : internal error 1 for varname \"" << varName << "\"!";
+          throw Exception(oss.str());
+        }
+      Sha1Keeper *ds2(dynamic_cast<Sha1Keeper *>(ds));
+      if(!ds2)
+        {
+          std::ostringstream oss;
+          oss << "DataScopeServerTransaction::createRdExtVarFreeStyleInternal : varname \"" << varName << "\" already exists with a non RdExtFreeStyle type !";
+          throw Exception(oss.str());
+        }
+      ds2->checkSha1(varName,sha1);
+    }
+}
+
 void DataScopeServerTransaction::createRdExtInitVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
@@ -615,6 +647,13 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const 
 {
   checkNotAlreadyExistingVar(varName);
   TransactionRdExtVarCreate *ret(new TransactionRdExtVarCreate(this,varName,constValue));
+  CORBA::Object_var obj(ret->activate());
+  return SALOME::Transaction::_narrow(obj);
+}
+
+SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarFreeStyleTransac(const char *varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1)
+{// no check on varName done here. Will be done on perform
+  TransactionRdExtVarFreeStyleCreate *ret(new TransactionRdExtVarFreeStyleCreate(this,varName,constValue,sha1));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }

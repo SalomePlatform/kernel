@@ -345,6 +345,61 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     pass
 
+  def testTransaction8(self):
+    """ EDF 16833 """
+    scopeName="ScopePP"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+        dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+
+    value={"a":1,"b":2}
+    value2={'a':1,'c':3,'b':2}
+
+    varName="abc"
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1") # sha1 is the key used to compare the initial value
+    dss.atomicApply([t0])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
+    t1=dss.addMultiKeyValueSession(varName)
+    t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
+    dss.atomicApply([t1])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2)
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1") # key is the same as original one -> OK
+    dss.atomicApply([t2])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2) # value2 remains untouched
+    t3=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha2")
+    self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t3]) # sha2 != sha1 -> rejected
+    pass
+  
+  def testTransaction9(self):
+    """ EDF 16833 : use case 2. Trying to createRdExt during add key session"""
+    scopeName="ScopePP"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+        dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+
+    value={"a":1,"b":2}
+    value2={'a':1,'c':3,'b':2}
+
+    varName="abc"
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1")
+    dss.atomicApply([t0])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
+    t1=dss.addMultiKeyValueSession(varName)
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1")
+    dss.atomicApply([t2])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
+    t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
+    dss.atomicApply([t1])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2)
+    pass
+
+    
   def testLockToDump(self):
     """ Test to check that holdRequests method. This method wait for clean server status and hold it until activeRequests is called.
     Warning this method expects a not overloaded machine to be run because test is based on ellapse time.

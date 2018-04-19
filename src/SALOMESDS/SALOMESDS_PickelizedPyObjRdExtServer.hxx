@@ -27,16 +27,20 @@
 #include <Python.h>
 
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
+#include "SALOMESDS_Sha1Keeper.hxx"
 
 namespace SALOMESDS
 {
+  class PickelizedPyObjRdExtInitServer;
+  
   class PickelizedPyObjRdExtServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME::PickelizedPyObjRdExtServer
   {
   public:
     PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
     PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
-    ~PickelizedPyObjRdExtServer();
+    virtual ~PickelizedPyObjRdExtServer();
     SALOME::PickelizedPyObjRdExtServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
+    virtual PickelizedPyObjRdExtInitServer *buildInitInstanceFrom(const std::string& varName);
   public:
     std::string getAccessStr() const;
   private:
@@ -46,6 +50,14 @@ namespace SALOMESDS
     void checkDictSetitemRdExtness(PyObject *argsPy);
   public:
     static const char ACCESS_REPR[];
+  };
+
+  class PickelizedPyObjRdExtFreeStyleServer : public PickelizedPyObjRdExtServer, public Sha1Keeper
+  {
+  public:
+    PickelizedPyObjRdExtFreeStyleServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value, std::vector<unsigned char>&& sha1):PickelizedPyObjRdExtServer(father,varName,value),Sha1Keeper(std::move(sha1)) { }
+    PickelizedPyObjRdExtFreeStyleServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj, std::vector<unsigned char>&& sha1):PickelizedPyObjRdExtServer(father,varName,obj),Sha1Keeper(std::move(sha1)) { }
+    PickelizedPyObjRdExtInitServer *buildInitInstanceFrom(const std::string& varName) override;
   };
 }
 
