@@ -83,6 +83,16 @@ namespace SALOMESDS
     void perform();
   };
 
+  class TransactionRdExtVarFreeStyleCreate : public TransactionRdExtVarCreate
+  {
+  public:
+    TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1);
+    void prepareRollBackInCaseOfFailure();
+    void perform();
+  protected:
+    std::vector<unsigned char> _sha1;
+  };
+
   class TransactionRdExtInitVarCreate : public TransactionVarCreate
   {
   public:

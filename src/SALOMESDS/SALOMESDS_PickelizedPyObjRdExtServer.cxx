@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
+#include "SALOMESDS_PickelizedPyObjRdExtInitServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
 
@@ -73,6 +74,12 @@ SALOME::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonM
   PortableServer::ObjectId_var id(poa->activate_object(ret));
   CORBA::Object_var obj(poa->id_to_reference(id));
   return SALOME::PickelizedPyObjRdExtServer::_narrow(obj);
+}
+
+PickelizedPyObjRdExtInitServer *PickelizedPyObjRdExtServer::buildInitInstanceFrom(const std::string& varName)
+{
+  PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
+  return new PickelizedPyObjRdExtInitServer(getFather(),varName,pyobj);
 }
 
 void PickelizedPyObjRdExtServer::checkRdExtnessOf(const std::string& methodName, PyObject *argsPy)
@@ -141,4 +148,11 @@ void PickelizedPyObjRdExtServer::checkDictSetitemRdExtness(PyObject *argsPy)
 std::string PickelizedPyObjRdExtServer::getAccessStr() const
 {
   return std::string(ACCESS_REPR);
+}
+
+
+PickelizedPyObjRdExtInitServer *PickelizedPyObjRdExtFreeStyleServer::buildInitInstanceFrom(const std::string& varName)
+{
+  PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
+  return new PickelizedPyObjRdExtInitFreeStyleServer(getFather(),varName,pyobj,std::move(_sha1));
 }

@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_PickelizedPyObjRdExtInitServer.hxx"
+#include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
 
@@ -45,6 +46,12 @@ PickelizedPyObjRdExtInitServer::~PickelizedPyObjRdExtInitServer()
   Py_XDECREF(_self_deep_copy);
 }
 
+PickelizedPyObjRdExtServer *PickelizedPyObjRdExtInitServer::buildStdInstanceFrom(const std::string& varName)
+{
+  PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
+  return new PickelizedPyObjRdExtServer(getFather(),varName,pyobj);
+}
+
 std::string PickelizedPyObjRdExtInitServer::getAccessStr() const
 {
   return std::string(ACCESS_REPR);
@@ -67,4 +74,10 @@ PyObject *PickelizedPyObjRdExtInitServer::DeepCopyPyObj(PyObject *pyobj)
   Py_XDECREF(meth);
   Py_XDECREF(mod);
   return ret;
+}
+
+PickelizedPyObjRdExtServer *PickelizedPyObjRdExtInitFreeStyleServer::buildStdInstanceFrom(const std::string& varName)
+{
+  PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
+  return new PickelizedPyObjRdExtFreeStyleServer(getFather(),varName,pyobj,std::move(_sha1));
 }

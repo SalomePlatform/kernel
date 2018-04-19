@@ -140,6 +140,7 @@ module SALOME
     void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME::SALOME_Exception);
     Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    Transaction createRdExtVarFreeStyleTransac(in string varName, in ByteVec constValue, in ByteVec sha1) raises (SALOME::SALOME_Exception);
     Transaction createRdExtInitVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction addKeyValueInVarHard(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);

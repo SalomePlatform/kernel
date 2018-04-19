@@ -56,7 +56,7 @@ TransactionVarCreate::TransactionVarCreate(DataScopeServerTransaction *dsct, con
 }
 
 void TransactionVarCreate::prepareRollBackInCaseOfFailure()
-{//nothing it is not a bug
+{
   checkNotAlreadyExisting();
 }
 
@@ -85,6 +85,22 @@ void TransactionRdExtVarCreate::perform()
   SALOME::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   _dsct->createRdExtVarInternal(_var_name,data2);
+}
+
+TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1):TransactionRdExtVarCreate(dsct,varName,constValue)
+{
+  FromByteSeqToVB(sha1,_sha1);
+}
+
+void TransactionRdExtVarFreeStyleCreate::prepareRollBackInCaseOfFailure()
+{//nothing it is not a bug
+}
+
+void TransactionRdExtVarFreeStyleCreate::perform()
+{
+  SALOME::ByteVec data2;
+  FromVBToByteSeq(_data,data2);
+  _dsct->createRdExtVarFreeStyleInternal(_var_name,data2,std::move(_sha1));
 }
 
 void TransactionRdExtInitVarCreate::perform()

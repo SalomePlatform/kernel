@@ -27,9 +27,12 @@
 #include <Python.h>
 
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
+#include "SALOMESDS_Sha1Keeper.hxx"
 
 namespace SALOMESDS
 {
+  class PickelizedPyObjRdExtServer;
+  
   /*!
    * State during the producer/consumer phase. Activated by TransactionMultiKeyAddSession transaction returned by dss.addMultiKeyValueSession.
    */
@@ -39,6 +42,7 @@ namespace SALOMESDS
     PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
     PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdExtInitServer();
+    virtual PickelizedPyObjRdExtServer *buildStdInstanceFrom(const std::string& varName);
   public:
     std::string getAccessStr() const;
     SALOME::ByteVec *fetchSerializedContent();
@@ -53,6 +57,13 @@ namespace SALOMESDS
     mutable int _nb_of_clients;
   public:
     static const char ACCESS_REPR[];
+  };
+
+  class PickelizedPyObjRdExtInitFreeStyleServer : public PickelizedPyObjRdExtInitServer, public Sha1Keeper
+  {
+  public:
+    PickelizedPyObjRdExtInitFreeStyleServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj, std::vector<unsigned char>&& sha1):PickelizedPyObjRdExtInitServer(father,varName,obj),Sha1Keeper(std::move(sha1)) { }
+    PickelizedPyObjRdExtServer *buildStdInstanceFrom(const std::string& varName) override;
   };
 }
 

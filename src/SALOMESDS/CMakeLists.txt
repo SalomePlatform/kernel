@@ -48,6 +48,7 @@ SET(SalomeSDS_SOURCES
   SALOMESDS_PickelizedPyObjRdWrServer.cxx
   SALOMESDS_Transaction.cxx
   SALOMESDS_KeyWaiter.cxx
+  SALOMESDS_Sha1Keeper.cxx
   )
 
 ADD_LIBRARY(SalomeSDS ${SalomeSDS_SOURCES})
