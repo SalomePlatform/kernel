@@ -193,6 +193,7 @@ def __runLocalSession(command):
     for cmd in command:
       single_cmd = cmd.strip().split(' ')
       any_error = False
+      error_code = 1
       try:
         proc = subprocess.Popen(single_cmd)
         (stdoutdata, stderrdata) = proc.communicate() # Wait for process to terminate
@@ -203,6 +204,7 @@ def __runLocalSession(command):
 
         if proc.returncode != 0:
           any_error = True
+          error_code = proc.returncode
       except:
           any_error = True
           pass
@@ -213,7 +215,7 @@ def __runLocalSession(command):
           sys.stdout.write("".join(outmsg))
         if errmsg:
           sys.stderr.write("".join(errmsg))
-        sys.exit(1)
+        sys.exit(error_code)
 
     return 0
   else:

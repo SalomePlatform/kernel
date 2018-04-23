@@ -53,7 +53,7 @@ resourceParams::resourceParams()
 : can_launch_batch_jobs(false),
   can_run_containers(false),
   nb_proc(-1),
-  nb_node(-1),
+  nb_node(0),
   nb_proc_per_node(-1),
   cpu_clock(-1),
   mem_mb(-1)

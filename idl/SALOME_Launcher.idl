@@ -285,6 +285,14 @@ interface SalomeLauncher
   //! Kill the job and remove it from the jobs list
   void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
+  //! Get the job's serialization string
+  string dumpJob(in long job_id) raises (SALOME::SALOME_Exception);
+  //! Create a job from its serialization string
+  /*! \param dumpedJob Serialization string returned by dumpJob.
+      \return          Job id
+  */
+  long restoreJob(in string dumpedJob) raises (SALOME::SALOME_Exception);
+
   // Useful methods
   long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
   boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
@@ -307,7 +315,6 @@ interface SalomeLauncher
   void loadJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
   //! Save the current list of jobs in an xml file.
   void saveJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
-
 };
 
 };

@@ -96,7 +96,9 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   pthread_mutex_unlock(_job_cpt_mutex);
   std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(new_job->getNumber());
   if (it_job == _launcher_job_map.end())
+  {
     _launcher_job_map[new_job->getNumber()] = new_job;
+  }
   else
   {
     LAUNCHER_INFOS("A job as already the same id: " << new_job->getNumber());
@@ -117,14 +119,7 @@ Launcher_cpp::launchJob(int job_id)
   LAUNCHER_MESSAGE("Launch a job");
 
   // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
 
   // Check job state (cannot launch a job already launched...)
   if (job->getState() != "CREATED")
@@ -134,13 +129,11 @@ Launcher_cpp::launchJob(int job_id)
   }
 
   // Third step search batch manager for the job into the map -> instantiate one if does not exist
-#ifdef WITH_LIBBATCH
   std::map<int, Batch::BatchManager *>::const_iterator it = _batchmap.find(job_id);
   if(it == _batchmap.end())
   {
     createBatchManagerForJob(job);
   }
-#endif
 
   try {
     Batch::JobId batch_manager_job_id = _batchmap[job_id]->submitJob(*(job->getBatchJob()));
@@ -167,14 +160,7 @@ Launcher_cpp::getJobState(int job_id)
   LAUNCHER_MESSAGE("Get job state");
 
   // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
 
   std::string state;
   try
@@ -201,14 +187,7 @@ Launcher_cpp::getAssignedHostnames(int job_id)
   LAUNCHER_MESSAGE("Get job assigned hostnames");
 
   // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
   std::string assigned_hostnames = job->getAssignedHostnames();
 
   return assigned_hostnames.c_str();
@@ -224,15 +203,7 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
 {
   LAUNCHER_MESSAGE("Get Job results");
 
-  // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
   std::string resource_name = job->getResourceDefinition().Name;
   try 
   {
@@ -259,15 +230,7 @@ Launcher_cpp::clearJobWorkingDir(int job_id)
 {
   LAUNCHER_MESSAGE("Clear the remote working directory");
 
-  // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
   try
   {
     _batchmap[job_id]->clearWorkingDir(*(job->getBatchJob()));
@@ -291,15 +254,7 @@ Launcher_cpp::getJobDumpState(int job_id, std::string directory)
   bool rtn;
   LAUNCHER_MESSAGE("Get Job dump state");
 
-  // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
   std::string resource_name = job->getResourceDefinition().Name;
   try 
   {
@@ -330,15 +285,7 @@ Launcher_cpp::getJobWorkFile(int job_id,
   bool rtn;
   LAUNCHER_MESSAGE("Get working file " << work_file);
 
-  // Check if job exist
-  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
-
-  Launcher::Job * job = it_job->second;
+  Launcher::Job * job = findJob(job_id);
   std::string resource_name = job->getResourceDefinition().Name;
   try
   {
@@ -389,15 +336,42 @@ Launcher_cpp::stopJob(int job_id)
 {
   LAUNCHER_MESSAGE("Stop Job");
 
-  // Check if job exist
-  std::map<int, Launcher::Job *>::iterator it_job = _launcher_job_map.find(job_id);
-  if (it_job == _launcher_job_map.end())
-  {
-    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    throw LauncherException("Cannot find the job, is it created ?");
-  }
+  Launcher::Job * job = findJob(job_id);
+  job->stopJob();
+}
 
-  it_job->second->stopJob();
+std::string
+Launcher_cpp::dumpJob(int job_id)
+{
+  LAUNCHER_MESSAGE("dump Job");
+
+  Launcher::Job * job = findJob(job_id);
+  return Launcher::XML_Persistence::dumpJob(*job);
+}
+
+int
+Launcher_cpp::restoreJob(const std::string& dumpedJob)
+{
+  LAUNCHER_MESSAGE("restore Job");
+  Launcher::Job * new_job=NULL;
+  int jobId = -1;
+  try
+  {
+    new_job = Launcher::XML_Persistence::createJobFromString(dumpedJob);
+    if(new_job)
+    {
+      jobId = addJob(new_job);
+      if(jobId < 0)
+        delete new_job;
+    }
+  }
+  catch(const LauncherException &ex)
+  {
+    LAUNCHER_INFOS("Cannot load the job. Exception: " << ex.msg.c_str());
+    if(new_job)
+      delete new_job;
+  }
+  return jobId;
 }
 
 //=============================================================================
@@ -649,6 +623,24 @@ Launcher_cpp::stopJob(int job_id)
                           "(libBatch was not present at compilation time)");
 }
 
+std::string
+Launcher_cpp::dumpJob(int job_id)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot dump job!!!");
+  throw LauncherException("Method Launcher_cpp::dumpJob is not available "
+                          "(libBatch was not present at compilation time)");
+  return "";
+}
+
+int
+Launcher_cpp::restoreJob(const std::string& dumpedJob)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot restore job!!!");
+  throw LauncherException("Method Launcher_cpp::restoreJob is not available "
+                          "(libBatch was not present at compilation time)");
+  return 0;
+}
+
 long 
 Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string clusterName)
 {
@@ -800,7 +792,9 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
   // Step 3: add job to launcher map
   std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(new_job->getNumber());
   if (it_job == _launcher_job_map.end())
+  {
     _launcher_job_map[new_job->getNumber()] = new_job;
+  }
   else
   {
     LAUNCHER_INFOS("A job as already the same id: " << new_job->getNumber());
@@ -809,6 +803,50 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
   }
   LAUNCHER_MESSAGE("New job added");
 #endif
+}
+
+int
+Launcher_cpp::addJob(Launcher::Job * new_job)
+{
+  string job_state = new_job->getState();
+  int jobId = -1;
+  if (job_state == "CREATED")
+  {
+    // In this case, we ignore run_part information
+    createJob(new_job);
+    jobId = new_job->getNumber();
+  }
+  else if (job_state == "QUEUED"     ||
+            job_state == "RUNNING"    ||
+            job_state == "IN_PROCESS" ||
+            job_state == "PAUSED")
+  {
+    addJobDirectlyToMap(new_job);
+    jobId = new_job->getNumber();
+
+    // We check that the BatchManager could resume the job
+#ifdef WITH_LIBBATCH
+    if (new_job->getBatchManagerJobId().getReference() != new_job->getReference())
+    {
+      LAUNCHER_INFOS("BatchManager type cannot resume a job - job state is set to ERROR");
+      new_job->setState("ERROR");
+    }
+#endif
+  }
+  else if (job_state == "FINISHED" ||
+            job_state == "FAILED"   ||
+            job_state == "ERROR")
+  {
+    // We add run_part information
+    addJobDirectlyToMap(new_job);
+    jobId = new_job->getNumber();
+  }
+  else
+  {
+    LAUNCHER_INFOS("A bad job is found, state unknown " << job_state);
+    jobId = -1;
+  }
+  return jobId;
 }
 
 list<int>
@@ -824,47 +862,14 @@ Launcher_cpp::loadJobs(const char* jobs_file)
   for (it_job = jobs_list.begin(); it_job != jobs_list.end(); it_job++)
   {
     Launcher::Job * new_job = *it_job;
-    string job_state = new_job->getState();
-
+    int jobId = -1;
     try
     {
-      if (job_state == "CREATED")
-      {
-        // In this case, we ignore run_part information
-        createJob(new_job);
-        new_jobs_id_list.push_back(new_job->getNumber());
-      }
-      else if (job_state == "QUEUED"     ||
-               job_state == "RUNNING"    ||
-               job_state == "IN_PROCESS" ||
-               job_state == "PAUSED")
-      {
-        addJobDirectlyToMap(new_job);
-        new_jobs_id_list.push_back(new_job->getNumber());
-
-        // Step 4: We check that the BatchManager could resume
-        // the job
-#ifdef WITH_LIBBATCH
-        if (new_job->getBatchManagerJobId().getReference() != new_job->getReference())
-        {
-          LAUNCHER_INFOS("BatchManager type cannot resume a job - job state is set to ERROR");
-          new_job->setState("ERROR");
-        }
-#endif
-      }
-      else if (job_state == "FINISHED" ||
-               job_state == "FAILED"   ||
-               job_state == "ERROR")
-      {
-        // Step 2: We add run_part information
-        addJobDirectlyToMap(new_job);
-        new_jobs_id_list.push_back(new_job->getNumber());
-      }
+      jobId = addJob(new_job);
+      if(jobId >= 0)
+        new_jobs_id_list.push_back(jobId);
       else
-      {
-        LAUNCHER_INFOS("A bad job is found, state unknown " << job_state);
         delete new_job;
-      }
     }
     catch(const LauncherException &ex)
     {
@@ -890,4 +895,17 @@ Launcher_cpp::saveJobs(const char* jobs_file)
 
   // Save the jobs in XML file
   Launcher::XML_Persistence::saveJobs(jobs_file, jobs_list);
+}
+
+Launcher::Job *
+Launcher_cpp::findJob(int job_id)
+{
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+  Launcher::Job * job = it_job->second;
+  return job;
 }

@@ -73,6 +73,8 @@ public:
   bool         getJobWorkFile(int job_id, std::string work_file, std::string directory);
   void         stopJob(int job_id);
   void         removeJob(int job_id);
+  std::string  dumpJob(int job_id);
+  int restoreJob(const std::string& dumpedJob);
 
   /*! Load the jobs from the file "jobs_file" and add them to the Launcher.
    *  Return a list with the IDs of the jobs that were successfully loaded.
@@ -96,6 +98,9 @@ public:
 protected:
 
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
+  int addJob(Launcher::Job * new_job);
+
+  Launcher::Job * findJob(int job_id);
 
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
