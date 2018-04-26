@@ -79,7 +79,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   launch_script_stream << "#!/bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
   // remove the exit code from any previous execution
-  launch_script_stream << "rm -f logs/end_code.log" << std::endl;
+  launch_script_stream << "rm -f logs/exit_code.log" << std::endl;
   launch_script_stream << "export PYTHONPATH=" << work_directory << ":$PYTHONPATH" << std::endl;
   launch_script_stream << "export PATH=" << work_directory << ":$PATH" << std::endl;
   if (_env_file != "")
@@ -101,7 +101,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   launch_script_stream << runCommandString() << std::endl;
 #ifndef WIN32
   // log the exit code
-  launch_script_stream << "echo $? > logs/end_code.log" << std::endl;
+  launch_script_stream << "echo $? > logs/exit_code.log" << std::endl;
 #endif
 
   // Return

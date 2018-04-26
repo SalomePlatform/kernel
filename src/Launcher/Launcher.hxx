@@ -111,7 +111,7 @@ protected:
 
   std::map <int, Launcher::Job *> _launcher_job_map;  
   int _job_cpt; // job number counter
-  pthread_mutex_t * _job_cpt_mutex; // mutex for job counter
+  pthread_rwlock_t * _lock;
 };
 
 #endif

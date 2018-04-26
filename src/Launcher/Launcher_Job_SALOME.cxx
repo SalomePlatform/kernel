@@ -80,7 +80,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "#!/bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
   // remove the exit code from any previous execution
-  launch_script_stream << "rm -f logs/end_code.log" << std::endl;
+  launch_script_stream << "rm -f logs/exit_code.log" << std::endl;
 
   launch_script_stream << "export PYTHONPATH=" << work_directory << ":$PYTHONPATH" << std::endl;
   launch_script_stream << "export PATH=" << work_directory << ":$PATH" << std::endl;
@@ -142,7 +142,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // Call real job type
   addJobTypeSpecificScript(launch_script_stream);
   // log the exit code
-  launch_script_stream << "echo $? > logs/end_code.log" << std::endl;
+  launch_script_stream << "echo $? > logs/exit_code.log" << std::endl;
 
   // End
   launch_script_stream << _resource_definition.AppliPath << "/salome kill \"$appli_port\"" << std::endl;
