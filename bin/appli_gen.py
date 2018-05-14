@@ -271,7 +271,7 @@ def install(prefix, config_file, verbose=0):
         os.remove(salome_file)
     except:
         pass
-    env_modules = [m.encode('utf8') for m in _config.get('env_modules', [])]
+    env_modules = _config.get('env_modules', [])
     with open(salome_file, 'w') as fd:
         fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
     os.chmod(salome_file, 0o755)
