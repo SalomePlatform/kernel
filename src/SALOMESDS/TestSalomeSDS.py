@@ -362,17 +362,17 @@ class SalomeSDSTest(unittest.TestCase):
     value2={'a':1,'c':3,'b':2}
 
     varName="abc"
-    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1") # sha1 is the key used to compare the initial value
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode()) # sha1 is the key used to compare the initial value
     dss.atomicApply([t0])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1=dss.addMultiKeyValueSession(varName)
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
     dss.atomicApply([t1])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2)
-    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1") # key is the same as original one -> OK
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode()) # key is the same as original one -> OK
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2) # value2 remains untouched
-    t3=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha2")
+    t3=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha2".encode())
     self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t3]) # sha2 != sha1 -> rejected
     pass
   
@@ -390,11 +390,11 @@ class SalomeSDSTest(unittest.TestCase):
     value2={'a':1,'c':3,'b':2}
 
     varName="abc"
-    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1")
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode())
     dss.atomicApply([t0])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1=dss.addMultiKeyValueSession(varName)
-    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1")
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode())
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
