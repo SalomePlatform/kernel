@@ -35,8 +35,6 @@
 #include <vector>
 #include <list>
 
-#include <pthread.h>
-
 class MpiImpl;
 
 namespace Batch{
@@ -87,7 +85,6 @@ public:
   // Useful methods
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
   std::map<int, Launcher::Job *> getJobs();
-  void createBatchManagerForJob(Launcher::Job * job);
   void addJobDirectlyToMap(Launcher::Job * new_job);
 
   // Lib methods
@@ -106,12 +103,12 @@ protected:
 #ifdef WITH_LIBBATCH
   Batch::BatchManager *FactoryBatchManager(ParserResourcesType& params);
   std::map <int, Batch::BatchManager*> _batchmap;
+  Batch::BatchManager* getBatchManager(Launcher::Job * job);
 #endif
   ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 
   std::map <int, Launcher::Job *> _launcher_job_map;  
   int _job_cpt; // job number counter
-  pthread_rwlock_t * _lock;
 };
 
 #endif

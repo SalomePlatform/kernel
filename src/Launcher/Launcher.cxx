@@ -41,39 +41,6 @@
 
 using namespace std;
 
-class ReadLock
-{
-public:
-  ReadLock(pthread_rwlock_t * lock)
-  : _lock(lock)
-  {
-//    pthread_rwlock_rdlock(_lock);
-    pthread_rwlock_wrlock(_lock);
-  }
-  ~ReadLock()
-  {
-    pthread_rwlock_unlock(_lock);
-  }
-private:
-  pthread_rwlock_t * _lock;
-};
-
-class WriteLock
-{
-public:
-  WriteLock(pthread_rwlock_t * lock)
-  : _lock(lock)
-  {
-    pthread_rwlock_wrlock(_lock);
-  }
-  ~WriteLock()
-  {
-    pthread_rwlock_unlock(_lock);
-  }
-private:
-  pthread_rwlock_t * _lock;
-};
-
 //=============================================================================
 /*! 
  *  Constructor
@@ -86,8 +53,6 @@ Launcher_cpp::Launcher_cpp()
 {
   LAUNCHER_MESSAGE("Launcher_cpp constructor");
   _job_cpt = 0;
-  _lock = new pthread_rwlock_t();
-  pthread_rwlock_init(_lock, NULL);
 }
 
 //=============================================================================
@@ -106,9 +71,6 @@ Launcher_cpp::~Launcher_cpp()
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
 #endif
-
-  pthread_rwlock_destroy(_lock);
-  delete _lock;
 }
 
 #ifdef WITH_LIBBATCH
@@ -121,7 +83,6 @@ Launcher_cpp::~Launcher_cpp()
 void 
 Launcher_cpp::createJob(Launcher::Job * new_job)
 {
-  WriteLock mutex(_lock);
   LAUNCHER_MESSAGE("Creating a new job");
   // Add job to the jobs map
   new_job->setNumber(_job_cpt);
@@ -148,10 +109,9 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
 void 
 Launcher_cpp::launchJob(int job_id)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Launch a job");
 
-  // Check if job exist
+  // Check if job exists
   Launcher::Job * job = findJob(job_id);
 
   // Check job state (cannot launch a job already launched...)
@@ -161,15 +121,10 @@ Launcher_cpp::launchJob(int job_id)
     throw LauncherException("Bad state of the job: " + job->getState());
   }
 
-  // Third step search batch manager for the job into the map -> instantiate one if does not exist
-  std::map<int, Batch::BatchManager *>::const_iterator it = _batchmap.find(job_id);
-  if(it == _batchmap.end())
-  {
-    createBatchManagerForJob(job);
-  }
+  Batch::BatchManager * bm = getBatchManager(job);
 
   try {
-    Batch::JobId batch_manager_job_id = _batchmap[job_id]->submitJob(*(job->getBatchJob()));
+    Batch::JobId batch_manager_job_id = bm->submitJob(*(job->getBatchJob()));
     job->setBatchManagerJobId(batch_manager_job_id);
     job->setState("QUEUED");
     job->setReference(batch_manager_job_id.getReference());
@@ -190,7 +145,6 @@ Launcher_cpp::launchJob(int job_id)
 const char *
 Launcher_cpp::getJobState(int job_id)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Get job state");
 
   // Check if job exist
@@ -218,7 +172,6 @@ Launcher_cpp::getJobState(int job_id)
 const char *
 Launcher_cpp::getAssignedHostnames(int job_id)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Get job assigned hostnames");
 
   // Check if job exist
@@ -236,7 +189,6 @@ Launcher_cpp::getAssignedHostnames(int job_id)
 void
 Launcher_cpp::getJobResults(int job_id, std::string directory)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Get Job results");
 
   Launcher::Job * job = findJob(job_id);
@@ -264,7 +216,6 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
 void
 Launcher_cpp::clearJobWorkingDir(int job_id)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Clear the remote working directory");
 
   Launcher::Job * job = findJob(job_id);
@@ -289,7 +240,6 @@ bool
 Launcher_cpp::getJobDumpState(int job_id, std::string directory)
 {
   bool rtn;
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Get Job dump state");
 
   Launcher::Job * job = findJob(job_id);
@@ -321,7 +271,6 @@ Launcher_cpp::getJobWorkFile(int job_id,
                              std::string directory)
 {
   bool rtn;
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Get working file " << work_file);
 
   Launcher::Job * job = findJob(job_id);
@@ -350,7 +299,6 @@ Launcher_cpp::getJobWorkFile(int job_id,
 void
 Launcher_cpp::removeJob(int job_id)
 {
-  WriteLock mutex(_lock);
   LAUNCHER_MESSAGE("Remove Job");
 
   // Check if job exist
@@ -374,7 +322,6 @@ Launcher_cpp::removeJob(int job_id)
 void
 Launcher_cpp::stopJob(int job_id)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("Stop Job");
 
   Launcher::Job * job = findJob(job_id);
@@ -384,7 +331,6 @@ Launcher_cpp::stopJob(int job_id)
 std::string
 Launcher_cpp::dumpJob(int job_id)
 {
-  ReadLock mutex(_lock);
   LAUNCHER_MESSAGE("dump Job");
 
   Launcher::Job * job = findJob(job_id);
@@ -399,7 +345,9 @@ Launcher_cpp::restoreJob(const std::string& dumpedJob)
   int jobId = -1;
   try
   {
-    new_job = Launcher::XML_Persistence::createJobFromString(dumpedJob);
+    {
+      new_job = Launcher::XML_Persistence::createJobFromString(dumpedJob);
+    }
     if(new_job)
     {
       jobId = addJob(new_job);
@@ -736,9 +684,11 @@ Launcher_cpp::getJobs()
   return _launcher_job_map;
 }
 
-void 
-Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
+#ifdef WITH_LIBBATCH
+Batch::BatchManager*
+Launcher_cpp::getBatchManager(Launcher::Job * job)
 {
+  Batch::BatchManager* result = nullptr;
   int job_id = job->getNumber();
 
   // Select a resource for the job
@@ -778,7 +728,6 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
   }
 
   // Step 2: We can now add a Factory if the resource is correctly define
-#ifdef WITH_LIBBATCH
   std::map<int, Batch::BatchManager *>::const_iterator it = _batchmap.find(job_id);
   if(it == _batchmap.end())
   {
@@ -787,8 +736,8 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
       // Warning cannot write on one line like this, because map object is constructed before
       // the method is called...
       //_batchmap[job_id] = FactoryBatchManager(resource_definition);
-      Batch::BatchManager * batch_client = FactoryBatchManager(resource_definition);
-      _batchmap[job_id] = batch_client;
+      result = FactoryBatchManager(resource_definition);
+      _batchmap[job_id] = result;
     }
     catch(const LauncherException &ex)
     {
@@ -801,27 +750,28 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
       throw LauncherException(ex.message);
     }
   }
-#endif
+  else
+    result = it->second;
+  return result;
 }
+#endif
 
 void 
 Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
 {
-  WriteLock mutex(_lock);
   // Step 0: Calculated job_id
-  int job_id = _job_cpt;
+  new_job->setNumber(_job_cpt);
   _job_cpt++;
-  new_job->setNumber(job_id);
 
+#ifdef WITH_LIBBATCH
   // Step 1: check if resource is already in the map
-  createBatchManagerForJob(new_job);
+  Batch::BatchManager * bm = getBatchManager(new_job);
 
   // Step 2: add the job to the batch manager
-#ifdef WITH_LIBBATCH
   try
   {
-    Batch::JobId batch_manager_job_id = _batchmap[job_id]->addJob(*(new_job->getBatchJob()),
-                                                                  new_job->getReference());
+    Batch::JobId batch_manager_job_id = bm->addJob(*(new_job->getBatchJob()),
+                                                   new_job->getReference());
     new_job->setBatchManagerJobId(batch_manager_job_id);
   }
   catch(const Batch::GenericException &ex)
@@ -928,7 +878,6 @@ Launcher_cpp::saveJobs(const char* jobs_file)
   // Create a sorted list from the internal job map
   list<const Launcher::Job *> jobs_list;
   {
-    ReadLock mutex(_lock);
     for (int i=0; i<_job_cpt; i++)
     {
       map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(i);

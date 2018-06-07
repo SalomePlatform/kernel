@@ -33,4 +33,10 @@ IF(NOT WIN32)
   INSTALL(FILES CTestTestfileInstall.cmake
           DESTINATION ${KERNEL_TEST_DIR}/Launcher
           RENAME CTestTestfile.cmake)
+  SET(STRESS_TEST_FILES
+      test_stress.sh
+      launcher_use_case.py
+      )
+  INSTALL(PROGRAMS ${STRESS_TEST_FILES}
+          DESTINATION ${KERNEL_TEST_DIR}/Launcher)
 ENDIF()
