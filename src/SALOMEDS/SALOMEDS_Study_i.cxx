@@ -27,7 +27,6 @@
 #include "utilities.h"
 #include <sstream>
 #include "SALOMEDS_Study_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
@@ -48,6 +47,8 @@
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
 
+#include "Utils_ExceptHandlers.hxx"
+
 #include "Basics_Utils.hxx"
 #include "SALOME_KernelServices.hxx"
 
@@ -57,6 +58,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+
+UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
+UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
+
+static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
+
+static  PortableServer::POA_ptr _poa;
 
 namespace SALOMEDS
 {
@@ -159,10 +167,10 @@ namespace SALOMEDS
     {
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
       {
-	if ( it->first->_is_equivalent(theObs) ) {
-	  myObservers.erase( it );
-	  break;
-	}
+	    if ( it->first->_is_equivalent(theObs) ) {
+	      myObservers.erase( it );
+	      break;
+	    }
       }
     }
 
@@ -219,40 +227,21 @@ namespace SALOMEDS
 
 } // namespace SALOMEDS
 
-std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudies;
-
 //============================================================================
 /*! Function : SALOMEDS_Study_i
  *  Purpose  : SALOMEDS_Study_i constructor
  */
 //============================================================================
-SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
-                                   CORBA::ORB_ptr      orb)
+SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb)
 {
-  _orb            = CORBA::ORB::_duplicate(orb);
-  _impl           = theImpl;
-  _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
-  _notifier       = new SALOMEDS::Notifier(_orb);
-  _genObjRegister = new SALOMEDS::GenObjRegister(_orb);
-  _closed         = false;
+  _orb     = CORBA::ORB::_duplicate(orb);
+  _impl    = new SALOMEDSImpl_Study();
+  _factory = new SALOMEDS_DriverFactory_i(_orb);
+  _closed  = true;
 
-  theImpl->setNotifier(_notifier);
-  theImpl->setGenObjRegister( _genObjRegister );
-
-  // Notify GUI that study was created
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
-  if ( !CORBA::is_nil(aSession) ) {
-    std::stringstream ss;
-    ss << "studyCreated:" << theImpl->StudyId();
-    std::string str = ss.str();
-    SALOMEDS::unlock();
-    aSession->emitMessageOneWay(str.c_str());
-    SALOMEDS::lock();
-  }
+  Init();
 }
-  
+
 //============================================================================
 /*! Function : ~SALOMEDS_Study_i
  *  Purpose  : SALOMEDS_Study_i destructor
@@ -260,19 +249,125 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 //============================================================================
 SALOMEDS_Study_i::~SALOMEDS_Study_i()
 {
+  Clear();
+  delete _factory;
+  delete _impl;
+}
+
+//============================================================================
+/*! Function : Init
+ *  Purpose  : Initialize study components
+ */
+//============================================================================
+void SALOMEDS_Study_i::Init()
+{
+  if (!_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
+
+  SALOMEDS::Locker lock;
+  
+  if ( !_impl->GetDocument() )
+    _impl->Init();
+
+  _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
+  _notifier       = new SALOMEDS::Notifier(_orb);
+  _genObjRegister = new SALOMEDS::GenObjRegister(_orb);
+  _closed         = false;
+
+  _impl->setNotifier(_notifier);
+  _impl->setGenObjRegister( _genObjRegister );
+
+  // update desktop title with new study name
+  NameChanged();
+
+  // Notify GUI that study was created
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  if ( !CORBA::is_nil(aSession) ) {
+    std::stringstream ss;
+    ss << "studyCreated";
+    std::string str = ss.str();
+    SALOMEDS::unlock();
+    aSession->emitMessageOneWay(str.c_str());
+    SALOMEDS::lock();
+  }
+}
+
+//============================================================================
+/*! Function : Clear
+ *  Purpose  : Clear study components
+ */
+//============================================================================
+void SALOMEDS_Study_i::Clear()
+{
+  if (_closed)
+    return;
+
+  SALOMEDS::Locker lock;
+
   //delete the builder servant
-  PortableServer::POA_var poa=_builder->_default_POA();
+  PortableServer::POA_var poa=_default_POA();
   PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
   poa->deactivate_object(anObjectId.in());
   _builder->_remove_ref();
-  
+
+  RemovePostponed(-1);
+
+  if (_impl->GetDocument()) {
+    SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
+    for (; itcomponent->More(); itcomponent->Next()) {
+      SALOMEDS::SComponent_var sco = itcomponent->Value();
+      CORBA::String_var compodatatype=sco->ComponentDataType();
+      MESSAGE ( "Look for an engine for data type :"<< compodatatype);
+      // if there is an associated Engine call its method for closing
+      CORBA::String_var IOREngine;
+      if (sco->ComponentIOR(IOREngine)) {
+        // we have found the associated engine to write the data
+        MESSAGE ( "We have found an engine for data type :"<< compodatatype);
+        //_narrow can throw a corba exception
+        try {
+	      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+	      if (!CORBA::is_nil(obj)) {
+	        SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+	        if (!anEngine->_is_nil())  {
+	          SALOMEDS::unlock();
+	          anEngine->Close(sco);
+	          SALOMEDS::lock();
+	        }
+	      }
+        }
+        catch (CORBA::Exception&) {
+        }
+      }
+      sco->UnRegister();
+    }
+
+    //Does not need any more this iterator
+    itcomponent->UnRegister();
+  }
+
+  // Notify GUI that study is cleared
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
+  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  if ( !CORBA::is_nil(aSession) ) {
+    std::stringstream ss;
+    ss << "studyCleared";
+    std::string str = ss.str();
+    SALOMEDS::unlock();
+    aSession->emitMessageOneWay(str.c_str());
+    SALOMEDS::lock();
+  }
+
+  _impl->Clear();
   _impl->setNotifier(0);
   delete _notifier;
   delete _genObjRegister;
-  //delete implementation
-  delete _impl;
-  _mapOfStudies.erase(_impl);
-}  
+  _notifier = NULL;
+
+  _closed = true;
+}
 
 //============================================================================
 /*!
@@ -286,9 +381,180 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_Study_i::_default_POA()
 {
-  PortableServer::POA_ptr poa = SALOMEDS_StudyManager_i::GetThePOA();
+  PortableServer::POA_ptr poa = GetThePOA();
   MESSAGE("SALOMEDS_Study_i::_default_POA: " << poa);
   return PortableServer::POA::_duplicate(poa);
+}
+
+//============================================================================
+/*! Function : Open
+ *  Purpose  : Open a Study from it's persistent reference
+ */
+//============================================================================
+bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
+  throw(SALOME::SALOME_Exception)
+{
+  if (!_closed)
+    Clear();
+  Init();
+  SALOMEDS::Locker lock;
+
+  Unexpect aCatch(SalomeException);
+  MESSAGE("Begin of SALOMEDS_Study_i::Open");
+  
+  std::string aUrl = Kernel_Utils::encode_s(aWUrl);
+  bool res = _impl->Open(std::string(aUrl));
+
+  // update desktop title with new study name
+  NameChanged();
+
+  if ( !res )
+    THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
+  return res;
+}
+
+PortableServer::POA_ptr SALOMEDS_Study_i::GetThePOA()
+{
+  return _poa;
+}
+
+void SALOMEDS_Study_i::SetThePOA(PortableServer::POA_ptr thePOA)
+{
+  _poa = PortableServer::POA::_duplicate(thePOA);
+}
+
+//============================================================================
+/*! Function : Save
+ *  Purpose  : Save a Study to it's persistent reference
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::Save(CORBA::Boolean theMultiFile, CORBA::Boolean theASCII)
+{
+  SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
+  return _impl->Save(_factory, theMultiFile, theASCII);
+}
+
+//=============================================================================
+/*! Function : SaveAs
+ *  Purpose  : Save a study to the persistent reference aUrl
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::SaveAs(const wchar_t* aWUrl, CORBA::Boolean theMultiFile, CORBA::Boolean theASCII)
+{
+  SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
+  
+  std::string aUrl = Kernel_Utils::encode_s(aWUrl);
+  return _impl->SaveAs(std::string(aUrl), _factory, theMultiFile, theASCII);
+}
+
+//============================================================================
+/*! Function : CanCopy
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::CanCopy(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
+
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
+
+  SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+  bool ret = _impl->CanCopy(anObject, aDriver);
+  delete aDriver;
+  return ret;
+}
+
+//============================================================================
+/*! Function : Copy
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::Copy(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
+
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
+
+  SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+  bool ret = _impl->Copy(anObject, aDriver);
+  delete aDriver;
+  return ret;
+}
+
+//============================================================================
+/*! Function : CanPaste
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::CanPaste(SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock;
+  if (_closed)
+    throw SALOMEDS::Study::StudyInvalidReference();
+
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
+
+  SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+  bool ret = _impl->CanPaste(anObject, aDriver);
+  delete aDriver;
+  return ret;
+}
+
+//============================================================================
+/*! Function : Paste
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDS::SObject_ptr SALOMEDS_Study_i::Paste(SALOMEDS::SObject_ptr theObject)
+     throw(SALOMEDS::StudyBuilder::LockProtection)
+{
+  SALOMEDS::Locker lock;
+
+  Unexpect aCatch(LockProtection);
+
+  CORBA::String_var anID = theObject->GetID();
+  SALOMEDSImpl_SObject anObject = _impl->GetSObject(anID.in());
+  SALOMEDSImpl_SObject aNewSO;
+
+  try {
+    SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+    aNewSO =  _impl->Paste(anObject, aDriver);
+    delete aDriver;
+  }
+  catch (...) {
+    throw SALOMEDS::StudyBuilder::LockProtection();
+  }
+
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aNewSO, _orb);
+  return so._retn();
+}
+
+SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
+{
+  SALOMEDS_Driver_i* driver = NULL;
+
+  SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
+  if(!aSCO.IsNull()) {
+    std::string IOREngine = aSCO.GetIOR();
+    if(!IOREngine.empty()) {
+      CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
+      Engines::EngineComponent_var Engine = Engines::EngineComponent::_narrow(obj) ;
+      driver = new SALOMEDS_Driver_i(Engine, orb);
+    }
+  }
+
+  return driver;
 }
 
 //============================================================================
@@ -302,18 +568,6 @@ char* SALOMEDS_Study_i::GetPersistentReference()
   if (_closed)
     throw SALOMEDS::Study::StudyInvalidReference();  
   return CORBA::string_dup(_impl->GetPersistentReference().c_str());
-}
-//============================================================================
-/*! Function : GetTransientReference
- *  Purpose  : Get IOR of the Study (registered in OCAF document in doc->Root)
- */
-//============================================================================
-char* SALOMEDS_Study_i::GetTransientReference()
-{
-  SALOMEDS::Locker lock; 
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-  return CORBA::string_dup(_impl->GetTransientReference().c_str());
 }
 
 //============================================================================
@@ -546,157 +800,6 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
   return CORBA::string_dup(aPath.c_str());
 }
 
-
-//============================================================================
-/*! Function : SetContext
- *  Purpose  : Sets the current context
- */
-//============================================================================
-void SALOMEDS_Study_i::SetContext(const char* thePath) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  _impl->SetContext(std::string((char*)thePath));
-  if (_impl->IsError() && _impl->GetErrorCode() == "InvalidContext") 
-    throw SALOMEDS::Study::StudyInvalidContext();  
-}
-
-//============================================================================
-/*! Function : GetContext
- *  Purpose  : Gets the current context
- */
-//============================================================================
-char* SALOMEDS_Study_i::GetContext() 
-{
-  SALOMEDS::Locker lock; 
-  
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  if (!_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();
-
-  return CORBA::string_dup(_impl->GetContext().c_str());
-}
-
-//============================================================================
-/*! Function : GetObjectNames
- *  Purpose  : method to get all object names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
-  
-  std::vector<std::string> aSeq = _impl->GetObjectNames(std::string((char*)theContext));
-  if (_impl->GetErrorCode() == "InvalidContext")
-    throw SALOMEDS::Study::StudyInvalidContext();
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for (int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-
-  return aResult._retn();
-}
-
-//============================================================================
-/*! Function : GetDirectoryNames
- *  Purpose  : method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
-  
-  std::vector<std::string> aSeq = _impl->GetDirectoryNames(std::string((char*)theContext));
-  if (_impl->GetErrorCode() == "InvalidContext")
-    throw SALOMEDS::Study::StudyInvalidContext();
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for (int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-  
-  return aResult._retn();
-}
-
-//============================================================================
-/*! Function : GetFileNames
- *  Purpose  : method to get all file names in the given context (or in the current context, if 'theContext' is empty)
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
-  
-  std::vector<std::string> aSeq = _impl->GetFileNames(std::string((char*)theContext));
-  if (_impl->GetErrorCode() == "InvalidContext")
-    throw SALOMEDS::Study::StudyInvalidContext();
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for (int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-
-  return aResult._retn();
-}
-
-//============================================================================
-/*! Function : GetComponentNames
- *  Purpose  : method to get all components names
- *  SRN:       Note, theContext can be any, it doesn't matter
- */
-//============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theContext) 
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  std::vector<std::string> aSeq = _impl->GetComponentNames(std::string((char*)theContext));
-
-  int aLength = aSeq.size();
-  aResult->length(aLength);
-  for(int anIndex = 0; anIndex < aLength; anIndex++) {
-    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
-  }
-
-  return aResult._retn();
-}
-
 //============================================================================
 /*! Function : NewChildIterator
  *  Purpose  : Create a ChildIterator from an SObject
@@ -761,11 +864,11 @@ SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
  *  Purpose  : get study name
  */
 //============================================================================
-char* SALOMEDS_Study_i::Name()
+wchar_t* SALOMEDS_Study_i::Name()
 {
   SALOMEDS::Locker lock; 
   // Name is specified as IDL attribute: user exception cannot be raised
-  return CORBA::string_dup(_impl->Name().c_str());
+  return CORBA::wstring_dup(Kernel_Utils::decode_s(_impl->Name()));
 }
 
 //============================================================================
@@ -773,11 +876,11 @@ char* SALOMEDS_Study_i::Name()
  *  Purpose  : set study name
  */
 //============================================================================
-void SALOMEDS_Study_i::Name(const char* name)
+void SALOMEDS_Study_i::Name(const wchar_t* wname)
 {
-  SALOMEDS::Locker lock;  
+  SALOMEDS::Locker lock;
   // Name is specified as IDL attribute: user exception cannot be raised
-  _impl->Name(std::string(name));
+  _impl->Name(Kernel_Utils::encode_s(wname));
 }
 
 //============================================================================
@@ -840,11 +943,11 @@ void SALOMEDS_Study_i::Modified()
  *  Purpose  : get URL of the study (persistent reference of the study)
  */
 //============================================================================
-char* SALOMEDS_Study_i::URL()
+wchar_t* SALOMEDS_Study_i::URL()
 {
-  SALOMEDS::Locker lock; 
+  SALOMEDS::Locker lock;
   // URL is specified as IDL attribute: user exception cannot be raised
-  return CORBA::string_dup(_impl->URL().c_str());
+  return CORBA::wstring_dup(Kernel_Utils::decode_s(_impl->URL()));
 }
 
 //============================================================================
@@ -852,25 +955,14 @@ char* SALOMEDS_Study_i::URL()
  *  Purpose  : set URL of the study (persistent reference of the study)
  */
 //============================================================================
-void SALOMEDS_Study_i::URL(const char* url)
+void SALOMEDS_Study_i::URL(const wchar_t* wurl)
 {
   SALOMEDS::Locker lock; 
   // URL is specified as IDL attribute: user exception cannot be raised
-  _impl->URL(std::string((char*)url));
-}
+  _impl->URL(Kernel_Utils::encode_s(wurl));
 
-CORBA::Short SALOMEDS_Study_i::StudyId()
-{
-  SALOMEDS::Locker lock; 
-  // StudyId is specified as IDL attribute: user exception cannot be raised
-  return _impl->StudyId();
-}
-
-void SALOMEDS_Study_i::StudyId(CORBA::Short id)
-{ 
-  SALOMEDS::Locker lock; 
-  // StudyId is specified as IDL attribute: user exception cannot be raised
-  _impl->StudyId(id);
+  // update desktop title with new study name
+  NameChanged();
 }
 
 void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR, const char* anEntry) 
@@ -881,35 +973,6 @@ void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR, const char* anEntry)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->UpdateIORLabelMap(std::string((char*)anIOR), std::string((char*)anEntry));
-}
-
-SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb) 
-{
-  SALOMEDS::Locker lock; 
-
-  SALOMEDSImpl_AttributeIOR* Att = NULL;
-  if ((Att=(SALOMEDSImpl_AttributeIOR*)theLabel.Root().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))){
-    char* IOR = CORBA::string_dup(Att->Value().c_str());
-    CORBA::Object_var obj = orb->string_to_object(IOR);
-    SALOMEDS::Study_ptr aStudy = SALOMEDS::Study::_narrow(obj) ;
-    ASSERT(!CORBA::is_nil(aStudy));
-    return SALOMEDS::Study::_duplicate(aStudy);
-  } else {
-    MESSAGE("GetStudy: Problem to get study");
-  }
-  return SALOMEDS::Study::_nil();
-}
-
-SALOMEDS_Study_i* SALOMEDS_Study_i::GetStudyServant(SALOMEDSImpl_Study* aStudyImpl, CORBA::ORB_ptr orb)
-{
-  if (_mapOfStudies.find(aStudyImpl) != _mapOfStudies.end()) 
-    return _mapOfStudies[aStudyImpl];
-  else
-  {
-    SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, orb);
-    _mapOfStudies[aStudyImpl]=Study_servant;
-    return Study_servant;
-  }
 }
 
 void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 
@@ -993,69 +1056,6 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
   SALOMEDS_UseCaseBuilder_i* UCBuilder = new SALOMEDS_UseCaseBuilder_i(_impl->GetUseCaseBuilder(), _orb);
   SALOMEDS::UseCaseBuilder_var uc = UCBuilder->_this();
   return uc._retn();
-}
-
-
-//============================================================================
-/*! Function : Close
- *  Purpose  : 
- */
-//============================================================================
-void SALOMEDS_Study_i::Close()
-{
-  SALOMEDS::Locker lock; 
-
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
-  RemovePostponed(-1);
-  
-  SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
-  for (; itcomponent->More(); itcomponent->Next()) {
-    SALOMEDS::SComponent_var sco = itcomponent->Value();
-    CORBA::String_var compodatatype=sco->ComponentDataType();
-    MESSAGE ( "Look for an engine for data type :"<< compodatatype);
-    // if there is an associated Engine call its method for closing
-    CORBA::String_var IOREngine;
-    if (sco->ComponentIOR(IOREngine)) {
-      // we have found the associated engine to write the data 
-      MESSAGE ( "We have found an engine for data type :"<< compodatatype);
-      //_narrow can throw a corba exception
-      try {
-	CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-	if (!CORBA::is_nil(obj)) {
-	  SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-	  if (!anEngine->_is_nil())  { 
-	    SALOMEDS::unlock();
-	    anEngine->Close(sco);
-	    SALOMEDS::lock();
-	  }
-	}
-      } 
-      catch (CORBA::Exception&) {
-      }
-    }
-    sco->UnRegister();
-  }
-  
-  //Does not need any more this iterator
-  itcomponent->UnRegister();
-  
-  // Notify GUI that study is closed
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
-  if ( !CORBA::is_nil(aSession) ) {
-    std::stringstream ss;
-    ss << "studyClosed:" << _impl->StudyId();
-    std::string str = ss.str();
-    SALOMEDS::unlock();
-    aSession->emitMessageOneWay(str.c_str());
-    SALOMEDS::lock();
-  }
-  
-  _impl->Close();
-  _closed = true;
 }
 
 //============================================================================
@@ -1597,6 +1597,27 @@ void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled)
   }
 }
 
+
+CORBA::Long SALOMEDS_Study_i::getPID()
+{
+#ifdef WIN32
+  return (CORBA::Long)_getpid();
+#else
+  return (CORBA::Long)getpid();
+#endif
+}
+
+void SALOMEDS_Study_i::ShutdownWithExit()
+{
+  exit( EXIT_SUCCESS );
+}
+
+void SALOMEDS_Study_i::Shutdown()
+{
+  if(!CORBA::is_nil(_orb))
+    _orb->shutdown(0);
+}
+
 //============================================================================
 /*! Function : attach
  *  Purpose  : This function attach an observer to the study
@@ -1632,4 +1653,20 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 #endif  
   isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   return reinterpret_cast<CORBA::LongLong>(_impl);
+}
+
+void SALOMEDS_Study_i::NameChanged()
+{
+  // Notify GUI that the name of study was changed
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  if ( !CORBA::is_nil(aSession) ) {
+    std::stringstream ss;
+    ss << "studyNameChanged";
+    std::string str = ss.str();
+    SALOMEDS::unlock();
+    aSession->emitMessageOneWay(str.c_str());
+    SALOMEDS::lock();
+  }
 }

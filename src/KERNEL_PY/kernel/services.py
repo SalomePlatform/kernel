@@ -38,17 +38,17 @@
 # SALOME development).
 
 import salome
-from deprecation import is_called_by_sphinx
+from .deprecation import is_called_by_sphinx
 if not is_called_by_sphinx() and salome.lcc is None:
     try:
         salome.salome_init()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
 
 # Note that the salome module provides you with standard SALOME
 # objects: CORBA broker (orb): salome.orb lyfe cycle (lcc) :
-# salome.lcc naming service : salome.naming_service study manager :
-# salome.myStudyManager The default study : salome.myStudy
+# salome.lcc naming service : salome.naming_service 
+# The default study : salome.myStudy
 #
 # Alternatively, you may obtain these objects directly with the
 # following instructions:
@@ -96,12 +96,12 @@ def getComponent(componentName = "SalomeTestComponent",
     """
     Get a SALOME CORBA component from its name
     """
-    print "INF: getting component %s from CORBA module %s ..."%(componentName,corbaModule)
+    print("INF: getting component %s from CORBA module %s ..."%(componentName,corbaModule))
     __import__(corbaModule)
     component=salome.lcc.FindOrLoadComponent(containerType,componentName)
     if component is None:
-        print "ERR: the SALOME component "+componentName+" can't be reached"
-    print "INF: component %s obtained from CORBA module %s"%(componentName,corbaModule)
+        print("ERR: the SALOME component "+componentName+" can't be reached")
+    print("INF: component %s obtained from CORBA module %s"%(componentName,corbaModule))
     return component
 
 # Note that an alternative (and maybe better) method to get a component
@@ -120,30 +120,24 @@ def getComponentList():
     obj = salome.naming_service.Resolve('Kernel/ModulCatalog')
     catalog = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
     if not catalog:
-        raise RuntimeError, "Can't access module catalog"
+        raise RuntimeError("Can't access module catalog")
     return catalog.GetComponentList()
 
-## Get a study manager to create and manage %SALOME studies
-#  \ingroup service
-def getStudyManager():
-    """Get a study manager to create and manage SALOME studies"""
-    return salome.myStudyManager
-
 import SALOMEDS
-## Get a study manager to create and manage SALOME studies. 
-#  \warning you should use instead the variable salome.myStudyManager. 
+## Get a study to create SALOME study. 
+#  \warning you should use instead the variable salome.myStudy. 
 #  This function is given for illustration of usage of the naming service
 #  \ingroup service
-def __getStudyManager_demo():
+def __getStudy_demo():
     """
-    Get a study manager to create and manage SALOME studies. WARN: you
-    should use instead the variable salome.myStudyManager. This
+    Get a study to create SALOME study. WARN: you
+    should use instead the variable salome.myStudy. This
     function is given for illustration of usage of the naming service
     """
     naming_service = SALOME_NamingServicePy_i( orb )
-    obj = naming_service.Resolve( '/myStudyManager' )
-    studyManager = obj._narrow( SALOMEDS.StudyManager)
-    return studyManager
+    obj = naming_service.Resolve( '/Study' )
+    study = obj._narrow( SALOMEDS.Study)
+    return study
 
 
 #
@@ -242,7 +236,7 @@ def TEST_createObject():
     """
     import GEOM
     from salome.geom import geomBuilder
-    geompy = geomBuilder.New(salome.myStudy)
+    geompy = geomBuilder.New()
 
     box = geompy.MakeBoxDXDYDZ(200, 200, 200)
     id = geompy.addToStudy( box, 'box' )
@@ -259,14 +253,14 @@ def TEST_objectsManipulation():
 
 
     myObject = IDToObject(myEntry)
-    print myObject
+    print(myObject)
     if myObject is None:
         return False
 
     return True
 
 if __name__ == "__main__":
-    import unittester
+    from . import unittester
     unittester.run("services","TEST_getComponent")
     unittester.run("services","TEST_getComponentList")
     unittester.run("services","TEST_objectsManipulation")

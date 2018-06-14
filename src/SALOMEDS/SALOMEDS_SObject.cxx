@@ -196,16 +196,6 @@ bool SALOMEDS_SObject::FindSubObject(int theTag, _PTR(SObject)& theObject)
   return ret;   
 }
 
-_PTR(Study) SALOMEDS_SObject::GetStudy()
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    return _PTR(Study)(new SALOMEDS_Study(_local_impl->GetStudy()));
-  }
-  SALOMEDS::Study_var study=_corba_impl->GetStudy();
-  return _PTR(Study)(new SALOMEDS_Study(study));
-}
-
 std::string SALOMEDS_SObject::Name()
 {
   std::string aName;

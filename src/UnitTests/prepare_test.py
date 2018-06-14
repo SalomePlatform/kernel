@@ -29,9 +29,9 @@ class TestEnvironment:
     salome_path = os.getenv("ROOT_SALOME", "")
     salome_context_file = os.path.join(salome_path, "salome_context.cfg")
     if not os.path.isfile(salome_context_file):
-      print "File salome_context.cfg not found."
-      print "Search path:" + salome_path
-      print "This test needs ROOT_SALOME environment variable in order to run"
+      print("File salome_context.cfg not found.")
+      print("Search path:" + salome_path)
+      print("This test needs ROOT_SALOME environment variable in order to run")
       exit(0)
     
     config_appli_text = '''<application>
@@ -40,7 +40,7 @@ class TestEnvironment:
    <module name="KERNEL" path="'''
     kernel_path = os.getenv("KERNEL_ROOT_DIR", "")
     if not os.path.isdir(kernel_path) :
-      print "KERNEL_ROOT_DIR not defined"
+      print("KERNEL_ROOT_DIR not defined")
       exit(0)
       pass
     
@@ -74,7 +74,7 @@ class TestEnvironment:
     self.salome_module = imp.load_source("SALOME", os.path.join(appli_dir, "salome"))
     try:
       self.salome_module.main(["start", "-t"])
-    except SystemExit, e:
+    except SystemExit as e:
       # There is an exit() call in salome.main. Just ignore it.
       pass
     
@@ -82,7 +82,7 @@ class TestEnvironment:
     ret = 0
     try:
       ret = self.salome_module.main(["shell", script])
-    except SystemExit, e:
+    except SystemExit as e:
       # return exit value
       ret = e.code
     return ret
@@ -90,7 +90,7 @@ class TestEnvironment:
   def tearDown(self):
     try:
       self.salome_module.main(["killall"])
-    except SystemExit, e:
+    except SystemExit as e:
       pass
     pass
   pass #class TestEnvironment

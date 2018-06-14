@@ -181,10 +181,9 @@
   };
 
 //===========================================================================
-  SALOMEDS::SObject_ptr SALOMEDS_DriverDefaultImpl::PublishInStudy(SALOMEDS::Study_ptr theStudy,
-						   SALOMEDS::SObject_ptr theSObject,
-						   CORBA::Object_ptr theObject,
-						   const char* theName)
+  SALOMEDS::SObject_ptr SALOMEDS_DriverDefaultImpl::PublishInStudy(SALOMEDS::SObject_ptr theSObject,
+						                                           CORBA::Object_ptr     theObject,
+						                                           const char*           theName)
     throw (SALOME::SALOME_Exception)
   {
     MESSAGE("-----------------------------------------");

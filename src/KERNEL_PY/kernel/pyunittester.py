@@ -30,16 +30,16 @@ def printfile(filename):
     lines = stream.readlines()
     stream.close()
     for line in lines:
-	if not termcolor.canDisplayColor(sys.stdout):
-	    msg = line.split('\n')[0]
-	else:
+        if not termcolor.canDisplayColor(sys.stdout):
+            msg = line.split('\n')[0]
+        else:
             msg = termcolor.makeColoredMessage(line.split('\n')[0], termcolor.BLUE)
-        print msg
+        print(msg)
 
 import os
 import unittest
 from unittest import TestCase
-from uiexception import DevelException
+from .uiexception import DevelException
 
 ## This class is a simple wrapper of the pyunit framework.
 #  \ingroup pyunittester
@@ -97,8 +97,8 @@ def execAndConvertExceptionToBoolean(function):
         if result is None:
             return True
         return result
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         return False
 
 # Simple helper function for most cases where there is only one
@@ -121,17 +121,17 @@ def run(testCaseClass):
 class MyTestCase(unittest.TestCase):
     def test_myTestOk_01(self):
         r=True
-        print "myTestOk_01: should be OK"
+        print("myTestOk_01: should be OK")
         self.assertTrue(r)
 
     def test_myTestOk_02(self):
         r=True
-        print "myTestOk_02: should be OK"
+        print("myTestOk_02: should be OK")
         self.assertTrue(r)
 
     def test_myTestNotOk(self):
         r=False
-        print "myTestNotOk: should be NOT OK"
+        print("myTestNotOk: should be NOT OK")
         self.assertTrue(r)
 
 def functionRaisingAnException():
@@ -144,32 +144,32 @@ def functionReturningTrue():
     return True
 
 def functionReturningNothing():
-    print "functionReturningNothing"
+    print("functionReturningNothing")
 
 class MyTestCase2(unittest.TestCase):
     def test_myTest_01(self):
         r=execAndConvertExceptionToBoolean(functionRaisingAnException)
-        print "test 01: this test should be NOT OK"
+        print("test 01: this test should be NOT OK")
         self.assertTrue(r)
 
     def test_myTest_02(self):
         r=execAndConvertExceptionToBoolean(functionReturningFalse)
-        print "test 02: this test should be NOT OK"
+        print("test 02: this test should be NOT OK")
         self.assertTrue(r)
 
     def test_myTest_03(self):
         r=execAndConvertExceptionToBoolean(functionReturningTrue)
-        print "test 03: this test should be OK"
+        print("test 03: this test should be OK")
         self.assertTrue(r)
 
     def test_myTest_04(self):
         r=execAndConvertExceptionToBoolean(functionReturningNothing)
-        print "test 04: this test should be OK"
+        print("test 04: this test should be OK")
         self.assertTrue(r)
 
     def test_myTest_05(self):
         r=True
-        print "test 05: this test should be OK"
+        print("test 05: this test should be OK")
         self.assertTrue(r)
 
 

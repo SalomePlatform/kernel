@@ -51,7 +51,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "Basics_Utils.hxx"
 #include "SALOME_NamingService.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -75,13 +75,13 @@ int main(int argc, char* argv[])
 
   SALOME_NamingService NS(orb);
   if(host.empty())
-    NamingService_WaitForServerReadiness(&NS, "/myStudyManager");
+    NamingService_WaitForServerReadiness(&NS, "/Study");
   else {
     std::string serverName = "/Containers/"+host+"/SuperVisionContainer";
     NamingService_WaitForServerReadiness(&NS, serverName);
   }
 
-  CORBA::Object_var obj = NS.Resolve( "/myStudyManager" );
+  CORBA::Object_var obj = NS.Resolve( "/Study" );
   if(CORBA::is_nil(obj)) {
      system("killSalome.py");
      return 1;
@@ -96,10 +96,11 @@ int main(int argc, char* argv[])
   if(!CORBA::is_nil(poaObj)) {
                 PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);
 
-    SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, poa);
+    SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb);
     // Activate the objects.  This tells the POA that the objects are ready to accept requests.
-    PortableServer::ObjectId_var aStudyManager_iid =  poa->activate_object(aStudyManager_i);
-    aStudyManager_i->register_name("/myStudyManager_embedded");
+    PortableServer::ObjectId_var aStudy_iid =  poa->activate_object(aStudy_i);
+    SALOMEDS::Study_var Study = aStudy_i->_this();
+    NS.Register(Study.in(), "/Study_embedded");
 
     // Obtain a POAManager, and tell the POA to start accepting
     // requests on its objects.

@@ -79,7 +79,6 @@ class SALOMEDSTEST_EXPORT SALOMEDSTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testSObject );
   CPPUNIT_TEST( testStudy );  
   CPPUNIT_TEST( testStudyBuilder );
-  CPPUNIT_TEST( testStudyManager );
   CPPUNIT_TEST( testUseCase );
 
 
@@ -128,13 +127,12 @@ public:
   void testSObject();
   void testStudy();
   void testStudyBuilder();
-  void testStudyManager();
   void testUseCase();
 
 protected:
 
-SALOMEDS::StudyManager_var _sm;
-CORBA::ORB_var             _orb;
+SALOMEDS::Study_var _study;
+CORBA::ORB_var      _orb;
                 
 };
 
@@ -182,7 +180,6 @@ class SALOMEDSTEST_EXPORT SALOMEDSTest_Embedded : public SALOMEDSTest
   CPPUNIT_TEST( testStudy );
   CPPUNIT_TEST( testStudyBuilder ); 
   CPPUNIT_TEST( testChildIterator );
-  CPPUNIT_TEST( testStudyManager );
   CPPUNIT_TEST( testUseCase );
   
   CPPUNIT_TEST_SUITE_END();

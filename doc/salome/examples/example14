@@ -9,7 +9,7 @@ aPixmap = A._narrow(SALOMEDS.AttributePixMap);
 aPixmap.SetPixMap( "ICON_OBJBROWSER_Geometry" );
 
 if aPixmap.GetPixMap() != "ICON_OBJBROWSER_Geometry":
-        print "Error: wrong value of AttributePixMap"
+        print("Error: wrong value of AttributePixMap")
 
 
 #      save / restore study      
@@ -19,8 +19,8 @@ if str == None:
         str = "/tmp"
 file = str+"/test.hdf"
 
-batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
-openedStudy = batchmode_geompy.myStudyManager.Open(file);
+batchmode_geompy.myStudy.SaveAs(file)
+openedStudy = batchmode_geompy.myStudy.Open(file);
 
 if openedStudy == None:
         raise  RuntimeError, "Can't open saved study!"
@@ -43,5 +43,5 @@ if A == None :
         raise  RuntimeError, "Can't create AttributePixMap attribute"
 
 if A.GetPixMap() != "ICON_OBJBROWSER_Geometry":
-        print "Error: wrong value of AttributePixMap"
+        print("Error: wrong value of AttributePixMap")
 

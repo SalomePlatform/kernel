@@ -20,7 +20,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOME_ParallelContainer_i.hxx
-//  Author : André RIBES, EDF
+//  Author : Andrï¿½ RIBES, EDF
 
 #ifndef _SALOME_PARALLEL_CONTAINER_I_HXX_
 #define _SALOME_PARALLEL_CONTAINER_I_HXX_
@@ -73,12 +73,10 @@ public:
   virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   virtual Engines::EngineComponent_ptr
-  create_component_instance( const char* componentName,
-                             CORBA::Long studyId); // 0 for multiStudy
+  create_component_instance( const char* componentName);
 
   virtual Engines::EngineComponent_ptr
   create_component_instance_env( const char* componentName,
-                                 CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
                                  CORBA::String_out reason);
 
@@ -87,8 +85,7 @@ public:
                                  CORBA::String_out reason);
 
   Engines::EngineComponent_ptr
-  find_component_instance( const char* registeredName,
-                           CORBA::Long studyId); // 0 for multiStudy
+  find_component_instance( const char* registeredName);
 
   Engines::EngineComponent_ptr
   load_impl(const char* nameToRegister,
@@ -96,8 +93,7 @@ public:
 
   void
   create_paco_component_node_instance(const char* componentName,
-                                      const char* proxy_containerName,
-                                      CORBA::Long studyId); // 0 for multiStudy
+                                      const char* proxy_containerName);
 
   void updateInstanceNumber();
 
@@ -123,12 +119,10 @@ public:
 
   Engines::EngineComponent_ptr
   createCPPInstance(std::string genericRegisterName,
-                    void *handle,
-                    int studyId);
+                    void *handle);
 
   Engines::EngineComponent_ptr
-  createPythonInstance(std::string genericRegisterName,
-                       int studyId);
+  createPythonInstance(std::string genericRegisterName);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
@@ -167,8 +161,8 @@ protected:
   _fileRef_map_t _fileRef_map;
   _Salome_file_map_t _Salome_file_map;
 
-  // Cette map contient les references vers les différentes
-  // instances d'objets parallèles.
+  // Cette map contient les references vers les diffï¿½rentes
+  // instances d'objets parallï¿½les.
   std::map<std::string, PortableServer::ObjectId *> _par_obj_inst_map;
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr, char *, int,

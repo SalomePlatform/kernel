@@ -34,7 +34,6 @@
 #include "DF_ChildIterator.hxx"
 
 #include "SALOMEDSImpl_Attributes.hxx"
-#include "SALOMEDSImpl_StudyManager.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
@@ -49,10 +48,8 @@ int main (int argc, char * argv[])
 {
   std::cout << "Test started " << std::endl;
 
-  SALOMEDSImpl_StudyManager* aSM = new SALOMEDSImpl_StudyManager();
-  std::cout << "Manager is created " << std::endl;
-  SALOMEDSImpl_Study* aStudy = aSM->NewStudy("SRN");
-  std::cout << "Study with id = " << aStudy->StudyId() << " is created " << std::endl; 
+  SALOMEDSImpl_Study* aStudy = new SALOMEDSImpl_Study();
+  std::cout << "Study is created" << std::endl;
 
   std::cout << "Check the study lock, locking"   << std::endl;
   aStudy->SetStudyLock("SRN");

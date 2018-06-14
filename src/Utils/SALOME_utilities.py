@@ -32,9 +32,8 @@ from launchConfigureParser import verbose
 
 def MYTRACE ():
     if verbose():
-        str = "- Trace "
-        GLogger.putMessage(str + "  : ")
-        
+        GLogger.putMessage("- Trace  : ")
+
 
 def REPERE():
     if verbose():
@@ -44,23 +43,21 @@ def REPERE():
 def BEGIN_OF(msg):
     if verbose():
         REPERE(); MYTRACE();
-        GLogger.putMessage("Begin of : "+ str(msg) + "\n")
+        GLogger.putMessage("Begin of : %s\n" % msg)
         REPERE();
 
 
 def END_OF(msg):
     if verbose():
         REPERE(); MYTRACE();
-        GLogger.putMessage("Normale end of : "+ str(msg) + "\n")
+        GLogger.putMessage("Normal end of : %s\n" % msg)
         REPERE();
 
 def MESSAGE(msg):
     if verbose():
         MYTRACE()
-        GLogger.putMessage(str(msg) + "\n")
+        GLogger.putMessage("%s\n" % msg)
 
 def SCRUTE(var_name, var_value):
     MYTRACE();
-    GLogger.putMessage(var_name + " = " + str(var_value) + "\n")
-
-   
+    GLogger.putMessage("%s = %s\n" % (var_name, var_value))

@@ -26,7 +26,7 @@
 //
 #include "utilities.h"
 #include "SALOMEDS_GenericAttribute_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_Attributes.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
@@ -45,7 +45,7 @@
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 
 SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb) :
-  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA())
+  GenericObj_i(SALOMEDS_Study_i::GetThePOA())
 {
   _orb = CORBA::ORB::_duplicate(theOrb);
   _impl = theImpl;
@@ -67,7 +67,7 @@ SALOMEDS_GenericAttribute_i::~SALOMEDS_GenericAttribute_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_GenericAttribute_i::_default_POA()
 {
-  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
+  myPOA = PortableServer::POA::_duplicate(SALOMEDS_Study_i::GetThePOA());
   //MESSAGE("SALOMEDS_GenericAttribute_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }

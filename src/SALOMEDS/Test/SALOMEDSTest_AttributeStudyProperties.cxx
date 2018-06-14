@@ -26,13 +26,8 @@
  */
 void SALOMEDSTest::testAttributeStudyProperties()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -108,7 +103,7 @@ void SALOMEDSTest::testAttributeStudyProperties()
   _attr->GetModificationsList(vs, vi[0], vi[1], vi[2], vi[3], vi[4], true);
   CPPUNIT_ASSERT(vs[0] == "srn" && vi[0][0] == 1 && vi[1][0] == 2 && vi[2][0] == 3 && vi[3][0] == 4 && vi[4][0] == 5);
 
-  sm->Close(study);
+  study->Clear();
 }
 
 

@@ -46,7 +46,7 @@ from libNOTIFICATION import *
 
 from SALOME_utilities import *
 
-from thread import *
+from _thread import *
 
 #=============================================================================
 
@@ -59,7 +59,6 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     _orb = None
     _poa = None
     _fieldsDict = []
-    _studyId = -1
 
     #-------------------------------------------------------------------------
 
@@ -173,7 +172,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
         self._StartUsed = self.CpuUsed_impl()
         self._ThreadCpuUsed = 0
         self._Executed = 1
-        print "beginService for ",serviceName," Component instance : ",self._instanceName
+        print("beginService for ",serviceName," Component instance : ",self._instanceName)
         MESSAGE( "SALOME_ComponentPy_i::beginService _StartUsed " + str( self._ThreadId ) + " " + str( self._StartUsed ) )
         for e in self._fieldsDict:
           key=e.key
@@ -187,7 +186,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     def endService(self , serviceName ):
         MESSAGE(  "Send EndService notification for " + str( self._ThreadId ) + " " + str(serviceName) + " for graph/node " + str(self._graphName) + " " + str(self._nodeName) + " CpuUsed " + str( self.CpuUsed_impl() ) )
         MESSAGE(  "Component instance : " + str(self._instanceName) )
-        print "endService for",serviceName,"Component instance :",self._instanceName,"Cpu Used:",self.CpuUsed_impl()," (s) "
+        print("endService for",serviceName,"Component instance :",self._instanceName,"Cpu Used:",self.CpuUsed_impl()," (s) ")
 
 
     #-------------------------------------------------------------------------
@@ -293,16 +292,11 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
 
     #-------------------------------------------------------------------------
 
-    def DumpPython(self, theStudy, isPublished, isMultiFile):
+    def DumpPython(self, isPublished, isMultiFile):
         aBuffer = "\0"
         if isMultiFile :
-            aBuffer = "def RebuildData(theStudy): pass\n\0"
+            aBuffer = "def RebuildData(): pass\n\0"
         return (aBuffer, 1)
-
-    #-------------------------------------------------------------------------
-
-    def getStudyId(self):
-        return self._studyId
 
     #-------------------------------------------------------------------------
 
@@ -311,7 +305,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
 
     #-------------------------------------------------------------------------
 
-    def getObjectInfo(self, studyId, entry):
+    def getObjectInfo(self, entry):
         return ""
 
     #-------------------------------------------------------------------------

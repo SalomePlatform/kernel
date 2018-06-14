@@ -52,11 +52,11 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
 //============================================================================
 SALOMEDSImpl_StudyBuilder::SALOMEDSImpl_StudyBuilder(const SALOMEDSImpl_Study* theOwner)
 {
-   _errorCode = "";
+  _errorCode = "";
   _callbackOnAdd=NULL;
   _callbackOnRemove = NULL;
-   _study = (SALOMEDSImpl_Study*)theOwner;
-   _doc = _study->GetDocument();
+  _study = (SALOMEDSImpl_Study*)theOwner;
+  _doc = _study->GetDocument();
 }
 
 //============================================================================
@@ -619,78 +619,6 @@ bool SALOMEDSImpl_StudyBuilder::RemoveReference(const SALOMEDSImpl_SObject& me)
   
   return true;
 }
-
-
-
-//============================================================================
-/*! Function : AddDirectory
- *  Purpose  : adds a new directory with a path = thePath
- */
-//============================================================================
-bool SALOMEDSImpl_StudyBuilder::AddDirectory(const std::string& thePath) 
-{
-  _errorCode = "";
-  CheckLocked();
-  if(thePath.empty()) {
-    _errorCode = "Invalid path";
-    return false;
-  }
-
-  std::string aPath(thePath), aContext(""), aFatherPath;
-  DF_Label aLabel;
-  SALOMEDSImpl_SObject anObject;
-
-  try { 
-    anObject = _study->FindObjectByPath(thePath); //Check if the directory already exists
-  }
-  catch(...) { }
-
-  if(anObject) {
-    _errorCode = "StudyNameAlreadyUsed";
-    return false; 
-  }
-
-  if(aPath[0] != '/') { //Relative path 
-    aPath.insert(aPath.begin(), '/');
-    aPath = _study->GetContext() + aPath;
-  }
-
-  std::vector<std::string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
-  if(vs.size() == 1) 
-    aFatherPath = "/";
-  else {
-    for(int i = 0, len = vs.size()-1; i<len; i++) { 
-      aFatherPath += "/";
-      aFatherPath += vs[i];
-    }
-  }
-
-  try { 
-    anObject = _study->FindObjectByPath(aFatherPath); //Check if the father directory exists
-  }
-  catch(...) { ; }
-  if(!anObject) {
-    _errorCode = "StudyInvalidDirectory";
-    return false; 
-  }
-
-  SALOMEDSImpl_SObject aNewObject = NewObject(anObject);
-  aLabel = aNewObject.GetLabel();
-  if(aLabel.IsNull()) {
-    _errorCode = "StudyInvalidComponent";
-    return false;
-  }
-
-  SALOMEDSImpl_AttributeName::Set(aLabel, vs.back());
-
-  //Set LocalID attribute to identify the directory object
-  SALOMEDSImpl_AttributeLocalID::Set(aLabel, DIRECTORYID);
-  
-  _doc->SetModified(true); 
-  
-  return true;
-}
-
 
 //============================================================================
 /*! Function : SetGUID

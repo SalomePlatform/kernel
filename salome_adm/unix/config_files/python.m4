@@ -37,33 +37,31 @@ dnl a `module'.
 
 AC_DEFUN([CHECK_PYTHON],
  [
-  python_ok=yes
- 
-  AC_ARG_WITH(python,
-   [AC_HELP_STRING([--with-python=DIR],[root directory path of python installation])],
-   [PYTHON="$withval/bin/python"
-    AC_MSG_RESULT("select python distribution in $withval")
-   ], [
-    AC_PATH_PROG(PYTHON, python)
-    ])
-  
-  AC_CHECKING([local Python configuration])
-
+  AC_BEFORE([$0],[AM_PATH_PYTHON])
   AC_REQUIRE([AC_LINKER_OPTIONS])dnl
 
-  PYTHON_PREFIX=`echo $PYTHON | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-  PYTHON_PREFIX=`echo $PYTHON_PREFIX | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-  PYTHONHOME=$PYTHON_PREFIX
+  python_ok=yes
+ 
+  AM_PATH_PYTHON([3])
+  
+  AC_MSG_NOTICE([local Python configuration])
 
-  AC_SUBST(PYTHON_PREFIX)
-  AC_SUBST(PYTHONHOME)
-
-  changequote(<<, >>)dnl
-  PYTHON_VERSION=`$PYTHON -c "import sys; print sys.version[:3]"`
-  changequote([, ])dnl
-  AC_SUBST(PYTHON_VERSION)
+  AC_SUBST([python_bin],
+           [`basename ${PYTHON}`] )
+           
+  AC_SUBST([PYTHON_ABIFLAGS],
+           [`${PYTHON} -c "import sys; print (sys.abiflags)"`] )
+           
+  AC_SUBST([PYTHON_PREFIX],
+           [`${PYTHON} -c "import sys; print (sys.prefix)"`] )
+           
+  AC_SUBST([PYTHONHOME],
+           [`${PYTHON} -c "import sys; print (sys.prefix)"`] )
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
+  if test ! -f "$PY_MAKEFILE"; then
+    PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os}/Makefile
+  fi
   if test ! -f "$PY_MAKEFILE"; then
     # For Ubuntu >= 13.04
     PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${build_cpu}-${build_os}/Makefile
@@ -92,13 +90,18 @@ AC_DEFUN([CHECK_PYTHON],
       PYTHON_LIB=$PYTHON_LIBS
       PYTHON_LIBA=${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
     fi
+    if test "$PY_MAKEFILE" = "${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os}/Makefile" ; then
+      PYTHON_LIBS="-L${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python${PYTHON_VERSION}/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os} -lpython${PYTHON_VERSION}${PYTHON_ABIFLAGS}"
+      PYTHON_LIB=$PYTHON_LIBS
+      PYTHON_LIBA=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config-${PYTHON_VERSION}${PYTHON_ABIFLAGS}-${build_cpu}-${build_os}/libpython${PYTHON_VERSION}${PYTHON_ABIFLAGS}.a
+    fi
   fi
 
   dnl At times (like when building shared libraries) you may want
   dnl to know which OS Python thinks this is.
 
   AC_SUBST(PYTHON_PLATFORM)
-  PYTHON_PLATFORM=`$PYTHON -c "import sys; print sys.platform"`
+  PYTHON_PLATFORM=`$PYTHON -c "import sys; print(sys.platform)"`
 
   AC_SUBST(PYTHON_SITE)
   AC_ARG_WITH(python-site,

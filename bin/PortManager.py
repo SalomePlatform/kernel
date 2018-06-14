@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2017  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -111,14 +111,14 @@ def __isNetworkConnectionActiveOnPort(port):
     p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
   except:
-    print "Error when trying to access active network connections."
-    if err: print err
+    print("Error when trying to access active network connections.")
+    if err: print(err)
     import traceback
     traceback.print_exc()
     return False
 
-  import StringIO
-  buf = StringIO.StringIO(out)
+  from io import StringIO
+  buf = StringIO(out.decode())
   ports = buf.readlines()
   # search for TCP - LISTEN connections
   import re
@@ -137,7 +137,7 @@ def getPort(preferedPort=None):
 
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'w') as lock:
+  with open(lock_file, 'wb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
@@ -145,7 +145,7 @@ def getPort(preferedPort=None):
     config = {}
     logger.debug("read configuration file")
     try:
-      with open(config_file, 'r') as f:
+      with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except:
       logger.info("Problem loading PortManager file: %s"%config_file)
@@ -167,7 +167,7 @@ def getPort(preferedPort=None):
           msg  = "\n"
           msg += "Can't find a free port to launch omniNames\n"
           msg += "Try to kill the running servers and then launch SALOME again.\n"
-          raise RuntimeError, msg
+          raise RuntimeError(msg)
         logger.debug("Port %s seems to be busy"%str(port))
         port = port + 1
     logger.debug("found free port: %s"%str(port))
@@ -176,8 +176,8 @@ def getPort(preferedPort=None):
     # write config
     logger.debug("write config: %s"%str(config))
     try:
-      with open(config_file, 'w') as f:
-        pickle.dump(config, f)
+      with open(config_file, 'wb') as f:
+        pickle.dump(config, f, protocol=0)
     except IOError:
       pass
 
@@ -196,7 +196,7 @@ def releasePort(port):
 
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'w') as lock:
+  with open(lock_file, 'wb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
@@ -204,7 +204,7 @@ def releasePort(port):
     config = {}
     logger.debug("read configuration file")
     try:
-      with open(config_file, 'r') as f:
+      with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except IOError: # empty file
       pass
@@ -223,8 +223,8 @@ def releasePort(port):
     # write config
     logger.debug("write config: %s"%str(config))
     try:
-      with open(config_file, 'w') as f:
-        pickle.dump(config, f)
+      with open(config_file, 'wb') as f:
+        pickle.dump(config, f, protocol=0)
     except IOError:
       pass
 
@@ -239,7 +239,7 @@ def releasePort(port):
 def getBusyPorts():
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'w') as lock:
+  with open(lock_file, 'wb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
@@ -247,7 +247,7 @@ def getBusyPorts():
     config = {}
     logger.debug("read configuration file")
     try:
-      with open(config_file, 'r') as f:
+      with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except IOError: # empty file
       pass

@@ -63,7 +63,7 @@ void SALOMEDSImpl_GenericAttribute::CheckLocked()
   DF_Label aLabel = Label();
   if(aLabel.IsNull()) return;
 
-  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
+  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudyImpl(aLabel);
   if(!aStudy) return;
   if(aStudy->IsLocked()) {
     aStudy->_errorCode = "LockProtection";
@@ -88,7 +88,7 @@ void SALOMEDSImpl_GenericAttribute::SetModifyFlag(int reason)
    DF_Label aLabel = Label();
    if(aLabel.IsNull()) return; 
 
-  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
+  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudyImpl(aLabel);
   if(aStudy) aStudy->modifySO_Notification(GetSObject(), reason);
   if(aStudy) aStudy->Modify();
 }

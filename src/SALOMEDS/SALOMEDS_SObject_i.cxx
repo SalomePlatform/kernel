@@ -26,9 +26,9 @@
 //
 #include "utilities.h"
 #include "SALOMEDS_SObject_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -59,7 +59,7 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImp
  */
 //============================================================================
 SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::ORB_ptr orb) :
-  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA())
+  GenericObj_i(SALOMEDS_Study_i::GetThePOA())
 {
   _impl = 0;
   if(!impl.IsNull()) {
@@ -72,7 +72,6 @@ SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::
      }
   }
   _orb = CORBA::ORB::_duplicate(orb);
-   //SALOME::GenericObj_i::myPOA = SALOMEDS_StudyManager_i::GetPOA(GetStudy());
 }
 
 
@@ -98,7 +97,7 @@ SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_SObject_i::_default_POA()
 {
-  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
+  myPOA = PortableServer::POA::_duplicate(SALOMEDS_Study_i::GetThePOA());
   //MESSAGE("SALOMEDS_SObject_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }
@@ -148,27 +147,6 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
   SALOMEDS::Locker lock;
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (_impl->GetFather(), _orb);
   return so._retn();
-}
-
-//============================================================================
-/*! Function :
- *  Purpose  :
- */
-//============================================================================
-SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
-{
-  SALOMEDS::Locker lock;
-  SALOMEDSImpl_Study* aStudy = _impl->GetStudy();
-  if(!aStudy) {
-    MESSAGE("Problem GetStudy");
-    return SALOMEDS::Study::_nil();
-  }
-
-  std::string IOR = aStudy->GetTransientReference();
-  CORBA::Object_var obj = _orb->string_to_object(IOR.c_str());
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(obj) ;
-  ASSERT(!CORBA::is_nil(Study));
-  return SALOMEDS::Study::_duplicate(Study);
 }
 
 //============================================================================

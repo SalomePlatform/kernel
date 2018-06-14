@@ -48,6 +48,8 @@
 #include "SALOMEDSImpl_GenericVariable.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
+#include <SALOME_KernelServices.hxx>
+
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 
@@ -71,7 +73,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDSImpl_Study* theStudy)
 
   pthread_mutex_init( &SALOMEDS_StudyBuilder::_remoteBuilderMutex, 0 );
 
-  init_orb();
+  InitORB();
 }
 
 SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
@@ -94,11 +96,161 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
   }
 
-  init_orb();
+  InitORB();
 }
 
 SALOMEDS_Study::~SALOMEDS_Study()
 {
+}
+
+void SALOMEDS_Study::InitORB()
+{
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
+  _orb = init(0 , 0 ) ;
+}
+
+void SALOMEDS_Study::Init()
+{
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
+  _corba_impl->Init();
+}
+
+void SALOMEDS_Study::Clear()
+{
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
+  _corba_impl->Clear();
+}
+
+bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
+{
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+  std::wstring wtheStudyUrl = std::wstring(theStudyUrl.begin(), theStudyUrl.end());
+  
+  if (!_corba_impl->Open( (wchar_t*)wtheStudyUrl.c_str() ) )
+    return false;
+
+  return true;
+}
+
+bool SALOMEDS_Study::Save(bool theMultiFile, bool theASCII)
+{
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+
+  return _corba_impl->Save(theMultiFile, theASCII);
+}
+
+bool SALOMEDS_Study::SaveAs(const std::string& theUrl, bool theMultiFile, bool theASCII)
+{
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+
+  return _corba_impl->SaveAs(Kernel_Utils::decode_s(theUrl), theMultiFile, theASCII);
+}
+
+SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
+{
+  SALOMEDS_Driver_i* driver = NULL;
+
+  SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
+  if(!aSCO.IsNull()) {
+    std::string IOREngine = aSCO.GetIOR();
+    if(!IOREngine.empty()) {
+      CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
+      Engines::EngineComponent_var Engine = Engines::EngineComponent::_narrow(obj) ;
+      driver = new SALOMEDS_Driver_i(Engine, orb);
+    }
+  }
+
+  return driver;
+}
+
+bool SALOMEDS_Study::CanCopy(const _PTR(SObject)& theSO)
+{
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+  bool ret;
+
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    ret = _local_impl->CanCopy(aSO_impl, aDriver);
+    delete aDriver;
+  }
+  else {
+    ret = _corba_impl->CanCopy(aSO->GetCORBAImpl());
+  }
+
+  return ret;
+}
+
+bool SALOMEDS_Study::Copy(const _PTR(SObject)& theSO)
+{
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+  bool ret;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    ret = _local_impl->Copy(aSO_impl, aDriver);
+    delete aDriver;
+  }
+  else {
+    ret = _corba_impl->Copy(aSO->GetCORBAImpl());
+  }
+  return ret;
+}
+
+bool SALOMEDS_Study::CanPaste(const _PTR(SObject)& theSO)
+{
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+  bool ret;
+
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    ret = _local_impl->CanPaste(aSO_impl, aDriver);
+    delete aDriver;
+  }
+  else {
+    ret = _corba_impl->CanPaste(aSO->GetCORBAImpl());
+  }
+
+  return ret;
+}
+
+_PTR(SObject) SALOMEDS_Study::Paste(const _PTR(SObject)& theSO)
+{
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+  SALOMEDSClient_SObject* aResult = NULL;
+
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    SALOMEDSImpl_SObject aNewSO = _local_impl->Paste(aSO_impl, aDriver);
+    delete aDriver;
+    if(aNewSO.IsNull()) return _PTR(SObject)(aResult);
+    aResult = new SALOMEDS_SObject(aNewSO);
+  }
+  else {
+    SALOMEDS::SObject_ptr aNewSO = _corba_impl->Paste(aSO->GetCORBAImpl());
+    if(CORBA::is_nil(aNewSO)) return _PTR(SObject)(aResult);
+    aResult = new SALOMEDS_SObject(aNewSO);
+  }
+
+  return _PTR(SObject)(aResult);
 }
 
 std::string SALOMEDS_Study::GetPersistentReference()
@@ -109,17 +261,6 @@ std::string SALOMEDS_Study::GetPersistentReference()
     aRef = _local_impl->GetPersistentReference();
   }
   else aRef = (CORBA::String_var)_corba_impl->GetPersistentReference();
-  return aRef;
-}
-
-std::string SALOMEDS_Study::GetTransientReference()
-{
-  std::string aRef;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aRef = _local_impl->GetTransientReference();
-  }
-  else aRef = _corba_impl->GetTransientReference();
   return aRef;
 }
  
@@ -304,91 +445,6 @@ std::string SALOMEDS_Study::GetObjectPath(const _PTR(SObject)& theSO)
   return aPath;
 }
 
-void SALOMEDS_Study::SetContext(const std::string& thePath)
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->SetContext(thePath);
-  }
-  else _corba_impl->SetContext((char*)thePath.c_str());
-}
-
-std::string SALOMEDS_Study::GetContext()  
-{
-  std::string aPath;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aPath = _local_impl->GetContext();
-  }
-  else aPath = _corba_impl->GetContext();
-  return aPath;
-}
-
-std::vector<std::string> SALOMEDS_Study::GetObjectNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetObjectNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back(std::string((std::string)aSeq[i].in()));
-  }
-  return aVector;
-}
- 
-std::vector<std::string> SALOMEDS_Study::GetDirectoryNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetDirectoryNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
-  return aVector;
-}
- 
-std::vector<std::string> SALOMEDS_Study::GetFileNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetFileNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
-  return aVector;
-}
- 
-std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& theContext)
-{
-  std::vector<std::string> aVector;
-  int aLength, i;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    aVector = _local_impl->GetComponentNames(theContext);
-  }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
-  return aVector;
-}
-
 _PTR(ChildIterator) SALOMEDS_Study::NewChildIterator(const _PTR(SObject)& theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -447,7 +503,7 @@ std::string SALOMEDS_Study::Name()
     SALOMEDS::Locker lock;
     aName = _local_impl->Name();
   }
-  else aName = _corba_impl->Name();
+  else aName = Kernel_Utils::encode_s(_corba_impl->Name());
   return aName;
 }
 
@@ -457,7 +513,7 @@ void SALOMEDS_Study::Name(const std::string& theName)
     SALOMEDS::Locker lock;
     _local_impl->Name(theName);
   }
-  else _corba_impl->Name((char*)theName.c_str());
+  else _corba_impl->Name(Kernel_Utils::decode_s(theName));
 }
 
 bool SALOMEDS_Study::IsSaved()
@@ -508,7 +564,8 @@ std::string SALOMEDS_Study::URL()
     SALOMEDS::Locker lock;
     aURL = _local_impl->URL();
   }
-  else aURL = _corba_impl->URL();
+  else 
+      aURL = Kernel_Utils::encode_s(_corba_impl->URL());
   return aURL;
 }
 
@@ -518,27 +575,7 @@ void SALOMEDS_Study::URL(const std::string& url)
     SALOMEDS::Locker lock;
     _local_impl->URL(url);
   }
-  else _corba_impl->URL((char*)url.c_str());
-}
-
-int SALOMEDS_Study::StudyId()
-{
-  int anID;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    anID = _local_impl->StudyId();
-  }
-  else anID = _corba_impl->StudyId();
-  return anID;
-}
- 
-void SALOMEDS_Study::StudyId(int id) 
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->StudyId(id);
-  }
-  else _corba_impl->StudyId(id);  
+  else _corba_impl->URL(Kernel_Utils::decode_s(url));
 }
 
 std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& theSO)
@@ -619,15 +656,6 @@ _PTR(UseCaseBuilder) SALOMEDS_Study::GetUseCaseBuilder()
   return _PTR(UseCaseBuilder)(aUB);
 }
 
-void SALOMEDS_Study::Close()
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->Close();
-  }
-  else _corba_impl->Close();
-}
-
 void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
 {
   if(_isLocal) _local_impl->EnableUseCaseAutoFilling(isEnabled);
@@ -639,10 +667,10 @@ bool SALOMEDS_Study::DumpStudy(const std::string& thePath,
                                bool isPublished,
                                bool isMultiFile)
 {
-  //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
-  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
-  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, isMultiFile);
-  return ret;
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+
+  return _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, isMultiFile);
 }     
 
 void SALOMEDS_Study::SetStudyLock(const std::string& theLockerID)
@@ -943,40 +971,6 @@ CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR)
   return _orb->string_to_object(theIOR.c_str()); 
 } 
 
-void SALOMEDS_Study::init_orb()
-{
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()); 
-  _orb = init(0 , 0 ) ;     
-}
-
-SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
-{
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-
-    if (!CORBA::is_nil(_corba_impl)) return SALOMEDS::Study::_duplicate(_corba_impl);
-    std::string anIOR = _local_impl->GetTransientReference();
-    SALOMEDS::Study_var aStudy;
-    if (!_local_impl->IsError() && anIOR != "") {
-      aStudy = SALOMEDS::Study::_narrow(_orb->string_to_object(anIOR.c_str()));
-    }
-    else {
-      SALOMEDS_Study_i *aStudy_servant = new SALOMEDS_Study_i(_local_impl, _orb);
-      aStudy = aStudy_servant->_this();
-      _local_impl->SetTransientReference(_orb->object_to_string(aStudy));
-    }
-    _corba_impl = SALOMEDS::Study::_duplicate(aStudy);
-    return aStudy._retn();
-  }
-  else {
-    return SALOMEDS::Study::_duplicate(_corba_impl);
-  }
-
-  return SALOMEDS::Study::_nil();
-}
-
-
 _PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const std::string& theID, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
@@ -1010,12 +1004,16 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const std::string& 
 
 void SALOMEDS_Study::attach(SALOMEDS::Observer_ptr theObserver,bool modify)
 {
-  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
   _corba_impl->attach(theObserver,modify);
 }
 
 void SALOMEDS_Study::detach(SALOMEDS::Observer_ptr theObserver)
 {
-  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
+  if(CORBA::is_nil(_corba_impl))
+    return;
+
   _corba_impl->detach(theObserver);
 }

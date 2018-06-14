@@ -28,8 +28,9 @@
 //
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_AttributeName_i.hxx"
+#include "SALOME_KernelServices.hxx"
+#include "Basics_Utils.hxx"
 #include "utilities.h"
 #include "HDFOI.hxx"
 
@@ -38,9 +39,9 @@
  *  Purpose  : 
  */
 //============================================================================
-static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, int offset) {
+static void DumpComponent(SALOMEDS::SObject_ptr SO, int offset) {
   SALOMEDS::SObject_var RefSO;
-  SALOMEDS::ChildIterator_var it = Study->NewChildIterator(SO);
+  SALOMEDS::ChildIterator_var it = KERNEL::getStudyServant()->NewChildIterator(SO);
   for (; it->More();it->Next()){
     SALOMEDS::SObject_var CSO= it->Value();
     SALOMEDS::GenericAttribute_var anAttr;
@@ -57,7 +58,7 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, in
         MESSAGE(" ");
       MESSAGE("*Reference"<<RefSO->GetID());
     }
-    DumpComponent(Study,CSO,offset+2);
+    DumpComponent(CSO,offset+2);
   }
 }
 
@@ -66,17 +67,17 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, in
  *  Purpose  : 
  */
 //============================================================================
-static void DumpStudy (SALOMEDS::Study_ptr Study) {
+static void DumpStudy() {
   MESSAGE("Explore Study and Write name of each object if it exists");
   
   char* name;
-  SALOMEDS::SComponentIterator_var itcomp = Study->NewComponentIterator();
+  SALOMEDS::SComponentIterator_var itcomp = KERNEL::getStudyServant()->NewComponentIterator();
   int offset = 1;
   for (; itcomp->More(); itcomp->Next()) {
     SALOMEDS::SComponent_var SC = itcomp->Value();
     name = SC->ComponentDataType();
     MESSAGE("-> ComponentDataType is "<<name);  
-    DumpComponent(Study,SC,offset);
+    DumpComponent(SC,offset);
   }
 }
 
@@ -85,16 +86,15 @@ static void DumpStudy (SALOMEDS::Study_ptr Study) {
  *  Purpose  : 
  */
 //============================================================================
-static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
+static void Test()
 {
   try {
   char* name;
-  MESSAGE("Create New Study Study1");
-  SALOMEDS::Study_var myStudy = myStudyMgr->NewStudy("Study1");
- 
+
+  SALOMEDS::Study_var myStudy = KERNEL::getStudyServant();
+
   MESSAGE("Create Builder ");
   SALOMEDS::StudyBuilder_var StudyBuild = myStudy->NewBuilder();
-
 
   // Create new components
   SALOMEDS::GenericAttribute_var anAttr;
@@ -186,62 +186,35 @@ static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
   Name->SetValue("mesh_cylinder_0");
   StudyBuild->CommitCommand();
 
-  MESSAGE("Test GetStudy");
-  SALOMEDS::Study_var stu = mesh_cylinder->GetStudy();
-  MESSAGE ("-> Study Name is "<<stu->Name());
-
-  DumpStudy(myStudy);
+  DumpStudy();
 
   StudyBuild->Undo();
   // Study should have no trace of object mesh_cylinder
-  DumpStudy(myStudy);
-
- 
-  //myStudyMgr->Open ((char*)name);
-  //MESSAGE("Name " << name);
-
-  // GetOpenStudies
-  MESSAGE("GetOpenStudies list");
-  SALOMEDS::ListOfOpenStudies_var _list_open_studies =  myStudyMgr->GetOpenStudies();
-
-  for (unsigned int ind = 0; ind < _list_open_studies->length();ind++)
-    {
-      MESSAGE("Open studies list : " << _list_open_studies[ind]);  
-    }
-
-
-  // GetStudyByName
-  SALOMEDS::Study_var myStudy1 =myStudyMgr->GetStudyByName(_list_open_studies[0]);
-  MESSAGE("GetStudyByName done");
+  DumpStudy();
   
   // Save as
-  myStudyMgr->SaveAs("/home/edeville/Study1.hdf",myStudy1, false);
+  myStudy->SaveAs(Kernel_Utils::decode("/home/edeville/Study1.hdf"), false, false);
 
   // Get Persistent Reference of the study test
-  name = myStudy1->GetPersistentReference();
+  name = myStudy->GetPersistentReference();
   MESSAGE("Persitent Reference of the study " << name);
 
-  // Get Transient Reference of the study test
-  name = myStudy1->GetTransientReference();
-  MESSAGE("Transient Reference of the study " << name);
-
   // FindComponent Test
-  SALOMEDS::SComponent_var compo = myStudy1->FindComponent("GEOM");
+  SALOMEDS::SComponent_var compo = myStudy->FindComponent("GEOM");
   // Get ComponentDataType test
   MESSAGE("Find ComponentDataType of compo");
   name = compo->ComponentDataType();
-  MESSAGE("-> ComponentDataType is "<<name);  
+  MESSAGE("-> ComponentDataType is "<<name);
 
-  
   // FindComponentID Test
-  SALOMEDS::SComponent_var compo1 = myStudy1->FindComponentID("0:1:2");
+  SALOMEDS::SComponent_var compo1 = myStudy->FindComponentID("0:1:2");
   // Get ComponentDataType test
   MESSAGE("Find ComponentDataType of compo1");
   name = compo1->ComponentDataType();
-  MESSAGE("-> ComponentDataType is "<<name);  
-
+  MESSAGE("-> ComponentDataType is "<<name);
+  
   // FindObject Test
-  SALOMEDS::SObject_var objn = myStudy1->FindObject("cylinder_0");
+  SALOMEDS::SObject_var objn = myStudy->FindObject("cylinder_0");
  // Test FindAttribute function : get AttributeName attribute
   MESSAGE("Find Name in object objn");
   if (objn->FindAttribute(anAttr, "AttributeName")) {
@@ -254,7 +227,7 @@ static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
   }
 
   // FindObjectID Test
-  SALOMEDS::SObject_var obj = myStudy1->FindObjectID("0:1:2:1:1");
+  SALOMEDS::SObject_var obj = myStudy->FindObjectID("0:1:2:1:1");
  // Test FindAttribute function : get AttributeName attribute
   MESSAGE("Find Name in object obj");
   if (obj->FindAttribute(anAttr, "AttributeName")) {
@@ -265,7 +238,7 @@ static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
   else {
     MESSAGE("-> Name is not found");
   }
-  //DumpStudy(myStudy1);
+  //DumpStudy();
   }
   catch(HDFexception)
     {
@@ -289,19 +262,13 @@ int main(int argc, char** argv)
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
 
-    SALOME_NamingService * salomens = new SALOME_NamingService(orb);
-
-    MESSAGE("Find StudyManager ");
-    CORBA::Object_ptr obj2 = salomens->Resolve("myStudyManager");
-    SALOMEDS::StudyManager_var myStudyMgr = SALOMEDS::StudyManager::_narrow(obj2);
-
     // Obtain a POAManager, and tell the POA to start accepting
     // requests on its objects.
     PortableServer::POAManager_var pman = poa->the_POAManager();
     pman->activate();
 
     // Test basic services
-    Test(myStudyMgr);
+    Test();
 
     orb->run();
     orb->destroy();

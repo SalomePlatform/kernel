@@ -49,7 +49,8 @@ def getShortHostName():
     socket.gethostname() gives short or complete Hostname, depending on
     defined aliases.
     """
-    return string.split(socket.gethostname(),'.')[0]
+    hostname = socket.gethostname()
+    return hostname.split('.')[0]
 
 class Identity:
     def __init__(self,name):

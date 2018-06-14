@@ -84,7 +84,6 @@ SET(SalomeDSImpl_SOURCES
   SALOMEDSImpl_SComponentIterator.cxx
   SALOMEDSImpl_StudyBuilder.cxx
   SALOMEDSImpl_Study.cxx
-  SALOMEDSImpl_StudyManager.cxx
   SALOMEDSImpl_IParameters.cxx
   SALOMEDSImpl_TMPFile.cxx
   SALOMEDSImpl_GenericVariable.cxx

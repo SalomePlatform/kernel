@@ -32,7 +32,6 @@
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDSClient_SComponent.hxx"
 #include "SALOMEDSClient_Study.hxx"
-#include "SALOMEDSClient_StudyManager.hxx"
 #include "SALOMEDSClient_IParameters.hxx"
 
 #include <string>
@@ -60,19 +59,14 @@ public:
   static _PTR(Study) Study(SALOMEDS::Study_ptr theStudy);
 
   /*!
+   *  Creates and returns a client Study wrapper
+   */
+  static void createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+
+  /*!
    *  Returns a client StudyBuilder wrapper that corresponds %theStudy
    */
   static _PTR(StudyBuilder) StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);
-
-  /*!
-   *  Returns a client StudyManager wrapper
-   */
-  static _PTR(StudyManager) StudyManager();
-
-  /*!
-   *  Creates and returns a client StudyManager wrapper
-   */
-  static _PTR(StudyManager) createStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
 
   /*!
    * Returns an IParameters interface
@@ -84,11 +78,6 @@ public:
    *  Returns a CORBA SObject that corresponds %theStudy
    */
   static SALOMEDS::SObject_ptr crbSObject(const _PTR(SObject)& theSObject);
-
-  /*!
-   *  Returns a CORBA Study that corresponds %theStudy
-   */
-  static SALOMEDS::Study_ptr crbStudy(const _PTR(Study)& theStudy);  
 
   /*!
    *  Returns a CORBA StudyBuilder that corresponds %theStudyBuilder

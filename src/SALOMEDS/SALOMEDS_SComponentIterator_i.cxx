@@ -27,7 +27,7 @@
 #include "SALOMEDS_SComponentIterator_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "utilities.h"
 
 //============================================================================
@@ -38,7 +38,7 @@
 
 SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_SComponentIterator& theImpl, 
                                                              CORBA::ORB_ptr orb)  :
-  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA())
+  GenericObj_i(SALOMEDS_Study_i::GetThePOA())
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl.GetPersistentCopy();
@@ -66,7 +66,7 @@ SALOMEDS_SComponentIterator_i::~SALOMEDS_SComponentIterator_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_SComponentIterator_i::_default_POA()
 {
-  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
+  myPOA = PortableServer::POA::_duplicate(SALOMEDS_Study_i::GetThePOA());
   MESSAGE("SALOMEDS_SComponentIterator_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }

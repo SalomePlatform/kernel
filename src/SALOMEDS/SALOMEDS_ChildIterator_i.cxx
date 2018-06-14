@@ -25,7 +25,7 @@
 //  Module : SALOME
 //
 #include "SALOMEDS_ChildIterator_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
@@ -39,7 +39,7 @@
 //============================================================================
 SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(const SALOMEDSImpl_ChildIterator& theImpl,
                                                    CORBA::ORB_ptr orb)  :
-  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA()),
+  GenericObj_i(SALOMEDS_Study_i::GetThePOA()),
   _it(theImpl.GetPersistentCopy())
 {
   SALOMEDS::Locker lock;
@@ -68,7 +68,7 @@ SALOMEDS_ChildIterator_i::~SALOMEDS_ChildIterator_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_ChildIterator_i::_default_POA()
 {
-  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
+  myPOA = PortableServer::POA::_duplicate(SALOMEDS_Study_i::GetThePOA());
   //MESSAGE("SALOMEDS_ChildIterator_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }

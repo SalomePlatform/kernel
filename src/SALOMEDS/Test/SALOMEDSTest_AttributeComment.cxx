@@ -25,20 +25,12 @@
  * Use code of SALOMEDS_AttributeComment.cxx
  */
 
+//#include "Basics_Utils.hxx"
+
 void SALOMEDSTest::testAttributeComment()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm(new SALOMEDS_StudyManager(_sm));
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  std::vector<std::string> ost(sm->GetOpenStudies());
-  _PTR(Study) study;
-  if(ost.empty())
-    study = sm->NewStudy("Test");
-  else
-    study = sm->GetStudyByName(ost[0]);
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -73,8 +65,7 @@ void SALOMEDSTest::testAttributeComment()
   _attr->SetValue("");
   CPPUNIT_ASSERT(_attr->Value() == "");
 
-
-  sm->Close(study);
+  study->Clear();
 }
 
 

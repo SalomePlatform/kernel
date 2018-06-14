@@ -26,7 +26,6 @@
 //
 #include "utilities.h"
 #include "SALOMEDS_StudyBuilder_i.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
@@ -80,7 +79,7 @@ SALOMEDS_StudyBuilder_i::~SALOMEDS_StudyBuilder_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_StudyBuilder_i::_default_POA()
 {
-  PortableServer::POA_ptr poa = SALOMEDS_StudyManager_i::GetThePOA();
+  PortableServer::POA_ptr poa = SALOMEDS_Study_i::GetThePOA();
   MESSAGE("SALOMEDS_StudyBuilder_i::_default_POA: " << poa);
   return PortableServer::POA::_duplicate(poa);
 }
@@ -337,26 +336,6 @@ void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());
   _impl->RemoveReference(aSO);
 }
-
-
-//============================================================================
-/*! Function : AddDirectory
- *  Purpose  : adds a new directory with a path = thePath
- */
-//============================================================================
-void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath) 
-{
-  SALOMEDS::Locker lock;
-  CheckLocked();
-  if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
-  if(!_impl->AddDirectory(std::string(thePath))) {
-    std::string anErrorCode = _impl->GetErrorCode();
-    if(anErrorCode == "StudyNameAlreadyUsed") throw SALOMEDS::Study::StudyNameAlreadyUsed(); 
-    if(anErrorCode == "StudyInvalidDirectory") throw SALOMEDS::Study::StudyInvalidDirectory(); 
-    if(anErrorCode == "StudyInvalidComponent") throw SALOMEDS::Study::StudyInvalidComponent();  
-  }
-}
-
 
 //============================================================================
 /*! Function : SetGUID

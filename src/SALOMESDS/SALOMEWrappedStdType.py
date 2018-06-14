@@ -25,9 +25,8 @@ import abc
 def _raiseNow(strCont):
     raise Exception("The method %s has been called whereas it is an interface !"%strCont)
 
-class WrappedType(object):
+class WrappedType(object, metaclass=abc.ABCMeta):
     """ Here definition of an interface in python."""
-    __metaclass__=abc.ABCMeta
     @abc.abstractmethod
     def ptr(self):
         _raiseNow("ptr")

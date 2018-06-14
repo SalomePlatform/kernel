@@ -31,6 +31,8 @@
 
 #include <string>
 #include <list> 
+#include <vector>
+#include <stdlib.h>
 
 
 // IDL headers
@@ -50,6 +52,8 @@
 class TOOLSDS_EXPORT SALOMEDS_Tool                                
 {
 public:
+
+  typedef std::vector<std::string> ListOfFiles;
  
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
   // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
@@ -59,22 +63,22 @@ public:
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
   static void RemoveTemporaryFiles(const std::string& theDirectory,
-                                   const SALOMEDS::ListOfFileNames& theFiles,
+                                   const ListOfFiles& theFiles,
                                    const bool IsDirDeleted);
 
   // Converts files listed in <theFiles> which are in <theFromDirectory> into a byte sequence TMPFile
   static SALOMEDS::TMPFile* PutFilesToStream(const std::string& theFromDirectory, 
-                                             const SALOMEDS::ListOfFileNames& theFiles,
+                                             const ListOfFiles& theFiles,
                                              const int theNamesOnly = 0);
 
   // Converts files listed in <theFiles> which will be named as pointed in the <theFileNames> into a byte sequence TMPFile
-  static SALOMEDS::TMPFile* PutFilesToStream(const SALOMEDS::ListOfFileNames& theFiles,
-                                             const SALOMEDS::ListOfFileNames& theFileNames);
+  static SALOMEDS::TMPFile* PutFilesToStream(const ListOfFiles& theFiles,
+                                             const ListOfFiles& theFileNames);
 
   // Converts a byte sequence <theStream> to files and places them in <theToDirectory>
-  static SALOMEDS::ListOfFileNames_var PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
-                                                        const std::string& theToDirectory,
-                                                        const int theNamesOnly = 0);
+  static ListOfFiles PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
+                                                 const std::string& theToDirectory,
+                                                 const int theNamesOnly = 0);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"

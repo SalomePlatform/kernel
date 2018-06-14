@@ -177,7 +177,7 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         containerName += "/swTheContainer"
         try:
             cp1=self.lcc.FindOrLoad_Component(containerName,"SalomeTestComponent")
-        except RuntimeError,ex :
+        except RuntimeError as ex :
             self.assertEqual(ex.args[0],'unknown host')
         pass
 

@@ -39,7 +39,6 @@ common_data={"AUTHOR"     : "",
              "COMP_TYPE"  : "",
              "COMP_NAME"  : "",
              "COMP_UNAME" : "",
-             "COMP_MULT"  : "",
              "COMP_IMPL"  : ""
              }
 
@@ -68,7 +67,7 @@ def getParamValue( param_name, default_value, args ):
 # print error message
 #--------------------------------------------------
 def error (message):
-    print "ERROR : ", message
+    print("ERROR : ", message)
 
 
 #--------------------------------------------------
@@ -119,7 +118,7 @@ class Tree:
         if self.name != '':
             s = string.ljust('', 4*depth)
             s += '<' + self.name
-            for k,v in self.attrs.items():
+            for k,v in list(self.attrs.items()):
               s += ' ' + k + '="' + v + '"'
             s += '>'
             if self.content != '':
@@ -145,7 +144,7 @@ class Tree:
         if levels == 0: return
 
         s = string.ljust('', 4*depth)
-        print s, self, self.content
+        print(s, self, self.content)
         for i in self.childs:
             i.Dump(levels-1, depth+1)
 
@@ -296,8 +295,7 @@ def parseComment(comment):
             ## the remaining part of input string
             m = re.match(pattern, sPorts)
             if m is None:
-                raise LookupError, \
-                      'format error in DataStreamPort definition : '+sPorts
+                raise LookupError('format error in DataStreamPort definition : '+sPorts)
             sPorts = sPorts[m.end():]
             result.append(m.groups())
 
@@ -402,9 +400,8 @@ class Interface(Tree):
             if type == 'DataStreamPorts':
                 Service = self.findService(key)
                 if Service is None:
-                    raise LookupError, \
-                          'service ' + key + \
-                          ' not found in interface : ' + self.key
+                    raise LookupError('service ' + key + \
+                          ' not found in interface : ' + self.key)
                 for p in result:
                 ## process next DataStreamPort
                     Service.createDataStreamParameter(p)
@@ -437,7 +434,6 @@ class Component(Tree):
         self.addNamedChild('component-author',     common_data["AUTHOR"])
         self.addNamedChild('component-version',    common_data["VERSION"])
         self.addNamedChild('component-comment',    'unknown')
-        self.addNamedChild('component-multistudy', common_data["COMP_MULT"])
         self.addNamedChild('component-impltype',   common_data["COMP_IMPL"])
         self.addNamedChild('component-icone',      common_data["ICON"])
         self.addNamedChild('constraint')
@@ -456,7 +452,7 @@ class Component(Tree):
 
         for i in ['component-username', 'component-author',
                   'component-type', 'component-icone', 'component-version',
-                  'component-multistudy', 'component-impltype', 'constraint']:
+                  'component-impltype', 'constraint']:
             ext = C.getChild(i)
             int = self.getChild(i)
             if int is None:
@@ -503,14 +499,14 @@ class Catalog(ContentHandler, Tree):
         complist = self.getNode('component-list')
         idx = 0
         if complist is None:
-            print "Catalog.removeComponent() : 'component-list' is not found"
+            print("Catalog.removeComponent() : 'component-list' is not found")
             return
         for comp in complist.childs:
             cname = comp.getChild('component-name')
             if cname is not None:
                 if cname.content == name:
                     complist.childs.pop(idx)
-                    print "Component " + name + " is removed"
+                    print("Component " + name + " is removed")
             idx += 1
 
     def startDocument(self):
@@ -571,10 +567,10 @@ class Catalog(ContentHandler, Tree):
                 break;
 
         if present == 0:
-            print '   add component', i_ext.getChild('component-name').content
+            print('   add component', i_ext.getChild('component-name').content)
             L_int.addChild(i_ext)
         else:
-            print '   replace component', i_ext.getChild('component-name').content
+            print('   replace component', i_ext.getChild('component-name').content)
             i_int.merge(i_ext)
 
     def mergeType(self, type):
@@ -833,23 +829,22 @@ def run(tree, args):
     common_data["COMP_NAME"]  = getParamValue("name",       "",                args)
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
     common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
-    common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
     common_data["COMP_IMPL"]  = getParamValue("impltype",   "1",               args)
 
-    print common_data
+    print(common_data)
 
     remove_comp = getParamValue("remove", "", args)
 
     #==================================================
 
     if (os.path.exists(CatalogFileName)):
-        print "Importing", CatalogFileName
+        print("Importing", CatalogFileName)
         C = Catalog(CatalogFileName)
     else:
-        print "Creating ",CatalogFileName
+        print("Creating ",CatalogFileName)
         C = Catalog()
 
-    print "Reading idl file"
+    print("Reading idl file")
 
     visitor = ModuleCatalogVisitor(C)
     tree.accept(visitor)
@@ -860,12 +855,12 @@ def run(tree, args):
         C.removeComponent(remove_comp)
 
     if (os.path.exists(CatalogFileName)):
-        print "Updating", CatalogFileName
+        print("Updating", CatalogFileName)
         CatalogFileName_old = CatalogFileName + '_old'
         os.rename(CatalogFileName, CatalogFileName_old)
     else:
         CatalogFileName_old = ""
-        print "Writing", CatalogFileName
+        print("Writing", CatalogFileName)
 
     CatalogFileName_new = CatalogFileName + '_new'
     f=open(CatalogFileName_new, 'w')
@@ -877,10 +872,10 @@ def run(tree, args):
     if ((CatalogFileName_old != "") & os.path.exists(CatalogFileName_old)):
         os.unlink(CatalogFileName_old)
 
-    print
+    print()
 
 
 if __name__ == "__main__":
-    print
-    print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>][,impltype=<implementation type : 0 (python), 1 (C++)>] <file.idl>"
-    print
+    print()
+    print("Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,impltype=<implementation type : 0 (python), 1 (C++)>] <file.idl>")
+    print()

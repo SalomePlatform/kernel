@@ -11,7 +11,7 @@ if A == None :
 A.SetValue("AttributesTesting")
 
 if A.Value() != "AttributesTesting":
-        print "Wrong  value of AttributeName"
+        print("Wrong  value of AttributeName")
 
 
 #      save / restore study      
@@ -21,8 +21,8 @@ if str == None:
         str = "/tmp"
 file = str+"/test.hdf"
 
-batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
-openedStudy = batchmode_geompy.myStudyManager.Open(file);
+batchmode_geompy.myStudy.SaveAs(file)
+openedStudy = batchmode_geompy.myStudy.Open(file);
 
 if openedStudy == None:
         raise  RuntimeError, "Can't open saved study!"
@@ -46,5 +46,5 @@ if A == None :
         raise  RuntimeError, "Can't create AttributeName attribute"
 
 if A.Value() != "AttributesTesting":
-        print "Wrong  value of AttributeName"
+        print("Wrong  value of AttributeName")
 

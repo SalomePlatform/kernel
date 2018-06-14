@@ -72,46 +72,6 @@ geom = salome.lcc.FindOrLoadComponent('FactoryServer', 'GEOM')
 \b Note, that in the above example, \e "FactoryServer" is a name of the
 SALOME container, where Geometry module engine should be loaded.
 
-\li \b myStudyManager Reference to the study manager
-
-SALOMEDS Study manager is used to manipulate with the studies: create,
-open, save, close. It also can be used to find the study by its
-numerical ID or name. The code below demonstrates main
-functionalities of a study manager:
-\code
-# create new study with the name "MyStudy"
-new_study = salome.myStudyManager.NewStudy("MyStudy")
-
-# open study from file /home/user/MyStudy.hdf
-study = salome.myStudyManager.OpenStudy("/home/user/MyStudy.hdf")
-
-# save study
-salome.myStudyManager.Save(study, False) # not using multifile save mode
-
-# save study in ASCII format
-salome.myStudyManager.SaveASCII(study, True) # using multifile save mode
-
-# save study with the new file path
-salome.myStudyManager.SaveAs("/home/user/MyStudy.hdf", study, False)
-
-# save study with the new file path in ASCII format
-salome.myStudyManager.SaveAsASCII("/home/user/MyStudy.hdf", study, False)
-
-# close study
-salome.myStudyManager.Close(study)
-
-# get list of all opened studies
-studies = salome.myStudyManager.GetOpenStudies()
-
-# find study by its numerical ID (integer value starting from 1)
-study = salome.myStudyManager.GetStudyByID(studyID)
-
-# find study by its name
-study = salome.myStudyManager.GetStudyByName("/home/user/MyStudy.hdf")
-
-# ...
-\endcode
-
 \anchor salome_myStudy
 \li \b myStudy Reference to the current (active) study
 
@@ -136,8 +96,26 @@ documentation.
 # get study name
 studyName = salome.myStudy._get_Name()
 
-# get study numerical ID
-studyID = salome.myStudy._get_StudyId()
+# open study from file /home/user/MyStudy.hdf
+salome.myStudy.Open("/home/user/MyStudy.hdf")
+
+# save study
+salome.myStudy.Save(False, False) # not using multifile save mode
+
+# save study in ASCII format
+salome.myStudy.Save(True, True) # using multifile save mode
+
+# save study with the new file path
+salome.myStudy.SaveAs("/home/user/MyStudy.hdf", False, False)
+
+# save study with the new file path in ASCII format
+salome.myStudy.SaveAs("/home/user/MyStudy.hdf", False, True)
+
+# clear study
+salome.myStudy.Clear()
+
+# init study
+salome.myStudy.Init()
 
 # find SALOMEDS component by its type
 scomponent = FindComponent("MyComponent")
@@ -185,18 +163,12 @@ iter = salome.myStudy.NewChildIterator(comp) # initialize from the component
 iter.InitEx(True) # init recursive mode
 while iter.More():
       c = iter.Value()
-      print c.GetID()
+      print(c.GetID())
       iter.Next()
       pass
 
 # ...
 \endcode
-
-\li \b myStudyId Identifier of the current (active) study
-
-This variable contains the numerical identifier of the current
-(active) study. It is an equivalent of \c
-salome.myStudy._get_StudyId() code.
 
 \li \b myStudyName Name of the current (active) study
 
@@ -210,7 +182,7 @@ window. The output for each object includes its entry ID, name, IOR
 (if there is one) and referenced object ID (for references). I.e.
 this is the same data the user can see in the Object Browser columns.
 \code
-salome.DumpStudy(salome.myStudy)
+salome.DumpStudy()
 \endcode
 
 \li \b IDToSObject() Get SALOMEDS object by its entry ID.
@@ -277,15 +249,6 @@ if sobject:
    entry = sobject.GetID()
 else:
    entry = ""
-\endcode
-
-\li \b createNewStudy() Create new study
-
-This function can be used to create new SALOME study. Returns an ID of
-the created study.
-\code
-studyId = salome.createNewStudy()
-study   = salome.myStudyManager.GetStudyByID(s)
 \endcode
 
 \li \b generateName() Generate unique name

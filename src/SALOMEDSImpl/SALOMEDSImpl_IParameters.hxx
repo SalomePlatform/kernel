@@ -160,7 +160,6 @@ public:
 
 private:
   SALOMEDSImpl_AttributeParameter* _ap;
-  SALOMEDSImpl_Study* _study;
   std::map<std::string, std::string> _compNames;
 };
 

@@ -20,7 +20,7 @@
 # Author : Anthony Geay
 
 import SALOME
-import cPickle
+import pickle
 import SALOMEWrappedStdType
 
 class InvokatorStyle(object):
@@ -77,7 +77,7 @@ class WrappedType(SALOMEWrappedStdType.WrappedType):
         return self._var_ptr.ptr()
 
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.ptr().fetchSerializedContent())
+        return pickle.loads(self._var_ptr.ptr().fetchSerializedContent())
 
     def __str__(self):
         return self.local_copy().__str__()
@@ -91,7 +91,7 @@ class WrappedType(SALOMEWrappedStdType.WrappedType):
     def assign(self,elt):
         ptrCorba=self._var_ptr.ptr()
         assert(isinstance(ptrCorba,SALOME._objref_PickelizedPyObjRdWrServer))
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
+        st=pickle.dumps(elt,pickle.HIGHEST_PROTOCOL)
         ptrCorba.setSerializedContent(st)
         pass
 
@@ -263,8 +263,11 @@ class Float(WrappedType,SALOMEWrappedStdType.Float):
     def __imul__(self,*args):
         return self.local_copy().__mul__(*args)
 
-    def __idiv__(self,*args):
-        return self.local_copy().__div__(*args)
+    def __itruediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
+
+    def __ifloordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
 
     def __add__(self,*args):
         return self.local_copy().__add__(*args)
@@ -275,8 +278,11 @@ class Float(WrappedType,SALOMEWrappedStdType.Float):
     def __mul__(self,*args):
         return self.local_copy().__mul__(*args)
 
-    def __div__(self,*args):
-        return self.local_copy().__div__(*args)
+    def __floordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
+
+    def __truediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
     
     def __pow__(self,*args):
         return self.local_copy().__pow__(*args)
@@ -321,8 +327,11 @@ class Int(WrappedType,SALOMEWrappedStdType.Int):
     def __imod__(self,*args):
         return self.local_copy().__mod__(*args)
     
-    def __idiv__(self,*args):
-        return self.local_copy().__div__(*args)
+    def __itruediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
+    
+    def __ifloordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
 
     def __add__(self,*args):
         return self.local_copy().__add__(*args)
@@ -336,9 +345,12 @@ class Int(WrappedType,SALOMEWrappedStdType.Int):
     def __mod__(self,*args):
         return self.local_copy().__mod__(*args)
 
-    def __div__(self,*args):
-        return self.local_copy().__div__(*args)
-    
+    def __truediv__(self,*args):
+        return self.local_copy().__truediv__(*args)
+
+    def __floordiv__(self,*args):
+        return self.local_copy().__floordiv__(*args)
+
     def __pow__(self,*args):
         return self.local_copy().__pow__(*args)
 
@@ -501,7 +513,7 @@ class Caller:
         pass
 
     def __call__(self,*args):
-        ret=self._var_ptr.invokePythonMethodOn(self._meth,cPickle.dumps(args,cPickle.HIGHEST_PROTOCOL))
+        ret=self._var_ptr.invokePythonMethodOn(self._meth,pickle.dumps(args,pickle.HIGHEST_PROTOCOL))
         return GetHandlerFromRef(ret,True)
     pass
 
@@ -511,7 +523,7 @@ def GetHandlerFromRef(objCorba,isTempVar=False):
     """ Returns a client that allows to handle a remote corba ref of a global var easily.
     """
     assert(isinstance(objCorba,SALOME._objref_PickelizedPyObjServer))
-    v=cPickle.loads(objCorba.fetchSerializedContent())
+    v=pickle.loads(objCorba.fetchSerializedContent())
     if v is None:
         objCorba.UnRegister()
         return None
@@ -523,14 +535,14 @@ def CreateRdOnlyGlobalVar(value,varName,scopeName):
     salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
-    return GetHandlerFromRef(d2s.createRdOnlyVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
+    return GetHandlerFromRef(d2s.createRdOnlyVar(varName,pickle.dumps(value,pickle.HIGHEST_PROTOCOL)),False)
     
 def CreateRdExtGlobalVar(value,varName,scopeName):
     import salome
     salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
-    return GetHandlerFromRef(d2s.createRdExtVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
+    return GetHandlerFromRef(d2s.createRdExtVar(varName,pickle.dumps(value,pickle.HIGHEST_PROTOCOL)),False)
 
 def GetHandlerFromName(varName,scopeName):
     import salome

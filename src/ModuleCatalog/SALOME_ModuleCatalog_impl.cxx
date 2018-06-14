@@ -897,7 +897,6 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
 {
   C_corba.name = CORBA::string_dup(C_parser.name.c_str());
   C_corba.username = CORBA::string_dup(C_parser.username.c_str());
-  C_corba.multistudy = C_parser.multistudy;
   C_corba.icon = CORBA::string_dup(C_parser.icon.c_str());
   C_corba.type = ComponentTypeConvert[C_parser.type];
   if(C_parser.implementationType == "EXE")

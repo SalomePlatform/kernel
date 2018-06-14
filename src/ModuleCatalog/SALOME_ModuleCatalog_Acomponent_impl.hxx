@@ -121,12 +121,6 @@ public:
   */
   virtual char* componentusername();
 
-  //! method to define if a component can be multistudy or not
-  /*!
-    \return true if the component supports multistudy
-  */
-  virtual CORBA::Boolean multistudy();
-
   //! method to define the type of the component
   /*!
     \return the component type

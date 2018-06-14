@@ -24,8 +24,8 @@
 __author__="gboulant"
 __date__ ="$17 avr. 2010 19:44:36$"
 
-from enumerate import Enumerate
-from datamodeler import DataModeler, TypeString, TypeInteger
+from .enumerate import Enumerate
+from .datamodeler import DataModeler, TypeString, TypeInteger
 from salome.kernel import Callable
 
 class TestData(DataModeler):
@@ -79,7 +79,7 @@ class TestData(DataModeler):
 # Basic use cases and unit tests
 # ==============================================================================
 #
-from uiexception import UiException
+from .uiexception import UiException
 
 def TEST_getName():
     testdata = TestData()
@@ -96,8 +96,8 @@ def TEST_useBadKey():
         testdata.unknown = "unknown"
         # This should not arrive here
         return False
-    except UiException, err:
-        print err
+    except UiException as err:
+        print(err)
         return True
 
 def TEST_useBadType():
@@ -106,8 +106,8 @@ def TEST_useBadType():
         testdata.TYPE = "unknown"
         # This should not arrive here
         return False
-    except UiException, err:
-        print err
+    except UiException as err:
+        print(err)
         return True
 
 def TEST_useBadRange():
@@ -117,17 +117,17 @@ def TEST_useBadRange():
         testdata.TYPE = TestData.TYPES_LIST.SEP
         testdata.setType(TestData.TYPES_LIST.SEP)
         # This should arrive here
-    except UiException, err:
+    except UiException as err:
         # And not here
-        print err
+        print(err)
         return False
 
     try:
         testdata.TYPE = 9999 # a type that does not exist in the range
         # This should not arrive here
         return False
-    except UiException, err:
-        print err
+    except UiException as err:
+        print(err)
         return True
 
 def TEST_serialize():
@@ -136,7 +136,7 @@ def TEST_serialize():
     ref_testdata.setName("The first name")
     res_testdata = salome.kernel.unserialize(salome.kernel.serialize(ref_testdata))
 
-    print res_testdata.getName()
+    print(res_testdata.getName())
 
     if res_testdata.getName() != ref_testdata.getName():
         return False
@@ -144,14 +144,14 @@ def TEST_serialize():
     # Is the unserialized data still functional?
     try:
         res_testdata.setName("An other name")
-        print res_testdata.getName()
+        print(res_testdata.getName())
     except:
-        print e
+        print(e)
         return False
     return True
 
 if __name__ == "__main__":
-    from unittester import run
+    from .unittester import run
     run("salome/kernel/testdata","TEST_getName")
     run("salome/kernel/testdata","TEST_useBadKey")
     run("salome/kernel/testdata","TEST_useBadType")

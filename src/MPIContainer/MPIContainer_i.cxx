@@ -202,7 +202,7 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
       PyObject *result = PyObject_CallMethod(pyCont,
                                              (char*)"import_component",
                                              (char*)"s",componentName);
-      std::string ret= PyString_AsString(result);
+      std::string ret= PyUnicode_AsUTF8(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
   
@@ -219,7 +219,6 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 // Create an instance of component
 Engines::EngineComponent_ptr
 Engines_MPIContainer_i::create_component_instance_env( const char* componentName,
-                                                       CORBA::Long studyId,
                                                        const Engines::FieldsDict& env,
                                                        CORBA::String_out reason)
 {
@@ -233,12 +232,11 @@ Engines_MPIContainer_i::create_component_instance_env( const char* componentName
       st->ip = ip;
       st->tior = _tior;
       st->compoName = componentName;
-      st->studyId = studyId;
       pthread_create(&(th[ip]),NULL,th_createcomponentinstance,(void*)st);
     }
   }
 
-  Engines::EngineComponent_ptr cptr = Lcreate_component_instance(componentName,studyId);
+  Engines::EngineComponent_ptr cptr = Lcreate_component_instance(componentName);
 
   if(_numproc == 0){
     for(int ip=1;ip<_nbproc;ip++)
@@ -250,13 +248,8 @@ Engines_MPIContainer_i::create_component_instance_env( const char* componentName
 }
 
 Engines::EngineComponent_ptr
-Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterName, CORBA::Long studyId)
+Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterName )
 {
-  if (studyId < 0) {
-    INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
-    return Engines::EngineComponent::_nil() ;
-  }
-
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
   Engines::MPIObject_var pobj;
 
@@ -283,10 +276,9 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
     PyObject *result = PyObject_CallMethod(pyCont,
                                            (char*)"create_component_instance",
-                                           (char*)"ssl",
+                                           (char*)"ss",
                                            aCompName.c_str(),
-                                           instanceName.c_str(),
-                                           studyId);
+                                           instanceName.c_str());
     const char *ior;
     const char *error;
     PyArg_ParseTuple(result,"ss", &ior, &error);
@@ -316,8 +308,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     {
       void* handle = _library_map[impl_name];
       iobject = createMPIInstance(genericRegisterName,
-                                    handle,
-                                    studyId);
+                                  handle);
       return iobject._retn();
     }
 
@@ -326,8 +317,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
 
 Engines::EngineComponent_ptr
 Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
-                                          void *handle,
-                                          int studyId)
+                                          void *handle)
 {
   Engines::EngineComponent_var iobject;
   Engines::MPIObject_var pobj;
@@ -377,27 +367,14 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (MPIComponent_factory) ( _orb, _poa, _id, instanceName.c_str(), aGenRegisterName.c_str() ) ;
 
-      // --- get reference & servant from id
+      // --- get reference from id
 
       CORBA::Object_var obj = _poa->id_to_reference(*id);
       iobject = Engines::EngineComponent::_narrow( obj ) ;
       pobj = Engines::MPIObject::_narrow(obj) ;
 
-      Engines_Component_i *servant =
-        dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
-      ASSERT(servant);
-      //SCRUTE(servant->pd_refCount);
-      servant->_remove_ref(); // compensate previous id_to_reference 
-      //SCRUTE(servant->pd_refCount);
       _listInstances_map[instanceName] = iobject;
       _cntInstances_map[aGenRegisterName] += 1;
-      //SCRUTE(servant->pd_refCount);
-#ifndef _DEBUG_
-      servant->setStudyId(studyId);
-#else
-      bool ret_studyId = servant->setStudyId(studyId);
-      ASSERT(ret_studyId);
-#endif
 
       // --- register the engine under the name
       //     containerName(.dir)/instanceName(.object)
@@ -616,7 +593,7 @@ void *th_loadcomponentlibrary(void *s)
 void *th_createcomponentinstance(void *s)
 {
   thread_st *st = (thread_st*)s;
-  (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->create_component_instance(st->compoName.c_str(),st->studyId);
+  (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->create_component_instance(st->compoName.c_str());
   return NULL;
 }
 

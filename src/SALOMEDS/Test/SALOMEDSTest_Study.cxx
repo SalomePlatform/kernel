@@ -27,13 +27,8 @@
 
 void SALOMEDSTest::testStudy()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   //Check the creation of the study
   CPPUNIT_ASSERT(study);
@@ -46,18 +41,6 @@ void SALOMEDSTest::testStudy()
   _PTR(SComponentIterator) componentIterator = study->NewComponentIterator();
 
   CPPUNIT_ASSERT(componentIterator);
-
-  //Check method GetTransientReference
-  CPPUNIT_ASSERT(!study->GetTransientReference().empty());
-
-  //Check method StudyId
-  CPPUNIT_ASSERT(study->StudyId() > 0);
-
-  //Check method Name (get/set)
-  CPPUNIT_ASSERT(study->Name() == "Test");
-  study->Name("New name");
-  CPPUNIT_ASSERT(study->Name() == "New name");
-  study->Name("Test");
 
   //Check method URL (get/set)
   study->URL("");
@@ -101,10 +84,6 @@ void SALOMEDSTest::testStudy()
   //Try to find component with empty type
   CPPUNIT_ASSERT(!study->FindComponent(""));
 
-  //Check method GetComponentNames
-  std::vector<std::string> components = study->GetComponentNames(""); //The context doesn't matter
-  CPPUNIT_ASSERT(components.size() == 1 && components[0] == "sco1");
-
   //Check method FindComponentID
   _PTR(SComponent) sco3 = study->FindComponentID(sco1->GetID());
   CPPUNIT_ASSERT(sco3 && sco3->GetID() == sco1->GetID());
@@ -122,7 +101,7 @@ void SALOMEDSTest::testStudy()
   _PTR(AttributeIOR) ior_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeIOR");
   CPPUNIT_ASSERT(ior_attr_so1);
 
-  std::string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_study);
   ior_attr_so1->SetValue(ior);
   
   _PTR(SObject) so2 = studyBuilder->NewObject(so1);
@@ -171,10 +150,6 @@ void SALOMEDSTest::testStudy()
   path = study->GetObjectPath(emptySO);
   CPPUNIT_ASSERT(path.empty());
 
-  //Check method SetContext
-  study->SetContext("/sco1"); 
-  CPPUNIT_ASSERT(study->GetContext() == "/sco1");
-
   //Check method FindObjectByPath
   _PTR(SObject) so6 = study->FindObjectByPath("so1");
   CPPUNIT_ASSERT(so6 && so6->GetID() == so1->GetID());
@@ -183,40 +158,6 @@ void SALOMEDSTest::testStudy()
   //Try to find SObject with empty path
   _PTR(SObject) tmp = study->FindObjectByPath(""); //Must return the Context SObject
   CPPUNIT_ASSERT(tmp && tmp->GetID() == sco1->GetID());
-
-  study->SetContext("/"); //Root
-
-  //Check method GetObjectNames
-  std::vector<std::string> vs = study->GetObjectNames("/sco1");  
-  CPPUNIT_ASSERT(vs.size() == 2);
-    
-  //Check method GetDirectoryNames
-  _PTR(AttributeLocalID) locid_attr_sco1 = studyBuilder->FindOrCreateAttribute(sco1, "AttributeLocalID");
-  CPPUNIT_ASSERT(locid_attr_sco1);
-  locid_attr_sco1->SetValue(16661); //DIRECTORYID
-  _PTR(AttributeLocalID) locid_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeLocalID");
-  CPPUNIT_ASSERT(locid_attr_so1);
-  locid_attr_so1->SetValue(16661); //DIRECTORYID
-  vs = study->GetDirectoryNames(""); //Empty context (the current is taken)
-  CPPUNIT_ASSERT(vs.size() == 2);
-
-  //Check method GetFileNames
-  locid_attr_sco1->SetValue(26662); //FILELOCALID
-  _PTR(AttributePersistentRef) persref_attr_sco1 = studyBuilder->FindOrCreateAttribute(sco1, "AttributePersistentRef");
-  CPPUNIT_ASSERT(persref_attr_sco1);
-  persref_attr_sco1->SetValue("FILE: filename1");
-  locid_attr_so1->SetValue(26662); //FILELOCALID
-  _PTR(AttributePersistentRef) persref_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributePersistentRef");
-  CPPUNIT_ASSERT(persref_attr_so1);
-  persref_attr_so1->SetValue("FILE: filename2");
-  vs = study->GetFileNames("");
-  CPPUNIT_ASSERT(vs.size() == 2 && vs[0] == "filename1" && vs[1] == "filename2");
-
-  //Check method StudyId (get/set)
-  int id = study->StudyId();
-  study->StudyId(-1);
-  CPPUNIT_ASSERT(study->StudyId() == -1);
-  study->StudyId(id);
 
   //Check method FindDependances
   studyBuilder->Addreference(so2, so1);
@@ -257,7 +198,7 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(date == "08/09/0010 07:06");
 
   //Check method GetModificationsDate
-  vs = study->GetModificationsDate();
+  std::vector<std::string> vs = study->GetModificationsDate();
   CPPUNIT_ASSERT(vs.size() == 2 && vs[0] == "03/04/0005 02:01" && vs[1] == "08/09/0010 07:06");
 
   //Check method GetCommonParameters
@@ -337,10 +278,10 @@ void SALOMEDSTest::testStudy()
   system("rm -f SRN.py");
   CPPUNIT_ASSERT(line.substr(0,50) == "### This file is generated automatically by SALOME");
 
-  //Check method Close 
+  //Check method Clear
   bool isException = false;
   try {
-    sm->Close(study);  //Close is called inside StudyManager::Close
+    study->Clear();  //Clear is called inside Study::Clear()
   }
   catch(...) {
     isException = true;

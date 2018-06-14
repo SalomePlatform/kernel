@@ -120,7 +120,7 @@ def extend_path(pname):
     # WARN: This may still add duplicate entries to path on
     # case-insensitive filesystems
     if os.path.isdir(subdir) and subdir not in __path__:
-      print "INFO - The directory %s is appended to sys.path" % subdir
+      print("INFO - The directory %s is appended to sys.path" % subdir)
       __path__.append(subdir)
  
 extend_path(ROOT_PYTHONPACKAGE_NAME)

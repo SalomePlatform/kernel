@@ -58,29 +58,36 @@ void HDFfile::CreateOnDisk()
 
 void HDFfile::OpenOnDisk(hdf_access_mode access_mode)
 {
-  _access_mode = access_mode;
+	_access_mode = access_mode;
+	std::string msgerr;
 
-  switch (_access_mode)
-    {
-    case HDF_RDWR :
-      if (access(_name,F_OK))
+	switch (_access_mode)
 	{
-	  if ((_id = HDFfileCreate(_name)) < 0) 
-	    throw HDFexception("Can't open HDF file");
+	case HDF_RDWR:
+		if (access(_name, F_OK))
+		{
+			if ((_id = HDFfileCreate(_name)) < 0) {
+				msgerr = "Can't create HDF in RW mode file" + std::string(_name);
+				throw HDFexception(msgerr.c_str());
+			}
+		}
+		else if ((_id = HDFfileOpen(_name, _access_mode)) < 0) {
+			msgerr = "Can't open HDF in RW mode file " + std::string(_name);
+			throw HDFexception(msgerr.c_str());
+		}
+		break;
+
+	case HDF_RDONLY:
+		if ((_id = HDFfileOpen(_name, _access_mode)) < 0) {
+			msgerr = "Can't open HDF in RO mode file " + std::string(_name);
+			throw HDFexception(msgerr.c_str());
+		}
+		break;
+
+	default:
+		msgerr = "Can't open HDF file " + std::string(_name) + " : bad access option";
+		throw HDFexception(msgerr.c_str());
 	}
-      else
-	if ((_id = HDFfileOpen(_name,_access_mode)) < 0)
-	  throw HDFexception("Can't open HDF file");
-      break;
-      
-    case HDF_RDONLY :
-      if ((_id = HDFfileOpen(_name,_access_mode)) < 0)
-	throw HDFexception("Can't open HDF file");
-      break;
-      
-    default :
-      throw HDFexception("Can't open HDF file : bad access option");
-    }
 }
 
 void HDFfile::CloseOnDisk()

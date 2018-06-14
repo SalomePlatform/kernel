@@ -172,8 +172,6 @@ namespace SALOMESDS
     void atomicApply(const SALOME::ListOfTransaction& transactions);
     SALOME::RequestSwitcher_ptr getRequestSwitcher();
   private:
-    PyObject *getPyCmpFunc();
-  private:
     PortableServer::POA_var _poa_for_key_waiter;
     std::list< KeyWaiter * > _waiting_keys;
     AutoServantPtr<RequestSwitcher> _rs;

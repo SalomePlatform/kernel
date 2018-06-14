@@ -27,8 +27,8 @@
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"  
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
 
 #include "utilities.h"
 
@@ -39,7 +39,7 @@
 //============================================================================
 SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(SALOMEDSImpl_UseCaseBuilder* theImpl,
                                                      CORBA::ORB_ptr orb) :
-  GenericObj_i(SALOMEDS_StudyManager_i::GetThePOA())
+  GenericObj_i(SALOMEDS_Study_i::GetThePOA())
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
@@ -66,7 +66,7 @@ SALOMEDS_UseCaseBuilder_i::~SALOMEDS_UseCaseBuilder_i()
 //============================================================================
 PortableServer::POA_ptr SALOMEDS_UseCaseBuilder_i::_default_POA()
 {
-  myPOA = PortableServer::POA::_duplicate(SALOMEDS_StudyManager_i::GetThePOA());
+  myPOA = PortableServer::POA::_duplicate(SALOMEDS_Study_i::GetThePOA());
   //MESSAGE("SALOMEDS_UseCaseBuilder_i::_default_POA: " << myPOA);
   return PortableServer::POA::_duplicate(myPOA);
 }

@@ -36,7 +36,7 @@ class PseudoStudyForNoteBook(object):
         pass
     
     def GetVariableNames(self):
-        return self.kwargs.keys()
+        return list(self.kwargs.keys())
     
     def IsVariable(self, variableName):
         return variableName in self.kwargs
@@ -69,24 +69,27 @@ class PseudoStudyForNoteBook(object):
 
 class NoteBook:
     
-    def __init__(self, Study):
-        self.myStudy = Study
+    def __init__(self, theIsEnablePublish = True):
+        if theIsEnablePublish:
+            self.myStudy = salome.myStudy
+        else:
+            self.myStudy = PseudoStudyForNoteBook()
     
     def set(self, variableName, variable):
         """
         Create (or modify) variable with name "variableName" 
         and value equal "theValue".
         """
-        if type(variable) == float:
+        if isinstance(variable, float):
             self.myStudy.SetReal(variableName, variable)
             
-        elif type(variable) == int:
+        elif isinstance(variable, int):
             self.myStudy.SetInteger(variableName, variable)
             
-        elif type(variable) == bool:
+        elif isinstance(variable, bool):
             self.myStudy.SetBoolean(variableName, variable)
             
-        elif type(variable) == str:
+        elif isinstance(variable, str):
             self.myStudy.SetString(variableName, variable)
             
     def get(self, variableName):
@@ -124,7 +127,7 @@ class NoteBook:
                     pass
                 try:
                     aResult = eval(aResult)
-                except Exception, e:
+                except Exception as e:
                     msg = str(e)
                     msg += "\n"
                     msg += "A problem occurs while parsing "
@@ -171,9 +174,8 @@ class NoteBook:
     pass
 
 def checkThisNoteBook(**kwargs):
-    study = PseudoStudyForNoteBook(**kwargs)
-    note_book = NoteBook(study)
+    note_book = NoteBook( False )
     note_book.check()
     return
 
-notebook = NoteBook(salome.myStudy)
+notebook = NoteBook()

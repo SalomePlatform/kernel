@@ -34,7 +34,6 @@
 
 import os
 import sys
-import string
 import traceback
 import imp
 from omniORB import CORBA, PortableServer
@@ -65,7 +64,7 @@ class SALOME_Container_i:
         self._orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
         self._poa = self._orb.resolve_initial_references("RootPOA")
         self._containerName = containerName
-        if verbose(): print "SALOME_Container.SALOME_Container_i : _containerName ",self._containerName
+        if verbose(): print("SALOME_Container.SALOME_Container_i : _containerName ",self._containerName)
         #self._naming_service = SALOME_NamingServicePy_i(self._orb)
         self._container = self._orb.string_to_object(containerIORStr)
 
@@ -75,10 +74,10 @@ class SALOME_Container_i:
         MESSAGE( "SALOME_Container_i::import_component" )
         ret=""
         try:
-            if verbose(): print "try import ",componentName
+            if verbose(): print("try import ",componentName)
             __import__(componentName)
-            if verbose(): print "import ",componentName," successful"
-        except ImportError,e:
+            if verbose(): print("import ",componentName," successful")
+        except ImportError as e:
             #can't import python module componentName
             #try to find it in python path
             try:
@@ -87,22 +86,22 @@ class SALOME_Container_i:
               #module file found in path
               ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
               ret=ret+traceback.format_exc(10)
-            except ImportError,ee:
+            except ImportError as ee:
               ret="ImplementationNotFound"
             except:
-              if verbose():print "error when calling find_module"
+              if verbose():print("error when calling find_module")
               ret="ImplementationNotFound"
         except:
             ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
             ret=ret+traceback.format_exc(10)
             if verbose():
               traceback.print_exc()
-              print "import ",componentName," not possible"
+              print("import ",componentName," not possible")
         return ret
         
     #-------------------------------------------------------------------------
 
-    def create_component_instance(self, componentName, instanceName, studyId):
+    def create_component_instance(self, componentName, instanceName):
         MESSAGE( "SALOME_Container_i::create_component_instance" )
         comp_iors=""
         ret=""

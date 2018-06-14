@@ -58,6 +58,16 @@
 #define Py_RELEASE_NEW_THREAD \
   PyGILState_Release(gil_state);
 
+typedef void ContainerPyOutChanged(void* data,char * c);
+
+typedef struct {
+  PyObject_HEAD
+  int softspace;
+  ContainerPyOutChanged* _cb;
+  void* _data;
+  bool _iscerr;
+} ContainerPyStdOut;
+
 struct CONTAINER_EXPORT KERNEL_PYTHON
 {
   static void init_python(int argc, char **argv);

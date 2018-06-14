@@ -66,8 +66,8 @@ struct omniORBpyAPI {
 
 %init
 %{
+#include <capsulethunk.h>
   // init section
-
 #ifdef WITH_NUMPY
   import_array()
 #endif
@@ -77,10 +77,10 @@ struct omniORBpyAPI {
   {
     PyErr_SetString(PyExc_ImportError,
         (char*)"Cannot import _omnipy");
-    return;
+    return NULL;
   }
   PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
-  api = (omniORBpyAPI*)PyCObject_AsVoidPtr(pyapi);
+  api = (omniORBpyAPI*)PyCapsule_New(pyapi,NULL,NULL);
   Py_DECREF(pyapi);
 
   PyObject* engines = PyImport_ImportModule("Engines");
@@ -142,9 +142,11 @@ const char* pytype_string(PyObject* py_obj) {
   if (PyDict_Check(    py_obj)) return "dict"        ;
   if (PyList_Check(    py_obj)) return "list"        ;
   if (PyTuple_Check(   py_obj)) return "tuple"       ;
-  if (PyFile_Check(    py_obj)) return "file"        ;
   if (PyModule_Check(  py_obj)) return "module"      ;
+#if PY_MAJOR_VERSION < 3
+  if (PyFile_Check(    py_obj)) return "file"        ;
   if (PyInstance_Check(py_obj)) return "instance"    ;
+#endif
 
   return "unknown type";
 }

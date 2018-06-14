@@ -30,7 +30,7 @@ class SalomeDoc:
     def __init__(self, aDoc):
         self.doc = aDoc
     def __repr__(self):
-        print self.doc
+        print(self.doc)
         return "---"
     def salome(self):
         doc_salome = '''
@@ -52,9 +52,8 @@ variables:
                            with a Server name and an Engine name
   salome.sg
       methods:
-         updateObjBrowser(bool):
-         getActiveStudyId():
-         getActiveStudyName():
+         updateObjBrowser():
+         getStudyName():
          
          SelectedCount():      returns number of selected objects
          getSelected(i):       returns entry of selected object number i
@@ -71,16 +70,15 @@ variables:
 
          IDToObject(Entry):    returns CORBA reference from entry
 
-  salome.myStudyName     : active Study Name
-  salome.myStudyId       : active Study Id
+  salome.myStudyName     : the Study Name
   salome.myStudy         : the active Study itself (CORBA ior)
                            methods : defined in SALOMEDS.idl
                                                          
 methods:
-  salome.DumpStudy(study) : Dump a study, given the ior
+  salome.DumpStudy() : Dump a study, given the ior
 ---
 '''
-        print doc_salome
+        print(doc_salome)
         
     def geompy(self):
         doc_geompy = '''
@@ -99,7 +97,7 @@ methods:
   --- all methods of GEOM_Gen.idl that returns a shape are encapsulated,
       with the same interface : shapes are named with their ior
 '''
-        print doc_geompy
+        print(doc_geompy)
         
     def supervision(self):
         doc_supervision = '''
@@ -128,7 +126,7 @@ A new python example avoids references to LifeCycleCORBA
                                    and GraphExample.xml
 ---
 '''
-        print doc_supervision
+        print(doc_supervision)
         
     
 

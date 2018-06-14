@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -64,6 +64,7 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   orbdata.append("%sgiopMaxMsgSize = %s # 2 GBytes"%(prefix,GIOP_MaxMsgSize))
   orbdata.append("%straceLevel = 0 # critical errors only"%(prefix))
   orbdata.append("%smaxGIOPConnectionPerServer = 500 # to allow containers parallel launch"%(prefix))
+  orbdata.append("%snativeCharCodeSet = UTF-8"%(prefix))
   orbdata.append("")
 
   with open(omniorb_config, "w") as f:
@@ -98,4 +99,4 @@ if __name__ == "__main__":
   # RETURN_VALUE_2=$(echo ${RETURN_VALUES} | cut -d' ' -f2)
   # ...
   # IMPORTANT NOTE: this print call MUST BE the first one!!
-  print filename, msgSize
+  print(filename, msgSize)

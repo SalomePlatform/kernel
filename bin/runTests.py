@@ -65,7 +65,7 @@ For complete description of available options, pleaser refer to ctest documentat
     return []
 
   if args[0] in ["-h", "--help"]:
-    print usage + epilog
+    print(usage + epilog)
     sys.exit(0)
 
   return args

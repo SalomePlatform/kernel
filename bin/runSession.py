@@ -121,8 +121,8 @@ User "myself" connects to remotemachine to run the script concatenate.py in
   short_args, extra_args = getShortAndExtraArgs(args)
   try:
     (options, args) = parser.parse_args(short_args)
-  except Exception, e:
-    print e
+  except Exception as e:
+    print(e)
     return None, []
 
   port = options.port
@@ -250,7 +250,7 @@ def __copyFiles(user, machine, script, infiles, outfiles):
 
     # copy the infile to the remote server
     cmd = "scp %s %s@%s:%s" % (infile, user, machine, tmp_file)
-    print "[  SCP  ]", cmd
+    print("[  SCP  ]", cmd)
     os.system(cmd)
 
     list_infiles.append(tmp_file)
@@ -274,7 +274,7 @@ def __copyFiles(user, machine, script, infiles, outfiles):
 
   # copy the salome script on the remote server
   cmd = "scp %s %s@%s:%s" % (tmp_script, user, machine, tmp_script)
-  print "[  SCP  ]", cmd
+  print("[  SCP  ]", cmd)
   os.system(cmd)
 
   return list_infiles, list_outfiles, tmp_script
@@ -283,10 +283,10 @@ def __copyFiles(user, machine, script, infiles, outfiles):
 # sa_obj is a ScriptAndArgs object (from salomeContextUtils)
 def __runRemoteSession(sa_obj, params):
   if not params.user:
-    print "ERROR: The user login on remote machine MUST be given."
+    print("ERROR: The user login on remote machine MUST be given.")
     return 1
   if not params.directory:
-    print "ERROR: The remote directory MUST be given."
+    print("ERROR: The remote directory MUST be given.")
     return 1
 
   # sa_obj.script may be 'python script.py' --> only process .py file
@@ -300,7 +300,7 @@ def __runRemoteSession(sa_obj, params):
   if params.port:
     command = command + "-p %s "%params.port
   command = command + " %s %s args:%s"%(header, tmp_script, ",".join(tmp_in))
-  print '[  SSH   ] ' + command
+  print('[  SSH   ] ' + command)
   os.system(command)
 
   # Get remote files and clean
@@ -310,12 +310,12 @@ def __runRemoteSession(sa_obj, params):
   for outfile in (sa_obj.out or []):
     remote_outfile = tmp_out.pop(0)
     command = "scp %s@%s:%s %s" %(params.user, params.machine, remote_outfile, outfile)
-    print "[  SCP  ] " + command
+    print("[  SCP  ] " + command)
     os.system(command)
 
   # clean temporary files
   command = "ssh %s@%s \\rm -f %s" % (params.user, params.machine, " ".join(temp_files))
-  print '[  SSH   ] ' + command
+  print('[  SSH   ] ' + command)
   os.system(command)
   os.remove(tmp_script)
 

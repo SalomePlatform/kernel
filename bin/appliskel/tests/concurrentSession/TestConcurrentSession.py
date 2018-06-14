@@ -23,14 +23,14 @@ import tempfile
 import os
 import sys
 import imp
-from cStringIO import StringIO
+from io import StringIO
 import multiprocessing
 import logging
 
 def new_instance(running_instances):
   from salome_instance import SalomeInstance
   instance = SalomeInstance.start()
-  print "Instance created and now running on port", instance.get_port()
+  print("Instance created and now running on port", instance.get_port())
   running_instances.put(instance)
 #
 
@@ -46,7 +46,7 @@ class TestConcurrentLaunch(unittest.TestCase):
   def __terminateInstances(self, running_instances):
     while not running_instances.empty():
       instance = running_instances.get()
-      print "Terminate instance running on port", instance.get_port()
+      print("Terminate instance running on port", instance.get_port())
       instance.stop()
   #
 
@@ -59,7 +59,7 @@ class TestConcurrentLaunch(unittest.TestCase):
       setenv.main(True, exeName="salome start")
       import runSalome
       runSalome.runSalome()
-    except SystemExit, e:
+    except SystemExit as e:
       if str(e) != '0':
         logging.error(e)
       pass
@@ -73,17 +73,17 @@ class TestConcurrentLaunch(unittest.TestCase):
       import runSession
       params, args = runSession.configureSession(args, exe="salome shell")
       return runSession.runSession(params, args)
-    except SystemExit, e:
+    except SystemExit as e:
       if str(e) != '0':
         logging.error(e)
       pass
   #
   def test01_SingleSession(self):
-    print "** Testing single session **"
+    print("** Testing single session **")
     self.session(["hello.py"])
   #
   def test02_MultiSession(self):
-    print "** Testing multi sessions **"
+    print("** Testing multi sessions **")
     jobs = []
     for i in range(9):
       p = multiprocessing.Process(target=self.session, args=(["hello.py"],))
@@ -94,7 +94,7 @@ class TestConcurrentLaunch(unittest.TestCase):
       j.join()
   #
   def test03_SingleAppli(self):
-    print "** Testing single appli **"
+    print("** Testing single appli **")
     running_instances, processes = self.__createInstances(1)
     for p in processes:
       p.start()
@@ -107,7 +107,7 @@ class TestConcurrentLaunch(unittest.TestCase):
     self.__terminateInstances(running_instances)
   #
   def test04_MultiAppli(self):
-    print "** Testing multi appli **"
+    print("** Testing multi appli **")
     running_instances, processes = self.__createInstances(9)
     for p in processes:
       p.start()

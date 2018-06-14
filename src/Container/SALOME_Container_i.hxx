@@ -69,12 +69,10 @@ public:
   virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   virtual Engines::EngineComponent_ptr
-  create_component_instance( const char* componentName,
-                             CORBA::Long studyId); // 0 for multiStudy
+  create_component_instance( const char* componentName);
 
   virtual Engines::EngineComponent_ptr
   create_component_instance_env( const char* componentName,
-                                 CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
                                  CORBA::String_out reason);
 
@@ -83,8 +81,7 @@ public:
                                  CORBA::String_out reason);
 
   Engines::EngineComponent_ptr
-  find_component_instance( const char* registeredName,
-                           CORBA::Long studyId); // 0 for multiStudy
+  find_component_instance( const char* registeredName);
 
   Engines::EngineComponent_ptr
   load_impl(const char* nameToRegister,
@@ -125,9 +122,9 @@ public:
   bool load_component_PythonImplementation(const char* componentName,std::string& reason);
   bool load_component_ExecutableImplementation(const char* componentName,std::string& reason);
 
-  Engines::EngineComponent_ptr createPythonInstance(std::string CompName, int studyId, std::string& error);
-  Engines::EngineComponent_ptr createExecutableInstance(std::string CompName, int studyId, const Engines::FieldsDict& env, std::string& error);
-  Engines::EngineComponent_ptr createInstance(std::string genericRegisterName, void *handle, int studyId, std::string& error);
+  Engines::EngineComponent_ptr createPythonInstance(std::string CompName, std::string& error);
+  Engines::EngineComponent_ptr createExecutableInstance(std::string CompName, const Engines::FieldsDict& env, std::string& error);
+  Engines::EngineComponent_ptr createInstance(std::string genericRegisterName, void *handle, std::string& error);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);

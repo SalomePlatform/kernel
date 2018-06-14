@@ -58,7 +58,7 @@ def walktree(rootpath, callback, **kwargs):
         pathname = os.path.join(rootpath, f)
         try:
             mode = os.stat(pathname)[ST_MODE]
-        except OSError, e:
+        except OSError as e:
             # It probably means that the file is a broken inode
             mode = -1
         if S_ISDIR(mode):
@@ -69,7 +69,7 @@ def walktree(rootpath, callback, **kwargs):
             callback(pathname, **kwargs)
         else:
             # Unknown file type, print a message
-            print 'Skipping %s' % pathname
+            print('Skipping %s' % pathname)
 
 
 #
@@ -84,26 +84,26 @@ except KeyError:
     TESTDOCDIR="/tmp"
     
 def TEST_findFiles():
-    print "########## find 1"
+    print("########## find 1")
     rootpath=TESTDOCDIR
     listfiles=findFiles(rootpath)
     for filename in listfiles:
-        print filename
+        print(filename)
 
-    print "########## find 2"
+    print("########## find 2")
     excludes=[os.path.join(TESTDOCDIR,"doc")]
     listfiles=findFiles(rootpath,excludes)
     for filename in listfiles:
-        print filename
+        print(filename)
 
     return True
 
 # This is the test callback function
 def visitfile_withargs(file, rootid):
-    print 'visiting file %s (rootid=%s)'%(file,str(rootid))
+    print('visiting file %s (rootid=%s)'%(file,str(rootid)))
 
 def visitfile_withoutargs(file):
-    print 'visiting file %s'%(file)
+    print('visiting file %s'%(file))
 
 def TEST_walktree():
     #walktree(TESTDOCDIR, visitfile_withargs, rootid=2)
@@ -111,6 +111,6 @@ def TEST_walktree():
     return True
 
 if __name__ == "__main__":
-    import unittester
+    from . import unittester
     unittester.run("syshelper", "TEST_findFiles")
     unittester.run("syshelper", "TEST_walktree")

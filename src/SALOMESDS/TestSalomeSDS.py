@@ -23,7 +23,7 @@ import SalomeSDSClt
 import SALOME
 import salome
 import unittest
-import cPickle
+import pickle
 import gc
 import time
 from datetime import datetime
@@ -32,9 +32,9 @@ import multiprocessing as mp
 nbOfSecWait=1.
 
 def obj2Str(obj):
-  return cPickle.dumps(obj,cPickle.HIGHEST_PROTOCOL)
+  return pickle.dumps(obj,pickle.HIGHEST_PROTOCOL)
 def str2Obj(strr):
-  return cPickle.loads(strr)
+  return pickle.loads(strr)
 def generateKey(varName,scopeName):
   dsm=salome.naming_service.Resolve("/DataServerManager")
   dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
@@ -51,11 +51,13 @@ def work(t):
     import TestSalomeSDSHelper0
     import os,subprocess
     fname=os.path.splitext(TestSalomeSDSHelper0.__file__)[0]+".py"
-    proc=subprocess.Popen(["python",fname],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    proc = subprocess.Popen(["python3", fname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
-      print out
-      print err
+      print("-------------- work -----------")
+      print(out)
+      print(err)
+      print("~~~~~~~~~~~~~~ work ~~~~~~~~~~~")
     return proc.returncode
   
 def func_test7(scopeName,cv,cv2,cv3,sharedNum):
@@ -164,7 +166,8 @@ class SalomeSDSTest(unittest.TestCase):
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
-    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in xrange(nbProc)])
+    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in range(nbProc)])
+    print("asyncResult=", asyncResult)
     self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
 
@@ -270,7 +273,7 @@ class SalomeSDSTest(unittest.TestCase):
     wk.waitFor()
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
-    self.assertEqual(keys,['ab','cd'])
+    self.assertEqual(set(keys),set(['ab','cd']))
 
   def testTransaction6(self):
     """ Test to test RdWr global vars with transaction"""
@@ -359,17 +362,17 @@ class SalomeSDSTest(unittest.TestCase):
     value2={'a':1,'c':3,'b':2}
 
     varName="abc"
-    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1") # sha1 is the key used to compare the initial value
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode()) # sha1 is the key used to compare the initial value
     dss.atomicApply([t0])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1=dss.addMultiKeyValueSession(varName)
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
     dss.atomicApply([t1])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2)
-    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1") # key is the same as original one -> OK
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode()) # key is the same as original one -> OK
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2) # value2 remains untouched
-    t3=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha2")
+    t3=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha2".encode())
     self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t3]) # sha2 != sha1 -> rejected
     pass
   
@@ -387,11 +390,11 @@ class SalomeSDSTest(unittest.TestCase):
     value2={'a':1,'c':3,'b':2}
 
     varName="abc"
-    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1")
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode())
     dss.atomicApply([t0])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1=dss.addMultiKeyValueSession(varName)
-    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1")
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode())
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))

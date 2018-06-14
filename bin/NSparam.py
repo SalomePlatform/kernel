@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -56,12 +56,12 @@ if __name__ == "__main__":
         if sys.argv[1]=='host':
             my_host = getNSparams('host')
             # keep print, stdout used in shell
-            print my_host
+            print(my_host)
             pass
         elif sys.argv[1]=='port':
             my_port = getNSparams('port')
             # keep print, stdout used in shell
-            print my_port
+            print(my_port)
             pass
         else:
             my_host, my_port = getNSparams()
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     else:
         getNSparams()
         # keep print, stdout used in shell
-        print my_host, my_port
+        print(my_host, my_port)
         pass
     pass
 #

@@ -35,9 +35,10 @@ from SALOME_NamingServicePy import *
 
     #--------------------------------------------------------------------------
 
-def DumpComponent(Study, SO, offset):
-    it = Study.NewChildIterator(SO)
-    Builder = Study.NewBuilder()
+def DumpComponent(SO, offset):
+    global myStudy
+    it = myStudy.NewChildIterator(SO)
+    Builder = myStudy.NewBuilder()
     while it.More():
         CSO = it.Value()
         it.Next()
@@ -50,7 +51,7 @@ def DumpComponent(Study, SO, offset):
             while ofs <= offset:
                 a = a + "--"
                 ofs = ofs +1
-            print a + ">" + CSO.GetID() + " " + t_name[1]
+            print(a + ">" + CSO.GetID() + " " + t_name[1])
         t_RefSO = CSO.ReferencedObject()
         if t_RefSO[0] == 1:
             RefSO = t_RefSO[1]
@@ -59,19 +60,20 @@ def DumpComponent(Study, SO, offset):
             while ofs <= offset:
                 a = a + "  "
                 ofs = ofs +1
-            print a + ">" + RefSO.GetID()
-        DumpComponent(Study, CSO, offset+2)
+            print(a + ">" + RefSO.GetID())
+        DumpComponent(CSO, offset+2)
 
     #--------------------------------------------------------------------------
 
-def DumpStudy(Study):
-    itcomp = Study.NewComponentIterator()
+def DumpStudy():
+    global myStudy
+    itcomp = myStudy.NewComponentIterator()
     while itcomp.More():
         SC = itcomp.Value()
         itcomp.Next()
         name = SC.ComponentDataType()
-        print "-> ComponentDataType is " + name
-        DumpComponent(Study, SC, 1)
+        print("-> ComponentDataType is " + name)
+        DumpComponent(SC, 1)
         
 
     #--------------------------------------------------------------------------
@@ -88,16 +90,10 @@ sg = SALOMEGUI_Swig()
 #create an naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
 
-# get active study name and id
-myStudyName = sg.getActiveStudyName()
-print myStudyName
+# get active study name
+myStudyName = sg.getStudyName()
+print(myStudyName)
 
-myStudyId = sg.getActiveStudyId()
-print myStudyId
-
-# get Study Manager reference
-obj = naming_service.Resolve('myStudyManager')
-myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-
-# get active study
-myStudy = myStudyManager.GetStudyByName(myStudyName)
+# get Study reference
+obj = naming_service.Resolve('/Study')
+myStudy = obj._narrow(SALOMEDS.Study)

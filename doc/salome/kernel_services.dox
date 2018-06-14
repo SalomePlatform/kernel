@@ -135,7 +135,6 @@ Study.dir
   extStudy_1.object
   extStudy_2.object
   extStudy_3.object
-myStudyManager.object
 SalomeAppEngine.object
 \endcode
 

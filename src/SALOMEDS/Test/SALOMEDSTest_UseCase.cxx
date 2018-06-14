@@ -29,12 +29,9 @@
 
 void SALOMEDSTest::testUseCase()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-  CPPUNIT_ASSERT(sm);
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("TestSObject");
   CPPUNIT_ASSERT(study);
 
   //Create Study Builder
@@ -148,7 +145,7 @@ void SALOMEDSTest::testUseCase()
   CPPUNIT_ASSERT(it->More());
   CPPUNIT_ASSERT(it->Value()->GetID() == so1->GetID());
 
-  sm->Close(study);
+  study->Clear();
 }
 #undef SALOMEDS_ALL_TESTS
 

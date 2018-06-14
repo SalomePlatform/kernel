@@ -26,13 +26,8 @@
  */
 void SALOMEDSTest::testAttributeTableOfString()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -185,7 +180,7 @@ void SALOMEDSTest::testAttributeTableOfString()
 
   CPPUNIT_ASSERT(data2.size() == 3 && data2[0] == "11" && data2[1] == "-22" && data2[2] == "-33");
 
-  sm->Close(study);
+  study->Clear();
 }
 
 

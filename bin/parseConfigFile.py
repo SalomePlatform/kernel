@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import ConfigParser
+import configparser
 import os
 import logging
 import re
@@ -44,9 +44,9 @@ def _expandSystemVariables(key, val):
 #
 
 # :TRICKY: So ugly solution...
-class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
+class MultiOptSafeConfigParser(configparser.SafeConfigParser):
   def __init__(self):
-    ConfigParser.SafeConfigParser.__init__(self)
+    configparser.SafeConfigParser.__init__(self)
 
   # copied from python 2.6.8 Lib.ConfigParser.py
   # modified (see code comments) to handle duplicate keys
@@ -88,7 +88,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
           sectname = mo.group('header')
           if sectname in self._sections:
             cursect = self._sections[sectname]
-          elif sectname == ConfigParser.DEFAULTSECT:
+          elif sectname == configparser.DEFAULTSECT:
             cursect = self._defaults
           else:
             cursect = self._dict()
@@ -98,7 +98,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
           optname = None
         # no section header in the file?
         elif cursect is None:
-          raise ConfigParser.MissingSectionHeaderError(fpname, lineno, line)
+          raise configparser.MissingSectionHeaderError(fpname, lineno, line)
         # an option line?
         else:
           mo = self.OPTCRE.match(line)
@@ -143,7 +143,7 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
             # raised at the end of the file and will contain a
             # list of all bogus lines
             if not e:
-              e = ConfigParser.ParsingError(fpname)
+              e = configparser.ParsingError(fpname)
             e.append(lineno, repr(line))
     # if any parsing errors occurred, raise an exception
     if e:
@@ -151,9 +151,9 @@ class MultiOptSafeConfigParser(ConfigParser.SafeConfigParser):
 
     # join the multi-line values collected while reading
     all_sections = [self._defaults]
-    all_sections.extend(self._sections.values())
+    all_sections.extend(list(self._sections.values()))
     for options in all_sections:
-      for name, val in options.items():
+      for name, val in list(options.items()):
         if isinstance(val, list):
           options[name] = '\n'.join(val)
   #
@@ -174,13 +174,13 @@ def parseConfigFile(filename, reserved = None):
   # Read config file
   try:
     config.read(filename)
-  except ConfigParser.MissingSectionHeaderError:
+  except configparser.MissingSectionHeaderError:
     logConfigParser.error("No section found in file: %s"%(filename))
     return []
 
   try:
     return __processConfigFile(config, reserved, filename)
-  except ConfigParser.InterpolationMissingOptionError, e:
+  except configparser.InterpolationMissingOptionError as e:
     msg = "A variable may be undefined in SALOME context file: %s\nParser error is: %s\n"%(filename, e)
     raise SalomeContextException(msg)
 #

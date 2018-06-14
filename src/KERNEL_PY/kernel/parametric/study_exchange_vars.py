@@ -53,7 +53,7 @@ class Variable:
     def __init__(self, name, dimension = None, minValue = None, maxValue = None,
                  initialValue = None):
         if dimension is None:
-	  dimension = []
+            dimension = []
         self.name = name
         
         # Reserved for future use
@@ -105,9 +105,9 @@ class ExchangeVariables:
     def __init__(self, inputVarList = None, outputVarList = None,
                  refEntry = None):
         if inputVarList is None:
-	  inputVarList = []
-	if outputVarList is None:
-	  outputVarList = []
+            inputVarList = []
+        if outputVarList is None:
+            outputVarList = []
         self.inputVarList = inputVarList
         self.outputVarList = outputVarList
         self.refEntry = refEntry
@@ -182,8 +182,7 @@ def createSObjectForExchangeVariables(fatherSobj, exchangeVariables,
     :return: the newly created SObject.
 
     """
-    studyId = fatherSobj.GetStudy()._get_StudyId()
-    editor = getStudyEditor(studyId)
+    editor = getStudyEditor()
     sobj = editor.createItem(fatherSobj,
                              name = name,
                              icon = icon,
@@ -210,8 +209,7 @@ def updateSObjectForExchangeVariables(sobj, exchangeVariables,
     other parameters.
 
     """
-    studyId = sobj.GetStudy()._get_StudyId()
-    editor = getStudyEditor(studyId)
+    editor = getStudyEditor()
     editor.setItem(sobj, name = name, icon = icon, typeId = typeId)
     editor.builder.RemoveAttribute(sobj, "AttributeParameter")
     _setSObjectForExchangeVariables(editor, sobj, exchangeVariables)

@@ -101,7 +101,7 @@ class SALOME_NamingServicePy_i(object):
             #delete first '/' before split
             Path=Path[1:]
 
-        result_resolve_path = string.split(Path,'/')
+        result_resolve_path = Path.split('/')
         if len(result_resolve_path)>1:
             # A directory is treated (not only an object name)
             # We had to test if the directory where ObjRef should be recorded 
@@ -114,11 +114,11 @@ class SALOME_NamingServicePy_i(object):
             try:
                 obj = self._current_context.resolve(_context_name)
                 self._current_context = obj._narrow(CosNaming.NamingContext)
-            except CosNaming.NamingContext.NotFound, ex:
+            except CosNaming.NamingContext.NotFound as ex:
                 _not_exist = 1
-            except CosNaming.NamingContext.InvalidName, ex:
+            except CosNaming.NamingContext.InvalidName as ex:
                 MESSAGE ( "Register : CosNaming.NamingContext.InvalidName" )
-            except CosNaming.NamingContext.CannotProceed, ex:
+            except CosNaming.NamingContext.CannotProceed as ex:
                 MESSAGE ( "Register : CosNaming.NamingContext.CannotProceed" )
             except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
                 MESSAGE ( "Register : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
@@ -133,7 +133,7 @@ class SALOME_NamingServicePy_i(object):
                     try:
                         obj = self._current_context.resolve(_context_name)
                         self._current_context = obj._narrow(CosNaming.NamingContext)
-                    except CosNaming.NamingContext.NotFound, ex:
+                    except CosNaming.NamingContext.NotFound as ex:
                         #This context is not created. It will be done
                         self._current_context = self._current_context.bind_new_context(_context_name)
 
@@ -143,13 +143,13 @@ class SALOME_NamingServicePy_i(object):
         _context_name = [CosNaming.NameComponent(result_resolve_path[len(result_resolve_path)-1],"object")]
         try:
             self._current_context.bind(_context_name,ObjRef)
-        except CosNaming.NamingContext.NotFound, ex:
+        except CosNaming.NamingContext.NotFound as ex:
             MESSAGE ( "Register : CosNaming.NamingContext.NotFound" )
-        except CosNaming.NamingContext.InvalidName, ex:
+        except CosNaming.NamingContext.InvalidName as ex:
             MESSAGE ( "Register : CosNaming.NamingContext.InvalidName" )
-        except CosNaming.NamingContext.CannotProceed, ex:
+        except CosNaming.NamingContext.CannotProceed as ex:
             MESSAGE ( "Register : CosNaming.NamingContext.CannotProceed" )
-        except CosNaming.NamingContext.AlreadyBound, ex:
+        except CosNaming.NamingContext.AlreadyBound as ex:
             MESSAGE ( "Register : CosNaming.NamingContext.AlreadyBound, object will be rebind" )
             self._current_context.rebind(_context_name,ObjRef)
         except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
@@ -169,20 +169,20 @@ class SALOME_NamingServicePy_i(object):
             #delete first '/' before split
             Path=Path[1:]
 
-        result_resolve_path = string.split(Path,'/')
+        result_resolve_path = Path.split('/')
         _context_name=[]
         for i in range(len(result_resolve_path)-1):
             _context_name.append(CosNaming.NameComponent(result_resolve_path[i],"dir"))
         _context_name.append(CosNaming.NameComponent(result_resolve_path[len(result_resolve_path)-1],"object"))
         try:
             self._obj = self._current_context.resolve(_context_name)
-        except CosNaming.NamingContext.NotFound, ex:
+        except CosNaming.NamingContext.NotFound as ex:
             MESSAGE ( "Resolve : CosNaming.NamingContext.NotFound" )
             self._obj = None
-        except CosNaming.NamingContext.InvalidName, ex:
+        except CosNaming.NamingContext.InvalidName as ex:
             MESSAGE ( "Resolve : CosNaming.NamingContext.InvalidName" )
             self._obj = None
-        except CosNaming.NamingContext.CannotProceed, ex:
+        except CosNaming.NamingContext.CannotProceed as ex:
             MESSAGE ( "Resolve : CosNaming.NamingContext.CannotProceed" )
             self._obj = None
         except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
@@ -206,18 +206,18 @@ class SALOME_NamingServicePy_i(object):
             #delete first '/' before split
             Path=Path[1:]
 
-        result_resolve_path = string.split(Path,'/')
+        result_resolve_path = Path.split('/')
         _context_name = []
         for i in range(len(result_resolve_path)):
             _context_name[CosNaming.NameComponent(result_resolve_path[i],"dir")]            
             try:
                 obj = self._current_context.resolve(_context_name)
                 self._current_context = obj._narrow(CosNaming.NamingContext)
-            except CosNaming.NamingContext.NotFound, ex:
+            except CosNaming.NamingContext.NotFound as ex:
                 self._current_context = self._current_context.bind_new_context(_context_name)
-            except CosNaming.NamingContext.InvalidName, ex:
+            except CosNaming.NamingContext.InvalidName as ex:
                 MESSAGE ( "Create_Directory : CosNaming.NamingContext.InvalidName" )
-            except CosNaming.NamingContext.CannotProceed, ex:
+            except CosNaming.NamingContext.CannotProceed as ex:
                 MESSAGE ( "Create_Directory : CosNaming.NamingContext.CannotProceed" )
             except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
                 MESSAGE ( "Create_Directory : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
@@ -227,7 +227,7 @@ class SALOME_NamingServicePy_i(object):
 
         remove a name in naming service
       """
-      resolve_path=string.split(Path,'/')
+      resolve_path=Path.split('/')
       if resolve_path[0] == '': del resolve_path[0]
       dir_path=resolve_path[:-1]
       context_name=[]
@@ -237,9 +237,9 @@ class SALOME_NamingServicePy_i(object):
       
       try:
         self._root_context.unbind(context_name)
-      except CosNaming.NamingContext.NotFound, ex:
+      except CosNaming.NamingContext.NotFound as ex:
         return
-      except CORBA.Exception,ex:
+      except CORBA.Exception as ex:
         return
 
     def Destroy_FullDirectory(self,Path):
@@ -248,15 +248,15 @@ class SALOME_NamingServicePy_i(object):
         remove recursively a directory
       """
       context_name=[]
-      for e in string.split(Path,'/'):
+      for e in Path.split('/'):
         if e == '':continue
         context_name.append(CosNaming.NameComponent(e,"dir"))
 
       try:
         context=self._root_context.resolve(context_name)
-      except CosNaming.NamingContext.NotFound, ex:
+      except CosNaming.NamingContext.NotFound as ex:
         return
-      except CORBA.Exception,ex:
+      except CORBA.Exception as ex:
         return
 
       bl,bi=context.list(0)

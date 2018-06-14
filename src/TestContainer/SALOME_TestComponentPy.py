@@ -37,13 +37,13 @@ from SALOME_ComponentPy import *
 class SALOME_TestComponentPy( Engines__POA.TestComponent, SALOME_ComponentPy_i):
 
     def Coucou(self, val):
-        print "SALOME_TestComponentPy Coucou ", val
-        result = "result from SALOME_TestComponentPy Coucou " + `val`
+        print("SALOME_TestComponentPy Coucou ", val)
+        result = "result from SALOME_TestComponentPy Coucou " + repr(val)
         return result
     
     def __init__(self, orb, poa, contID, containerName, instanceName, interfaceName):
         notif = False
         SALOME_ComponentPy_i.__init__(self, orb, poa, contID, containerName,
                                       instanceName, interfaceName, notif)
-        print "SALOME_TestComponentPy::__init__"
+        print("SALOME_TestComponentPy::__init__")
 

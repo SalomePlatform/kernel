@@ -51,10 +51,10 @@ def openModule(mname, fname=None):
         shared_imported[mname]=mod
         # Salome modification end
 
-    elif sys.modules.has_key(mname):
+    elif mname in sys.modules:
         mod = sys.modules[mname]
 
-        if _partialModules.has_key(mname):
+        if mname in _partialModules:
             pmod = _partialModules[mname]
             mod.__dict__.update(pmod.__dict__)
             del _partialModules[mname]
@@ -62,7 +62,7 @@ def openModule(mname, fname=None):
         shared_imported[mname]=mod
         # Salome modification end
 
-    elif _partialModules.has_key(mname):
+    elif mname in _partialModules:
         mod = _partialModules[mname]
 
     # Salome modification start
@@ -98,10 +98,10 @@ def newModule(mname):
     for name in mlist:
         current = current + name
 
-        if sys.modules.has_key(current):
+        if current in sys.modules:
             mod = sys.modules[current]
 
-        elif _partialModules.has_key(current):
+        elif current in _partialModules:
             mod = _partialModules[current]
 
         else:
@@ -120,7 +120,7 @@ def updateModule(mname):
     # Be sure to use the right module dictionary
     import sys
     # Salome modification end
-    if _partialModules.has_key(mname):
+    if mname in _partialModules:
         pmod = _partialModules[mname]
         mod  = sys.modules[mname]
         mod.__dict__.update(pmod.__dict__)

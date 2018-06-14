@@ -26,13 +26,8 @@
  */
 void SALOMEDSTest::testAttributeExpandable()
 {
-  //Create or find the Study manager
-  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-
-  CPPUNIT_ASSERT(sm);
-
-  //Create a new study
-  _PTR(Study) study = sm->NewStudy("Test");
+  //Create Study
+  _PTR(Study) study(new SALOMEDS_Study(_study));
 
   CPPUNIT_ASSERT(study);
 
@@ -66,7 +61,7 @@ void SALOMEDSTest::testAttributeExpandable()
 
   CPPUNIT_ASSERT(_attr->IsExpandable());
 
-  sm->Close(study);
+  study->Clear();
 }
 
 

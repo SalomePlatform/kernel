@@ -27,18 +27,18 @@
 //  $Header$
 //
 #include "SALOMEDS.hxx"
-#include "SALOMEDS_StudyManager.hxx"
 #include "SALOMEDS_Study.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_StudyBuilder.hxx"
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS_SComponent.hxx"
 #include "SALOMEDSClient.hxx"
 #include "SALOMEDSClient_IParameters.hxx"
 #include "SALOMEDS_IParameters.hxx"
-#include "SALOMEDS_StudyManager_i.hxx"
-#include "utilities.h"
 
 #include "SALOMEDS_Defines.hxx"
+
+#include <utilities.h>
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -63,12 +63,10 @@ void SALOMEDS::lock()
 
 void SALOMEDS::unlock()
 {
-	SALOMEDS::Locker::MutexDS.unlock();
+  SALOMEDS::Locker::MutexDS.unlock();
 }
 
-
-
-// srn: Added new library methods that create basic SALOMEDS objects (StudyManager, Study, SComponent, SObject)
+// srn: Added new library methods that create basic SALOMEDS objects (Study, SComponent, SObject)
 
 //=============================================================================
 /*!
@@ -79,99 +77,86 @@ void SALOMEDS::unlock()
 
 extern "C"
 {
-SALOMEDS_EXPORT
-  SALOMEDSClient_StudyManager* StudyManagerFactory()
-{
-  return new SALOMEDS_StudyManager();
-}
-SALOMEDS_EXPORT
+  SALOMEDS_EXPORT
   SALOMEDSClient_Study* StudyFactory(SALOMEDS::Study_ptr theStudy)
-{
-  if(CORBA::is_nil(theStudy)) return NULL;
-  return new SALOMEDS_Study(theStudy);
-}
-
-SALOMEDS_EXPORT
-  SALOMEDSClient_SObject* SObjectFactory(SALOMEDS::SObject_ptr theSObject)
-{
-  if(CORBA::is_nil(theSObject)) return NULL;
-  return new SALOMEDS_SObject(theSObject);
-}
-
-SALOMEDS_EXPORT
-  SALOMEDSClient_SComponent* SComponentFactory(SALOMEDS::SComponent_ptr theSComponent)
-{
-  if(CORBA::is_nil(theSComponent)) return NULL;
-  return new SALOMEDS_SComponent(theSComponent);
-}
-
-SALOMEDS_EXPORT
-  SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilder)
-{
-  if(CORBA::is_nil(theBuilder)) return NULL;
-  return new SALOMEDS_StudyBuilder(theBuilder);
-}
-
-SALOMEDS_EXPORT
-  SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
-{
-  SALOME_NamingService namingService(orb);
-  CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
-  SALOMEDS::StudyManager_var theManager = SALOMEDS::StudyManager::_narrow( obj );
-  if( CORBA::is_nil(theManager) )
   {
-    PortableServer::POAManager_var pman = root_poa->the_POAManager();
-    CORBA::PolicyList policies;
-    policies.length(2);
-    //PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-    PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL));
-    PortableServer::ImplicitActivationPolicy_var implicitPol(root_poa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION));
-    policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
-    policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
-    PortableServer::POA_var poa = root_poa->create_POA("KERNELStudySingleThreadPOA",pman,policies);
-    MESSAGE("CreateStudyManager: KERNELStudySingleThreadPOA: "<< poa);
-    threadPol->destroy();
-
-    SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, poa);
-    // Activate the objects.  This tells the POA that the objects are ready to accept requests.
-    PortableServer::ObjectId_var aStudyManager_iid =  poa->activate_object(aStudyManager_i);
-    //give ownership to the poa : the object will be deleted by the poa
-    aStudyManager_i->_remove_ref();
-    aStudyManager_i->register_name((char*)"/myStudyManager");
+    if(CORBA::is_nil(theStudy)) return NULL;
+    return new SALOMEDS_Study(theStudy);
   }
-  return new SALOMEDS_StudyManager();
-}
 
-SALOMEDS_EXPORT
+  SALOMEDS_EXPORT
+  SALOMEDSClient_SObject* SObjectFactory(SALOMEDS::SObject_ptr theSObject)
+  {
+    if(CORBA::is_nil(theSObject)) return NULL;
+    return new SALOMEDS_SObject(theSObject);
+  }
+
+  SALOMEDS_EXPORT
+  SALOMEDSClient_SComponent* SComponentFactory(SALOMEDS::SComponent_ptr theSComponent)
+  {
+    if(CORBA::is_nil(theSComponent)) return NULL;
+    return new SALOMEDS_SComponent(theSComponent);
+  }
+
+  SALOMEDS_EXPORT
+  SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilder)
+  {
+    if(CORBA::is_nil(theBuilder)) return NULL;
+    return new SALOMEDS_StudyBuilder(theBuilder);
+  }
+
+  SALOMEDS_EXPORT
+  void CreateStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+  {
+    SALOME_NamingService namingService(orb);
+    CORBA::Object_var obj = namingService.Resolve( "/Study" );
+    SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow( obj );
+    if( CORBA::is_nil(aStudy) ) {
+      PortableServer::POAManager_var pman = root_poa->the_POAManager();
+      CORBA::PolicyList policies;
+      policies.length(2);
+      //PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+      PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL));
+      PortableServer::ImplicitActivationPolicy_var implicitPol(root_poa->create_implicit_activation_policy(PortableServer::IMPLICIT_ACTIVATION));
+      policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+      policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
+      PortableServer::POA_var poa = root_poa->create_POA("KERNELStudySingleThreadPOA",pman,policies);
+      MESSAGE("CreateStudy: KERNELStudySingleThreadPOA: "<< poa);
+      threadPol->destroy();
+
+      SALOMEDS_Study_i::SetThePOA(poa);  
+      SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb);
+
+      // Activate the objects.  This tells the POA that the objects are ready to accept requests.
+      PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
+      aStudy = aStudy_i->_this();
+      namingService.Register(aStudy, "/Study");
+      aStudy_i->GetImpl()->GetDocument()->SetModified(false);
+      aStudy_i->_remove_ref();
+    }
+  }
+
+  SALOMEDS_EXPORT
   SALOMEDSClient_IParameters* GetIParameters(const _PTR(AttributeParameter)& ap)
-{
-  return new SALOMEDS_IParameters(ap);
-}
+  {
+    return new SALOMEDS_IParameters(ap);
+  }
 
-SALOMEDS_EXPORT
+  SALOMEDS_EXPORT
   SALOMEDS::SObject_ptr ConvertSObject(const _PTR(SObject)& theSObject)
-{
-  
-  SALOMEDS_SObject* so = _CAST(SObject, theSObject);
-  if(!theSObject || !so) return SALOMEDS::SObject::_nil();
-  return so->GetSObject();
-}
+  {
+    SALOMEDS_SObject* so = _CAST(SObject, theSObject);
+    if ( !theSObject || !so )
+      return SALOMEDS::SObject::_nil();
+    return so->GetSObject();
+  }
 
-SALOMEDS_EXPORT
-  SALOMEDS::Study_ptr ConvertStudy(const _PTR(Study)& theStudy)
-{
-  SALOMEDS_Study* study = _CAST(Study, theStudy);
-  if(!theStudy || !study) return SALOMEDS::Study::_nil();
-  return study->GetStudy();
-}
-
-SALOMEDS_EXPORT
+  SALOMEDS_EXPORT
   SALOMEDS::StudyBuilder_ptr ConvertBuilder(const _PTR(StudyBuilder)& theBuilder)
-{
-  SALOMEDS_StudyBuilder* builder = _CAST(StudyBuilder, theBuilder);
-  if(!theBuilder || !builder) return SALOMEDS::StudyBuilder::_nil(); 
-  return builder->GetBuilder();
-}
-
-
+  {
+    SALOMEDS_StudyBuilder* builder = _CAST(StudyBuilder, theBuilder);
+    if ( !theBuilder || !builder )
+      return SALOMEDS::StudyBuilder::_nil();
+    return builder->GetBuilder();
+  }
 }

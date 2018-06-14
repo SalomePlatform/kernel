@@ -40,8 +40,6 @@ SALOMEDSImpl_IParameters::SALOMEDSImpl_IParameters(SALOMEDSImpl_AttributeParamet
 {
   if(!ap) return;
   _ap = ap;
-  SALOMEDSImpl_SObject so = _ap->GetSObject();
-  _study = so.GetStudy();
 }
 
 SALOMEDSImpl_IParameters::~SALOMEDSImpl_IParameters()
@@ -222,14 +220,13 @@ std::vector<std::string> SALOMEDSImpl_IParameters::getProperties()
 
 std::string SALOMEDSImpl_IParameters::decodeEntry(const std::string& entry)
 {
-  if(!_study) return entry;
   int pos = entry.rfind("_");
   if(pos < 0 || pos >= entry.size()) return entry;
 
   std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   
   if(_compNames.find(compName) == _compNames.end()) {
-    SALOMEDSImpl_SObject so = _study->FindComponent(compName);
+    SALOMEDSImpl_SObject so = SALOMEDSImpl_Study::GetStudyImpl( _ap->GetSObject().GetLabel() )->FindComponent(compName);
     if(!so) return entry;
     compID = so.GetID();
     _compNames[compName] = compID;
@@ -344,7 +341,7 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
 
 
   dump += shift +"import iparameters\n";
-  dump += shift + "ipar = iparameters.IParameters(theStudy.GetModuleParameters(\""+anID+"\", \""+moduleName+"\", 1))\n\n";
+  dump += shift + "ipar = iparameters.IParameters(salome.myStudy.GetModuleParameters(\""+anID+"\", \""+moduleName+"\", 1))\n\n";
   
   std::vector<std::string> v = ip.getProperties();
   if(v.size() > 0) {

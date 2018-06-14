@@ -21,7 +21,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import sys, os,signal,string,commands
+import sys, os,signal,string,subprocess
 import subprocess
 import runSalome
 import orbmodule
