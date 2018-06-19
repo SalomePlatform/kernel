@@ -53,7 +53,7 @@ resourceParams::resourceParams()
 : can_launch_batch_jobs(false),
   can_run_containers(false),
   nb_proc(-1),
-  nb_node(-1),
+  nb_node(0),
   nb_proc_per_node(-1),
   cpu_clock(-1),
   mem_mb(-1)
@@ -327,8 +327,21 @@ void
 ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resource)
 {
   if (new_resource.Name == DEFAULT_RESOURCE_NAME){
-    std::string error("Cannot modify default local resource \"" + DEFAULT_RESOURCE_NAME + "\"");
-    throw ResourcesException(error);
+    ParserResourcesType default_resource = _resourcesList[DEFAULT_RESOURCE_NAME];
+    // some of the properties of the default resource shouldn't be modified
+    std::string check;
+    if( default_resource.HostName != new_resource.HostName)
+      check += "The Hostname property of the default resource can not be modified.\n";
+    if( default_resource.AppliPath != new_resource.AppliPath)
+      check += "The Applipath property of the default resource can not be modified.\n";
+    if( !new_resource.can_run_containers)
+      check += "The default resource should be able to run containers.\n";
+    if( !new_resource.can_launch_batch_jobs)
+      check += "The default resource should be able to launch batch jobs.\n";
+    if( default_resource.Protocol != new_resource.Protocol)
+      check += "The Protocol property of the default resource can not be modified.\n";
+    if(!check.empty())
+      throw ResourcesException(check);
   }
   // TODO - Add minimal check
   _resourcesList[new_resource.Name] = new_resource;
@@ -364,12 +377,9 @@ void ResourcesManager_cpp::WriteInXmlFile(std::string xml_file)
   RES_MESSAGE("WriteInXmlFile : start");
 
   MapOfParserResourcesType resourceListToSave(_resourcesList);
-  // We do not save default local resource because it is automatically created at startup
-  resourceListToSave.erase(DEFAULT_RESOURCE_NAME);
   if (resourceListToSave.empty())
   {
-    RES_MESSAGE("WriteInXmlFile: nothing to do, no resource except default \"" <<
-                DEFAULT_RESOURCE_NAME << "\"");
+    RES_MESSAGE("WriteInXmlFile: nothing to do, no resource to save!");
     return;
   }
 

@@ -48,6 +48,9 @@ namespace Launcher
     //! Save the jobs in the list "jobs_list" to the XML file "jobs_file".
     static void saveJobs(const char* jobs_file, const std::list<const Job *> & jobs_list);
 
+    static Job* createJobFromString(const std::string& jobDump);
+    static std::string dumpJob(const Job& job);
+
   private:
     // This class is static only, not instanciable
     XML_Persistence() {}

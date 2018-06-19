@@ -107,7 +107,14 @@ int main(int argc, char* argv[])
   }
   try
     {
-      SALOME_Launcher *lServ(new SALOME_Launcher(orb,root_poa));
+      CORBA::PolicyList policies;
+      policies.length(1);
+      PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+      policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+      PortableServer::POA_var safePOA = root_poa->create_POA("SingleThreadPOA",pman,policies);
+      threadPol->destroy();
+
+      SALOME_Launcher *lServ(new SALOME_Launcher(orb,safePOA));
       lServ->_remove_ref();
       //
       SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(argc,argv,orb,root_poa));

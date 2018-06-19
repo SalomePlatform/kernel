@@ -515,4 +515,72 @@ XML_Persistence::addAttr(xmlNodePtr node, const string & name, const string & va
   xmlFree(xmlStrValue);
 }
 
+Job*
+XML_Persistence::createJobFromString(const std::string& jobDump)
+{
+  xmlDocPtr doc;
+  doc = xmlReadMemory(jobDump.c_str(), jobDump.length(), "noname.xml", NULL, 0);
+  if (doc == NULL)
+  {
+    std::string error = "Error in xmlReadMemory in XML_Persistence::createJobFromString, could not parse string: " + jobDump;
+    LAUNCHER_INFOS(error);
+    throw LauncherException(error);
+  }
+
+  // Step 3: Find jobs
+  Job * result = NULL;
+  xmlNodePtr root_node = xmlDocGetRootElement(doc);
+  if (xmlStrToString(root_node->name) == "jobs")
+  {
+    xmlNodePtr xmlCurrentNode = root_node->xmlChildrenNode;
+    while(xmlCurrentNode != NULL && result == NULL)
+    {
+      if (xmlStrToString(xmlCurrentNode->name) == "job")
+      {
+        LAUNCHER_INFOS("A job is found");
+        result = createJobFromXmlNode(xmlCurrentNode);
+      }
+      xmlCurrentNode = xmlCurrentNode->next;
+    }
+  }
+  else
+  {
+    xmlFreeDoc(doc);
+    std::string error = "Error while parsing job dump: " + jobDump;
+    LAUNCHER_INFOS(error);
+    throw LauncherException(error);
+  }
+
+  // Clean
+  xmlFreeDoc(doc);
+  return result;
+}
+
+std::string
+XML_Persistence::dumpJob(const Job& job)
+{
+  // Initialization
+  xmlKeepBlanksDefault(0);
+  xmlDocPtr doc = xmlNewDoc(xmlCharStrdup("1.0"));
+  xmlNodePtr root_node = xmlNewNode(NULL, xmlCharStrdup("jobs"));
+  xmlDocSetRootElement(doc, root_node);
+  xmlNodePtr doc_comment = xmlNewDocComment(doc, xmlCharStrdup("SALOME Launcher job"));
+  xmlAddPrevSibling(root_node, doc_comment);
+
+  addJobToXmlDocument(root_node, job);
+
+  // Final step: write to result
+  xmlChar *xmlbuff;
+  int buffersize;
+  xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
+  std::string result;
+  if(buffersize > 0)
+    result = (const char*) xmlbuff;
+
+  // Clean
+  xmlFree(xmlbuff);
+  xmlFreeDoc(doc);
+  return result;
+}
+
 }

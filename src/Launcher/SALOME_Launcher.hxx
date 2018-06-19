@@ -56,6 +56,8 @@ public:
   CORBA::Boolean getJobWorkFile(CORBA::Long job_id, const char * work_file, const char * directory);
   void        stopJob      (CORBA::Long job_id);
   void        removeJob    (CORBA::Long job_id);
+  char * dumpJob(CORBA::Long job_id);
+  CORBA::Long restoreJob(const char * dumpedJob);
 
   // Useful methods
   CORBA::Long    createJobWithFile(const char * xmlExecuteFile, const char * clusterName);

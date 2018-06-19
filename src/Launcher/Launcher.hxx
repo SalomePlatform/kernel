@@ -35,8 +35,6 @@
 #include <vector>
 #include <list>
 
-#include <pthread.h>
-
 class MpiImpl;
 
 namespace Batch{
@@ -73,6 +71,8 @@ public:
   bool         getJobWorkFile(int job_id, std::string work_file, std::string directory);
   void         stopJob(int job_id);
   void         removeJob(int job_id);
+  std::string  dumpJob(int job_id);
+  int restoreJob(const std::string& dumpedJob);
 
   /*! Load the jobs from the file "jobs_file" and add them to the Launcher.
    *  Return a list with the IDs of the jobs that were successfully loaded.
@@ -85,7 +85,6 @@ public:
   // Useful methods
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
   std::map<int, Launcher::Job *> getJobs();
-  void createBatchManagerForJob(Launcher::Job * job);
   void addJobDirectlyToMap(Launcher::Job * new_job);
 
   // Lib methods
@@ -96,17 +95,20 @@ public:
 protected:
 
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
+  int addJob(Launcher::Job * new_job);
+
+  Launcher::Job * findJob(int job_id);
 
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
   Batch::BatchManager *FactoryBatchManager(ParserResourcesType& params);
   std::map <int, Batch::BatchManager*> _batchmap;
+  Batch::BatchManager* getBatchManager(Launcher::Job * job);
 #endif
   ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 
   std::map <int, Launcher::Job *> _launcher_job_map;  
   int _job_cpt; // job number counter
-  pthread_mutex_t * _job_cpt_mutex; // mutex for job counter
 };
 
 #endif

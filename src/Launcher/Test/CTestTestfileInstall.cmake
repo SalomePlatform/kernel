@@ -23,6 +23,12 @@ IF(NOT WIN32)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
     #                                                 TIMEOUT 500
     )
+
+  SET(TEST_NAME ${COMPONENT_NAME}_StressLauncher)
+  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} 2000 ./test_stress.sh)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
+    #                                                 TIMEOUT 500
+    )
   # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
   #     BUT PASS TIMEOUT VALUE TO THE DRIVER
 

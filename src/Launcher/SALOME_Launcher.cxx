@@ -373,6 +373,43 @@ SALOME_Launcher::stopJob(CORBA::Long job_id)
   }
 }
 
+char *
+SALOME_Launcher::dumpJob(CORBA::Long job_id)
+{
+  std::string result;
+  try
+  {
+    result = _l.dumpJob(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+  return CORBA::string_dup(result.c_str());
+}
+
+CORBA::Long
+SALOME_Launcher::restoreJob(const char * dumpedJob)
+{
+  CORBA::Long jobId;
+  try{
+    jobId = _l.restoreJob(dumpedJob);
+    if(jobId >= 0)
+    {
+      std::ostringstream job_str;
+      job_str << jobId;
+      notifyObservers("NEW_JOB", job_str.str());
+    }
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+
+  return jobId;
+}
+
 //=============================================================================
 /*! CORBA Method:
  *  Create a job in the launcher with a file
