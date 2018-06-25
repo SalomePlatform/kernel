@@ -37,11 +37,12 @@
 std::string convertString(const std::string& S)
 {
   int length = S.size();
-  const char *s = S.c_str();
-  char *c = new char[3], *buffer = new char[length*3+1];
+  if ( length == 0 )
+    return "0";
+  char c[3], *buffer = new char[length*3+1];
   buffer[length*3] = (char)0;
   for(int i = 0, pos = 0; i<length; i++, pos+=3) {
-    int val = (int)s[i];
+    int val = (int)S[i];
     buffer[pos] = '%';
     sprintf(c, "%.2x", val);
     buffer[pos+1] = c[0]; 
@@ -49,7 +50,6 @@ std::string convertString(const std::string& S)
   }
 
   std::string RS(buffer); 
-  delete [] c;
   delete [] buffer;
   return RS;
 }
@@ -58,19 +58,19 @@ std::string convertString(const std::string& S)
 std::string restoreString(const std::string& S)
 {
   int length = S.size();
-  char *c = new char[3], *buffer = new char[length/3+1];
+  if ( length == 1 )
+    return "";
+  char c[3], *buffer = new char[length/3+1];
   buffer[length/3] = (char)0;
-  const char *s = S.c_str();
   for(int i = 0, pos = 0; i<length; i+=3, pos++) {
-    c[0] = s[i+1];
-    c[1] = s[i+2];
+    c[0] = S[i+1];
+    c[1] = S[i+2];
     c[2] = (char)0;
     int val = strtol(c, NULL, 16);
     buffer[pos] = (char)val;
   }
 
   std::string RS(buffer); 
-  delete [] c;
   delete [] buffer;
   return RS;
 }
