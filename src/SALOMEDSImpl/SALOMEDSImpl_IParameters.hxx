@@ -145,8 +145,8 @@ public:
   static std::string getStudyScript(SALOMEDSImpl_Study* study, int savePoint, const std::string& theID = "");
 
   /*!
-  Returns a default Python script that set ups visual parameters for the given module
-  shift is a string that contain spaces to make valid Python script indentaion
+  Returns a default Python script that sets up visual parameters for the given module
+  shift is a string that contain spaces to make valid Python script indentation
   */
   static std::string getDefaultScript(SALOMEDSImpl_Study* study, 
     const std::string& moduleName, 

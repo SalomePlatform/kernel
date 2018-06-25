@@ -30,7 +30,7 @@
 #
 
 # This first list does not need a SALOME application. Only the
-# environnement is required (for example, run these script in a
+# environment is required (for example, run these script in a
 # session obtained with runSession
 listfiles="\
     unittester.py \

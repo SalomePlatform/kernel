@@ -49,7 +49,7 @@ SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR} CACHE PATH "Path to the Salome KERNEL"
 IF(EXISTS ${KERNEL_ROOT_DIR})
   LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
   FIND_PACKAGE(SalomeKERNEL REQUIRED)
-  KERNEL_WITH_CORBA() # check whether KERNEL builded with CORBA
+  KERNEL_WITH_CORBA() # check whether KERNEL built with CORBA
 ELSE(EXISTS ${KERNEL_ROOT_DIR})
   MESSAGE(FATAL_ERROR "We absolutely need a Salome KERNEL, please define KERNEL_ROOT_DIR")
 ENDIF(EXISTS ${KERNEL_ROOT_DIR})
@@ -79,7 +79,7 @@ SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR} CACHE PATH "Path to the Salome GUI")
 IF(EXISTS ${GUI_ROOT_DIR})
   LIST(APPEND CMAKE_MODULE_PATH "${GUI_ROOT_DIR}/adm_local/cmake_files")
   FIND_PACKAGE(SalomeGUI REQUIRED)
-  SALOME_GUI_WITH_CORBA() #remove this line if you don't need GUI module builded with CORBA
+  SALOME_GUI_WITH_CORBA() #remove this line if you don't need GUI module built with CORBA
   #remove unnecessary options from this list (see SALOME_GUI_MODE() macro description)
   SALOME_GUI_MODE(SALOME_USE_SALOMEOBJECT SALOME_USE_OCCVIEWER SALOME_USE_VTKVIEWER SALOME_USE_PYCONSOLE
                   OPTIONAL SALOME_USE_PLOT2DVIEWER SALOME_USE_GLVIEWER SALOME_USE_GRAPHICSVIEW 

@@ -244,7 +244,7 @@ def getTmpDir():
 def generateFileName( dir, prefix = None, suffix = None, extension = None,
                       unique = False, separator = "_", hidden = False, **kwargs ):
     """
-    Generate file name by sepecified parameters. If necessary, file name
+    Generate file name by specified parameters. If necessary, file name
     can be generated to be unique.
 
     Parameters:

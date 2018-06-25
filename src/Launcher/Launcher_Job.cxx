@@ -659,7 +659,7 @@ Launcher::Job::common_job_params()
   params[Batch::LAUNCHER_FILE] = _launcher_file;
   params[Batch::LAUNCHER_ARGS] = _launcher_args;
 
-  // If result_directory is not defined, we use HOME environnement
+  // If result_directory is not defined, we use HOME environment
   if (_result_directory == "")
 #ifndef WIN32
     _result_directory = getenv("HOME");

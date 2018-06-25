@@ -71,7 +71,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
   CORBA::Object_var theObj;
   CORBA::Object_var obj;
 
-  // searchin for naming service for 0.25*40=10 seconds
+  // searching for naming service for 0.25*40=10 seconds
   for (i = 1; i <= NumberOfTries; i++) {
 #ifndef WIN32
     if (i != 1) nanosleep(&ts_req,&ts_rem);

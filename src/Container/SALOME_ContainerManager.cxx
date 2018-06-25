@@ -1621,7 +1621,7 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
     remote_execution = true;
   }
 
-  // Log environnement
+  // Log environment
   std::string log_type("");
   char * get_val = GetenvThreadSafe("PARALLEL_LOG");
   if (get_val)
@@ -1687,7 +1687,7 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
   ParserResourcesType resource_definition =
       _resManager->GetResourceDefinition(params.resource_params.name.in());
 
-  // Log environnement
+  // Log environment
   std::string log_type("");
   char * get_val = GetenvThreadSafe("PARALLEL_LOG");
   if (get_val)

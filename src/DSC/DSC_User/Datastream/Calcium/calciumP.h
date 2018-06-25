@@ -510,7 +510,7 @@
     "Error in instance launching",
     "Communication error",
     "Error in the instance",
-    "Environnement variable CAL_MODE is not set",
+    "Environment variable CAL_MODE is not set",
     "Disconnected instance",
   };
 

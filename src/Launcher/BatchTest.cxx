@@ -172,13 +172,13 @@ BatchTest::test_filecopy()
     return result;
   }
 
-  // Writing into the tempory file
+  // Writing into the temporary file
   command = "echo Hello > " +  _test_filename;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
     oss << status;
-    result += "Error in creating tempory file ! status = ";
+    result += "Error in creating temporary file ! status = ";
     result += oss.str();
     return result;
   }
