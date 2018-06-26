@@ -35,11 +35,11 @@ __PORT_MAX_NUMBER = 2910
 import logging
 def createLogger():
   logger = logging.getLogger(__name__)
-#  logger.setLevel(logging.DEBUG)
-  logger.setLevel(logging.INFO)
+  logger.setLevel(logging.DEBUG)
+  #logger.setLevel(logging.INFO)
   ch = logging.StreamHandler()
   ch.setLevel(logging.DEBUG)
-  formatter = logging.Formatter("%(levelname)s:%(threadName)s:%(message)s")
+  formatter = logging.Formatter("%(levelname)s:%(threadName)s:%(pathname)s[%(lineno)s]%(message)s")
   ch.setFormatter(formatter)
   logger.addHandler(ch)
   return logger

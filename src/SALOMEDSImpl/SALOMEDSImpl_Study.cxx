@@ -172,9 +172,12 @@ void SALOMEDSImpl_Study::Init()
 //============================================================================
 void SALOMEDSImpl_Study::Clear()
 {
-  delete _builder;
-  delete _cb;
-  delete _useCaseBuilder;
+  if (_builder) delete _builder;
+  _builder = NULL;
+  if (_cb) delete _cb;
+  _cb = NULL;
+  if (_useCaseBuilder) delete _useCaseBuilder;
+  _useCaseBuilder = NULL;
   URL("");
   _appli->Close(_doc);
   _doc = NULL;
