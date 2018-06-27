@@ -124,7 +124,7 @@ extern "C"
       MESSAGE("CreateStudy: KERNELStudySingleThreadPOA: "<< poa);
       threadPol->destroy();
 
-      SALOMEDS_Study_i::SetThePOA(poa);  
+      SALOMEDS_Study_i::SetThePOA(poa);
       SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb);
 
       // Activate the objects.  This tells the POA that the objects are ready to accept requests.

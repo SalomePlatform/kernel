@@ -111,6 +111,7 @@ int main(int argc, char** argv)
               policies[1] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitPol);
               poa = defaultPoa->create_POA("KERNELStandaloneStudySingleThreadPOA",pman,policies);
               threadPol->destroy();
+              SALOMEDS_Study_i::SetThePOA(poa);
 
               if(!CORBA::is_nil(orb)) 
                 theObj = orb->resolve_initial_references("NameService"); 
