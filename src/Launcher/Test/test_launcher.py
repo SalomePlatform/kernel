@@ -506,7 +506,7 @@ f.close()
     resManager= salome.lcc.getResourcesManager()
 
     for resource in self.ressources:
-      print "Testing command job on ", resource
+      print("Testing command job on ", resource)
       job_params.result_directory = local_result_dir + resource
       job_params.job_name = "CommandPreJob_" + resource
       job_params.resource_required.name = resource
@@ -521,11 +521,11 @@ f.close()
       launcher.launchJob(job_id)
       # wait for the end of the job
       jobState = launcher.getJobState(job_id)
-      print "Job %d state: %s" % (job_id,jobState)
+      print("Job %d state: %s" % (job_id,jobState))
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(3)
         jobState = launcher.getJobState(job_id)
-        print "Job %d state: %s" % (job_id,jobState)
+        print("Job %d state: %s" % (job_id,jobState))
         pass
 
       # verify the results
@@ -600,7 +600,7 @@ f.close()
     resManager= salome.lcc.getResourcesManager()
 
     for resource in self.ressources:
-      print "Testing command salome job on ", resource
+      print("Testing command salome job on ", resource)
       job_params.result_directory = local_result_dir + resource
       job_params.job_name = "CommandSalomeJob_" + resource
       job_params.resource_required.name = resource
@@ -615,11 +615,11 @@ f.close()
       launcher.launchJob(job_id)
       # wait for the end of the job
       jobState = launcher.getJobState(job_id)
-      print "Job %d state: %s" % (job_id,jobState)
+      print("Job %d state: %s" % (job_id,jobState))
       while jobState != "FINISHED" and jobState != "FAILED" :
         time.sleep(3)
         jobState = launcher.getJobState(job_id)
-        print "Job %d state: %s" % (job_id,jobState)
+        print("Job %d state: %s" % (job_id,jobState))
         pass
 
       # verify the results
