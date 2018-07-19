@@ -20,7 +20,7 @@ def main(args):
         env_modules_option += "%s" % ','.join(env_modules)
         args.append(env_modules_option)
 
-    appliPath = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+    appliPath = os.path.dirname(os.path.realpath(__file__))
     proc = subprocess.Popen([os.path.join(appliPath, '.salome_run')] + args, close_fds=True)
     out, err = proc.communicate()
     sys.exit(proc.returncode)
