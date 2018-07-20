@@ -706,7 +706,7 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
     {
       PyObject *waitKey((*it)->getKeyPyObj());
-      PyObject *meth(PyObject_GetAttrString(keyObj,"__eq__"));
+      PyObject *meth(PyObject_GetAttrString(waitKey,"__eq__"));
       if(!meth)
       {
     	  std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " no __eq__ in pyobj !";
