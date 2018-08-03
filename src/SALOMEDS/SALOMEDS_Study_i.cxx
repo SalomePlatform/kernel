@@ -167,10 +167,10 @@ namespace SALOMEDS
     {
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
       {
-	    if ( it->first->_is_equivalent(theObs) ) {
-	      myObservers.erase( it );
-	      break;
-	    }
+        if ( it->first->_is_equivalent(theObs) ) {
+          myObservers.erase( it );
+          break;
+        }
       }
     }
 
@@ -262,7 +262,8 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 void SALOMEDS_Study_i::Init()
 {
   if (!_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();
+    //throw SALOMEDS::Study::StudyInvalidReference();
+    return;
 
   SALOMEDS::Locker lock;
   
@@ -327,15 +328,15 @@ void SALOMEDS_Study_i::Clear()
         MESSAGE ( "We have found an engine for data type :"<< compodatatype);
         //_narrow can throw a corba exception
         try {
-	      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-	      if (!CORBA::is_nil(obj)) {
-	        SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-	        if (!anEngine->_is_nil())  {
-	          SALOMEDS::unlock();
-	          anEngine->Close(sco);
-	          SALOMEDS::lock();
-	        }
-	      }
+          CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+          if (!CORBA::is_nil(obj)) {
+            SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+            if (!anEngine->_is_nil())  {
+              SALOMEDS::unlock();
+              anEngine->Close(sco);
+              SALOMEDS::lock();
+            }
+          }
         }
         catch (CORBA::Exception&) {
         }
@@ -712,7 +713,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   std::vector<SALOMEDSImpl_SObject> aSeq = _impl->FindObjectByName(std::string((char*)anObjectName),
-								   std::string((char*)aComponentName));
+                                                                   std::string((char*)aComponentName));
 
   SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject;
   int aLength = aSeq.size();
@@ -1256,19 +1257,19 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 void SALOMEDS_Study_i::SetReal(const char* theVarName, CORBA::Double theValue)
 {
   if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
+    throw SALOMEDS::Study::StudyInvalidReference();
 
 
-  _impl->SetVariable(std::string(theVarName), 
-		     theValue,
-		     SALOMEDSImpl_GenericVariable::REAL_VAR);
+  _impl->SetVariable(std::string(theVarName),
+                     theValue,
+                     SALOMEDSImpl_GenericVariable::REAL_VAR);
   if (_notifier)
     _notifier->modifyNB_Notification(theVarName);
 }
 
 //============================================================================
 /*! Function : SetInteger
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 void SALOMEDS_Study_i::SetInteger(const char* theVarName, CORBA::Long theValue)
@@ -1277,8 +1278,8 @@ void SALOMEDS_Study_i::SetInteger(const char* theVarName, CORBA::Long theValue)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->SetVariable(std::string(theVarName), 
-		     theValue,
-		     SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+                     theValue,
+                     SALOMEDSImpl_GenericVariable::INTEGER_VAR);
   if (_notifier)
     _notifier->modifyNB_Notification(theVarName);
 }
@@ -1294,8 +1295,8 @@ void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValu
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->SetVariable(std::string(theVarName), 
-		     theValue,
-		     SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+                     theValue,
+                     SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
   if (_notifier)
     _notifier->modifyNB_Notification(theVarName);
 }
@@ -1311,8 +1312,8 @@ void SALOMEDS_Study_i::SetString(const char* theVarName, const char* theValue)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->SetStringVariable(std::string(theVarName), 
-			   theValue,
-			   SALOMEDSImpl_GenericVariable::STRING_VAR);
+                           theValue,
+                           SALOMEDSImpl_GenericVariable::STRING_VAR);
   if (_notifier)
     _notifier->modifyNB_Notification(theVarName);
 }
@@ -1328,8 +1329,8 @@ void SALOMEDS_Study_i::SetStringAsDouble(const char* theVarName, CORBA::Double t
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   _impl->SetStringVariableAsDouble(std::string(theVarName), 
-				   theValue,
-				   SALOMEDSImpl_GenericVariable::STRING_VAR);
+                                   theValue,
+                                   SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================
@@ -1395,7 +1396,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsReal(const char* theVarName)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   return _impl->IsTypeOf(std::string(theVarName),
-			 SALOMEDSImpl_GenericVariable::REAL_VAR);
+                         SALOMEDSImpl_GenericVariable::REAL_VAR);
 }
 
 //============================================================================
@@ -1409,7 +1410,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsInteger(const char* theVarName)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   return _impl->IsTypeOf(std::string(theVarName),
-			 SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+                         SALOMEDSImpl_GenericVariable::INTEGER_VAR);
 }
 
 //============================================================================
@@ -1423,7 +1424,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsBoolean(const char* theVarName)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   return _impl->IsTypeOf(std::string(theVarName),
-			 SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+                         SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
 }
 
 //============================================================================
@@ -1437,7 +1438,7 @@ CORBA::Boolean SALOMEDS_Study_i::IsString(const char* theVarName)
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   return _impl->IsTypeOf(std::string(theVarName),
-			 SALOMEDSImpl_GenericVariable::STRING_VAR);
+                         SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================
