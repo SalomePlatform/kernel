@@ -165,7 +165,7 @@ orb, lcc, naming_service, cm,sg=None,None,None,None,None
 myStudy, myStudyName=None,None
 
 salome_initial=1
-def salome_init(embedded=0):
+def salome_init(path=None, embedded=0):
     """
     Performs only once SALOME general purpose initialisation for scripts.
     Provides:
@@ -187,7 +187,7 @@ def salome_init(embedded=0):
             salome_initial=0
             sg = salome_iapp_init(embedded)
             orb, lcc, naming_service, cm = salome_kernel_init()
-            myStudy, myStudyName = salome_study_init()
+            myStudy, myStudyName = salome_study_init(path)
             pass
         pass
     except RuntimeError as inst:
