@@ -50,7 +50,7 @@ namespace Kernel_Utils
 {
   std::string GetBaseName( const std::string& file_path, const bool with_extension )
   {
-	std::string tmp_str = file_path;
+    std::string tmp_str = file_path;
     int pos = file_path.rfind( _separator_ );
     if ( pos >= 0 )
       tmp_str = pos < (int)file_path.size()-1 ? file_path.substr( pos+1 ) : "";
@@ -80,61 +80,60 @@ namespace Kernel_Utils
   std::string GetTmpDirByPath( const std::string& tmp_path )
   {
     std::string aTmpDir = tmp_path;
-    if ( aTmpDir == "" )
-      {
+    if ( aTmpDir == "" || !IsExists( aTmpDir ))
+    {
 #ifdef WIN32
-        char *Tmp_dir = getenv("TEMP");
-        if( Tmp_dir == NULL )
-          {
-            Tmp_dir = getenv("TMP");
-            if (Tmp_dir == NULL)
-              aTmpDir = std::string("C:\\");
-            else 
-              aTmpDir = std::string(Tmp_dir);
-          }
+      char *Tmp_dir = getenv("TEMP");
+      if ( Tmp_dir == NULL )
+      {
+        Tmp_dir = getenv("TMP");
+        if ( Tmp_dir == NULL )
+          aTmpDir = "C:\\";
         else
-          aTmpDir = std::string(Tmp_dir);
-#else
-        aTmpDir = std::string("/tmp/");
-#endif
+          aTmpDir = Tmp_dir;
       }
-    
-    if(aTmpDir[aTmpDir.size()-1] != _separator_)
-      aTmpDir+=_separator_;
-    
-    srand((unsigned int)time(NULL));
+      else
+        aTmpDir = Tmp_dir;
+#else
+      aTmpDir = "/tmp/";
+#endif
+    }
+
+    if ( aTmpDir.back() != _separator_ )
+      aTmpDir += _separator_;
+
+    srand( (unsigned int)time( NULL ));
     int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
     char buffer[127];
-    sprintf(buffer, "%d", aRND);
-    std::string aSubDir(buffer);
-    if(aSubDir.size() <= 1) aSubDir = std::string("123409876");
-    
+    sprintf( buffer, "%d", aRND );
+    std::string aSubDir( buffer );
+    if ( aSubDir.size() <= 1 ) aSubDir = "123409876";
+
     aTmpDir += aSubDir; //Get RND sub directory
-    
+
     std::string aDir = aTmpDir;
-    
-    if(IsExists(aDir)) {
-      for(aRND = 0; IsExists(aDir); aRND++) {
-        sprintf(buffer, "%d", aRND);
-        aDir = aTmpDir+buffer;  //Build a unique directory name
-      }
+
+    for ( aRND = 0; IsExists( aDir ); aRND++ )
+    {
+      sprintf( buffer, "%d", aRND );
+      aDir = aTmpDir + buffer;  //Build a unique directory name
     }
-    
-    if(aDir[aDir.size()-1] != _separator_) aDir += _separator_;
-    
+
+    if ( aDir.back() != _separator_ ) aDir += _separator_;
+
 #ifdef WIN32
-    CreateDirectory(aDir.c_str(), NULL);
+    CreateDirectory( aDir.c_str(), NULL );
 #else
-    mkdir(aDir.c_str(), 0x1ff); 
+    mkdir( aDir.c_str(), 0x1ff );
 #endif
-    
+
     return aDir;
   }
-  
+
   //============================================================================
   // function : GetTempDir
-  // purpose  : Returns a temp directory to store created files like "/tmp/sub_dir/" 
-  //============================================================================ 
+  // purpose  : Returns a temp directory to store created files like "/tmp/sub_dir/"
+  //============================================================================
   std::string GetTmpDir()
   {
     return GetTmpDirByPath( "" );

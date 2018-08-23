@@ -70,8 +70,8 @@ bool SALOMEDS_Exists(const std::string thePath)
 
 //============================================================================
 // function : GetTempDir
-// purpose  : Return a temp directory to store created files like "/tmp/sub_dir/" 
-//============================================================================ 
+// purpose  : Return a temp directory to store created files like "/tmp/sub_dir/"
+//============================================================================
 std::string SALOMEDSImpl_Tool::GetTmpDir()
 {
   //Find a temporary directory to store a file
@@ -79,51 +79,52 @@ std::string SALOMEDSImpl_Tool::GetTmpDir()
   std::string aTmpDir;
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
-  if(Tmp_dir != NULL) {
-    aTmpDir = std::string(Tmp_dir);
+  if ( Tmp_dir != NULL && SALOMEDS_Exists( Tmp_dir ))
+  {
+    aTmpDir = Tmp_dir;
 #ifdef WIN32
-    if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
+    if ( aTmpDir.back() != '\\') aTmpDir += '\\';
 #else
-    if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
-#endif      
+    if ( aTmpDir.back() != '/') aTmpDir += '/';
+#endif
   }
-  else {
+  else
+  {
 #ifdef WIN32
-    aTmpDir = std::string("C:\\");
+    aTmpDir = "C:\\";
 #else
-    aTmpDir = std::string("/tmp/");
+    aTmpDir = "/tmp/";
 #endif
   }
 
-  srand((unsigned int)time(NULL));
-  int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
+  srand( (unsigned int)time( NULL ));
+  int aRND = 999 + (int) (100000.0*rand() / (RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
   char buffer[127];
-  sprintf(buffer, "%d", aRND);
-  std::string aSubDir(buffer);
-  if(aSubDir.size() <= 1) aSubDir = std::string("123409876");
+  sprintf( buffer, "%d", aRND );
+  std::string aSubDir( buffer );
+  if ( aSubDir.size() <= 1 ) aSubDir = "123409876";
 
   aTmpDir += aSubDir; //Get RND sub directory
 
   std::string aDir = aTmpDir;
-  
-  if(SALOMEDS_Exists(aDir)) {
-    for(aRND = 0; SALOMEDS_Exists(aDir); aRND++) {
-      sprintf(buffer, "%d", aRND);
-      aDir = aTmpDir+buffer;  //Build a unique directory name
-    }
+
+  for ( aRND = 0; SALOMEDS_Exists( aDir ); aRND++ )
+  {
+    sprintf(buffer, "%d", aRND);
+    aDir = aTmpDir + buffer;  //Build a unique directory name
   }
 
 #ifdef WIN32
-  if(aDir[aTmpDir.size()-1] != '\\') aDir+='\\';
+  if ( aDir.back() != '\\') aDir += '\\';
 #else
-  if(aDir[aTmpDir.size()-1] != '/') aDir+='/';
+  if ( aDir.back() != '/' ) aDir += '/';
 #endif
 
 
 #ifdef WIN32
-  CreateDirectory(aDir.c_str(), NULL);
+  CreateDirectory( aDir.c_str(), NULL );
 #else
-  mkdir(aDir.c_str(), 0x1ff); 
+  mkdir( aDir.c_str(), 0x1ff );
 #endif
 
   return aDir;
@@ -133,7 +134,7 @@ std::string SALOMEDSImpl_Tool::GetTmpDir()
 // function : RemoveTemporaryFiles
 // purpose  : Removes files listed in theFileList
 //============================================================================
-void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory, 
+void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
                                              const std::vector<std::string>& theFiles,
                                              const bool IsDirDeleted)
 {
@@ -342,17 +343,17 @@ void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hour
   struct tm transfert;
   struct timeval tval;
   struct timezone tzone;
-  int status;
+  //int status;
 
- status = gettimeofday( &tval, &tzone );
- memcpy(&transfert, localtime((time_t *)&tval.tv_sec), sizeof(tm));
+  /*status = */ gettimeofday( &tval, &tzone );
+  memcpy(&transfert, localtime((time_t *)&tval.tv_sec), sizeof(tm));
 
- month    = transfert.tm_mon + 1;
- day      = transfert.tm_mday;
- year     = transfert.tm_year + 1900;
- hours    = transfert.tm_hour;
- minutes  = transfert.tm_min ;
- seconds  = transfert.tm_sec ;
+  month    = transfert.tm_mon + 1;
+  day      = transfert.tm_mday;
+  year     = transfert.tm_year + 1900;
+  hours    = transfert.tm_hour;
+  minutes  = transfert.tm_min ;
+  seconds  = transfert.tm_sec ;
 #endif
 }
 
@@ -377,9 +378,4 @@ std::string SALOMEDSImpl_Tool::GetUserName()
  return std::string(infos->pw_name);
 #endif
 }
-
-
-
-
-
 
