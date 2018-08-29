@@ -31,6 +31,7 @@
 #include <sstream>
 #ifdef WIN32
   static const char SEPARATOR = '\\';
+#include <process.h>
 #else
   static const char SEPARATOR = '/';
 #endif
@@ -631,7 +632,11 @@ Launcher::Job::common_job_params()
     {
       std::string date_dir = std::string("/job_") + date;
       std::ostringstream str_pid;
+#ifdef WIN32
+	  str_pid << _getpid();
+#else
       str_pid << ::getpid();
+#endif
       std::string job_dir = date_dir + "-" + str_pid.str();
 
       _work_directory = _resource_definition.working_directory + job_dir;

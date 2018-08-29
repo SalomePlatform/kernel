@@ -59,7 +59,12 @@ SET(_calcium_LIBS
   ${OMNIORB_LIBRARIES}
 )
 
-SWIG_ADD_MODULE(calcium python calcium.i)
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0") 
+  SWIG_ADD_MODULE(calcium python calcium.i)
+ELSE()
+  SWIG_ADD_LIBRARY(calcium LANGUAGE python SOURCES calcium.i)
+ENDIF()
+
 SWIG_LINK_LIBRARIES(calcium ${_calcium_LIBS})
 INSTALL(TARGETS _calcium DESTINATION ${SALOME_INSTALL_PYTHON})
 

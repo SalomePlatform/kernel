@@ -29,6 +29,7 @@
 #ifdef WIN32
 #include <io.h>
 #define _chmod chmod
+#include <process.h>
 #endif
 
 #include <sstream>
@@ -66,7 +67,11 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // parameters
   std::string work_directory = params[Batch::WORKDIR].str();
   std::ostringstream str_pid;
+#ifdef WIN32
+  str_pid << _getpid();
+#else
   str_pid << ::getpid();
+#endif
   std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + "-" + str_pid.str() + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(),

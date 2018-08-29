@@ -56,10 +56,10 @@ namespace Kernel_Utils
     ObjectdID       //!< Global usage object identifier ID
   };
 
-  const wchar_t* decode(const char* encoded);
-  const wchar_t* decode_s(std::string encoded);
-  const char* encode(const wchar_t* decoded);
-  std::string encode_s(const wchar_t* decoded);
+  BASICS_EXPORT const wchar_t* decode(const char* encoded);
+  BASICS_EXPORT const wchar_t* decode_s(std::string encoded);
+  BASICS_EXPORT const char* encode(const wchar_t* decoded);
+  BASICS_EXPORT std::string encode_s(const wchar_t* decoded);
 
   //! Get predefined GUID
   BASICS_EXPORT std::string GetGUID( GUIDtype );

@@ -88,11 +88,16 @@ static char Mois[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug
 static char NOTIFICATION_DATE[50];
 
 char* NOTIFICATION_date() {
+#ifndef WIN32
     time_t aTime;
     time(&aTime);
     struct tm* temps = localtime(&aTime);
 
     sprintf(NOTIFICATION_DATE, "%4d %3d %3s %2d %3s %02d:%02d:%02d", 1900+temps->tm_year, temps->tm_mon+1, Mois[temps->tm_mon], temps->tm_mday, JourSemaine[temps->tm_wday], temps->tm_hour, temps->tm_min, temps->tm_sec);
-
+#else 
+	SYSTEMTIME    st;
+	GetLocalTime(&st);
+	sprintf(NOTIFICATION_DATE, "%4d %3d %3s %2d %3s %02d:%02d:%02d", st.wYear, st.wMonth, Mois[st.wMonth-1], st.wDay, JourSemaine[st.wDay], st.wHour, st.wMinute, st.wSecond);
+#endif
     return(NOTIFICATION_DATE);
 }

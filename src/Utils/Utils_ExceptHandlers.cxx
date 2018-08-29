@@ -30,15 +30,52 @@
 #include "Utils_SALOME_Exception.hxx"
 
 #include <sstream>
+#ifdef WIN32
+#include "DbgHelp.h"
+#include <WinBase.h>
+#pragma comment(lib, "Dbghelp.lib")
+#else
 #include <execinfo.h>
 #include <dlfcn.h>
 #include <cxxabi.h>
+#endif
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 
 //#define NBLINES_BACKTRACE 64
+#ifdef WIN32
+void printBacktrace(std::stringstream& txt)
+{
+	typedef USHORT(WINAPI *CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
+	CaptureStackBackTraceType func = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
 
+	if (func == NULL)
+		return;
+	const int kMaxCallers = 128;
+
+	void         * callers_stack[kMaxCallers];
+	unsigned short frames;
+	SYMBOL_INFO  * symbol;
+	HANDLE         process;
+	process = GetCurrentProcess();
+	SymInitialize(process, NULL, TRUE);
+	frames = (func)(0, kMaxCallers, callers_stack, NULL);
+	symbol = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
+	symbol->MaxNameLen = 255;
+	symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+	const unsigned short  MAX_CALLERS_SHOWN = 64;
+	frames = frames < MAX_CALLERS_SHOWN ? frames : MAX_CALLERS_SHOWN;
+	for (unsigned int i = 0; i < frames; i++)
+	{
+		SymFromAddr(process, (DWORD64)(callers_stack[i]), 0, symbol);
+		txt << "*** " << i << ": " << callers_stack[i] << " " << symbol->Name << " - 0x" << symbol->Address << std::endl;
+	}
+
+	free(symbol);
+}
+#else
 void printBacktrace(void **stacklines, int nbLines, std::stringstream& txt)
 {
   char **stackSymbols = backtrace_symbols(stacklines, nbLines);
@@ -74,26 +111,36 @@ void printBacktrace(void **stacklines, int nbLines, std::stringstream& txt)
     }
   free(stackSymbols);
 }
+#endif
 
 void SalomeException ()
 {
+  std::stringstream txt;
+  txt << "Salome Exception" << std::endl;
+#ifdef WIN32
+  printBacktrace(txt);
+#else
   void *stacklines[64];
   size_t nbLines;
   nbLines = backtrace(stacklines, 64);
-  std::stringstream txt;
-  txt << "Salome Exception" << std::endl;
   printBacktrace(stacklines, nbLines, txt);
+#endif
   throw SALOME_Exception(txt.str().c_str());
 }
 
 void SALOME_SalomeException()
 {
+  std::stringstream txt;
+#ifdef WIN32
+  txt << "INTERNAL_ERROR, backtrace stack:" << std::endl;
+  printBacktrace(txt);
+#else
   void *stacklines[64];
   size_t nbLines;
   nbLines = backtrace(stacklines, 64);
-  std::stringstream txt;
   txt << "INTERNAL_ERROR, backtrace stack:" << nbLines << std::endl;
   printBacktrace(stacklines, nbLines, txt);
+#endif
   THROW_SALOME_CORBA_EXCEPTION(txt.str().c_str(), SALOME::INTERNAL_ERROR);
 }
 

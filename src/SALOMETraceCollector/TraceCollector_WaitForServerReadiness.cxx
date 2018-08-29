@@ -29,7 +29,8 @@
 #include <iostream>
 #include <ctime>
 
-#ifdef WIN32
+
+#if defined(WIN32) && defined(_MSC_VER) && _MSC_VER < 1900
 #include <omnithread/pthread_nt.h>
 #endif
 

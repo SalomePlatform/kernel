@@ -35,6 +35,10 @@
 #include <vector>
 #include "DF_Label.hxx"
 
+#ifdef WIN32
+# undef GetUserName
+#endif
+
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Tool
 {
 

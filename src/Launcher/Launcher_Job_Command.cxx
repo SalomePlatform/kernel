@@ -29,6 +29,7 @@
 #ifdef WIN32
 #include <io.h>
 #define _chmod chmod
+#include <process.h>
 #endif
 
 #include <sstream>
@@ -62,7 +63,11 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   // File name
   std::string launch_date_port_file = launch_date;
   std::ostringstream str_pid;
+#ifdef WIN32
+  str_pid << _getpid();
+#else
   str_pid << ::getpid();
+#endif
   std::string launch_script = Kernel_Utils::GetTmpDir() + "runCommand_"
                               + _job_file_name + "_" + launch_date + "-"
                               + str_pid.str();

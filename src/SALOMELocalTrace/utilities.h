@@ -90,6 +90,8 @@
 #define COMPILER                "pgCC" 
 #elif defined ( __alpha )
 #define COMPILER                "cxx" 
+#elif defined ( _MSC_VER )
+#define COMPILER                "cl.exe" 
 #else
 #define COMPILER                "undefined" 
 #endif

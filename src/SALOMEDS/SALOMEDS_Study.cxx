@@ -86,7 +86,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
 
   pthread_mutex_init( &SALOMEDS_StudyBuilder::_remoteBuilderMutex, 0 );
 
-  long addr = theStudy->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
+  CORBA::LongLong addr = theStudy->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
     _local_impl = reinterpret_cast<SALOMEDSImpl_Study*>(addr);
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
