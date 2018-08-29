@@ -225,6 +225,25 @@ namespace SALOMEDS
     CORBA::ORB_var _orb;
   };
 
+
+  //================================================================================
+  /*!
+   * \brief emitMessageOneWay to SALOME::Session
+   */
+  //================================================================================
+
+  void sendMessageToGUI(const char* msg )
+  {
+    SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+    CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+    SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+    if ( !CORBA::is_nil(aSession) ) {
+      SALOMEDS::unlock();
+      aSession->emitMessageOneWay( msg );
+      SALOMEDS::lock();
+    }
+  }
+
 } // namespace SALOMEDS
 
 //============================================================================
@@ -278,21 +297,11 @@ void SALOMEDS_Study_i::Init()
   _impl->setNotifier(_notifier);
   _impl->setGenObjRegister( _genObjRegister );
 
+  // Notify GUI that study was created
+  SALOMEDS::sendMessageToGUI( "studyCreated" );
+
   // update desktop title with new study name
   NameChanged();
-
-  // Notify GUI that study was created
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
-  if ( !CORBA::is_nil(aSession) ) {
-    std::stringstream ss;
-    ss << "studyCreated";
-    std::string str = ss.str();
-    SALOMEDS::unlock();
-    aSession->emitMessageOneWay(str.c_str());
-    SALOMEDS::lock();
-  }
 }
 
 //============================================================================
@@ -349,17 +358,7 @@ void SALOMEDS_Study_i::Clear()
   }
 
   // Notify GUI that study is cleared
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
-  if ( !CORBA::is_nil(aSession) ) {
-    std::stringstream ss;
-    ss << "studyCleared";
-    std::string str = ss.str();
-    SALOMEDS::unlock();
-    aSession->emitMessageOneWay(str.c_str());
-    SALOMEDS::lock();
-  }
+  SALOMEDS::sendMessageToGUI( "studyCleared" );
 
   _impl->Clear();
   _impl->setNotifier(0);
@@ -407,7 +406,8 @@ bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
   bool res = _impl->Open(std::string(aUrl));
 
   // update desktop title with new study name
-  NameChanged();
+  //NameChanged();
+  SALOMEDS::sendMessageToGUI( "connect_to_study" );
 
   if ( !res )
     THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
@@ -1658,16 +1658,5 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 
 void SALOMEDS_Study_i::NameChanged()
 {
-  // Notify GUI that the name of study was changed
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
-  if ( !CORBA::is_nil(aSession) ) {
-    std::stringstream ss;
-    ss << "studyNameChanged";
-    std::string str = ss.str();
-    SALOMEDS::unlock();
-    aSession->emitMessageOneWay(str.c_str());
-    SALOMEDS::lock();
-  }
+  SALOMEDS::sendMessageToGUI( "studyNameChanged" );
 }
