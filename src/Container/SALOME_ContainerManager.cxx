@@ -1170,7 +1170,7 @@ std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const
 
   else if (resInfo.Protocol == srun)
     {
-      command = "srun -n 1 -N 1 --share --nodelist=";
+      command = "srun -n 1 -N 1 --share --mem-per-cpu=0 --nodelist=";
       std::string commandRcp = "rcp ";
       commandRcp += tmpFileName;
       commandRcp += " ";
@@ -1218,7 +1218,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
           else if (resInfo.Protocol == ssh)
             command = "ssh ";
           else if (resInfo.Protocol == srun)
-            command = "srun -n 1 -N 1 --share --nodelist=";
+            command = "srun -n 1 -N 1 --share --mem-per-cpu=0 --nodelist=";
           else
             throw SALOME_Exception("Unknown protocol");
 
@@ -1323,7 +1323,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
   case srun:
     // no need to redefine the user with srun, the job user is taken by default
     // (note: for srun, user id can be specified with " --uid=<user>")
-    command << "srun -n 1 -N 1 --share --nodelist=" << hostname << " ";
+    command << "srun -n 1 -N 1 --share --mem-per-cpu=0 --nodelist=" << hostname << " ";
     break;
   case pbsdsh:
     command << "pbsdsh -o -h " << hostname << " ";
