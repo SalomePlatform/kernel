@@ -700,7 +700,7 @@ def useSalome(args, modules_list, modules_root_dir):
                     toopen = args['study_hdf']
                     if toopen:
                         import salome
-                        salome.salome_init(toopen)
+                        salome.salome_init(path=toopen)
                 if 'pyscript' in args:
                     toimport = args['pyscript']
         from salomeContextUtils import formatScriptsAndArgs

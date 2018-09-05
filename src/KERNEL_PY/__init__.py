@@ -164,8 +164,8 @@ if not flags:
 orb, lcc, naming_service, cm,sg=None,None,None,None,None
 myStudy, myStudyName=None,None
 
-salome_initial=1
-def salome_init(path=None, embedded=0):
+salome_initial=True
+def salome_init(path=None, embedded=False):
     """
     Performs only once SALOME general purpose initialisation for scripts.
     Provides:
@@ -184,7 +184,7 @@ def salome_init(path=None, embedded=0):
 
     try:
         if salome_initial:
-            salome_initial=0
+            salome_initial=False
             sg = salome_iapp_init(embedded)
             orb, lcc, naming_service, cm = salome_kernel_init()
             myStudy, myStudyName = salome_study_init(path)
@@ -212,7 +212,7 @@ def salome_close():
         myStudy.Clear()
     except:
         pass
-    salome_initial=1
+    salome_initial=True
     salome_iapp_close()
     pass
 
