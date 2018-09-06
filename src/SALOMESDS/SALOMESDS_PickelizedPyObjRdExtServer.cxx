@@ -154,5 +154,5 @@ std::string PickelizedPyObjRdExtServer::getAccessStr() const
 PickelizedPyObjRdExtInitServer *PickelizedPyObjRdExtFreeStyleServer::buildInitInstanceFrom(const std::string& varName)
 {
   PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
-  return new PickelizedPyObjRdExtInitFreeStyleServer(getFather(),varName,pyobj,std::move(_sha1));
+  return new PickelizedPyObjRdExtInitFreeStyleServer(getFather(),varName,pyobj,std::move(_cmp_func_content),std::move(_cmp_func));
 }

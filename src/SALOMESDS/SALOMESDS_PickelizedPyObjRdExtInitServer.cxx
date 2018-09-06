@@ -79,5 +79,5 @@ PyObject *PickelizedPyObjRdExtInitServer::DeepCopyPyObj(PyObject *pyobj)
 PickelizedPyObjRdExtServer *PickelizedPyObjRdExtInitFreeStyleServer::buildStdInstanceFrom(const std::string& varName)
 {
   PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
-  return new PickelizedPyObjRdExtFreeStyleServer(getFather(),varName,pyobj,std::move(_sha1));
+  return new PickelizedPyObjRdExtFreeStyleServer(getFather(),varName,pyobj,std::move(_cmp_func_content),std::move(_cmp_func));
 }

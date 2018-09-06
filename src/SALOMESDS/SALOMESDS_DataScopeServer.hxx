@@ -28,6 +28,7 @@
 #include "SALOMESDS_RefCountServ.hxx"
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_BasicDataServer.hxx"
+#include "SALOMESDS_Auto.hxx"
 #include "SALOMESDS_Defines.hxx"
 
 #include <Python.h>
@@ -144,7 +145,7 @@ namespace SALOMESDS
     ~DataScopeServerTransaction();
     void createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
-    void createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME::ByteVec& constValue, std::vector<unsigned char>&& sha1);
+    void createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME::ByteVec& constValue, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc);
     void createRdExtInitVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     PortableServer::POA_var getPOA4KeyWaiter() const { return _poa_for_key_waiter; }
@@ -158,7 +159,7 @@ namespace SALOMESDS
     void fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
-    SALOME::Transaction_ptr createRdExtVarFreeStyleTransac(const char *varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1);
+    SALOME::Transaction_ptr createRdExtVarFreeStyleTransac(const char *varName, const SALOME::ByteVec& constValue, const char *compareFuncContent);
     SALOME::Transaction_ptr createRdExtInitVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);

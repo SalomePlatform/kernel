@@ -604,11 +604,11 @@ void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varNa
   _vars.push_back(p);
 }
 
-void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME::ByteVec& constValue, std::vector<unsigned char>&& sha1)
+void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME::ByteVec& constValue, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc)
 {
   if(!isExistingVar(varName))
     {
-      PickelizedPyObjRdExtFreeStyleServer *tmp(new PickelizedPyObjRdExtFreeStyleServer(this,varName,constValue,std::move(sha1)));
+      PickelizedPyObjRdExtFreeStyleServer *tmp(new PickelizedPyObjRdExtFreeStyleServer(this,varName,constValue,std::move(compareFuncContent),std::move(compareFunc)));
       CORBA::Object_var ret(tmp->activate());
       std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
       _vars.push_back(p);
@@ -626,10 +626,26 @@ void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::stri
       if(!ds2)
         {
           std::ostringstream oss;
-          oss << "DataScopeServerTransaction::createRdExtVarFreeStyleInternal : varname \"" << varName << "\" already exists with a non RdExtFreeStyle type !";
+          oss << "DataScopeServerTransaction::createRdExtVarFreeStyleInternal : varname \"" << varName << "\" already exists with a non Sha1Keeper type !";
           throw Exception(oss.str());
         }
-      ds2->checkSha1(varName,sha1);
+      PickelizedPyObjServer *ds3(dynamic_cast<PickelizedPyObjServer *>(ds));
+      if(!ds3)
+        {
+          std::ostringstream oss;
+          oss << "DataScopeServerTransaction::createRdExtVarFreeStyleInternal : varname \"" << varName << "\" already exists with a non PickelizedPyObjServer type !";
+          throw Exception(oss.str());
+        }
+      std::vector<unsigned char> constValueAsCpp;
+      Transaction::FromByteSeqToVB(constValue,constValueAsCpp);
+      SALOME::AutoPyRef newObj(PickelizedPyObjServer::GetPyObjFromPickled(constValueAsCpp,this));
+      if(newObj.isNull())
+        {
+          std::ostringstream oss;
+          oss << "DataScopeServerTransaction::createRdExtVarFreeStyleInternal : varname \"" << varName << "\" already exists but input pickelized object is not loadable !";
+          throw Exception(oss.str());
+        }
+      ds2->checkSame(varName,compareFuncContent,ds3->getPyObj(),newObj);
     }
 }
 
@@ -667,9 +683,9 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const 
   return SALOME::Transaction::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarFreeStyleTransac(const char *varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1)
+SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarFreeStyleTransac(const char *varName, const SALOME::ByteVec& constValue, const char *compareFuncContent)
 {// no check on varName done here. Will be done on perform
-  TransactionRdExtVarFreeStyleCreate *ret(new TransactionRdExtVarFreeStyleCreate(this,varName,constValue,sha1));
+  TransactionRdExtVarFreeStyleCreate *ret(new TransactionRdExtVarFreeStyleCreate(this,varName,constValue,compareFuncContent));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }

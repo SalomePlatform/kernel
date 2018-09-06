@@ -87,9 +87,28 @@ void TransactionRdExtVarCreate::perform()
   _dsct->createRdExtVarInternal(_var_name,data2);
 }
 
-TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1):TransactionRdExtVarCreate(dsct,varName,constValue)
+TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent):_cmp_func_content(compareFuncContent),_cmp_func(nullptr),TransactionRdExtVarCreate(dsct,varName,constValue)
 {
-  FromByteSeqToVB(sha1,_sha1);
+  constexpr char EXPECTED_COMPARE_FUNC_NAME[]="comptchev";
+  SALOME::AutoPyRef context(PyDict_New());
+  SALOME::AutoPyRef res(PyRun_String(compareFuncContent,Py_file_input,_dsct->getGlobals(),context));
+  if(res.isNull())
+    {
+      std::ostringstream oss; oss << "TransactionRdExtVarFreeStyleCreate ctor : Fail to parse and evaluate \"" << compareFuncContent << "\" as python function !";
+      throw Exception(oss.str());
+    }
+  PyObject *func(PyDict_GetItemString(context,EXPECTED_COMPARE_FUNC_NAME));//borrowed
+  if(!func)
+    {
+      std::ostringstream oss; oss << "TransactionRdExtVarFreeStyleCreate ctor : Parsing of func is OK but not func called \"" << EXPECTED_COMPARE_FUNC_NAME << "\" is the given parsed string !";
+      throw Exception(oss.str());
+    }
+  _cmp_func = func; Py_XINCREF(func);
+  if(PyDict_DelItemString(context,EXPECTED_COMPARE_FUNC_NAME)!=0)
+    {
+      std::ostringstream oss; oss << "TransactionRdExtVarFreeStyleCreate ctor : Internal error during suppression of \"" << EXPECTED_COMPARE_FUNC_NAME << "\" key that exepect to be present ! Smells bad !";
+      throw Exception(oss.str());
+    }
 }
 
 void TransactionRdExtVarFreeStyleCreate::prepareRollBackInCaseOfFailure()
@@ -100,7 +119,7 @@ void TransactionRdExtVarFreeStyleCreate::perform()
 {
   SALOME::ByteVec data2;
   FromVBToByteSeq(_data,data2);
-  _dsct->createRdExtVarFreeStyleInternal(_var_name,data2,std::move(_sha1));
+  _dsct->createRdExtVarFreeStyleInternal(_var_name,data2,std::move(_cmp_func_content),std::move(_cmp_func));
 }
 
 void TransactionRdExtInitVarCreate::perform()

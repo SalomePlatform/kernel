@@ -23,11 +23,27 @@
 
 #include <sstream>
 
-void SALOMESDS::Sha1Keeper::checkSha1(const std::string& varName, const std::vector<unsigned char>& sha1) const
+void SALOMESDS::Sha1Keeper::checkSame(const std::string& varName,const std::string& compareFuncContent, PyObject *oldObj, PyObject *newObj)
 {
-  if(sha1!=_sha1)
+  if(compareFuncContent!=_cmp_func_content)
     {
-      std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSha1 : SHA1 check fails ! Attempt of corruption of rdext data ! It means that var \"" << varName << "\" has been created but with an initial value different from the new value !";
+      std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : content of compare func are not exactly the same ! It should !";
+      throw Exception(oss.str());
+    }
+  SALOME::AutoPyRef resu(PyObject_CallFunctionObjArgs(_cmp_func,oldObj,newObj,nullptr));
+  if(resu.isNull())
+    {
+      std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : evaluation of function failed !";
+      throw Exception(oss.str());
+    }
+  if(resu.get()!=Py_False && resu.get()!=Py_True)
+    {
+      std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : evaluation of function is OK but a boolean is expected !";
+      throw Exception(oss.str());
+    }
+  if(resu.get()==Py_False)
+    {
+      std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : comparison function returns False. 2 pybjects are considered different -> createRdExtVarFreeStyleTransac fails !";
       throw Exception(oss.str());
     }
 }

@@ -55,8 +55,8 @@ namespace SALOMESDS
   class PickelizedPyObjRdExtFreeStyleServer : public PickelizedPyObjRdExtServer, public Sha1Keeper
   {
   public:
-    PickelizedPyObjRdExtFreeStyleServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value, std::vector<unsigned char>&& sha1):PickelizedPyObjRdExtServer(father,varName,value),Sha1Keeper(std::move(sha1)) { }
-    PickelizedPyObjRdExtFreeStyleServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj, std::vector<unsigned char>&& sha1):PickelizedPyObjRdExtServer(father,varName,obj),Sha1Keeper(std::move(sha1)) { }
+    PickelizedPyObjRdExtFreeStyleServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc):PickelizedPyObjRdExtServer(father,varName,value),Sha1Keeper(std::move(compareFuncContent),std::move(compareFunc)) { }
+    PickelizedPyObjRdExtFreeStyleServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc):PickelizedPyObjRdExtServer(father,varName,obj),Sha1Keeper(std::move(compareFuncContent),std::move(compareFunc)) { }
     PickelizedPyObjRdExtInitServer *buildInitInstanceFrom(const std::string& varName) override;
   };
 }

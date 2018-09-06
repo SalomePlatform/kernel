@@ -135,7 +135,7 @@ PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::vector<unsigned 
   std::size_t sz(pickledData.size());
   PyObject *pickledDataPy(PyBytes_FromStringAndSize(NULL,sz));// agy : do not use PyUnicode_FromString because std::string hides a vector of byte.
   char *buf(PyBytes_AS_STRING(pickledDataPy));// this buf can be used thanks to python documentation.
-  const unsigned char *inBuf(&pickledData[0]);
+  const unsigned char *inBuf(pickledData.data());
   std::copy(inBuf,inBuf+sz,buf);
   PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
   PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);

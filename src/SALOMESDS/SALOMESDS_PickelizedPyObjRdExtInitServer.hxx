@@ -62,7 +62,7 @@ namespace SALOMESDS
   class PickelizedPyObjRdExtInitFreeStyleServer : public PickelizedPyObjRdExtInitServer, public Sha1Keeper
   {
   public:
-    PickelizedPyObjRdExtInitFreeStyleServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj, std::vector<unsigned char>&& sha1):PickelizedPyObjRdExtInitServer(father,varName,obj),Sha1Keeper(std::move(sha1)) { }
+    PickelizedPyObjRdExtInitFreeStyleServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc):PickelizedPyObjRdExtInitServer(father,varName,obj),Sha1Keeper(std::move(compareFuncContent),std::move(compareFunc)) { }
     PickelizedPyObjRdExtServer *buildStdInstanceFrom(const std::string& varName) override;
   };
 }

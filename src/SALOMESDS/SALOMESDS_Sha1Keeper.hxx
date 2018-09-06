@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "SALOMESDS_Auto.hxx"
+
 #include <vector>
 #include <string>
 
@@ -28,12 +30,12 @@ namespace SALOMESDS
   class Sha1Keeper
   {
   public:
-    Sha1Keeper(std::vector<unsigned char>&& sha1):_sha1(std::move(sha1)) { }
-    void checkSha1(const std::string& varName, const std::vector<unsigned char>& sha1) const;
+    Sha1Keeper(std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc):_cmp_func_content(std::move(compareFuncContent)),_cmp_func(std::move(compareFunc)) { }
+    void checkSame(const std::string& varName,const std::string& compareFuncContent, PyObject *oldObj, PyObject *newObj);
     virtual ~Sha1Keeper() { }
   protected:
-    //! This sha1 is a discriminant key that allows RdExt "FreeStyle" methods to ensure that a "creation" over an already present var is legal or illegal.
-    std::vector<unsigned char> _sha1;
+    std::string _cmp_func_content;
+    SALOME::AutoPyRef _cmp_func;
   };
 }
 

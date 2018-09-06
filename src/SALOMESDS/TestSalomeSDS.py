@@ -349,7 +349,10 @@ class SalomeSDSTest(unittest.TestCase):
     pass
 
   def testTransaction8(self):
-    """ EDF 16833 """
+    """ EDF 16833 and EDF17719 """
+    funcContent="""def comptchev(a,b):
+    return "d" not in a
+"""
     scopeName="ScopePP"
     dsm=salome.naming_service.Resolve("/DataServerManager")
     dsm.cleanScopesInNS()
@@ -360,24 +363,33 @@ class SalomeSDSTest(unittest.TestCase):
 
     value={"a":1,"b":2}
     value2={'a':1,'c':3,'b':2}
+    value3={'a':1,'c':3,'b':2,'d':4}
 
     varName="abc"
-    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode()) # sha1 is the key used to compare the initial value
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent) # sha1 is the key used to compare the initial value
     dss.atomicApply([t0])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1=dss.addMultiKeyValueSession(varName)
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
     dss.atomicApply([t1])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2)
-    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode()) # key is the same as original one -> OK
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent) # func says OK this is the same (even if it is not the case) as original one -> OK
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2) # value2 remains untouched
-    t3=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha2".encode())
-    self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t3]) # sha2 != sha1 -> rejected
+    t3=dss.addMultiKeyValueSession(varName)
+    t3.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("d"),obj2Str(4))
+    dss.atomicApply([t3])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
+    t4=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent)
+    self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t4]) # d is in dict pointed by var. Func returns false -> rejected
+    self.assertRaises(SALOME.SALOME_Exception,dss.fetchSerializedContent,varName) # creation in the previous line fails -> the var has been removed
     pass
   
   def testTransaction9(self):
-    """ EDF 16833 : use case 2. Trying to createRdExt during add key session"""
+    """ EDF 16833 and EDF17719 : use case 2. Trying to createRdExt during add key session"""
+    funcContent="""def comptchev(a,b):
+    return a==b
+"""
     scopeName="ScopePP"
     dsm=salome.naming_service.Resolve("/DataServerManager")
     dsm.cleanScopesInNS()
@@ -390,11 +402,11 @@ class SalomeSDSTest(unittest.TestCase):
     value2={'a':1,'c':3,'b':2}
 
     varName="abc"
-    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode())
+    t0=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent)
     dss.atomicApply([t0])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1=dss.addMultiKeyValueSession(varName)
-    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),"sha1".encode())
+    t2=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent)
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value)
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))

@@ -27,6 +27,7 @@
 #include "SALOMESDS_Defines.hxx"
 #include "SALOMESDS_Exception.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
+#include "SALOMESDS_Auto.hxx"
 
 #include <string>
 #include <vector>
@@ -86,11 +87,12 @@ namespace SALOMESDS
   class TransactionRdExtVarFreeStyleCreate : public TransactionRdExtVarCreate
   {
   public:
-    TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const SALOME::ByteVec& sha1);
+    TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent);
     void prepareRollBackInCaseOfFailure();
     void perform();
   protected:
-    std::vector<unsigned char> _sha1;
+    std::string _cmp_func_content;
+    SALOME::AutoPyRef _cmp_func;
   };
 
   class TransactionRdExtInitVarCreate : public TransactionVarCreate
