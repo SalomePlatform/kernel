@@ -115,11 +115,25 @@ void TransactionRdExtVarFreeStyleCreate::prepareRollBackInCaseOfFailure()
 {//nothing it is not a bug
 }
 
+void TransactionRdExtVarFreeStyleCreate::rollBack()
+{// nothing to be done here. Fress style means I don t care. Do not remove var.
+  if(!_null_rollback)
+    TransactionRdExtVarCreate::rollBack();
+}
+
 void TransactionRdExtVarFreeStyleCreate::perform()
 {
   SALOME::ByteVec data2;
   FromVBToByteSeq(_data,data2);
-  _dsct->createRdExtVarFreeStyleInternal(_var_name,data2,std::move(_cmp_func_content),std::move(_cmp_func));
+  try
+    {
+      _dsct->createRdExtVarFreeStyleInternal(_var_name,data2,std::move(_cmp_func_content),std::move(_cmp_func));
+    }
+  catch(NotSameException& e)
+    {
+      _null_rollback = true;
+      throw e;
+    }
 }
 
 void TransactionRdExtInitVarCreate::perform()

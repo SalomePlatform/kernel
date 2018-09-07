@@ -38,6 +38,13 @@ namespace SALOMESDS
   private:
     void assign(const char *reason);
   };
+
+   class SALOMESDS_EXPORT NotSameException : public Exception
+   {
+   public:
+     NotSameException(const std::string& reason):Exception(reason) { }
+     NotSameException(const char *reason):Exception(reason) { }
+   };
 }
 
 #endif

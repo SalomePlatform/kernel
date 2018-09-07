@@ -382,7 +382,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
     t4=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent)
     self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t4]) # d is in dict pointed by var. Func returns false -> rejected
-    self.assertRaises(SALOME.SALOME_Exception,dss.fetchSerializedContent,varName) # creation in the previous line fails -> the var has been removed
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
     pass
   
   def testTransaction9(self):

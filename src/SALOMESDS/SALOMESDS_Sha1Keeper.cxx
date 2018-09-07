@@ -28,22 +28,22 @@ void SALOMESDS::Sha1Keeper::checkSame(const std::string& varName,const std::stri
   if(compareFuncContent!=_cmp_func_content)
     {
       std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : content of compare func are not exactly the same ! It should !";
-      throw Exception(oss.str());
+      throw NotSameException(oss.str());
     }
   SALOME::AutoPyRef resu(PyObject_CallFunctionObjArgs(_cmp_func,oldObj,newObj,nullptr));
   if(resu.isNull())
     {
       std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : evaluation of function failed !";
-      throw Exception(oss.str());
+      throw NotSameException(oss.str());
     }
   if(resu.get()!=Py_False && resu.get()!=Py_True)
     {
       std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : evaluation of function is OK but a boolean is expected !";
-      throw Exception(oss.str());
+      throw NotSameException(oss.str());
     }
   if(resu.get()==Py_False)
     {
       std::ostringstream oss; oss << "PickelizedPyObjRdExtFreeStyleServer::checkSame : comparison function returns False. 2 pybjects are considered different -> createRdExtVarFreeStyleTransac fails !";
-      throw Exception(oss.str());
+      throw NotSameException(oss.str());
     }
 }
