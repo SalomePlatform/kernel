@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import unittest
@@ -81,7 +81,7 @@ class TestCompo(unittest.TestCase):
     # job script
     script_file = "myScript.py"
     job_script_file = os.path.join(case_test_dir, script_file)
-    script_text = """#! /usr/bin/env python
+    script_text = """#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # verify import salome
@@ -158,7 +158,7 @@ f.close()
     # job script
     data_file = "in.txt"
     script_file = "myEnvScript.py"
-    script_text = """#! /usr/bin/env python
+    script_text = """#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os,sys
@@ -474,7 +474,7 @@ f.close()
     
     # job script
     script_file = "myTestScript.py"
-    script_text = """#! /usr/bin/env python
+    script_text = """#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 in_f = open("in.txt", "r")
@@ -544,7 +544,7 @@ f.close()
     # job script
     data_file = "in.txt"
     script_file = "myEnvScript.py"
-    script_text = """#! /usr/bin/env python
+    script_text = """#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os,sys
