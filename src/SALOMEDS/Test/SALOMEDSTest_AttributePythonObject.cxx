@@ -60,7 +60,7 @@ void SALOMEDSTest::testAttributePythonObject()
   //Check method GetObject
   CPPUNIT_ASSERT(_attr->GetObject() == pyobj);
 
-  //Check setting and retreival of empty object
+  //Check setting and retrieval of empty object
   _attr->SetObject("", true);
   CPPUNIT_ASSERT(_attr->GetObject() == "" && _attr->IsScript());
 

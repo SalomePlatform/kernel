@@ -94,6 +94,6 @@ Launch with interactive Python console.
 - <code>--interp=n</code> or <code>-i=n</code>
 
 Number of additional Python interpreters to open, with session
-environment propely set-up.
+environment properly set-up.
 
 */

@@ -384,7 +384,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     exception StudyNameError {};
 //! Invalid study comment
     exception StudyCommentError {};
-    
+
 /*!
     Determines whether the server has already been loaded or not.
 */
@@ -558,7 +558,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 /*! \brief Get a new %UseCaseBuilder.
 */
     UseCaseBuilder  GetUseCaseBuilder() raises(StudyInvalidReference);
-    
+
 /*! \brief Clear a study object
 */
     void Clear() raises(StudyInvalidReference);
@@ -566,14 +566,14 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 /*! \brief Initialization a study object
 */
     void Init() raises(StudyInvalidReference);
-    
+
 /*! \brief Open a study by url
 
     Reads and activates the structure of the study %Objects.
     \param aStudyUrl The path to the study
 */
     boolean Open (in URLPath aStudyUrl) raises (SALOME::SALOME_Exception);
-    
+
 /*! \brief Saving the study in a file (or files).
 
     Saves a study.
@@ -581,11 +581,11 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param theASCII If this parameter is True the study will be saved in ASCII format, otherwise in HDF format.
 */
     boolean Save(in boolean theMultiFile, in boolean theASCII) raises(StudyInvalidReference);
-    
+
 /*! \brief Saving the study in a specified file (or files).
 
     Saves the study in a specified file (or files).
-    \param aUrl The path to the definite file in whcih the study will be saved
+    \param aUrl The path to the definite file in which the study will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
     \param theASCII If this parameter is True the study will be saved in ASCII format, otherwise in HDF format.
 
@@ -593,8 +593,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     boolean  SaveAs(in URLPath aUrl, // if the file already exists
                     in boolean theMultiFile, // overwrite (as option)
-                    in boolean theASCII) 
-                    raises(StudyInvalidReference); 
+                    in boolean theASCII)
+                    raises(StudyInvalidReference);
 /*!
     Returns True, if the given %SObject can be copied to the clipboard.
 */

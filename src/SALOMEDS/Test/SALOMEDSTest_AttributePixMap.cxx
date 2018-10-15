@@ -59,7 +59,7 @@ void SALOMEDSTest::testAttributePixMap()
   //Check method GetPixMap
   CPPUNIT_ASSERT(_attr->GetPixMap() == pixmap);
 
-  //Check empty PixMap assigning and retreival
+  //Check empty PixMap assigning and retrieval
   _attr->SetPixMap("");
   CPPUNIT_ASSERT(_attr->GetPixMap() == "");
 

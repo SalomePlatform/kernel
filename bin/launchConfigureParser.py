@@ -825,7 +825,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
     # - These directories are analyzed beginning from the last one in the list,
     #   so the first directory listed in "<appname>Config" environment variable
     #   has higher priority: it means that if some configuration options
-    #   is found in the next analyzed cofiguration file - it will be replaced
+    #   is found in the next analyzed configuration file - it will be replaced
     # - The last configuration file which is parsed is user configuration file
     #   situated in the home directory (if it exists):
     #   * ~/.config/salome/.<appname>rc[.<version>]" for Linux (e.g. ~/.config/salome/.SalomeApprc.6.4.0)

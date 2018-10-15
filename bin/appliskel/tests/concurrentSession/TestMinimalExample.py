@@ -24,10 +24,10 @@ import multiprocessing
 import unittest
 import logging
 
-def port_reservation(obtained_ports, prefered=None, test=None, expected=None):
+def port_reservation(obtained_ports, preferred=None, test=None, expected=None):
   from PortManager import getPort
-  if prefered:
-    port = getPort(prefered)
+  if preferred:
+    port = getPort(preferred)
   else:
     port = getPort()
   print("obtained port = %s"%port)

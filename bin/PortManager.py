@@ -132,7 +132,7 @@ def __isNetworkConnectionActiveOnPort(port):
   return False
 #
 
-def getPort(preferedPort=None):
+def getPort(preferredPort=None):
   logger.debug("GET PORT")
 
   config_file, lock_file = _getConfigurationFilename()
@@ -159,7 +159,7 @@ def getPort(preferedPort=None):
         config[appli_path] = []
 
     # append port
-    port = preferedPort
+    port = preferredPort
     if not port or __isPortUsed(port, config):
       port = __PORT_MIN_NUMBER
       while __isPortUsed(port, config):

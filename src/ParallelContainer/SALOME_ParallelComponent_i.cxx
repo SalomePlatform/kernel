@@ -56,7 +56,7 @@ static Engines_Parallel_Component_i * theEngines_Component ;
 bool Engines_Parallel_Component_i::_isMultiInstance = false;
 
 //=============================================================================
-/*! 
+/*!
  *  Standard Constructor for generic Component, used in derived class
  *  Connection to Registry and Notification
  *  \param orb Object Request broker given by Container
@@ -69,13 +69,13 @@ bool Engines_Parallel_Component_i::_isMultiInstance = false;
 //=============================================================================
 
 Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank,
-                                         PortableServer::POA_ptr poa, 
-                                         PortableServer::ObjectId * contId, 
+                                         PortableServer::POA_ptr poa,
+                                         PortableServer::ObjectId * contId,
                                          const char *instanceName,
                                          const char *interfaceName,
                                          bool notif,
                                          bool regist) :
-  InterfaceParallel_impl(orb,ior,rank), 
+  InterfaceParallel_impl(orb,ior,rank),
   Engines::EngineComponent_serv(orb,ior,rank),
   Engines::EngineComponent_base_serv(orb,ior,rank),
   Engines::Parallel_Component_serv(orb,ior,rank),
@@ -114,7 +114,7 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
 }
 
 //=============================================================================
-/*! 
+/*!
  *  Destructor: call Container for decrement of instances count.
  *  When instances count falls to 0, the container tries to remove the
  *  component library (dlclose)
@@ -137,7 +137,7 @@ Engines_Parallel_Component_i::~Engines_Parallel_Component_i()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: return name of the instance, unique in this Container
  */
 //=============================================================================
@@ -148,7 +148,7 @@ char* Engines_Parallel_Component_i::instanceName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: return name of the component class
  */
 //=============================================================================
@@ -159,7 +159,7 @@ char* Engines_Parallel_Component_i::interfaceName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: Test if instance is alive and responds
  */
 //=============================================================================
@@ -176,7 +176,7 @@ void Engines_Parallel_Component_i::ping()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: Deactivate this instance. CORBA object is deactivated (do not
  *  respond any more to CORBA calls), the connection to Regsitry is removed
  *  (Registry informed of deactivation), internal server reference counter on
@@ -198,7 +198,7 @@ void Engines_Parallel_Component_i::destroy()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: return CORBA reference of the Container
  *
  */
@@ -212,12 +212,12 @@ Engines::Container_ptr Engines_Parallel_Component_i::GetContainerRef()
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
- *  Gives a sequence of (key=string,value=any) to the component. 
+/*!
+ *  CORBA method:
+ *  Gives a sequence of (key=string,value=any) to the component.
  *  Base class component stores the sequence in a map.
  *  The map is cleared before.
- *  This map is for use by derived classes. 
+ *  This map is for use by derived classes.
  *  \param dico sequence of (key=string,value=any)
  */
 //=============================================================================
@@ -233,8 +233,8 @@ void Engines_Parallel_Component_i::setProperties(const Engines::FieldsDict& dico
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
+/*!
+ *  CORBA method:
  *  returns a previously stored map (key=string,value=any) as a sequence.
  *  (see setProperties)
  */
@@ -256,7 +256,7 @@ Engines::FieldsDict* Engines_Parallel_Component_i::getProperties()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used by Supervision to give names to this instance
  */
 //=============================================================================
@@ -266,17 +266,17 @@ void Engines_Parallel_Component_i::Names( const char * graphName ,
 {
   _graphName = graphName;
   _nodeName = nodeName;
-  MESSAGE("Engines_Parallel_Component_i::Names( '" << _graphName << "' , '" 
+  MESSAGE("Engines_Parallel_Component_i::Names( '" << _graphName << "' , '"
                                                    << _nodeName << "' )");
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
 
-bool Engines_Parallel_Component_i::Kill_impl() 
+bool Engines_Parallel_Component_i::Kill_impl()
 {
 //  MESSAGE("Engines_Parallel_Component_i::Kill_i() pthread_t "<< pthread_self()
 //          << " pid " << getpid() << " instanceName "
@@ -305,7 +305,7 @@ bool Engines_Parallel_Component_i::Kill_impl()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
@@ -325,7 +325,7 @@ bool Engines_Parallel_Component_i::Stop_impl()
           << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #endif
-  
+
 
   bool RetVal = false ;
 #ifndef WIN32
@@ -345,7 +345,7 @@ bool Engines_Parallel_Component_i::Stop_impl()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
@@ -377,7 +377,7 @@ bool Engines_Parallel_Component_i::Suspend_impl()
         {
           return false ;
         }
-    else 
+    else
       {
 #ifndef WIN32
         RetVal = Killer( _ThreadId ,SIGINT ) ;
@@ -392,7 +392,7 @@ bool Engines_Parallel_Component_i::Suspend_impl()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  CORBA method: used in Supervision
  */
 //=============================================================================
@@ -419,7 +419,7 @@ bool Engines_Parallel_Component_i::Resume_impl()
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
 #endif
     {
-    if ( _Sleeping ) 
+    if ( _Sleeping )
       {
         _Sleeping = false ;
         RetVal = true ;
@@ -433,8 +433,8 @@ bool Engines_Parallel_Component_i::Resume_impl()
 }
 
 //=============================================================================
-/*! 
- *  CORBA method: 
+/*!
+ *  CORBA method:
  */
 //=============================================================================
 
@@ -474,7 +474,7 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
           //      << _serviceName << " " << cpu << std::endl ;
       }
     }
-    else 
+    else
       {
         cpu = _ThreadCpuUsed ;
         // std::cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
@@ -491,7 +491,7 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
 
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: return Container Servant
  */
 //=============================================================================
@@ -502,7 +502,7 @@ Engines_Parallel_Container_i *Engines_Parallel_Component_i::GetContainerPtr()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: return CORBA instance id, the id is set in derived class
  *  constructor, when instance is activated.
  */
@@ -515,7 +515,7 @@ PortableServer::ObjectId * Engines_Parallel_Component_i::getId()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used by derived classes for supervision
  */
 //=============================================================================
@@ -587,7 +587,7 @@ void Engines_Parallel_Component_i::beginService(const char *serviceName)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used by derived classes for supervision
  */
 //=============================================================================
@@ -610,7 +610,7 @@ void Engines_Parallel_Component_i::endService(const char *serviceName)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: -- CHECK IF USED --
  */
 //=============================================================================
@@ -621,7 +621,7 @@ char* Engines_Parallel_Component_i::graphName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: -- CHECK IF USED --
  */
 //=============================================================================
@@ -632,7 +632,7 @@ char* Engines_Parallel_Component_i::nodeName()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used in Supervision (see kill_impl)
  */
 //=============================================================================
@@ -670,7 +670,7 @@ bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
               perror("Killer pthread_kill error") ;
               return false ;
             }
-          else 
+          else
             {
 #ifndef WIN32
         MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
@@ -686,9 +686,9 @@ bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method:
- */ 
+ */
 //=============================================================================
 
 void SetCpuUsed()
@@ -698,7 +698,7 @@ void SetCpuUsed()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method:
  */
 //=============================================================================
@@ -706,12 +706,12 @@ void SetCpuUsed()
 void Engines_Parallel_Component_i::SetCurCpu()
 {
   _ThreadCpuUsed =  CpuUsed() ;
-  //  MESSAGE(pthread_self() << 
+  //  MESSAGE(pthread_self() <<
   //  " Engines_Parallel_Component_i::SetCurCpu() _ThreadCpuUsed " << _ThreadCpuUsed) ;
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method:
  */
 //=============================================================================
@@ -736,7 +736,7 @@ long Engines_Parallel_Component_i::CpuUsed()
   else
     {
       // std::cout << pthread_self() << "Engines_Parallel_Component_i::CpuUsed _ThreadId "
-      //      << _ThreadId << " " << _serviceName<< " _StartUsed " 
+      //      << _ThreadId << " " << _serviceName<< " _StartUsed "
       //      << _StartUsed << std::endl ;
     }
 #else
@@ -765,7 +765,7 @@ void Engines_Parallel_Component_i::CancelThread()
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: Send message to event channel
  */
 //=============================================================================
@@ -777,7 +777,7 @@ void Engines_Parallel_Component_i::sendMessage(const char *event_type,
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: return standard library name built on component name
  */
 //=============================================================================
@@ -795,12 +795,12 @@ std::string Engines_Parallel_Component_i::GetDynLibraryName(const char *componen
 #else
   std::string ret=componentName;
   ret+="Engine.dll";
-#endif 
+#endif
   return ret;
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: DumpPython default implementation
  */
 //=============================================================================
@@ -814,15 +814,15 @@ Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Boolean isPubl
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
   int aBufferSize = strlen(aBuffer)+1;
-  Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1); 
+  Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1);
   isValidScript = true;
-  return aStreamFile._retn(); 
+  return aStreamFile._retn();
 }
 
 
-Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::setInputFileToService(const char* service_name, 
-                                                    const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
+                                                    const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we add it.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -837,7 +837,7 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
   _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
   _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Input_Service_file_map[service_name];
   _t_IOR_Proxy_Salome_file_map * _IOR_proxy_map = _IOR_Proxy_Input_Service_file_map[service_name];
-  
+
   pthread_mutex_lock(deploy_mutex);
   std::string proxy_ior;
 
@@ -856,16 +856,16 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     if (getMyRank() == 0) {
       proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
                                                            new paco_omni_fabrique());
-      proxy->copyGlobalContext(this); 
+      proxy->copyGlobalContext(this);
       PaCO::PacoTopology_t serveur_topo;
       serveur_topo.total = getTotalNode();
       proxy->setTopology(serveur_topo);
 
-      // We register the CORBA objet into the POA
+      // We register the CORBA object into the POA
       CORBA::Object_ptr proxy_ref = proxy->_this();
 
       // We send the reference to all the nodes...
-      Engines::Parallel_Component_var component_proxy = 
+      Engines::Parallel_Component_var component_proxy =
         Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
       component_proxy->send_parallel_proxy_object(proxy_ref);
 
@@ -883,13 +883,13 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     // into the proxy.
     for (int i = 0; i < getTotalNode(); i++) {
       if (i ==  getMyRank()) {
-        Parallel_Salome_file_i * servant = 
-          new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
+        Parallel_Salome_file_i * servant =
+          new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb),
                                      proxy_ior.c_str(),
                                      i);
-        servant->copyGlobalContext(this); 
-        
-        // We register the CORBA objet into the POA
+        servant->copyGlobalContext(this);
+
+        // We register the CORBA object into the POA
         servant->POA_PaCO::InterfaceParallel::_this();
 
         // Register the servant
@@ -919,9 +919,9 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
   return Engines::Salome_file::_narrow(proxy_ref);
 }
 
-Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::setOutputFileToService(const char* service_name, 
-                                                     const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
+                                                     const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we add it.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
@@ -936,7 +936,7 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
   _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
   _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Output_Service_file_map[service_name];
   _t_IOR_Proxy_Salome_file_map * _IOR_proxy_map = _IOR_Proxy_Output_Service_file_map[service_name];
-  
+
   pthread_mutex_lock(deploy_mutex);
   std::string proxy_ior;
 
@@ -955,16 +955,16 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     if (getMyRank() == 0) {
         proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
                                                              new paco_omni_fabrique());
-      proxy->copyGlobalContext(this); 
+      proxy->copyGlobalContext(this);
       PaCO::PacoTopology_t serveur_topo;
       serveur_topo.total = getTotalNode();
       proxy->setTopology(serveur_topo);
 
-      // We register the CORBA objet into the POA
+      // We register the CORBA object into the POA
       CORBA::Object_ptr proxy_ref = proxy->_this();
 
       // We send the reference to all the nodes...
-      Engines::Parallel_Component_var component_proxy = 
+      Engines::Parallel_Component_var component_proxy =
         Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
       component_proxy->send_parallel_proxy_object(proxy_ref);
 
@@ -982,13 +982,13 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     // into the proxy.
     for (int i = 0; i < getTotalNode(); i++) {
       if (i ==  getMyRank()) {
-        Parallel_Salome_file_i * servant = 
-          new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
+        Parallel_Salome_file_i * servant =
+          new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb),
                                      proxy_ior.c_str(),
                                      i);
-        servant->copyGlobalContext(this); 
-        
-        // We register the CORBA objet into the POA
+        servant->copyGlobalContext(this);
+
+        // We register the CORBA object into the POA
         servant->POA_PaCO::InterfaceParallel::_this();
 
         // Register the servant
@@ -1018,9 +1018,9 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
   return Engines::Salome_file::_narrow(proxy_ref);
 }
 
-Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::getInputFileToService(const char* service_name, 
-                                                    const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Parallel_Component_i::getInputFileToService(const char* service_name,
+                                                    const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Proxy_Service_file_map_it = _Proxy_Input_Service_file_map.find(service_name);
@@ -1046,9 +1046,9 @@ Engines_Parallel_Component_i::getInputFileToService(const char* service_name,
   return Sfile->_this();
 }
 
-Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::getOutputFileToService(const char* service_name, 
-                                                     const char* Salome_file_name) 
+Engines::Salome_file_ptr
+Engines_Parallel_Component_i::getOutputFileToService(const char* service_name,
+                                                     const char* Salome_file_name)
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Proxy_Service_file_map_it = _Proxy_Output_Service_file_map.find(service_name);
@@ -1075,8 +1075,8 @@ Engines_Parallel_Component_i::getOutputFileToService(const char* service_name,
 }
 
 
-void 
-Engines_Parallel_Component_i::checkInputFilesToService(const char* service_name) 
+void
+Engines_Parallel_Component_i::checkInputFilesToService(const char* service_name)
 {
   // Try to find the service, if it doesn't exist, nothing to do.
   _Proxy_Service_file_map_it = _Proxy_Input_Service_file_map.find(service_name);
@@ -1094,8 +1094,8 @@ Engines_Parallel_Component_i::checkInputFilesToService(const char* service_name)
   }
 }
 
-void 
-Engines_Parallel_Component_i::checkOutputFilesToService(const char* service_name) 
+void
+Engines_Parallel_Component_i::checkOutputFilesToService(const char* service_name)
 {
   // Try to find the service, if it doesn't exist, nothing to do.
   _Proxy_Service_file_map_it = _Proxy_Output_Service_file_map.find(service_name);
@@ -1115,21 +1115,21 @@ Engines_Parallel_Component_i::checkOutputFilesToService(const char* service_name
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: Used by the Parallel Component to deploy a Parallel Salome_file
- */ 
+ */
 //=============================================================================
-void 
+void
 Engines_Parallel_Component_i::send_parallel_proxy_object(CORBA::Object_ptr proxy_ref) {
   _proxy = _orb->object_to_string(proxy_ref);
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: Used by the Parallel Component to deploy a Parallel Salome_file
- */ 
+ */
 //=============================================================================
-void 
+void
 Engines_Parallel_Component_i::wait_parallel_object_proxy() {
   char * proxy = NULL;
   proxy =  get_parallel_proxy_object();
@@ -1141,18 +1141,18 @@ Engines_Parallel_Component_i::wait_parallel_object_proxy() {
 }
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: Used by the Parallel Component to deploy a Parallel Salome_file
- */ 
+ */
 //=============================================================================
-char * 
+char *
 Engines_Parallel_Component_i::get_parallel_proxy_object() {
   return _proxy;
 }
 
 
 //=============================================================================
-/*! 
+/*!
  *  C++ method: used to configure the Salome_file into the runtime.
  *  \param service_name name of the service that use this Salome_file
  *  \param file_port_name name of the Salome_file
@@ -1162,7 +1162,7 @@ Engines_Parallel_Component_i::get_parallel_proxy_object() {
 void
 Engines_Parallel_Component_i::configureSalome_file(std::string service_name,
                                                    std::string file_port_name,
-                                                   Engines::Parallel_Salome_file_proxy_impl * file) 
+                                                   Engines::Parallel_Salome_file_proxy_impl * file)
 {
   // By default this method does nothing
 }

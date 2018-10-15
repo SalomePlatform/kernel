@@ -1,5 +1,5 @@
 #! /bin/bash
-# This test launches in parallel a greate number of instancies of a usual use case
+# This test launches in parallel a great number of instances of a usual use case
 WORKDIR=`mktemp -d`
 echo WORKDIR: $WORKDIR
 cat > $WORKDIR/command.sh <<< 'echo "OK" > result.txt'

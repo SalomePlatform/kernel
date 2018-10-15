@@ -31,14 +31,14 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 
 /*
  * - Name : HDFnObjects
- * - Description : returns the number of HDF objets in a HDF group
+ * - Description : returns the number of HDF objects in an HDF group
  * - Parameters :
  *     - fid     (IN)     : HDF file ID
  *     - path    (IN)     : access path to the HDF group in the HDF file
  * - Results :
  *     - if success : number of objects
- *     - if failure : -1 
- */ 
+ *     - if failure : -1
+ */
 
 hdf_err Num(hdf_idt id,const char *name, void *data);
 
@@ -59,10 +59,9 @@ HDFnObjects(hdf_idt fid,const char *path,int *n)
 hdf_err Num(hdf_idt id,const char *name, void *data)
 {
   int *count;
-  
+
   count = (int *) data;
   (*count)++;
 
   return 0;
 }
-

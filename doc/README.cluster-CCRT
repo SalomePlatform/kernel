@@ -31,9 +31,9 @@ And one or more python scripts may be executed
 Warnings
 ========
 
-The list of needed modules must be explicited with --modules option
+The list of needed modules must be invoked with --modules option
 
-It is not possible to use embbedded components, so we must use --standalone option
+It is not possible to use embedded components, so we must use --standalone option
 
 After the python script(s) listed in the --terminal option, ",killall" should
 be added : so the processes of Salome will be killed after the execution of
@@ -43,7 +43,7 @@ the python script(s).
 Examples
 ========
 
-Sans IHM sans execution de script python (for interactive testing and developping) :
+Sans IHM sans execution de script python (for interactive testing and developing) :
 ---------------------------------------------
 
 runSalome --terminal --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer --killall --logger
@@ -80,4 +80,3 @@ Queue for execution that file (here runSalome.batch) :
 bsub < runSalome.batch
 
 See the "bsub" documentation for details (or "man bsub")
-

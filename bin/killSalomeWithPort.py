@@ -71,7 +71,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
         # full path to the pidict file is requested
         if hidden:
             # new-style dot-prefixed pidict files
-            # are in the system-dependant temporary diretory
+            # are in the system-dependant temporary directory
             dir = getLogDir()
         else:
             # old-style non-dot-prefixed pidict files
