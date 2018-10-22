@@ -22,7 +22,7 @@ import os
 
 # Example of args:
 #      args=["--gui", "--show-desktop=1", "--splash=0"]
-#      args=["--terminal","--modules=MED,PARAVIS,GUI"]
+#      args=["--terminal","--modules=FIELDS,PARAVIS,GUI"]
 class SalomeInstance(object):
 
   def __init__(self):
@@ -71,7 +71,7 @@ class SalomeInstance(object):
     else:
       sys.argv += ["--terminal"]
       #sys.argv += ["--shutdown-servers=1"]
-      #sys.argv += ["--modules=MED,PARAVIS,GUI"]
+      #sys.argv += ["--modules=FIELDS,PARAVIS,GUI"]
       pass
 
     import setenv

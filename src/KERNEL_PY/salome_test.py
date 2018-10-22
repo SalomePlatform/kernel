@@ -22,7 +22,7 @@
 #
 
 print()
-print("Perform quick test of the application by loading of the GEOM, SMESH, MED, PARAVIS")
+print("Perform quick test of the application by loading of the GEOM, SMESH, FIELDS, PARAVIS")
 print("components and doing some operation within the components.")
 print()
 
@@ -306,7 +306,7 @@ if salome.hasDesktop():
 print()
 
 print("======================================================================")
-print("           %d. Test Med " % step); step+=1
+print("           %d. Test Fields " % step); step+=1
 print("======================================================================")
 
 import medcalc
@@ -315,11 +315,11 @@ from medcalc.fieldproxy import FieldProxy
 
 medcalc.medconsole.setConsoleGlobals(globals())
 try:
-    med_root=os.environ["MED_ROOT_DIR"]
+    med_root=os.environ["FIELDS_ROOT_DIR"]
 except KeyError as e:
-    raise RuntimeError("MED_ROOT_DIR should be defined to load the test data")
+    raise RuntimeError("FIELDS_ROOT_DIR should be defined to load the test data")
 
-filepath = os.path.join(med_root,"share","salome","resources","med","medcalc_testfiles","smallmesh_varfield.med")
+filepath = os.path.join(med_root,"share","salome","resources","fields","medcalc_testfiles","smallmesh_varfield.med")
 medcalc.medio.LoadDataSource(filepath)
 fieldHandlerList = medcalc.medevents.dataManager.getFieldHandlerList()
 

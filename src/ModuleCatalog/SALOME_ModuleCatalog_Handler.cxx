@@ -444,7 +444,10 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               _aModule.type = MESH ;
             else if((aType.compare("MED") == 0) ||
                     (aType.compare("Med") == 0) ||
-                    (aType.compare("med") == 0))
+                    (aType.compare("med") == 0) ||
+                    (aType.compare("FIELDS") == 0) ||
+                    (aType.compare("Fields") == 0) ||
+                    (aType.compare("fields") == 0))
               _aModule.type = Med ;
             else if((aType.compare("GEOM") == 0) ||
                     (aType.compare("Geom") == 0) ||
