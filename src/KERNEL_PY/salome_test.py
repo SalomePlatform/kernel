@@ -31,6 +31,7 @@ import SALOME
 import SALOMEDS
 import os
 import sys
+import time
 import SALOME_ModuleCatalog
 
 step = 1
@@ -353,52 +354,155 @@ print("======================================================================")
 if salome.hasDesktop(): # in gui mode
 
     print("**** Importing pvserver... It can take some time.")
-    import pvserver
-    import pvsimple
-    
+    import pvsimple as pvs
+
     #====================Stage1: Importing MED file====================
-    
+
     print("**** Stage1: Importing MED file")
     
-    print('Import "ResOK_0000.med"...............', end=' ')
-    medFileName = "ResOK_0000.med"
-    medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
-    pvsimple.MEDReader( FileName=medFile )
-    med_reader = pvsimple.GetActiveSource()
-    
+    med_file = "ResOK_0000.med"
+    print("Import '{}'...............".format(med_file), end=' ')
+    path = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', med_file)
+    med_reader = pvs.MEDReader(FileName=path)
     if med_reader is None:
         print("FAILED")
     else:
         print("OK")
-    
+    times = med_reader.TimestepValues.GetData()
+
     #====================Stage2: Displaying presentation===============
     
     print("**** Stage2: Displaying presentation")
-    
+
+    # -----------------------------------------------------------------
     print('Get view...................', end=' ')
-    view = pvsimple.GetRenderView()
+    view = pvs.GetRenderView()
     if view is None:
         print("FAILED")
     else:
-        print ("OK")
-    
-    print("Creating presentation.......",end='')
-    prs = pvsimple.GetRepresentation(med_reader)
-    if prs is None:
+        print("OK")
+    view.ResetCamera()
+
+    # -----------------------------------------------------------------
+    print("Show mesh..................", end=' ')
+    mesh = pvs.Show(med_reader, view)
+    view.ResetCamera()
+    if mesh is None:
         print("FAILED")
     else:
-        rep_list = view.Representations
-        for rep in rep_list:
-            if hasattr(rep, 'Visibility'):
-                rep.Visibility = (rep == prs)
-        pvsimple.Render(view=view) 
-        
-        # ---- surface representation
-        prs.SetRepresentationType('Surface')
-        view.ResetCamera()
+        print("OK")
+    mesh.Representation = 'Surface With Edges'
+    pvs.Render(view)
+    time.sleep(1)
 
-        print ("OK")
-    
+    # -----------------------------------------------------------------
+    print("Show scalar map............", end=' ')
+    scalar_map = mesh
+    if scalar_map is None:
+        print("FAILED")
+    else:
+        print("OK")
+    scalar_map.Representation = 'Surface'
+    pvs.ColorBy(scalar_map, ('POINTS', 'vitesse', 'Magnitude'))
+    #scalar_map.SetScalarBarVisibility(view, True)
+    view.ViewTime = times[-1]
+    pvs.Render(view)
+    time.sleep(1)
+    scalar_map.Visibility = 0
+    pvs.Render(view)
+
+    # -----------------------------------------------------------------
+    print("Show vectors...............", end=' ')
+    calc = pvs.Calculator(Input=med_reader)
+    calc.ResultArrayName = 'vitesse_3c'
+    calc.Function = 'iHat * vitesse_X + jHat * vitesse_Y + kHat * 0'
+    glyph = pvs.Glyph(Input=calc, GlyphType='Arrow')
+    glyph.OrientationArray = ['POINTS', 'vitesse_3c']
+    glyph.ScaleArray = ['POINTS', 'No scale array']
+    glyph.MaximumGlyphSize = 0.01
+    vectors = pvs.Show(glyph, view)
+    if vectors is None:
+        print("FAILED")
+    else:
+        print("OK")
+    vectors.Representation = 'Surface'
+    pvs.Render(view)
+    time.sleep(1)
+    vectors.Visibility = 0
+    pvs.Render(view)
+
+    # -----------------------------------------------------------------
+    print("Show iso surfaces..........", end=' ')
+    merge_blocks = pvs.MergeBlocks(Input=med_reader)
+    calc = pvs.Calculator(Input=merge_blocks)
+    calc.ResultArrayName = 'vitesse_magnitude'
+    calc.Function = 'sqrt(vitesse_X^2+vitesse_Y^2)'
+    data_range = med_reader.GetPointDataInformation()['vitesse'].GetComponentRange(-1)
+    nb_surfaces = 10
+    surfaces = [data_range[0] + i*(data_range[1]-data_range[0])/(nb_surfaces-1) for i in range(nb_surfaces)]
+    contour = pvs.Contour(Input=calc)
+    contour.ComputeScalars = 1
+    contour.ContourBy = ['POINTS', 'vitesse_magnitude']
+    contour.Isosurfaces = surfaces
+    iso_surfaces = pvs.Show(contour, view)
+    if iso_surfaces is None:
+        print("FAILED")
+    else:
+        print("OK")
+    iso_surfaces.Representation = 'Surface'
+    pvs.ColorBy(iso_surfaces, ('POINTS', 'vitesse', 'Magnitude'))
+    pvs.Render(view)
+    time.sleep(1)
+    iso_surfaces.Visibility = 0
+    pvs.Render(view)
+
+    # -----------------------------------------------------------------
+    print("Show cut planes............", end=' ')
+    slice = pvs.Slice(Input=med_reader)
+    slice.SliceType = "Plane"
+    slice.SliceType.Normal = [1.0, 0.0, 0.0]
+    bounds = med_reader.GetDataInformation().GetBounds()
+    nb_planes = 30
+    displacement = 0.5
+    b_left = bounds[0] + (bounds[1]-bounds[0])*displacement/100
+    b_right = bounds[1] - (bounds[1]-bounds[0])*displacement/100
+    b_range = b_right - b_left
+    positions = [b_left + i*b_range/(nb_planes-1) for i in range(nb_planes)]
+    slice.SliceOffsetValues = positions
+    pvs.Hide3DWidgets(proxy=slice.SliceType)
+    cut_planes = pvs.Show(slice, view)
+    if cut_planes is None:
+        print("FAILED")
+    else:
+        print("OK")
+    cut_planes.Representation = 'Surface'
+    pvs.ColorBy(cut_planes, ('POINTS', 'vitesse', 'Magnitude'))
+    pvs.Render(view)
+    time.sleep(1)
+    cut_planes.Visibility = 0
+    pvs.Render(view)
+
+    # -----------------------------------------------------------------
+    print("Show deformed shape........", end=' ')
+    merge_blocks = pvs.MergeBlocks(Input=med_reader)
+    calc = pvs.Calculator(Input=merge_blocks)
+    calc.ResultArrayName = 'vitesse_3c'
+    calc.Function = 'iHat * vitesse_X + jHat * vitesse_Y + kHat * 0'
+    warp = pvs.WarpByVector(Input=calc)
+    warp.Vectors = ['POINTS', 'vitesse_3c']
+    warp.ScaleFactor = 0.5
+    deformed_shape = pvs.Show(warp, view)
+    if deformed_shape is None:
+        print("FAILED")
+    else:
+        print("OK")
+    deformed_shape.Representation = 'Surface'
+    pvs.ColorBy(deformed_shape, ('CELLS', 'pression'))
+    pvs.Render(view)
+    time.sleep(1)
+    deformed_shape.Visibility = 0
+    pvs.Render(view)
+
 else: # not in gui mode, Paravis can not be tested
     
     print()
