@@ -71,7 +71,7 @@ namespace KERNEL {
       CORBA::Object_ptr anObject = aNamingService->Resolve("/Study");
       aStudy = SALOMEDS::Study::_narrow(anObject);
     }
-    return aStudy;
+    return SALOMEDS::Study::_duplicate(aStudy); // we duplicate it here to allow using it with the var client instances.
   }
 
   /**
