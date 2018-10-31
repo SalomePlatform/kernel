@@ -109,7 +109,7 @@ namespace {
  *  Purpose  : SALOMEDSImpl_Study constructor
  */
 //============================================================================
-SALOMEDSImpl_Study::SALOMEDSImpl_Study()
+SALOMEDSImpl_Study::SALOMEDSImpl_Study() : _doc(NULL)
 {
   _appli = new DF_Application();
   _clipboard = _appli->NewDocument("SALOME_STUDY");
@@ -137,6 +137,9 @@ SALOMEDSImpl_Study::~SALOMEDSImpl_Study()
 //============================================================================
 void SALOMEDSImpl_Study::Init()
 {
+  if (_doc)
+    return; // noop: already initialized
+
   static int _id = 0;
   std::stringstream sstrm;
   sstrm << ++_id;

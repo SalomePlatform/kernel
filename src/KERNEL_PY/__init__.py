@@ -214,6 +214,8 @@ def salome_close():
         pass
     salome_initial=True
     salome_iapp_close()
+    salome_study_close()
+    myStudy, myStudyName = None, None
     pass
 
 

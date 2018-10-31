@@ -271,11 +271,11 @@ def FindFileInDataDir(filename):
     #--------------------------------------------------------------------------
 
 def openStudy(theStudyPath):
-    print("openStudy")
+    if verbose(): print("openStudy (begin)")
     global myStudy, myStudyName
     myStudy.Open(theStudyPath)
     myStudyName = myStudy._get_Name()
-    print(theStudyPath, myStudy._get_Name())
+    if verbose(): print("openStudy (end):", theStudyPath, myStudy._get_Name())
 
     #--------------------------------------------------------------------------
 
@@ -306,7 +306,13 @@ def salome_study_init(theStudyPath=None):
         if isinstance(theStudyPath, bytes):
             theStudyPath = str(theStudyPath, 'UTF8')
         openStudy(theStudyPath)
+    else:
+        myStudy.Init()
 
     myStudyName = myStudy._get_Name()
 
     return myStudy, myStudyName
+
+def salome_study_close():
+  global myStudy, myStudyName
+  myStudy, myStudyName = None, None
