@@ -296,7 +296,7 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
         aBuffer = "\0"
         if isMultiFile :
             aBuffer = "def RebuildData(): pass\n\0"
-        return (aBuffer, 1)
+        return (aBuffer.encode(), 1)
 
     #-------------------------------------------------------------------------
 
