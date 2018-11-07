@@ -750,6 +750,9 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
     def visitStringType(self, type):
         self.currentType = "string"
 
+    def visitWStringType(self, type):
+        self.currentType = "wstring"
+
     def visitParameter(self, node):
         node.paramType().accept(self)
         if node.is_in():
