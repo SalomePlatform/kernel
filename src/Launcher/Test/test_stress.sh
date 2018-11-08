@@ -4,14 +4,16 @@ WORKDIR=`mktemp -d`
 echo WORKDIR: $WORKDIR
 cat > $WORKDIR/command.sh <<< 'echo "OK" > result.txt'
 chmod 755 $WORKDIR/command.sh
+pid_launcher=''
 for i in {1..500}
 do
   python launcher_use_case.py $WORKDIR 2> $WORKDIR/log$i.err &
+  pid_launcher=$pid_launcher" "$!
 done
 exit_code=0
-for i in {1..500}
+for i in "$pid_launcher"
 do
-  wait -n
+  wait $i
   ret=$?
   if [ $ret -ne "0" ]
   then
