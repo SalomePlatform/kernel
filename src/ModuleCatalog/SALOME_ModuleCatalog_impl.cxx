@@ -390,51 +390,43 @@ SALOME_ModuleCatalogImpl::GetComputerList()
 // Function : GetPathPrefix
 // Purpose  : get the PathPrefix of a computer
 //----------------------------------------------------------------------
-char * 
+char* 
 SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
   if(MYDEBUG) MESSAGE("Begin of GetPathPrefix");
   // Variables initialisation
-  char* _path = NULL;
-  bool _find = false ;
+  std::string _path;
+  bool _find = false;
 
   // Parse all the path prefixes
   // looking for the wanted computer
-  for (unsigned int ind = 0 ; ind < myPrivate->_personal_path_list.size() ; ind++)
+  for (unsigned int ind = 0; ind < myPrivate->_personal_path_list.size() && !_find; ind++)
+  {
+    for (unsigned int ind1 = 0; ind1 < myPrivate->_personal_path_list[ind].listOfComputer.size() && !_find; ind1++)
     {
-      for (unsigned int ind1 = 0 ; ind1 < myPrivate->_personal_path_list[ind].listOfComputer.size() ; ind1++)    
-        {
-          if (strcmp(machinename, myPrivate->_personal_path_list[ind].listOfComputer[ind1].c_str()) == 0)
-            {
-              _find = true ;
-              // Wanted computer
-              // affect the path to be returned
-                const char* _temp = myPrivate->_personal_path_list[ind].path.c_str() ;
-                  _path = new char[strlen(_temp)+1];
-              strcpy(_path,_temp);
-            }
-        }
-    }
-
-  if (!_find)
-    {
-    for (unsigned int ind = 0 ; ind < myPrivate->_general_path_list.size() ; ind++)
+      if ( myPrivate->_personal_path_list[ind].listOfComputer[ind1] == machinename )
       {
-        for (unsigned int ind1 = 0 ; ind1 < myPrivate->_general_path_list[ind].listOfComputer.size() ; ind1++)    
-          {
-            if (strcmp(machinename, myPrivate->_general_path_list[ind].listOfComputer[ind1].c_str()) == 0)
-              {
-                _find = true ;
-                // Wanted computer
-                // affect the path to be returned
-                  const char* _temp = myPrivate->_general_path_list[ind].path.c_str() ;
-                    _path = new char[strlen(_temp)+1];
-                strcpy(_path,_temp);
-              }
-          }
+        _find = true;
+        // Wanted computer
+        // affect the path to be returned
+        _path = myPrivate->_personal_path_list[ind].path;
       }
     }
+  }
 
-  return _path;
+  for (unsigned int ind = 0; ind < myPrivate->_general_path_list.size() && !_find; ind++)
+  {
+    for (unsigned int ind1 = 0; ind1 < myPrivate->_general_path_list[ind].listOfComputer.size() && !_find; ind1++)
+    {
+      if (myPrivate->_general_path_list[ind].listOfComputer[ind1] == machinename)
+      {
+        _find = true;
+        // Wanted computer
+        // affect the path to be returned
+        _path = myPrivate->_general_path_list[ind].path;
+      }
+    }
+  }
+  return CORBA::string_dup(_path.c_str()) ;
 }
 
 //----------------------------------------------------------------------
