@@ -41,6 +41,15 @@ class client:
 
     def __init__(self,args=None):
       # Initialise the ORB
+
+      if 'launcher' in args:
+        pos = args['launcher'].find(":")
+        if pos != -1:
+          machine = args['launcher'][0:pos]
+          port = args['launcher'][pos+1:]
+          sys.argv.append('-ORBInitRef')
+          sys.argv.append("NameService=corbaname::" + machine + ":" + port)
+          print("Connect to naming service on machine: "+machine+" port: "+port)
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
 
       # Initialise the Naming Service
