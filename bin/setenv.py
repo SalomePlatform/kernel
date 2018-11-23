@@ -146,6 +146,13 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     import os
     from salome_utils import getLogDir, generateFileName, makeTmpDir, getPortNumber
 
+    if 'launcher' in args:
+      pos = args['launcher'].find(":")
+      if pos != -1:
+        machine = args['launcher'][0:pos]
+        port = args['launcher'][pos+1:]
+        os.environ["NSPORT"] = port
+
     # create temporary directory for environment files needed by modules from the list
     port = getPortNumber(False)
     if port:
