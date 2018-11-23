@@ -442,12 +442,12 @@ class SalomeContext:
       pass
     if softwares:
       for soft in softwares:
-        if versions.has_key(soft.upper()):
+        if soft.upper() in versions:
           print(soft.upper().rjust(max_len), versions[soft.upper()])
     else:
       import collections
       od = collections.OrderedDict(sorted(versions.items()))
-      for name, version in od.iteritems():
+      for name, version in od.items():
         print(name.rjust(max_len), versions[name])
     pass
 
