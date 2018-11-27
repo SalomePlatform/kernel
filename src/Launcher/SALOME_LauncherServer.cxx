@@ -122,7 +122,6 @@ int main(int argc, char* argv[])
       //
       orb->run();
       orb->destroy();
-      lServ->Shutdown();
     }
   catch(CORBA::SystemException&){
     MESSAGE("Caught CORBA::SystemException.");
