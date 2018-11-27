@@ -480,6 +480,7 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
 void SALOME_Launcher::Shutdown()
 {
   MESSAGE("Shutdown");
+  std::cout << "Shutdown Launcher" << std::endl;
   _NS->Destroy_Name(_LauncherNameInNS);
   _ContManager->Shutdown();
   _ResManager->Shutdown();
