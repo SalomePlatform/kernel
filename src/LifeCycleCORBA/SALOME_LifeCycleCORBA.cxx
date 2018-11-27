@@ -420,7 +420,7 @@ Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
  */
 //=============================================================================
 
-void SALOME_LifeCycleCORBA::shutdownServers()
+void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
 {
   // get each Container from NamingService => shutdown it
   // (the order is inverse to the order of servers initialization)
@@ -513,10 +513,12 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   // 5) SalomeLauncher
   try
     {
-      CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
-      Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
-      if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
-        launcher->Shutdown();
+      if(shutdownLauncher){
+        CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
+        Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
+        if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
+          launcher->Shutdown();
+      }
     }
   catch(const CORBA::Exception& e)
     {

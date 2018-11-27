@@ -99,7 +99,7 @@ public:
   CORBA::ORB_ptr orb();
   void copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest);
 
-  void shutdownServers();
+  void shutdownServers(bool shutdownLauncher=true);
   static void killOmniNames();
 
 protected:
