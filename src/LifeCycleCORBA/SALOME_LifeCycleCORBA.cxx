@@ -537,6 +537,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
       Registry::Components_var registry = Registry::Components::_narrow(objR);
       if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
           registry->Shutdown();
+      _NS->Destroy("/Registry");
     }
   catch(const CORBA::Exception& e)
     {
