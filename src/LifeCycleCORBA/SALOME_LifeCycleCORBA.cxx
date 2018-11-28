@@ -469,6 +469,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
       SALOMEDS::Study_var study = SALOMEDS::Study::_narrow(objSDS) ;
       if ( !CORBA::is_nil(study) && ( pid != study->getPID() ) )
         study->Shutdown();
+      _NS->Destroy_Name("/Study");
     }
   catch(const CORBA::Exception& e)
     {
@@ -487,6 +488,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
       SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
       if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
         catalog->shutdown();
+      _NS->Destroy_Name("/Kernel/ModulCatalog");
     }
   catch(const CORBA::Exception& e)
     {
