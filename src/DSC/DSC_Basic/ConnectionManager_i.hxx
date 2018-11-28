@@ -28,6 +28,7 @@
 #define _CONNECTION_MANAGER_I_HXX_
 
 #include "DSC_Basic.hxx"
+#include "SALOME_NamingService.hxx"
 
 #include <iostream>
 #include <map>
@@ -74,6 +75,8 @@ class ConnectionManager_i :
      */
     CORBA::Long getPID();
 
+    static const char *_ConnectionManagerNameInNS;
+
   private :
 
     struct connection_infos {
@@ -96,6 +99,7 @@ class ConnectionManager_i :
     pthread_mutex_t mutex;
   protected:
     CORBA::ORB_var _orb;
+    SALOME_NamingService * _NS;
 };
 
 #endif
