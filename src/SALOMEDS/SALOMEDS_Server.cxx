@@ -197,6 +197,7 @@ int main(int argc, char** argv)
 #endif
       orb->run();
       MESSAGE( "end of SALOME_DS server" );
+      NS->Destroy_Name("/Study");
       orb->destroy();
     }
   catch(CORBA::SystemException&)
