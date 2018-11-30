@@ -130,15 +130,15 @@ namespace SALOME
       return *this;
     }
     // ACCESS
-    operator TPtr()
+    operator TPtr() const
     {
       return _obj.in();
     }
-    operator TVar()
+    operator TVar() const
     {
       return _obj;
     }
-    TVar operator->()
+    TVar operator->() const
     {
       return _obj;
     }
