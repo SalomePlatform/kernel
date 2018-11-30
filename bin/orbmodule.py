@@ -42,7 +42,7 @@ class client:
     def __init__(self,args=None):
       # Initialise the ORB
 
-      if 'launcher' in args:
+      if args is not None and 'launcher' in args:
         pos = args['launcher'].find(":")
         if pos != -1:
           machine = args['launcher'][0:pos]
