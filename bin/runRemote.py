@@ -52,10 +52,10 @@ Execute command in SALOME environment from a remote call, ssh or rsh.
 salome runremote is used notably to launch containers from a distant salome session.
 
 For example:
-    salome remote -m xxx.cea.fr -p 2810 ls /tmp >/dev/null 2>&1  
+    salome remote -m xxx.cea.fr -p 2810 -- ls /tmp >/dev/null 2>&1  
      -> execute the command ls /tmp >/dev/null 2>&1
 
-    salome remote -m xxx.cea.fr -p 2810 SALOME_Container Cont_S 
+    salome remote -m xxx.cea.fr -p 2810 -- SALOME_Container Cont_S 
                                         -ORBInitRef NameService=IOR:01...
      -> starts a Salome container called Cont_S connected to port 2810 
         of xxx.cea.fr
