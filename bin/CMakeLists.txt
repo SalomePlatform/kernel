@@ -48,6 +48,7 @@ SET(SCRIPTS
   runSalome.py
   runSession.py
   runConsole.py
+  runRemote.py
   runTests.py
   ${CMAKE_CURRENT_BINARY_DIR}/salomeContextUtils.py
   salomeContext.py

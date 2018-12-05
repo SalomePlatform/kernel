@@ -45,6 +45,7 @@ Commands:
                     User works in a Shell terminal. SALOME environment is set but
                     application is not started.
     connect         Connect a Python console to the active SALOME instance.
+    remote          run command in SALOME environment from remote call, ssh or rsh.
     kill <port(s)>  Terminate SALOME instances running on given ports for current user.
                     Port numbers must be separated by blank characters.
     killall         Terminate *all* SALOME running instances for current user.
@@ -216,6 +217,7 @@ class SalomeContext:
       'start'   : '_runAppli',
       'context' : '_setContext',
       'shell'   : '_runSession',
+      'remote'  : '_runRemote',
       'connect' : '_runConsole',
       'kill'    : '_kill',
       'killall' : '_killAll',
@@ -360,6 +362,18 @@ class SalomeContext:
     setenv.main(True)
 
     return runSession.runSession(params, args)
+  #
+
+  def _runRemote(self, args=None):
+    if args is None:
+      args = []
+#   complete salome environment 
+    sys.argv = ['runRemote']
+    import setenv
+    setenv.main(True)
+
+    import runRemote
+    return runRemote.runRemote(args)
   #
 
   def _runConsole(self, args=None):
