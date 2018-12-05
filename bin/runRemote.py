@@ -80,9 +80,9 @@ For example:
     try:
       (options, args) = parser.parse_args(short_args)
     except Exception as e:
-      print e
-      print usage
-      print epilog
+      print(e)
+      print(usage)
+      print(epilog)
       return
 
     port = options.port
