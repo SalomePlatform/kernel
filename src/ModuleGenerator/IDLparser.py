@@ -21,12 +21,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#  File   : IDLparser.py
-#  Module : SALOME
-
-import string, sys, fpformat, re, os
+import os
+import os.path as osp
+import re
 import xml.sax
-import pdb
 
 from xml.sax.handler import *
 from omniidl import idlast, idltype, idlvisitor, idlutil, output
@@ -116,7 +114,7 @@ class Tree:
     def output_xml(self, f, depth=0):
         d = depth
         if self.name != '':
-            s = string.ljust('', 4*depth)
+            s = ''.ljust(4*depth)
             s += '<' + self.name
             for k,v in list(self.attrs.items()):
               s += ' ' + k + '="' + v + '"'
@@ -135,7 +133,7 @@ class Tree:
         if self.name != '':
             s = '</' + self.name + '>\n'
             if len(self.childs) > 0 :
-                s = string.ljust('', 4*depth) + s
+                s = ''.ljust(4*depth) + s
             f.write(s)
 
     def Dump(self, levels=-1, depth=0):
@@ -143,7 +141,7 @@ class Tree:
 
         if levels == 0: return
 
-        s = string.ljust('', 4*depth)
+        s = ''.ljust(4*depth)
         print(s, self, self.content)
         for i in self.childs:
             i.Dump(levels-1, depth+1)
@@ -540,7 +538,7 @@ class Catalog(ContentHandler, Tree):
         self.buffer = ''
 
     def endElement(self, name):
-        self.buffer = string.join(string.split(self.buffer), ' ')
+        self.buffer = ' '.join(self.buffer.split())
         p = self.list[len(self.list)-1]
         p.content = self.buffer
         if name == 'component':
@@ -752,6 +750,9 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
     def visitStringType(self, type):
         self.currentType = "string"
 
+    def visitWStringType(self, type):
+        self.currentType = "wstring"
+
     def visitParameter(self, node):
         node.paramType().accept(self)
         if node.is_in():
@@ -837,7 +838,7 @@ def run(tree, args):
 
     #==================================================
 
-    if (os.path.exists(CatalogFileName)):
+    if (osp.exists(CatalogFileName)):
         print("Importing", CatalogFileName)
         C = Catalog(CatalogFileName)
     else:
@@ -854,7 +855,7 @@ def run(tree, args):
     if remove_comp :
         C.removeComponent(remove_comp)
 
-    if (os.path.exists(CatalogFileName)):
+    if (osp.exists(CatalogFileName)):
         print("Updating", CatalogFileName)
         CatalogFileName_old = CatalogFileName + '_old'
         os.rename(CatalogFileName, CatalogFileName_old)
@@ -869,7 +870,7 @@ def run(tree, args):
     f.close()
 
     os.rename(CatalogFileName_new, CatalogFileName)
-    if ((CatalogFileName_old != "") & os.path.exists(CatalogFileName_old)):
+    if ((CatalogFileName_old != "") & osp.exists(CatalogFileName_old)):
         os.unlink(CatalogFileName_old)
 
     print()

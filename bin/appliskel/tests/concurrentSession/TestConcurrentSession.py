@@ -44,7 +44,10 @@ class TestConcurrentLaunch(unittest.TestCase):
     return running_instances, processes
   #
   def __terminateInstances(self, running_instances):
-    while not running_instances.empty():
+    import time
+    timeout = time.time() + 60*10 # the test duration is about 50 s, we reasonably assume a max duration of 10mn
+
+    while not running_instances.empty() and time.time() < timeout:
       instance = running_instances.get()
       print("Terminate instance running on port", instance.get_port())
       instance.stop()

@@ -41,7 +41,7 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
         return theSObject.GetID()
 
     def LocalPersistentIDToIOR(self, theSObject, PersistentID, isMultiFile, isASCII):
-        return ""
+        return ''
 
     def ComponentDataType(self):
         return self._ComponentDataType
@@ -50,10 +50,10 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
         try:
             return self.getVersion()
         except:
-            return ""
+            return ''
 
     def Save(self, theComponent, theURL, isMultiFile):
-        return ""
+        return b''
 
     def SaveASCII(self, theComponent, theURL, isMultiFile):
         return self.Save(theComponent, theURL, isMultiFile)
@@ -74,5 +74,13 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
         return None
 
     def CanCopy(self, theObject):
-        return 0
+        return False
 
+    def CopyFrom(theObject, theObjectID):
+        return b''
+
+    def CanPaste(theComponentName, theObjectID):
+        return False
+
+    def PasteInto(theStream, theObjectID, theObject):
+        return None
