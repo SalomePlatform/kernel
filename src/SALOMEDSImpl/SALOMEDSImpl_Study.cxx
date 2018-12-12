@@ -2065,7 +2065,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
     std::string order = getenv("SALOME_MODULES_ORDER");
     std::vector<std::string> mlist;
     while ( !order.empty() ) {
-      size_t idx = order.find( "," );
+      size_t idx = order.find( ":" );
       std::string m = order.substr(0, idx);
       order = order.substr( ( idx == std::string::npos ) ? order.size() : idx+1 );
       if ( m.empty() || std::find( mlist.begin(), mlist.end(), m ) != mlist.end() ) continue;
