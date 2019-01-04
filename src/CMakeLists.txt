@@ -41,6 +41,7 @@ SET(SUBDIR_CORBA
   SALOMESDS
   TestContainer
   Launcher
+  Launcher_SWIG
   LifeCycleCORBA
   LifeCycleCORBA_SWIG
   SALOMEDSClient

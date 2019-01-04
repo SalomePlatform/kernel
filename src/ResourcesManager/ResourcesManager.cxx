@@ -160,8 +160,6 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
     }
   }
 
-  _lasttime=0;
-
   ParseXmlFiles();
   RES_MESSAGE("ResourcesManager_cpp constructor end");
 }
@@ -436,7 +434,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
       return _resourcesList;
     }
 
-    if(statinfo.st_mtime > _lasttime)
+    if(_lasttime == 0 || statinfo.st_mtime > _lasttime)
     {
       to_parse = true;
       _lasttime = statinfo.st_mtime;

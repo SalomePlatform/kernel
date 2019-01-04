@@ -33,9 +33,10 @@ namespace Launcher
 {
   class LAUNCHER_EXPORT Job_Command : virtual public Launcher::Job
   {
+    protected:
+      virtual ~Job_Command();
     public:
       Job_Command();
-      virtual ~Job_Command();
 
       virtual void update_job();
 

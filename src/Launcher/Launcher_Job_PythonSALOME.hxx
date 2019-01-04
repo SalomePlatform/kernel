@@ -28,9 +28,10 @@ namespace Launcher
 {
   class LAUNCHER_EXPORT Job_PythonSALOME : virtual public Launcher::Job_SALOME
   {
+    private:
+      virtual ~Job_PythonSALOME();
     public:
       Job_PythonSALOME();
-      virtual ~Job_PythonSALOME();
 
       virtual void setJobFile(const std::string & job_file);
       virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);

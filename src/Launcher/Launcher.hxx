@@ -86,18 +86,17 @@ public:
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
   std::map<int, Launcher::Job *> getJobs();
   void addJobDirectlyToMap(Launcher::Job * new_job);
+  Launcher::Job * findJob(int job_id);
 
   // Lib methods
   void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
 
   // Used by SALOME_Launcher
-  ResourcesManager_cpp *_ResManager;
+  ResourcesManager_cpp *_ResManager = nullptr;
 protected:
 
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
   int addJob(Launcher::Job * new_job);
-
-  Launcher::Job * findJob(int job_id);
 
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
