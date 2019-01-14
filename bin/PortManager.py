@@ -100,7 +100,7 @@ def __isNetworkConnectionActiveOnPort(port):
   #        netstat options -l and -t are unavailable
   #        grep command is unavailable
   if sys.platform == "win32":
-    cmd = ['netstat','-a','-n','-p tcp']
+    cmd = ['netstat','-a','-n','-p','tcp']
   else:
     cmd = ['netstat','-ant']
     pass
@@ -118,7 +118,7 @@ def __isNetworkConnectionActiveOnPort(port):
     return False
 
   from io import StringIO
-  buf = StringIO(out.decode())
+  buf = StringIO(out.decode('utf-8', 'ignore'))
   ports = buf.readlines()
   # search for TCP - LISTEN connections
   import re
