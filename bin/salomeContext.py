@@ -101,10 +101,14 @@ class SalomeContext:
   #
 
   def __loadEnvModules(self, env_modules):
-    print("Trying to load env modules: %s..." % ' '.join(env_modules))
+    print("Trying to load env modules: %s ..." % ' '.join(env_modules))
+    modulecmd = os.getenv('LMOD_CMD')
+    if not modulecmd:
+      print('Module environment not present')
+      return
     try:
-      out, err = subprocess.Popen(["modulecmd", "python", "load"] + env_modules, stdout=subprocess.PIPE).communicate()
-      exec(out) # define specific environment variables
+      out, err = subprocess.Popen([modulecmd, "python", "load"] + env_modules, stdout=subprocess.PIPE).communicate()
+      exec(out)  # define specific environment variables
       print("OK")
     except:
       print("** Failed **")
