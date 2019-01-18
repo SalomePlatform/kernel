@@ -34,6 +34,8 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Driver
 {
 public:
 
+  virtual ~SALOMEDSImpl_Driver() {};
+
   virtual std::string GetIOR() = 0;
 
   virtual SALOMEDSImpl_TMPFile* Save(const SALOMEDSImpl_SComponent& theComponent,
