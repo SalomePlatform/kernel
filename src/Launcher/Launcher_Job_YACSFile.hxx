@@ -28,9 +28,10 @@ namespace Launcher
 {
   class LAUNCHER_EXPORT Job_YACSFile : virtual public Launcher::Job_SALOME
   {
+    private:
+      virtual ~Job_YACSFile();
     public:
       Job_YACSFile();
-      virtual ~Job_YACSFile();
 
       virtual void setJobFile(const std::string & job_file);
       virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);

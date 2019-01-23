@@ -25,6 +25,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <time.h>
+#include <memory>
 
 #ifdef WITH_LIBBATCH
 #include <libbatch/BatchManagerCatalog.hxx>
@@ -66,7 +67,7 @@ Launcher_cpp::~Launcher_cpp()
 #ifdef WITH_LIBBATCH
   std::map<int, Launcher::Job *>::const_iterator it_job;
   for(it_job = _launcher_job_map.begin(); it_job != _launcher_job_map.end(); it_job++)
-    delete it_job->second;
+    it_job->second->decrRef();
   std::map <int, Batch::BatchManager * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
@@ -91,11 +92,11 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   if (it_job == _launcher_job_map.end())
   {
     _launcher_job_map[new_job->getNumber()] = new_job;
+    new_job->incrRef();
   }
   else
   {
     LAUNCHER_INFOS("A job has already the same id: " << new_job->getNumber());
-    delete new_job;
     throw LauncherException("A job has already the same id - job is not created !");
   }
   LAUNCHER_MESSAGE("New Job created");
@@ -310,7 +311,7 @@ Launcher_cpp::removeJob(int job_id)
   }
 
   it_job->second->removeJob();
-  delete it_job->second;
+  it_job->second->decrRef();
   _launcher_job_map.erase(it_job);
 }
 
@@ -341,25 +342,22 @@ int
 Launcher_cpp::restoreJob(const std::string& dumpedJob)
 {
   LAUNCHER_MESSAGE("restore Job");
-  Launcher::Job * new_job=NULL;
+  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
+  std::unique_ptr<Launcher::Job, decltype(JobDel)> new_job(nullptr,JobDel);
   int jobId = -1;
   try
   {
     {
-      new_job = Launcher::XML_Persistence::createJobFromString(dumpedJob);
+      new_job.reset(Launcher::XML_Persistence::createJobFromString(dumpedJob));
     }
-    if(new_job)
+    if(new_job.get())
     {
-      jobId = addJob(new_job);
-      if(jobId < 0)
-        delete new_job;
+      jobId = addJob(new_job.get());
     }
   }
   catch(const LauncherException &ex)
   {
     LAUNCHER_INFOS("Cannot load the job. Exception: " << ex.msg.c_str());
-    if(new_job)
-      delete new_job;
   }
   return jobId;
 }
@@ -380,7 +378,8 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   ParserLauncherType job_params = ParseXmlFile(xmlExecuteFile);
 
   // Creating a new job
-  Launcher::Job_Command * new_job = new Launcher::Job_Command();
+  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
+  std::unique_ptr<Launcher::Job_Command, decltype(JobDel)> new_job(new Launcher::Job_Command,JobDel);
 
   std::string cmdFile = Kernel_Utils::GetTmpFileName();  
 #ifndef WIN32
@@ -415,7 +414,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   p.mem_mb = 0;
   new_job->setResourceRequiredParams(p);
 
-  createJob(new_job);
+  createJob(new_job.get());
   return new_job->getNumber();
 }
 
@@ -537,7 +536,6 @@ void
 Launcher_cpp::createJob(Launcher::Job * new_job)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot create a job !!!");
-  delete new_job;
   throw LauncherException("Method Launcher_cpp::createJob is not available "
                           "(libBatch was not present at compilation time)");
 }
@@ -785,11 +783,11 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
   if (it_job == _launcher_job_map.end())
   {
     _launcher_job_map[new_job->getNumber()] = new_job;
+    new_job->incrRef();
   }
   else
   {
     LAUNCHER_INFOS("A job as already the same id: " << new_job->getNumber());
-    delete new_job;
     throw LauncherException("A job as already the same id - job is not created !");
   }
   LAUNCHER_MESSAGE("New job added");
@@ -843,6 +841,8 @@ Launcher_cpp::addJob(Launcher::Job * new_job)
 list<int>
 Launcher_cpp::loadJobs(const char* jobs_file)
 {
+  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
+  
   list<int> new_jobs_id_list;
 
   // Load the jobs from XML file
@@ -852,20 +852,17 @@ Launcher_cpp::loadJobs(const char* jobs_file)
   list<Launcher::Job *>::const_iterator it_job;
   for (it_job = jobs_list.begin(); it_job != jobs_list.end(); it_job++)
   {
-    Launcher::Job * new_job = *it_job;
+    std::unique_ptr<Launcher::Job, decltype(JobDel) > new_job(*it_job, JobDel);
     int jobId = -1;
     try
     {
-      jobId = addJob(new_job);
+      jobId = addJob(new_job.get());
       if(jobId >= 0)
         new_jobs_id_list.push_back(jobId);
-      else
-        delete new_job;
     }
     catch(const LauncherException &ex)
     {
       LAUNCHER_INFOS("Cannot load the job. Exception: " << ex.msg.c_str());
-      delete new_job;
     }
   }
 

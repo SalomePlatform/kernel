@@ -117,7 +117,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     std::map<std::string , LoadRateManager*> _resourceManagerMap;
 
     //! contain the time where resourcesList was created
-    time_t _lasttime;
+    time_t _lasttime = 0;
 
     //! the name of the default local resource
     static const std::string DEFAULT_RESOURCE_NAME;

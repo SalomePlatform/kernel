@@ -284,7 +284,7 @@ XML_Persistence::createJobFromXmlNode(xmlNodePtr job_node)
   }
   catch (const LauncherException & exc)
   {
-    delete new_job;
+    new_job->decrRef();
     string error = string("Invalid job \"") + job_name + "\": " + exc.msg;
     throw LauncherException(error);
   }

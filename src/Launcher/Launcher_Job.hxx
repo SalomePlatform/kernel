@@ -47,10 +47,13 @@ namespace Launcher
 {
   class LAUNCHER_EXPORT Job
   {
+    protected:
+      virtual ~Job();
     public:
       Job();
-      virtual ~Job();
-
+      int getRCValue() const { return _cnt; }
+      bool decrRef() const;
+      void incrRef() const;
       // Launcher managing parameters
       // State of a Job: CREATED, IN_PROCESS, QUEUED, RUNNING, PAUSED, FINISHED, ERROR
       void setState(const std::string & state);
@@ -185,6 +188,8 @@ namespace Launcher
       Batch::Job * _batch_job;
       Batch::JobId _batch_job_id;
 #endif
+    protected:
+      mutable int _cnt = 1;
   };
 }
 
