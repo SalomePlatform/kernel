@@ -773,7 +773,7 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
   std::string aStudyTmpDir = SALOMEDSImpl_Tool::GetDirFromPath(aUrl);
 
 #ifdef WIN32
-  aCmd = "dir /B \"" + aStudyTmpDir +"\" > " + aTmpFile;
+  aCmd = "dir /B \"" + aStudyTmpDir +"\" > \"" + aTmpFile + "\"";
 #else
   aCmd ="ls -1 \"" + aStudyTmpDir +"\" > " + aTmpFile;
 #endif
