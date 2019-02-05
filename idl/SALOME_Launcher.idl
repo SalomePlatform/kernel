@@ -219,7 +219,7 @@ interface SalomeLauncher
 
   //! Get the execution state of the job.
   /*! \return "CREATED", "IN_PROCESS", "QUEUED", "RUNNING", "PAUSED",
-             "FINISHED" or "FAILED"
+             "FINISHED", "ERROR" or "FAILED"
       \see LIBBATCH/src/core/Constants.hxx
   */
   string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
