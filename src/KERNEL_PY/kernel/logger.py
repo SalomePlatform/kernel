@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2019  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,9 +22,6 @@
 #=============================================================================
 #  Author    : Guillaume Boulant (CSSI)
 #  Rewritten by Renaud Barate (EDF R&D)
-#  Project   : SALOME
-#  Copyright : EDF 2001-2009
-#  $Header$
 #=============================================================================
 
 ## \defgroup logger logger

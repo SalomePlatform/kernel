@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2019  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -20,10 +20,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME MPIContainer : implementation of container based on MPI libraries
-//  File   : MPIObject_i.hxx
-//  Module : SALOME
-//
 #ifndef _SALOME_POBJECT_I_H_
 #define _SALOME_POBJECT_I_H_ 
 
