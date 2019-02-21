@@ -61,6 +61,13 @@ namespace Kernel_Utils
   BASICS_EXPORT const char* encode(const wchar_t* decoded);
   BASICS_EXPORT std::string encode_s(const wchar_t* decoded);
 
+#ifdef WIN32
+  BASICS_EXPORT char* utf8_encode(const wchar_t* encoded);
+  BASICS_EXPORT wchar_t* utf8_decode(const char* decoded);
+  BASICS_EXPORT std::string utf8_encode_s(const std::wstring& encoded);
+  BASICS_EXPORT std::wstring utf8_decode_s(const std::string& decoded);
+#endif
+
   //! Get predefined GUID
   BASICS_EXPORT std::string GetGUID( GUIDtype );
 #ifndef WIN32

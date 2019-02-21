@@ -30,6 +30,7 @@
 
 #include "utilities.h"
 #include "Basics_DirUtils.hxx"
+#include "Basics_Utils.hxx"
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -50,17 +51,7 @@
 
 bool Exists(const std::string thePath) 
 {
-#ifdef WIN32 
-  if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () == ERROR_FILE_NOT_FOUND  ) {
-      return false;
-    }
-  }
-#else 
-  int status = access ( thePath.c_str() , F_OK ); 
-  if (status != 0) return false;
-#endif
-  return true;
+	return Kernel_Utils::IsExists(thePath);
 }
 
 
@@ -143,7 +134,12 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
     if(!Exists(aFile)) continue;
 
 #ifdef WIN32
-    DeleteFile(aFile.c_str());
+#if defined(UNICODE)
+	std::wstring aFileToDelete = Kernel_Utils::utf8_decode_s(aFile);
+#else
+	std::string aFileToDelete = aFile;
+#endif
+    DeleteFile(aFileToDelete.c_str());
 #else 
     unlink(aFile.c_str());
 #endif
@@ -152,7 +148,12 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   if(IsDirDeleted) {
     if(Exists(aDirName)) {
 #ifdef WIN32
-      RemoveDirectory(aDirName.c_str());
+#if defined(UNICODE)
+		std::wstring aDirToDelete = Kernel_Utils::utf8_decode_s(aDirName);
+#else
+		std::string aDirToDelete = aDirName;
+#endif
+      RemoveDirectory(aDirToDelete.c_str());
 #else
       rmdir(aDirName.c_str());
 #endif
@@ -197,7 +198,11 @@ namespace
         std::string aFullPath = aTmpDir + theFiles[i];
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
+#ifdef UNICODE
+		std::ifstream aFile(Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
+#else
         std::ifstream aFile(aFullPath.c_str(), std::ios::binary);
+#endif
 #else
         std::ifstream aFile(aFullPath.c_str());
 #endif
@@ -214,7 +219,8 @@ namespace
     
     if ( aNbFiles == 0 ) return (new SALOMEDS::TMPFile);
     aBufferSize += 4;      //4 bytes for a number of the files that will be written to the stream;
-    unsigned char* aBuffer = new unsigned char[aBufferSize];  
+	unsigned char* aBuffer = new unsigned char[aBufferSize];
+
     if(aBuffer == NULL)
       return (new SALOMEDS::TMPFile);
     
@@ -227,12 +233,16 @@ namespace
     aCurrentPos = 4;
     
     for(i=0; i<aLength; i++) {
-      std::ifstream *aFile;
+ 	  std::ifstream *aFile;
       if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
         std::string aFullPath = aTmpDir + theFiles[i];
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
+#ifdef UNICODE
+		aFile = new std::ifstream (Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
+#else
         aFile = new std::ifstream(aFullPath.c_str(), std::ios::binary);
+#endif
 #else
         aFile = new std::ifstream(aFullPath.c_str());
 #endif  
@@ -255,7 +265,7 @@ namespace
         aCurrentPos += 8;
         
         aFile->seekg(0, std::ios::beg);
-        aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
+		aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
         aFile->close();
         delete(aFile);
         aCurrentPos += aFileSize[i];
@@ -307,7 +317,6 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 
   //Get a temporary directory for saving a file
   std::string aTmpDir = theToDirectory;
-
   unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
 
   if(aBuffer == NULL)
@@ -346,11 +355,15 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
       
       std::string aFullPath = aTmpDir + aFileName;
 #ifdef WIN32
+#ifdef UNICODE
+	  std::ofstream aFile(Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
+#else
       std::ofstream aFile(aFullPath.c_str(), std::ios::binary);
+#endif
 #else
       std::ofstream aFile(aFullPath.c_str());
 #endif
-      aFile.write((char *)(aBuffer+aCurrentPos), aFileSize); 
+	  aFile.write((char *)(aBuffer + aCurrentPos), aFileSize);
       aFile.close();  
       aCurrentPos += aFileSize;
     }

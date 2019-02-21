@@ -34,8 +34,19 @@
 #include <map>
 #include "utilities.h"
 
+#include <Basics_Utils.hxx>
+
 #ifdef WIN32
 # include <process.h>
+# include <windows.h>
+#include <fcntl.h>  
+#include <sys/types.h>  
+#include <sys/stat.h> 
+#include <io.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <wchar.h>
 #else
 # include <unistd.h>
 #endif
@@ -826,9 +837,13 @@ SALOME_ModuleCatalogImpl::Private::_parse_xml_file(const char* file,
   ParserComponents    _moduleList;
  
   SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler(_pathList,_moduleList,typeMap,typeList);
-
+#if defined(WIN32)
+  const wchar_t* w_file = Kernel_Utils::utf8_decode(file);
+  FILE* aFile  = _wfopen(w_file, L"r");
+#else
   FILE* aFile = fopen(file, "r");
-
+#endif
+  
   if (aFile != NULL)
     {
       xmlDocPtr aDoc = xmlReadFile(file, NULL, 0);

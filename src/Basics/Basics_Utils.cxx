@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2019  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2016  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -40,13 +40,13 @@ namespace Kernel_Utils
   {
     int ls = 100, r = 1;
     char *s;
-    
+
     while (ls < 10000 && r)
       {
         ls *= 2;
         s = new char[ls];
         r = gethostname(s, ls-1);//threadsafe see man 7 pthread
-        switch (r) 
+        switch (r)
           {
           case 0:
             break;
@@ -58,29 +58,29 @@ namespace Kernel_Utils
           case ENAMETOOLONG:
 #endif
 #ifdef WIN32
-          case WSAEFAULT:  
+          case WSAEFAULT:
 #endif
             delete [] s;
             continue;
           }
-        
+
       }
-    
+
     if (r != 0)
       {
         s = new char[50];
         strcpy(s, "localhost");
       }
-    
+
     // remove all after '.'
     char *aDot = (strchr(s,'.'));
     if (aDot) aDot[0] = '\0';
-    
+
     std::string p = s;
     delete [] s;
     return p;
   }
-  
+
   Localizer::Localizer()
   {
     myCurLocale = setlocale(LC_NUMERIC, 0);
@@ -168,4 +168,40 @@ namespace Kernel_Utils
   #endif
 #endif
 
+#if defined(WIN32)
+  // Convert a wide Unicode string to an UTF8 string
+  char* utf8_encode(const wchar_t* encoded)
+  {
+	  if (encoded == NULL) return NULL;
+	  int size_needed = WideCharToMultiByte(CP_UTF8, 0, encoded, std::wcslen(encoded), NULL, 0, NULL, NULL);
+	  char* strTo = new char[ size_needed + 1 ];
+	  WideCharToMultiByte(CP_UTF8, 0, encoded, std::wcslen(encoded), strTo, size_needed, NULL, NULL);
+	  strTo[size_needed] = '\0';
+	  return strTo;
+  }
+  // Convert an UTF8 string to a wide Unicode String
+  wchar_t* utf8_decode(const char* decoded)
+  {
+	  if (decoded == NULL) return NULL;
+	  int size_needed = MultiByteToWideChar(CP_UTF8, 0, decoded, strlen(decoded), NULL, 0);
+	  wchar_t* wstrTo = new wchar_t[ size_needed + 1 ];
+	  MultiByteToWideChar(CP_UTF8, 0, decoded, strlen(decoded), wstrTo, size_needed);
+	  wstrTo[size_needed] = '\0';
+	  return wstrTo;
+  }
+  // Convert a wide Unicode std::wstring to an UTF8 string
+  std::string utf8_encode_s(const std::wstring& encoded) {
+	  char* anEncoded = utf8_encode(encoded.c_str());
+	  std::string res = std::string(anEncoded);
+	  delete [] anEncoded;
+	  return res;
+  }
+  // Convert an UTF8 std::string to a wide Unicode std::wstring
+  std::wstring utf8_decode_s(const std::string& decoded) {
+	  wchar_t* aDecoded = utf8_decode(decoded.c_str());
+	  std::wstring res = std::wstring(aDecoded);
+	  delete [] aDecoded;
+	  return res;
+  }
+#endif
 }

@@ -28,6 +28,8 @@
 //
 #include "HDFOI.hxx"
 
+#include "Basics_Utils.hxx"
+
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
@@ -86,14 +88,17 @@ void WriteSimpleData( FILE* fp, HDFdataset *hdf_dataset, hdf_type type, long siz
 //============================================================================
 bool HDFascii::isASCII(const char* thePath) {
   int fd;
+#if defined(WIN32) && defined(UNICODE)
+  const wchar_t * aPath = Kernel_Utils::utf8_decode(thePath);
+  if (!(fd = _wopen(aPath, O_RDONLY))) return false;
+#else
   if(!(fd = open(thePath, O_RDONLY))) return false;
+#endif
   char* aBuffer = new char[9];
   aBuffer[8] = (char)0;
   read(fd, aBuffer, 8); 
   close(fd);
-
   bool res = (strcmp(aBuffer, ASCIIHDF_ID) == 0);
-
   delete [] aBuffer;
 
   return res;
@@ -691,9 +696,17 @@ std::string GetTmpDir()
 {
  //Find a temporary directory to store a file
   std::string aTmpDir;
+#if defined(UNICODE)
+  wchar_t *Tmp_dir = _wgetenv(L"SALOME_TMP_DIR");
+#else
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
+#endif
   if(Tmp_dir != NULL) {
+#if defined(UNICODE)
+	aTmpDir = Kernel_Utils::utf8_encode_s(Tmp_dir);
+#else
     aTmpDir = std::string(Tmp_dir);
+#endif
     if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
   }
   else {
@@ -723,9 +736,16 @@ std::string GetTmpDir()
   }
 
 #ifdef WIN32
+#if defined(UNICODE)
+  std::wstring aTmpDirToCreate = Kernel_Utils::utf8_decode_s(aTmpDir);
+  std::wstring aDirToCreate = Kernel_Utils::utf8_decode_s(aDir);
+#else
+  std::string aTmpDirToCreate = aTmpDir;
+  std::string aDirToCreate = aDir;
+#endif
   //function CreateDirectory create only final directory, but not intermediate
-  CreateDirectory(aTmpDir.c_str(), NULL);
-  CreateDirectory(aDir.c_str(), NULL);
+  CreateDirectory(aTmpDirToCreate.c_str(), NULL);
+  CreateDirectory(aDirToCreate.c_str(), NULL);
 #else
   mkdir(aDir.c_str(), 0x1ff); 
 #endif
@@ -789,7 +809,12 @@ void read_float64(FILE* fp, hdf_float64* value)
 bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
- if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+#if defined(UNICODE)
+	std::wstring aPathToCheck = Kernel_Utils::utf8_decode_s( thePath );
+#else
+	std::string aPathToCheck = thePath;
+#endif
+ if (  GetFileAttributes ( aPathToCheck.c_str()  ) == 0xFFFFFFFF  ) {
     DWORD errorId = GetLastError ();
     if ( errorId == ERROR_FILE_NOT_FOUND || errorId == ERROR_PATH_NOT_FOUND )
       return false;
@@ -804,9 +829,16 @@ bool Exists(const std::string thePath)
 void Move(const std::string& fName, const std::string& fNameDst)
 { 
 #ifdef WIN32
-  MoveFileEx (fName.c_str(), fNameDst.c_str(),MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED);
+#if defined(UNICODE)
+	std::wstring fNameToMove = Kernel_Utils::utf8_decode_s( fName );
+	std::wstring fNameDestination = Kernel_Utils::utf8_decode_s( fNameDst );
 #else
-  rename(fName.c_str(), fNameDst.c_str());
+	std::string fNameToMove = fName;
+	std::string fNameDestination = fNameDst;
+#endif
+  MoveFileEx ( fNameToMove.c_str(), fNameDestination.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED );
+#else
+  rename( fName.c_str(), fNameDst.c_str() );
 #endif
 }
 

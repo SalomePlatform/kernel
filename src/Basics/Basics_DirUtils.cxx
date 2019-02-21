@@ -22,6 +22,7 @@
 //  Module : SALOME
 //
 #include "Basics_DirUtils.hxx"
+#include "Basics_Utils.hxx"
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -72,8 +73,14 @@ namespace Kernel_Utils
 
   std::string GetTmpDirByEnv( const std::string& tmp_path_env )
   {
+#if defined WIN32 && defined UNICODE
+   std::wstring w_tmp_path_env = utf8_decode_s( tmp_path_env );
+   wchar_t* val = _wgetenv( w_tmp_path_env.c_str() );
+   std::string dir = val ? utf8_encode_s(val) : "";
+#else 
     char* val = getenv( tmp_path_env.c_str() );
-    std::string dir = val ? val : "";
+	std::string dir = val ? val : "";
+#endif
     return GetTmpDirByPath( dir );
   }
 
@@ -83,6 +90,15 @@ namespace Kernel_Utils
     if ( aTmpDir == "" || !IsExists( aTmpDir ))
     {
 #ifdef WIN32
+#ifdef UNICODE
+	  wchar_t *wTmp_dir = _wgetenv( L"TEMP" );
+	  if ( wTmp_dir == NULL ) {
+			wTmp_dir = _wgetenv(L"TMP");
+			if (wTmp_dir == NULL)
+				wTmp_dir = L"C:\\";
+	  }
+	  aTmpDir = utf8_encode_s( wTmp_dir );
+#else
       char *Tmp_dir = getenv("TEMP");
       if ( Tmp_dir == NULL )
       {
@@ -94,6 +110,7 @@ namespace Kernel_Utils
       }
       else
         aTmpDir = Tmp_dir;
+#endif
 #else
       aTmpDir = "/tmp/";
 #endif
@@ -121,12 +138,16 @@ namespace Kernel_Utils
 
     if ( aDir.back() != _separator_ ) aDir += _separator_;
 
-#ifdef WIN32
-    CreateDirectory( aDir.c_str(), NULL );
+#ifdef WIN32	
+#ifdef UNICODE
+	std::wstring aDirToCreate = utf8_decode_s(aDir);
+#else
+	std::string aDirToCreate = aDir;
+#endif
+    CreateDirectory( aDirToCreate.c_str(), NULL );
 #else
     mkdir( aDir.c_str(), 0x1ff );
 #endif
-
     return aDir;
   }
 
@@ -179,7 +200,11 @@ namespace Kernel_Utils
   //============================================================================ 
   bool IsExists(const std::string& thePath) 
   {
+#if defined WIN32 && defined UNICODE
+	int status = _waccess( utf8_decode_s( thePath).c_str(), F_OK );
+#else
     int status = access ( thePath.c_str() , F_OK ); 
+#endif
     if (status != 0) return false;
     return true;
   }
@@ -188,10 +213,15 @@ namespace Kernel_Utils
   // function : IsWritable
   // purpose  : Returns True(False) if the path is (not) writable
   //============================================================================ 
-  bool IsWritable(const std::string& thePath) 
+  bool IsWritable(const std::string& thePath)
   {
-#ifdef WIN32 
-    if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+#ifdef WIN32
+#ifdef UNICODE
+	  std::wstring aPathToCheck = utf8_decode_s( thePath );
+#else
+	  std::string aPathToCheck = thePath;
+#endif
+    if (  GetFileAttributes ( aPathToCheck.c_str()  ) == 0xFFFFFFFF  ) {
       if (  GetLastError () == FILE_ATTRIBUTE_READONLY ) {
         return false;
       }
@@ -271,7 +301,13 @@ namespace Kernel_Utils
 
 #ifdef WIN32
     WIN32_FIND_DATA aFileData;
-    HANDLE hFile = FindFirstFile( thePath.c_str(), &aFileData );
+#ifdef UNICODE
+	std::wstring aPathToCheck = utf8_decode_s(thePath);
+#else
+	std::string aPathToCheck = thePath;
+#endif
+
+    HANDLE hFile = FindFirstFile( aPathToCheck.c_str(), &aFileData );
     if ( hFile == INVALID_HANDLE_VALUE )
     {
       //empty dir

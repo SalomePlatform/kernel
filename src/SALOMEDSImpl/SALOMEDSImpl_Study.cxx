@@ -777,10 +777,20 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
 #else
   aCmd ="ls -1 \"" + aStudyTmpDir +"\" > " + aTmpFile;
 #endif
+#if defined(WIN32) && defined(UNICODE)
+  std::wstring awCmd = Kernel_Utils::utf8_decode_s(aCmd);
+  _wsystem( awCmd.c_str() );
+#else  
   system(aCmd.c_str());
+#endif
 
   // Iterate and move files in the temporary directory
+#if defined(WIN32) && defined(UNICODE)
+  std::wstring awTmpFile = Kernel_Utils::utf8_decode_s(aTmpFile);
+  FILE* fp = _wfopen(awTmpFile.c_str(), L"rb");
+#else
   FILE* fp = fopen(aTmpFile.c_str(), "rb");
+#endif
   if (!fp) {
     URL( anOldName ); // VSR: restore previous url if operation is failed
     return false;
@@ -796,7 +806,12 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
 #else
     aCmd = "mv -f \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
 #endif
+#if defined(WIN32) && defined(UNICODE)
+	std::wstring awCmd = Kernel_Utils::utf8_decode_s(aCmd);
+    errors = _wsystem(awCmd.c_str());
+#else  
     errors = system(aCmd.c_str());
+#endif
   }
 
   delete []buffer;
@@ -804,14 +819,27 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
 
   // Perform cleanup
 #ifdef WIN32
-  DeleteFileA(aTmpFile.c_str());
+#ifdef UNICODE
+  std::wstring aTmpFileToDelete = Kernel_Utils::utf8_decode_s(aTmpFile);
+ 
+#else
+  std::string aTmpFileToDelete = aTmpFile;
+#endif
+  DeleteFile(aTmpFileToDelete.c_str());
 #else
   unlink(aTmpFile.c_str());
 #endif
 
 #ifdef WIN32
-  RemoveDirectoryA(aTmpFileDir.c_str());
-  RemoveDirectoryA(aStudyTmpDir.c_str());
+#ifdef UNICODE
+  std::wstring aTmpFileDirToDelete = Kernel_Utils::utf8_decode_s( aTmpFileDir );
+  std::wstring aStudyTmpDirToDelete = Kernel_Utils::utf8_decode_s( aStudyTmpDir );
+#else
+  std::string aTmpFileDirToDelete = aTmpFileDir;
+  std::string aStudyTmpDirToDelete = aStudyTmpDir;
+#endif  
+  RemoveDirectory( aTmpFileDirToDelete.c_str() );
+  RemoveDirectory( aStudyTmpDirToDelete.c_str() );
 #else
   rmdir(aTmpFileDir.c_str());
   rmdir(aStudyTmpDir.c_str());
@@ -2091,7 +2119,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 
   //Create a file that will contain a main Study script
   std::fstream fp;
+#if defined(WIN32) && defined(UNICODE)
+  std::wstring aConverterFN = Kernel_Utils::utf8_decode_s(aFileName);
+  fp.open(aConverterFN.c_str(), std::ios::out);
+#else
   fp.open(aFileName.c_str(), std::ios::out);
+#endif
 
 #ifdef WIN32
   bool isOpened = fp.is_open();
@@ -2209,7 +2242,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
       aFileName += aScriptName+ std::string(".py");
       aSeqOfFileNames.push_back(aFileName);
 
+#if defined(WIN32) && defined(UNICODE)
+      std::wstring aConverterFN2 = Kernel_Utils::utf8_decode_s(aFileName);
+      fp2.open(aConverterFN2.c_str(), std::ios::out);
+#else
       fp2.open(aFileName.c_str(), std::ios::out);
+#endif
 
 #ifdef WIN32
       isOpened = fp2.is_open();

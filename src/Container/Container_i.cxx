@@ -554,7 +554,12 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
   }
 #else
   HINSTANCE handle;
-  handle = LoadLibrary( impl_name.c_str() );
+#ifdef UNICODE
+  std::wstring libToLoad = Kernel_Utils::utf8_decode_s( impl_name );
+#else
+  std::string libToLoad = impl_name;
+#endif
+  handle = LoadLibrary(libToLoad.c_str() );
   if ( !handle )
   {
     reason="ImplementationNotFound";

@@ -401,9 +401,8 @@ bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
 
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_Study_i::Open");
-  
   std::string aUrl = Kernel_Utils::encode_s(aWUrl);
-  bool res = _impl->Open(std::string(aUrl));
+  bool res = _impl->Open( aUrl );
 
   // update desktop title with new study name
   //NameChanged();

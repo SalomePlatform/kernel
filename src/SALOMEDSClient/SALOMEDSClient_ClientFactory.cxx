@@ -25,7 +25,11 @@
 #ifdef WIN32
 #include <windows.h>
 static HMODULE _libHandle = 0;
+#ifdef UNICODE
+#define SALOMEDS_LIB_NAME L"SalomeDS.dll"
+#else
 #define SALOMEDS_LIB_NAME "SalomeDS.dll"
+#endif
 #else
 #include <dlfcn.h>
 static void* _libHandle = NULL;
