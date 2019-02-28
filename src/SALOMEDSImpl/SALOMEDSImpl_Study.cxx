@@ -792,7 +792,7 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
     size_t aLen = strlen(buffer);
     if (buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
 #ifdef WIN32
-    aCmd = "move /Y \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\"";
+    aCmd = "move /Y \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\" 2>NUL";
 #else
     aCmd = "mv -f \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
 #endif
