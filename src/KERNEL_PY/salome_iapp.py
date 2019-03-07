@@ -34,12 +34,14 @@ import salome_ComponentGUI
 
 IN_SALOME_GUI=None
 
-def ImportComponentGUI(ComponentName):
+def ImportComponentGUI(ComponentName, updateOB=True):
     if IN_SALOME_GUI:
         libName = "lib" + ComponentName + "_Swig"
         command = "from " + libName + " import *"
         exec (command, globals())
         constructor = ComponentName + "_Swig()"
+        if not updateOB :
+          constructor = ComponentName + "_Swig( False )"
         command = "gui = " + constructor
         exec (command, globals())
         return gui  # @UndefinedVariable
