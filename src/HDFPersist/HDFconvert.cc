@@ -68,9 +68,13 @@ int HDFConvert::FromAscii(const std::string& file, const HDFcontainerObject & hd
 #elif defined WIN32
 
 #define SHMEMSIZE 4096
-
+#ifdef UNICODE
+  std::wstring empty = L"";
+#else
+  std::string empty = "";
+#endif
   HANDLE hMapObject = CreateFileMapping( 
-           INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, SHMEMSIZE, "");
+           INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, SHMEMSIZE, empty.c_str() );
   if (hMapObject != NULL) {
   // Get a pointer to the file-mapped shared memory.
   buffer = ( char* ) MapViewOfFile( 

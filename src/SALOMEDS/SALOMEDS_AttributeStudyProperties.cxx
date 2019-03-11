@@ -63,7 +63,11 @@ std::string SALOMEDS_AttributeStudyProperties::GetUserName()
 #ifndef WIN32
   else aName = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUserName();
 #else
+#ifdef UNICODE
+  else aName = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUserNameW();
+#else
   else aName = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUserNameA();
+#endif
 #endif
   return aName;
 }

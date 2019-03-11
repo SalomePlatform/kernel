@@ -34,6 +34,9 @@
 #include "DF_Container.hxx"
 #include "DF_ChildIterator.hxx"
 
+#include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
+
 #ifndef WIN32
 #include <unistd.h>
 #include <sys/time.h>
@@ -86,12 +89,21 @@ void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, in
 std::string GetUserName()
 {
 #ifdef WIN32
-  char*  pBuff = new char[UNLEN + 1];
+#ifdef UNICODE
+	wchar_t*  pBuff = new wchar_t[UNLEN + 1];
+#else
+	char*  pBuff = new char[UNLEN + 1];
+#endif
   DWORD  dwSize = UNLEN + 1;
   std::string retVal;
   GetUserName ( pBuff, &dwSize );
-  std::string theTmpUserName(pBuff,(int)dwSize -1 );
+#ifdef UNICODE
+  std::wstring theTmpUserName(pBuff, (int)dwSize - 1);
+  retVal = Kernel_Utils::utf8_encode_s(theTmpUserName);
+#else
+  std::string theTmpUserName(pBuff, (int)dwSize - 1);
   retVal = theTmpUserName;
+#endif
   delete [] pBuff;
   return retVal;
 #else
@@ -142,17 +154,7 @@ std::string GetDirFromPath(const std::string& thePath) {
 
 bool Exists(const std::string thePath) 
 {
-#ifdef WIN32 
-  if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
-      return false;
-    }
-  }
-#else 
-  int status = access ( thePath.c_str() , F_OK ); 
-  if (status != 0) return false;
-#endif
-  return true;
+	return Kernel_Utils::IsExists( thePath );
 }
 
 

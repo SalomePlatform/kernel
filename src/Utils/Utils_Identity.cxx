@@ -89,15 +89,26 @@ const char* const get_pwname( void )
 #include <direct.h>
 #include <process.h>
 
+#include "Basics_Utils.hxx"
+
 const char* duplicate( const char *const str ) ;
 
 const char* get_uname( void )
 {
-        static std::string hostName(4096, 0);
+#ifdef UNICODE
+	    std::wstring hostName(4096, 0);
+#else
+	    static std::string hostName(4096, 0);
+#endif
         static DWORD nSize = hostName.length();
         static int res = ::GetComputerNameEx(ComputerNameDnsFullyQualified, &hostName[0], &nSize);
         ASSERT( res );
+#ifdef UNICODE
+		static std::string aRes = Kernel_Utils::utf8_encode_s(hostName);
+		return aRes.c_str();
+#else
         return hostName.c_str();
+#endif
 }
 
 const char* get_adip( void )
@@ -127,11 +138,20 @@ const char* get_adip( void )
 
 const char* const get_pwname( void )
 {
-  static std::string retVal(4096, 0);
+#ifdef UNICODE
+	std::wstring retVal(4096, 0);
+#else
+	static std::string retVal(4096, 0);
+#endif
   static DWORD  dwSize = retVal.length() + 1;
   static int res = GetUserName( &retVal[0], &dwSize );
   ASSERT( res );
+#ifdef UNICODE
+  static std::string aRes = Kernel_Utils::utf8_encode_s(retVal);
+  return aRes.c_str();
+#else
   return retVal.c_str();
+#endif
 }
 
 PSID getuid() {

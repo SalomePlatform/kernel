@@ -130,7 +130,7 @@ bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
 {
   if(CORBA::is_nil(_corba_impl))
     return false;
-  std::wstring wtheStudyUrl = std::wstring(theStudyUrl.begin(), theStudyUrl.end());
+  std::wstring wtheStudyUrl = Kernel_Utils::decode_s( theStudyUrl );
   
   if (!_corba_impl->Open( (wchar_t*)wtheStudyUrl.c_str() ) )
     return false;

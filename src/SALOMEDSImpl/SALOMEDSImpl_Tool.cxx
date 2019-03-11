@@ -34,6 +34,9 @@
 #include <iterator>
 #include <sstream>
 
+#include "Basics_DirUtils.hxx"
+#include "Basics_Utils.hxx"
+
 #include "SALOMEDSImpl_Tool.hxx"
 
 #ifndef WIN32
@@ -52,21 +55,8 @@
 
 bool SALOMEDS_Exists(const std::string thePath)
 {
-#ifdef WIN32 
-  if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () == ERROR_FILE_NOT_FOUND  ) {
-      return false;
-    }
-  }
-#else 
-  int status = access ( thePath.c_str() , F_OK ); 
-  if (status != 0) return false;
-#endif
-  return true;
+	return Kernel_Utils::IsExists( thePath );
 }
-
-
-
 
 //============================================================================
 // function : GetTempDir
@@ -74,60 +64,7 @@ bool SALOMEDS_Exists(const std::string thePath)
 //============================================================================
 std::string SALOMEDSImpl_Tool::GetTmpDir()
 {
-  //Find a temporary directory to store a file
-
-  std::string aTmpDir;
-
-  char *Tmp_dir = getenv("SALOME_TMP_DIR");
-  if ( Tmp_dir != NULL && SALOMEDS_Exists( Tmp_dir ))
-  {
-    aTmpDir = Tmp_dir;
-#ifdef WIN32
-    if ( aTmpDir.back() != '\\') aTmpDir += '\\';
-#else
-    if ( aTmpDir.back() != '/') aTmpDir += '/';
-#endif
-  }
-  else
-  {
-#ifdef WIN32
-    aTmpDir = "C:\\";
-#else
-    aTmpDir = "/tmp/";
-#endif
-  }
-
-  srand( (unsigned int)time( NULL ));
-  int aRND = 999 + (int) (100000.0*rand() / (RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
-  char buffer[127];
-  sprintf( buffer, "%d", aRND );
-  std::string aSubDir( buffer );
-  if ( aSubDir.size() <= 1 ) aSubDir = "123409876";
-
-  aTmpDir += aSubDir; //Get RND sub directory
-
-  std::string aDir = aTmpDir;
-
-  for ( aRND = 0; SALOMEDS_Exists( aDir ); aRND++ )
-  {
-    sprintf(buffer, "%d", aRND);
-    aDir = aTmpDir + buffer;  //Build a unique directory name
-  }
-
-#ifdef WIN32
-  if ( aDir.back() != '\\') aDir += '\\';
-#else
-  if ( aDir.back() != '/' ) aDir += '/';
-#endif
-
-
-#ifdef WIN32
-  CreateDirectory( aDir.c_str(), NULL );
-#else
-  mkdir( aDir.c_str(), 0x1ff );
-#endif
-
-  return aDir;
+  return Kernel_Utils::GetTmpDirByEnv("SALOME_TMP_DIR");
 }
 
 //============================================================================
@@ -147,7 +84,12 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
     if(!SALOMEDS_Exists(aFile)) continue;
 
 #ifdef WIN32
-    DeleteFile(aFile.c_str());
+#if defined(UNICODE)
+	std::wstring aFileToDelete = Kernel_Utils::utf8_decode_s(aFile);
+#else
+	std::string aFileToDelete = aFile;
+#endif
+    DeleteFile( aFileToDelete.c_str() );
 #else 
     unlink(aFile.c_str());
 #endif
@@ -156,7 +98,12 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   if(IsDirDeleted) {
     if(SALOMEDS_Exists(aDirName)) {
 #ifdef WIN32
-      RemoveDirectory(aDirName.c_str());
+#if defined(UNICODE)
+		std::wstring aDirToDelete = Kernel_Utils::utf8_decode_s(aDirName);
+#else
+		std::string aDirToDelete = aDirName;
+#endif
+      RemoveDirectory(aDirToDelete.c_str());
 #else
       rmdir(aDirName.c_str());
 #endif
