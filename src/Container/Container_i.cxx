@@ -1864,7 +1864,9 @@ void Engines_Container_i::clearTemporaryFiles()
     std::string command = "rm -rf ";
 #endif
     command += *it;
-	command += "\" 2>NUL";
+#ifdef WIN32	  
+    command += "\" 2>NUL";
+#endif
     system( command.c_str() );
   }
   _tmp_files.clear();
