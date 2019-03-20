@@ -23,7 +23,9 @@
 #include "SALOME_Comm_i.hxx"
 #ifndef WIN32
 #ifndef __APPLE__
+#ifdef HAVE_SOCKET
 #include <rpc/xdr.h>
+#endif
 #endif
 #endif
 #include "omniORB4/poa.h"
