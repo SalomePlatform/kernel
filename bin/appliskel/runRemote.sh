@@ -55,10 +55,6 @@ export APPLI=$("${APPLI_HOME}/getAppliPath.py")
 export NSHOST=$1
 export NSPORT=$2
 
-# Get (in bash) the configuration filename from (Python) ORBConfigFile return values
-RETURN_VALUES=$("${KERNEL_ROOT_DIR}/bin/salome/envSalome.py" python "${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py" "${OMNIORB_USER_PATH}" "${NSHOST}" "${NSPORT}" "with_username=${USER}")
-export OMNIORB_CONFIG=$(echo "${RETURN_VALUES}" | cut -d' ' -f1)
-
 #go to the requested working directory if any
 if test "x$3" == "xWORKINGDIR"; then
   if test "x$4" = "x\$TEMPDIR"; then
@@ -86,6 +82,10 @@ if test "x$3" == "xWORKINGDIR"; then
 else
   shift 2
 fi
+
+# Get (in bash) the configuration filename from (Python) ORBConfigFile return values
+RETURN_VALUES=$("${KERNEL_ROOT_DIR}/bin/salome/envSalome.py" python "${KERNEL_ROOT_DIR}/bin/salome/ORBConfigFile.py" "${OMNIORB_USER_PATH}" "${NSHOST}" "${NSPORT}" "with_username=${USER}")
+export OMNIORB_CONFIG=$(echo "${RETURN_VALUES}" | cut -d' ' -f1)
 
 # --- execute the command in the SALOME environment
 
