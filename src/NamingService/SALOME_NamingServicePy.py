@@ -190,6 +190,43 @@ class SALOME_NamingServicePy_i(object):
             self._obj = None
         return self._obj
 
+    #-------------------------------------------------------------------------
+
+    def Resolve_Dir(self, Path):
+        """ ns.Resolve_Dir(pathname) -> dir
+
+        find a CORBA object (ior) by its pathname
+        """
+        #MESSAGE ( "SALOME_NamingServicePy_i::Resolve" )
+        path_list = list(Path)
+        if path_list[0]=='/':
+            self._current_context = self._root_context
+            #delete first '/' before split
+            Path=Path[1:]
+
+        result_resolve_path = Path.split('/')
+        _context_name=[]
+        for i in range(len(result_resolve_path)-1):
+            _context_name.append(CosNaming.NameComponent(result_resolve_path[i],"dir"))
+        _context_name.append(CosNaming.NameComponent(result_resolve_path[len(result_resolve_path)-1],"dir"))
+        print(_context_name)
+        return None
+        try:
+            self._obj = self._current_context.resolve(_context_name)
+        except CosNaming.NamingContext.NotFound as ex:
+            MESSAGE ( "Resolve : CosNaming.NamingContext.NotFound" )
+            self._obj = None
+        except CosNaming.NamingContext.InvalidName as ex:
+            MESSAGE ( "Resolve : CosNaming.NamingContext.InvalidName" )
+            self._obj = None
+        except CosNaming.NamingContext.CannotProceed as ex:
+            MESSAGE ( "Resolve : CosNaming.NamingContext.CannotProceed" )
+            self._obj = None
+        except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+            MESSAGE ( "Resolve : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
+            self._obj = None
+        return self._obj
+
 
     #-------------------------------------------------------------------------
 

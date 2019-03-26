@@ -144,7 +144,15 @@ class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
+        self.SCMD1=['SALOME_ModuleCatalog_Server']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.SCMD1+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.SCMD1+=["NameService=corbaname::" + machine + ":" + port]
+        self.SCMD1+=['-common']
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
         if home_dir is not None:
@@ -169,6 +177,13 @@ class SalomeDSServer(Server):
         self.args=args
         self.initArgs()
         self.CMD=['SALOMEDS_Server']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
 
 # ---
 
@@ -193,6 +208,13 @@ class RegistryServer(Server):
         self.args=args
         self.initArgs()
         self.CMD=['SALOME_Registry_Server', '--salome_session','theSession']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
 
 # ---
 
@@ -200,7 +222,15 @@ class ContainerCPPServer(Server):
     def __init__(self,args,with_gui=False):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_Container','FactoryServer']
+        self.CMD=['SALOME_Container']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
+        self.CMD+=['FactoryServer']
         if not with_gui and self.args["valgrind_session"]:
             l = ["valgrind"]
             val = os.getenv("VALGRIND_OPTIONS")
