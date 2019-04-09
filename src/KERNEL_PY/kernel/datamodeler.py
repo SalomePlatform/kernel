@@ -26,7 +26,7 @@
 __author__="gboulant"
 __date__ ="$15 avr. 2010 19:44:17$"
 
-#from .uiexception import DevelException
+from .uiexception import DevelException
 
 # Most usable class types
 TypeString= "".__class__
@@ -38,7 +38,6 @@ __ref_list = []
 TypeList = __ref_list.__class__
 __ref_dict = {}
 TypeDictionnary = __ref_dict.__class__
-from .enumerate import Enumerate
 
 # There is no control to do for these attributes. They are attributes for the
 # class management and not data of the model.
@@ -128,9 +127,7 @@ class DataModeler:
         self.__setattr__(name,default)
 
     def __setattr__(self, name, val):
-        print (self, name, val)
         if name in UNCHECKED_ATTRIBUTES:
-            #self.__dict__[name] = val
             object.__setattr__(self, name, val)
             return
 
@@ -159,13 +156,11 @@ class DataModeler:
     
     def __getattribute__(self, name):
         if name in UNCHECKED_ATTRIBUTES:
-           return object.__getattribute__(self, name)
+            return object.__getattribute__(self, name)
 
         if name in DataModeler.__dict__:
-           return object.__getattribute__(self, name)
+            return object.__getattribute__(self, name)
 
-        #import traceback
-        #traceback.print_stack()
         if name not in self._typemap:
             raise DevelException("The class  has no attribute "+str(name))
         # The attribute coulb be requested while it has not been created yet (for
@@ -174,10 +169,6 @@ class DataModeler:
             return None
 
         return object.__getattribute__(self, name)
-
-
-
-
 
     def __isNotValidType(self, name, val):
         isNotValid = (
