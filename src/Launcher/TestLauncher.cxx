@@ -20,6 +20,7 @@
 #include "Launcher.hxx"
 #include <iostream>
 #include <string>
+#include <memory>
 
 int main(int argc, char** argv)
 {
@@ -27,7 +28,7 @@ int main(int argc, char** argv)
 
   try {
     Launcher_cpp *lcpp = new Launcher_cpp();
-    ResourcesManager_cpp *rcpp = new ResourcesManager_cpp();
+    std::shared_ptr<ResourcesManager_cpp> rcpp(new ResourcesManager_cpp());
     lcpp->SetResourcesManager(rcpp);
     if(!getenv("KERNEL_ROOT_DIR"))
       throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load testLauncher.xml");
@@ -37,7 +38,6 @@ int main(int argc, char** argv)
     long jobid = lcpp->createJobWithFile(xmlfile.c_str(),"localhost");
     lcpp->launchJob(jobid);
     delete lcpp;
-    delete rcpp;
     std::cout << "test OK" << std::endl;
   } catch ( const ResourcesException &ex) {
     std::cout << ex.msg.c_str() << std::endl;

@@ -34,10 +34,9 @@ namespace Launcher
 {
   class LAUNCHER_EXPORT Job_CommandSALOME : virtual public Launcher::Job_Command
   {
-    private:
-      virtual ~Job_CommandSALOME();
     public:
       Job_CommandSALOME();
+      virtual ~Job_CommandSALOME();
       static const char TYPE_NAME[];
 
 #ifdef WITH_LIBBATCH

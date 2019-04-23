@@ -77,19 +77,6 @@ Launcher::Job::~Job()
 #endif
 }
 
-bool Launcher::Job::decrRef() const
-{
-  bool ret=((--_cnt)==0);
-  if(ret)
-    delete this;
-  return ret;
-}
-
-void Launcher::Job::incrRef() const
-{
-  _cnt++;
-}
-
 void
 Launcher::Job::stopJob()
 {

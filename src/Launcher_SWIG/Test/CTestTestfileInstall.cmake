@@ -1,4 +1,4 @@
-# Copyright (C) 2019  CEA/DEN, EDF R&D
+# Copyright (C) 2015-2019  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,21 +17,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import pylauncher
-jp = pylauncher.JobParameters_cpp()
-jp.job_name = "toto"
-jp.job_type = "command"
-jp.job_file = "/home/I35256/salome/scripts/job_sh/script.sh"
-jp.work_directory = "/tmp/wd"
-jp.result_directory = "/tmp/rd"
-rp = pylauncher.resourceParams()
-rp.name="localhost"
-rp.hostname="localhost"
-rp.nb_proc = 1
-jp.resource_required = rp
-launcher = pylauncher.Launcher_cpp()
-# no catalog. localhost is defined anyway
-res = pylauncher.ResourcesManager_cpp("")
-launcher.SetResourcesManager(res)
-jobid = launcher.createJob(jp)
-launcher.launchJob(jobid)
+IF(NOT WIN32)
+  SET(TEST_NAME ${COMPONENT_NAME}_Launcher_SWIG)
+  ADD_TEST(${TEST_NAME} python test_swig_launcher.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
+    #                                                 TIMEOUT 500
+    )
+
+  # /!\ DO NOT SET TIMEOUT PROPERTY IF USING ${SALOME_TEST_DRIVER}
+  #     BUT PASS TIMEOUT VALUE TO THE DRIVER
+
+ENDIF()

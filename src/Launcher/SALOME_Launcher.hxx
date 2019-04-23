@@ -80,6 +80,12 @@ public:
 
   static const char *_LauncherNameInNS;
 
+  static JobParameters_cpp
+    JobParameters_CORBA2CPP(const Engines::JobParameters& job_parameters);
+
+  static Engines::JobParameters_var
+    JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters);
+
 protected:
   // Internal methods
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data);

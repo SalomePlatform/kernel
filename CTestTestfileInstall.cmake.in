@@ -26,6 +26,7 @@ SET(KERNEL_TEST_LIB "@CMAKE_INSTALL_PREFIX@/@KERNEL_TEST_LIB@")
 
 # Add all test subdirs
 SUBDIRS( Launcher
+         Launcher_SWIG
          LifeCycleCORBA_SWIG
          NamingService
          SALOMELocalTrace

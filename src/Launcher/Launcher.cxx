@@ -38,6 +38,9 @@
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include "Launcher_Job_Command.hxx"
+#include "Launcher_Job_YACSFile.hxx"
+#include "Launcher_Job_PythonSALOME.hxx"
+#include "Launcher_Job_CommandSALOME.hxx"
 #include "Launcher_XML_Persistence.hxx"
 
 using namespace std;
@@ -67,7 +70,7 @@ Launcher_cpp::~Launcher_cpp()
 #ifdef WITH_LIBBATCH
   std::map<int, Launcher::Job *>::const_iterator it_job;
   for(it_job = _launcher_job_map.begin(); it_job != _launcher_job_map.end(); it_job++)
-    it_job->second->decrRef();
+    delete it_job->second;
   std::map <int, Batch::BatchManager * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
@@ -92,7 +95,6 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   if (it_job == _launcher_job_map.end())
   {
     _launcher_job_map[new_job->getNumber()] = new_job;
-    new_job->incrRef();
   }
   else
   {
@@ -100,6 +102,77 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
     throw LauncherException("A job has already the same id - job is not created !");
   }
   LAUNCHER_MESSAGE("New Job created");
+}
+
+//=============================================================================
+/*!
+ * Add a job into the launcher - check resource and choose one
+ */
+//=============================================================================
+int
+Launcher_cpp::createJob(const JobParameters_cpp& job_parameters)
+{
+  std::string job_type = job_parameters.job_type;
+  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
+
+  if (job_type == Launcher::Job_Command::TYPE_NAME)
+    new_job = new Launcher::Job_Command();
+  else if (job_type == Launcher::Job_CommandSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_CommandSALOME();
+  else if (job_type == Launcher::Job_YACSFile::TYPE_NAME)
+    new_job = new Launcher::Job_YACSFile();
+  else if (job_type == Launcher::Job_PythonSALOME::TYPE_NAME)
+    new_job = new Launcher::Job_PythonSALOME();
+  else
+  {
+    std::string message("Launcher_cpp::createJob: bad job type: ");
+    message += job_type;
+    throw LauncherException(message.c_str());
+  }
+
+  // Name
+  new_job->setJobName(job_parameters.job_name);
+
+  // Directories
+  new_job->setWorkDirectory(job_parameters.work_directory);
+  new_job->setLocalDirectory(job_parameters.local_directory);
+  new_job->setResultDirectory(job_parameters.result_directory);
+
+  // Parameters for COORM
+  new_job->setLauncherFile(job_parameters.launcher_file);
+  new_job->setLauncherArgs(job_parameters.launcher_args);
+
+  // Job File
+  new_job->setJobFile(job_parameters.job_file);
+  new_job->setPreCommand(job_parameters.pre_command);
+
+  // Files
+  new_job->setEnvFile(job_parameters.env_file);
+  for(const std::string param : job_parameters.in_files)
+    new_job->add_in_file(param);
+  for(const std::string param : job_parameters.out_files)
+    new_job->add_out_file(param);
+
+  new_job->setMaximumDuration(job_parameters.maximum_duration);
+  new_job->setQueue(job_parameters.queue);
+  new_job->setPartition(job_parameters.partition);
+  new_job->setExclusive(job_parameters.exclusive);
+  new_job->setMemPerCpu(job_parameters.mem_per_cpu);
+  new_job->setWCKey(job_parameters.wckey);
+  new_job->setExtraParams(job_parameters.extra_params);
+
+  // Resources requirements
+  new_job->setResourceRequiredParams(job_parameters.resource_required);
+
+  // Adding specific parameters to the job
+  for (const auto& it_specific : job_parameters.specific_parameters)
+    new_job->addSpecificParameter(it_specific.first, it_specific.second);
+
+  new_job->checkSpecificParameters();
+
+  createJob(new_job);
+
+  return new_job->getNumber();
 }
 
 //=============================================================================
@@ -143,7 +216,7 @@ Launcher_cpp::launchJob(int job_id)
  * Get job state
  */ 
 //=============================================================================
-const char *
+std::string
 Launcher_cpp::getJobState(int job_id)
 {
   LAUNCHER_MESSAGE("Get job state");
@@ -162,7 +235,7 @@ Launcher_cpp::getJobState(int job_id)
     throw LauncherException(ex.message.c_str());
   }
 
-  return state.c_str();
+  return state;
 }
 
 //=============================================================================
@@ -170,7 +243,7 @@ Launcher_cpp::getJobState(int job_id)
  * Get job assigned hostnames
  */
 //=============================================================================
-const char *
+std::string
 Launcher_cpp::getAssignedHostnames(int job_id)
 {
   LAUNCHER_MESSAGE("Get job assigned hostnames");
@@ -179,7 +252,7 @@ Launcher_cpp::getAssignedHostnames(int job_id)
   Launcher::Job * job = findJob(job_id);
   std::string assigned_hostnames = job->getAssignedHostnames();
 
-  return assigned_hostnames.c_str();
+  return assigned_hostnames;
 }
 
 //=============================================================================
@@ -311,7 +384,7 @@ Launcher_cpp::removeJob(int job_id)
   }
 
   it_job->second->removeJob();
-  it_job->second->decrRef();
+  delete it_job->second;
   _launcher_job_map.erase(it_job);
 }
 
@@ -342,24 +415,69 @@ int
 Launcher_cpp::restoreJob(const std::string& dumpedJob)
 {
   LAUNCHER_MESSAGE("restore Job");
-  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
-  std::unique_ptr<Launcher::Job, decltype(JobDel)> new_job(nullptr,JobDel);
+  Launcher::Job* new_job(nullptr);
   int jobId = -1;
   try
   {
     {
-      new_job.reset(Launcher::XML_Persistence::createJobFromString(dumpedJob));
+      new_job = Launcher::XML_Persistence::createJobFromString(dumpedJob);
     }
-    if(new_job.get())
+    if(new_job)
     {
-      jobId = addJob(new_job.get());
+      jobId = addJob(new_job);
     }
+    else
+      LAUNCHER_INFOS("Failed to create a new job.");
   }
   catch(const LauncherException &ex)
   {
     LAUNCHER_INFOS("Cannot load the job. Exception: " << ex.msg.c_str());
   }
   return jobId;
+}
+
+JobParameters_cpp
+Launcher_cpp::getJobParameters(int job_id)
+{
+  Launcher::Job * job = findJob(job_id);
+  JobParameters_cpp job_parameters;
+  job_parameters.job_name         = job->getJobName();
+  job_parameters.job_type         = job->getJobType();
+  job_parameters.job_file         = job->getJobFile();
+  job_parameters.env_file         = job->getEnvFile();
+  job_parameters.work_directory   = job->getWorkDirectory();
+  job_parameters.local_directory  = job->getLocalDirectory();
+  job_parameters.result_directory = job->getResultDirectory();
+  job_parameters.pre_command      = job->getPreCommand();
+
+  // Parameters for COORM
+  job_parameters.launcher_file = job->getLauncherFile();
+  job_parameters.launcher_args = job->getLauncherArgs();
+
+  job_parameters.in_files      = job->get_in_files();
+  job_parameters.out_files     = job->get_out_files();
+
+  job_parameters.maximum_duration = job->getMaximumDuration();
+  job_parameters.queue            = job->getQueue();
+  job_parameters.partition        = job->getPartition();
+  job_parameters.exclusive        = job->getExclusive();
+  job_parameters.mem_per_cpu      = job->getMemPerCpu();
+  job_parameters.wckey            = job->getWCKey();
+  job_parameters.extra_params     = job->getExtraParams();
+
+  resourceParams resource_params = job->getResourceRequiredParams();
+  job_parameters.resource_required.name             = resource_params.name;
+  job_parameters.resource_required.hostname         = resource_params.hostname;
+  job_parameters.resource_required.OS               = resource_params.OS;
+  job_parameters.resource_required.nb_proc          = resource_params.nb_proc;
+  job_parameters.resource_required.nb_node          = resource_params.nb_node;
+  job_parameters.resource_required.nb_proc_per_node = resource_params.nb_proc_per_node;
+  job_parameters.resource_required.cpu_clock        = resource_params.cpu_clock;
+  job_parameters.resource_required.mem_mb           = resource_params.mem_mb;
+
+  job_parameters.specific_parameters                = job->getSpecificParameters();
+
+  return job_parameters;
 }
 
 //=============================================================================
@@ -378,8 +496,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   ParserLauncherType job_params = ParseXmlFile(xmlExecuteFile);
 
   // Creating a new job
-  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
-  std::unique_ptr<Launcher::Job_Command, decltype(JobDel)> new_job(new Launcher::Job_Command,JobDel);
+  std::unique_ptr<Launcher::Job_Command> new_job(new Launcher::Job_Command);
 
   std::string cmdFile = Kernel_Utils::GetTmpFileName();  
 #ifndef WIN32
@@ -540,6 +657,14 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
                           "(libBatch was not present at compilation time)");
 }
 
+int
+Launcher_cpp::createJob(const JobParameters_cpp& job_parameters)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot create a job !!!");
+  throw LauncherException("Method Launcher_cpp::createJob is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
 void 
 Launcher_cpp::launchJob(int job_id)
 {
@@ -548,7 +673,7 @@ Launcher_cpp::launchJob(int job_id)
                           "(libBatch was not present at compilation time)");
 }
 
-const char *
+std::string
 Launcher_cpp::getJobState(int job_id)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job state!!!");
@@ -556,7 +681,7 @@ Launcher_cpp::getJobState(int job_id)
                           "(libBatch was not present at compilation time)");
 }
 
-const char *
+std::string
 Launcher_cpp::getAssignedHostnames(int job_id)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job assigned hostnames!!!");
@@ -686,6 +811,9 @@ Launcher_cpp::getJobs()
 Batch::BatchManager*
 Launcher_cpp::getBatchManager(Launcher::Job * job)
 {
+  if(!_ResManager)
+    throw LauncherException("Resource manager is not set.");
+
   Batch::BatchManager* result = nullptr;
   int job_id = job->getNumber();
 
@@ -783,7 +911,6 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
   if (it_job == _launcher_job_map.end())
   {
     _launcher_job_map[new_job->getNumber()] = new_job;
-    new_job->incrRef();
   }
   else
   {
@@ -841,8 +968,6 @@ Launcher_cpp::addJob(Launcher::Job * new_job)
 list<int>
 Launcher_cpp::loadJobs(const char* jobs_file)
 {
-  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
-  
   list<int> new_jobs_id_list;
 
   // Load the jobs from XML file
@@ -852,11 +977,11 @@ Launcher_cpp::loadJobs(const char* jobs_file)
   list<Launcher::Job *>::const_iterator it_job;
   for (it_job = jobs_list.begin(); it_job != jobs_list.end(); it_job++)
   {
-    std::unique_ptr<Launcher::Job, decltype(JobDel) > new_job(*it_job, JobDel);
+    Launcher::Job* new_job(*it_job);
     int jobId = -1;
     try
     {
-      jobId = addJob(new_job.get());
+      jobId = addJob(new_job);
       if(jobId >= 0)
         new_jobs_id_list.push_back(jobId);
     }

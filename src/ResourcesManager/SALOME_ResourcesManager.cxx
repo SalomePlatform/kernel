@@ -56,7 +56,11 @@ const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesMana
  */ 
 //=============================================================================
 
-SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns, const char *xmlFilePath) : _rm(xmlFilePath)
+SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
+                                                 PortableServer::POA_var poa,
+                                                 SALOME_NamingService *ns,
+                                                 const char *xmlFilePath)
+: _rm(new ResourcesManager_cpp(xmlFilePath))
 {
   MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
@@ -90,7 +94,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableSer
 
 SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
                                                  PortableServer::POA_var poa, 
-                                                 SALOME_NamingService *ns) : _rm()
+                                                 SALOME_NamingService *ns) : _rm(new ResourcesManager_cpp())
 {
   MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
@@ -143,7 +147,7 @@ void SALOME_ResourcesManager::Shutdown()
  */
 void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines)
 {
-  const MapOfParserResourcesType& zeList(_rm.GetList());
+  const MapOfParserResourcesType& zeList(_rm->GetList());
   std::size_t sz(zeList.size());
   std::vector<std::string> ret0(sz);
   std::vector<int> ret1(sz);
@@ -193,7 +197,7 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& 
   try
   {
     // Call C++ ResourceManager
-    std::vector <std::string> vec = _rm.GetFittingResources(p);
+    std::vector <std::string> vec = _rm->GetFittingResources(p);
 
     // C++ -> CORBA
     ret = resourceList_CPPtoCORBA(vec);
@@ -219,7 +223,7 @@ SALOME_ResourcesManager::FindFirst(const Engines::ResourceList& listOfResources)
   // CORBA -> C++
   std::vector<std::string> rl = resourceList_CORBAtoCPP(listOfResources);
 
-  return CORBA::string_dup(_rm.Find("first", rl).c_str());
+  return CORBA::string_dup(_rm->Find("first", rl).c_str());
 }
 
 char *
@@ -228,7 +232,7 @@ SALOME_ResourcesManager::Find(const char* policy, const Engines::ResourceList& l
   // CORBA -> C++
   std::vector<std::string> rl = resourceList_CORBAtoCPP(listOfResources);
 
-  return CORBA::string_dup(_rm.Find(policy, rl).c_str());
+  return CORBA::string_dup(_rm->Find(policy, rl).c_str());
 }
 
 Engines::ResourceDefinition*
@@ -236,7 +240,7 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 {
   Engines::ResourceDefinition_var resDef;
   try {
-    ParserResourcesType resource = _rm.GetResourcesDescr(name);
+    ParserResourcesType resource = _rm->GetResourcesDescr(name);
     resDef = resourceDefinition_CPPtoCORBA(resource);
   } catch (const exception & ex) {
     INFOS("Caught exception in GetResourceDefinition: " << ex.what());
@@ -254,12 +258,12 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   try
   {
     ParserResourcesType resource = resourceDefinition_CORBAtoCPP(new_resource);
-    _rm.AddResourceInCatalog(resource);
+    _rm->AddResourceInCatalog(resource);
 
     if (write)
     {
-      _rm.WriteInXmlFile(std::string(xml_file));
-      _rm.ParseXmlFiles();
+      _rm->WriteInXmlFile(std::string(xml_file));
+      _rm->ParseXmlFiles();
     }
   }
   catch (const SALOME_Exception & e)
@@ -281,7 +285,7 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
 {
   try
   {
-    _rm.DeleteResourceInCatalog(resource_name);
+    _rm->DeleteResourceInCatalog(resource_name);
   }
   catch (const SALOME_Exception & e)
   {
@@ -291,8 +295,8 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
 
   if (write)
   {
-    _rm.WriteInXmlFile(std::string(xml_file));
-    _rm.ParseXmlFiles();
+    _rm->WriteInXmlFile(std::string(xml_file));
+    _rm->ParseXmlFiles();
   }
 }
 
@@ -306,7 +310,7 @@ SALOME_ResourcesManager::getMachineFile(const char * resource_name,
   if (std::string(parallelLib) == "Dummy")
   {
     MESSAGE("[getMachineFile] parallelLib is Dummy");
-    MapOfParserResourcesType resourcesList = _rm.GetList();
+    MapOfParserResourcesType resourcesList = _rm->GetList();
     if (resourcesList.find(std::string(resource_name)) != resourcesList.end())
     {
       ParserResourcesType resource = resourcesList[std::string(resource_name)];
@@ -365,7 +369,7 @@ SALOME_ResourcesManager::getMachineFile(const char * resource_name,
   {
     MESSAGE("[getMachineFile] parallelLib is Mpi");
 
-    MapOfParserResourcesType resourcesList = _rm.GetList();
+    MapOfParserResourcesType resourcesList = _rm->GetList();
     if (resourcesList.find(std::string(resource_name)) != resourcesList.end())
     {
       ParserResourcesType resource = resourcesList[std::string(resource_name)];

@@ -94,134 +94,13 @@ SALOME_Launcher::~SALOME_Launcher()
 CORBA::Long 
 SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
-  std::string job_type = job_parameters.job_type.in();
-
-  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
-
-  if (job_type == Launcher::Job_Command::TYPE_NAME)
-    new_job = new Launcher::Job_Command();
-  else if (job_type == Launcher::Job_CommandSALOME::TYPE_NAME)
-    new_job = new Launcher::Job_CommandSALOME();
-  else if (job_type == Launcher::Job_YACSFile::TYPE_NAME)
-    new_job = new Launcher::Job_YACSFile();
-  else if (job_type == Launcher::Job_PythonSALOME::TYPE_NAME)
-    new_job = new Launcher::Job_PythonSALOME();
-  else
-  {
-    std::string message("SALOME_Launcher::createJob: bad job type: ");
-    message += job_type;
-    THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
-  }
-
-  // Name
-  new_job->setJobName(job_parameters.job_name.in());
-
-  // Directories
-  std::string work_directory = job_parameters.work_directory.in();
-  std::string local_directory = job_parameters.local_directory.in();
-  std::string result_directory = job_parameters.result_directory.in();
-  new_job->setWorkDirectory(work_directory);
-  new_job->setLocalDirectory(local_directory);
-  new_job->setResultDirectory(result_directory);
-
-  // Parameters for COORM
-  std::string launcher_file = job_parameters.launcher_file.in();
-  std::string launcher_args = job_parameters.launcher_args.in();
-  new_job->setLauncherFile(launcher_file);
-  new_job->setLauncherArgs(launcher_args);
-
-  // Job File
-  std::string job_file = job_parameters.job_file.in();
+  JobParameters_cpp cpp_parameters = JobParameters_CORBA2CPP(job_parameters);
+  CORBA::Long jobNumber = -1;
   try
   {
-    new_job->setJobFile(job_file);
-  }
-  catch(const LauncherException &ex)
-  {
-    INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
-  }
-  new_job->setPreCommand(job_parameters.pre_command.in());
-
-  // Files
-  std::string env_file = job_parameters.env_file.in();
-  new_job->setEnvFile(env_file);
-  for (CORBA::ULong i = 0; i < job_parameters.in_files.length(); i++)
-    new_job->add_in_file(job_parameters.in_files[i].in());
-  for (CORBA::ULong i = 0; i < job_parameters.out_files.length(); i++)
-    new_job->add_out_file(job_parameters.out_files[i].in());
-
-  // Expected During Time
-  try
-  {
-    std::string maximum_duration = job_parameters.maximum_duration.in();
-    new_job->setMaximumDuration(maximum_duration);
-  }
-  catch(const LauncherException &ex){
-    INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
-  }
-
-  // Queue
-  std::string queue = job_parameters.queue.in();
-  new_job->setQueue(queue);
-
-  // Partition
-  std::string partition = job_parameters.partition.in();
-  new_job->setPartition(partition);
-
-  // Exclusive
-  new_job->setExclusive(job_parameters.exclusive);
-
-  // Memory required per CPU
-  new_job->setMemPerCpu(job_parameters.mem_per_cpu);
-
-  // WC Key
-  std::string wckey = job_parameters.wckey.in();
-  new_job->setWCKey(wckey);
-
-  // Extra params
-  std::string extra_params = job_parameters.extra_params.in();
-  new_job->setExtraParams(extra_params);
-
-  // Resources requirements
-  try
-  {
-    resourceParams p;
-    p.name = job_parameters.resource_required.name;
-    p.hostname = job_parameters.resource_required.hostname;
-    p.OS = job_parameters.resource_required.OS;
-    p.nb_proc = job_parameters.resource_required.nb_proc;
-    p.nb_node = job_parameters.resource_required.nb_node;
-    p.nb_proc_per_node = job_parameters.resource_required.nb_proc_per_node;
-    p.cpu_clock = job_parameters.resource_required.cpu_clock;
-    p.mem_mb = job_parameters.resource_required.mem_mb;
-    new_job->setResourceRequiredParams(p);
-  }
-  catch(const LauncherException &ex){
-    INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
-  }
-
-  // Adding specific parameters to the job
-  for (CORBA::ULong i = 0; i < job_parameters.specific_parameters.length(); i++)
-    new_job->addSpecificParameter(job_parameters.specific_parameters[i].name.in(),
-                                  job_parameters.specific_parameters[i].value.in());
-  try
-  {
-    new_job->checkSpecificParameters();
-  }
-  catch(const LauncherException &ex)
-  {
-    INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
-  }
-
-  try
-  {
-    _l.createJob(new_job);
+    jobNumber = _l.createJob(cpp_parameters);
     std::ostringstream job_id;
-    job_id << new_job->getNumber();
+    job_id << jobNumber;
     notifyObservers("NEW_JOB", job_id.str());
   }
   catch(const LauncherException &ex)
@@ -229,7 +108,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     INFOS(ex.msg.c_str());
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
-  return new_job->getNumber();
+  return jobNumber;
 }
 
 void 
@@ -545,78 +424,16 @@ SALOME_Launcher::getJobsList()
 Engines::JobParameters *
 SALOME_Launcher::getJobParameters(CORBA::Long job_id)
 {
-  std::map<int, Launcher::Job *> cpp_jobs = _l.getJobs();
-  std::map<int, Launcher::Job *>::const_iterator it_job = cpp_jobs.find(job_id);
-  if (it_job == cpp_jobs.end())
+  Engines::JobParameters_var job_parameters;
+  try
   {
-    INFOS("Cannot find the job, is it created ? job number: " << job_id);
-    THROW_SALOME_CORBA_EXCEPTION("Job does not exist", SALOME::INTERNAL_ERROR);
+    JobParameters_cpp cpp_parameters = _l.getJobParameters(job_id);
+    job_parameters = JobParameters_CPP2CORBA(cpp_parameters);
   }
-
-  Launcher::Job * job = it_job->second;
-  Engines::JobParameters_var job_parameters = new Engines::JobParameters;
-  job_parameters->job_name         = CORBA::string_dup(job->getJobName().c_str());
-  job_parameters->job_type         = CORBA::string_dup(job->getJobType().c_str());
-  job_parameters->job_file         = CORBA::string_dup(job->getJobFile().c_str());
-  job_parameters->env_file         = CORBA::string_dup(job->getEnvFile().c_str());
-  job_parameters->work_directory   = CORBA::string_dup(job->getWorkDirectory().c_str());
-  job_parameters->local_directory  = CORBA::string_dup(job->getLocalDirectory().c_str());
-  job_parameters->result_directory = CORBA::string_dup(job->getResultDirectory().c_str());
-  job_parameters->pre_command      = CORBA::string_dup(job->getPreCommand().c_str());
-
-  // Parameters for COORM
-  job_parameters->launcher_file = CORBA::string_dup(job->getLauncherFile().c_str());
-  job_parameters->launcher_args = CORBA::string_dup(job->getLauncherArgs().c_str());
-
-  int i = 0;
-  int j = 0;
-  std::list<std::string> in_files  = job->get_in_files();
-  std::list<std::string> out_files = job->get_out_files();
-  job_parameters->in_files.length(in_files.size());
-  for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
+  catch(const LauncherException &ex)
   {
-    job_parameters->in_files[i] = CORBA::string_dup((*it).c_str());
-    i++;
-  }
-  job_parameters->out_files.length(out_files.size());
-  for(std::list<std::string>::iterator it = out_files.begin(); it != out_files.end(); it++)
-  {
-    job_parameters->out_files[j] = CORBA::string_dup((*it).c_str());
-    j++;
-  }
-
-  job_parameters->maximum_duration = CORBA::string_dup(job->getMaximumDuration().c_str());
-  job_parameters->queue            = CORBA::string_dup(job->getQueue().c_str());
-  job_parameters->partition        = CORBA::string_dup(job->getPartition().c_str());
-  job_parameters->exclusive        = job->getExclusive();
-  job_parameters->mem_per_cpu      = job->getMemPerCpu();
-  job_parameters->wckey            = CORBA::string_dup(job->getWCKey().c_str());
-  job_parameters->extra_params     = CORBA::string_dup(job->getExtraParams().c_str());
-
-  resourceParams resource_params = job->getResourceRequiredParams();
-  job_parameters->resource_required.name             = CORBA::string_dup(resource_params.name.c_str());
-  job_parameters->resource_required.hostname         = CORBA::string_dup(resource_params.hostname.c_str());
-  job_parameters->resource_required.OS               = CORBA::string_dup(resource_params.OS.c_str());
-  job_parameters->resource_required.nb_proc          = resource_params.nb_proc;
-  job_parameters->resource_required.nb_node          = resource_params.nb_node;
-  job_parameters->resource_required.nb_proc_per_node = resource_params.nb_proc_per_node;
-  job_parameters->resource_required.cpu_clock        = resource_params.cpu_clock;
-  job_parameters->resource_required.mem_mb           = resource_params.mem_mb;
-
-  std::map<std::string, std::string> specific_parameters = job->getSpecificParameters();
-  if (!specific_parameters.empty())
-  {
-    job_parameters->specific_parameters.length(specific_parameters.size());
-    std::map<std::string, std::string>::const_iterator it_specific;
-    CORBA::ULong i = 0;
-    for (it_specific = specific_parameters.begin() ; it_specific != specific_parameters.end(); it_specific++)
-    {
-      Engines::Parameter_var new_param = new Engines::Parameter;
-      new_param->name  = CORBA::string_dup((it_specific->first).c_str());
-      new_param->value = CORBA::string_dup((it_specific->second).c_str());
-      job_parameters->specific_parameters[i] = new_param;
-      i++;
-    }
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
 
   return job_parameters._retn();
@@ -756,4 +573,107 @@ SALOME_Launcher::notifyObservers(const std::string & event_name,
     iter++;
   }
 
+}
+
+JobParameters_cpp
+SALOME_Launcher::JobParameters_CORBA2CPP(
+                                   const Engines::JobParameters& job_parameters)
+{
+  JobParameters_cpp result;
+
+  result.job_name = job_parameters.job_name.in();
+  result.job_type = job_parameters.job_type.in();
+  result.job_file = job_parameters.job_file.in();
+  result.pre_command = job_parameters.pre_command.in();
+  result.env_file = job_parameters.env_file.in();
+
+  result.in_files.clear();
+  for (CORBA::ULong i = 0; i < job_parameters.in_files.length(); i++)
+    result.in_files.push_back(job_parameters.in_files[i].in());
+  result.out_files.clear();
+  for (CORBA::ULong i = 0; i < job_parameters.out_files.length(); i++)
+    result.out_files.push_back(job_parameters.out_files[i].in());
+
+  result.work_directory = job_parameters.work_directory.in();
+  result.local_directory = job_parameters.local_directory.in();
+  result.result_directory = job_parameters.result_directory.in();
+  result.maximum_duration = job_parameters.maximum_duration.in();
+
+  result.resource_required = resourceParameters_CORBAtoCPP(job_parameters.resource_required);
+
+  result.queue = job_parameters.queue.in();
+  result.partition = job_parameters.partition.in();
+  result.exclusive = job_parameters.exclusive;
+  result.mem_per_cpu = job_parameters.mem_per_cpu;
+  result.wckey = job_parameters.wckey.in();
+  result.extra_params = job_parameters.extra_params.in();
+
+  result.specific_parameters.clear();
+  for (CORBA::ULong i = 0; i < job_parameters.specific_parameters.length(); i++)
+    result.specific_parameters[job_parameters.specific_parameters[i].name.in()]
+                             = job_parameters.specific_parameters[i].value.in();
+
+  result.launcher_file = job_parameters.launcher_file.in();
+  result.launcher_args = job_parameters.launcher_args.in();
+  return result;
+}
+
+Engines::JobParameters_var
+SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters)
+{
+  Engines::JobParameters_var result = new Engines::JobParameters;
+  result->job_name = CORBA::string_dup(job_parameters.job_name.c_str());
+  result->job_type = CORBA::string_dup(job_parameters.job_type.c_str());
+  result->job_file = CORBA::string_dup(job_parameters.job_file.c_str());
+  result->pre_command = CORBA::string_dup(job_parameters.pre_command.c_str());
+  result->env_file = CORBA::string_dup(job_parameters.env_file.c_str());
+  result->in_files.length(job_parameters.in_files.size());
+
+  int i = 0;
+  for(const std::string& it : job_parameters.in_files)
+  {
+    result->in_files[i] = CORBA::string_dup(it.c_str());
+    i++;
+  }
+  result->out_files.length(job_parameters.out_files.size());
+  i = 0;
+  for(const std::string& it : job_parameters.out_files)
+  {
+    result->out_files[i] = CORBA::string_dup(it.c_str());
+    i++;
+  }
+
+  result->work_directory = CORBA::string_dup(job_parameters.work_directory.c_str());
+  result->local_directory = CORBA::string_dup(job_parameters.local_directory.c_str());
+  result->result_directory = CORBA::string_dup(job_parameters.result_directory.c_str());
+  result->maximum_duration = CORBA::string_dup(job_parameters.maximum_duration.c_str());
+
+  result->resource_required = resourceParameters_CPPtoCORBA(job_parameters.resource_required);
+
+  result->queue = CORBA::string_dup(job_parameters.queue.c_str());
+  result->partition = CORBA::string_dup(job_parameters.partition.c_str());
+  result->exclusive = job_parameters.exclusive;
+  result->mem_per_cpu = job_parameters.mem_per_cpu;
+  result->wckey = CORBA::string_dup(job_parameters.wckey.c_str());
+  result->extra_params = CORBA::string_dup(job_parameters.extra_params.c_str());
+
+  const std::map<std::string, std::string>& specific_parameters
+                                       = job_parameters.specific_parameters;
+  if (!specific_parameters.empty())
+  {
+    result->specific_parameters.length(specific_parameters.size());
+    CORBA::ULong i = 0;
+    for (const auto& it_specific : specific_parameters)
+    {
+      Engines::Parameter_var new_param = new Engines::Parameter;
+      new_param->name  = CORBA::string_dup(it_specific.first.c_str());
+      new_param->value = CORBA::string_dup(it_specific.second.c_str());
+      result->specific_parameters[i] = new_param;
+      i++;
+    }
+  }
+
+  result->launcher_file = CORBA::string_dup(job_parameters.launcher_file.c_str());
+  result->launcher_args = CORBA::string_dup(job_parameters.launcher_args.c_str());
+  return result;
 }

@@ -31,6 +31,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <memory>
 #include "ResourcesManager.hxx"
 
 #include "SALOME_ResourcesManager_Common.hxx"
@@ -75,7 +76,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     void ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines);
     // Cpp Methods
     void Shutdown();
-    ResourcesManager_cpp *GetImpl() { return &_rm; }
+    std::shared_ptr<ResourcesManager_cpp>& GetImpl() { return _rm; }
 
 
     static const char *_ResourcesManagerNameInNS;
@@ -84,7 +85,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     SALOME_NamingService *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
-    ResourcesManager_cpp _rm;
+    std::shared_ptr<ResourcesManager_cpp> _rm;
   };
 
 #endif // RESSOURCESCATALOG_IMPL_H

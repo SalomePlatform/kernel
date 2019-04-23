@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <memory>
 
 class MpiImpl;
 
@@ -42,29 +43,43 @@ namespace Batch{
   class Job;
 }
 
-struct batchParams{
-  std::string batch_directory;
-  std::string expected_during_time;
-  std::string mem;
-  unsigned long nb_proc;
-
-  // Parameters for COORM
+struct LAUNCHER_EXPORT JobParameters_cpp
+{
+  std::string job_name;
+  std::string job_type;
+  std::string job_file;
+  std::string pre_command;
+  std::string env_file;
+  std::list<std::string> in_files;
+  std::list<std::string> out_files;
+  std::string work_directory;
+  std::string local_directory;
+  std::string result_directory;
+  std::string maximum_duration;
+  resourceParams resource_required;
+  std::string queue;
+  std::string partition;
+  bool exclusive;
+  unsigned int mem_per_cpu;
+  std::string wckey;
+  std::string extra_params;
+  std::map<std::string, std::string> specific_parameters;
   std::string launcher_file;
   std::string launcher_args;
 };
 
 class LAUNCHER_EXPORT Launcher_cpp
 {
-
 public:
   Launcher_cpp();
   virtual ~Launcher_cpp();
 
   // Main interface
   void         createJob(Launcher::Job * new_job);
+  int          createJob(const JobParameters_cpp& job_parameters);
   void         launchJob(int job_id);
-  const char * getJobState(int job_id);
-  const char * getAssignedHostnames(int job_id); // Get names or ids of hosts assigned to the job
+  std::string  getJobState(int job_id);
+  std::string  getAssignedHostnames(int job_id); // Get names or ids of hosts assigned to the job
   void         getJobResults(int job_id, std::string directory);
   void         clearJobWorkingDir(int job_id);
   bool         getJobDumpState(int job_id, std::string directory);
@@ -73,6 +88,7 @@ public:
   void         removeJob(int job_id);
   std::string  dumpJob(int job_id);
   int restoreJob(const std::string& dumpedJob);
+  JobParameters_cpp getJobParameters(int job_id);
 
   /*! Load the jobs from the file "jobs_file" and add them to the Launcher.
    *  Return a list with the IDs of the jobs that were successfully loaded.
@@ -89,11 +105,12 @@ public:
   Launcher::Job * findJob(int job_id);
 
   // Lib methods
-  void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
+  void SetResourcesManager( std::shared_ptr<ResourcesManager_cpp>& rm ) {_ResManager = rm;}
+
+protected:
 
   // Used by SALOME_Launcher
-  ResourcesManager_cpp *_ResManager = nullptr;
-protected:
+  std::shared_ptr<ResourcesManager_cpp> _ResManager;
 
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
   int addJob(Launcher::Job * new_job);

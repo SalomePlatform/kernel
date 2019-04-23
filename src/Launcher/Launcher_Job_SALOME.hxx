@@ -34,10 +34,9 @@ namespace Launcher
 {
   class LAUNCHER_EXPORT Job_SALOME : virtual public Launcher::Job
   {
-    protected:
-      virtual ~Job_SALOME();
     public:
       Job_SALOME();
+      virtual ~Job_SALOME();
 
       virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
       virtual void update_job();
