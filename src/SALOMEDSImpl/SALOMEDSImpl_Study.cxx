@@ -2075,19 +2075,24 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   }
 
   std::vector<std::string> aSeq;
-  std::string aCompType, aFactoryType;
+  std::string aFactoryType;
 
   //Build a list of all components in the Study
   SALOMEDSImpl_SComponentIterator itcomponent = NewComponentIterator();
 
-  for (; itcomponent.More(); itcomponent.Next()) {
-    SALOMEDSImpl_SComponent sco = itcomponent.Value();
-    aCompType = sco.ComponentDataType();
-   if (aCompType == "GEOM")
-      aSeq.insert(aSeq.begin(), aCompType);
-    else
-      aSeq.push_back(aCompType);
+  for (; itcomponent.More(); itcomponent.Next())
+    aSeq.push_back(itcomponent.Value().ComponentDataType());
+
+  std::vector<std::string>::iterator it;
+  if ( (it = std::find( aSeq.begin(), aSeq.end(), "GEOM" )) != aSeq.end() ) {
+    aSeq.erase( it );
+    aSeq.insert(aSeq.begin(), "GEOM" );
   }
+  if ( (it = std::find( aSeq.begin(), aSeq.end(), "SHAPER" )) != aSeq.end() ) {
+    aSeq.erase( it );
+    aSeq.insert(aSeq.begin(), "SHAPER" );
+  }
+
   // re-arrange modules in the sequence, if specific order is given via SALOME_MODULES_ORDER environment variable.
   if ( getenv("SALOME_MODULES_ORDER") != 0 ) {
     std::string order = getenv("SALOME_MODULES_ORDER");
@@ -2180,7 +2185,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   int aLength = aSeq.size();
   for(int i = 1; i <= aLength; i++) {
 
-    aCompType = aSeq[i-1];
+    std::string aCompType = aSeq[i-1];
     SALOMEDSImpl_SComponent sco = FindComponent(aCompType);
     SALOMEDSImpl_Driver* aDriver = NULL;
     // if there is an associated Engine call its method for saving
