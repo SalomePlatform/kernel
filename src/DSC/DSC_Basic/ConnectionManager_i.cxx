@@ -25,7 +25,6 @@
 //  Module : KERNEL
 //
 #include "ConnectionManager_i.hxx"
-#include "SALOME_NamingService.hxx"
 
 #ifdef WIN32
 # include <process.h>
@@ -33,20 +32,23 @@
 # include <unistd.h>
 #endif
 
+const char * ConnectionManager_i::_ConnectionManagerNameInNS = "/ConnectionManager";
+
 ConnectionManager_i::ConnectionManager_i(CORBA::ORB_ptr orb) {
   _orb = CORBA::ORB::_duplicate(orb) ;
-  SALOME_NamingService * ns = new SALOME_NamingService(orb);
-  const char * ConnectionManagerNameInNS = "/ConnectionManager";
+  _NS = new SALOME_NamingService(orb);
   CORBA::Object_var obref = _this();
   _remove_ref();
-  ns->Register(obref, ConnectionManagerNameInNS);
-  delete ns;
+  _NS->Register(obref, _ConnectionManagerNameInNS);
 
   current_id = 0;
   pthread_mutex_init(&mutex, NULL);
 }
 
-ConnectionManager_i::~ConnectionManager_i() {}
+ConnectionManager_i::~ConnectionManager_i()
+{
+  delete _NS;
+}
 
 Engines::ConnectionManager::connectionId
 ConnectionManager_i::connect(Engines::DSC_ptr uses_component, 
@@ -122,6 +124,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
 void
 ConnectionManager_i::ShutdownWithExit()
 {
+  _NS->Destroy_Name(_ConnectionManagerNameInNS);
   ids_it = ids.begin();
   while(ids_it != ids.end())
     {

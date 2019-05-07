@@ -49,10 +49,13 @@ class SalomeInstance(object):
     salome_instance = SalomeInstance()
     salome_instance.__run(args=instance_args, with_gui=with_gui)
 
-    with open(port_log) as f:
-      salome_instance.port = int(f.readline())
+    try:
+      with open(port_log) as f:
+        salome_instance.port = int(f.readline())
+      os.remove(port_log)
+    except:
+      pass
 
-    os.remove(port_log)
     return salome_instance
   #
 

@@ -89,7 +89,11 @@ protected:
 
   std::string machinesFile(const int nbproc);
 
- static std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, const std::string & hostname, const std::string & username);
+ static std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, 
+                                                 const std::string & hostname, 
+                                                 const std::string & username,
+                                                 const std::string & applipath,
+                                                 const std::string & workdir="");
 
   Engines::Container_ptr
   LaunchContainer(const Engines::ContainerParameters& params,

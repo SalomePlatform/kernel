@@ -148,16 +148,22 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
       default_file += "/";
       default_file += getenv("APPLI");
       default_file += "/CatalogResources.xml";
-      _path_resources.push_back(default_file);
+      std::ifstream ifile(default_file.c_str(), std::ifstream::in );
+      if (ifile) {
+        // The file exists, and is open for input
+        _path_resources.push_back(default_file);
+        default_catalog_resource=false;
+      }
     }
-    else
-    {
-      if(!getenv("KERNEL_ROOT_DIR"))
-        throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
-      default_file = getenv("KERNEL_ROOT_DIR");
-      default_file += "/share/salome/resources/kernel/CatalogResources.xml";
-      _path_resources.push_back(default_file);
-    }
+  }
+  if (default_catalog_resource)
+  {
+    std::string default_file("");
+    if(!getenv("KERNEL_ROOT_DIR"))
+      throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
+    default_file = getenv("KERNEL_ROOT_DIR");
+    default_file += "/share/salome/resources/kernel/CatalogResources.xml";
+    _path_resources.push_back(default_file);
   }
 
   ParseXmlFiles();

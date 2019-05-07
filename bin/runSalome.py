@@ -144,7 +144,15 @@ class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
+        self.SCMD1=['SALOME_ModuleCatalog_Server']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.SCMD1+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.SCMD1+=["NameService=corbaname::" + machine + ":" + port]
+        self.SCMD1+=['-common']
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
         if home_dir is not None:
@@ -169,6 +177,13 @@ class SalomeDSServer(Server):
         self.args=args
         self.initArgs()
         self.CMD=['SALOMEDS_Server']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
 
 # ---
 
@@ -177,6 +192,14 @@ class ConnectionManagerServer(Server):
         self.args=args
         self.initArgs()
         self.CMD=['SALOME_ConnectionManagerServer']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
+
 
 # ---
 
@@ -185,6 +208,13 @@ class RegistryServer(Server):
         self.args=args
         self.initArgs()
         self.CMD=['SALOME_Registry_Server', '--salome_session','theSession']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
 
 # ---
 
@@ -192,7 +222,15 @@ class ContainerCPPServer(Server):
     def __init__(self,args,with_gui=False):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_Container','FactoryServer']
+        self.CMD=['SALOME_Container']
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.CMD+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.CMD+=["NameService=corbaname::" + machine + ":" + port]
+        self.CMD+=['FactoryServer']
         if not with_gui and self.args["valgrind_session"]:
             l = ["valgrind"]
             val = os.getenv("VALGRIND_OPTIONS")
@@ -234,6 +272,13 @@ class SessionServer(Server):
         self.initArgs()
         self.SCMD1=['SALOME_Session_Server']
         self.SCMD2=[]
+        if 'launcher' in self.args:
+            pos = args['launcher'].find(":")
+            if pos != -1:
+              self.SCMD1+=['-ORBInitRef']
+              machine = args['launcher'][0:pos]
+              port = args['launcher'][pos+1:]
+              self.SCMD1+=["NameService=corbaname::" + machine + ":" + port]
         if 'registry' in self.args['embedded']:
             self.SCMD1+=['--with','Registry',
                          '(','--salome_session','theSession',')']
@@ -471,7 +516,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Launch  Session Server (to show splash ASAP)
     #
 
-    if args["gui"]:
+    if args["gui"] and not args['launcher_only']:
         mySessionServ = SessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
@@ -523,17 +568,18 @@ def startSalome(args, modules_list, modules_root_dir):
     # Launch LauncherServer
     #
 
-    myCmServer = LauncherServer(args)
-    myCmServer.setpath(modules_list,modules_root_dir)
-    myCmServer.run()
+    if not 'launcher' in args:
+      myCmServer = LauncherServer(args)
+      myCmServer.setpath(modules_list,modules_root_dir)
+      myCmServer.run()
 
     #
     # Launch ConnectionManagerServer
     #
 
-    myConnectionServer = ConnectionManagerServer(args)
-    myConnectionServer.run()
-
+    if not args['launcher_only']:
+      myConnectionServer = ConnectionManagerServer(args)
+      myConnectionServer.run()
 
     from Utils_Identity import getShortHostName
 
@@ -565,7 +611,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Wait until Session Server is registered in naming service
     #
 
-    if args["gui"]:
+    if args["gui"] and not args['launcher_only']:
 ##----------------
         import Engines
         import SALOME
@@ -776,7 +822,7 @@ def main(exeName=None):
     if args['wake_up_session']:
         test = False
         pass
-    if test:
+    if test and not 'launcher' in args:
         from searchFreePort import searchFreePort
         searchFreePort(args, save_config, args.get('useport'))
         pass

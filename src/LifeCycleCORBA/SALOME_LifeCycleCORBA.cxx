@@ -420,7 +420,7 @@ Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
  */
 //=============================================================================
 
-void SALOME_LifeCycleCORBA::shutdownServers()
+void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
 {
   // get each Container from NamingService => shutdown it
   // (the order is inverse to the order of servers initialization)
@@ -469,6 +469,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
       SALOMEDS::Study_var study = SALOMEDS::Study::_narrow(objSDS) ;
       if ( !CORBA::is_nil(study) && ( pid != study->getPID() ) )
         study->Shutdown();
+      _NS->Destroy_Name("/Study");
     }
   catch(const CORBA::Exception& e)
     {
@@ -487,6 +488,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
       SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
       if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
         catalog->shutdown();
+      _NS->Destroy_Name("/Kernel/ModulCatalog");
     }
   catch(const CORBA::Exception& e)
     {
@@ -513,10 +515,12 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   // 5) SalomeLauncher
   try
     {
-      CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
-      Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
-      if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
-        launcher->Shutdown();
+      if(shutdownLauncher){
+        CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
+        Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
+        if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
+          launcher->Shutdown();
+      }
     }
   catch(const CORBA::Exception& e)
     {
@@ -535,6 +539,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
       Registry::Components_var registry = Registry::Components::_narrow(objR);
       if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
           registry->Shutdown();
+      _NS->Destroy_Name("/Registry");
     }
   catch(const CORBA::Exception& e)
     {

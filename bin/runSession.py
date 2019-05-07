@@ -118,6 +118,10 @@ User "myself" connects to remotemachine to run the script concatenate.py in
                     help="[Remote mode] The user on the computer to connect to."
                     )
 
+  parser.add_option('-l', '--launcher', dest="launcher", default=None,
+                    help="[Remote mode] The machine and the port to connect to."
+                    )
+
   short_args, extra_args = getShortAndExtraArgs(args)
   try:
     (options, args) = parser.parse_args(short_args)
@@ -127,6 +131,12 @@ User "myself" connects to remotemachine to run the script concatenate.py in
 
   port = options.port
   host = options.host
+  launcher = options.launcher
+  if launcher is not None:
+    pos = launcher.find(":")
+    if pos != -1:
+      host = launcher[0:pos]
+      port = launcher[pos+1:]
 
   # :GLITCH: this code defines specific environment variables (OMNIORB_CONFIG, NSPORT,
   # NSHOST) which are later used by other modules. Working, but not really "safe"...
@@ -162,7 +172,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
   # determine running mode, that is either 'local' or 'remote'
   here = getShortHostName()
   mode = "local"
-  if host != here and host != "localhost" and host != "no_host":
+  if host != here and host != "localhost" and host != "no_host" and launcher is None:
     mode="remote"
     pass
   params = SessionParameters(mode, port, host, options.user, options.directory)

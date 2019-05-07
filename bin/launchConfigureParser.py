@@ -70,6 +70,8 @@ valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
 foreground_nam = "foreground"
 wake_up_session_nam = "wake_up_session"
+launcher_only_nam = "launcher_only"
+launcher_nam = "launcher"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -89,8 +91,9 @@ standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer"]
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam, launcher_only_nam )
 intKeys = ( interp_nam, )
+strKeys = ( launcher_nam )
 
 # values of list type
 listKeys = ( embedded_nam, key_nam, modules_nam, standalone_nam, plugins_nam )
@@ -365,6 +368,8 @@ class xml_parser:
                 self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
             elif nam in intKeys:
                 self.opts[key] = self.intValue( val )   # assign integer value
+            elif nam in strKeys:
+                self.opts[key] = val                    # assign value
             elif nam in listKeys:
                 self.opts[key] = [ self.strValue( a ) for a in re.split( "[:;,]", val ) ] # assign list value: []
             else:
@@ -683,6 +688,22 @@ Python file arguments, if any, must be comma-separated (without blank characters
                       dest="print_port",
                       help=help_str)
 
+    # launch only omniNames and Launcher server
+    help_str = "launch only omniNames and Launcher server"
+    pars.add_argument("--launcher_only",
+                      action="store_true",
+                      dest="launcher_only",
+                      help=help_str)
+
+    # machine and port where is the Launcher
+    help_str  = "machine and port where is the Launcher. Usage: "
+    help_str += "--launcher=machine:port"
+    pars.add_argument("--launcher",
+                      metavar="<=machine:port>",
+                      type=str,
+                      dest="launcher",
+                      help=help_str)
+
     # Do not relink ${HOME}/.omniORB_last.cfg
     help_str = "Do not save current configuration ${HOME}/.omniORB_last.cfg"
     pars.add_argument("--nosave-config",
@@ -833,7 +854,6 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
     # - Command line options have the highest priority and replace options
     #   specified in configuration file(s)
     ###
-
     global args
     config_var = appname+'Config'
 
@@ -1086,6 +1106,14 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
     else:
         args[shutdown_servers_nam] = cmd_opts.shutdown_servers
         pass
+
+    # Launcher only
+    if cmd_opts.launcher_only is not None:
+        args[launcher_only_nam] = cmd_opts.launcher_only
+
+    # machine and port where is the Launcher
+    if cmd_opts.launcher is not None:
+        args[launcher_nam] = cmd_opts.launcher
 
     # Foreground
     if cmd_opts.foreground is None:

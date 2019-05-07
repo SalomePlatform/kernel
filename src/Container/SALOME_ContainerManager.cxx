@@ -519,26 +519,13 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     // Only if an application directory is set
     if(hostname != Kernel_Utils::GetHostname() && _isAppliSalomeDefined)
       {
-        // Preparing remote command
-        std::string command = "";
+
         const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_selected));
-        command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
-        if (resInfo.AppliPath != "")
-          command += resInfo.AppliPath;
-        else
-          {
-            ASSERT(GetenvThreadSafe("APPLI"));
-            command += GetenvThreadSafeAsString("APPLI");
-          }
-        command += "/runRemote.sh ";
-        ASSERT(GetenvThreadSafe("NSHOST"));
-        command += GetenvThreadSafeAsString("NSHOST"); // hostname of CORBA name server
-        command += " ";
-        ASSERT(GetenvThreadSafe("NSPORT"));
-        command += GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
-        command += " \"ls /tmp >/dev/null 2>&1\"";
+        std::string command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, 
+                                                           resInfo.UserName, resInfo.AppliPath);
 
         // Launch remote command
+          command += " \"ls /tmp >/dev/null 2>&1\"";
         int status = SystemThreadSafe(command.c_str());
         if (status != 0)
           {
@@ -760,37 +747,16 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
         nbproc = params.nb_proc;
     }
 
-    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir
-    //  SALOME_Container containerName &"
-    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, resInfo.UserName);
-
-    if (resInfo.AppliPath != "")
-      command += resInfo.AppliPath; // path relative to user@machine $HOME
-    else
-    {
-      ASSERT(GetenvThreadSafe("APPLI"));
-      command += GetenvThreadSafeAsString("APPLI"); // path relative to user@machine $HOME
-    }
-
-    command += "/runRemote.sh ";
-
-    ASSERT(GetenvThreadSafe("NSHOST"));
-    command += GetenvThreadSafeAsString("NSHOST"); // hostname of CORBA name server
-
-    command += " ";
-    ASSERT(GetenvThreadSafe("NSPORT"));
-    command += GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
-
     std::string wdir = params.workingdir.in();
-    if(wdir != "")
-    {
-      command += " WORKINGDIR ";
-      command += " '";
-      if(wdir == "$TEMPDIR")
-        wdir="\\$TEMPDIR";
-      command += wdir; // requested working directory
-      command += "'";
-    }
+
+    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
+    //  SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
+    //  or 
+    //  "ssh -l user machine distantLauncher remote -p hostNS -m portNS -d dir
+    //      --  SALOME_Container contName -ORBInitRef NameService=IOR:01000..."
+    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, 
+                                           resInfo.UserName, resInfo.AppliPath,
+                                           wdir);
 
     if(params.isMPI)
     {
@@ -1212,43 +1178,8 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
     {
       if (_isAppliSalomeDefined)
         {
-
-          if (resInfo.Protocol == rsh)
-            command = "rsh ";
-          else if (resInfo.Protocol == ssh)
-            command = "ssh ";
-          else if (resInfo.Protocol == srun)
-            command = "srun -n 1 -N 1 --share --mem-per-cpu=0 --nodelist=";
-          else
-            throw SALOME_Exception("Unknown protocol");
-
-          if (resInfo.UserName != "")
-            {
-              command += "-l ";
-              command += resInfo.UserName;
-              command += " ";
-            }
-
-          command += resInfo.HostName;
-          command += " ";
-
-          if (resInfo.AppliPath != "")
-            command += resInfo.AppliPath; // path relative to user@machine $HOME
-          else
-            {
-              ASSERT(GetenvThreadSafe("APPLI"));
-              command += GetenvThreadSafeAsString("APPLI"); // path relative to user@machine $HOME
-            }
-
-          command += "/runRemote.sh ";
-
-          ASSERT(GetenvThreadSafe("NSHOST"));
-          command += GetenvThreadSafeAsString("NSHOST"); // hostname of CORBA name server
-
-          command += " ";
-          ASSERT(GetenvThreadSafe("NSPORT"));
-          command += GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
-
+          command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, 
+                                                 resInfo.UserName, resInfo.AppliPath);
           command += " mpirun -np 1 hostname -s > " + tmpFile;
         }
       else
@@ -1299,7 +1230,9 @@ std::string SALOME_ContainerManager::machinesFile(const int nbproc)
 
 std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocolType protocol,
                                                                   const std::string & hostname,
-                                                                  const std::string & username)
+                                                                  const std::string & username,
+                                                                  const std::string & applipath,
+                                                                  const std::string & workdir)
 {
   std::ostringstream command;
   switch (protocol)
@@ -1333,6 +1266,52 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
     break;
   default:
     throw SALOME_Exception("Unknown protocol");
+  }
+
+  std::string remoteapplipath;
+  if (applipath=="")
+    remoteapplipath = GetenvThreadSafeAsString("APPLI");
+  else
+    remoteapplipath = applipath;
+
+  ASSERT(GetenvThreadSafe("NSHOST"));
+  ASSERT(GetenvThreadSafe("NSPORT"));
+
+  // $APPLI points either to an application directory, or to a salome launcher file
+  // we prepare the remote command according to the case
+  struct stat statbuf;
+  if (stat(GetenvThreadSafe("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
+  {
+    // if $APPLI is a regular file, we asume it's a salome Launcher
+    // generate a command with a salome launcher
+    command << remoteapplipath 
+            << " remote"
+            << " -m "
+            <<  GetenvThreadSafeAsString("NSHOST") // hostname of CORBA name server
+            << " -p "
+            <<  GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
+    if (workdir != "")
+      command << "-d " << workdir;
+    command <<  " -- " ;
+  }
+  else  // we assume it's a salome application directory
+  {
+    // generate a command with runRemote.sh
+    command <<  remoteapplipath;
+    command <<  "/runRemote.sh ";
+    command <<  GetenvThreadSafeAsString("NSHOST"); // hostname of CORBA name server
+    command <<  " ";
+    command <<  GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
+    if(workdir != "")
+    {
+      command << " WORKINGDIR ";
+      command << " '";
+      if(workdir == "$TEMPDIR")
+          command << "\\$TEMPDIR";
+      else
+        command << workdir; // requested working directory
+      command << "'";
+    }
   }
 
   return command.str();
