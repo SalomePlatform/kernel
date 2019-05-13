@@ -68,6 +68,8 @@ namespace Kernel_Utils
   // Returns True(False) if the path (not) empty
   // Also returns False if the path is not valid
   BASICS_EXPORT bool IsEmptyDir( const std::string& path );
+
+  BASICS_EXPORT std::string BackSlashToSlash( const std::string& path );
 }
 
 #endif

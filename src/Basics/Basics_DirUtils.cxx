@@ -27,6 +27,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include <algorithm>
+
 #ifndef WIN32
 # include <sys/stat.h>
 # include <dirent.h>
@@ -338,5 +340,15 @@ namespace Kernel_Utils
     }
 #endif
     return result;
+  }
+
+  //============================================================================
+  // function : BackSlashToSlash  
+  // purpose  : Convert back slash to slash
+  //============================================================================ 
+  std::string BackSlashToSlash(const std::string& path) {
+	  std::string res = path;
+	  std::replace(res.begin(), res.end(), '\\', '/');
+	  return res;
   }
 }
