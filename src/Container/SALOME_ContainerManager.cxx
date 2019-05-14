@@ -50,6 +50,11 @@
 #ifdef WIN32
 #include <process.h>
 #define getpid _getpid
+
+#ifndef S_ISREG
+#define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
+#endif
+
 #endif
 
 #ifdef WITH_PACO_PARALLEL
