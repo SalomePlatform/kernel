@@ -26,6 +26,7 @@
 #endif
 
 #include <sstream>
+#include <sys/stat.h>
 
 const char Launcher::Job_CommandSALOME::TYPE_NAME[] = "command_salome";
 
@@ -42,9 +43,17 @@ Launcher::Job_CommandSALOME::~Job_CommandSALOME() {}
 std::string Launcher::Job_CommandSALOME::runCommandString()
 {
   std::ostringstream result;
-  result << _resource_definition.AppliPath
-         << "/salome shell ./"
-         << _job_file_name_complete;
+  struct stat statbuf;
+  if(stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
+      // case of a salome launcher file
+      result << _resource_definition.AppliPath
+             << " shell ./"
+             << _job_file_name_complete;
+  else
+      // case of a salome appli dir
+      result << _resource_definition.AppliPath
+             << "/salome shell ./"
+             << _job_file_name_complete;
   return result.str();
 }
 #endif

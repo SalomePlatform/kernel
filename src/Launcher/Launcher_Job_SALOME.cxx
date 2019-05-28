@@ -31,6 +31,7 @@
 #define _chmod chmod
 #include <process.h>
 #endif
+#include <sys/stat.h>
 
 #include <sstream>
 
@@ -72,7 +73,11 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 #else
   str_pid << ::getpid();
 #endif
-  std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + "-" + str_pid.str() + ".sh";
+  struct stat statbuf;
+  // true if APPLI holds a salome file launcher (in state of an application directory)
+  bool is_launcher_file=stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode);
+  std::string launch_tmp_dir = Kernel_Utils::GetTmpDir();
+  std::string launch_script = launch_tmp_dir + "runSalome_" + _job_file_name + "_" + _launch_date + "-" + str_pid.str() + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(),
                             std::ofstream::out
@@ -125,10 +130,17 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "fi" << std::endl;
 
   // Create file for ns-port-log
-  launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
+  if (is_launcher_file)
+      // for a salome application file, we write NS_PORT_FILE_PATH in launch_tmp_dir
+      launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << launch_tmp_dir << "nsport_XXXXXX) &&\n";
+  else
+      launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
 
   // Launch SALOME with an appli
-  launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
+  if (is_launcher_file)
+      launch_script_stream << _resource_definition.AppliPath << " start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
+  else
+      launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
   launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
   launch_script_stream << "current=0 &&\n"
                        << "stop=20 &&\n"
@@ -150,7 +162,10 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo $? > logs/exit_code.log" << std::endl;
 
   // End
-  launch_script_stream << _resource_definition.AppliPath << "/salome kill \"$appli_port\"" << std::endl;
+  if (is_launcher_file)
+      launch_script_stream << _resource_definition.AppliPath << " kill \"$appli_port\"" << std::endl;
+  else
+      launch_script_stream << _resource_definition.AppliPath << "/salome kill \"$appli_port\"" << std::endl;
 
   // Return
   launch_script_stream.flush();

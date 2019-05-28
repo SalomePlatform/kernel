@@ -20,6 +20,7 @@
 // Author: André RIBES - EDF R&D
 //
 #include "Launcher_Job_PythonSALOME.hxx"
+#include <sys/stat.h>
 
 const char Launcher::Job_PythonSALOME::TYPE_NAME[] = "python_salome";
 
@@ -39,5 +40,10 @@ Launcher::Job_PythonSALOME::setJobFile(const std::string & job_file)
 void
 Launcher::Job_PythonSALOME::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
-  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
+  struct stat statbuf;
+  if(stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
+      // case where AppliPath hold a salome launcher file
+      launch_script_stream << _resource_definition.AppliPath << " shell -p \"$appli_port\" python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
+  else
+      launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
 }

@@ -622,9 +622,18 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   resource.Protocol = sh;
   resource.Batch = none;
 #ifndef WIN32
+  struct stat statbuf;
   if (getenv("HOME") != NULL && getenv("APPLI") != NULL)
   {
-    resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
+    if (stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
+    {
+        // if $APPLI is a regular file, we asume it's a salome Launcher file
+        resource.AppliPath = string(getenv("APPLI"));
+    }
+    else
+    {
+        resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
+    }
   }
   string tmpdir = "/tmp";
   if (getenv("TMPDIR") != NULL)

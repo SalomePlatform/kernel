@@ -21,6 +21,7 @@
 //
 #include "Launcher_Job_YACSFile.hxx"
 #include <sstream>
+#include <sys/stat.h>
 
 const char Launcher::Job_YACSFile::TYPE_NAME[] = "yacs_file";
 
@@ -42,7 +43,12 @@ Launcher::Job_YACSFile::setJobFile(const std::string & job_file)
 void
 Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
-  launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" -- driver -k\"$appli_port\" " << _job_file_name_complete;
+  struct stat statbuf;
+  if(stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
+      // case of a salome launcher file
+      launch_script_stream << _resource_definition.AppliPath << " shell -p \"$appli_port\" -- driver -k\"$appli_port\" " << _job_file_name_complete;
+  else
+      launch_script_stream << _resource_definition.AppliPath << "/salome shell -p \"$appli_port\" -- driver -k\"$appli_port\" " << _job_file_name_complete;
   if (_dumpState > 0)
     launch_script_stream << " --dump=" << _dumpState;
   if(! _yacsDriverOptions.empty())
