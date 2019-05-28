@@ -150,6 +150,11 @@ User "myself" connects to remotemachine to run the script concatenate.py in
         os.environ['OMNIORB_CONFIG'] = fileOmniConfig
         # --- set environment variables for port and hostname of NamingService
         host, port = getNSparams()
+        try:
+            # keep short name for host, for a correct comparison with getShortHostName() later
+            host=host.split('.')[0]
+        except:
+            pass
       else:
         # No running session
         host = "no_host"
