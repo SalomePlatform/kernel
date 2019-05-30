@@ -24,6 +24,7 @@
 
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
+#include "Launcher_Utils.hxx"
 
 #ifdef WITH_LIBBATCH
 #include <libbatch/Job.hxx>

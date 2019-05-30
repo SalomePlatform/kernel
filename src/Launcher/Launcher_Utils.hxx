@@ -30,6 +30,11 @@
 # else
 #  define LAUNCHER_EXPORT __declspec(dllimport)
 # endif
+
+#ifndef S_ISREG
+#define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
+#endif
+
 #else
 # define LAUNCHER_EXPORT
 #endif

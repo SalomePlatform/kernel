@@ -23,6 +23,7 @@
 #define _LAUNCHER_JOB_YACSFILE_HXX_
 
 #include "Launcher_Job_SALOME.hxx"
+#include "Launcher_Utils.hxx"
 
 namespace Launcher
 {
