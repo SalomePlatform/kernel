@@ -53,6 +53,8 @@ SET(SalomeIDLKernel_IDLSOURCES
   SALOME_MPIObject.idl
   SALOME_TestComponent.idl
   SALOME_TestModuleCatalog.idl
+  SALOME_CommonTypes.idl
+  SALOME_ExternalServerLauncher.idl
   ${CMAKE_CURRENT_BINARY_DIR}/Calcium_Ports.idl
 )
 

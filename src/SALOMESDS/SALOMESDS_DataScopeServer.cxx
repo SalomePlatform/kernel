@@ -46,19 +46,6 @@ using namespace SALOMESDS;
 
 std::size_t DataScopeServerBase::COUNTER=0;
 
-#if PY_VERSION_HEX < 0x03050000
-static char*
-Py_EncodeLocale(const wchar_t *arg, size_t *size)
-{
-	return _Py_wchar2char(arg, size);
-}
-static wchar_t*
-Py_DecodeLocale(const char *arg, size_t *size)
-{
-	return _Py_char2wchar(arg, size);
-}
-#endif
-
 void DataScopeKiller::shutdown()
 {
   Py_Finalize();
@@ -84,19 +71,16 @@ void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_
   return _ds->fetchAndGetAccessOfVar(varName,access,data);
 }
 
-DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
+DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
 {
 }
 
-DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars),_killer(other._killer)
+DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_pyHelper(other._pyHelper),_name(other._name),_vars(other._vars),_killer(other._killer)
 {
 }
 
 DataScopeServerBase::~DataScopeServerBase()
 {
-  // _globals is borrowed ref -> do nothing
-  Py_XDECREF(_locals);
-  Py_XDECREF(_pickler);
   for(std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it=_vars.begin();it!=_vars.end();it++)
     {
        BasicDataServer *obj((*it).second);
@@ -276,44 +260,9 @@ void DataScopeServerBase::takeANap(CORBA::Double napDurationInSec)
 #endif
 }
 
-void DataScopeServerBase::initializePython(int argc, char *argv[])
-{
-  Py_Initialize();
-  PyEval_InitThreads();
-  wchar_t **changed_argv = new wchar_t*[argc]; // Setting arguments
-  for (int i = 0; i < argc; i++)
-    changed_argv[i] = Py_DecodeLocale(argv[i], NULL);
-  PySys_SetArgv(argc, changed_argv);
-  PyObject *mainmod(PyImport_AddModule("__main__"));
-  _globals=PyModule_GetDict(mainmod);
-  if(PyDict_GetItemString(_globals, "__builtins__") == NULL)
-    {
-      PyObject *bimod(PyImport_ImportModule("__builtin__"));
-      if (bimod == NULL || PyDict_SetItemString(_globals, "__builtins__", bimod) != 0)
-        Py_FatalError("can't add __builtins__ to __main__");
-      Py_XDECREF(bimod);
-    }
-  _locals=PyDict_New();
-  PyObject *tmp(PyList_New(0));
-  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("pickle"),_globals,_locals,tmp,0);
-}
-
 void DataScopeServerBase::registerToSalomePiDict() const
 {
-  PyObject *mod(PyImport_ImportModule("addToKillList"));//new value
-  if(!mod)
-    return;
-  PyObject *meth(PyObject_GetAttrString(mod,"addToKillList"));//new value
-  if(!meth)
-    { Py_XDECREF(mod); return ; }
-  PyObject *args(PyTuple_New(2));
-  PyTuple_SetItem(args,0,PyLong_FromLong(getpid()));
-  PyTuple_SetItem(args,1,PyUnicode_FromString("SALOME_DataScopeServerBase"));
-  PyObject *res(PyObject_CallObject(meth,args));
-  Py_XDECREF(args);
-  Py_XDECREF(res);
-  Py_XDECREF(meth);
-  Py_XDECREF(mod);
+  _pyHelper->registerToSalomePiDict("SALOME_DataScopeServerBase",getpid());
 }
 
 void DataScopeServerBase::setPOA(PortableServer::POA_var poa)
@@ -496,7 +445,7 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterat
 
 ///////
 
-DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(orb,killer,scopeName)
+DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(pyHelper,orb,killer,scopeName)
 {
 }
 
@@ -543,7 +492,7 @@ DataScopeServer::~DataScopeServer()
 
 ////////
 
-DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(orb,killer,scopeName)
+DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(pyHelper,orb,killer,scopeName)
 {
   CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));

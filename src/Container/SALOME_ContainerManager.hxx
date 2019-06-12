@@ -162,6 +162,7 @@ public:
   static char *GetenvThreadSafe(const char *name);
   static std::string GetenvThreadSafeAsString(const char *name);
   static int SystemThreadSafe(const char *command);
+  static long SystemWithPIDThreadSafe(const std::vector<std::string>& command);
   static void AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService *ns);
   static void MakeTheCommandToBeLaunchedASync(std::string& command);
   static int GetTimeOutToLoaunchServer();

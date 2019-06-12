@@ -43,9 +43,9 @@ SALOME::DataScopeServerTransaction_ptr RequestSwitcherDSM::giveADataScopeTransac
   return _dsm->giveADataScopeTransactionCalled(scopeName,isCreated);
 }
 
-DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
+DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
-  DataScopeServer *dftScope(new DataScopeServer(orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
+  DataScopeServer *dftScope(new DataScopeServer(pyHelper,orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
   PortableServer::POAManager_var pman(poa->the_POAManager());
   CORBA::PolicyList policies;
   policies.length(1);
@@ -53,8 +53,6 @@ DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb,
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   _poa=poa->create_POA("SingleThPOA4SDS",pman,policies);
   threadPol->destroy();
-  //
-  dftScope->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
   // activate this to be ready to be usable from NS.
   PortableServer::ObjectId_var id(_poa->activate_object(this));
   CORBA::Object_var obj(_poa->id_to_reference(id));

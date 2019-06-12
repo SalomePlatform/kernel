@@ -21,6 +21,7 @@
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
 #include "SALOMESDS_Exception.hxx"
+#include "SALOME_CPythonHelper.hxx"
 
 #include "SALOME_NamingService.hxx"
 
@@ -56,11 +57,14 @@ int main(int argc, char *argv[])
   SALOMESDS::DataScopeKiller *killer(new SALOMESDS::DataScopeKiller(orb));
   SALOME::DataScopeKiller_var killerObj(killer->_this());
   //
-  SALOMESDS::DataScopeServerBase *server(0);
+  SALOME_CPythonHelper cPyHelper;
+  cPyHelper.initializePython(argc,argv);
+  //
+  SALOMESDS::DataScopeServerBase *server(nullptr);
   if(!isTransac)
-    server=new SALOMESDS::DataScopeServer(orb,killerObj,scopeName);
+    server=new SALOMESDS::DataScopeServer(&cPyHelper,orb,killerObj,scopeName);
   else
-    server=new SALOMESDS::DataScopeServerTransaction(orb,killerObj,scopeName);
+    server=new SALOMESDS::DataScopeServerTransaction(&cPyHelper,orb,killerObj,scopeName);
   //
   CORBA::PolicyList policies;
   policies.length(3);
@@ -70,7 +74,6 @@ int main(int argc, char *argv[])
   policies[2]=poa->create_id_uniqueness_policy(PortableServer::UNIQUE_ID);
   PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",mgr,policies));
   threadPol->destroy();
-  server->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
   server->registerToSalomePiDict();
   //
   server->setPOA(poa2);

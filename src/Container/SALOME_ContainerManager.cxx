@@ -1399,6 +1399,34 @@ int SALOME_ContainerManager::SystemThreadSafe(const char *command)
   return system(command);
 }
 
+long SALOME_ContainerManager::SystemWithPIDThreadSafe(const std::vector<std::string>& command)
+{
+  Utils_Locker lock(&_systemMutex);
+  if(command.size()<1)
+    throw SALOME_Exception("SystemWithPIDThreadSafe : command is expected to have a length of size 1 at least !");
+  pid_t pid ( fork() ) ; // spawn a child process, following code is executed in both processes
+  if ( pid == 0 ) // I'm a child, replace myself with a new ompi-server
+    {
+      std::size_t sz(command.size()-1);
+      char **args = new char *[sz+1];
+      for(std::size_t i=0;i<sz;i++)
+        args[i] = strdup(command[i+1].c_str());
+      args[sz] = nullptr;
+      execvp( command[0].c_str() , args );
+      std::ostringstream oss;
+      oss << "Error when launching " << command[0];
+      throw SALOME_Exception(oss.str().c_str()); // execvp failed
+    }
+  else if ( pid < 0 )
+    {
+      throw SALOME_Exception("fork() failed");
+    }
+  else // I'm a parent
+    {
+      return pid;
+    }
+}
+
 #ifdef WITH_PACO_PARALLEL
 
 //=============================================================================

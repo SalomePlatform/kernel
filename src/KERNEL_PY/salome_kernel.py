@@ -31,14 +31,16 @@ from LifeCycleCORBA import *
 from SALOME_NamingServicePy import *
 from SALOME_utilities import *
 import Engines
+import SALOME
 
 orb = None
 lcc = None
 naming_service = None
 cm = None
+esm = None
 
 def salome_kernel_init():
-    global orb, lcc, naming_service, cm
+    global orb, lcc, naming_service, cm, esm
     
     if not orb:
         # initialise the ORB
@@ -53,5 +55,8 @@ def salome_kernel_init():
         # get Container Manager
         obj = naming_service.Resolve('/ContainerManager')
         cm = obj._narrow(Engines.ContainerManager)
-
-    return orb, lcc, naming_service, cm
+        # get External Server Manager
+        obj = naming_service.Resolve('/ExternalServers')
+        esm = obj._narrow(SALOME.ExternalServerLauncher)
+        
+    return orb, lcc, naming_service, cm, esm

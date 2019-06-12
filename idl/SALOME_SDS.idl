@@ -19,12 +19,15 @@
 
 // Author : Anthony GEAY (EDF R&D)
 
+#ifndef __SALOME_SDS_IDL__
+#define __SALOME_SDS_IDL__
+
 #include "SALOME_GenericObj.idl"
 #include "SALOME_Exception.idl"
+#include "SALOME_CommonTypes.idl"
 
 module SALOME
 {
-  typedef sequence<string> StringVec;
   typedef sequence<octet> ByteVec;
   typedef sequence<ByteVec> SeqOfByteVec;
   
@@ -178,3 +181,5 @@ module SALOME
     RequestSwitcherDSM getRequestSwitcher();
   };
 };
+
+#endif

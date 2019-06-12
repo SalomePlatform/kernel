@@ -96,7 +96,7 @@ ADD_EXECUTABLE(TestLauncher TestLauncher.cxx)
 TARGET_LINK_LIBRARIES(TestLauncher ${TestLauncher_LIBS})
 INSTALL(TARGETS TestLauncher DESTINATION ${SALOME_INSTALL_BINS})
 
-ADD_LIBRARY(SalomeLauncher BatchTest.cxx SALOME_Launcher.cxx)
+ADD_LIBRARY(SalomeLauncher BatchTest.cxx SALOME_Launcher.cxx SALOME_ExternalServerLauncher.cxx SALOME_LauncherException.cxx SALOME_ExternalServerHandler.cxx)
 TARGET_LINK_LIBRARIES(SalomeLauncher Launcher ${COMMON_LIBS})
 INSTALL(TARGETS SalomeLauncher EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
   
@@ -129,6 +129,8 @@ SET(COMMON_HEADERS_HXX
   SALOME_Launcher.hxx
   SALOME_Launcher_Parser.hxx
   SALOME_Launcher_defs.hxx
+  SALOME_ExternalServerLauncher.hxx
+  SALOME_LauncherException.hxx
 )
 
 SET(LAUNCHER_PYTHON_SCRIPTS

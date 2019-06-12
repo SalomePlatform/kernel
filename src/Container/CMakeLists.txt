@@ -80,6 +80,7 @@ SET(SalomeContainer_SOURCES
   Container_init_python.cxx
   SALOME_ContainerManager.cxx
   Salome_file_i.cxx
+  SALOME_CPythonHelper.cxx
 )
 
 ADD_LIBRARY(SalomeContainer ${SalomeContainer_SOURCES})

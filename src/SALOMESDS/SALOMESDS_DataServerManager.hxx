@@ -53,7 +53,7 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME::DataServerManager
   {
   public:
-    DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+    DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
     SALOME::StringVec *listScopes();
     SALOME::StringVec *listAliveAndKickingScopes();
     SALOME::DataScopeServer_ptr getDefaultScope();

@@ -292,7 +292,7 @@ def salome_study_init(theStudyPath=None):
 
     if verbose(): print("theStudyPath:", theStudyPath)
     if not myStudy:
-        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        orb, lcc, naming_service, cm, _ = salome_kernel.salome_kernel_init()
 
         # get Study reference
         if verbose(): print("looking for study...")

@@ -22,6 +22,8 @@
 
 #include "SALOME_Launcher.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
+#include "SALOME_ExternalServerLauncher.hxx"
+#include "SALOME_CPythonHelper.hxx"
 #include "utilities.h"
 #include <sstream>
 #include <iostream>
@@ -113,12 +115,16 @@ int main(int argc, char* argv[])
       policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
       PortableServer::POA_var safePOA = root_poa->create_POA("SingleThreadPOA",pman,policies);
       threadPol->destroy();
-
+      SALOME_CPythonHelper cPyh;
+      cPyh.initializePython(argc,argv);
       SALOME_Launcher *lServ(new SALOME_Launcher(orb,safePOA));
       lServ->_remove_ref();
       //
-      SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(argc,argv,orb,root_poa));
+      SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(&cPyh,orb,root_poa));
       dsm->_remove_ref();
+      //
+      SALOME_ExternalServerLauncher *esm(new SALOME_ExternalServerLauncher(&cPyh,orb,safePOA));
+      esm->_remove_ref();
       //
       orb->run();
       orb->destroy();

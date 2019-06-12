@@ -26,6 +26,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Launcher
   ${CMAKE_CURRENT_SOURCE_DIR}/../Container
   ${CMAKE_CURRENT_SOURCE_DIR}/../ResourcesManager
 )
