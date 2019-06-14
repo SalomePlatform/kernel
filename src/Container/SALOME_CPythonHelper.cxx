@@ -20,6 +20,19 @@
 
 #include "SALOME_CPythonHelper.hxx"
 
+#if PY_VERSION_HEX < 0x03050000
+static char*
+Py_EncodeLocale(const wchar_t *arg, size_t *size)
+{
+  return _Py_wchar2char(arg, size);
+}
+static wchar_t*
+Py_DecodeLocale(const char *arg, size_t *size)
+{
+  return _Py_char2wchar(arg, size);
+}
+#endif
+
 void SALOME_CPythonHelper::initializePython(int argc, char *argv[])
 {
   Py_Initialize();
