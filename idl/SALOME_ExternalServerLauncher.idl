@@ -40,7 +40,7 @@ module SALOME
   
   interface ExternalServerLauncher
   {
-    ExternalServerHandler launchServer( in string server_name, in CmdList command_list ) raises(SALOME::SALOME_Exception);
+    ExternalServerHandler launchServer( in string server_name, in string working_dir, in CmdList command_list ) raises(SALOME::SALOME_Exception);
     void cleanServersInNS();
     StringVec listServersInNS();
     ExternalServerHandler retrieveServerRefGivenNSEntry( in string ns_entry ) raises(SALOME::SALOME_Exception);

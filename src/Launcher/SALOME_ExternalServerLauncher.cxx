@@ -27,6 +27,8 @@
 
 #include CORBA_CLIENT_HEADER(SALOME_ExternalServerLauncher)
 
+#include <unistd.h>
+
 #include <sstream>
 #include <algorithm>
 
@@ -48,7 +50,17 @@ SALOME_ExternalServerLauncher::~SALOME_ExternalServerLauncher()
   delete _NS;
 }
 
-SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(const char *server_name, const SALOME::CmdList& command_list )
+class ChdirRAII
+{
+public:
+  ChdirRAII(const std::string& wd):_wd(wd) { if(_wd.empty()) return ; char *pwd(get_current_dir_name()); _od = pwd; free(pwd); chdir(_wd.c_str()); }
+  ~ChdirRAII() { if(_od.empty()) return ; chdir(_od.c_str()); }
+private:
+  std::string _wd;
+  std::string _od;
+};
+
+SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(const char *server_name, const char *working_dir, const SALOME::CmdList& command_list )
 {
   std::vector<std::string> servers(ListOfExternalServersCpp(_NS));
   if(std::find(servers.begin(),servers.end(),server_name)!=servers.end())
@@ -63,6 +75,7 @@ SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(co
   long pid(0);
   try
     {
+      ChdirRAII cr(working_dir);
       pid = SALOME_ContainerManager::SystemWithPIDThreadSafe(cmd) ;
     }
   catch(SALOME_Exception& e)

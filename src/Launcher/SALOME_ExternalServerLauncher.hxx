@@ -38,7 +38,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerLauncher : public POA_SALOME::E
   SALOME_ExternalServerLauncher(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_var poa);
   virtual ~SALOME_ExternalServerLauncher();
  public:
-  SALOME::ExternalServerHandler_ptr launchServer(const char *server_name, const SALOME::CmdList& command_list ) override;
+  SALOME::ExternalServerHandler_ptr launchServer(const char *server_name, const char *working_dir, const SALOME::CmdList& command_list ) override;
   void registerToKill(const char *server_name, CORBA::Long PID) override;
   void cleanServersInNS() override;
   void shutdownServers() override;
