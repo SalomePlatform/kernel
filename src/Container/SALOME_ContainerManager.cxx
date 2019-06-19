@@ -1404,7 +1404,11 @@ long SALOME_ContainerManager::SystemWithPIDThreadSafe(const std::vector<std::str
   Utils_Locker lock(&_systemMutex);
   if(command.size()<1)
     throw SALOME_Exception("SystemWithPIDThreadSafe : command is expected to have a length of size 1 at least !");
+#ifndef WIN32
   pid_t pid ( fork() ) ; // spawn a child process, following code is executed in both processes
+#else 
+  pid_t pid = -1; //Throw SALOME_Exception on Windows
+#endif
   if ( pid == 0 ) // I'm a child, replace myself with a new ompi-server
     {
       std::size_t sz(command.size());
