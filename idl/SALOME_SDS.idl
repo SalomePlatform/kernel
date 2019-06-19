@@ -28,7 +28,6 @@
 
 module SALOME
 {
-  typedef sequence<octet> ByteVec;
   typedef sequence<ByteVec> SeqOfByteVec;
   
   interface DataScopeServer;

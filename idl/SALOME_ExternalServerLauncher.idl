@@ -47,6 +47,7 @@ module SALOME
     void registerToKill(in string server_name, in long PID) raises (SALOME::SALOME_Exception);
     void shutdownServers() raises (SALOME::SALOME_Exception);
     string gethostname();
+    ByteVec fetchContentOfFileAndRm(in string file_name) raises (SALOME::SALOME_Exception);
   };
 };
 

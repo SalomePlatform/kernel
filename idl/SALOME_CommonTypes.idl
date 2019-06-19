@@ -25,6 +25,7 @@ module SALOME
 {
   typedef sequence<string> StringVec;
   typedef sequence<long> LongVec;
+  typedef sequence<octet> ByteVec;
 };
 
 #endif

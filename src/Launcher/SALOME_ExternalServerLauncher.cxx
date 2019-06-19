@@ -30,7 +30,9 @@
 #include <unistd.h>
 
 #include <sstream>
+#include <fstream>
 #include <algorithm>
+#include <memory>
 
 constexpr char NAME_IN_NS[]="/ExternalServers";
 
@@ -154,6 +156,33 @@ char *SALOME_ExternalServerLauncher::gethostname()
 {
   std::string ret(_pyHelper->evalS("socket.gethostname()"));
   return CORBA::string_dup(ret.c_str());
+}
+
+SALOME::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const char *file_name)
+{
+  std::ifstream t(file_name);
+  if(!t.good())
+    {
+      std::ostringstream oss; oss << "SALOME_ExternalServerLauncher::fetchContentOfFileAndRm : Error when trying to open \"" <<  file_name << "\" file !";
+      throw SALOME_LauncherException(oss.str());
+    }
+  t.seekg(0, std::ios::end);
+  size_t size(t.tellg());
+  std::unique_ptr<char,std::function<void(char *)> > buffer(new char[size],[](char *pt) { delete [] pt; });
+  t.seekg(0);
+  t.read(buffer.get(),size);
+  //
+  std::unique_ptr<SALOME::ByteVec> ret(new SALOME::ByteVec);
+  ret->length(size);
+  for(std::size_t i=0;i<size;++i)
+    (*ret)[i] = buffer.get()[i];
+  //
+  if( unlink(file_name)!=0 )
+    {
+      std::cerr << "Error when trying to remove \"" << file_name << "\" !";
+    }
+  //
+  return ret.release();
 }
 
 std::vector<std::string> SALOME_ExternalServerLauncher::ListOfExternalServersCpp(SALOME_NamingService *ns)

@@ -45,6 +45,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerLauncher : public POA_SALOME::E
   SALOME::StringVec *listServersInNS() override;
   SALOME::ExternalServerHandler_ptr retrieveServerRefGivenNSEntry( const char *ns_entry ) override;
   char *gethostname() override;
+  SALOME::ByteVec *fetchContentOfFileAndRm(const char *file_name) override;
   const SALOME_CPythonHelper *getPyHelper() const { return _pyHelper; }
  private:
   static std::string CreateAbsNameInNSFromServerName(const std::string& scopeName);

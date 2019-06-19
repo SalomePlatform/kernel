@@ -1407,10 +1407,10 @@ long SALOME_ContainerManager::SystemWithPIDThreadSafe(const std::vector<std::str
   pid_t pid ( fork() ) ; // spawn a child process, following code is executed in both processes
   if ( pid == 0 ) // I'm a child, replace myself with a new ompi-server
     {
-      std::size_t sz(command.size()-1);
+      std::size_t sz(command.size());
       char **args = new char *[sz+1];
       for(std::size_t i=0;i<sz;i++)
-        args[i] = strdup(command[i+1].c_str());
+        args[i] = strdup(command[i].c_str());
       args[sz] = nullptr;
       execvp( command[0].c_str() , args );
       std::ostringstream oss;
