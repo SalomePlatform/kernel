@@ -762,6 +762,14 @@ Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string c
   return 0;
 }
 
+/*
+JobParameters_cpp
+Launcher_cpp::getJobParameters(int job_id)
+{
+  throw LauncherException("Method Launcher_cpp::getJobParamaters is not available "
+                          "(libBatch was not present at compilation time)");
+}
+*/
 #endif
 
 ParserLauncherType
