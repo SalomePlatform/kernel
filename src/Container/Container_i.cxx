@@ -258,18 +258,7 @@ Engines_Container_i::~Engines_Container_i()
     delete _id;
   if(_NS)
     delete _NS;
-  for(std::map<std::string,Engines::PyNode_var>::iterator it=_dftPyNode.begin();it!=_dftPyNode.end();it++)
-  {
-    Engines::PyNode_var tmpVar((*it).second);
-    if(!CORBA::is_nil(tmpVar))
-      tmpVar->UnRegister();
-  }
-  for(std::map<std::string,Engines::PyScriptNode_var>::iterator it=_dftPyScriptNode.begin();it!=_dftPyScriptNode.end();it++)
-  {
-    Engines::PyScriptNode_var tmpVar((*it).second);
-    if(!CORBA::is_nil(tmpVar))
-      tmpVar->UnRegister();
-  }
+  cleanAllPyScripts();
 }
 
 //=============================================================================
@@ -1749,8 +1738,6 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
         oldNode->UnRegister();
       (*it).second=node;
     }
-    if(!CORBA::is_nil(node))
-      node->Register();
     return node._retn();
   }
   else
@@ -1760,6 +1747,24 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
     es.text = astr.c_str();
     throw SALOME::SALOME_Exception(es);
   }
+}
+
+void Engines_Container_i::cleanAllPyScripts()
+{
+  for(std::map<std::string,Engines::PyNode_var>::iterator it=_dftPyNode.begin();it!=_dftPyNode.end();it++)
+    {
+      Engines::PyNode_var tmpVar((*it).second);
+      if(!CORBA::is_nil(tmpVar))
+        tmpVar->UnRegister();
+    }
+  _dftPyNode.clear();
+  for(std::map<std::string,Engines::PyScriptNode_var>::iterator it=_dftPyScriptNode.begin();it!=_dftPyScriptNode.end();it++)
+    {
+      Engines::PyScriptNode_var tmpVar((*it).second);
+      if(!CORBA::is_nil(tmpVar))
+        tmpVar->UnRegister();
+    }
+  _dftPyScriptNode.clear();
 }
 
 //=============================================================================

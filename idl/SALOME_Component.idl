@@ -235,6 +235,12 @@ module Engines
 
     //! Retrieves the last created PyScriptNode instance with createPyScriptNode.
     PyScriptNode getDefaultPyScriptNode(in string nodeName);
+
+    //! This method remove all refs of PyScriptNode servant objects stored in server.
+    /*!
+     * Previous scripts created on container may have been stored in a map. This method removes them. It then clean all the contexts dict attached to them.
+     */
+    void cleanAllPyScripts();
   };
 
   /*! \brief Interface of the %component.
