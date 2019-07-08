@@ -27,12 +27,18 @@
 
 #include CORBA_CLIENT_HEADER(SALOME_ExternalServerLauncher)
 
+#ifndef WIN32
 #include <unistd.h>
+#else
+#include <windows.h>
+#include <Basics_Utils.hxx>
+#endif
 
 #include <sstream>
 #include <fstream>
 #include <algorithm>
 #include <memory>
+#include <functional>
 
 constexpr char NAME_IN_NS[]="/ExternalServers";
 
@@ -55,8 +61,23 @@ SALOME_ExternalServerLauncher::~SALOME_ExternalServerLauncher()
 class ChdirRAII
 {
 public:
+#ifndef WIN32
   ChdirRAII(const std::string& wd):_wd(wd) { if(_wd.empty()) return ; char *pwd(get_current_dir_name()); _od = pwd; free(pwd); chdir(_wd.c_str()); }
   ~ChdirRAII() { if(_od.empty()) return ; chdir(_od.c_str()); }
+#else
+	ChdirRAII(const std::string& wd) : _wd(wd) { 
+		if (_wd.empty()) 
+			return;
+		TCHAR pwd[MAX_PATH];
+		GetCurrentDirectory(sizeof(pwd), pwd);
+		_od = Kernel_Utils::utf8_encode_s(pwd);
+		SetCurrentDirectory(Kernel_Utils::utf8_decode_s(_wd).c_str());
+	}
+	~ChdirRAII() { 
+		if (_od.empty()) return; 
+		SetCurrentDirectory(Kernel_Utils::utf8_decode_s(_od).c_str());
+	}
+#endif	
 private:
   std::string _wd;
   std::string _od;

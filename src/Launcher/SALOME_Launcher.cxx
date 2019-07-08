@@ -53,7 +53,7 @@ using namespace std;
 const char *SALOME_Launcher::_LauncherNameInNS = "/SalomeLauncher";
 
 //=============================================================================
-/*! 
+/*!
  *  Constructor
  *  \param orb
  */
@@ -79,7 +79,7 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
 }
 
 //=============================================================================
-/*! 
+/*!
  * destructor
  */
 //=============================================================================
@@ -91,7 +91,7 @@ SALOME_Launcher::~SALOME_Launcher()
 }
 
 
-CORBA::Long 
+CORBA::Long
 SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
   JobParameters_cpp cpp_parameters = JobParameters_CORBA2CPP(job_parameters);
@@ -111,7 +111,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   return jobNumber;
 }
 
-void 
+void
 SALOME_Launcher::launchJob(CORBA::Long job_id)
 {
   try
@@ -218,7 +218,7 @@ SALOME_Launcher::getJobWorkFile(CORBA::Long job_id, const char * work_file, cons
   return rtn;
 }
 
-void 
+void
 SALOME_Launcher::removeJob(CORBA::Long job_id)
 {
   try
@@ -235,7 +235,7 @@ SALOME_Launcher::removeJob(CORBA::Long job_id)
   }
 }
 
-void 
+void
 SALOME_Launcher::stopJob(CORBA::Long job_id)
 {
   try
@@ -296,7 +296,7 @@ SALOME_Launcher::restoreJob(const char * dumpedJob)
  *  \param clusterName        : machine chosen
  */
 //=============================================================================
-CORBA::Long 
+CORBA::Long
 SALOME_Launcher::createJobWithFile(const char * xmlExecuteFile,
                                    const char * clusterName)
 {
@@ -314,11 +314,11 @@ SALOME_Launcher::createJobWithFile(const char * xmlExecuteFile,
 
 //=============================================================================
 /*! CORBA Method:
- *  the test batch configuration 
+ *  the test batch configuration
  *  \param params             : The batch cluster
  */
 //=============================================================================
-CORBA::Boolean 
+CORBA::Boolean
 SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
 {
   MESSAGE("BEGIN OF SALOME_Launcher::testBatch");
@@ -337,9 +337,9 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
     const Engines::ResourceDefinition* p = _ResManager->GetResourceDefinition((*aMachineList)[0]);
         std::string resource_name(p->name);
     INFOS("Choose resource for test: " <<  resource_name);
-    
+
     BatchTest t(*p);
-    if (t.test()) 
+    if (t.test())
     {
       rtn = true;
     }
@@ -375,7 +375,7 @@ void SALOME_Launcher::Shutdown()
 //=============================================================================
 CORBA::Long SALOME_Launcher::getPID()
 {
-  return 
+  return
 #ifndef WIN32
     (CORBA::Long)getpid();
 #else
@@ -517,7 +517,7 @@ SALOME_Launcher::addObserver(Engines::SalomeLauncherObserver_ptr observer)
     {
       observer->notify("NEW_JOB", job_id.str().c_str());
     }
-    catch (...) 
+    catch (...)
     {
        MESSAGE("Notify Observer, exception catch");
     }
@@ -566,7 +566,7 @@ SALOME_Launcher::notifyObservers(const std::string & event_name,
       (*iter)->notify(CORBA::string_dup(event_name.c_str()),
                       CORBA::string_dup(event_data.c_str()));
     }
-    catch (...) 
+    catch (...)
     {
        MESSAGE("Notify Observer, exception catch");
     }

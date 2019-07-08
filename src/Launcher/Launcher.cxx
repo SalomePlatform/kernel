@@ -46,7 +46,7 @@
 using namespace std;
 
 //=============================================================================
-/*! 
+/*!
  *  Constructor
  *  \param orb
  *  Define a CORBA single thread policy for the server, which avoid to deal
@@ -60,7 +60,7 @@ Launcher_cpp::Launcher_cpp()
 }
 
 //=============================================================================
-/*! 
+/*!
  * destructor
  */
 //=============================================================================
@@ -81,10 +81,10 @@ Launcher_cpp::~Launcher_cpp()
 
 //=============================================================================
 /*!
- * Add a job into the launcher - check resource and choose one 
- */ 
+ * Add a job into the launcher - check resource and choose one
+ */
 //=============================================================================
-void 
+void
 Launcher_cpp::createJob(Launcher::Job * new_job)
 {
   LAUNCHER_MESSAGE("Creating a new job");
@@ -177,10 +177,10 @@ Launcher_cpp::createJob(const JobParameters_cpp& job_parameters)
 
 //=============================================================================
 /*!
- * Launch a job 
- */ 
+ * Launch a job
+ */
 //=============================================================================
-void 
+void
 Launcher_cpp::launchJob(int job_id)
 {
   LAUNCHER_MESSAGE("Launch a job");
@@ -214,7 +214,7 @@ Launcher_cpp::launchJob(int job_id)
 //=============================================================================
 /*!
  * Get job state
- */ 
+ */
 //=============================================================================
 std::string
 Launcher_cpp::getJobState(int job_id)
@@ -258,7 +258,7 @@ Launcher_cpp::getAssignedHostnames(int job_id)
 //=============================================================================
 /*!
  * Get Job result - the result directory could be changed
- */ 
+ */
 //=============================================================================
 void
 Launcher_cpp::getJobResults(int job_id, std::string directory)
@@ -267,7 +267,7 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
 
   Launcher::Job * job = findJob(job_id);
   std::string resource_name = job->getResourceDefinition().Name;
-  try 
+  try
   {
     if (directory != "")
       _batchmap[job_id]->importOutputFiles(*(job->getBatchJob()), directory);
@@ -308,7 +308,7 @@ Launcher_cpp::clearJobWorkingDir(int job_id)
 //=============================================================================
 /*!
  * Get Job dump state - the result directory could be changed
- */ 
+ */
 //=============================================================================
 bool
 Launcher_cpp::getJobDumpState(int job_id, std::string directory)
@@ -318,7 +318,7 @@ Launcher_cpp::getJobDumpState(int job_id, std::string directory)
 
   Launcher::Job * job = findJob(job_id);
   std::string resource_name = job->getResourceDefinition().Name;
-  try 
+  try
   {
     if (directory != "")
       rtn = _batchmap[job_id]->importDumpStateFile(*(job->getBatchJob()), directory);
@@ -368,7 +368,7 @@ Launcher_cpp::getJobWorkFile(int job_id,
 //=============================================================================
 /*!
  * Remove the job - into the Launcher and its batch manager
- */ 
+ */
 //=============================================================================
 void
 Launcher_cpp::removeJob(int job_id)
@@ -391,7 +391,7 @@ Launcher_cpp::removeJob(int job_id)
 //=============================================================================
 /*!
  * stop the job
- */ 
+ */
 //=============================================================================
 void
 Launcher_cpp::stopJob(int job_id)
@@ -481,13 +481,13 @@ Launcher_cpp::getJobParameters(int job_id)
 }
 
 //=============================================================================
-/*! 
+/*!
  *  create a launcher job based on a file
  *  \param xmlExecuteFile     : to define the execution on the batch cluster
  */
 //=============================================================================
-long 
-Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile, 
+long
+Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
                                 const std::string clusterName)
 {
   LAUNCHER_MESSAGE("Begin of Launcher_cpp::createJobWithFile");
@@ -498,7 +498,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   // Creating a new job
   std::unique_ptr<Launcher::Job_Command> new_job(new Launcher::Job_Command);
 
-  std::string cmdFile = Kernel_Utils::GetTmpFileName();  
+  std::string cmdFile = Kernel_Utils::GetTmpFileName();
 #ifndef WIN32
   cmdFile += ".sh";
 #else
@@ -538,7 +538,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
 //=============================================================================
 /*!
  *  Factory to instantiate the good batch manager for chosen cluster.
- */ 
+ */
 //=============================================================================
 Batch::BatchManager *
 Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
@@ -649,7 +649,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
 //----------------------------------------------------------
 #else
 
-void 
+void
 Launcher_cpp::createJob(Launcher::Job * new_job)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot create a job !!!");
@@ -665,7 +665,7 @@ Launcher_cpp::createJob(const JobParameters_cpp& job_parameters)
                           "(libBatch was not present at compilation time)");
 }
 
-void 
+void
 Launcher_cpp::launchJob(int job_id)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot launch a job !!!");
@@ -754,7 +754,7 @@ Launcher_cpp::restoreJob(const std::string& dumpedJob)
   return 0;
 }
 
-long 
+long
 Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string clusterName)
 {
   throw LauncherException("Method Launcher_cpp::createJobWithFile is not available "
@@ -762,9 +762,16 @@ Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string c
   return 0;
 }
 
+JobParameters_cpp
+Launcher_cpp::getJobParameters(int job_id)
+{
+  throw LauncherException("Method Launcher_cpp::getJobParamaters is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
 #endif
 
-ParserLauncherType 
+ParserLauncherType
 Launcher_cpp::ParseXmlFile(std::string xmlExecuteFile)
 {
   ParserLauncherType job_params;
@@ -882,7 +889,7 @@ Launcher_cpp::getBatchManager(Launcher::Job * job)
 }
 #endif
 
-void 
+void
 Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job)
 {
   // Step 0: Calculated job_id

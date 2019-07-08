@@ -77,7 +77,6 @@ public:
   virtual void loadJobs(const char* jobs_file);
   virtual void saveJobs(const char* jobs_file);
 
-
   static const char *_LauncherNameInNS;
 
   static JobParameters_cpp
