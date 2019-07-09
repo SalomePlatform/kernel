@@ -1749,6 +1749,21 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
   }
 }
 
+void Engines_Container_i::removePyScriptNode(const char *nodeName)
+{
+  std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
+  if(it==_dftPyScriptNode.end())
+    {
+      std::ostringstream oss; oss << "Engines_Container_i::removePyScriptNode : node \"" << nodeName << "\" is not map !";
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = oss.str().c_str();
+      throw SALOME::SALOME_Exception(es);
+    }
+  (*it).second->UnRegister();
+  _dftPyScriptNode.erase(it);
+}
+
 void Engines_Container_i::cleanAllPyScripts()
 {
   for(std::map<std::string,Engines::PyNode_var>::iterator it=_dftPyNode.begin();it!=_dftPyNode.end();it++)

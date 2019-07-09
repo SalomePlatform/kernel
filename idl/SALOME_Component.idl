@@ -233,6 +233,8 @@ module Engines
      */
     PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
 
+    void removePyScriptNode(in string nodeName) raises(SALOME::SALOME_Exception);
+
     //! Retrieves the last created PyScriptNode instance with createPyScriptNode.
     PyScriptNode getDefaultPyScriptNode(in string nodeName);
 

@@ -111,7 +111,8 @@ public:
   Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
   Engines::PyNode_ptr getDefaultPyNode(const char *nodeName);
   Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
-  void cleanAllPyScripts();
+  void removePyScriptNode(const char *nodeName) override;
+  void cleanAllPyScripts() override;
   Engines::PyScriptNode_ptr getDefaultPyScriptNode(const char *nodeName);
   // --- local C++ methods
 
