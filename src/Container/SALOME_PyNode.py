@@ -150,3 +150,22 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
+    pass
+  
+  def assignVarInContext(self, varName, value):
+    try:
+      self.context[varName][0] = pickle.loads(value)
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
+    pass
+
+  def callMethodOnVarInContext(self, varName, methodName, args):
+    try:
+      return pickle.dumps( getattr(self.context[varName][0],methodName)(*pickle.loads(args)),-1 )
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
+    pass
