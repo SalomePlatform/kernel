@@ -37,9 +37,11 @@ class Generic(SALOME__POA.GenericObj):
     self.cnt=1
 
   def Register(self):
+    print("Register called : %d"%self.cnt)
     self.cnt+=1
 
   def UnRegister(self):
+    print("UnRegister called : %d"%self.cnt)
     self.cnt-=1
     if self.cnt <= 0:
       oid=self.poa.servant_to_id(self)
@@ -48,6 +50,9 @@ class Generic(SALOME__POA.GenericObj):
   def Destroy(self):
     print("WARNING SALOME::GenericObj::Destroy() function is obsolete! Use UnRegister() instead.")
     self.UnRegister()
+
+  def __del__(self):
+    print("Destuctor called")
 
 class PyNode_i (Engines__POA.PyNode,Generic):
   """The implementation of the PyNode CORBA IDL"""
@@ -137,3 +142,11 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
+
+  def getValueOfVarInContext(self,varName):
+    try:
+      return pickle.dumps(self.context[varName],-1)
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))

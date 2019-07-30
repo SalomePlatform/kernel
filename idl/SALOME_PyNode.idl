@@ -82,6 +82,8 @@ module Engines
     */
     pickledArgs execute(in listofstring outargsname, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
 
+    
+    pickledArgs getValueOfVarInContext(in string varName) raises (SALOME::SALOME_Exception);
   } ;
 
 };
