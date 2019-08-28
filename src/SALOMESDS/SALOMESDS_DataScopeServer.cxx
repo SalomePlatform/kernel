@@ -242,6 +242,35 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
   return ret;
 }
 
+SALOME::ByteVec *DataScopeServerBase::getValueOfVarWithTypeDict(const char *varName, const SALOME::ByteVec& constKey)
+{
+  BasicDataServer *var(retrieveVarInternal2(varName));
+  PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
+  if(!varc)
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::getValueOfVarWithTypeDict : var \"" << varName << "\" exists but it is not serialized !";
+      throw Exception(oss.str());
+    }
+  if(!varc->isDict())
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::getValueOfVarWithTypeDict : var \"" << varName << "\" exists but it is not a PyDict !";
+      throw Exception(oss.str());
+    }
+  //
+  std::string keyCpp;
+  PickelizedPyObjServer::FromByteSeqToCpp(constKey,keyCpp);
+  SALOME::AutoPyRef key(PickelizedPyObjServer::GetPyObjFromPickled(keyCpp,this));
+  PyObject *value(PyDict_GetItem(varc->getPyObj(),key.get()));//borrowed
+  if(!value)
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::getValueOfVarWithTypeDict : var \"" << varName << "\" seems to not have key specified !";
+      throw Exception(oss.str());
+    }
+  Py_XINCREF(value);
+  std::string ret(PickelizedPyObjServer::Pickelize(value,this));//value is consumed
+  return PickelizedPyObjServer::FromCppToByteSeq(ret);
+}
+
 void DataScopeServerBase::takeANap(CORBA::Double napDurationInSec)
 {
   if(napDurationInSec<0.)

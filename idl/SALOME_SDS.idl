@@ -106,6 +106,7 @@ module SALOME
     boolean shutdownIfNotHostedByDSM(out DataScopeKiller killer) raises (SALOME::SALOME_Exception);
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME::SALOME_Exception);
+    ByteVec getValueOfVarWithTypeDict(in string varName, in ByteVec constKey) raises (SALOME::SALOME_Exception);
     void takeANap(in double napDurationInSec) raises (SALOME::SALOME_Exception);
   };
 

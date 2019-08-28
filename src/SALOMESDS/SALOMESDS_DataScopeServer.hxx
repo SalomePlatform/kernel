@@ -85,6 +85,7 @@ namespace SALOMESDS
     CORBA::Boolean shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer);
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
+    SALOME::ByteVec *getValueOfVarWithTypeDict(const char *varName, const SALOME::ByteVec& constKey);
     void takeANap(CORBA::Double napDurationInSec);
   public:
     ~DataScopeServerBase();
