@@ -38,9 +38,10 @@ lcc = None
 naming_service = None
 cm = None
 esm = None
+dsm = None
 
 def salome_kernel_init():
-    global orb, lcc, naming_service, cm, esm
+    global orb, lcc, naming_service, cm, esm, dsm
     
     if not orb:
         # initialise the ORB
@@ -58,5 +59,8 @@ def salome_kernel_init():
         # get External Server Manager
         obj = naming_service.Resolve('/ExternalServers')
         esm = obj._narrow(SALOME.ExternalServerLauncher)
+        #
+        obj = naming_service.Resolve('/DataServerManager')
+        dsm = obj._narrow(SALOME.DataServerManager)
         
-    return orb, lcc, naming_service, cm, esm
+    return orb, lcc, naming_service, cm, esm, dsm

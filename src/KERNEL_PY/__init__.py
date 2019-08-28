@@ -161,7 +161,7 @@ if not flags:
 #    sys.setdlopenflags(flags)
 #    pass
 
-orb, lcc, naming_service, cm, sg, esm = None,None,None,None,None,None
+orb, lcc, naming_service, cm, sg, esm, dsm = None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
 
 salome_initial=True
@@ -174,12 +174,13 @@ def salome_init(path=None, embedded=False):
     naming_service  a naming service instance
     cm              reference to the container manager
     esm             reference to external server manager
+    dsm             reference to shared dataserver manager
     sg              access to SALOME GUI (when linked with IAPP GUI)
     myStudy         active study itself (CORBA reference)
     myStudyName     active study name
     """
     global salome_initial
-    global orb, lcc, naming_service, cm, esm
+    global orb, lcc, naming_service, cm, esm, dsm
     global sg
     global myStudy, myStudyName
 
@@ -187,7 +188,7 @@ def salome_init(path=None, embedded=False):
         if salome_initial:
             salome_initial=False
             sg = salome_iapp_init(embedded)
-            orb, lcc, naming_service, cm, esm = salome_kernel_init()
+            orb, lcc, naming_service, cm, esm, dsm = salome_kernel_init()
             myStudy, myStudyName = salome_study_init(path)
             pass
         pass
