@@ -80,6 +80,7 @@ SET(m4_DATA
   hack_libtool.m4
   check_tbb.m4
   check_med3.m4
+  mt_check_omniorb.m4
 )
 INSTALL(FILES ${DEPRECATED_FILES} DESTINATION ${SALOME_INSTALL_AMCONFIG}/config_files/DEPRECATED)
 INSTALL(FILES ${m4_DATA} DESTINATION ${SALOME_INSTALL_AMCONFIG}/config_files)
