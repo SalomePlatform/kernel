@@ -87,9 +87,13 @@ class NamingServer(Server):
           self.CMD = ['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
-          #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
-          self.CMD = ['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
-          #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
+          # get ip address on default interface (for instance eth0) to limit listening on this interface (cyber security request)
+          from subprocess import check_output
+          ips = check_output(['hostname', '--all-ip-addresses'])
+          ipDefault = ips.split()[0].decode()
+          self.CMD = ['omniNames','-start' , aPort]
+          self.CMD += ['-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
+          self.CMD += ['-ORBendPoint', 'giop:tcp:%s:%s'%(hname,aPort)]
 
         if verbose(): print("... ok")
         if verbose(): print("to list contexts and objects bound into the context with the specified name : showNS ")

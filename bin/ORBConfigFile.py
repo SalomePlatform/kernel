@@ -56,6 +56,11 @@ def writeORBConfigFile(path, host, port, kwargs={}):
 
   from omniORB import CORBA
   prefix = "" if CORBA.ORB_ID == "omniORB4" else "ORB"
+  
+  from subprocess import check_output
+  ips = check_output(['hostname', '--all-ip-addresses'])
+  # get ip address on default interface (for instance eth0) to limit listening on this interface (cyber security request)
+  ipDefault = ips.split()[0].decode()
 
   GIOP_MaxMsgSize = 2097152000  # 2 GBytes
 
@@ -65,6 +70,8 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   orbdata.append("%straceLevel = 0 # critical errors only"%(prefix))
   orbdata.append("%smaxGIOPConnectionPerServer = 500 # to allow containers parallel launch"%(prefix))
   orbdata.append("%snativeCharCodeSet = UTF-8"%(prefix))
+  orbdata.append("%sendPoint = giop:tcp:127.0.0.1:%s"%(prefix,''))
+  orbdata.append("%sendPoint = giop:tcp:%s:%s"%(prefix, ipDefault,''))
   orbdata.append("")
 
   with open(omniorb_config, "w") as f:
