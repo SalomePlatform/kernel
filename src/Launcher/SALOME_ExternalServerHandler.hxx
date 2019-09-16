@@ -38,6 +38,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerHandler : public POA_SALOME::Ex
   SALOME_ExternalServerHandler(SALOME_ExternalServerLauncher *boss, const std::string& name, SALOME_NamingService *ns, long pid);
   virtual ~SALOME_ExternalServerHandler();
   void registerToKill(const SALOME_CPythonHelper *pyHelper) const;
+  static void KillPID(long pid);
  public:
   CORBA::Long getPID() override;
   char *getName() override;

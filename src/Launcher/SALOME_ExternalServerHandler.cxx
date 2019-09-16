@@ -61,11 +61,16 @@ char *SALOME_ExternalServerHandler::getName()
   return CORBA::string_dup(_name.c_str());
 }
 
-void SALOME_ExternalServerHandler::killMe()
+void SALOME_ExternalServerHandler::KillPID(long pid)
 {
 #ifndef WIN32
-  kill(_pid,SIGTERM);//SIGTERM is emitted not SIGKILL to give _pid process a chance to trap it.
+  kill(pid,SIGTERM);//SIGTERM is emitted not SIGKILL to give _pid process a chance to trap it.
 #endif
+}
+
+void SALOME_ExternalServerHandler::killMe()
+{
+  KillPID(_pid);
 }
 
 void SALOME_ExternalServerHandler::ping()

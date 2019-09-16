@@ -58,4 +58,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerLauncher : public POA_SALOME::E
   SALOME_NamingService *_NS = nullptr;
   PortableServer::POA_var _poa;
   static unsigned CNT;
+  std::vector<long> _list_of_pids_to_kill;
+ public:
+  static const char NAME_IN_NS[];
 };

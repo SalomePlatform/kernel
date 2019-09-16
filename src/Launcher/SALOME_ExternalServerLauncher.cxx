@@ -40,7 +40,7 @@
 #include <memory>
 #include <functional>
 
-constexpr char NAME_IN_NS[]="/ExternalServers";
+const char SALOME_ExternalServerLauncher::NAME_IN_NS[]="/ExternalServers";
 
 unsigned SALOME_ExternalServerLauncher::CNT = 0;
 
@@ -121,6 +121,7 @@ void SALOME_ExternalServerLauncher::registerToKill(const char *server_name, CORB
   std::ostringstream oss;
   oss << "Custom_"<< server_name << "_" << CNT++;
   _pyHelper->registerToSalomePiDict(oss.str(),PID);
+  _list_of_pids_to_kill.push_back(PID);
 }
 
 void SALOME_ExternalServerLauncher::cleanServersInNS()
@@ -138,6 +139,11 @@ void SALOME_ExternalServerLauncher::cleanServersInNS()
 
 void SALOME_ExternalServerLauncher::shutdownServers()
 {
+  for(auto pid : this->_list_of_pids_to_kill)
+    {
+      SALOME_ExternalServerHandler::KillPID(pid);
+    }
+  //
   std::vector<std::string> lioes(ListOfExternalServersCpp(_NS));
   for(auto servName : lioes)
     {

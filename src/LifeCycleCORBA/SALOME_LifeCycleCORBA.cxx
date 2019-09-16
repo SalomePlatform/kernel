@@ -44,6 +44,7 @@
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOME_ResourcesManager.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
+#include "SALOME_ExternalServerLauncher.hxx"
 
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -499,7 +500,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
 #ifndef WIN32
   nanosleep(&ts_req,0);
 #endif
-  // 4 ) Remote ScopeServer (the DataServer is hosted by SalomeLauncher shutdown right after)
+  // 4 ) Remote ScopeServer (the DataServer is hosted by SalomeLauncher shutdown right after on point 6)
   try
     {
       CORBA::Object_var objDSM(_NS->Resolve(SALOMESDS::DataServerManager::NAME_IN_NS));
@@ -511,8 +512,19 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
     {
        // ignore and continue
     }
-
-  // 5) SalomeLauncher
+  // 5) External server launcher (the ExternalServer is hosted by SalomeLauncher shutdown right after on point 6)
+  try
+    {
+      CORBA::Object_var objDSM(_NS->Resolve(SALOME_ExternalServerLauncher::NAME_IN_NS));
+      SALOME::ExternalServerLauncher_var dsm(SALOME::ExternalServerLauncher::_narrow(objDSM));
+      if ( !CORBA::is_nil(dsm) )
+        dsm->shutdownServers();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+  // 6) SalomeLauncher
   try
     {
       if(shutdownLauncher){
