@@ -342,7 +342,7 @@ def cleanApplication(port):
 
     try:
         filedict=getPiDict(port)
-        os.remove(filedict)
+        __killMyPort(port, filedict)
     except:
       #import traceback
       #traceback.print_exc()

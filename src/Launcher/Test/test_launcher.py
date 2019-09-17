@@ -81,7 +81,7 @@ class TestCompo(unittest.TestCase):
 
   def create_JobParameters(self):
     job_params = salome.JobParameters()
-    job_params.wckey="P11U5:CARBONES" #needed by edf clusters
+    job_params.wckey="P11N0:SALOME" #needed by edf clusters
     job_params.resource_required = salome.ResourceParameters()
     job_params.resource_required.nb_proc = 1
     return job_params

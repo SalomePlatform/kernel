@@ -396,31 +396,32 @@ class SalomeContext:
       print("Port number(s) not provided to command: salome kill <port(s)>")
       return 1
 
-    from multiprocessing import Process
-    from killSalomeWithPort import killMyPort
-    import tempfile
+    import subprocess
+    import setenv
+    setenv.main(True)
+    if os.getenv("NSHOST") == "no_host":
+      os.unsetenv("NSHOST")
     for port in ports:
-      with tempfile.NamedTemporaryFile():
-        p = Process(target = killMyPort, args=(port,))
-        p.start()
-        p.join()
+      proc = subprocess.Popen(["killSalomeWithPort.py", port])
+      proc.communicate()
+
     return 0
   #
 
   def _killAll(self, unused=None):
+    import setenv
+    setenv.main(True)
+    if os.getenv("NSHOST") == "no_host":
+      os.unsetenv("NSHOST")
     try:
       import PortManager # mandatory
-      from multiprocessing import Process
-      from killSalomeWithPort import killMyPort
+      import subprocess
       ports = PortManager.getBusyPorts()['this']
 
       if ports:
-        import tempfile
         for port in ports:
-          with tempfile.NamedTemporaryFile():
-            p = Process(target = killMyPort, args=(port,))
-            p.start()
-            p.join()
+          proc = subprocess.Popen(["killSalomeWithPort.py", port])
+          proc.communicate()
     except ImportError:
       # :TODO: should be declared obsolete
       from killSalome import killAllPorts
