@@ -397,6 +397,7 @@ class SalomeContext:
       return 1
 
     import subprocess
+    sys.argv = ['kill']
     import setenv
     setenv.main(True)
     if os.getenv("NSHOST") == "no_host":
@@ -409,6 +410,7 @@ class SalomeContext:
   #
 
   def _killAll(self, unused=None):
+    sys.argv = ['killAll']
     import setenv
     setenv.main(True)
     if os.getenv("NSHOST") == "no_host":
@@ -420,7 +422,7 @@ class SalomeContext:
 
       if ports:
         for port in ports:
-          proc = subprocess.Popen(["killSalomeWithPort.py", port])
+          proc = subprocess.Popen(["killSalomeWithPort.py", str(port)])
           proc.communicate()
     except ImportError:
       # :TODO: should be declared obsolete
