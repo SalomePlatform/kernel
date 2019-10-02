@@ -66,14 +66,11 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   orbdata.append("%smaxGIOPConnectionPerServer = 500 # to allow containers parallel launch"%(prefix))
   orbdata.append("%snativeCharCodeSet = UTF-8"%(prefix))
 
-  import sys
-  if "linux" in sys.platform:
-    from subprocess import check_output
-    ips = check_output(['hostname', '--all-ip-addresses'])
-    # get ip address on default interface (for instance eth0) to limit listening on this interface (cyber security request)
-    ipDefault = ips.split()[0].decode()
-    orbdata.append("%sendPoint = giop:tcp:127.0.0.1:%s"%(prefix,''))
-    orbdata.append("%sendPoint = giop:tcp:%s:%s"%(prefix, ipDefault,''))
+  import socket
+  # get ip address on default interface (for instance eth0) to limit listening on this interface (cyber security request)
+  ipDefault = socket.gethostbyname(socket.gethostname())
+  orbdata.append("%sendPoint = giop:tcp:127.0.0.1:%s"%(prefix,''))
+  orbdata.append("%sendPoint = giop:tcp:%s:%s"%(prefix, ipDefault,''))
 
   orbdata.append("")
 
