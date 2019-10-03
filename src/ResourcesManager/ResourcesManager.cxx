@@ -80,6 +80,7 @@ ResourcesManager_cpp(const char *xmlFilePath)
   _resourceManagerMap[""]=&altcycl;
 
   AddDefaultResourceInCatalog();
+  ParseXmlFiles();
 }
 
 //=============================================================================
