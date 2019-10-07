@@ -208,9 +208,14 @@ def shutdownMyPort(port, cleanup=True):
         time.sleep(1)
         # shutdown omniNames
         if cleanup:
-            lcc.killOmniNames()
-            time.sleep(1)
-            pass
+          from salome_utils import killOmniNames
+          killOmniNames(port)
+          filedict=getPiDict(port)
+          __killMyPort(port, filedict)
+          from PortManager import releasePort
+          releasePort(port)
+          time.sleep(1)
+          pass
         pass
     except:
         pass
@@ -342,7 +347,7 @@ def cleanApplication(port):
 
     try:
         filedict=getPiDict(port)
-        __killMyPort(port, filedict)
+        os.remove(filedict)
     except:
       #import traceback
       #traceback.print_exc()
