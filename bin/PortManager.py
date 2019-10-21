@@ -83,6 +83,11 @@ def _getConfigurationFilename():
   import tempfile
   temp = tempfile.NamedTemporaryFile()
   lock_file = os.path.join(os.path.dirname(temp.name), ".salome_PortManager.lock")
+  try:
+    with open(lock_file, 'wb'):
+      pass
+  except IOError:
+    pass
   temp.close()
 
   return (portmanager_config, lock_file)
@@ -137,7 +142,7 @@ def getPort(preferredPort=None):
 
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'wb') as lock:
+  with open(lock_file, 'rb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
@@ -196,7 +201,7 @@ def releasePort(port):
 
   config_file, lock_file = _getConfigurationFilename()
   oldmask = os.umask(0)
-  with open(lock_file, 'wb') as lock:
+  with open(lock_file, 'rb') as lock:
     # acquire lock
     __acquire_lock(lock)
 
