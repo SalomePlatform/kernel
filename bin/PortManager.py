@@ -82,7 +82,14 @@ def _getConfigurationFilename():
                                         hidden=True)
   import tempfile
   temp = tempfile.NamedTemporaryFile()
-  lock_file = os.path.join(os.path.dirname(temp.name), ".salome_PortManager.lock")
+  lock_file = os.path.join(os.path.dirname(temp.name), ".salome", ".PortManager.lock")
+  try:
+    oldmask = os.umask(0)
+    os.makedirs(os.path.dirname(lock_file))
+  except IOError:
+    pass
+  finally:
+    os.umask(oldmask)
   temp.close()
 
   return (portmanager_config, lock_file)
