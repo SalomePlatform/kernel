@@ -97,7 +97,6 @@ class NamingServer(Server):
             ipDefault = ip.split()[-1].decode()
           self.CMD = ['omniNames','-start' , aPort]
           self.CMD += ['-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
-          self.CMD += ['-ORBendPoint', 'giop:tcp:%s:%s'%(hname,aPort)]
 
         if verbose(): print("... ok")
         if verbose(): print("to list contexts and objects bound into the context with the specified name : showNS ")
