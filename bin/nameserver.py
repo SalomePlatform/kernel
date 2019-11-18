@@ -90,7 +90,11 @@ class NamingServer(Server):
           # get ip address on default interface (for instance eth0) to limit listening on this interface (cyber security request)
           from subprocess import check_output
           ips = check_output(['hostname', '--all-ip-addresses'])
-          ipDefault = ips.split()[0].decode()
+          if ips.strip():
+            ipDefault = ips.split()[0].decode()
+          else:
+            ip = check_output(['hostname', '--ip-address'])
+            ipDefault = ip.split()[-1].decode()
           self.CMD = ['omniNames','-start' , aPort]
           self.CMD += ['-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
           self.CMD += ['-ORBendPoint', 'giop:tcp:%s:%s'%(hname,aPort)]
