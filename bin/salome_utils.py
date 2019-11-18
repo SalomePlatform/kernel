@@ -567,7 +567,7 @@ def getOmniNamesPid(port):
         cmd = 'WMIC PROCESS get Caption,Commandline,Processid /VALUE'
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         # Get stdout
-        allProc = proc.communicate()[0]
+        allProc = proc.communicate()[0].decode()
         # find Pid of omniNames
         pid = re.findall(r'Caption=.*omniNames.*\n?CommandLine=.*omniNames.*\D%s\D.*\n?ProcessId=(\d*)'%(port),allProc)[0]
     else:        
