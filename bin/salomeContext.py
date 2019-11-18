@@ -28,7 +28,7 @@ from parseConfigFile import parseConfigFile
 import tempfile
 import pickle
 import subprocess
-import platform
+import sys
 
 from salomeContextUtils import SalomeContextException
 
@@ -146,9 +146,9 @@ class SalomeContext:
 
   """Append value to LD_LIBRARY_PATH environment variable"""
   def addToLdLibraryPath(self, value):
-    if platform.system() == 'Windows':
+    if sys.platform == 'win32':
       self.addToVariable('PATH', value)
-    elif platform.system() == 'Darwin':
+    elif  sys.platform == 'darwin':
       if "LAPACK" in value:
         self.addToVariable('DYLD_FALLBACK_LIBRARY_PATH', value)
       else:
@@ -344,7 +344,10 @@ class SalomeContext:
     print("*** Enter 'exit' (only once!) to leave SALOME context.")
     print("***")
 
-    cmd = ["/bin/bash"]
+    if sys.platform == 'win32':
+      cmd = ['cmd.exe']
+    else:
+      cmd = ["/bin/bash"]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
     proc.communicate()
     return proc.returncode
