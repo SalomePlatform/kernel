@@ -29,6 +29,7 @@ import tempfile
 import pickle
 import subprocess
 import sys
+import platform
 
 from salomeContextUtils import SalomeContextException
 
