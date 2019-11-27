@@ -255,6 +255,33 @@ Launcher_cpp::getAssignedHostnames(int job_id)
   return assigned_hostnames;
 }
 
+void
+Launcher_cpp::exportInputFiles(int job_id)
+{
+  LAUNCHER_MESSAGE("Copy in files");
+  // Check if job exists
+  Launcher::Job * job = findJob(job_id);
+
+  // Check job state (cannot launch a job already launched...)
+  if (job->getState() != "CREATED")
+  {
+    LAUNCHER_INFOS("Bad state of the job: " << job->getState());
+    throw LauncherException("Bad state of the job: " + job->getState());
+  }
+
+  Batch::BatchManager * bm = getBatchManager(job);
+
+  try {
+    bm->exportInputFiles(*(job->getBatchJob()));
+  }
+  catch(const Batch::GenericException &ex)
+  {
+    LAUNCHER_INFOS("Failed to copy in files: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+  LAUNCHER_MESSAGE("Files copied");
+}
+
 //=============================================================================
 /*!
  * Get Job result - the result directory could be changed
@@ -686,6 +713,14 @@ Launcher_cpp::getAssignedHostnames(int job_id)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job assigned hostnames!!!");
   throw LauncherException("Method Launcher_cpp::getAssignedHostnames is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
+void
+Launcher_cpp::exportInputFiles(int job_id)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot copy the files!!!");
+  throw LauncherException("Method Launcher_cpp::exportInputFiles is not available "
                           "(libBatch was not present at compilation time)");
 }
 

@@ -80,6 +80,7 @@ public:
   void         launchJob(int job_id);
   std::string  getJobState(int job_id);
   std::string  getAssignedHostnames(int job_id); // Get names or ids of hosts assigned to the job
+  void         exportInputFiles(int job_id);
   void         getJobResults(int job_id, std::string directory);
   void         clearJobWorkingDir(int job_id);
   bool         getJobDumpState(int job_id, std::string directory);

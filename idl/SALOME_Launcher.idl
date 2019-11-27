@@ -227,6 +227,9 @@ interface SalomeLauncher
   //! Get names or ids of hosts assigned to the job
   string getAssignedHostnames  (in long job_id)                  raises (SALOME::SALOME_Exception);
 
+  //! Copy all the in_files of the job to the work_directory.
+  void exportInputFiles(in long job_id) raises (SALOME::SALOME_Exception);
+
   //! Copy the result files from the work directory of the job
   //! to a local directory.
   /*! The list of result files is given by the JobParameters::out_files parameter.
