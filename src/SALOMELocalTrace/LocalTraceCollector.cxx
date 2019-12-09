@@ -110,7 +110,7 @@ void* LocalTraceCollector::run(void *bid)
           std::cerr << std::flush ; 
           exit(1);     
         }
-      else
+      else if (myTrace.traceType == NORMAL_MESS)
         {
           std::cout << std::flush ;
 #ifndef WIN32
@@ -118,6 +118,16 @@ void* LocalTraceCollector::run(void *bid)
 #else
           std::cerr << "th. " << (void*)(&myTrace.threadId)
                << " " << myTrace.trace;
+#endif
+          std::cerr << std::flush ; 
+        }
+      else 
+        {
+          std::cout << std::flush ;
+#ifndef WIN32
+          std::cerr << myTrace.trace;
+#else
+          std::cerr << myTrace.trace;
 #endif
           std::cerr << std::flush ; 
         }

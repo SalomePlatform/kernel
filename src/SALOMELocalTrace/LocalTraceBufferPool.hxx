@@ -41,6 +41,7 @@
 #include "BaseTraceCollector.hxx"
 #include "BasicsGenericDestructor.hxx"
 
+#define BRIEF_MESS  2
 #define ABORT_MESS  1   // for traceType field in struct LocalTrace_TraceInfo
 #define NORMAL_MESS 0
 
