@@ -17,12 +17,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "@CMAKE_INSTALL_PREFIX@/bin/salome/appliskel/salome_test_driver.py")
+SET(SALOME_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/salome_test_driver.py")
 
 SET(COMPONENT_NAME KERNEL)
 SET(TIMEOUT        200)
 
-SET(KERNEL_TEST_LIB "@CMAKE_INSTALL_PREFIX@/@KERNEL_TEST_LIB@")
+SET(KERNEL_TEST_LIB "$ENV{KERNEL_ROOT_DIR}/@KERNEL_TEST_LIB@")
 
 # Add all test subdirs
 SUBDIRS( Launcher
