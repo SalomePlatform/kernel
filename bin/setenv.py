@@ -77,7 +77,7 @@ def get_lib_dir():
 
 # -----------------------------------------------------------------------------
 
-def get_config(silent=False, exeName=None):
+def get_config(silent=False, exeName=None, keepEnvironment=True):
     """
     Get list of modules, paths.
 
@@ -90,7 +90,7 @@ def get_config(silent=False, exeName=None):
 
 
     import launchConfigureParser
-    args = launchConfigureParser.get_env(exeName=exeName)
+    args = launchConfigureParser.get_env(exeName=exeName, keepEnvironment=keepEnvironment)
 
 
     # Check variables <module>_ROOT_DIR
@@ -140,7 +140,7 @@ def get_config(silent=False, exeName=None):
 
 # -----------------------------------------------------------------------------
 
-def set_env(args, modules_list, modules_root_dir, silent=False):
+def set_env(args, modules_list, modules_root_dir, silent=False, keepEnvironment=True):
     """Add to the PATH-variables modules specific paths"""
 
     import os
@@ -167,66 +167,68 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
       os.putenv('SALOME_BATCH','0')
     if args["gui"] :
         modules_list = modules_list[:] + ["GUI"]
-    modules_list = modules_list[:] + ["KERNEL"]
-    for module in modules_list :
-        if module in modules_root_dir:
-            module_root_dir = modules_root_dir[module]
-            if module_root_dir not in modules_root_dir_list:
-              modules_root_dir_list[:0] = [module_root_dir]
-            if sys.platform == "win32":
-              add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
-                     "PATH")
-            elif sys.platform == "darwin":
-              add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
-                     "DYLD_LIBRARY_PATH")
-            else:
-              add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
-                     "LD_LIBRARY_PATH")
-            add_path(os.path.join(module_root_dir,"bin",salome_subdir),
-                     "PATH")
-            if os.path.exists(os.path.join(module_root_dir, "examples")):
-                add_path(os.path.join(module_root_dir,"examples"),
+    if not keepEnvironment:
+        modules_list = modules_list[:] + ["KERNEL"]
+        for module in modules_list :
+            if module in modules_root_dir:
+                module_root_dir = modules_root_dir[module]
+                if module_root_dir not in modules_root_dir_list:
+                  modules_root_dir_list[:0] = [module_root_dir]
+                if sys.platform == "win32":
+                  add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
+                         "PATH")
+                elif sys.platform == "darwin":
+                  add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
+                         "DYLD_LIBRARY_PATH")
+                else:
+                  add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
+                         "LD_LIBRARY_PATH")
+                add_path(os.path.join(module_root_dir,"bin",salome_subdir),
+                         "PATH")
+                if os.path.exists(os.path.join(module_root_dir, "examples")):
+                    add_path(os.path.join(module_root_dir,"examples"),
+                             "PYTHONPATH")
+                    pass
+                add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                          "PYTHONPATH")
-                pass
-            add_path(os.path.join(module_root_dir,"bin",salome_subdir),
-                     "PYTHONPATH")
-            # add lib before site-packages to load script instead of dll if any (win32 platform)
-            add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
-                     "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,get_lib_dir(),
-                                  python_version,"site-packages",
-                                  salome_subdir),
-                     "PYTHONPATH")
-            import platform
-            if platform.machine() == "x86_64":
-                add_path(os.path.join(module_root_dir,"lib64",
+                # add lib before site-packages to load script instead of dll if any (win32 platform)
+                add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
+                         "PYTHONPATH")
+                add_path(os.path.join(module_root_dir,get_lib_dir(),
                                       python_version,"site-packages",
                                       salome_subdir),
                          "PYTHONPATH")
-                pass
-            add_path(os.path.join(module_root_dir,get_lib_dir(),
-                                  python_version,"site-packages",
-                                  salome_subdir,
-                                  "shared_modules"),
-                     "PYTHONPATH")
-
-            # set environment by modules from the list
-            if port:
-                try:
-                    mod=__import__(module.lower()+"_setenv")
-                    mod.set_env(args)
+                import platform
+                if platform.machine() == "x86_64":
+                    add_path(os.path.join(module_root_dir,"lib64",
+                                          python_version,"site-packages",
+                                          salome_subdir),
+                             "PYTHONPATH")
                     pass
-                except:
+                add_path(os.path.join(module_root_dir,get_lib_dir(),
+                                      python_version,"site-packages",
+                                      salome_subdir,
+                                      "shared_modules"),
+                         "PYTHONPATH")
+
+                # set environment by modules from the list
+                if port:
+                    try:
+                        mod=__import__(module.lower()+"_setenv")
+                        mod.set_env(args)
+                        pass
+                    except:
+                        pass
                     pass
                 pass
             pass
+
+        if sys.platform == 'win32':
+            os.environ["SALOMEPATH"]=";".join(modules_root_dir_list)
+        else:
+            os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
+
         pass
-
-    if sys.platform == 'win32':
-        os.environ["SALOMEPATH"]=";".join(modules_root_dir_list)
-    else:
-        os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
-
     # set trace environment variable
 
     if "SALOME_trace" not in os.environ:
