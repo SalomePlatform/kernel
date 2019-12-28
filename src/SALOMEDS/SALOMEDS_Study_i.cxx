@@ -1616,6 +1616,7 @@ void SALOMEDS_Study_i::Shutdown()
 {
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
+  _closed  = true; // force 'closed' flag to avoid terminating
 }
 
 //============================================================================
