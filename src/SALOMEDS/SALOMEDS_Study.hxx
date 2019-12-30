@@ -56,6 +56,7 @@ public:
   virtual void Init();
 
   virtual bool Open(const std::string& theStudyUrl);
+  virtual bool CanOpen(const std::string& theStudyUrl);
 
   virtual bool Save(bool theMultiFile, bool theASCII);
   virtual bool SaveAs(const std::string& theUrl, bool theMultiFile, bool theASCII);

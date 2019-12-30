@@ -574,6 +574,13 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     boolean Open (in URLPath aStudyUrl) raises (SALOME::SALOME_Exception);
 
+/*! \brief Check if study can be opened
+
+    Tries to open and read given url.
+    \param aStudyUrl The path to the study
+*/
+    boolean CanOpen (in URLPath aStudyUrl);
+
 /*! \brief Saving the study in a file (or files).
 
     Saves a study.

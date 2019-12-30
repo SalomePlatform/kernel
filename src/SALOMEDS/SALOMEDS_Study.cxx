@@ -132,10 +132,16 @@ bool SALOMEDS_Study::Open(const std::string& theStudyUrl)
     return false;
   std::wstring wtheStudyUrl = Kernel_Utils::decode_s( theStudyUrl );
   
-  if (!_corba_impl->Open( (wchar_t*)wtheStudyUrl.c_str() ) )
-    return false;
+  return _corba_impl->Open( (wchar_t*)wtheStudyUrl.c_str() );
+}
 
-  return true;
+bool SALOMEDS_Study::CanOpen(const std::string& theStudyUrl)
+{
+  if(CORBA::is_nil(_corba_impl))
+    return false;
+  std::wstring wtheStudyUrl = Kernel_Utils::decode_s( theStudyUrl );
+  
+  return _corba_impl->CanOpen( (wchar_t*)wtheStudyUrl.c_str() );
 }
 
 bool SALOMEDS_Study::Save(bool theMultiFile, bool theASCII)

@@ -413,6 +413,21 @@ bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
   return res;
 }
 
+//============================================================================
+/*! Function : CanOpen
+ *  Purpose  : Check that a Study can be opened
+ */
+//============================================================================
+bool SALOMEDS_Study_i::CanOpen(const wchar_t* aWUrl)
+{
+  SALOMEDS::Locker lock;
+
+  Unexpect aCatch(SalomeException);
+  std::string aUrl = Kernel_Utils::encode_s(aWUrl);
+
+  return SALOMEDSImpl_Study().Open( aUrl );
+}
+
 PortableServer::POA_ptr SALOMEDS_Study_i::GetThePOA()
 {
   return _poa;

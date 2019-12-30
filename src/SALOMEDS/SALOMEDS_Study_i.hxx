@@ -74,12 +74,19 @@ public:
   virtual void Init();
   virtual void Clear();
 
-  //! method to Open a Study
+  //! method to open a Study
   /*!
     \param char* arguments, the study URL
-    \return Study_ptr arguments
+    \return bool arguments
   */
   virtual bool Open(const wchar_t* aStudyUrl) throw (SALOME::SALOME_Exception);
+
+  //! method to check that a Study can be opened
+  /*!
+    \param char* arguments, the study URL
+    \return bool arguments
+  */
+  virtual bool CanOpen(const wchar_t* aStudyUrl);
 
   //! method to save a Study
   virtual CORBA::Boolean Save(CORBA::Boolean theMultiFile, CORBA::Boolean theASCII);

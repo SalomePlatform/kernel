@@ -53,6 +53,7 @@ public:
   virtual void Clear() = 0;
 
   virtual bool Open(const std::string& theStudyUrl) = 0;
+  virtual bool CanOpen(const std::string& theStudyUrl) = 0;
 
   virtual std::string GetPersistentReference() = 0;
   virtual bool IsEmpty() = 0;
