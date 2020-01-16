@@ -69,7 +69,7 @@ class client:
 
       # On lance le Naming Server (doit etre dans le PATH)
       test = True
-      if args['wake_up_session']:
+      if args != None and 'wake_up_session' in args and args['wake_up_session']:
         test = False
         pass
       if test:
