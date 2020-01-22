@@ -245,9 +245,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
 # -----------------------------------------------------------------------------
 
 def main(silent=False, exeName=None):
-    keep_env = not os.getenv('SALOME_PLEASE_SETUP_ENVIRONMENT_AS_BEFORE')
-    args, modules_list, modules_root_dir = get_config(silent=silent, exeName=exeName, keepEnvironment=keep_env)
-    set_env(args, modules_list, modules_root_dir, silent=silent, keepEnvironment=keep_env)
+    args, modules_list, modules_root_dir = get_config(silent=silent, exeName=exeName)
+    set_env(args, modules_list, modules_root_dir, silent=silent)
     return args
 
 # -----------------------------------------------------------------------------
