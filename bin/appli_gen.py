@@ -37,6 +37,7 @@ import shutil
 import virtual_salome
 import xml.sax
 import optparse
+import subprocess
 
 # --- names of tags in XML configuration file
 appli_tag   = "application"
@@ -323,6 +324,10 @@ def install(prefix, config_file, verbose=0):
         pass
 
     # Create environment file: configSalome.sh
+
+    cmd='source %s;python -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
+    versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd])
+
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
         for module in _config.get("modules", []):
             command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
@@ -336,10 +341,10 @@ def install(prefix, config_file, verbose=0):
             command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
         command ="""export PATH=${HOME}/${APPLI}/bin/salome:$PATH
-export PYTHONPATH=${HOME}/${APPLI}/lib/python3.6/site-packages/salome:$PYTHONPATH
+export PYTHONPATH=${HOME}/${APPLI}/lib/python%s/site-packages/salome:$PYTHONPATH
 export PYTHONPATH=${HOME}/${APPLI}/lib/salome:$PYTHONPATH
 export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
-"""
+""" %versionPython.decode("utf-8")
         f.write(command)
         # Create environment variable for the salome test
         for module in _config.get("modules", []):
@@ -363,10 +368,10 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
             command = 'USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
         command ="""ADD_TO_PATH: ${HOME}/${APPLI}/bin/salome
-ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/python3.6/site-packages/salome
+ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/python%s/site-packages/salome
 ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/salome
 ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
-"""
+"""%versionPython.decode("utf-8")
         f.write(command)
         for module in _config.get("modules", []):
             command = "ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib\n"
