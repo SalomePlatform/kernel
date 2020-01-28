@@ -325,8 +325,8 @@ def install(prefix, config_file, verbose=0):
 
     # Create environment file: configSalome.sh
 
-    cmd='source %s;python -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
-    versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd])
+    cmd='source %s && python3 -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
+    versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd]).decode("utf-8")
 
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
         for module in _config.get("modules", []):
@@ -344,7 +344,7 @@ def install(prefix, config_file, verbose=0):
 export PYTHONPATH=${HOME}/${APPLI}/lib/python%s/site-packages/salome:$PYTHONPATH
 export PYTHONPATH=${HOME}/${APPLI}/lib/salome:$PYTHONPATH
 export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
-""" %versionPython.decode("utf-8")
+""" %versionPython
         f.write(command)
         # Create environment variable for the salome test
         for module in _config.get("modules", []):
@@ -371,7 +371,7 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
 ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/python%s/site-packages/salome
 ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/salome
 ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
-"""%versionPython.decode("utf-8")
+"""%versionPython
         f.write(command)
         for module in _config.get("modules", []):
             command = "ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib\n"
