@@ -236,12 +236,6 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 
-    # set resources variables if not yet set
-
-    os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources","kernel")
-
 # -----------------------------------------------------------------------------
 
 def main(silent=False, exeName=None):
