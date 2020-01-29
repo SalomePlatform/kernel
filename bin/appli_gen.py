@@ -400,6 +400,7 @@ export MMGT_REENTRANT=1
         f.write(command)
 
     # Create configuration file: configGUI.cfg
+    dirs_ress_icon = []
     with open(os.path.join(home_dir, 'env.d', 'configGUI.cfg'),'w') as f:
         command = """[SALOME GUI Configuration]\n"""
         f.write(command)
