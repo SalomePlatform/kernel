@@ -801,13 +801,23 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
     if ((fgets(buffer, 2046, fp)) == NULL) break;
     size_t aLen = strlen(buffer);
     if (buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
-#ifdef WIN32
-    aCmd = "move /Y \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\" 2>NUL";
+
+#ifdef WIN32    
+	// Force removing readonly attribute from a file under Windows, because of a but in the HDF
+    std::string aReadOlnyRmCmd = "attrib -r \"" + aStudyTmpDir + std::string(buffer)+ "\" > nul 2>&1";
+#ifdef UNICODE
+    std::wstring awReadOlnyRmCmd = Kernel_Utils::utf8_decode_s(aReadOlnyRmCmd);
+    _wsystem(awReadOlnyRmCmd.c_str());
+#else  
+    system(aReadOlnyRmCmd.c_str());
+#endif
+
+    aCmd = "move /Y \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\" > nul 2>&1";
 #else
     aCmd = "mv -f \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
 #endif
 #if defined(WIN32) && defined(UNICODE)
-	std::wstring awCmd = Kernel_Utils::utf8_decode_s(aCmd);
+    std::wstring awCmd = Kernel_Utils::utf8_decode_s(aCmd);
     errors = _wsystem(awCmd.c_str());
 #else  
     errors = system(aCmd.c_str());
