@@ -37,6 +37,7 @@ import shutil
 import virtual_salome
 import xml.sax
 import optparse
+import subprocess
 
 # --- names of tags in XML configuration file
 appli_tag   = "application"
@@ -224,6 +225,14 @@ def install(prefix, config_file, verbose=0):
             options.module_name = module
             options.module_path = _config[module]
             virtual_salome.link_module(options)
+            # To fix GEOM_TestXAO issue https://codev-tuleap.cea.fr/plugins/tracker/?aid=16599
+            if module == "GEOM":
+                # link <appli_path>/bin/salome/test/<module> to <module_path>/bin/salome/test
+                test_dir=os.path.join(home_dir,'bin','salome', 'test')
+                module_dir=os.path.abspath(options.module_path)
+                xao_link=os.path.join(module_dir,'bin','salome', 'test', "xao")
+                print("link %s --> %s"%(os.path.join(test_dir, "xao"), xao_link))
+                virtual_salome.symlink(xao_link, os.path.join(test_dir, "xao"))
             pass
         pass
 
@@ -315,6 +324,10 @@ def install(prefix, config_file, verbose=0):
         pass
 
     # Create environment file: configSalome.sh
+
+    cmd='source %s && python3 -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
+    versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd]).decode("utf-8")
+
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
         for module in _config.get("modules", []):
             command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
@@ -327,6 +340,17 @@ def install(prefix, config_file, verbose=0):
         if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
             command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
+        command ="""export PATH=${HOME}/${APPLI}/bin/salome:$PATH
+export PYTHONPATH=${HOME}/${APPLI}/lib/python%s/site-packages/salome:$PYTHONPATH
+export PYTHONPATH=${HOME}/${APPLI}/lib/salome:$PYTHONPATH
+export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
+""" %versionPython
+        f.write(command)
+        # Create environment variable for the salome test
+        for module in _config.get("modules", []):
+            command = "export LD_LIBRARY_PATH=  ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib:$LD_LIBRARY_PATH\n"
+            f.write(command)
+            pass
 
     # Create configuration file: configSalome.cfg
     with open(os.path.join(home_dir, 'env.d', 'configSalome.cfg'),'w') as f:
@@ -343,22 +367,54 @@ def install(prefix, config_file, verbose=0):
         if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
             command = 'USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
+        command ="""ADD_TO_PATH: ${HOME}/${APPLI}/bin/salome
+ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/python%s/site-packages/salome
+ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/lib/salome
+ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
+"""%versionPython
+        f.write(command)
+        for module in _config.get("modules", []):
+            command = "ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib\n"
+            f.write(command)
+            pass
 
 
     # Create environment file: configGUI.sh
+    dirs_ress_icon = []
+    salomeappname  = "SalomeApp"
     with open(os.path.join(home_dir, 'env.d', 'configGUI.sh'),'w') as f:
-        command = """export SalomeAppConfig=${HOME}/${APPLI}
-export SUITRoot=${HOME}/${APPLI}/share/salome
+        for module in _config.get("modules", []):
+            if module not in ["KERNEL", "GUI", ""]:
+                d = os.path.join(_config[module],"share","salome","resources",module.lower())
+                d_appli = os.path.join("${HOME}","${APPLI}","share","salome","resources",module.lower())
+                if os.path.exists( os.path.join(d,"{0}.xml".format(salomeappname)) ):
+                   dirs_ress_icon.append( d_appli )
+        AppConfig="export SalomeAppConfig=${HOME}/${APPLI}:${HOME}/${APPLI}/share/salome/resources/gui/"
+        for dir_module in dirs_ress_icon:
+             AppConfig=AppConfig+":"+dir_module
+        f.write(AppConfig+"\n")
+        command = """export SUITRoot=${HOME}/${APPLI}/share/salome
 export DISABLE_FPE=1
 export MMGT_REENTRANT=1
 """
         f.write(command)
 
     # Create configuration file: configGUI.cfg
+    dirs_ress_icon = []
     with open(os.path.join(home_dir, 'env.d', 'configGUI.cfg'),'w') as f:
-        command = """[SALOME GUI Configuration]
-SalomeAppConfig=${HOME}/${APPLI}
-SUITRoot=${HOME}/${APPLI}/share/salome
+        command = """[SALOME GUI Configuration]\n"""
+        f.write(command)
+        for module in _config.get("modules", []):
+            if module not in ["KERNEL", "GUI", ""]:
+                d = os.path.join(_config[module],"share","salome","resources",module.lower())
+                d_appli = os.path.join("${HOME}","${APPLI}","share","salome","resources",module.lower())
+                if os.path.exists( os.path.join(d,"{0}.xml".format(salomeappname)) ):
+                   dirs_ress_icon.append( d_appli )
+        AppConfig="SalomeAppConfig=${HOME}/${APPLI}:${HOME}/${APPLI}/share/salome/resources/gui/"
+        for dir_module in dirs_ress_icon:
+             AppConfig=AppConfig+":"+dir_module
+        f.write(AppConfig+"\n")
+        command = """SUITRoot=${HOME}/${APPLI}/share/salome
 DISABLE_FPE=1
 MMGT_REENTRANT=1
 """
