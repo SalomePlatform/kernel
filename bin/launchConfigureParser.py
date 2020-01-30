@@ -832,7 +832,7 @@ Python file arguments, if any, must be comma-separated (without blank characters
 args = {}
 #def get_env():
 #args = []
-def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
+def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvironment=True):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -895,19 +895,18 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
 
-    gui_available = False
-    if os.getenv("GUI_ROOT_DIR"):
-        gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
-        if os.path.isdir(gui_resources_dir):
-            gui_available = True
-            dirs.append(gui_resources_dir)
-        pass
-    if not gui_available:
-        kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appliskel')
-        if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( kernel_resources_dir ):
-          dirs.append(kernel_resources_dir)
-        pass
-    os.environ[config_var] = os.pathsep.join(dirs)
+    if not keepEnvironment:
+        if os.getenv("GUI_ROOT_DIR") and os.path.isdir(os.getenv("GUI_ROOT_DIR")):
+            gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
+            if os.path.isdir(gui_resources_dir):
+                dirs.append(gui_resources_dir)
+            pass
+        else:
+            kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appliskel')
+            if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( kernel_resources_dir ):
+              dirs.append(kernel_resources_dir)
+            pass
+        os.environ[config_var] = os.pathsep.join(dirs)
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
@@ -992,7 +991,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
     if cmd_opts.batch is not None:
         args[batch_nam] = True
 
-    if not gui_available:
+    if not os.getenv("GUI_ROOT_DIR") or not os.path.isdir(os.getenv("GUI_ROOT_DIR")):
         args[gui_nam] = False
 
     if args[gui_nam]:
@@ -1184,6 +1183,8 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None):
         args[lang_nam] = cmd_opts.language
 
     # return arguments
-    os.environ[config_var] = os.pathsep.join(dirs)
+    if not keepEnvironment:
+        os.environ[config_var] = os.pathsep.join(dirs)
+
     # print("Args: ", args)
     return args

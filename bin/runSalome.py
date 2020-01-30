@@ -810,7 +810,8 @@ def main(exeName=None):
         sys.exit(1)
 
     from salome_utils import getHostName
-    args, modules_list, modules_root_dir = setenv.get_config(exeName=exeName)
+    keep_env = not os.getenv('SALOME_PLEASE_SETUP_ENVIRONMENT_AS_BEFORE')
+    args, modules_list, modules_root_dir = setenv.get_config(exeName=exeName, keepEnvironment=keep_env)
     print("runSalome running on %s" % getHostName())
 
     kill_salome(args)
@@ -828,7 +829,7 @@ def main(exeName=None):
         pass
     # --
     #setenv.main()
-    setenv.set_env(args, modules_list, modules_root_dir)
+    setenv.set_env(args, modules_list, modules_root_dir, keepEnvironment=keep_env)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt,args
 
