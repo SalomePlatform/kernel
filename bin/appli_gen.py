@@ -351,6 +351,15 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
             command = "export LD_LIBRARY_PATH=  ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib:$LD_LIBRARY_PATH\n"
             f.write(command)
             pass
+        # Create environment for plugins GEOM
+        command = "export GEOM_PluginsList=BREPPlugin:STEPPlugin:IGESPlugin:STLPlugin:XAOPlugin:VTKPlugin:AdvancedGEOM\n"
+        f.write(command)
+        # Create environment for Healing
+        command = "export CSF_ShHealingDefaults=${HOME}/${APPLI}/share/salome/resources/geom\n"
+        f.write(command)
+        # Create environment for Meshers
+        command = "export SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin\nexport SALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
+        f.write(command)
 
     # Create configuration file: configSalome.cfg
     with open(os.path.join(home_dir, 'env.d', 'configSalome.cfg'),'w') as f:
@@ -377,6 +386,15 @@ ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
             command = "ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib\n"
             f.write(command)
             pass
+        # Create environment for plugins GEOM
+        command = "GEOM_PluginsList=BREPPlugin:STEPPlugin:IGESPlugin:STLPlugin:XAOPlugin:VTKPlugin:AdvancedGEOM\n"
+        f.write(command)
+        # Create environment for Healing
+        command = "CSF_ShHealingDefaults=${HOME}/${APPLI}/share/salome/resources/geom\n"
+        f.write(command)
+        # Create environment for Meshers
+        command = "SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin\nSALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
+        f.write(command)
 
 
     # Create environment file: configGUI.sh
