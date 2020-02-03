@@ -108,7 +108,7 @@ namespace Kernel_Utils
 
   const wchar_t* decode(const char* encoded)
   {
-    setlocale(LC_ALL, "");
+    //setlocale(LC_ALL, "");
     size_t length = strlen(encoded) + sizeof(char);
     wchar_t* decoded = new wchar_t[length];
     memset( decoded, '\0', length);
@@ -123,7 +123,7 @@ namespace Kernel_Utils
 
   const char* encode(const wchar_t* decoded)
   {
-    setlocale(LC_ALL, "");
+    //setlocale(LC_ALL, "");
     size_t length = std::wcslen(decoded) + sizeof(wchar_t);
     char* encoded = new char[length];
     memset( encoded, '\0', length);
