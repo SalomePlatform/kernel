@@ -53,11 +53,13 @@ extra_test_tag = "extra_test"
 resources_tag = "resources"
 env_modules_tag = "env_modules"
 env_module_tag = "env_module"
+python_tag = "python"
 
 # --- names of attributes in XML configuration file
 nam_att  = "name"
 path_att = "path"
 gui_att  = "gui"
+version_att = "version"
 
 # -----------------------------------------------------------------------------
 
@@ -100,6 +102,10 @@ class xml_parser:
         # --- if we are analyzing "sha1_collection" element then store its "path" attribute
         if self.space == [appli_tag, sha1_collect_tag] and path_att in attrs.getNames():
             self.config["sha1_collect_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "python" element then store its "version" attribute
+        if self.space == [appli_tag, python_tag] and version_att in attrs.getNames():
+            self.config["python_version"] = attrs.getValue( version_att )
             pass
         # --- if we are analyzing "system_conf" element then store its "path" attribute
         if self.space == [appli_tag, system_conf_tag] and path_att in attrs.getNames():
@@ -324,9 +330,13 @@ def install(prefix, config_file, verbose=0):
         pass
 
     # Create environment file: configSalome.sh
-
-    cmd='source %s && python3 -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
-    versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd]).decode("utf-8")
+    
+    if "python_version" in _config:
+       versionPython_split = _config["python_version"].split('.')
+       versionPython = versionPython_split[0] + "." + versionPython_split[1]
+    else:
+       cmd='source %s && python3 -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
+       versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd]).decode("utf-8")
 
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
         for module in _config.get("modules", []):
