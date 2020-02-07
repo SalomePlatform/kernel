@@ -1155,6 +1155,16 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath,
 }
 
 //============================================================================
+/*! Function : GetDumpPath
+*  Purpose  : 
+*/
+//============================================================================
+char* SALOMEDS_Study_i::GetDumpPath()
+{
+  return CORBA::string_dup(_impl->GetDumpPath().c_str());
+}
+
+//============================================================================
 /*! Function : GetCommonParameters
  *  Purpose  : 
  */

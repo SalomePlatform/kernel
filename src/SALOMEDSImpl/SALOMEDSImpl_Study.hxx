@@ -72,6 +72,7 @@ private:
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
   SALOMEDSImpl_AbstractCallback* _notifier;
   SALOMEDSImpl_AbstractCallback* _genObjRegister;
+  std::string              _dumpPath; // path (folder) to the python file which is currently dumped
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
@@ -248,6 +249,9 @@ public:
                          SALOMEDSImpl_DriverFactory* theFactory);
 
   static std::string GetDumpStudyComment(const char* theComponentName = 0);
+
+  // Returns the folder of the python script which is currently dumped
+  std::string GetDumpPath();
   
   virtual DF_Document* GetDocument() { return _doc; } 
 

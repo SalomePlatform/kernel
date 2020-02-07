@@ -644,6 +644,10 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
                       in boolean isPublished,
                       in boolean isMultiFile) raises(StudyInvalidReference);
 
+/*! \brief  Returns the folder of the python script which is currently dumped.
+*/
+    string GetDumpPath();
+
 /*! \brief  Get an AttributeParameter used to store common parameters for given %theSavePoint.
 
     \param theID identifies a common parameters set (Example: "Interface Applicative")
