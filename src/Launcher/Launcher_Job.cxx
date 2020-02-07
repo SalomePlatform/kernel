@@ -606,7 +606,8 @@ Launcher::Job::common_job_params()
 
   params[Batch::NAME] = getJobName();
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
-  params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
+  if(_resource_required_params.nb_proc_per_node > 0)
+    params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
   if(_resource_required_params.nb_node > 0)
     params[Batch::NBNODE] = _resource_required_params.nb_node;
