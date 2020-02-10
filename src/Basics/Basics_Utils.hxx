@@ -45,9 +45,13 @@ namespace Kernel_Utils
   {
   public:
     Localizer();
+    Localizer(int, const char*);
     ~Localizer();
   private:
-    std::string myCurLocale;
+    void init(int, const char*);
+  private:
+    int myCategory;
+    std::string myOriginalLocale;
   };
   
   //! GUID type

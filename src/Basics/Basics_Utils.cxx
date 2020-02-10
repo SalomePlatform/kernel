@@ -83,13 +83,24 @@ namespace Kernel_Utils
 
   Localizer::Localizer()
   {
-    myCurLocale = setlocale(LC_NUMERIC, 0);
-    setlocale(LC_NUMERIC, "C");
+    init(LC_NUMERIC, "C");
+  }
+
+  Localizer::Localizer(int category, const char* locale)
+  {
+    init(category, locale);
+  }
+
+  void Localizer::init(int category, const char* locale)
+  {
+    myCategory = category;
+    myOriginalLocale = setlocale(category, NULL);
+    setlocale(category, locale);
   }
 
   Localizer::~Localizer()
   {
-    setlocale(LC_NUMERIC, myCurLocale.c_str());
+    setlocale(myCategory, myOriginalLocale.c_str());
   }
 
   std::string GetGUID( GUIDtype type )
@@ -108,7 +119,7 @@ namespace Kernel_Utils
 
   const wchar_t* decode(const char* encoded)
   {
-    //setlocale(LC_ALL, "");
+    Localizer loc(LC_CTYPE, "");
     size_t length = strlen(encoded) + sizeof(char);
     wchar_t* decoded = new wchar_t[length];
     memset( decoded, '\0', length);
@@ -123,7 +134,7 @@ namespace Kernel_Utils
 
   const char* encode(const wchar_t* decoded)
   {
-    //setlocale(LC_ALL, "");
+    Localizer loc(LC_CTYPE, "");
     size_t length = std::wcslen(decoded) + sizeof(wchar_t);
     char* encoded = new char[length];
     memset( encoded, '\0', length);
