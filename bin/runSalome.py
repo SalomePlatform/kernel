@@ -300,13 +300,12 @@ class SessionServer(Server):
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
             raise Exception('Python containers no longer supported')
         if self.args['gui']:
-            session_gui = True
-            if 'session_gui' in self.args:
-                session_gui = self.args['session_gui']
-            if session_gui:
-                self.SCMD2+=['GUI']
-                if self.args['splash']:
-                    self.SCMD2+=['SPLASH']
+            session_gui = self.args.get('session_gui', True)
+            if not session_gui:
+                self.SCMD2+=['--hide-desktop']
+            else:
+                if not self.args['splash']:
+                    self.SCMD2+=['--hide-splash']
                     pass
                 if self.args['study_hdf'] is not None:
                     self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
@@ -319,7 +318,7 @@ class SessionServer(Server):
                 pass
             pass
         if self.args['noexcepthandler']:
-            self.SCMD2+=['noexcepthandler']
+            self.SCMD2+=['--no-exception-handler']
         if 'user_config' in self.args:
             self.SCMD2+=['--resources=%s'%self.args['user_config']]
         if 'modules' in self.args:
