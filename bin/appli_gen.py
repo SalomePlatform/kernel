@@ -357,9 +357,11 @@ def install(prefix, config_file, verbose=0):
         if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
             command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
+        # Note: below, PYTHONPATH should not be extended to bin/salome! Python modules must be installed in lib/pythonX.Y, to be fixed (e.g. Kernel SALOME_Container.py)
         command ="""export PATH=${HOME}/${APPLI}/bin/salome:$PATH
 export PYTHONPATH=${HOME}/${APPLI}/lib/python%s/site-packages/salome:$PYTHONPATH
 export PYTHONPATH=${HOME}/${APPLI}/lib/salome:$PYTHONPATH
+export PYTHONPATH=${HOME}/${APPLI}/bin/salome:$PYTHONPATH
 export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
 """ %versionPython
         f.write(command)
