@@ -279,7 +279,7 @@ def install(prefix, config_file, verbose=0):
         pass
 
 
-    # Copy salome script 
+    # Copy salome script
     salome_script = open(os.path.join(appliskel_dir, "salome")).read()
     salome_file = os.path.join(home_dir, "salome")
     try:
@@ -330,7 +330,7 @@ def install(prefix, config_file, verbose=0):
         pass
 
     # Create environment file: configSalome.sh
-    
+
     if "python_version" in _config:
        versionPython_split = _config["python_version"].split('.')
        versionPython = versionPython_split[0] + "." + versionPython_split[1]
@@ -358,7 +358,7 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
         f.write(command)
         # Create environment variable for the salome test
         for module in _config.get("modules", []):
-            command = "export LD_LIBRARY_PATH=  ${HOME}/${APPLI}/bin/salome/test/" + module + "/lib:$LD_LIBRARY_PATH\n"
+            command = "export LD_LIBRARY_PATH=${HOME}/${APPLI}/bin/salome/test/" + module + "/lib:$LD_LIBRARY_PATH\n"
             f.write(command)
             pass
         # Create environment for plugins GEOM
