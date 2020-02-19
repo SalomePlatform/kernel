@@ -1141,7 +1141,7 @@ std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const
 
   else if (resInfo.Protocol == srun)
     {
-      command = "srun -n 1 -N 1 --share --mem-per-cpu=0 --nodelist=";
+      command = "srun -n 1 -N 1 -s --mem-per-cpu=0 --nodelist=";
       std::string commandRcp = "rcp ";
       commandRcp += tmpFileName;
       commandRcp += " ";
