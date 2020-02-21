@@ -340,6 +340,8 @@ public:
                                    CORBA::Boolean isPublished,
                                    CORBA::Boolean isMultiFile);
 
+  virtual char* GetDumpPath();
+
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);

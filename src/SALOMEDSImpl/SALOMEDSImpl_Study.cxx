@@ -2151,6 +2151,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
     _errorCode = std::string("Can't create a file ")+aFileName;
     return false;
   }
+  _dumpPath = thePath;
 
   std::stringstream sfp;
 
@@ -2304,8 +2305,17 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 
   fp.close();
 
+  _dumpPath.clear();
+
   return isOk;
 }
+
+// Returns the folder of the python script which is currently dumped
+std::string SALOMEDSImpl_Study::GetDumpPath()
+{
+  return _dumpPath;
+}
+
 
 //=======================================================================
 //function : GetDumpStudyComment
