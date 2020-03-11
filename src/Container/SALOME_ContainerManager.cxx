@@ -531,7 +531,8 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
 
         // Launch remote command
           command += " \"ls /tmp >/dev/null 2>&1\"";
-        int status = SystemThreadSafe(command.c_str());
+        // Anthony : command is NO MORE launched to improve dramatically time to launch containers
+        int status = 0;
         if (status != 0)
           {
             // Error on resource - cannot launch commands
