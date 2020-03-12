@@ -135,7 +135,7 @@ class SalomeContext:
     env_copy = os.environ.copy()
     selfBytes= pickle.dumps(self, protocol=0)
     argsBytes= pickle.dumps(args, protocol=0)
-    proc = subprocess.Popen(['python3', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode(), argsBytes.decode()], shell=False, close_fds=True, env=env_copy)
+    proc = subprocess.Popen(['python3', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode('latin1'), argsBytes.decode('latin1')], shell=False, close_fds=True, env=env_copy)
     out, err = proc.communicate()
     return out, err, proc.returncode
   #
@@ -644,8 +644,8 @@ Available options are:
 
 if __name__ == "__main__":
   if len(sys.argv) == 3:
-    context = pickle.loads(sys.argv[1].encode())
-    args = pickle.loads(sys.argv[2].encode())
+    context = pickle.loads(sys.argv[1].encode('latin1'))
+    args = pickle.loads(sys.argv[2].encode('latin1'))
 
     status = context._startSalome(args)
     sys.exit(status)
