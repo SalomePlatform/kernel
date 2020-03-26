@@ -155,7 +155,7 @@ def getPort(preferredPort=None):
       with open(config_file, 'rb') as f:
         config = pickle.load(f)
     except:
-      logger.info("Problem loading PortManager file: %s"%config_file)
+      logger.debug("Problem loading PortManager file: %s"%config_file)
       # In this case config dictionary is reset
 
     logger.debug("load config: %s"%str(config))
