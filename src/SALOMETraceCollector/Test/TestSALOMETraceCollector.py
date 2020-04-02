@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2019  CEA/DEN, EDF R&D, OPEN CASCADE
 #

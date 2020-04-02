@@ -25,4 +25,4 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 CALLDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 echo ABSOLUTE_APPLI_PATH: $ABSOLUTE_APPLI_PATH
-$ABSOLUTE_APPLI_PATH/salome shell -- python ${CALLDIR}/salome_test.py
+$ABSOLUTE_APPLI_PATH/salome shell -- python3 ${CALLDIR}/salome_test.py

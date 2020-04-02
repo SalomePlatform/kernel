@@ -27,7 +27,7 @@ IF(NOT WIN32)
 #           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
 #           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
 #          )
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_swig_launcher.py
+  INSTALL(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/test_swig_launcher.py
           DESTINATION ${KERNEL_TEST_DIR}/Launcher_SWIG)
 
   INSTALL(FILES CTestTestfileInstall.cmake

@@ -19,7 +19,7 @@
 
 IF(NOT WIN32)
   SET(TEST_NAME ${COMPONENT_NAME}_Launcher_SWIG)
-  ADD_TEST(${TEST_NAME} python test_swig_launcher.py)
+  ADD_TEST(${TEST_NAME} test_swig_launcher.py)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
     #                                                 TIMEOUT 500
     )

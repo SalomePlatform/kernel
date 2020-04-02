@@ -19,7 +19,7 @@
 
 IF(NOT WIN32)
   SET(TEST_NAME ${COMPONENT_NAME}_KernelHelpers)
-  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} TestKernelHelpers.py)
+  ADD_TEST(${TEST_NAME} ${SALOME_TEST_DRIVER} ${TIMEOUT} TestKernelHelpers.py)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
                                     LABELS "${COMPONENT_NAME}"
                                     ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"

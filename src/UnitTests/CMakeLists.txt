@@ -33,7 +33,7 @@ INCLUDE_DIRECTORIES(
 
 # Executable scripts to be installed
 SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/UnitTests)
-INSTALL(FILES UnitTests.py DESTINATION ${LOCAL_TEST_DIR})
+INSTALL(PROGRAMS UnitTests.py DESTINATION ${LOCAL_TEST_DIR})
 
 # ===============================================================
 # Executables targets

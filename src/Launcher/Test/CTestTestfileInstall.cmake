@@ -19,13 +19,13 @@
 
 IF(NOT WIN32)
   SET(TEST_NAME ${COMPONENT_NAME}_Launcher)
-  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} 2000 test_launcher.py)
+  ADD_TEST(${TEST_NAME} ${SALOME_TEST_DRIVER} 2000 test_launcher.py)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
     #                                                 TIMEOUT 500
     )
 
   SET(TEST_NAME ${COMPONENT_NAME}_StressLauncher)
-  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} 2000 ./test_stress.sh)
+  ADD_TEST(${TEST_NAME} ${SALOME_TEST_DRIVER} 2000 ./test_stress.sh)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
     #                                                 TIMEOUT 500
     )

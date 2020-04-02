@@ -25,7 +25,7 @@ chmod 755 $WORKDIR/command.sh
 pid_launcher=''
 for i in {1..500}
 do
-  python launcher_use_case.py $WORKDIR 2> $WORKDIR/log$i.err &
+  ./launcher_use_case.py $WORKDIR 2> $WORKDIR/log$i.err &
   pid_launcher=$pid_launcher" "$!
 done
 exit_code=0

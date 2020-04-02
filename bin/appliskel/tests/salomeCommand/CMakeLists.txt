@@ -24,5 +24,5 @@ INSTALL(FILES CTestTestfileInstall.cmake
         DESTINATION ${KERNEL_TEST_DIR}/salomeCommand
         RENAME CTestTestfile.cmake)
 
-INSTALL(FILES ${scripts}
+INSTALL(PROGRAMS ${scripts}
         DESTINATION ${KERNEL_TEST_DIR}/salomeCommand)

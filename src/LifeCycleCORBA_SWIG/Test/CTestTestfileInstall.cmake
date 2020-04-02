@@ -26,14 +26,14 @@ SET(TEST_NAMES
 IF(NOT WIN32)
   FOREACH(tfile ${TEST_NAMES})
     SET(TEST_NAME ${COMPONENT_NAME}_LC_${tfile})
-    ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} ${tfile}.py)
+    ADD_TEST(${TEST_NAME} ${SALOME_TEST_DRIVER} ${TIMEOUT} ${tfile}.py)
     SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
       )
   ENDFOREACH()
 
   # resource manager test needs specific CatalogResources file in test directory
   SET(TEST_NAME ${COMPONENT_NAME}_LC_testresourcemanager)
-  ADD_TEST(${TEST_NAME} python ${SALOME_TEST_DRIVER} ${TIMEOUT} testresourcemanager.py)
+  ADD_TEST(${TEST_NAME} ${SALOME_TEST_DRIVER} ${TIMEOUT} testresourcemanager.py)
   SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}"
                                     ENVIRONMENT "USER_CATALOG_RESOURCES_FILE=CatalogResources_resource.xml"
                       )
