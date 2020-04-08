@@ -37,9 +37,16 @@ module Engines
 {
   typedef sequence<octet> pickledArgs;
   typedef sequence<string> listofstring;
+  interface Container;
 
   interface PyNodeBase : SALOME::GenericObj
   {
+    Container getContainer();
+
+    string getCode();
+
+    string getName();
+
     /*!
       This method allows to define a new global var called \a varName. This newly created var will be
       set to value \a valueOfVar.
@@ -82,7 +89,14 @@ module Engines
     */
     pickledArgs execute(in listofstring outargsname, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
 
-    
+    /*! \brief first part of whole execute method. This split is to reduce the memory peak.
+    */
+    void executeFirst(in pickledArgs inargs) raises (SALOME::SALOME_Exception);
+
+    /*! \brief second and last part of execute method. This split is to reduce the memory peak.
+    */
+    pickledArgs executeSecond(in listofstring outargsname) raises (SALOME::SALOME_Exception);
+
     pickledArgs getValueOfVarInContext(in string varName) raises (SALOME::SALOME_Exception);
 
     void assignVarInContext(in string varName, in pickledArgs value) raises (SALOME::SALOME_Exception);

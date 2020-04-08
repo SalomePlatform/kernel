@@ -68,6 +68,15 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     self.context["my_container"] = self.my_container
     exec(ccode, self.context)
 
+  def getContainer(self):
+    return self.my_container
+
+  def getCode(self):
+    return self.code
+
+  def getName(self):
+    return self.nodeName
+
   def defineNewCustomVar(self,varName,valueOfVar):
     self.context[varName] = pickle.loads(valueOfVar)
     pass
@@ -106,6 +115,15 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     self.context={}
     self.context["my_container"] = self.my_container
 
+  def getContainer(self):
+    return self.my_container
+
+  def getCode(self):
+    return self.code
+
+  def getName(self):
+    return self.nodeName
+
   def defineNewCustomVar(self,varName,valueOfVar):
     self.context[varName] = pickle.loads(valueOfVar)
     pass
@@ -142,6 +160,33 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
+
+  def executeFirst(self,argsin):
+    """ Same than first part of self.execute to reduce memory peak."""
+    import time
+    try:
+      _,kws=pickle.loads(argsin)
+      self.context.update(kws)
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:First %s" % (self.nodeName),0))
+
+  def executeSecond(self,outargsname):
+    """ Same than second part of self.execute to reduce memory peak."""
+    try:
+      exec(self.ccode, self.context)
+      argsout=[]
+      for arg in outargsname:
+        if arg not in self.context:
+          raise KeyError("There is no variable %s in context" % arg)
+        argsout.append(self.context[arg])
+      argsout=pickle.dumps(tuple(argsout),-1)
+      return argsout
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
 
   def getValueOfVarInContext(self,varName):
     try:
