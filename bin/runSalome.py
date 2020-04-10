@@ -154,9 +154,9 @@ class CatalogServer(Server):
               self.SCMD1+=["NameService=corbaname::" + machine + ":" + port]
         self.SCMD1+=['-common']
         self.SCMD2=[]
-        home_dir=os.getenv('HOME')
+        home_dir=os.path.expanduser("~")
         if home_dir is not None:
-            self.SCMD2=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')]
+            self.SCMD2=['-personal',os.path.join(home_dir,'Salome', 'resources', 'CatalogModulePersonnel.xml')]
 
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
@@ -284,9 +284,9 @@ class SessionServer(Server):
                          '(','--salome_session','theSession',')']
         if 'moduleCatalog' in self.args['embedded']:
             self.SCMD1+=['--with','ModuleCatalog','(','-common']
-            home_dir=os.getenv('HOME')
+            home_dir=os.path.expanduser("~")
             if home_dir is not None:
-                self.SCMD2+=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')]
+                self.SCMD2+=['-personal',os.path.join(home_dir,'Salome','resources','CatalogModulePersonnel.xml')]
             self.SCMD2+=[')']
         if 'study' in self.args['embedded']:
             self.SCMD2+=['--with','SALOMEDS','(',')']
@@ -398,8 +398,10 @@ class LauncherServer(Server):
                              '(','--salome_session','theSession',')']
             if 'moduleCatalog' in self.args['embedded']:
                 self.SCMD1+=['--with','ModuleCatalog','(','-common']
-                self.SCMD2+=['-personal',
-                             '${HOME}/Salome/resources/CatalogModulePersonnel.xml',')']
+                home_dir=os.path.expanduser("~")
+                if home_dir is not None:
+                    self.SCMD2=['-personal',os.path.join(home_dir,'Salome','resources','CatalogModulePersonnel.xml')]
+                self.SCMD2+=[')']
             if 'study' in self.args['embedded']:
                 self.SCMD2+=['--with','SALOMEDS','(',')']
             if 'cppContainer' in self.args['embedded']:

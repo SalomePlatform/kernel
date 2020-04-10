@@ -76,7 +76,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
         else:
             # old-style non-dot-prefixed pidict files
             # are in the user's home directory
-            dir = os.getenv("HOME")
+            dir = os.path.expanduser("~")
             pass
         pass
 

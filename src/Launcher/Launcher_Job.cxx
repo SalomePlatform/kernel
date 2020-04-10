@@ -22,6 +22,9 @@
 //#define _DEBUG_
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
+
+#include <Basics_DirUtils.hxx>
+
 #include <boost/filesystem.hpp>
 
 #ifdef WITH_LIBBATCH
@@ -667,11 +670,8 @@ Launcher::Job::common_job_params()
 
   // If result_directory is not defined, we use HOME environment
   if (_result_directory == "")
-#ifndef WIN32
-    _result_directory = getenv("HOME");
-#else
-    _result_directory = getenv("USERPROFILE");
-#endif
+    _result_directory = Kernel_Utils::HomePath();
+
   // _in_files
   std::list<std::string> in_files(_in_files);
   in_files.push_back(_job_file);

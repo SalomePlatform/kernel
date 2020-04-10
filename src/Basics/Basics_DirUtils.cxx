@@ -351,4 +351,18 @@ namespace Kernel_Utils
 	  std::replace(res.begin(), res.end(), '\\', '/');
 	  return res;
   }
+
+
+  //============================================================================
+  // function : BackSlashToSlash  
+  // purpose  : Convert back slash to slash
+  //============================================================================ 
+  std::string HomePath() {
+#ifdef WIN32
+    std::string homedir = getenv("USERPROFILE");
+#else
+    std::string homedir = getenv("HOME");       
+#endif
+    return homedir;
+  }
 }

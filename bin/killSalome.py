@@ -103,7 +103,7 @@ def killAllPorts():
             pass
         pass
         # delete uri files needed by ompi-server
-        cmd = "rm -f " + os.environ['HOME'] + "/.urifile_*"
+        cmd = "rm -f " + os.path.expanduser("~") + "/.urifile_*"
         os.system(cmd)
     pass
 

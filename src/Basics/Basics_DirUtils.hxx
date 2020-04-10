@@ -70,6 +70,9 @@ namespace Kernel_Utils
   BASICS_EXPORT bool IsEmptyDir( const std::string& path );
 
   BASICS_EXPORT std::string BackSlashToSlash( const std::string& path );
+
+  // Returns getenv("HOME") for Unix or getenv("USERPROFILE") for WIN32
+  BASICS_EXPORT std::string HomePath();
 }
 
 #endif

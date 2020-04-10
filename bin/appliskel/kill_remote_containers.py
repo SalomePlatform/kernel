@@ -30,7 +30,7 @@ from salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))
-APPLI=getAppliPath.relpath(appli_local,os.path.realpath(os.getenv('HOME')))
+APPLI=getAppliPath.relpath(appli_local,os.path.realpath(os.path.expanduser("~")))
 
 usage="""%(prog)s [options]
 

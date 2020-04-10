@@ -21,8 +21,11 @@
 //
 
 #include "ResourcesManager.hxx" 
+
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <Basics_Utils.hxx>
+#include <Basics_DirUtils.hxx>
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -145,7 +148,7 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
     std::string default_file("");
     if (getenv("APPLI") != 0)
     {
-      default_file += getenv("HOME");
+      default_file += Kernel_Utils::HomePath();
       default_file += "/";
       default_file += getenv("APPLI");
       default_file += "/CatalogResources.xml";
@@ -624,7 +627,8 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   resource.Batch = none;
 #ifndef WIN32
   struct stat statbuf;
-  if (getenv("HOME") != NULL && getenv("APPLI") != NULL)
+  std::string aHomePath = Kernel_Utils::HomePath();
+  if (aHomePath != "" && getenv("APPLI") != NULL)
   {
     if (stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
     {
@@ -633,7 +637,7 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
     }
     else
     {
-        resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
+        resource.AppliPath = aHomePath + "/" + getenv("APPLI");
     }
   }
   string tmpdir = "/tmp";

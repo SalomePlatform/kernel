@@ -30,7 +30,7 @@ from salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))
-APPLI=getAppliPath.relpath(appli_local,os.path.realpath(os.getenv('HOME')))
+APPLI=getAppliPath.relpath(appli_local,os.path.realpath(os.path.expanduser("~")))
 
 usage="""%(prog)s [options]
 Typical use is:
@@ -148,7 +148,7 @@ class Resource:
       #local machine, use cp
       if appliPath[0]!='/':
         #relative path
-        appliPath=os.path.join(os.getenv("HOME"),appliPath)
+        appliPath=os.path.join(os.path.expanduser("~"),appliPath)
 
       if appliPath == appli_local:
         return
@@ -191,7 +191,7 @@ class Resource:
     if hostname == "localhost" or hostname == get_hostname() and userName == getUserName():
       #user local resource
       if appliPath[0]!='/':
-        appliPath=os.path.join(os.getenv("HOME"),appliPath)
+        appliPath=os.path.join(os.path.expanduser("~"),appliPath)
       if appliPath == appli_local:
         #main local resource: get catalogs in share/salome/resources
         catalogs_list=glob.glob(os.path.join(appliPath,"share","salome","resources","*","*Catalog.xml"))

@@ -51,14 +51,14 @@ def get_appli_path(filePath=None):
     if filePath is None:
         filePath = os.path.realpath(os.path.dirname(__file__))
 
-    homePath = os.path.realpath(os.getenv('HOME'))
+    homePath = os.path.realpath(os.path.expanduser("~"))
     applipath = os.path.relpath(filePath, homePath)
     return applipath
 #
 
 if __name__ == "__main__":
     if sys.hexversion < 0x02060000: # Python older than 2.6.0
-        applipath = relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
+        applipath = relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.path.expanduser("~")))
     else:
         applipath = get_appli_path()
     print(applipath)
