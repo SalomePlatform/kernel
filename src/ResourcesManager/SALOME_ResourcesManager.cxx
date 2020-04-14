@@ -148,21 +148,20 @@ void SALOME_ResourcesManager::Shutdown()
 void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines)
 {
   const MapOfParserResourcesType& zeList(_rm->GetList());
-  std::size_t sz(zeList.size());
-  std::vector<std::string> ret0(sz);
-  std::vector<int> ret1(sz);
+  std::vector<std::string> ret0;
+  std::vector<int> ret1;
+  for(MapOfParserResourcesType::const_iterator it=zeList.begin();it!=zeList.end();it++)
   {
-    std::size_t i(0);
-    for(MapOfParserResourcesType::const_iterator it=zeList.begin();it!=zeList.end();it++,i++)
-      {
-        const ParserResourcesType& elt((*it).second);
-        ret0[i]=elt.HostName;
-        //ret1[i]=elt.nbOfProc;
-        ret1[i]=elt.DataForSort._nbOfNodes*elt.DataForSort._nbOfProcPerNode;
-      }
+    const ParserResourcesType& elt((*it).second);
+    if(elt.can_run_containers)
+    {
+      ret0.push_back(elt.HostName);
+      ret1.push_back(elt.DataForSort._nbOfNodes*elt.DataForSort._nbOfProcPerNode);
+    }
   }
   machines=new Engines::ResourceList;
   nbProcsOfMachines=new Engines::IntegerList;
+  std::size_t sz(ret0.size());
   machines->length(sz); nbProcsOfMachines->length(sz);
   for(std::size_t j=0;j<sz;j++)
     {
