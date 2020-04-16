@@ -19,9 +19,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
 PROJECT(Salome_[Name_of_Application]_Profile C CXX)
 
-# Ensure a proper linker behavior:
-CMAKE_POLICY(SET CMP0003 NEW)
-
 # Versioning
 # ===========
 # Project name, upper case
