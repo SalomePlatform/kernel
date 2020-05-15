@@ -58,6 +58,8 @@ class TestSessionArgs(unittest.TestCase):
   def setUp(self):
     import tempfile
     self.logFile = tempfile.NamedTemporaryFile()
+    if sys.platform == "win32": # Close file because of permission denined on Windows
+        self.logFile.close()
   #
   def tearDown(self):
     self.logFile.close()
