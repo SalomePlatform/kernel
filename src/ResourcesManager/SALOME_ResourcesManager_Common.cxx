@@ -97,6 +97,7 @@ ParserResourcesType resourceDefinition_CORBAtoCPP(const Engines::ResourceDefinit
   resource.setResourceTypeStr(resDef.type.in());
   resource.OS = resDef.OS;
   resource.AppliPath = resDef.applipath;
+  resource.DataForSort._Name = resDef.name;
   resource.DataForSort._memInMB = resDef.mem_mb;
   resource.DataForSort._CPUFreqMHz = resDef.cpu_clock;
   resource.DataForSort._nbOfNodes = resDef.nb_node;
