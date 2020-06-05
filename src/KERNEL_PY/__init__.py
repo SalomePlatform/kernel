@@ -220,6 +220,49 @@ def salome_close():
     myStudy, myStudyName = None, None
     pass
 
+def salome_NS():
+    import CORBA
+    import CosNaming
+    orb = CORBA.ORB_init()
+    ns0 = orb.resolve_initial_references("NameService")
+    return ns0._narrow(CosNaming.NamingContext)
+
+def salome_walk_on_containers(ns,root):
+    import CosNaming
+    it = ns.list(0)[1]
+    if not it:
+        return
+    cont = True
+    while cont:
+        cont,obj = it.next_one()
+        if cont:
+            if obj.binding_name[0].kind == "object":
+                import Engines
+                corbaObj = ns.resolve(obj.binding_name)
+                if isinstance(corbaObj,Engines._objref_Container):
+                    yield corbaObj,(root,obj.binding_name[0].id)
+            else:
+                father = ns.resolve([obj.binding_name[0]])
+                for elt,elt2 in salome_walk_on_containers(father,root+[obj.binding_name[0].id]):
+                    yield elt,elt2
+            pass
+        pass
+    pass
+
+def salome_shutdown_containers():
+    salome_init()
+    ns=salome_NS()
+    li = [elt for elt in salome_walk_on_containers(ns,[""])]
+    print("Number of containers in NS : {}".format(len(li)))
+    for cont,(root,cont_name) in li:
+        try:
+            cont.Shutdown()
+        except:
+            pass
+        ref_in_ns = "/".join(root+[cont_name])
+        naming_service.Destroy_Name(ref_in_ns)
+    print("Number of containers in NS after clean : {}".format( len( list(salome_walk_on_containers(ns,[""])) )))
+
 
 #to expose all objects to pydoc
 __all__=dir()
