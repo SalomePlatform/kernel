@@ -186,3 +186,16 @@ def salome_iapp_close():
     pass
 
 
+def register_module_in_study(name, syncCall=True):
+    try:
+        import salome
+        salome.salome_init()
+        session_server = salome.naming_service.Resolve("/Kernel/Session")
+        if session_server:
+            message = "register_module_in_study/"+name
+            if syncCall:
+                session_server.emitMessage(message)
+            else:
+                session_server.emitMessageOneWay(message)
+    except:
+         pass
