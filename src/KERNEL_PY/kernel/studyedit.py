@@ -33,39 +33,30 @@ import re
 
 from salome.kernel import termcolor
 from salome.kernel.logger import Logger
-import salome
 
 
 logger = Logger("salome.kernel.studyedit", color=termcolor.PURPLE)
 
-_editor = None
 _DEFAULT_CONTAINER = "FactoryServer"
 
-
-## Return a \b StudyEditor instance to edit the study. 
-#  \ingroup studyedit
-def getStudyEditor():
-    """
-    Return a :class:`StudyEditor` instance to edit the study.
-    """
-    global _editor
-    if _editor is None:
-        _editor = StudyEditor()
-    return _editor
 
 ## This class provides utility methods to complement \b Study and
 #  \b StudyBuilder classes. Those methods may be moved in those classes
 #  in the future.
 #  The preferred way to get a StudyEditor object is through the method
-#  \b getStudyEditor which allows to reuse existing instances.
+#  \b getStudyEditor which allows to reuse existing instance or through
+#  the global module attribute \b EDITOR.
 #
-#  \param study This instance attribute contains the underlying \b Study object.
-#  It can be used to access the study but the attribute itself should not
+#  \param lcc This instance attribute provides access to the SALOME life cycle
+#  CORBA service.
+#
+#  \param study This instance attribute provides access to the \b Study object.
+#  It can be used to access the study but the attribute itself cannot
 #  be modified.
 #
-#  \param builder This instance attribute contains the underlying \b StudyBuilder
+#  \param builder This instance attribute provides access to the \b StudyBuilder
 #  object. It can be used to edit the study but the attribute itself
-#  should not be modified.
+#  cannot be modified.
 #  \ingroup studyedit
 class StudyEditor:
     """
@@ -75,26 +66,49 @@ class StudyEditor:
     The preferred way to get a StudyEditor object is through the method
     :meth:`getStudyEditor` which allows to reuse existing instances.
 
+    .. attribute:: lcc
+    
+       This instance attribute provides access to the SALOME life cycle
+       CORBA service.
+
     .. attribute:: study
     
-       This instance attribute contains the underlying :class:`Study` object.
-       It can be used to access the study but the attribute itself should not
+       This instance attribute provides access to the :class:`Study` object.
+       It can be used to access the study but the attribute itself cannot
        be modified.
 
     .. attribute:: builder
 
-       This instance attribute contains the underlying :class:`StudyBuilder`
+       This instance attribute provides access to the :class:`StudyBuilder`
        object. It can be used to edit the study but the attribute itself
-       should not be modified.
+       cannot be modified.
 
     """
-    def __init__(self):
+
+    @property
+    def study(self):
+        """Attribute that provides access to the study."""
+        import salome
         salome.salome_init()
-        self.study = salome.myStudy
-        if self.study is None:
-            raise Exception("Can't create StudyEditor object: "
-                            "Study doesn't exist")
-        self.builder = self.study.NewBuilder()
+        if salome.myStudy is None:
+            raise Exception("Study doesn't exist")
+        return salome.myStudy
+
+    @property
+    def builder(self):
+        """Attribute that provides access to the study builder."""
+        import salome
+        salome.salome_init()
+        if salome.myStudy is None:
+            raise Exception("Study doesn't exist")
+        return salome.myStudy.NewBuilder()
+
+    @property
+    def lcc(self):
+        """Attribute that providess access to the SALOME life cycle CORBA service."""
+        import salome
+        salome.salome_init()
+        return salome.lcc
 
     ## Find a component corresponding to the Salome module \b moduleName in
     #  the study. If none is found, create a new component and associate it
@@ -173,7 +187,7 @@ class StudyEditor:
             #attr = self.builder.FindOrCreateAttribute( sComponent, "AttributeParameter" )
             #attr.SetString( "ENGINE_NAME", engineName )
 
-            engine = salome.lcc.FindOrLoadComponent(containerName, moduleName)
+            engine = self.lcc.FindOrLoadComponent(containerName, moduleName)
             if engine is None:
                 raise Exception("Cannot load engine %s in container %s. See "
                                 "logs of container %s for more details." %
@@ -196,8 +210,8 @@ class StudyEditor:
         # engine name will be stored separately from the module name.
         #attr = self.builder.FindOrCreateAttribute( sComponent, "AttributeParameter" )
         #engineName = attr.GetString( "ENGINE_NAME" )
-        engine = salome.lcc.FindOrLoadComponent(containerName,
-                                                sComponent.GetComment())
+        engine = self.lcc.FindOrLoadComponent(containerName,
+                                              sComponent.GetComment())
         if engine is None:
             raise Exception("Cannot load component %s in container %s. See "
                             "logs of container %s for more details." %
@@ -606,3 +620,18 @@ class StudyEditor:
         """
         attr = self.builder.FindOrCreateAttribute(sObject, "AttributePixMap")
         attr.SetPixMap(value)
+
+## Singleton study editor instance.
+#  \ingroup studyedit
+EDITOR = StudyEditor()
+"""Singleton study editor instance."""
+
+## Return a \b StudyEditor instance to edit the study. 
+#  \deprecated This function is kept for backward compatibility. Use \a EDITOR instead.
+#  \ingroup studyedit
+def getStudyEditor():
+    """
+    Return a :class:`StudyEditor` instance to edit the study.
+    """
+    global EDITOR
+    return EDITOR
