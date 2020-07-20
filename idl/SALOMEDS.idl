@@ -1167,6 +1167,10 @@ Activates the %UseCaseIterator.
 */
     boolean AppendTo(in SObject theFather, in SObject theObject);
 /*!
+    Return index of a child among father children
+*/
+    long GetIndexInFather(in SObject theFather, in SObject theObject);
+/*!
     Inserts in the use case the object <VAR>theFirst</VAR> before the object <VAR>theNext</VAR>.
 */
     boolean InsertBefore(in SObject theFirst, in SObject theNext);

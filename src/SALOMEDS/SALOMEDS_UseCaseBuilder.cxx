@@ -104,6 +104,19 @@ bool SALOMEDS_UseCaseBuilder::InsertBefore(const _PTR(SObject)& theFirst, _PTR(S
   return ret;
 }
 
+int SALOMEDS_UseCaseBuilder::GetIndexInFather(const _PTR(SObject)& theFather, const _PTR(SObject)& theChild)
+{
+  int ret;
+  SALOMEDS_SObject* father = dynamic_cast<SALOMEDS_SObject*>(theFather.get());
+  SALOMEDS_SObject* child = dynamic_cast<SALOMEDS_SObject*>(theChild.get());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    ret = _local_impl->GetIndexInFather(*(father->GetLocalImpl()), *(child->GetLocalImpl()));
+  }
+  else ret = _corba_impl->GetIndexInFather(father->GetCORBAImpl(), child->GetCORBAImpl());
+  return ret;
+}
+
 bool SALOMEDS_UseCaseBuilder::SetCurrentObject(const _PTR(SObject)& theObject)
 {
   bool ret;

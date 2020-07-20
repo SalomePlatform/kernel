@@ -67,6 +67,8 @@ public:
 
   virtual CORBA::Boolean AppendTo(SALOMEDS::SObject_ptr theFather, SALOMEDS::SObject_ptr theObject);
 
+  virtual CORBA::Long GetIndexInFather(SALOMEDS::SObject_ptr theFather, SALOMEDS::SObject_ptr theObject);
+
   virtual CORBA::Boolean InsertBefore(SALOMEDS::SObject_ptr theFirst, SALOMEDS::SObject_ptr theNext);
 
   virtual CORBA::Boolean  SetCurrentObject(SALOMEDS::SObject_ptr theObject);

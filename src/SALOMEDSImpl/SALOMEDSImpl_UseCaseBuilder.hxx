@@ -43,6 +43,10 @@ private:
   SALOMEDSImpl_AttributeTreeNode*     _root;
   DF_Document*                        _doc;
 
+  //[bos #19765] optimize inserting huge nb objects in the study
+  SALOMEDSImpl_AttributeTreeNode*     _lastChild;
+  int                                 _childIndex; // in C mode
+
 public:
 
   //! standard constructor  
@@ -58,6 +62,8 @@ public:
   virtual bool AppendTo(const SALOMEDSImpl_SObject& theFather, const SALOMEDSImpl_SObject& theObject);
 
   virtual bool InsertBefore(const SALOMEDSImpl_SObject& theFirst, const SALOMEDSImpl_SObject& theNext);
+
+  int GetIndexInFather(const SALOMEDSImpl_SObject& theFather, const SALOMEDSImpl_SObject& theObject);
 
   virtual bool  SetCurrentObject(const SALOMEDSImpl_SObject& theObject);
 

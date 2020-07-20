@@ -52,6 +52,7 @@ public:
   virtual bool Remove(const _PTR(SObject)& theObject);
   virtual bool AppendTo(const _PTR(SObject)& theFather, _PTR(SObject) theObject);
   virtual bool InsertBefore(const _PTR(SObject)& theFirst, _PTR(SObject) theNext);
+  virtual int GetIndexInFather(const _PTR(SObject)& theFather, const _PTR(SObject)& theObject);
   virtual bool  SetCurrentObject(const _PTR(SObject)& theObject);
   virtual bool SetRootCurrent();
   virtual bool  HasChildren(const _PTR(SObject)& theObject);

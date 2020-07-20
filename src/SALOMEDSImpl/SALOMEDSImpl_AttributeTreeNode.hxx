@@ -48,7 +48,7 @@ public:
   void SetFirst(const SALOMEDSImpl_AttributeTreeNode* value);
   void SetTreeID(const std::string& value);
 
-  bool Append(SALOMEDSImpl_AttributeTreeNode* value);  
+  bool Append(SALOMEDSImpl_AttributeTreeNode* value, int* childIndex = 0 );
   bool Prepend(SALOMEDSImpl_AttributeTreeNode* value);
   bool Remove();
   bool InsertBefore(SALOMEDSImpl_AttributeTreeNode* value);

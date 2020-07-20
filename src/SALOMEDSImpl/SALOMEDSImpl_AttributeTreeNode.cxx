@@ -64,8 +64,9 @@ const std::string& SALOMEDSImpl_AttributeTreeNode::ID() const
 //=======================================================================
 //function : Append
 //purpose  : Add <TN> as last child of me
+//return   : index of TN under this, in C mode
 //=======================================================================
-bool SALOMEDSImpl_AttributeTreeNode::Append (SALOMEDSImpl_AttributeTreeNode* TN)
+bool SALOMEDSImpl_AttributeTreeNode::Append (SALOMEDSImpl_AttributeTreeNode* TN, int* childIndex)
 {
   CheckLocked();
 
@@ -76,6 +77,7 @@ bool SALOMEDSImpl_AttributeTreeNode::Append (SALOMEDSImpl_AttributeTreeNode* TN)
   TN->SetNext(NULL); // Deconnects from next.
 
   // Find the last
+  int index = 0;
   if (!HasFirst()) {
     SetFirst(TN);
     TN->SetPrevious(NULL); // Deconnects from previous.
@@ -84,15 +86,20 @@ bool SALOMEDSImpl_AttributeTreeNode::Append (SALOMEDSImpl_AttributeTreeNode* TN)
     SALOMEDSImpl_AttributeTreeNode* Last = GetFirst();
     while (Last && Last->HasNext()) {
       Last = Last->GetNext();
+      ++index;
     }
     Last->SetNext(TN);
     TN->SetPrevious(Last);
+    ++index;
   }
   // Set Father
   TN->SetFather(this);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
-  
+
+  if ( childIndex )
+    *childIndex = index;
+
   return (TN);
 }
 

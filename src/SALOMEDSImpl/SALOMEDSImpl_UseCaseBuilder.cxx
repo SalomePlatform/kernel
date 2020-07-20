@@ -43,12 +43,12 @@ namespace {
     bool operator()( SALOMEDSImpl_SObject firstSO, SALOMEDSImpl_SObject secondSO ) const {
       std::string firstName, secondName;
       SALOMEDSImpl_SObject refSO;
-      firstSO.ReferencedObject(refSO) ? 
-	firstName = refSO.GetName() : 
-	firstName = firstSO.GetName();
-      secondSO.ReferencedObject(refSO) ? 
-	secondName = refSO.GetName() : 
-	secondName = secondSO.GetName();
+      firstSO.ReferencedObject(refSO) ?
+        firstName = refSO.GetName() :
+        firstName = firstSO.GetName();
+      secondSO.ReferencedObject(refSO) ?
+        secondName = refSO.GetName() :
+        secondName = secondSO.GetName();
       return firstName < secondName;
     }
   };
@@ -58,12 +58,12 @@ namespace {
     bool operator()( SALOMEDSImpl_SObject firstSO, SALOMEDSImpl_SObject secondSO ) const {
       std::string firstName, secondName;
       SALOMEDSImpl_SObject refSO;
-      firstSO.ReferencedObject(refSO) ? 
-	firstName = refSO.GetName() : 
-	firstName = firstSO.GetName();
-      secondSO.ReferencedObject(refSO) ? 
-	secondName = refSO.GetName() : 
-	secondName = secondSO.GetName();
+      firstSO.ReferencedObject(refSO) ?
+        firstName = refSO.GetName() :
+        firstName = firstSO.GetName();
+      secondSO.ReferencedObject(refSO) ?
+        secondName = refSO.GetName() :
+        secondName = secondSO.GetName();
       return firstName > secondName;
     }
   };
@@ -75,7 +75,7 @@ namespace {
  */
 //============================================================================
 SALOMEDSImpl_UseCaseBuilder::SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocument)
-:_doc(theDocument)
+  :_doc(theDocument), _lastChild(0), _childIndex(-1)
 {
   if(!_doc) return;
   
@@ -127,10 +127,11 @@ bool SALOMEDSImpl_UseCaseBuilder::Append(const SALOMEDSImpl_SObject& theObject)
   }  
 
   DF_Label aCurrent = aRef->Get();
-  if(aCurrent.IsNull() || !(aCurrentNode=(SALOMEDSImpl_AttributeTreeNode*)aCurrent.FindAttribute(_root->ID()))) 
+  if(aCurrent.IsNull() || !(aCurrentNode=(SALOMEDSImpl_AttributeTreeNode*)aCurrent.FindAttribute(_root->ID())))
     aCurrentNode = _root;
 
-  aCurrentNode->Append(aNode);
+  aCurrentNode->Append(aNode, &_childIndex);
+  _lastChild = aNode;
 
   // Mantis issue 0020136: Drag&Drop in OB
   SALOMEDSImpl_Study::GetStudyImpl(theObject.GetLabel())->addSO_Notification(theObject);
@@ -138,7 +139,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Append(const SALOMEDSImpl_SObject& theObject)
   return true;
 }
 
- //============================================================================
+//============================================================================
 /*! Function : Remove
  *  Purpose  :
  */
@@ -147,11 +148,14 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
 {
   if(!_root || !theObject) return false;
 
-  DF_Label aLabel = theObject.GetLabel();   
+  DF_Label aLabel = theObject.GetLabel();
   if(aLabel.IsNull()) return false;
 
   SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
   if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
+
+  if ( _lastChild && aNode->GetFather() == _lastChild->GetFather() )
+    _lastChild = 0;
 
   aNode->Remove();
 
@@ -160,13 +164,13 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
 
   SALOMEDSImpl_AttributeReference* aRef = NULL;
   if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
-    aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());  
-  }  
+    aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());
+  }
 
   DF_Label aCurrent = aRef->Get();
 
   SALOMEDSImpl_ChildNodeIterator aChildItr(aNode, true);
-  for(; aChildItr.More(); aChildItr.Next()) 
+  for(; aChildItr.More(); aChildItr.Next())
     aList.push_back(aChildItr.Value());
 
   for(int i = 0, len = aList.size(); i<len; i++) {
@@ -203,9 +207,24 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
     aNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, _root->ID());
   }
 
+  if ( aNode == _lastChild && !_lastChild->HasNext() && _lastChild->GetFather() == aFather )
+    return true; // aNode is already the last child
+
   aNode->Remove();
 
-  bool ret = aFather->Append(aNode);
+  bool ret = true;
+  if ( _lastChild && _lastChild->GetFather() == aFather &&
+       !_lastChild->HasNext() ) // _lastChild is the last under aFather
+  {
+    _lastChild->InsertAfter( aNode );
+    _lastChild = aNode;
+    ++_childIndex;
+  }
+  else
+  {
+    ret = aFather->Append(aNode, &_childIndex);
+    _lastChild  = aNode;
+  }
 
   // Mantis issue 0020136: Drag&Drop in OB
   SALOMEDSImpl_Study::GetStudyImpl(theObject.GetLabel())->addSO_Notification(theObject);
@@ -214,11 +233,69 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
 }
 
 //============================================================================
+/*! Function : GetIndexInFather
+ *  Purpose  :
+ */
+//============================================================================
+int SALOMEDSImpl_UseCaseBuilder::GetIndexInFather(const SALOMEDSImpl_SObject& theFather, 
+                                                  const SALOMEDSImpl_SObject& theObject)
+{
+  int index = -1;
+  if(!_root || !theFather || !theObject) return index;
+
+  DF_Label aFatherLabel = theFather.GetLabel(), aLabel = theObject.GetLabel();
+  if(aFatherLabel == aLabel) return index;
+
+  SALOMEDSImpl_AttributeTreeNode *aFather = NULL, *aNode = NULL;
+  
+  if(aFatherLabel.IsNull()) return index;
+  if(!(aFather=(SALOMEDSImpl_AttributeTreeNode*)aFatherLabel.FindAttribute(_root->ID()))) return index;
+
+  if(aLabel.IsNull()) return index;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) {
+    aNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, _root->ID());
+  }
+
+  if ( _lastChild && _lastChild->GetFather() == aFather )
+  {
+    if ( aNode == _lastChild )
+      index = _childIndex;
+    else if ( aNode == _lastChild->GetPrevious())
+      index = _childIndex - 1;
+    else if ( aNode == _lastChild->GetNext())
+    {
+      index = ++_childIndex;
+      _lastChild = aNode;
+    }
+  }
+
+  if ( index < 0 )
+  {
+    SALOMEDSImpl_AttributeTreeNode* Last = aFather->GetFirst();
+    for ( index = 0; Last && Last->HasNext(); ++index )
+    {
+      Last = Last->GetNext();
+      if ( aNode == Last )
+        break;
+    }
+    if ( Last != aNode )
+      index = -1;
+    else if ( !Last->HasNext() )
+    {
+      _lastChild = Last;
+      _childIndex = index;
+    }
+  }
+
+  return index;
+}
+
+//============================================================================
 /*! Function : InsertBefore
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFirst, 
+bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFirst,
                                                const SALOMEDSImpl_SObject& theNext)
 {
   if(!_root || !theFirst || !theNext) return false;
@@ -227,7 +304,7 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFi
   if(aFirstLabel == aLabel) return false;
 
   SALOMEDSImpl_AttributeTreeNode *aFirstNode = NULL, *aNode = NULL;
-  
+
   if(aFirstLabel.IsNull()) return false;
   if((aFirstNode=(SALOMEDSImpl_AttributeTreeNode*)aFirstLabel.FindAttribute(_root->ID()))) {
     aFirstNode->Remove();
@@ -235,13 +312,21 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFi
   }
 
   aFirstNode = SALOMEDSImpl_AttributeTreeNode::Set(aFirstLabel, _root->ID());
-  
+
   if(aLabel.IsNull()) return false;
-  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;    
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
 
   aFirstNode->Remove();
 
   bool ret = aNode->InsertBefore(aFirstNode);
+
+  if ( _lastChild && _lastChild->GetFather() == aNode->GetFather() )
+  {
+    if ( aNode == _lastChild )
+      ++_childIndex;
+    else
+      _lastChild = 0;
+  }
 
   // Mantis issue 0020136: Drag&Drop in OB
   SALOMEDSImpl_Study::GetStudyImpl(theFirst.GetLabel())->addSO_Notification(theFirst);
@@ -335,14 +420,15 @@ bool SALOMEDSImpl_UseCaseBuilder::SortChildren(const SALOMEDSImpl_SObject& theOb
   for ( SALOMEDSImpl_AttributeTreeNode* aChildNode=aNode->GetFirst(); aChildNode; aChildNode=aChildNode->GetNext() ) {
     if ( SALOMEDSImpl_SObject aSO = SALOMEDSImpl_Study::SObject( aChildNode->Label() ) ) {
       if ( aChildNode->FindAttribute( SALOMEDSImpl_AttributeReference::GetID() ) )
-	aRefSOs.push_back( aSO );      
+        aRefSOs.push_back( aSO );      
       else
-	aNodeSOs.push_back( aSO );
+        aNodeSOs.push_back( aSO );
     }
   }
   if ( aRefSOs.empty() && aNodeSOs.empty() ) return false;
 
- //sort items by names in ascending/descending order
+  //sort items by names in ascending/descending order
+  _lastChild = 0;
   std::list<SALOMEDSImpl_SObject>::iterator it;  
   if ( !aRefSOs.empty() ) {
     theAscendingOrder ? aRefSOs.sort( AscSortSOs() ) : aRefSOs.sort( DescSortSOs() );

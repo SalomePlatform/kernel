@@ -803,7 +803,7 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
     if (buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
 
 #ifdef WIN32    
-	// Force removing readonly attribute from a file under Windows, because of a but in the HDF
+    // Force removing readonly attribute from a file under Windows, because of a but in the HDF
     std::string aReadOlnyRmCmd = "attrib -r \"" + aStudyTmpDir + std::string(buffer)+ "\" > nul 2>&1";
 #ifdef UNICODE
     std::wstring awReadOlnyRmCmd = Kernel_Utils::utf8_decode_s(aReadOlnyRmCmd);

@@ -31,10 +31,10 @@
 { \
     while (myNode && (myNode->Depth() > myFirstLevel) && myNode->myNext == NULL) \
       myNode = myNode->myFather; \
-        if (myNode && (myNode->Depth() > myFirstLevel) && myNode->myFather != NULL) \
-          myNode = myNode->myNext; \
-        else \
-          myNode = NULL; \
+    if (myNode && (myNode->Depth() > myFirstLevel) && myNode->myFather != NULL) \
+      myNode = myNode->myNext;                                          \
+    else                                                                \
+      myNode = NULL;                                                    \
 }
 
 //=======================================================================

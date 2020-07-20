@@ -115,6 +115,21 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFath
 }
 
 //============================================================================
+/*! Function : GetIndexInFather
+ *  Purpose  :
+ */
+//============================================================================
+CORBA::Long SALOMEDS_UseCaseBuilder_i::GetIndexInFather(SALOMEDS::SObject_ptr theFather,
+                                                        SALOMEDS::SObject_ptr theObject)
+{
+  SALOMEDS::Locker lock;
+  if(!_impl || theFather->_is_nil() || theObject->_is_nil()) return -1;
+  CORBA::String_var idF = theFather->GetID();
+  CORBA::String_var idO = theObject->GetID();
+  return _impl->GetIndexInFather(_impl->GetSObject(idF.in()), _impl->GetSObject( idO.in()));
+}
+
+//============================================================================
 /*! Function : InsertBefore
  *  Purpose  :
  */
