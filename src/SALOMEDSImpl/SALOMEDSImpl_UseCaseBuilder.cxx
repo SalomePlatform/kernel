@@ -272,11 +272,9 @@ int SALOMEDSImpl_UseCaseBuilder::GetIndexInFather(const SALOMEDSImpl_SObject& th
   if ( index < 0 )
   {
     SALOMEDSImpl_AttributeTreeNode* Last = aFather->GetFirst();
-    for ( index = 0; Last && Last->HasNext(); ++index )
+    for ( index = 0; Last && aNode != Last && Last->HasNext(); ++index )
     {
       Last = Last->GetNext();
-      if ( aNode == Last )
-        break;
     }
     if ( Last != aNode )
       index = -1;
