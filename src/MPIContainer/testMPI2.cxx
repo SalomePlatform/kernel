@@ -58,8 +58,12 @@ int main(int argc, char**argv)
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 
   MPI_Barrier(MPI_COMM_WORLD);
-
+#if OMPI_MAJOR_VERSION >= 4
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#else
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
+
 #ifdef HAVE_MPI2
   MPI_Info_create(&info);
   MPI_Info_set(info, "ompi_unique", "true");
@@ -105,7 +109,11 @@ int main(int argc, char**argv)
       exit(1);
     }
   }
+#if OMPI_MAJOR_VERSION >= 4
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+#else
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+#endif
   MPI_Bcast(&srv,1,MPI_INT,0,MPI_COMM_WORLD);
   if ( srv )
     MPI_Comm_accept( port_name, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &icom );

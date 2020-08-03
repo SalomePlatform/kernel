@@ -260,11 +260,19 @@ SALOME::MPISender::param* SALOME_MPISender_i::getParam()
   service += stag;
   p->service = CORBA::string_dup(service.c_str());
   MPI_Open_port(MPI_INFO_NULL, _portName);
-  MPI_Errhandler_set(MPI_COMM_WORLD,MPI_ERRORS_RETURN);
+#if OMPI_MAJOR_VERSION >= 4
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#else
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
   while ( i != TIMEOUT  && MPI_Publish_name((char*)service.c_str(),MPI_INFO_NULL,_portName) != MPI_SUCCESS) {
     i++;
-  } 
-  MPI_Errhandler_set(MPI_COMM_WORLD,MPI_ERRORS_ARE_FATAL);
+  }
+#if OMPI_MAJOR_VERSION >= 4
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+#else 
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+#endif
   if ( i == TIMEOUT  ) { 
     MPI_Close_port(_portName);
     MPI_Finalize();

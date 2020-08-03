@@ -153,8 +153,11 @@ void MPIObject_i::remoteMPI2Connect(std::string service)
   _srv[service] = false;
 
   MPI_Barrier(MPI_COMM_WORLD);
-
+#if OMPI_MAJOR_VERSION >= 4
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#else
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
   MPI_Info_create(&info);
   MPI_Info_set(info, "ompi_unique", "true");
   if( _numproc == 0 )
@@ -203,7 +206,11 @@ void MPIObject_i::remoteMPI2Connect(std::string service)
           throw SALOME_Exception(msg.str().c_str());
         }
     }
+#if OMPI_MAJOR_VERSION >= 4
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+#else
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+#endif
   
   /* If rank 0 is server, all processes call MPI_Comm_accept */
   /* If rank 0 is not server, all processes call MPI_Comm_connect */
