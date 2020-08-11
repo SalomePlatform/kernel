@@ -70,7 +70,7 @@ int SALOMEDS_IParameters::append(const std::string& listName, const std::string&
   v = _ap->GetStrArray(listName);
   v.push_back(value);
   _ap->SetStrArray(listName, v);
-  return (v.size()-1);
+  return (int)(v.size()-1); //!< TODO: conversion from size_t to int
 }
 
 int SALOMEDS_IParameters::nbValues(const std::string& listName)
@@ -78,7 +78,7 @@ int SALOMEDS_IParameters::nbValues(const std::string& listName)
   if(!_ap) return -1;
   if(!_ap->IsSet(listName, PT_STRARRAY)) return 0;
   std::vector<std::string> v = _ap->GetStrArray(listName);
-  return v.size();
+  return (int)v.size(); //!< TODO: conversion from size_t to int
 }
 
 std::vector<std::string> SALOMEDS_IParameters::getValues(const std::string& listName)
@@ -95,7 +95,7 @@ std::string SALOMEDS_IParameters::getValue(const std::string& listName, int inde
   if(!_ap) return "";
   if(!_ap->IsSet(listName, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(listName);
-  if(index >= v.size()) return ""; 
+  if(index >= (int)v.size()) return "";  //TODO: mismatch signed/unsigned
   return v[index];
 }
 
@@ -126,7 +126,7 @@ std::string SALOMEDS_IParameters::getParameter(const std::string& entry, const s
   if(!_ap) return "";
   if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(entry);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   for(int i = 0; i<length; i+=1) {
     if(v[i] == parameterName) return v[i+1];
   }
@@ -140,7 +140,7 @@ std::vector<std::string> SALOMEDS_IParameters::getAllParameterNames(const std::s
   if(!_ap) return v; 
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   for(int i = 0; i<length; i+=2) {
     names.push_back(v[i]);
   }
@@ -153,7 +153,7 @@ std::string SALOMEDS_IParameters::getIdParameter(const std::string& entry)
   if(!_ap) return "";
   if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(entry);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   for(int i = 0; i<length; i+=1) {
     if(v[i] == _PT_ID_) return v[i+1];
   }
@@ -180,7 +180,7 @@ std::vector<std::string> SALOMEDS_IParameters::getAllParameterValues(const std::
   if(!_ap) return v; 
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   for(int i = 1; i<length; i+=2) {
     values.push_back(v[i]);
   }
@@ -191,7 +191,7 @@ int SALOMEDS_IParameters::getNbParameters(const std::string& entry)
 {
   if(!_ap) return -1;
   if(!_ap->IsSet(entry, PT_STRARRAY)) return -1;
-  return  _ap->GetStrArray(entry).size()/2;
+  return  (int)(_ap->GetStrArray(entry).size()/2); //!< TODO: conversion from size_t to int
 }
 
 std::vector<std::string> SALOMEDS_IParameters::getEntries()
@@ -232,8 +232,8 @@ std::vector<std::string> SALOMEDS_IParameters::parseValue(const std::string& val
   std::string val(value);
   std::vector<std::string> v;
   int pos;
-  if(fromEnd) pos = val.rfind(separator);
-  else pos = val.find(separator);
+  if(fromEnd) pos = (int)val.rfind(separator); //!< TODO: conversion from size_t to int
+  else pos = (int)val.find(separator); //!< TODO: conversion from size_t to int
 
   if(pos < 0) {
     v.push_back(value);
@@ -258,8 +258,8 @@ std::string SALOMEDS_IParameters::encodeEntry(const std::string& entry, const st
 
 std::string SALOMEDS_IParameters::decodeEntry(const std::string& entry)
 {
-  int pos = entry.rfind("_");
-  if(pos < 0 || pos >= entry.length()) return entry;
+  int pos = (int)entry.rfind("_"); //!< TODO: conversion from size_t to int
+  if(pos < 0 || pos >= (int)entry.length()) return entry; //TODO: mismatch signed/unsigned
 
   std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   

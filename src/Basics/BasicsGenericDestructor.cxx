@@ -59,8 +59,7 @@ void PROTECTED_DELETE::deleteInstance(PROTECTED_DELETE *anObject)
       return;
     else
       {
-        int ret;
-        ret = pthread_mutex_lock(&_listMutex); // acquire lock, an check again
+        pthread_mutex_lock(&_listMutex); // acquire lock, an check again
         if (std::find(_objList.begin(), _objList.end(), anObject)
             != _objList.end())
           {
@@ -69,7 +68,7 @@ void PROTECTED_DELETE::deleteInstance(PROTECTED_DELETE *anObject)
             DEVTRACE("PROTECTED_DELETE::deleteInstance2 " << &_objList);
             _objList.remove(anObject);
           }
-        ret = pthread_mutex_unlock(&_listMutex); // release lock
+        pthread_mutex_unlock(&_listMutex); // release lock
       }
   }
 
@@ -186,7 +185,7 @@ void HouseKeeping( void )
  */
 // ============================================================================
 
-const int GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject)
+int GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject)
 {
   DEVTRACE("GENERIC_DESTRUCTOR::Add("<<typeid(anObject).name()<<") "
            << &anObject);

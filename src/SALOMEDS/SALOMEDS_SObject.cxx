@@ -226,7 +226,7 @@ std::vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
   if (_isLocal) {
     SALOMEDS::Locker lock;
     std::vector<DF_Attribute*> aSeq = _local_impl->GetAllAttributes();
-    aLength = aSeq.size();
+    aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
     for (int i = 0; i < aLength; i++) {
       anAttr = SALOMEDS_GenericAttribute::CreateAttribute(dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i]));
       aVector.push_back(_PTR(GenericAttribute)(anAttr));

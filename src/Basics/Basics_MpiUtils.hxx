@@ -1,5 +1,8 @@
 // Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
@@ -17,18 +20,19 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  File   : CalciumCxxInterface.cxx
-//  Author : Eric Fayolle (EDF)
-//  Module : KERNEL
-// Modified by : $LastChangedBy$
-// Date        : $LastChangedDate: 2007-03-01 13:27:58 +0100 (jeu, 01 mar 2007) $
-// Id          : $Id$
-//
-#include "CalciumCxxInterface.hxx"
-#define PRG_MAIN
-#include "calciumP.h"
+#ifndef BASICS_MPIUTILS_HXX
+#define BASICS_MPIUTILS_HXX
 
-namespace CalciumInterface 
-{
-}
+#ifdef HAVE_MPI2
+#include "mpi.h"
+#endif
 
+#if !defined(MPI_ERROR_HANDLER)
+#  if MPI_VERSION >= 2
+#    define MPI_ERROR_HANDLER(var) MPI_Comm_set_errhandler(MPI_COMM_WORLD, var)
+#  else
+#    define MPI_ERROR_HANDLER(var) MPI_Errhandler_set(MPI_COMM_WORLD, var)
+#  endif
+#endif
+
+#endif // BASICS_MPIUTILS_HXX

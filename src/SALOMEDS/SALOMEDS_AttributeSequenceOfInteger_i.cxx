@@ -43,9 +43,9 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeSequenceOfInteger_i::CorbaSequence()
   SALOMEDS::Locker lock;
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
   const std::vector<int>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Array();
-  int len = CasCadeSeq.size();
+  size_t len = CasCadeSeq.size();
   CorbaSeq->length(len);
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     CorbaSeq[i] = CasCadeSeq[i];
   }
   return CorbaSeq._retn();

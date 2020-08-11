@@ -39,7 +39,7 @@ namespace SALOMESDS
       {
           id=poa->activate_object(this);
       }
-      catch(PortableServer::POA::ServantAlreadyActive& e)
+      catch(PortableServer::POA::ServantAlreadyActive& /*e*/) //!< TODO: unused variables
       {
           id=poa->servant_to_id(this);
       }
@@ -82,7 +82,7 @@ namespace SALOMESDS
   };
 
   template<class T, class U>
-  typename SALOMESDS::AutoRefCountPtr<U> DynamicCast(typename SALOMESDS::AutoRefCountPtr<T>& autoSubPtr) throw()
+  typename SALOMESDS::AutoRefCountPtr<U> DynamicCast(typename SALOMESDS::AutoRefCountPtr<T>& autoSubPtr)
   {
     T *subPtr(autoSubPtr);
     U *ptr(dynamic_cast<U *>(subPtr));

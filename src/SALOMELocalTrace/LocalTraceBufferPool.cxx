@@ -80,8 +80,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 {
   if (_singleton == 0) // no need of lock when singleton already exists
     {
-      int ret;
-      ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+      pthread_mutex_lock(&_singletonMutex);    // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
         {                                      // the lock after the first test
           DEVTRACE("New buffer pool");
@@ -153,7 +152,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
             }
           DEVTRACE("New buffer pool: end");
         }
-      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+      pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
 }
@@ -332,25 +331,24 @@ LocalTraceBufferPool::LocalTraceBufferPool()
 
 LocalTraceBufferPool::~LocalTraceBufferPool()
 {
-  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
       DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()");
       delete (_myThreadTrace);
       _myThreadTrace = 0;
-      int ret;
 #ifdef __APPLE__
       dispatch_release(_freeBufferSemaphore);
       dispatch_release(_fullBufferSemaphore);
 #else
-      ret=sem_destroy(&_freeBufferSemaphore);
-      ret=sem_destroy(&_fullBufferSemaphore);
+      sem_destroy(&_freeBufferSemaphore);
+      sem_destroy(&_fullBufferSemaphore);
 #endif
-      ret=pthread_mutex_destroy(&_incrementMutex);
+      pthread_mutex_destroy(&_incrementMutex);
       DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()-end");
       _singleton = 0;
     }
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+  pthread_mutex_unlock(&_singletonMutex); // release lock
 }
 
 // ============================================================================
@@ -361,9 +359,8 @@ LocalTraceBufferPool::~LocalTraceBufferPool()
 
 unsigned long LocalTraceBufferPool::lockedIncrement(unsigned long& pos)
 {
-  int ret;
-  ret = pthread_mutex_lock(&_incrementMutex);   // lock access to counters
+  pthread_mutex_lock(&_incrementMutex);   // lock access to counters
   unsigned long mypos = ++pos;
-  ret = pthread_mutex_unlock(&_incrementMutex); // release lock
+  pthread_mutex_unlock(&_incrementMutex); // release lock
   return mypos;
 }

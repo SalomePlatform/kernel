@@ -93,6 +93,7 @@ void KernelHelpersUnitTests::TEST_getSalomeLauncher() {
   Engines::SalomeLauncher_var salomeLauncher = KERNEL::getSalomeLauncher();
   try {
     int pid = salomeLauncher->getPID();
+    SALOME_UNUSED(pid); // unused in release mode
     LOG("SALOME launcher PID = " << pid);
   }
   catch (const SALOME::SALOME_Exception & ex) {

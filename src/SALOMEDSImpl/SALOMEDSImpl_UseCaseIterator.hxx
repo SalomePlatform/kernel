@@ -54,7 +54,7 @@ public:
     const bool allLevels);
 
   //! standard destructor
-  ~SALOMEDSImpl_UseCaseIterator();
+  virtual ~SALOMEDSImpl_UseCaseIterator();
 
   virtual void Init(bool);
   virtual bool More();

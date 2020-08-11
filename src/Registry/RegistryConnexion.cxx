@@ -40,11 +40,9 @@ extern "C"
 # include <stdio.h>
 }
 
-Registry::Components_var Connexion( int argc , char **argv , const char *ptrSessionName ) throw( CommException )
+Registry::Components_var Connexion( int argc , char **argv , const char */*ptrSessionName*/ )
 {
         Registry::Components_var varComponents = 0 ;
-        ASSERT(ptrSessionName) ;
-        ASSERT(strlen(ptrSessionName)>0) ;
         const char *registryName = "Registry" ;
 
         try
@@ -116,18 +114,18 @@ void RegistryConnexion::add( const char *aName )
         const Identity lesInfos( aName ) ;
         Registry::Infos infos ;
                 infos.name        = CORBA::string_dup( lesInfos.name() ) ;
-                infos.pid        = lesInfos.pid() ;
-                infos.machine        = CORBA::string_dup( lesInfos.host_char() ) ;
+                infos.pid         = lesInfos.pid() ;
+                infos.machine     = CORBA::string_dup( lesInfos.host_char() ) ;
                 infos.adip        = CORBA::string_dup( lesInfos.adip() ) ;
-                infos.uid        = (long)lesInfos.uid() ;
-                infos.pwname        = CORBA::string_dup( lesInfos.pwname() ) ;
-                infos.tc_start        = lesInfos.start() ;
-                infos.tc_hello        = 0 ;
-                infos.tc_end        = 0 ;
-                infos.difftime        = 0 ;
+                infos.uid         = (CORBA::Long)lesInfos.uid() ; //!< TODO: pointer truncation from const PSID to long
+                infos.pwname      = CORBA::string_dup( lesInfos.pwname() ) ;
+                infos.tc_start    = (CORBA::Long)lesInfos.start() ; //!< TODO: conversation from const time_t to CORBA::Long
+                infos.tc_hello    = 0 ;
+                infos.tc_end      = 0 ;
+                infos.difftime    = 0 ;
                 infos.cdir        = CORBA::string_dup( lesInfos.rep() ) ;
-                infos.status        = -1 ;
-                infos.ior        = CORBA::string_dup(_Ior);
+                infos.status      = -1 ;
+                infos.ior         = CORBA::string_dup(_Ior);
 
         ASSERT(!CORBA::is_nil(this->_VarComponents)) ;
 

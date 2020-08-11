@@ -32,7 +32,7 @@
 
 #include <iostream>
 
-herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+herr_t dataset_attr(hid_t /*loc_id*/, const char *attr_name, void *operator_data)
 {
   *(char**)operator_data = new char[strlen(attr_name)+1];
   strcpy(*(char**)operator_data, attr_name);
@@ -169,9 +169,9 @@ hdf_size HDFdataset::GetSize()
 {
   int size_type;
 
-  if (_size == -1)
+  if ((long)_size == -1)
     {
-      if ((_size = HDFdatasetGetSize(_id)) < 0)
+      if ((long)(_size = HDFdatasetGetSize(_id)) < 0)
 	throw HDFexception("Can't determine the size of the dataset");
       
       if (_type == HDF_NONE)

@@ -210,8 +210,8 @@ public:
   ~SALOME_SocketSender_i();
   SALOME::SocketSender::param* getParam();
   void send();
-  void initCom() throw(SALOME::SALOME_Exception);
-  void acceptCom() throw(SALOME::SALOME_Exception);
+  void initCom();
+  void acceptCom();
   void endOfCom();
   void closeCom();
 private:

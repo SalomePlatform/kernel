@@ -31,16 +31,14 @@ PortProperties_i::PortProperties_i() {}
 PortProperties_i::~PortProperties_i() {}
 
 void
-PortProperties_i::set_property(const char * name, const CORBA::Any& value)
-  throw (Ports::NotDefined, Ports::BadType)
+PortProperties_i::set_property(const char* /*name*/, const CORBA::Any& /*value*/)
 {
   // Default case, the object has no properties.
   throw Ports::NotDefined();
 }
 
 CORBA::Any* 
-PortProperties_i::get_property(const char* name)
-  throw (Ports::NotDefined)
+PortProperties_i::get_property(const char* /*name*/)
 {
   // Default case, the object has no properties.
   throw Ports::NotDefined();

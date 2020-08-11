@@ -95,7 +95,7 @@ void DF_Document::Clear()
     if(node) vn.push_back(node);
   }
 
-  for(int i = 0, len = vn.size(); i<len; i++)
+  for(size_t i = 0, len = vn.size(); i<len; i++)
     delete vn[i];
 
   _root._node->Reset();
@@ -130,7 +130,7 @@ void DF_Document::SetModified(bool isModified)
 
 
 //Restores a content of the Document from the std::string theData
-void DF_Document::Load(const std::string& theData)
+void DF_Document::Load(const std::string& /*theData*/)
 {
    //Not implemented
 }

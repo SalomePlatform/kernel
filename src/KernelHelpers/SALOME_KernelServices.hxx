@@ -93,6 +93,9 @@ namespace KERNEL {
 // We can use the macros defined by SALOMELocalTrace/utilities.h
 #include "utilities.h"
 #define SALOMELOG(msg) {MESS_BEGIN("[XSALOME]") << msg << MESS_END}
+#ifdef LOG
+#undef LOG
+#endif
 #define LOG SALOMELOG
 
 #include "Utils_CorbaException.hxx"

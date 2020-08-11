@@ -216,7 +216,7 @@ void SALOMEDS_AttributeParameter::SetRealArray(const std::string& theID, const s
   }
   else {
     SALOMEDS::DoubleSeq_var aSeq = new SALOMEDS::DoubleSeq;
-    int length = theArray.size();
+    int length = (int)theArray.size(); //!< TODO: conversion from size_t to int
     if(length) {
       aSeq->length(length);
       for(int i = 0; i<length; i++) aSeq[i] = theArray[i];
@@ -265,7 +265,7 @@ void SALOMEDS_AttributeParameter::SetIntArray(const std::string& theID, const st
   }
   else {
     SALOMEDS::LongSeq_var aSeq = new SALOMEDS::LongSeq;
-    int length = theArray.size();
+    int length = (int)theArray.size(); //!< TODO: conversion from size_t to int
     if(length) {
       aSeq->length(length);
       for(int i = 0; i<length; i++) aSeq[i] = theArray[i];
@@ -314,7 +314,7 @@ void SALOMEDS_AttributeParameter::SetStrArray(const std::string& theID, const st
   }
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq;
-    int length = theArray.size();
+    int length = (int)theArray.size(); //!< TODO: conversion from size_t to int
     if(length) {
       aSeq->length(length);
       for(int i = 0; i<length; i++) aSeq[i] = CORBA::string_dup(theArray[i].c_str());

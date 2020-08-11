@@ -39,7 +39,7 @@
 
 #ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
-#pragma warning(disable:4290) // Warning Exception ...
+//#pragma warning(disable:4290) // Warning Exception ...
 #endif
 
 /*!
@@ -57,7 +57,7 @@ public :
         ORB_INIT( void );
         virtual ~ORB_INIT();
         void explicit_destroy();
-        CORBA::ORB_var & operator() ( int argc , char **argv ) throw( CommException ) ;
+        CORBA::ORB_var & operator() ( int argc , char **argv );
 
         inline CORBA::ORB_var &orb( void );
 } ;

@@ -22,6 +22,7 @@
 
 #include "omniORB4/poa.h"
 #include "utilities.h"
+#include "Basics_MpiUtils.hxx"
 
 #define TAILLE_SPLIT 100000
 #define TIMEOUT 20
@@ -182,19 +183,11 @@ T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   SALOME::MPISender::param_var p =_mySender->getParam();
   _mySender->send();
   sproc = p->myproc;
-#if OMPI_MAJOR_VERSION >= 4
-  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#else
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#endif
+  MPI_ERROR_HANDLER(MPI_ERRORS_RETURN);
   while ( i != TIMEOUT  && MPI_Lookup_name((char*)p->service,MPI_INFO_NULL,port_name_clt) != MPI_SUCCESS) { 
     i++;
   }
-#if OMPI_MAJOR_VERSION >= 4
-  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#else
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#endif
+  MPI_ERROR_HANDLER(MPI_ERRORS_ARE_FATAL);
   if ( i == TIMEOUT  ) { 
     MPI_Finalize();
     exit(-1);
@@ -207,20 +200,12 @@ T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
     
     //      TIMEOUT is inefficient since MPI_Comm_Connect doesn't return if we asked for
     //        a service that has been unpublished !
-#if OMPI_MAJOR_VERSION >= 4
-    MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#else
-    MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#endif
+    MPI_ERROR_HANDLER(MPI_ERRORS_RETURN);
     i = 0;
     while ( i != TIMEOUT  &&  MPI_Comm_connect(port_name_clt, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &com)!=MPI_SUCCESS ) { 
       i++; 
     }
-#if OMPI_MAJOR_VERSION >= 4
-    MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#else 
-    MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#endif
+    MPI_ERROR_HANDLER(MPI_ERRORS_ARE_FATAL);
     if ( i == TIMEOUT ) {
       MPI_Finalize(); 
       exit(-1);

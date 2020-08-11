@@ -43,6 +43,7 @@ SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent()
  */
 //============================================================================
 SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent(const SALOMEDSImpl_SComponent& theSCO)
+: SALOMEDSImpl_SObject()
 {
   _lab   = theSCO._lab;
   _value = theSCO._value;

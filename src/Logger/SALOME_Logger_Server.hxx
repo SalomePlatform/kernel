@@ -57,11 +57,11 @@ class LOGGER_EXPORT Logger :
 public:
         //constructor w/o parameters
         //all messages will be put into terminal via cout
-        Logger();
+		Logger();
         //constructor with parameter, filename is output file
         //all messages will be put into special file passed as parameter
         Logger(const char *filename);
-        virtual ~Logger();
+		virtual ~Logger();
         //put message into one special place for all servers
         void putMessage(const char* message);
         void ping();
@@ -73,7 +73,6 @@ private:
         bool m_putIntoFile;
         //ofstream class specialized for disk file output
         std::ofstream m_outputFile; 
-
         //synchronisation object
         static omni_mutex myLock;
 

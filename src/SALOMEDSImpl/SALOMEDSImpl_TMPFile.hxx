@@ -32,6 +32,8 @@ struct SALOMEDSIMPL_EXPORT SALOMEDSImpl_TMPFile
   typedef unsigned char TOctet;
   //typedef unsigned int  size_t;
 
+  virtual ~SALOMEDSImpl_TMPFile() {}
+
   virtual size_t Size() = 0;
 
   virtual TOctet* Data();

@@ -42,7 +42,7 @@ SALOMEDS_AttributeSequenceOfReal::~SALOMEDS_AttributeSequenceOfReal()
 
 void SALOMEDS_AttributeSequenceOfReal::Assign(const std::vector<double>& other)
 {
-  int i, aLength = other.size();
+  int i, aLength = (int)other.size(); //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
@@ -70,7 +70,7 @@ std::vector<double> SALOMEDS_AttributeSequenceOfReal::CorbaSequence()
   else {
     SALOMEDS::AttributeSequenceOfReal_var aSeqAttr = SALOMEDS::AttributeSequenceOfReal::_narrow(_corba_impl);
     aLength = aSeqAttr->Length();
-    for (i = 1; i <=aLength; i++) aVector.push_back(aSeqAttr->Value(i));
+    for (i = 1; i <=aLength; i++) aVector.push_back(aSeqAttr->Value((CORBA::Short)i)); //!< TODO: conversion from int to CORBA::Short
   }
   return aVector;
 }
@@ -112,7 +112,7 @@ double SALOMEDS_AttributeSequenceOfReal::Value(int index)
     SALOMEDS::Locker lock; 
     aValue = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_local_impl)->Value(index);
   }
-  else aValue = SALOMEDS::AttributeSequenceOfReal::_narrow(_corba_impl)->Value(index);
+  else aValue = SALOMEDS::AttributeSequenceOfReal::_narrow(_corba_impl)->Value((CORBA::Short)index); //!< TODO: conversion from int to CORBA::Short
   return aValue;
 }
 

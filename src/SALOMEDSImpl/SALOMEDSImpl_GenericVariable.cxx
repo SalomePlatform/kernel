@@ -142,6 +142,6 @@ std::string SALOMEDSImpl_GenericVariable::SaveType() const
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_GenericVariable::Load(const std::string& theStrValue)
+void SALOMEDSImpl_GenericVariable::Load(const std::string& /*theStrValue*/)
 {
 }

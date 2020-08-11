@@ -132,9 +132,9 @@ void ResourceDataToSort::Print() const
 
 
 ParserResourcesType::ParserResourcesType()
-: type(single_machine),
-  Protocol(ssh),
+: Protocol(ssh),
   ClusterInternalProtocol(ssh),
+  type(single_machine),
   Batch(none),
   mpi(nompi),
   nbOfProc(1),

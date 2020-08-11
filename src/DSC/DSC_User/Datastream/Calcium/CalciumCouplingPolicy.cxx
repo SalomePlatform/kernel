@@ -33,14 +33,14 @@ CalciumCouplingPolicy::CalciumCouplingPolicy():_dependencyType(CalciumTypes::UND
                                                _interpolationSchem(CalciumTypes::L1_SCHEM),
                                                _extrapolationSchem(CalciumTypes::UNDEFINED_EXTRA_SCHEM),
                                                _alpha(0.0),_deltaT(CalciumTypes::EPSILON),
-                                               _disconnectDirective(CalciumTypes::UNDEFINED_DIRECTIVE){};
+                                               _disconnectDirective(CalciumTypes::UNDEFINED_DIRECTIVE){}
 
 void CalciumCouplingPolicy::setDependencyType (CalciumTypes::DependencyType dependencyType) {_dependencyType=dependencyType;}
 CalciumTypes::DependencyType CalciumCouplingPolicy::getDependencyType () const              { return _dependencyType;}
  
 void   CalciumCouplingPolicy::setStorageLevel   (size_t         storageLevel)   {
   MESSAGE( "CalciumCouplingPolicy::setStorageLevel: " << storageLevel );
-  if ( storageLevel < 1 && (storageLevel != CalciumTypes::UNLIMITED_STORAGE_LEVEL)  )
+  if ( storageLevel < 1 && (storageLevel != (size_t)CalciumTypes::UNLIMITED_STORAGE_LEVEL)  )
     throw CalciumException(CalciumTypes::CPRENA,LOC("StorageLevel < 1 is not allowed"));
   _storageLevel = storageLevel;
 }
@@ -88,8 +88,8 @@ void CalciumCouplingPolicy::setExtrapolationSchem (CalciumTypes::ExtrapolationSc
 _extrapolationSchem=extrapolationSchem;
 }
 
-CalciumTypes::InterpolationSchem CalciumCouplingPolicy::getInterpolationSchem () const { return _interpolationSchem; };
-CalciumTypes::ExtrapolationSchem CalciumCouplingPolicy::getExtrapolationSchem () const { return _extrapolationSchem; };
+CalciumTypes::InterpolationSchem CalciumCouplingPolicy::getInterpolationSchem () const { return _interpolationSchem; }
+CalciumTypes::ExtrapolationSchem CalciumCouplingPolicy::getExtrapolationSchem () const { return _extrapolationSchem; }
 
 
 CalciumCouplingPolicy::TimeType 

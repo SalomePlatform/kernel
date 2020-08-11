@@ -34,7 +34,7 @@ public:
   //Constructor
   Standard_EXPORT DF_Document(const std::string& theDocumentType);
 
-  Standard_EXPORT ~DF_Document();
+  Standard_EXPORT virtual ~DF_Document();
 
   Standard_EXPORT DF_Application* GetApplication();    
 

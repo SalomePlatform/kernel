@@ -47,7 +47,7 @@ template <bool zerocopy, typename DataManipulator >
 struct Copy2UserSpace{
   
   template <class T1, class T2>
-  static void apply( T1 * & data, T2 & corbaData, size_t nRead ){
+  static void apply( T1 * & data, T2 & corbaData, size_t /*nRead*/ ){
 
      typedef typename DataManipulator::InnerType       InnerType;
 
@@ -161,7 +161,7 @@ struct Copy2UserSpace<false, DataManipulator> {
 template <bool rel, typename DataManipulator >
 struct DeleteTraits {
   template <typename T> 
-  static void apply(T * dataPtr) {
+  static void apply(T * /*dataPtr*/) {
 
     typedef typename DataManipulator::Type         DataType; // Attention != T
     

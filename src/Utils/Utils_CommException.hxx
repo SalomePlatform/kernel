@@ -39,7 +39,7 @@ public :
         CommException( void );
         CommException( const char *texte );
         CommException( const CommException &ex );
-        ~CommException() throw ();
+        ~CommException() noexcept;
 } ;
 
 # endif /* # if ( !defined __Utils_CommException_H__ ) */

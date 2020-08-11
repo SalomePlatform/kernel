@@ -31,8 +31,7 @@
 class RESOURCESMANAGER_EXPORT LoadRateManager
 {
   public:
-    virtual std::string Find(const std::vector<std::string>& hosts,
-                             const MapOfParserResourcesType& resList) { return ""; }
+    virtual std::string Find(const std::vector<std::string>& /*hosts*/, const MapOfParserResourcesType& /*resList*/) { return ""; }
 };
 
 class RESOURCESMANAGER_EXPORT LoadRateManagerFirst : public LoadRateManager

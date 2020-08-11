@@ -92,7 +92,7 @@ std::string SALOMEDS_AttributeTableOfInteger::GetRowTitle(int theIndex)
 
 void SALOMEDS_AttributeTableOfInteger::SetRowTitles(const std::vector<std::string>& theTitles)
 {
-  int aLength = theTitles.size(), i;
+  int aLength = (int)theTitles.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -155,7 +155,7 @@ std::string SALOMEDS_AttributeTableOfInteger::GetColumnTitle(int theIndex)
 
 void SALOMEDS_AttributeTableOfInteger::SetColumnTitles(const std::vector<std::string>& theTitles)
 {
-  int aLength = theTitles.size(), i;
+  int aLength = (int)theTitles.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -217,7 +217,7 @@ std::string SALOMEDS_AttributeTableOfInteger::GetRowUnit(int theIndex)
 
 void SALOMEDS_AttributeTableOfInteger::SetRowUnits(const std::vector<std::string>& theUnits)
 {
-  int aLength = theUnits.size(), i;
+  int aLength = (int)theUnits.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -272,7 +272,7 @@ int SALOMEDS_AttributeTableOfInteger::GetNbColumns()
 
 void SALOMEDS_AttributeTableOfInteger::AddRow(const std::vector<int>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -294,7 +294,7 @@ void SALOMEDS_AttributeTableOfInteger::AddRow(const std::vector<int>& theData)
 
 void SALOMEDS_AttributeTableOfInteger::SetRow(int theRow, const std::vector<int>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -333,7 +333,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetRow(int theRow)
 
 void SALOMEDS_AttributeTableOfInteger::AddColumn(const std::vector<int>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -355,7 +355,7 @@ void SALOMEDS_AttributeTableOfInteger::AddColumn(const std::vector<int>& theData
 
 void SALOMEDS_AttributeTableOfInteger::SetColumn(int theColumn, const std::vector<int>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;

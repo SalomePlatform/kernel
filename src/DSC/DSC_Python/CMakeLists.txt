@@ -17,7 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
 SET_SOURCE_FILES_PROPERTIES(calcium.i PROPERTIES CPLUSPLUS ON)

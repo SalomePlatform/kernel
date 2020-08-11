@@ -40,8 +40,8 @@ class SALOME_SenderInt_i;
 class COMMUNICATION_EXPORT SenderFactory
 {
 public:
-  static SALOME::SenderDouble_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab=false) throw(MultiCommException);
-  static SALOME::SenderInt_ptr buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab=false) throw(MultiCommException);
+  static SALOME::SenderDouble_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab=false);
+  static SALOME::SenderInt_ptr buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab=false);
   static SALOME::SenderDouble_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderDouble_i *src);
   static SALOME::SenderInt_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderInt_i *src);
 };

@@ -70,13 +70,13 @@ void PickelizedPyObjServer::checkKeyPresent(PyObject *key)
   checkKeyPresence(key,true);
 }
 
-void PickelizedPyObjServer::addKeyValueHard(PyObject *key, PyObject *value)
+void PickelizedPyObjServer::addKeyValueHard(PyObject * /*key*/, PyObject * /*value*/)
 {
   std::ostringstream oss; oss << "PickelizedPyObjServer::addKeyValueHard : var \"" << getVarNameCpp() << "\" is not permitted to alter its value !";
   throw Exception(oss.str());
 }
 
-void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
+void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject * /*key*/)
 {
   std::ostringstream oss; oss << "PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting : var \"" << getVarNameCpp() << "\" is not permitted to alter its value !";
   throw Exception(oss.str());
@@ -88,16 +88,16 @@ void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, 
   ret.resize(sz,' ');
   char *buf(const_cast<char *>(ret.c_str()));
   for(std::size_t i=0;i<sz;i++)
-    buf[i]=bsToBeConv[i];
+    buf[i]=bsToBeConv[(CORBA::ULong)i]; //!< TODO: size_t to CORBA::ULong
 }
 
 void PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv, SALOME::ByteVec& ret)
 {
   const char *buf(strToBeConv.c_str());
   std::size_t sz(strToBeConv.size());
-  ret.length(sz);
+  ret.length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
   for(std::size_t i=0;i<sz;i++)
-    ret[i]=buf[i];
+    ret[(CORBA::ULong)i]=buf[i]; //!< TODO: size_t to CORBA::ULong
 }
 
 SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv)

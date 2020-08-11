@@ -168,11 +168,11 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
 
 template <typename DataManipulator, class EnableIf >
 struct CalciumCouplingPolicy::BoundedDataIdProcessor{
-  BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
+  BoundedDataIdProcessor(const CouplingPolicy & /*couplingPolicy*/) {};
   template < typename Iterator, typename DataId > 
-  void inline apply(typename iterator_t<Iterator>::value_type & data,
-                    const DataId & dataId,
-                    const Iterator  & it1) const {
+  void inline apply(typename iterator_t<Iterator>::value_type & /*data*/,
+                    const DataId & /*dataId*/,
+                    const Iterator  & /*it1*/) const {
     typedef typename iterator_t<Iterator>::value_type value_type;
 #ifdef MYDEBUG
     std::cout << "-------- Calcium Generic BoundedDataIdProcessor.apply() called " << std::endl;
@@ -441,7 +441,7 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
     std::cout << "-------- CalciumCouplingPolicy::eraseDataId, storedDatasSize : " << storedDatas.size() << std::endl;
 #endif
  
-    if ( _couplingPolicy._storageLevel == CalciumTypes::UNLIMITED_STORAGE_LEVEL ) return;
+    if ( _couplingPolicy._storageLevel == (size_t)CalciumTypes::UNLIMITED_STORAGE_LEVEL ) return;
  
     size_t storedDatasSize = storedDatas.size();
     long   s = storedDatasSize - _couplingPolicy._storageLevel;
@@ -453,7 +453,7 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
               storedDatas.erase(storedDatas.begin());
       }
       // Si l'itérateur pointait sur une valeur que l'on vient de supprimer
-      if (dist < s ) {
+      if (dist < (size_t)s ) {
         throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "StorageLevel management " 
                                             << _couplingPolicy._storageLevel << 
                                             " has just removed the data to send")));

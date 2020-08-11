@@ -42,7 +42,7 @@ RefCountServ::RefCountServ():_cnt(1)
 {
 }
 
-RefCountServ::RefCountServ(const RefCountServ& other):_cnt(1)
+RefCountServ::RefCountServ(const RefCountServ& other):omniServant(other),PortableServer::ServantBase(other),_cnt(1)
 {
 }
 

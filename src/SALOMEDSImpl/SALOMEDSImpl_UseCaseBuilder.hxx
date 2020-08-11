@@ -53,7 +53,7 @@ public:
   SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocument);
 
   //! standard destructor
-  ~SALOMEDSImpl_UseCaseBuilder();
+  virtual ~SALOMEDSImpl_UseCaseBuilder();
 
   virtual bool Append(const SALOMEDSImpl_SObject& theObject);
 

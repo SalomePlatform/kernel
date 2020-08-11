@@ -51,7 +51,7 @@ public:
 
   SALOMEDSImpl_StudyBuilder(const SALOMEDSImpl_Study* theOwner);
 
-  ~SALOMEDSImpl_StudyBuilder();
+  virtual ~SALOMEDSImpl_StudyBuilder();
 
   virtual SALOMEDSImpl_SComponent NewComponent(const std::string& ComponentDataType);
 

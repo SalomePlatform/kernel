@@ -59,8 +59,8 @@
 #include <unistd.h>
 #endif
 
-UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
-UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
+UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception)
+UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
 
@@ -200,7 +200,7 @@ namespace SALOMEDS
           gobj->Register();
         }
       }
-      catch(const CORBA::Exception& e)
+      catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
       {
       }
     }
@@ -216,7 +216,7 @@ namespace SALOMEDS
           gobj->UnRegister();
         }
       }
-      catch(const CORBA::Exception& e)
+      catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
       {
       }
     }
@@ -392,7 +392,7 @@ PortableServer::POA_ptr SALOMEDS_Study_i::_default_POA()
  */
 //============================================================================
 bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
-  throw(SALOME::SALOME_Exception)
+  
 {
   if (!_closed)
     Clear();
@@ -532,7 +532,7 @@ CORBA::Boolean SALOMEDS_Study_i::CanPaste(SALOMEDS::SObject_ptr theObject)
  */
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::Paste(SALOMEDS::SObject_ptr theObject)
-     throw(SALOMEDS::StudyBuilder::LockProtection)
+     
 {
   SALOMEDS::Locker lock;
 
@@ -730,7 +730,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
                                                                    std::string((char*)aComponentName));
 
   SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject;
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   listSO->length(aLength);
   for (int i = 0; i < aLength; i++) {
     SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New(aSeq[i], _orb);
@@ -1047,7 +1047,7 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate()
 
   std::vector<std::string> aSeq = _impl->GetModificationsDate();
 
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   aDates->length(aLength);
   for (int anIndex = 0; anIndex < aLength; anIndex++) {
     aDates[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
@@ -1078,13 +1078,13 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
  *  Purpose  : 
  */
  //============================================================================
-void SALOMEDS_Study_i::AddPostponed(const char* theIOR) 
+void SALOMEDS_Study_i::AddPostponed(const char* /*theIOR*/) 
 {
   SALOMEDS::Locker lock; 
   //Not implemented
 }
 
-void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) 
+void SALOMEDS_Study_i::AddCreatedPostponed(const char* /*theIOR*/) 
 {
   SALOMEDS::Locker lock; 
   //Not implemented
@@ -1124,7 +1124,7 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay) 
+void SALOMEDS_Study_i::UndoPostponed(CORBA::Long /*theWay*/) 
 {
   SALOMEDS::Locker lock; 
   //Not implemented
@@ -1265,7 +1265,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 
   std::vector<std::string> aSeq = _impl->GetLockerID();
 
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   aResult->length(aLength);
   for(int anIndex = 0; anIndex < aLength; anIndex++) {
     aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
@@ -1492,7 +1492,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
 
   std::vector<std::string> aVarNames = _impl->GetVariableNames();
 
-  int aLen = aVarNames.size();
+  int aLen = (int)aVarNames.size(); //!< TODO: conversion from size_t to int
   aResult->length(aLen);
   for (int anInd = 0; anInd < aLen; anInd++)
     aResult[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
@@ -1562,7 +1562,7 @@ SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theV
 
   std::vector< std::vector<std::string> > aSections = _impl->ParseVariables(std::string(theVarName));
 
-  int aSectionsLen = aSections.size();
+  int aSectionsLen = (int)aSections.size(); //!< TODO: conversion from size_t to int
   aResult->length(aSectionsLen);
 
   for (int aSectionInd = 0; aSectionInd < aSectionsLen; aSectionInd++) {
@@ -1570,7 +1570,7 @@ SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theV
 
     SALOMEDS::ListOfStrings_var aList = new SALOMEDS::ListOfStrings;
 
-    int aLen = aVarNames.size();
+    int aLen = (int)aVarNames.size(); //!< TODO: conversion from size_t to int
     aList->length(aLen);
 
     for (int anInd = 0; anInd < aLen; anInd++)

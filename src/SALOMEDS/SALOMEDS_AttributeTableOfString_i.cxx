@@ -33,8 +33,8 @@
 
 #include "Utils_ExceptHandlers.hxx"
 
-UNEXPECT_CATCH(ATS_IncorrectIndex, SALOMEDS::AttributeTable::IncorrectIndex);
-UNEXPECT_CATCH(ATS_IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectArgumentLength);
+UNEXPECT_CATCH(ATS_IncorrectIndex, SALOMEDS::AttributeTable::IncorrectIndex)
+UNEXPECT_CATCH(ATS_IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectArgumentLength)
 
 void SALOMEDS_AttributeTableOfString_i::SetTitle(const char* theTitle) 
 {
@@ -54,7 +54,6 @@ char* SALOMEDS_AttributeTableOfString_i::GetTitle()
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowTitle(CORBA::Long theIndex, const char* theTitle)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -66,7 +65,6 @@ void SALOMEDS_AttributeTableOfString_i::SetRowTitle(CORBA::Long theIndex, const 
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetRowTitle(CORBA::Long theIndex)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch (ATS_IncorrectIndex);
@@ -78,14 +76,13 @@ char* SALOMEDS_AttributeTableOfString_i::GetRowTitle(CORBA::Long theIndex)
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowTitles(const SALOMEDS::StringSeq& theTitles)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
   CheckLocked();
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
-  if (theTitles.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
-  for (int i = 0; i < theTitles.length(); i++) {
+  if ((int)theTitles.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
+  for (int i = 0; i < (int)theTitles.length(); i++) {
     aTable->SetRowTitle(i + 1, std::string((char*)theTitles[i].in()));
   }
 }
@@ -96,13 +93,12 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowTitles()
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   SALOMEDS::StringSeq_var aTitles = new SALOMEDS::StringSeq;
   aTitles->length(aTable->GetNbRows());
-  for(int i = 0; i < aTitles->length(); i++)
+  for(int i = 0; i < (int)aTitles->length(); i++)
     aTitles[i] =CORBA::string_dup(aTable->GetRowTitle(i + 1).c_str());
   return aTitles._retn();
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumnTitle(CORBA::Long theIndex, const char* theTitle)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -113,7 +109,6 @@ void SALOMEDS_AttributeTableOfString_i::SetColumnTitle(CORBA::Long theIndex, con
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetColumnTitle(CORBA::Long theIndex)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch (ATS_IncorrectIndex);
@@ -125,14 +120,13 @@ char* SALOMEDS_AttributeTableOfString_i::GetColumnTitle(CORBA::Long theIndex)
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumnTitles(const SALOMEDS::StringSeq& theTitles)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
   CheckLocked();
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
-  if (theTitles.length() != aTable->GetNbColumns()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
-  for (int i = 0; i < theTitles.length(); i++) {
+  if ((int)theTitles.length() != aTable->GetNbColumns()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
+  for (int i = 0; i < (int)theTitles.length(); i++) {
     aTable->SetColumnTitle(i + 1, std::string((char*)theTitles[i].in()));
   }
 }
@@ -143,14 +137,13 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumnTitles()
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   SALOMEDS::StringSeq_var aTitles = new SALOMEDS::StringSeq;
   aTitles->length(aTable->GetNbColumns());
-  for(int i = 0; i < aTitles->length(); i++)
+  for(int i = 0; i < (int)aTitles->length(); i++)
     aTitles[i] = CORBA::string_dup(aTable->GetColumnTitle(i + 1).c_str());
   return aTitles._retn();
 }
 
 //Units support
 void SALOMEDS_AttributeTableOfString_i::SetRowUnit(CORBA::Long theIndex, const char* theUnit)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -161,7 +154,6 @@ void SALOMEDS_AttributeTableOfString_i::SetRowUnit(CORBA::Long theIndex, const c
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetRowUnit(CORBA::Long theIndex)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch (ATS_IncorrectIndex);
@@ -173,14 +165,13 @@ char* SALOMEDS_AttributeTableOfString_i::GetRowUnit(CORBA::Long theIndex)
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowUnits(const SALOMEDS::StringSeq& theUnits)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
   CheckLocked();
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
-  if (theUnits.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
-  for (int i = 0; i < theUnits.length(); i++) {
+  if ((int)theUnits.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
+  for (int i = 0; i < (int)theUnits.length(); i++) {
     aTable->SetRowUnit(i + 1, std::string((char*)theUnits[i].in()));
   }
 }
@@ -191,7 +182,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowUnits()
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   SALOMEDS::StringSeq_var aUnits = new SALOMEDS::StringSeq;
   aUnits->length(aTable->GetNbRows());
-  for(int i = 0; i < aUnits->length(); i++)
+  for(int i = 0; i < (int)aUnits->length(); i++)
     aUnits[i] = CORBA::string_dup(aTable->GetRowUnit(i + 1).c_str());
   return aUnits._retn();
 }
@@ -210,7 +201,6 @@ CORBA::Long SALOMEDS_AttributeTableOfString_i::GetNbColumns()
 }
 
 void SALOMEDS_AttributeTableOfString_i::AddRow(const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -218,12 +208,11 @@ void SALOMEDS_AttributeTableOfString_i::AddRow(const SALOMEDS::StringSeq& theDat
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aRow;
-  for (int i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[i])));
+  for (size_t i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[(CORBA::ULong)i]))); //!< TODO: conversion from size_t to CORBA::ULong
   aTable->SetRowData(aTable->GetNbRows() + 1, aRow);
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRow(CORBA::Long theRow, const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -231,12 +220,11 @@ void SALOMEDS_AttributeTableOfString_i::SetRow(CORBA::Long theRow, const SALOMED
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aRow;
-  for (int i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[i].in())));
+  for (size_t i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[(CORBA::ULong)i].in()))); //!< TODO: conversion from size_t to CORBA::ULong
   aTable->SetRowData(theRow, aRow);
 }
 
 SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRow(CORBA::Long theRow)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -245,15 +233,14 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRow(CORBA::Long theRo
 
   SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
   std::vector<std::string> aRow = aTable->GetRowData(theRow);
-  CorbaSeq->length(aRow.size());
-  for (int i = 0; i < aRow.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aRow.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aRow.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = CORBA::string_dup(aRow[i].c_str());
   }
   return CorbaSeq._retn();
 }
 
 void SALOMEDS_AttributeTableOfString_i::AddColumn(const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -261,12 +248,11 @@ void SALOMEDS_AttributeTableOfString_i::AddColumn(const SALOMEDS::StringSeq& the
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aColumn;
-  for (int i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[i])));
+  for (size_t i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[(CORBA::ULong)i]))); //!< TODO: conversion from size_t to CORBA::ULong
   aTable->SetColumnData(aTable->GetNbColumns() + 1, aColumn);
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumn(CORBA::Long theColumn, const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -274,12 +260,11 @@ void SALOMEDS_AttributeTableOfString_i::SetColumn(CORBA::Long theColumn, const S
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aColumn;
-  for (int i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[i])));
+  for (size_t i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[(CORBA::ULong)i]))); //!< TODO: conversion from size_t to CORBA::ULong
   aTable->SetColumnData(theColumn, aColumn);
 }
 
 SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumn(CORBA::Long theColumn)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -288,15 +273,14 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumn(CORBA::Long th
 
   SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
   std::vector<std::string> aColumn = aTable->GetColumnData(theColumn);
-  CorbaSeq->length(aColumn.size());
-  for (int i = 0; i < aColumn.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aColumn.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aColumn.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = CORBA::string_dup(aColumn[i].c_str());
   }
   return CorbaSeq._retn();
 }
 
 void SALOMEDS_AttributeTableOfString_i::PutValue(const char* theValue, CORBA::Long theRow, CORBA::Long theColumn)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -314,7 +298,6 @@ CORBA::Boolean SALOMEDS_AttributeTableOfString_i::HasValue(CORBA::Long theRow, C
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetValue(CORBA::Long theRow, CORBA::Long theColumn)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -333,7 +316,6 @@ char* SALOMEDS_AttributeTableOfString_i::GetValue(CORBA::Long theRow, CORBA::Lon
 }
 
 void SALOMEDS_AttributeTableOfString_i::RemoveValue(CORBA::Long theRow, CORBA::Long theColumn)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -358,8 +340,8 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::GetRowSetIndices(CORBA::Lo
 
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
   std::vector<int> aSeq = aTable->GetSetRowIndices(theRow);
-  CorbaSeq->length(aSeq.size());
-  for (int i = 0; i < aSeq.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aSeq.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -389,7 +371,7 @@ SALOMEDS::TMPFile*  SALOMEDS_AttributeTableOfString_i::SaveToFile()
 
   std::string aString = aTable->Save();
   char* aBuffer = (char*)CORBA::string_dup(aString.c_str());
-  int aBufferSize = strlen((char*)aBuffer);
+  int aBufferSize = (int)strlen((char*)aBuffer); //!< TODO: conversion from size_t to int
 
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
 
@@ -401,7 +383,6 @@ SALOMEDS::TMPFile*  SALOMEDS_AttributeTableOfString_i::SaveToFile()
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortRow(CORBA::Long theRow,
                                                               SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                                               SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -418,8 +399,8 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortRow(CORBA::Long theRow
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
-  for (int i = 0; i < aSeq.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aSeq.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -428,7 +409,6 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortRow(CORBA::Long theRow
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortColumn(CORBA::Long theColumn, 
                                                                  SALOMEDS::AttributeTable::SortOrder sortOrder,
                                                                  SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -445,8 +425,8 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortColumn(CORBA::Long the
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
-  for (int i = 0; i < aSeq.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aSeq.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -455,7 +435,6 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortColumn(CORBA::Long the
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByRow(CORBA::Long theRow,
                                                                 SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                                                 SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -472,8 +451,8 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByRow(CORBA::Long theR
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
-  for (int i = 0; i < aSeq.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aSeq.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -482,7 +461,6 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByRow(CORBA::Long theR
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByColumn(CORBA::Long theColumn,
                                                                    SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                                                    SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -499,8 +477,8 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByColumn(CORBA::Long t
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
-  for (int i = 0; i < aSeq.size(); i++) {
+  CorbaSeq->length((CORBA::ULong)aSeq.size()); //!< TODO: conversion from size_t to CORBA::ULong
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -508,7 +486,6 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByColumn(CORBA::Long t
 
 void SALOMEDS_AttributeTableOfString_i::SwapCells(CORBA::Long theRow1, CORBA::Long theColumn1,
 						  CORBA::Long theRow2, CORBA::Long theColumn2)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -528,7 +505,6 @@ void SALOMEDS_AttributeTableOfString_i::SwapCells(CORBA::Long theRow1, CORBA::Lo
 }
 
 void SALOMEDS_AttributeTableOfString_i::SwapRows(CORBA::Long theRow1, CORBA::Long theRow2)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -546,7 +522,6 @@ void SALOMEDS_AttributeTableOfString_i::SwapRows(CORBA::Long theRow1, CORBA::Lon
 }
 
 void SALOMEDS_AttributeTableOfString_i::SwapColumns(CORBA::Long theColumn1, CORBA::Long theColumn2)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);

@@ -73,7 +73,7 @@ int main (int argc, char * argv[])
   std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
   std::cerr << "Test of getFilesInfos()" << std::endl;
   all_infos = file.getFilesInfos();
-  for (int i = 0; i < all_infos->length(); i++)
+  for (int i = 0; i < (int)all_infos->length(); i++)
   {
     print_infos(&((*all_infos)[i]));
   }
@@ -126,7 +126,7 @@ int main (int argc, char * argv[])
   std::cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
   std::cerr << "Test of getFilesInfos()" << std::endl;
   all_infos = file.getFilesInfos();
-  for (int i = 0; i < all_infos->length(); i++)
+  for (int i = 0; i < (int)all_infos->length(); i++)
   {
     print_infos(&((*all_infos)[i]));
   }
@@ -148,7 +148,7 @@ int main (int argc, char * argv[])
 
   file4.load("test.hdf");
   all_infos = file4.getFilesInfos();
-  for (int i = 0; i < all_infos->length(); i++)
+  for (int i = 0; i < (int)all_infos->length(); i++)
   {
     print_infos(&((*all_infos)[i]));
   }
@@ -156,7 +156,7 @@ int main (int argc, char * argv[])
   print_state(state);
   file5.load("test2.hdf");
   all_infos = file5.getFilesInfos();
-  for (int i = 0; i < all_infos->length(); i++)
+  for (int i = 0; i < (int)all_infos->length(); i++)
   {
     print_infos(&((*all_infos)[i]));
   }

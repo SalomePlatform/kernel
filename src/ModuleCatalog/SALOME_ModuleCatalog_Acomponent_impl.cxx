@@ -29,7 +29,7 @@
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 
 #include "Utils_ExceptHandlers.hxx"
-UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
+UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound)
 
 #include "utilities.h"
 
@@ -102,7 +102,6 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterfaceList()
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog::DefinitionInterface*
 SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
-                                     throw(SALOME_ModuleCatalog::NotFound)
 {
   if(MYDEBUG) BEGIN_OF("GetInterface");
   if(MYDEBUG) SCRUTE(interfacename);
@@ -153,7 +152,6 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog::ListOfServices* 
 SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
-                                     throw(SALOME_ModuleCatalog::NotFound)
 {
   if(MYDEBUG) BEGIN_OF("GetServiceList");
   if(MYDEBUG) SCRUTE(interfacename);
@@ -209,7 +207,6 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
 SALOME_ModuleCatalog::Service* 
 SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename, 
                                                 const char* servicename) 
-                                     throw(SALOME_ModuleCatalog::NotFound)
 {
   if(MYDEBUG) BEGIN_OF("GetService");
   if(MYDEBUG) SCRUTE(interfacename);
@@ -276,7 +273,6 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog::Service* 
 SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename) 
-                                     throw(SALOME_ModuleCatalog::NotFound)
 {
   if(MYDEBUG) BEGIN_OF("GetDefaultService");
   if(MYDEBUG) SCRUTE(interfacename);
@@ -330,7 +326,6 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
 //----------------------------------------------------------------------
 char* 
 SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename) 
-                                     throw(SALOME_ModuleCatalog::NotFound)
 {
   if(MYDEBUG) BEGIN_OF("GetPathPrefix");
   if(MYDEBUG) SCRUTE(machinename);

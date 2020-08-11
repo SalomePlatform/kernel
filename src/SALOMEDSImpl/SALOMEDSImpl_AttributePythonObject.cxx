@@ -71,7 +71,7 @@ bool SALOMEDSImpl_AttributePythonObject::IsScript() const
 
 int SALOMEDSImpl_AttributePythonObject::GetLength() const
 {
-  return mySequence.size();
+  return (int)mySequence.size(); //!< TODO: conversion from size_t to int
 }
 
 const std::string& SALOMEDSImpl_AttributePythonObject::ID() const

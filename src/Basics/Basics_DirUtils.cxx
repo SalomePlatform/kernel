@@ -55,12 +55,12 @@ namespace Kernel_Utils
   {
     std::string tmp_str = file_path;
     auto pos = file_path.rfind( _separator_ );
-    if ( pos >= 0 )
-      tmp_str = pos < (int)file_path.size()-1 ? file_path.substr( pos+1 ) : "";
+    if ( pos != std::string::npos )
+      tmp_str = pos < file_path.size()-1 ? file_path.substr( pos+1 ) : "";
 
     pos = tmp_str.rfind( _extension_ );
-    if( !with_extension && pos >= 0 )
-      tmp_str = pos < (int)tmp_str.size()-1 ? tmp_str.substr( 0, pos ) : "";
+    if( !with_extension && pos != std::string::npos )
+      tmp_str = pos < tmp_str.size()-1 ? tmp_str.substr( 0, pos ) : "";
 
     return tmp_str;
   }
@@ -68,8 +68,8 @@ namespace Kernel_Utils
   std::string GetDirName( const std::string& file_path )
   {
     auto pos = file_path.rfind( _separator_ );
-    if ( pos >= 0 )
-      return pos < (int)file_path.size()-1 ? file_path.substr(0, pos ) : "";
+    if ( pos != std::string::npos )
+      return pos < file_path.size()-1 ? file_path.substr(0, pos ) : "";
     return std::string(".");
   }
 
@@ -191,7 +191,7 @@ namespace Kernel_Utils
   {
     std::string tmp_str = name;
     auto pos = tmp_str.rfind( _extension_ );
-    if( pos < 0 )
+    if( pos == std::string::npos )
       return tmp_str.append( _extension_ );
     return tmp_str;
   }

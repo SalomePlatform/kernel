@@ -80,7 +80,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::Save(const SALOMEDSImpl_SComponent& the
     aStream = _driver->Save(sco.in(), url, isMultiFile);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new SALOMEDS_TMPFile_i(aStream._retn());
-  theStreamLength = aTMPFile->Size();
+  theStreamLength = (long)aTMPFile->Size(); //!< TODO: conversion from size_t to long
 
   sco->UnRegister();
   SALOMEDS::lock();
@@ -103,7 +103,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::SaveASCII(const SALOMEDSImpl_SComponent
     aStream = _driver->SaveASCII(sco.in(), url, isMultiFile);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new SALOMEDS_TMPFile_i(aStream._retn());
-  theStreamLength = aTMPFile->Size();
+  theStreamLength = (long)aTMPFile->Size(); //!< TODO: conversion from size_t to long
 
   sco->UnRegister();
   SALOMEDS::lock();
@@ -272,7 +272,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::CopyFrom(const SALOMEDSImpl_SObject& th
     aStream = _driver->CopyFrom(so.in(), anObjectID);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new SALOMEDS_TMPFile_i(aStream._retn());
-  theStreamLength = aTMPFile->Size();
+  theStreamLength = (long)aTMPFile->Size(); //!< TODO: conversion from size_t to long
   theObjectID = anObjectID;
 
   so->UnRegister();
@@ -336,7 +336,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(bool isPublished,
     aStream = _engine->DumpPython(isPublished, isMultiFile, aValidScript);
 
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
-  theStreamLength = aTMPFile->Size();
+  theStreamLength = (long)aTMPFile->Size(); //!< TODO: conversion from size_t to long
   isValidScript = aValidScript;
 
   SALOMEDS::lock();

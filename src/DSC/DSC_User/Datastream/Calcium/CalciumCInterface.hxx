@@ -71,22 +71,22 @@ template <> struct CalTimeType<double> {
    il sera mappé sur le type int (si il est 32bits). Le type CORBA:LongLong est mappé sur le type long
    s'il est 64 bits sinon celà peut être un long long (s'il existe).
 */
-CALCIUM_C2CPP_INTERFACE_HXX_(intc,int,int,);
-CALCIUM_C2CPP_INTERFACE_HXX_(long,long,long,);
+CALCIUM_C2CPP_INTERFACE_HXX_(intc,int,int,)
+CALCIUM_C2CPP_INTERFACE_HXX_(long,long,long,)
 
-CALCIUM_C2CPP_INTERFACE_HXX_(integer,integer,cal_int,);
-CALCIUM_C2CPP_INTERFACE_HXX_(int2integer,integer,int,);
-CALCIUM_C2CPP_INTERFACE_HXX_(long2integer,integer, long,);
+CALCIUM_C2CPP_INTERFACE_HXX_(integer,integer,cal_int,)
+CALCIUM_C2CPP_INTERFACE_HXX_(int2integer,integer,int,)
+CALCIUM_C2CPP_INTERFACE_HXX_(long2integer,integer, long,)
 
-CALCIUM_C2CPP_INTERFACE_HXX_(float,float,float, );
-CALCIUM_C2CPP_INTERFACE_HXX_(double,double,double,);
+CALCIUM_C2CPP_INTERFACE_HXX_(float,float,float, )
+CALCIUM_C2CPP_INTERFACE_HXX_(double,double,double,)
 
-CALCIUM_C2CPP_INTERFACE_HXX_(float2double,double,float, );
+CALCIUM_C2CPP_INTERFACE_HXX_(float2double,double,float, )
 
 /*  Fonctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);*/
-CALCIUM_C2CPP_INTERFACE_HXX_(bool,bool,int,);
-CALCIUM_C2CPP_INTERFACE_HXX_(cplx,cplx,float,);
-CALCIUM_C2CPP_INTERFACE_HXX_(str,str,char*,);
+CALCIUM_C2CPP_INTERFACE_HXX_(bool,bool,int,)
+CALCIUM_C2CPP_INTERFACE_HXX_(cplx,cplx,float,)
+CALCIUM_C2CPP_INTERFACE_HXX_(str,str,char*,)
 
 /* Déclaration de ecp_fin */
 extern "C" CalciumTypes::InfoType ecp_fin_ (void * component, int code);

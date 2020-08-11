@@ -49,7 +49,7 @@
 /*!
   This method performs the transfert of double array with the remote SenderDouble given. If it fails with this SenderDouble it tries with an another protocol (CORBA by default).
  */
-double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException)
+double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)
 {
   double *ret;
   try{
@@ -69,7 +69,7 @@ double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)thr
 /*!
   This method performs the transfert of int array with the remote SenderInt given. If it fails with this SenderInt it tries with an another protocol (CORBA by default).
  */
-int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException)
+int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)
 {
   int *ret;
   try{
@@ -89,7 +89,7 @@ int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)throw(Mul
 /*!
   This method performs the transfert with the remote SenderDouble given. If it fails an exception is thrown.
  */
-double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException)
+double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &size)
 {
   SALOME::CorbaDoubleNCSender_ptr cncD_ptr;
   SALOME::CorbaDoubleCSender_ptr cwcD_ptr;
@@ -139,7 +139,7 @@ double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &s
 /*!
   This method performs the transfert with the remote SenderInt given. If it fails an exception is thrown.
  */
-int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException)
+int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)
 {
   SALOME::CorbaLongNCSender_ptr cncL_ptr;
   SALOME::CorbaLongCSender_ptr cwcL_ptr;

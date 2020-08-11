@@ -31,7 +31,7 @@ public:
   //Constructor
   Standard_EXPORT DF_Application();
 
-  Standard_EXPORT ~DF_Application();
+  Standard_EXPORT virtual ~DF_Application();
   
   //Creates a new document with given type, returns a smart pointer to
   //newly created document.

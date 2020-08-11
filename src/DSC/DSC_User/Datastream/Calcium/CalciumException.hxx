@@ -56,7 +56,7 @@ struct CalciumException  : public DSC_Exception {
     DSC_Exception(ex),_info(info),_exceptionName("CalciumException") 
   {};
  
-  virtual ~CalciumException() throw() {};
+  virtual ~CalciumException() noexcept {};
   CalciumTypes::InfoType getInfo() const { return _info;}
   void setInfo(CalciumTypes::InfoType info) {_info=info;}
   virtual const std::string & getExceptionName() const {return _exceptionName;};

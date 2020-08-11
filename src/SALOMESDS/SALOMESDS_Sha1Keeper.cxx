@@ -23,7 +23,7 @@
 
 #include <sstream>
 
-void SALOMESDS::Sha1Keeper::checkSame(const std::string& varName,const std::string& compareFuncContent, PyObject *oldObj, PyObject *newObj)
+void SALOMESDS::Sha1Keeper::checkSame(const std::string& /*varName*/,const std::string& compareFuncContent, PyObject *oldObj, PyObject *newObj)
 {
   if(compareFuncContent!=_cmp_func_content)
     {

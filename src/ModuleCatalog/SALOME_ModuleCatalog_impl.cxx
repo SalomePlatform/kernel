@@ -65,8 +65,8 @@ std::list<std::string> splitStringToList(const std::string& theString, const std
 {
   std::list<std::string> aList;
 
-  int sepLen = theSeparator.length();
-  int startPos = 0, sepPos = theString.find(theSeparator, startPos);
+  size_t sepLen = theSeparator.length();
+  size_t startPos = 0, sepPos = theString.find(theSeparator, startPos);
 
   while (1)
     {
@@ -97,11 +97,11 @@ public:
     \param pathlist ParserPathPrefixes arguments
     \param typeMap ParserTypes arguments
   */
-  virtual void _parse_xml_file(const char* file, 
-			       ParserComponents & modulelist, 
-			       ParserPathPrefixes & pathlist,
-			       ParserTypes& typeMap,
-			       TypeList& typeList);
+  void _parse_xml_file(const char* file, 
+                       ParserComponents & modulelist, 
+                       ParserPathPrefixes & pathlist,
+                       ParserTypes& typeMap,
+                       TypeList& typeList);
 
   //! method to find component in the parser list
   /*!
@@ -162,7 +162,7 @@ public:
     \param pathlist ListOfParserPathPrefix arguments
     \return true if verification is OK
   */
-  virtual bool _verify_path_prefix(ParserPathPrefixes & pathlist);
+  bool _verify_path_prefix(ParserPathPrefixes & pathlist);
 
   // Theses variables will contain the path to the general and personal catalogs
   char* _general_path;
@@ -323,7 +323,7 @@ SALOME_ModuleCatalogImpl::~SALOME_ModuleCatalogImpl()
 SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
 {
   SALOME_ModuleCatalog::ListOfTypeDefinition_var type_list = new SALOME_ModuleCatalog::ListOfTypeDefinition();
-  type_list->length(myPrivate->_typeList.size());
+  type_list->length((CORBA::ULong)myPrivate->_typeList.size());
 
   for (unsigned int ind = 0 ; ind < myPrivate->_typeList.size() ; ind++)
     {
@@ -343,7 +343,7 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
           type_list[ind].kind=SALOME_ModuleCatalog::Objref;
           type_list[ind].id=CORBA::string_dup(myPrivate->_typeList[ind].id.c_str());
           //bases
-          type_list[ind].bases.length(myPrivate->_typeList[ind].bases.size());
+          type_list[ind].bases.length((CORBA::ULong)myPrivate->_typeList[ind].bases.size());
           std::vector<std::string>::const_iterator miter;
           miter=myPrivate->_typeList[ind].bases.begin();
           int n_memb=0;
@@ -368,7 +368,7 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
         {
           type_list[ind].kind=SALOME_ModuleCatalog::Struc;
           //members
-          type_list[ind].members.length(myPrivate->_typeList[ind].members.size());
+          type_list[ind].members.length((CORBA::ULong)myPrivate->_typeList[ind].members.size());
 
           std::vector< std::pair<std::string,std::string> >::const_iterator miter;
           miter=myPrivate->_typeList[ind].members.begin();
@@ -454,7 +454,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
   SALOME_ModuleCatalog::ListOfComponents_var _list_components = 
     new SALOME_ModuleCatalog::ListOfComponents;
 
-  _list_components->length(myPrivate->_personal_module_list.size());
+  _list_components->length((CORBA::ULong)myPrivate->_personal_module_list.size());
 
   // All the components defined in the personal catalog are taken
   for(unsigned int ind=0; ind < myPrivate->_personal_module_list.size();ind++){
@@ -462,7 +462,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
     if(MYDEBUG) SCRUTE(_list_components[ind]) ;
   }
 
-  int indice = myPrivate->_personal_module_list.size() ;
+  size_t indice = myPrivate->_personal_module_list.size();
   bool _find = false;
   
   // The components in the general catalog are taken only if they're
@@ -478,10 +478,10 @@ SALOME_ModuleCatalogImpl::GetComponentList()
     if(!_find){
       if(MYDEBUG) MESSAGE("A new component " << myPrivate->_general_module_list[ind].name 
                           << " has to be to added in the list");
-      _list_components->length(indice+1);
+      _list_components->length((CORBA::ULong)indice+1);
       // The component is not already defined => has to be taken
-      _list_components[indice]=(myPrivate->_general_module_list[ind].name).c_str();   
-      if(MYDEBUG) SCRUTE(_list_components[indice]) ;
+      _list_components[(CORBA::ULong)indice]=(myPrivate->_general_module_list[ind].name).c_str();
+      if(MYDEBUG) SCRUTE(_list_components[(CORBA::ULong)indice]) ;
       
       indice++;
     }else{
@@ -510,7 +510,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   SALOME_ModuleCatalog::ListOfIAPP_Affich_var _list_components_icone = 
     new SALOME_ModuleCatalog::ListOfIAPP_Affich;
 
-  _list_components_icone->length(myPrivate->_personal_module_list.size());
+  _list_components_icone->length((CORBA::ULong)myPrivate->_personal_module_list.size());
 
   // All the components defined in the personal catalog are taken
   for(unsigned int ind=0; ind < myPrivate->_personal_module_list.size();ind++){
@@ -523,7 +523,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
     //if(MYDEBUG) SCRUTE(_list_components_icone[ind].moduleicone);
   }
   
-  int indice = myPrivate->_personal_module_list.size() ;
+  size_t indice = myPrivate->_personal_module_list.size();
   bool _find = false;
   
   // The components in the general catalog are taken only if they're
@@ -538,15 +538,15 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
     }
     if(!_find){
       //          if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
-      _list_components_icone->length(indice+1);
+      _list_components_icone->length((CORBA::ULong)indice+1);
       // The component is not already defined => has to be taken
-      _list_components_icone[indice].modulename=myPrivate->_general_module_list[ind].name.c_str();  
-      _list_components_icone[indice].moduleusername=myPrivate->_general_module_list[ind].username.c_str();  
-      _list_components_icone[indice].moduleicone=myPrivate->_general_module_list[ind].icon.c_str(); 
-      _list_components_icone[indice].moduleversion=myPrivate->_general_module_list[ind].version.c_str();
-      _list_components_icone[indice].modulecomment=myPrivate->_general_module_list[ind].comment.c_str();
-      //if(MYDEBUG) SCRUTE(_list_components_icone[indice].modulename) ;
-      //if(MYDEBUG) SCRUTE(_list_components_icone[indice].moduleicone);
+      _list_components_icone[(CORBA::ULong)indice].modulename=myPrivate->_general_module_list[ind].name.c_str();  
+      _list_components_icone[(CORBA::ULong)indice].moduleusername=myPrivate->_general_module_list[ind].username.c_str();  
+      _list_components_icone[(CORBA::ULong)indice].moduleicone=myPrivate->_general_module_list[ind].icon.c_str(); 
+      _list_components_icone[(CORBA::ULong)indice].moduleversion=myPrivate->_general_module_list[ind].version.c_str();
+      _list_components_icone[(CORBA::ULong)indice].modulecomment=myPrivate->_general_module_list[ind].comment.c_str();
+      //if(MYDEBUG) SCRUTE(_list_components_icone[(CORBA::ULong)indice].modulename) ;
+      //if(MYDEBUG) SCRUTE(_list_components_icone[(CORBA::ULong)indice].moduleicone);
       
       indice++;
     }
@@ -574,7 +574,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
 
   _list_typed_component->length(0);
   // Transform SALOME_ModuleCatalog::ComponentType in ParserComponentType
-  ParserComponentType _temp_component_type;
+  ParserComponentType _temp_component_type = OTHER;
   switch(component_type){
   case SALOME_ModuleCatalog::GEOM:
     _temp_component_type = GEOM ;
@@ -738,7 +738,7 @@ void SALOME_ModuleCatalogImpl::ShutdownWithExit()
 void SALOME_ModuleCatalogImpl::shutdown()
 {
   if (!CORBA::is_nil(_orb)) _orb->shutdown(0);
-};
+}
 
 
 
@@ -916,8 +916,8 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
     C_corba.implementationType=SALOME_ModuleCatalog::SO;
   C_corba.implname = CORBA::string_dup(C_parser.implementationName.c_str());
 
-  unsigned int _length = C_parser.interfaces.size();
-  C_corba.interfaces.length(_length);
+  size_t _length = C_parser.interfaces.size();
+  C_corba.interfaces.length((CORBA::ULong)_length);
   
   for (unsigned int ind = 0; ind < _length; ind++)
     duplicate(C_corba.interfaces[ind], C_parser.interfaces[ind]);
@@ -936,11 +936,11 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
   I_corba.interfacename = CORBA::string_dup(I_parser.name.c_str());
   
   // duplicate service list
-  unsigned int _length = I_parser.services.size();
+  size_t _length = I_parser.services.size();
   //  if(MYDEBUG) SCRUTE(_length);
   //  I_corba.interfaceservicelist 
   //  = new SALOME_ModuleCatalog::ListOfInterfaceService;
-  I_corba.interfaceservicelist.length(_length);
+  I_corba.interfaceservicelist.length((CORBA::ULong)_length);
   
   for (unsigned int ind1 = 0; ind1 < _length ; ind1 ++)
     duplicate(I_corba.interfaceservicelist[ind1],
@@ -963,11 +963,11 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
 
   S_corba.TypeOfNode = S_parser.typeOfNode;
 
-  unsigned int _length;
+  size_t _length;
 
   // duplicate in Parameters
   _length = S_parser.inParameters.size();
-  S_corba.ServiceinParameter.length(_length);
+  S_corba.ServiceinParameter.length((CORBA::ULong)_length);
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceinParameter[ind2],
@@ -975,7 +975,7 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
   
   // duplicate out Parameters
   _length = S_parser.outParameters.size();
-  S_corba.ServiceoutParameter.length(_length);
+  S_corba.ServiceoutParameter.length((CORBA::ULong)_length);
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceoutParameter[ind2],
@@ -983,7 +983,7 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
   
   // duplicate in DataStreamParameters
   _length = S_parser.inDataStreamParameters.size();
-  S_corba.ServiceinDataStreamParameter.length(_length);
+  S_corba.ServiceinDataStreamParameter.length((CORBA::ULong)_length);
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceinDataStreamParameter[ind2],
@@ -992,7 +992,7 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
   // duplicate out DataStreamParameters
   _length = S_parser.outDataStreamParameters.size();
   //  if(MYDEBUG) SCRUTE(_length);
-  S_corba.ServiceoutDataStreamParameter.length(_length);
+  S_corba.ServiceoutDataStreamParameter.length((CORBA::ULong)_length);
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceoutDataStreamParameter[ind2],

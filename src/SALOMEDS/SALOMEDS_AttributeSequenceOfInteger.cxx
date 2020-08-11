@@ -42,7 +42,7 @@ SALOMEDS_AttributeSequenceOfInteger::~SALOMEDS_AttributeSequenceOfInteger()
 
 void SALOMEDS_AttributeSequenceOfInteger::Assign(const std::vector<int>& other)
 {
-  int i, aLength = other.size();
+  int i, aLength = (int)other.size(); //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
@@ -71,7 +71,7 @@ std::vector<int> SALOMEDS_AttributeSequenceOfInteger::CorbaSequence()
     SALOMEDS::AttributeSequenceOfInteger_var aSeqAttr =
       SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl);
     aLength = aSeqAttr->Length();
-    for (i = 1; i <=aLength; i++) aVector.push_back(aSeqAttr->Value(i));
+    for (i = 1; i <=aLength; i++) aVector.push_back(aSeqAttr->Value((CORBA::Short)i)); //!< TODO: conversion from int to CORBA::Short
   }
   return aVector;
 }
@@ -113,7 +113,7 @@ int SALOMEDS_AttributeSequenceOfInteger::Value(int index)
     SALOMEDS::Locker lock;
     aValue = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)->Value(index);
   }
-  else aValue = SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)->Value(index);
+  else aValue = SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)->Value((CORBA::Short)index); //!< TODO: conversion from int to CORBA::Short
   return aValue;
 }
 

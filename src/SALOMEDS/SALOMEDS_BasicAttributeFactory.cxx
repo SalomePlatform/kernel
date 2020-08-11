@@ -36,7 +36,7 @@
  */
 //============================================================================
 SALOMEDS_BasicAttribute_i* BasicAttributeFactory::Create(const char* type)
-    throw (SALOME_Exception)
+    
 {
   try {
     if (!strcmp(type,"AttReal"))

@@ -48,9 +48,6 @@ int main(int argc,char **argv)
       //
       long TIMESleep = 500000000;
       int NumberOfTries = 40;
-#ifndef WIN32
-      int a;
-#endif
       timespec ts_req;
       ts_req.tv_nsec=TIMESleep;
       ts_req.tv_sec=0;
@@ -75,7 +72,7 @@ int main(int argc,char **argv)
         {
           if (i!=1) 
 #ifndef WIN32
-            a=nanosleep(&ts_req,&ts_rem);
+            nanosleep(&ts_req,&ts_rem);
 #else
             Sleep(TIMESleep/1000000);
 #endif
@@ -108,13 +105,13 @@ int main(int argc,char **argv)
                         {
                           if (j!=1) 
 #ifndef WIN32
-                            a=nanosleep(&ts_req, &ts_rem);
+                            nanosleep(&ts_req, &ts_rem);
 #else
                             Sleep(TIMESleep/1000000);
 #endif
                           try{
                             object = inc->resolve(name);}
-                          catch(CosNaming::NamingContext::NotFound)
+                          catch(CosNaming::NamingContext::NotFound&)
                             {
                               INFOS( "Logger Server wasn't found" );
                             }

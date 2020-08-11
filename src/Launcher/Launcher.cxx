@@ -542,9 +542,9 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   new_job->setWorkDirectory(job_params.MachinesList[clusterName].WorkDirectory);
   new_job->setEnvFile(job_params.MachinesList[clusterName].EnvFile);
 
-  for(int i=0; i < job_params.InputFile.size(); i++)
+  for(size_t i=0; i < job_params.InputFile.size(); i++)
     new_job->add_in_file(job_params.InputFile[i]);
-  for(int i=0; i < job_params.OutputFile.size();i++)
+  for(size_t i=0; i < job_params.OutputFile.size();i++)
     new_job->add_out_file(job_params.OutputFile[i]);
 
   resourceParams p;

@@ -83,7 +83,7 @@ CORBA::ULong RegistryService::size ( void )
 {
         ASSERT(_SessionName) ;
         ASSERT(strlen(_SessionName)>0) ;
-        return _reg.size() ;
+        return (CORBA::ULong)_reg.size() ; //!< TODO: conversion from size_t to CORBA::ULong
 }
 
 CORBA::ULong RegistryService::add( const Registry::Infos & infos )
@@ -111,7 +111,7 @@ void RegistryService::remove( CORBA::ULong id)
         
         ASSERT(_reg.find(id)!=_reg.end()) 
         _reg[id]->_status=TERMINATED;
-        _reg[id]->_ts_end = time(NULL) ;
+        _reg[id]->_ts_end = (long)time(NULL) ; //!< TODO: conversation from time_t to long
 
         _fin[id]=_reg[id];
         _reg.erase(id);
@@ -132,7 +132,7 @@ void RegistryService::hello( CORBA::ULong id )
         ASSERT(strlen(_SessionName)>0) ;
 
         ASSERT(_reg.find(id)!=_reg.end()) 
-        _reg[id]->_ts_hello = time(NULL) ;
+        _reg[id]->_ts_hello = (long)time(NULL) ; //!< TODO: conversation from time_t to long
                 
         END_OF("RegistryService::hello") ;
         return ;
@@ -166,8 +166,8 @@ Registry::AllInfos* RegistryService::makeseq(std::map<int,client_infos *> &mymap
 
         Registry::AllInfos *all = new Registry::AllInfos ;
         ASSERT(all) ;
-        const int RegLength = mymap.size();
-        all->length(RegLength);
+        size_t RegLength = mymap.size();
+        all->length((CORBA::ULong)RegLength);
 
         std::map<int,client_infos *>::iterator im;
         for (im=mymap.begin();im!=mymap.end(); im++)
@@ -207,7 +207,7 @@ RegistryService::client_infos::client_infos( const Registry::Infos &infos ):\
                                                                         _adip(duplicate(infos.adip)),\
                                                                         _uid(infos.uid),\
                                                                         _pwname(duplicate(infos.pwname)),\
-                                                                        _ts_start(time(NULL)),\
+                                                                        _ts_start((long)time(NULL)),\
                                                                         _difftime(infos.tc_start - _ts_start),\
                                                                         _cdir(duplicate(infos.cdir)),\
                                                                         _ts_hello(_ts_start),\

@@ -119,7 +119,7 @@ bool Engines_MPIContainer_i::load_component_Library(const char* componentName, C
 {
   reason=CORBA::string_dup("");
 
-  pthread_t *th;
+  pthread_t *th = 0;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
     for(int ip=1;ip<_nbproc;ip++){
@@ -217,12 +217,12 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 // Create an instance of component
 Engines::EngineComponent_ptr
 Engines_MPIContainer_i::create_component_instance_env( const char* componentName,
-                                                       const Engines::FieldsDict& env,
+                                                       const Engines::FieldsDict& /*env*/,
                                                        CORBA::String_out reason)
 {
   reason=CORBA::string_dup("");
 
-  pthread_t *th;
+  pthread_t *th = 0;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
     for(int ip=1;ip<_nbproc;ip++){
@@ -396,7 +396,7 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
 Engines::EngineComponent_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegister,
                                                  const char* componentName)
 {
-  pthread_t *th;
+  pthread_t *th = 0;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
     for(int ip=1;ip<_nbproc;ip++){
@@ -509,7 +509,7 @@ void Engines_MPIContainer_i::remove_impl(Engines::EngineComponent_ptr component_
   Engines::MPIObject_ptr pcptr;
   Engines::MPIObject_ptr spcptr;
 
-  pthread_t *th;
+  pthread_t *th = 0;
   if(_numproc == 0){
     pcptr = (Engines::MPIObject_ptr)component_i;
     th = new pthread_t[_nbproc];
@@ -543,7 +543,7 @@ void Engines_MPIContainer_i::remove_impl(Engines::EngineComponent_ptr component_
 
 void Engines_MPIContainer_i::finalize_removal()
 {
-  pthread_t *th;
+  pthread_t *th = 0;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
     for(int ip=1;ip<_nbproc;ip++){

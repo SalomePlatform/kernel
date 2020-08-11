@@ -173,7 +173,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
   for(; aChildItr.More(); aChildItr.Next())
     aList.push_back(aChildItr.Value());
 
-  for(int i = 0, len = aList.size(); i<len; i++) {
+  for(size_t i = 0, len = aList.size(); i<len; i++) {
     if(aList[i]->Label() ==  aCurrent) { //The current node is removed
       aRef->Set(_root->Label()); //Reset the current node to the root
     }

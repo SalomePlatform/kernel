@@ -138,7 +138,7 @@ int main (int argc, char * argv[])
   int cmax=0;
   int fmin=10;
   int fmax=0;
-  int nbpmax;
+  int nbpmax=1;
   for(std::map<std::string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
       Engines::ResourceDefinition *p = _ResManager->GetResourceDefinition((*iter).first.c_str());

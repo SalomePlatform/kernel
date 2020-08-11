@@ -92,7 +92,7 @@ std::string SALOMEDS_AttributeTableOfReal::GetRowTitle(int theIndex)
 void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>& theTitles)
 {
   CheckLocked();
-  int aLength = theTitles.size(), i;
+  int aLength = (int)theTitles.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;     
@@ -152,7 +152,7 @@ std::string SALOMEDS_AttributeTableOfReal::GetColumnTitle(int theIndex)
 
 void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::string>& theTitles)
 {
-  int aLength = theTitles.size(), i;
+  int aLength = (int)theTitles.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
@@ -212,7 +212,7 @@ std::string SALOMEDS_AttributeTableOfReal::GetRowUnit(int theIndex)
 
 void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& theUnits)
 {
-  int aLength = theUnits.size(), i;
+  int aLength = (int)theUnits.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
@@ -266,7 +266,7 @@ int SALOMEDS_AttributeTableOfReal::GetNbColumns()
 
 void SALOMEDS_AttributeTableOfReal::AddRow(const std::vector<double>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
@@ -288,7 +288,7 @@ void SALOMEDS_AttributeTableOfReal::AddRow(const std::vector<double>& theData)
 
 void SALOMEDS_AttributeTableOfReal::SetRow(int theRow, const std::vector<double>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
@@ -327,7 +327,7 @@ std::vector<double> SALOMEDS_AttributeTableOfReal::GetRow(int theRow)
 
 void SALOMEDS_AttributeTableOfReal::AddColumn(const std::vector<double>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
@@ -349,7 +349,7 @@ void SALOMEDS_AttributeTableOfReal::AddColumn(const std::vector<double>& theData
 
 void SALOMEDS_AttributeTableOfReal::SetColumn(int theColumn, const std::vector<double>& theData)
 {
-  int aLength = theData.size(), i;
+  int aLength = (int)theData.size(), i; //!< TODO: conversion from size_t to int
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 

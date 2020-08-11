@@ -52,9 +52,8 @@ int HDFcontainerObject::nInternalObjects()
   return 0;
 }
 
-void HDFcontainerObject::InternalObjectIndentify(int rank, char *object_name)
+void HDFcontainerObject::InternalObjectIndentify(int /*rank*/, char* /*object_name*/)
 {
-  object_name = NULL;
 }
 
 void HDFcontainerObject::AddSon(HDFinternalObject *son)

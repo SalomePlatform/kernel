@@ -35,18 +35,15 @@ typedef std::map<int, std::string>::const_iterator MI;
 static std::string getUnit(std::string theString)
 {
   std::string aString(theString);
-  int aPos = aString.find(SEPARATOR);
-  if(aPos <= 0 || aPos == aString.size() ) return std::string();
-  return aString.substr(aPos+1, aString.size());
+  size_t aPos = aString.find(SEPARATOR);
+  return aPos >= aString.size()-1 ? std::string() : aString.substr(aPos+1);
 }
 
 static std::string getTitle(std::string theString)
 {
   std::string aString(theString);
-  int aPos = aString.find(SEPARATOR);
-  if(aPos < 1) return aString;
-  if(aPos == 0) return std::string();
-  return aString.substr(0, aPos);
+  size_t aPos = aString.find(SEPARATOR);
+  return aPos == std::string::npos ? aString : aString.substr(0, aPos);
 }
 
 const std::string& SALOMEDSImpl_AttributeTableOfString::GetID() 
@@ -92,7 +89,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetNbColumns(const int theNbColumns)
 
   myNbColumns = theNbColumns;
 
-  while (myCols.size() < myNbColumns) { // append empty columns titles
+  while ((int)myCols.size() < myNbColumns) { // append empty columns titles
     myCols.push_back(std::string(""));
   }
 
@@ -130,24 +127,24 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowUnit(const int theRow,
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowUnits(const std::vector<std::string>& theUnits)
 {
-  if (theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows");
-  int aLength = theUnits.size(), i;
-  for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits[i-1]);
+  if ((int)theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows");
+  size_t aLength = theUnits.size(), i;
+  for(i = 1; i <= aLength; i++) SetRowUnit((int)i, theUnits[i-1]); //!< TODO: conversion from size_t to int
 }
 
 std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetRowUnits()
 {
   std::vector<std::string> aSeq;
-  int aLength = myRows.size(), i;
+  size_t aLength = myRows.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(getUnit(myRows[i]));
   return aSeq;
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const std::vector<std::string>& theTitles)
 {
-  if (theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows");
-  int aLength = theTitles.size(), i;
-  for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles[i-1]);
+  if ((int)theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows");
+  size_t aLength = theTitles.size(), i;
+  for(i = 1; i <= aLength; i++) SetRowTitle((int)i, theTitles[i-1]); //!< TODO: conversion from size_t to int
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -155,7 +152,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const std::vector<std::st
 std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetRowTitles()
 {
   std::vector<std::string> aSeq;
-  int aLength = myRows.size(), i;
+  size_t aLength = myRows.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(getTitle(myRows[i]));
   return aSeq;
 }
@@ -174,17 +171,17 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowData(const int theRow,
                                                      const std::vector<std::string>& theData) 
 {
   CheckLocked();  
-  if(theData.size() > myNbColumns) SetNbColumns(theData.size());
+  if((int)theData.size() > myNbColumns) SetNbColumns((int)theData.size()); //!< TODO: conversion from size_t to const int, possible loss of data
 
   Backup();
 
-  while (myRows.size() < theRow) { // append new row titles
+  while ((int)myRows.size() < theRow) { // append new row titles
     myRows.push_back(std::string(""));
   }
 
-  int i, aShift = (theRow-1)*myNbColumns, aLength = theData.size();
+  size_t i, aShift = (theRow-1)*myNbColumns, aLength = theData.size();
   for(i = 1; i <= aLength; i++) {
-    myTable[aShift + i] = theData[i-1];
+    myTable[int(aShift + i)] = theData[i-1]; //!< TODO: conversion from size_t to int
   }
 
   if(theRow > myNbRows) myNbRows = theRow;
@@ -228,14 +225,14 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnData(const int theColumn,
 
   Backup();
 
-  int i, aLength = theData.size();
+  size_t i, aLength = theData.size();
   for(i = 1; i <= aLength; i++) {
-    myTable[myNbColumns*(i-1)+theColumn] = theData[i-1];
+    myTable[myNbColumns*((int)i-1)+theColumn] = theData[i-1]; //!< TODO: conversion from size_t to int
   }
 
-  if(aLength > myNbRows) {
-    myNbRows = aLength;
-    while (myRows.size() < myNbRows) { // append empty row titles
+  if((int)aLength > myNbRows) {
+    myNbRows = (int)aLength; //!< TODO: conversion from size_t to int
+    while ((int)myRows.size() < myNbRows) { // append empty row titles
       myRows.push_back(std::string(""));
     }
   }
@@ -264,7 +261,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnTitle(const int theColumn,
 {
   CheckLocked();  
   Backup();
-  while(myCols.size() < theColumn) myCols.push_back(std::string(""));
+  while((int)myCols.size() < theColumn) myCols.push_back(std::string(""));
   myCols[theColumn-1] = theTitle;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -273,14 +270,14 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnTitle(const int theColumn,
 std::string SALOMEDSImpl_AttributeTableOfString::GetColumnTitle(const int theColumn) const 
 {
   if(myCols.empty()) return "";
-  if(myCols.size() < theColumn) return "";
+  if((int)myCols.size() < theColumn) return "";
   return myCols[theColumn-1];
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const std::vector<std::string>& theTitles)
 {
-  if (theTitles.size() != myNbColumns) throw DFexception("Invalid number of columns");
-  int aLength = theTitles.size(), i;
+  if ((int)theTitles.size() != myNbColumns) throw DFexception("Invalid number of columns");
+  size_t aLength = theTitles.size(), i;
   for(i = 0; i < aLength; i++)  myCols[i] =  theTitles[i];
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -289,7 +286,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const std::vector<std:
 std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetColumnTitles()
 {
   std::vector<std::string> aSeq;
-  int aLength = myCols.size(), i;
+  size_t aLength = myCols.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(myCols[i]);
   return aSeq;
 }
@@ -316,7 +313,7 @@ void SALOMEDSImpl_AttributeTableOfString::PutValue(const std::string& theValue,
   myTable[anIndex] = theValue;
 
   if(theRow > myNbRows) {
-    while (myRows.size() < theRow) { // append empty row titles
+    while ((int)myRows.size() < theRow) { // append empty row titles
       myRows.push_back(std::string(""));
     }
     myNbRows = theRow;
@@ -445,7 +442,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
   int i, j, l;
 
   //Title
-  l = myTitle.size();
+  l = (int)myTitle.size();
   sprintf(buffer, "%d\n", l);
   aString+=buffer;
   for(i=0; i<l; i++) {
@@ -459,7 +456,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
 
   //Row titles
   for(i=0; i<myNbRows; i++) {
-    l = myRows[i].size();
+    l = (int)myRows[i].size();
     sprintf(buffer, "%d\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
@@ -474,7 +471,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
 
   //Columns titles
   for(i=0; i<myNbColumns; i++) {
-    l = myCols[i].size();
+    l = (int)myCols[i].size();
     sprintf(buffer, "%d\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
@@ -484,14 +481,14 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
   }
 
   //Store the table values
-  l = myTable.size();
+  l = (int)myTable.size();
   sprintf(buffer, "%d\n", l);
   aString+=buffer;
   for(MI p = myTable.begin(); p!=myTable.end(); p++) {
     if (p->second.size()) { // check empty string in the value table
       sprintf(buffer, "%d\n", p->first);
       aString += buffer;
-      unsigned long aValueSize = p->second.size();
+      unsigned long aValueSize = (unsigned long)p->second.size(); //!< TODO conversion from size_t to unsigned long, possible loss of data
       sprintf(buffer, "%ld\n", aValueSize);
       aString +=buffer;
       aString += p->second;
@@ -601,12 +598,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortRow(const int theRow, 
     }
     result = indices;
 
-    for ( int col = 0; col < indices.size(); col++ ) {
+    for ( int col = 0; col < (int)indices.size(); col++ ) {  //TODO: mismatch signed/unsigned
       int idx = indices[col];
       if ( col+1 == idx ) continue;
       SwapCells(theRow, col+1, theRow, idx);
       int idx1 = 0;
-      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = col+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == col+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -641,12 +638,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortColumn(const int theCo
     }
     result = indices;
 
-    for ( int row = 0; row < indices.size(); row++ ) {
+    for ( int row = 0; row < (int)indices.size(); row++ ) {  //TODO: mismatch signed/unsigned
       int idx = indices[row];
       if ( row+1 == idx ) continue;
       SwapCells(row+1, theColumn, idx, theColumn);
       int idx1 = 0;
-      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = row+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismathc signed/unsigned
 	if ( indices[i] == row+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -681,12 +678,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortByRow(const int theRow
     }
     result = indices;
 
-    for ( int col = 0; col < indices.size(); col++ ) {
+    for ( int col = 0; col < (int)indices.size(); col++ ) { //TODO: mismatch signed/unsigned
       int idx = indices[col];
       if ( col+1 == idx ) continue;
       SwapColumns(col+1, idx);
       int idx1 = 0;
-      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = col+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == col+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -721,12 +718,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortByColumn(const int the
     }
     result = indices;
 
-    for ( int row = 0; row < indices.size(); row++ ) {
+    for ( int row = 0; row < (int)indices.size(); row++ ) { //TODO: mismatch signed/unsigned
       int idx = indices[row];
       if ( row+1 == idx ) continue;
       SwapRows(row+1, idx);
       int idx1 = 0;
-      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = row+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == row+1 ) idx1 = i;
       indices[idx1] = idx;
     }

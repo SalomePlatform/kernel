@@ -29,9 +29,9 @@ class PySupervCompo:public Superv_Component_i
          const char *interfaceName,
          bool notif = false);
     virtual ~PySupervCompo();
-    CORBA::Boolean init_service(const char * service_name){return true;};
-    CORBA::Boolean init_service_with_multiple(const char* service_name,
-                                              const Engines::Superv_Component::seq_multiple_param & params)
+    CORBA::Boolean init_service(const char * /*service_name*/){return true;};
+    CORBA::Boolean init_service_with_multiple(const char* /*service_name*/,
+                                              const Engines::Superv_Component::seq_multiple_param & /*params*/)
     {
       return true;
     }

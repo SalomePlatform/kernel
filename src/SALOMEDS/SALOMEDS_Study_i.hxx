@@ -79,7 +79,7 @@ public:
     \param char* arguments, the study URL
     \return bool arguments
   */
-  virtual bool Open(const wchar_t* aStudyUrl) throw (SALOME::SALOME_Exception);
+  virtual bool Open(const wchar_t* aStudyUrl);
 
   //! method to check that a Study can be opened
   /*!
@@ -107,7 +107,7 @@ public:
   /*!
     \param theObject object to paste
   */
-  virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean CanPaste(SALOMEDS::SObject_ptr theObject);
 
   //! method to Get persistent reference of study (idem URL())
@@ -152,7 +152,7 @@ public:
     \return ListOfSObject_ptr arguments, a list of objects found
   */  
   
-  virtual SALOMEDS::Study::ListOfSObject* FindObjectByName( const char* anObjectName, const char* aComponentName ) ;
+  virtual SALOMEDS::Study::ListOfSObject* FindObjectByName( const char* anObjectName, const char* aComponentName );
   
   //! method to Find an Object with ID = anObjectID 
   /*!
@@ -278,9 +278,9 @@ public:
   virtual void AddCreatedPostponed(const char* theIOR);
 
   virtual void RemovePostponed(CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
-                                                        // if theUndoLimit==0, removes all
+                                                          // if theUndoLimit==0, removes all
   virtual void UndoPostponed(CORBA::Long theWay); // theWay = 1: resurrect objects,
-                                                // theWay = -1: get back to the list of postponed
+                                                  // theWay = -1: get back to the list of postponed
 
   virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);
   virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 

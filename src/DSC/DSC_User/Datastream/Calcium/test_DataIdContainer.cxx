@@ -130,5 +130,5 @@ int main() {
   TEST2 test2;
   TEST3 test3;
   return !test1.ret+!test2.ret+!test3.ret;
-};
+}
 

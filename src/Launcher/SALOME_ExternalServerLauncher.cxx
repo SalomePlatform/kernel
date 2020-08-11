@@ -92,8 +92,7 @@ SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(co
       throw SALOME_LauncherException(oss2.str());
     }
   std::vector<std::string> cmd(command_list.length());
-  const char *toto(command_list[0]);
-  for(auto i=0;i<command_list.length();i++)
+  for(size_t i=0;i<command_list.length();i++)
     cmd[i] = command_list[i];
   long pid(0);
   try
@@ -166,7 +165,7 @@ SALOME::StringVec *SALOME_ExternalServerLauncher::listServersInNS()
   std::vector<std::string> loes(ListOfExternalServersCpp(_NS));
   std::size_t sz(loes.size());
   ret->length(sz);
-  for(auto i = 0; i<sz ; i++)
+  for(size_t i=0; i<sz; i++)
     {
       (*ret)[i]=CORBA::string_dup(loes[i].c_str());
     }
@@ -201,7 +200,7 @@ SALOME::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const ch
   //
   std::unique_ptr<SALOME::ByteVec> ret(new SALOME::ByteVec);
   ret->length(size);
-  for(std::size_t i=0;i<size;++i)
+  for(size_t i=0;i<size;++i)
     (*ret)[i] = buffer.get()[i];
   //
   if( unlink(file_name)!=0 )

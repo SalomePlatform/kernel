@@ -67,7 +67,7 @@ SALOMEDSImpl_AttributeGraphic::~SALOMEDSImpl_AttributeGraphic()
 void SALOMEDSImpl_AttributeGraphic::SetVisibility(const int theViewId,
                                                   const bool theValue )
 {
-  if ( myVisibility.find( theViewId ) != myVisibility.end() && myVisibility[theViewId] == theValue )
+  if ( myVisibility.find( theViewId ) != myVisibility.end() && ((bool)myVisibility[theViewId] == theValue) ) //!< TODO: comparing int and bool variables
     return;
 
   Backup();

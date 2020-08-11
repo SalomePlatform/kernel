@@ -50,7 +50,7 @@ public:
 
   virtual PortableServer::POA_ptr _default_POA();
 
-  void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
+  void CheckLocked();
   
   virtual char* Type();
 

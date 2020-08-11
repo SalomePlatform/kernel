@@ -76,9 +76,9 @@ protected :
 public :
         SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );
         SALOME_Exception( const SALOME_Exception &ex );
-        virtual ~SALOME_Exception() throw ();
+        virtual ~SALOME_Exception() noexcept;
         UTILS_EXPORT friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
-        virtual const char *what( void ) const throw () ;
+        virtual const char *what( void ) const noexcept;
 } ;
 
 

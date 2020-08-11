@@ -90,7 +90,7 @@ UtilsTest::tearDown()
 int genExcept()
 {
   throw SALOME_Exception("a message");
-};
+}
 
 // ============================================================================
 /*!

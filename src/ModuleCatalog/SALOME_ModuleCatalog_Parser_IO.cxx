@@ -50,7 +50,7 @@ std::ostream & operator<< (std::ostream & f,
 std::ostream & operator<< (std::ostream & f, 
                            const ParserService & S)
 {
-  int i, n;
+  size_t i, n;
   f << "      name :       " << S.name << std::endl;
   f << "      default :    " << (S.byDefault ? "yes" : "no") 
     << std::endl;
@@ -85,7 +85,7 @@ std::ostream & operator<< (std::ostream & f,
 std::ostream & operator<< (std::ostream & f, 
                            const ParserInterface & I)
 {
-  int j, n;
+  size_t j, n;
   f << "    name :       " << I.name << std::endl;
 
   n = I.services.size();
@@ -119,7 +119,7 @@ std::ostream & operator<< (std::ostream & f,
 std::ostream & operator<< (std::ostream & f, 
                            const ParserComponent & C)
 {
-  int j, n;
+  size_t j, n;
   f << std::endl
     << "    name :       " << C.name << std::endl;
   f << "    user name :  " << C.username << std::endl;

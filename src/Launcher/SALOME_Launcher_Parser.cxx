@@ -48,10 +48,10 @@ void ParserLauncherType::Print() const
     "RefDirectory: " << RefDirectory << std::endl << 
     "NbOfProcesses: " << NbOfProcesses << std::endl <<
     "InputFile: ";
-  for(int i=0; i <InputFile.size();i++)
+  for(size_t i=0; i <InputFile.size();i++)
     oss << InputFile[i] << " ";
   oss << std::endl << "OutputFile: ";
-  for(int i=0; i <OutputFile.size();i++)
+  for(size_t i=0; i <OutputFile.size();i++)
     oss << OutputFile[i] << " ";
   oss << std::endl <<
     "Command: " << Command << std::endl <<

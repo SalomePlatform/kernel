@@ -79,15 +79,15 @@ public :
         const uid_t&            uid(void) const;
 #else
         const DWORD&            pid(void) const;
-        const char* const       hostid(void) const;
+        const char*             hostid(void) const;
         const PSID&             uid(void) const;
 #endif
 
-        const char* const       name( void ) const;
-        const char* const       adip(void) const;
-        const char* const       pwname(void) const;
+        const char*             name( void ) const;
+        const char*             adip(void) const;
+        const char*             pwname(void) const;
         const time_t&           start(void) const;
-        const char* const       rep (void) const;
+        const char*             rep (void) const;
 
         const char*             host_char(void ) const;
         const char*             start_char(void) const;

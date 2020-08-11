@@ -196,7 +196,7 @@ omniORBpyAPI* api=0;
     try {
       $action
     }
-    catch (ServiceUnreachable) {
+    catch (ServiceUnreachable&) {
        Py_BLOCK_THREADS
        PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
        return NULL;

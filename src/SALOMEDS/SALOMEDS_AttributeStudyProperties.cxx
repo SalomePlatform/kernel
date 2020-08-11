@@ -242,7 +242,7 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
     std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
     SALOMEDSImpl_AttributeStudyProperties* anImpl = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     anImpl->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
-    aLength = aNames.size();
+    aLength = (int)aNames.size(); //!< TODO: conversion from size_t to int
     i = ((theWithCreator) ? 1 : 2);
     for (; i <= aLength; i++) {
       theNames.push_back(aNames[i-1]);

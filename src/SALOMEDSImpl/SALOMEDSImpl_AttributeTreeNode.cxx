@@ -464,7 +464,7 @@ std::string SALOMEDSImpl_AttributeTreeNode::Save()
   if (HasFirst()) aFirst = GetFirst()->Label().Entry(); else aFirst = "!";
 
   int aLength = 4;
-  aLength += aFather.size() + aPrevious.size() + aNext.size() + aFirst.size();
+  aLength += (int)(aFather.size() + aPrevious.size() + aNext.size() + aFirst.size()); //!< TODO: conversion from size_t to int
   char* aResult = new char[aLength];
   sprintf(aResult, "%s %s %s %s", aFather.c_str(), aPrevious.c_str(), aNext.c_str(), aFirst.c_str());
   std::string ret(aResult);

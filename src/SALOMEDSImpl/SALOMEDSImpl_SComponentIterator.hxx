@@ -56,7 +56,7 @@ public:
 
   SALOMEDSImpl_SComponentIterator(DF_Document* theDocument);
 
-  ~SALOMEDSImpl_SComponentIterator() {};
+  virtual ~SALOMEDSImpl_SComponentIterator() {};
 
   virtual void Init();
   virtual bool More();

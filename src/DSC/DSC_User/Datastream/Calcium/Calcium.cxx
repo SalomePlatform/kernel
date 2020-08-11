@@ -31,7 +31,7 @@ PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               Engines::Container_ptr contain,
                               const char *instanceName,
                               const char *interfaceName,
-                              bool notif) :
+                              bool /*notif*/) :
   Superv_Component_i(orb, poa,contain, instanceName, interfaceName,false,false)
 {
 }
@@ -97,7 +97,7 @@ extern "C"
 
     if(std::string(mode) == "IN")
       {
-        provides_port * port ;
+        provides_port * port = 0;
         //provides port
         try
           {
@@ -125,7 +125,7 @@ extern "C"
       }
     else if(std::string(mode) == "OUT")
       {
-        uses_port * uport ;
+        uses_port * uport = 0;
         try
           {
             uport = compo->create_uses_data_port(type);

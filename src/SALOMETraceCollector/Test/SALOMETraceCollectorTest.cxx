@@ -106,6 +106,7 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 
 void *PrintHello(void *threadid)
 {
+  SALOME_UNUSED(threadid); // unused in release mode
 #if defined(_DEBUG_) || defined(_DEBUG)
   long id_thread = (long)threadid;
       for (int i=0; i<NUM_MESSAGES;i++) 

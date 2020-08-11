@@ -109,13 +109,10 @@ int main(int argc,char **argv)
    PrintComponent(Superv);
 
      // obtain prefix path for a computer
-   char* path;
-   path =Superv->GetPathPrefix("omote");
-   MESSAGE("Path prefix pour omote : " << path);
+   MESSAGE("Path prefix pour omote : " << Superv->GetPathPrefix("omote"));
 
    // obtain prefix path for a computer
-   path =Geom->GetPathPrefix("eri");
-   MESSAGE("Path prefix pour eri : " << path);
+   MESSAGE("Path prefix pour eri : " << Geom->GetPathPrefix("eri"));
 
     }
   catch(SALOME_ModuleCatalog::NotFound &ex){

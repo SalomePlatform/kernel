@@ -134,7 +134,7 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
 
 void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
                                     const char* Path)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -256,9 +256,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   // --- The current directory is now the directory where the object should
   //     be recorded
 
-  int sizePath = splitPath.size();
-  if (sizePath > dimension_resultat){
-    ASSERT(sizePath == dimension_resultat+1);
+  size_t sizePath = splitPath.size();
+  if (sizePath > (size_t)dimension_resultat){
+    ASSERT(sizePath == (size_t)dimension_resultat+1);
     context_name.length(1);
 
     try{
@@ -329,7 +329,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 // ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -413,7 +413,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 // ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -481,7 +481,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
                                        const char* containerName,
                                        const char* componentName,
                                        const int nbproc)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -525,7 +525,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 
               if ( nbproc >= 1 )
                 {
-                  char *str_nbproc = new char[8];
+                  char *str_nbproc = new char[16];
                   sprintf(str_nbproc, "_%d", nbproc);
                   if( strstr(name.c_str(),str_nbproc) == NULL)
                     continue; // check only containers with _%d in name
@@ -668,7 +668,7 @@ std::string SALOME_NamingService::BuildContainerNameForNS(const Engines::Contain
 // ============================================================================
 
 int SALOME_NamingService::Find(const char* name)
-throw(ServiceUnreachable)
+
 {
   Utils_Locker lock (&_myMutex);
 
@@ -710,7 +710,7 @@ throw(ServiceUnreachable)
  */
 // ============================================================================
 
-bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnreachable)
+bool SALOME_NamingService::Create_Directory(const char* Path) 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -751,7 +751,7 @@ bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnrea
  */
 // ============================================================================
 
-bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnreachable)
+bool SALOME_NamingService::Change_Directory(const char* Path) 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -849,7 +849,7 @@ bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnrea
  */
 // ============================================================================
 
-char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
+char *SALOME_NamingService::Current_Directory() 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -877,7 +877,7 @@ char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
     }
 
   std::string path;
-  lengthPath = splitPath.size();
+  lengthPath = (int)splitPath.size(); //!< TODO: conversion from size_t to int
   for (int k = 0 ; k < lengthPath ;k++)
     {
       path += "/";
@@ -899,7 +899,7 @@ char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
  */
 // ============================================================================
 
-void SALOME_NamingService::list() throw(ServiceUnreachable)
+void SALOME_NamingService::list() 
 {
   Utils_Locker lock (&_myMutex)
 
@@ -959,7 +959,7 @@ void SALOME_NamingService::list() throw(ServiceUnreachable)
  */
 // ============================================================================
 
-std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnreachable)
+std::vector<std::string> SALOME_NamingService::list_directory() 
 {
   Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
@@ -1012,7 +1012,7 @@ std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnr
  */
 // ============================================================================
 
-std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnreachable)
+std::vector<std::string> SALOME_NamingService::list_subdirs() 
 {
   Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
@@ -1062,7 +1062,7 @@ std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnrea
 // ============================================================================
 
 std::vector<std::string> SALOME_NamingService::list_directory_recurs()
-throw(ServiceUnreachable)
+
 {
   Utils_Locker lock (&_myMutex);
 
@@ -1087,7 +1087,7 @@ throw(ServiceUnreachable)
 // ============================================================================
 
 void SALOME_NamingService::Destroy_Name(const char* Path)
-throw(ServiceUnreachable)
+
 {
   Utils_Locker lock (&_myMutex);
 
@@ -1176,10 +1176,10 @@ throw(ServiceUnreachable)
   // --- The current directory is now the directory where the object should
   //     be destroyed
 
-  int sizePath = splitPath.size();
-  if (sizePath > dimension_resultat)
+  size_t sizePath = splitPath.size();
+  if (sizePath > (size_t)dimension_resultat)
     {
-      ASSERT(sizePath == dimension_resultat+1);
+      ASSERT(sizePath == (size_t)dimension_resultat+1);
       context_name.length(1);
 
       try
@@ -1240,7 +1240,7 @@ throw(ServiceUnreachable)
  */
 // ============================================================================
 
-void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnreachable)
+void SALOME_NamingService::Destroy_Directory(const char* Path) 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -1408,7 +1408,7 @@ void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnre
  */
 // ============================================================================
 
-void SALOME_NamingService::Destroy_FullDirectory(const char* Path) throw(ServiceUnreachable)
+void SALOME_NamingService::Destroy_FullDirectory(const char* Path) 
 {
   //no need to lock here because method calls are threadsafe.
   if( Change_Directory(Path) )
@@ -1494,7 +1494,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
         endWithDelim = true;
       if (endIdx == std::string::npos)
         endIdx = path.length();
-      int lsub = endIdx - begIdx;
+      size_t lsub = endIdx - begIdx;
       if (lsub >= 1)
         splitPath.push_back(path.substr(begIdx, lsub));
       begIdx = path.find_first_not_of(delims, endIdx);
@@ -1503,15 +1503,15 @@ SALOME_NamingService::_createContextNameDir(std::string path,
   int dim;
   if (onlyDir)                  // only directory part
     {
-      dim = splitPath.size()-1; // omit final object
+      dim = (int)splitPath.size()-1; // omit final object
       if (endWithDelim)         // unless the path ends with a delimiter
         dim++;
       endWithDelim = true;
     }
   else
-    dim = splitPath.size();     // directories and final object
+    dim = (int)splitPath.size();     // directories and final object
 
-  context_name.length(dim);
+  context_name.length((CORBA::ULong)dim);
   for (int i=0; i<dim; i++)
     {
 //       SCRUTE(splitPath[i]);
@@ -1527,7 +1527,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
 //        MESSAGE("--- " <<splitPath[i] <<".dir");
         }
     }
-  return dim;
+  return dim; //TODO: return <int> or <size_t>?
 }
 
 // ============================================================================

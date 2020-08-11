@@ -104,8 +104,8 @@ private:
 
 template < typename DataManipulator, typename COUPLING_POLICY >
 GenericPort<DataManipulator, COUPLING_POLICY >::GenericPort() :
-  cond_instance(& this->storedDatas_mutex),waitingForConvenientDataId(false),
-  waitingForAnyDataId(false),lastDataIdSet(false) {}
+  waitingForConvenientDataId(false),waitingForAnyDataId(false),lastDataIdSet(false),
+  cond_instance(& this->storedDatas_mutex){}
 
 template < typename DataManipulator, typename COUPLING_POLICY>
 GenericPort<DataManipulator, COUPLING_POLICY>::~GenericPort() {
@@ -686,6 +686,6 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
   // Du coup interaction potentielle entre le 0 copy et gestion des niveaux 
   return dataToTransmit; 
 
-};
+}
 
 #endif

@@ -37,7 +37,7 @@ class calcium_uses_port : public uses_port
 public :
   calcium_uses_port();
   virtual ~calcium_uses_port();
-  virtual void disconnect (bool provideLastGivenValue) {};
+  virtual void disconnect (bool /*provideLastGivenValue*/) {};
 };
 
 #endif

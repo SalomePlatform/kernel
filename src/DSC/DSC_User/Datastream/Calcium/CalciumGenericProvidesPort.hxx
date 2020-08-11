@@ -139,13 +139,11 @@
       return POA_Ports::PortProperties::_this();                        \
     }                                                                   \
                                                                         \
-    virtual void set_property(const char * name, const CORBA::Any& value) \
-      throw (Ports::NotDefined, Ports::BadType, Ports::BadValue);       \
+    virtual void set_property(const char * name, const CORBA::Any& value); \
                                                                         \
-    virtual CORBA::Any* get_property(const char* name)                  \
-      throw (Ports::NotDefined);                                        \
+    virtual CORBA::Any* get_property(const char* name);			\
                                                                         \
-    virtual void provides_port_changed(int connection_nbr,              \
+    virtual void provides_port_changed(int /*connection_nbr*/,          \
                                        const Engines::DSC::Message message) { \
       if ( message == Engines::DSC::AddingConnection)                   \
         {                                                               \
@@ -169,10 +167,10 @@
 
 #define CALCIUM_GENERIC_PROVIDES_PORT_CXX(specificPortName)             \
                                                                         \
-  specificPortName::~specificPortName(void) {};                         \
+  specificPortName::~specificPortName(void) {}                         \
                                                                         \
   void specificPortName::set_property(const char * name,  const CORBA::Any& value) \
-    throw (Ports::NotDefined, Ports::BadType, Ports::BadValue) {        \
+  {                                                                     \
                                                                         \
     const std::string key(name);                                        \
     CORBA::Long sl;                                                     \
@@ -215,7 +213,7 @@
                                                                         \
                                                                         \
   CORBA::Any* specificPortName::get_property(const char* name)          \
-    throw (Ports::NotDefined) {                                         \
+  {                                                                     \
     const std::string key(name);                                        \
     CORBA::Any* value=new CORBA::Any;                                   \
     if (key == "StorageLevel"    )                                      \
@@ -237,7 +235,7 @@
       throw Ports::NotDefined();                                        \
     }                                                                   \
     return value;                                                       \
-  };                                            
+  }                                            
                                                                         
 
 #endif

@@ -63,6 +63,6 @@ namespace SALOMEDS
   // indirect recursion.
   void lock();
   void unlock();
-};
+}
 
 #endif

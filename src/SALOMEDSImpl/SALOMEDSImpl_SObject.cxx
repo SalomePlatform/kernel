@@ -151,7 +151,7 @@ bool SALOMEDSImpl_SObject::FindAttribute(DF_Attribute*& theAttribute,
 std::vector<DF_Attribute*> SALOMEDSImpl_SObject::GetAllAttributes() const
 {
   std::vector<DF_Attribute*> va1, va = _lab.GetAttributes();
-  for(int i = 0, len = va.size(); i<len; i++) {
+  for(size_t i = 0, len = va.size(); i<len; i++) {
     SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(va[i]); 
     if(ga && ga->Type() != std::string("AttributeReference"))
         va1.push_back(va[i]);

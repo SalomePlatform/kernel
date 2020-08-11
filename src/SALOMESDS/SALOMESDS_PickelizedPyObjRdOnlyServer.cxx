@@ -36,7 +36,7 @@ PickelizedPyObjRdOnlyServer::~PickelizedPyObjRdOnlyServer()
 {
 }
 
-void PickelizedPyObjRdOnlyServer::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
+void PickelizedPyObjRdOnlyServer::addKeyValueErrorIfAlreadyExisting(PyObject * /*key*/, PyObject * /*value*/)
 {
   throw Exception("PickelizedPyObjRdOnlyServer::addKeyValueErrorIfAlreadyExisting : incompatible with RdOnly !");
 }

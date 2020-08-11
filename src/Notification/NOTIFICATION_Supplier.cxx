@@ -30,10 +30,10 @@
 long NOTIFICATION_Supplier::_stamp = 0;
 
 NOTIFICATION_Supplier::NOTIFICATION_Supplier(const char* instanceName, bool notif):
+    _ok(false),
     _sender(instanceName),
     _counter(0),
-    proxy_consumer(0),
-    _ok(false)
+    proxy_consumer(0)
 {
     if (notif) {
         CosNA_EventChannel_ptr channel = NOTIFICATION_channel();
@@ -123,5 +123,5 @@ void NOTIFICATION_Supplier::Send(const char* graph, const char* node, const char
 void NOTIFICATION_Supplier::disconnect_structured_push_supplier() {
 }
 
-void NOTIFICATION_Supplier::subscription_change(const CosN_EventTypeSeq& added, const CosN_EventTypeSeq& deled) {
+void NOTIFICATION_Supplier::subscription_change(const CosN_EventTypeSeq& /*added*/, const CosN_EventTypeSeq& /*deled*/) {
 }

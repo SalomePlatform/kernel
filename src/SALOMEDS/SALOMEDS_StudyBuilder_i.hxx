@@ -90,8 +90,7 @@ public:
   */
   virtual SALOMEDS::SObject_ptr NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject, CORBA::Long atag);
 
-  virtual void LoadWith(SALOMEDS::SComponent_ptr sco, SALOMEDS::Driver_ptr Engine)
-    throw(SALOME::SALOME_Exception);
+  virtual void LoadWith(SALOMEDS::SComponent_ptr sco, SALOMEDS::Driver_ptr Engine); 
   virtual void Load(SALOMEDS::SObject_ptr sco);
 
   virtual void RemoveObject(SALOMEDS::SObject_ptr anObject);
@@ -109,11 +108,11 @@ public:
   virtual bool IsGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID);
 
   virtual void NewCommand();
-  virtual void CommitCommand() throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual void CommitCommand();
   virtual CORBA::Boolean HasOpenCommand();
   virtual void AbortCommand();
-  virtual void Undo() throw(SALOMEDS::StudyBuilder::LockProtection);
-  virtual void Redo() throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual void Undo();
+  virtual void Redo();
   CORBA::Boolean GetAvailableUndos();
   CORBA::Boolean GetAvailableRedos();
   CORBA::Boolean IsSaved();
@@ -121,11 +120,11 @@ public:
   virtual CORBA::Long UndoLimit();
   virtual void UndoLimit(CORBA::Long);
 
-  void CheckLocked() throw (SALOMEDS::StudyBuilder::LockProtection);
+  void CheckLocked();
 
-  virtual void SetName(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
-  virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
-  virtual void SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual void SetName(SALOMEDS::SObject_ptr theSO, const char* theValue);
+  virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue);
+  virtual void SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue);
 
   SALOMEDSImpl_StudyBuilder* GetImpl() { return _impl; }
 

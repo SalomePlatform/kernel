@@ -178,7 +178,7 @@ public:
 //   } 
     
   // Operation de destruction d'une donnee: rien a faire car pas de memoire a liberer
-  static inline void delete_data(Type data) {}
+  static inline void delete_data(Type /*data*/) {}
     // Renvoie la taille de la donnée
 
   static inline size_t size(Type data) { 
@@ -325,7 +325,7 @@ public:
     
     InnerType *dataPtr  = getPointer(data,false);
 
-    for (int i = 0; i< isize; ++i) 
+    for (size_t i = 0; i< isize; ++i) 
       idata[i]=dataPtr[i];
 
     // Le mode de recopie suivant ne permet pas  la conversion de type (ex int -> CORBA::Long)
@@ -352,7 +352,7 @@ public:
 
     // Si idata[i] n'a pas été alloué suffisament grand,
     // il y a corruption de la mémoire
-    for (int i = 0; i< isize; ++i) 
+    for (size_t i = 0; i< isize; ++i) 
       strcpy(idata[i],dataPtr[i]);
   }
   

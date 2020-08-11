@@ -73,7 +73,7 @@ ContainerPyStdOut_write(ContainerPyStdOut *self, PyObject *args)
 }
 
 static PyObject*
-ContainerPyStdOut_flush(ContainerPyStdOut *self)
+ContainerPyStdOut_flush(ContainerPyStdOut */*self*/, PyObject */*args*/)
 {
   Py_INCREF(Py_None);
   return Py_None;
@@ -82,13 +82,12 @@ ContainerPyStdOut_flush(ContainerPyStdOut *self)
 static PyMethodDef ContainerPyStdOut_methods[] = {
   {"write",  (PyCFunction)ContainerPyStdOut_write,  METH_VARARGS, PyDoc_STR("write(string) -> None")},
   {"flush",  (PyCFunction)ContainerPyStdOut_flush,  METH_NOARGS,  PyDoc_STR("flush() -> None")},
-  {NULL,    NULL}   /* sentinel */
+  {0, 0, 0, 0} /* sentinel */
 };
 
 static PyMemberDef ContainerPyStdOut_memberlist[] = {
-      {(char*)"softspace", T_INT,  offsetof(ContainerPyStdOut, softspace), 0,
-       (char*)"flag indicating that a space needs to be printed; used by print"},
-      {NULL} /* Sentinel */
+  {(char*)"softspace", T_INT,  offsetof(ContainerPyStdOut, softspace), 0, (char*)"flag indicating that a space needs to be printed; used by print"},
+  {0, 0, 0, 0, 0} /* sentinel */
 };
 
 static PyTypeObject ContainerPyStdOut_Type = {
@@ -171,7 +170,6 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   MESSAGE("=================================================================");
   // set stdout to line buffering (aka C++ std::cout)
   setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
-  wchar_t* salome_python;
   char* env_python=getenv("SALOME_PYTHON");
   if(env_python != 0)
     {
@@ -202,7 +200,7 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   script += "import sys\n";
   script += "sys.excepthook = _custom_except_hook\n";
   script += "del _custom_except_hook, sys\n";
-  int res = PyRun_SimpleString(script.c_str());
+  PyRun_SimpleString(script.c_str());
   // VSR (22/09/2016): end of workaround
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
 

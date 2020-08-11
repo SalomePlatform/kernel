@@ -97,7 +97,7 @@ ResourcesManager_cpp(const char *xmlFilePath)
  */ 
 //=============================================================================
 
-ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
+ResourcesManager_cpp::ResourcesManager_cpp()
 {
   RES_MESSAGE("ResourcesManager_cpp constructor");
 
@@ -199,7 +199,7 @@ ResourcesManager_cpp::~ResourcesManager_cpp()
 //=============================================================================
 
 std::vector<std::string> 
-ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(ResourcesException)
+ResourcesManager_cpp::GetFittingResources(const resourceParams& params) 
 {
   RES_MESSAGE("[GetFittingResources] on computer " << Kernel_Utils::GetHostname().c_str());
   RES_MESSAGE("[GetFittingResources] with resource name: " << params.name);

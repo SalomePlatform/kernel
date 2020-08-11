@@ -150,4 +150,4 @@ namespace SALOME
     UnRegister();
   }
 
-}; // end of namespace SALOME
+} // end of namespace SALOME

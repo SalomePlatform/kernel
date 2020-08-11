@@ -47,8 +47,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
 {
   if (_singleton == 0) // no need of lock when singleton already exists
     {
-      int ret;
-      ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+      pthread_mutex_lock(&_singletonMutex);    // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
         {                                      // the lock after the first test
           BaseTraceCollector* myInstance = new LocalTraceCollector();
@@ -60,7 +59,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
           sem_wait(&_sem);
           _singleton = myInstance; // _singleton known only when init done
         }
-      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+      pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
 }
@@ -76,7 +75,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
  */
 // ============================================================================
 
-void* LocalTraceCollector::run(void *bid)
+void* LocalTraceCollector::run(void* /*bid*/)
 {
   _threadId = new pthread_t;
   *_threadId = pthread_self();
@@ -144,8 +143,7 @@ void* LocalTraceCollector::run(void *bid)
 
 LocalTraceCollector:: ~LocalTraceCollector()
 {
-  int ret;
-  ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
       DEVTRACE("LocalTraceCollector:: ~LocalTraceCollector()");
@@ -155,15 +153,15 @@ LocalTraceCollector:: ~LocalTraceCollector()
       if (_threadId)
         {
           int ret = pthread_join(*_threadId, NULL);
-          if (ret) std::cerr << "error close LocalTraceCollector : "<< ret << std::endl;
-          else DEVTRACE("LocalTraceCollector destruction OK");
+          if (ret) { std::cerr << "error close LocalTraceCollector : "<< ret << std::endl; }
+          else { DEVTRACE("LocalTraceCollector destruction OK"); }
           delete _threadId;
           _threadId = 0;
           _threadToClose = 0;
         }
       _singleton = 0;
     }
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+  pthread_mutex_unlock(&_singletonMutex); // release lock
 }
 
 // ============================================================================

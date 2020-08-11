@@ -43,6 +43,6 @@ CommException::CommException( const CommException &ex ): SALOME_Exception( ex )
 }
 
 
-CommException::~CommException() throw ()
+CommException::~CommException() noexcept
 {
 }

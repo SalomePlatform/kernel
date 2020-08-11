@@ -57,22 +57,22 @@
    le manipulateur de données d'effectuer  une recopie (qui fonctionne si les types sont compatibles). 
 */
 // CALCIUM_C2CPP_INTERFACE_CXX_(_name,_porttype,_type,_qual)
-CALCIUM_C2CPP_INTERFACE_CXX_(intc,int,int,);
-CALCIUM_C2CPP_INTERFACE_CXX_(long,long,long,);
+CALCIUM_C2CPP_INTERFACE_CXX_(intc,int,int,)
+CALCIUM_C2CPP_INTERFACE_CXX_(long,long,long,)
 
-CALCIUM_C2CPP_INTERFACE_CXX_(integer,integer,cal_int,);
-CALCIUM_C2CPP_INTERFACE_CXX_(int2integer ,integer,  int,);
-CALCIUM_C2CPP_INTERFACE_CXX_(long2integer, integer, long,);
+CALCIUM_C2CPP_INTERFACE_CXX_(integer,integer,cal_int,)
+CALCIUM_C2CPP_INTERFACE_CXX_(int2integer ,integer,  int,)
+CALCIUM_C2CPP_INTERFACE_CXX_(long2integer, integer, long,)
 
-CALCIUM_C2CPP_INTERFACE_CXX_(float,float,float, );
-CALCIUM_C2CPP_INTERFACE_CXX_(double,double,double,);
+CALCIUM_C2CPP_INTERFACE_CXX_(float,float,float, )
+CALCIUM_C2CPP_INTERFACE_CXX_(double,double,double,)
 
-CALCIUM_C2CPP_INTERFACE_CXX_(float2double,double,float, );
+CALCIUM_C2CPP_INTERFACE_CXX_(float2double,double,float, )
 
 /*  Fonnctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);*/
-CALCIUM_C2CPP_INTERFACE_CXX_(bool,bool,int,);
-CALCIUM_C2CPP_INTERFACE_CXX_(cplx,cplx,float,);
-CALCIUM_C2CPP_INTERFACE_CXX_(str,str,char*,);
+CALCIUM_C2CPP_INTERFACE_CXX_(bool,bool,int,)
+CALCIUM_C2CPP_INTERFACE_CXX_(cplx,cplx,float,)
+CALCIUM_C2CPP_INTERFACE_CXX_(str,str,char*,)
 
 /* Définition de ecp_fin */
 extern "C" CalciumTypes::InfoType 
@@ -91,7 +91,7 @@ ecp_fin_ (void * component, int code) {
     return ex.getInfo();                                                
   }                                                                     
   return CalciumTypes::CPOK;
-};
+}
 
 extern "C" CalciumTypes::InfoType 
 ecp_cd_ (void * component, char * instanceName) {

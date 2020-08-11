@@ -71,6 +71,7 @@ static void DumpStudy() {
   MESSAGE("Explore Study and Write name of each object if it exists");
   
   char* name;
+  SALOME_UNUSED(name); // unused in release mode
   SALOMEDS::SComponentIterator_var itcomp = KERNEL::getStudyServant()->NewComponentIterator();
   int offset = 1;
   for (; itcomp->More(); itcomp->Next()) {
@@ -90,6 +91,7 @@ static void Test()
 {
   try {
   char* name;
+  SALOME_UNUSED(name); // unused in release mode
 
   SALOMEDS::Study_var myStudy = KERNEL::getStudyServant();
 
@@ -279,7 +281,7 @@ int main(int argc, char** argv)
   catch(CORBA::Exception&) {
     MESSAGE( "Caught CORBA::Exception." )
   }
-  catch(omniORB::fatalException& fe) {
+  catch(omniORB::fatalException& fe) { //!< TODO: unused variable
     MESSAGE( "Caught omniORB::fatalException:" )
     MESSAGE( "  file: " << fe.file() )
     MESSAGE( "  line: " << fe.line() )

@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
     {
 //       setsig(SIGSEGV,&Handler);
       std::set_terminate(&terminateHandler);
-      std::set_unexpected(&unexpectedHandler);
+      //std::set_unexpected(&unexpectedHandler);
     }
   /* Init libxml 
    * To avoid memory leak, need to call xmlInitParser in the main thread

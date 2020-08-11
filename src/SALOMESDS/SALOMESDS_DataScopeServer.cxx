@@ -113,13 +113,13 @@ SALOME::StringVec *DataScopeServerBase::listVars()
 {
   SALOME::StringVec *ret(new SALOME::StringVec);
   std::size_t sz(_vars.size());
-  ret->length(sz);
+  ret->length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
   std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
     {
       BasicDataServer *obj((*it).second);
       std::string name(obj->getVarNameCpp());
-      (*ret)[i]=CORBA::string_dup(name.c_str());
+      (*ret)[(CORBA::ULong)i]=CORBA::string_dup(name.c_str()); //!< TODO: size_t to CORBA::ULong
     }
   return ret;
 }
@@ -230,13 +230,13 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
     }
   Py_ssize_t sz(PyList_Size(keys));
   SALOME::SeqOfByteVec *ret(new SALOME::SeqOfByteVec);
-  ret->length(sz);
+  ret->length((CORBA::ULong)sz); //!< TODO: convert Py_ssize_t in CORBA::ULong
   for(Py_ssize_t i=0;i<sz;i++)
     {
       PyObject *item(PyList_GetItem(keys,i));
       Py_XINCREF(item);
       std::string pickel(varc->pickelize(item));//item consumed
-      PickelizedPyObjServer::FromCppToByteSeq(pickel,(*ret)[i]);
+      PickelizedPyObjServer::FromCppToByteSeq(pickel,(*ret)[(CORBA::ULong)i]); //!< TODO: convert Py_ssize_t in CORBA::ULong
     }
   Py_XDECREF(keys);
   return ret;
@@ -893,7 +893,7 @@ void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& tr
       Transaction *elt(0);
       try
         {
-          eltBase=_poa->reference_to_servant(transactions[i]);
+          eltBase=_poa->reference_to_servant(transactions[(CORBA::ULong)i]); //!< TODO: size_t to CORBA::ULong
           elt=dynamic_cast<Transaction *>(eltBase);
         }
       catch(...)

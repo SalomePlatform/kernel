@@ -51,7 +51,7 @@ CalciumGenericUsesPort< DataManipulator,CorbaPortType, repositoryName >::disconn
   if (!this->_my_ports)
     throw DSC_Exception(LOC("There is no connected provides port to communicate with."));
 
-  for(int i = 0; i < this->_my_ports->length(); i++) {
+  for(int i = 0; i < (int)this->_my_ports->length(); i++) {
     CorbaPortTypePtr port = CorbaPortType::_narrow((*this->_my_ports)[i]);
     try {
 #ifdef MYDEBUG

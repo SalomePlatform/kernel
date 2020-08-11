@@ -29,7 +29,7 @@
 #include "HDFgroup.hxx"
 #include "HDFexception.hxx"
 
-herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+herr_t group_attr(hid_t /*loc_id*/, const char *attr_name, void *operator_data)
 {
   *(char**)operator_data = new char[strlen(attr_name)+1];
   strcpy(*(char**)operator_data, attr_name);
@@ -44,7 +44,7 @@ HDFgroup::HDFgroup(const char *name, HDFcontainerObject *father)
   _father->AddSon(this);
   _mid = -1;
   _attribute = NULL;
-};
+}
 
 void HDFgroup::CreateOnDisk()
 {

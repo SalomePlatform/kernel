@@ -51,10 +51,10 @@ SALOMEDS_TMPFile_i
   if(!&myStream.in())
     throw std::out_of_range("SALOMEDS_TMPFile_i::Get(size_t) const - !&myStream.in()");
 
-  if(theIndex < 0 || theIndex >= myStream->length())
+  if(theIndex >= myStream->length())
     throw std::out_of_range("SALOMEDS_TMPFile_i::Get(size_t) const - theIndex < 0 || theIndex >= myStream->length()");
 
-  return myStream[theIndex];
+  return myStream[(CORBA::ULong)theIndex]; //!< TODO: conversion from size_t to CORBA::ULong
 }
 
 
@@ -81,8 +81,8 @@ Engines_TMPFile_i
   if(!&myStream.in())
     throw std::out_of_range("Engines_TMPFile_i::Get(size_t) const - !&myStream.in()");
 
-  if(theIndex < 0 || theIndex >= myStream->length())
+  if(theIndex >= myStream->length())
     throw std::out_of_range("Engines_TMPFile_i::Get(size_t) const - theIndex < 0 || theIndex >= myStream->length()");
 
-  return myStream[theIndex];
+  return myStream[(CORBA::ULong)theIndex]; //!< TODO: conversion from size_t to _CROBA_ULong
 }

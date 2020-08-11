@@ -117,7 +117,7 @@ public:
   
   SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB);
 
-  ~SALOMEDS_DriverFactory_i();
+  virtual ~SALOMEDS_DriverFactory_i();
    
   virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType);
 

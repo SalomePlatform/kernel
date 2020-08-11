@@ -37,7 +37,7 @@
 #define SALOME_CorbaLongSender SALOME_CorbaLongCSender_i
 #endif
 
-SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab)throw(MultiCommException){
+SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab) {
   switch(multiCommunicator.getProtocol())
     {
     case SALOME::CORBA_:
@@ -70,7 +70,7 @@ SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommun
     }
 }
 
-SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab)throw(MultiCommException){
+SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab) {
   switch(multiCommunicator.getProtocol())
     {
     case SALOME::CORBA_:

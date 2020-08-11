@@ -606,7 +606,7 @@ namespace CalciumInterface {
 #endif
    
     return;
-  };
+  }
   
   template <typename T1> static void
   ecp_ecriture ( Superv_Component_i & component,
@@ -618,7 +618,7 @@ namespace CalciumInterface {
                  T1 const & data ) 
   {
     ecp_ecriture<T1,T1> (component,dependencyType,t,i,nomVar,bufferLength,data); 
-  };
+  }
 
   static inline void
   ecp_fini(Superv_Component_i & component,const std::string  & nomVar,long const  & i)
@@ -677,7 +677,7 @@ namespace CalciumInterface {
     msg << "i<=" << i ;
     Engines_DSC_interface::writeEvent("CP_FINI",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
 
-  };
+  }
 
   static inline void
   ecp_fint(Superv_Component_i & component,const std::string  & nomVar,double const  & t)
@@ -736,7 +736,7 @@ namespace CalciumInterface {
     msg << "t<=" << t ;
     Engines_DSC_interface::writeEvent("CP_FINT",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
 
-  };
+  }
 
   static inline void
   ecp_effi(Superv_Component_i & component,const std::string  & nomVar,long const  & i)
@@ -795,7 +795,7 @@ namespace CalciumInterface {
     msg << "i>=" << i ;
     Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
 
-  };
+  }
 
   static inline void
   ecp_efft(Superv_Component_i & component,const std::string  & nomVar,double const  & t)
@@ -854,8 +854,8 @@ namespace CalciumInterface {
     msg << "t>=" << t ;
     Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
 
-  };
+  }
 
-};
+}
 
 #endif

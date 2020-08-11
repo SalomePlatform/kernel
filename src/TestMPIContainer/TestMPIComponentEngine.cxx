@@ -63,6 +63,7 @@ void TestMPIComponentEngine::Coucou(CORBA::Long L)
 
 void TestMPIComponentEngine::SPCoucou(CORBA::Long L)
 {
+  (void)L; // unused in release mode  
   BEGIN_OF("[" << _numproc << "] TestMPIComponentEngine::Coucou()");
   MESSAGE("[" << _numproc << "] TestMPIComponentEngine : L = " << L);
   END_OF("[" << _numproc << "] TestMPIComponentEngine::Coucou()");

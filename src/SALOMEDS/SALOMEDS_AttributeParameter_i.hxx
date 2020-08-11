@@ -52,32 +52,25 @@ public:
 
 
   virtual void SetInt(const char* theID, CORBA::Long theValue);
-  virtual CORBA::Long GetInt(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual CORBA::Long GetInt(const char* theID);
 
   virtual void SetReal(const char* theID, CORBA::Double theValue);
-  virtual CORBA::Double GetReal(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual CORBA::Double GetReal(const char* theID);
 
   virtual void SetString(const char* theID, const char* theValue);
-  virtual char* GetString(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual char* GetString(const char* theID);
   
   virtual void SetBool(const char* theID, CORBA::Boolean theValue);
-  virtual CORBA::Boolean GetBool(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual CORBA::Boolean GetBool(const char* theID);
   
   virtual void SetRealArray(const char* theID, const SALOMEDS::DoubleSeq& theArray);
-  virtual SALOMEDS::DoubleSeq* GetRealArray(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual SALOMEDS::DoubleSeq* GetRealArray(const char* theID);
   
   virtual void SetIntArray(const char* theID, const SALOMEDS::LongSeq& theArray);
-  virtual SALOMEDS::LongSeq* GetIntArray(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual SALOMEDS::LongSeq* GetIntArray(const char* theID);
 
   virtual void SetStrArray(const char* theID, const SALOMEDS::StringSeq& theArray);
-  virtual SALOMEDS::StringSeq* GetStrArray(const char* theID)
-    throw (SALOMEDS::AttributeParameter::InvalidIdentifier);
+  virtual SALOMEDS::StringSeq* GetStrArray(const char* theID);
   
   virtual CORBA::Boolean IsSet(const char* theID, CORBA::Long theType);
   

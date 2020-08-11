@@ -89,7 +89,7 @@ SALOME_Exception::SALOME_Exception( const char *text, const char *fileName, cons
 }
 
 
-SALOME_Exception::~SALOME_Exception() throw ()
+SALOME_Exception::~SALOME_Exception() noexcept
 {
         if ( _text )
         {
@@ -116,7 +116,7 @@ std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex )
 
 
 
-const char* SALOME_Exception::what( void ) const throw ()
+const char* SALOME_Exception::what( void ) const noexcept
 {
         return _text ;
 }

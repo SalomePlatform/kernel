@@ -77,7 +77,7 @@ const char* get_adip( void )
         const in_addr ip_addr=*(struct in_addr*)(pour_adip->h_addr) ;
         return duplicate(inet_ntoa(ip_addr));
 }
-const char* const get_pwname( void )
+const char* get_pwname( void )
 {
         struct passwd *papa = getpwuid(getuid());
         return papa->pw_name ;
@@ -100,7 +100,7 @@ const char* get_uname( void )
 #else
 	    static std::string hostName(4096, 0);
 #endif
-        static DWORD nSize = hostName.length();
+        static DWORD nSize = (DWORD)hostName.length(); //!< TODO: conversion from size_t to DWORD
         static int res = ::GetComputerNameEx(ComputerNameDnsFullyQualified, &hostName[0], &nSize);
         ASSERT( res );
 #ifdef UNICODE
@@ -143,7 +143,7 @@ const char* const get_pwname( void )
 #else
 	static std::string retVal(4096, 0);
 #endif
-  static DWORD  dwSize = retVal.length() + 1;
+  static DWORD  dwSize = (DWORD)(retVal.length() + 1); //!< TODO: conversion from size_t to DWORD
   static int res = GetUserName( &retVal[0], &dwSize );
   ASSERT( res );
 #ifdef UNICODE
@@ -179,12 +179,12 @@ PSID getuid() {
 
 
 Identity::Identity( const char *name ): _name(duplicate(name)),\
-                                                        _hostid(get_uname()),\
                                                         _adip(get_adip()),\
+                                                        _hostid(get_uname()),\
+                                                        _pid(getpid()) ,\
                                                         _uid(getuid()) ,\
                                                         _pwname(get_pwname()) ,\
                                                         _dir(getcwd(NULL,4096)),\
-                                                        _pid(getpid()) ,\
                                                         _start(time(NULL)),\
                                                         _cstart(ctime(&_start))
 //CCRT
@@ -215,32 +215,32 @@ Identity::~Identity(void)
 /* Accessors  */
 /*------------*/
 
-const char* const Identity::name (void) const
+const char* Identity::name (void) const
 {
         return  _name ;
 }
 #ifndef WIN32
-        const pid_t& Identity::pid(void) const
+const pid_t& Identity::pid(void) const
 #else
-        const DWORD& Identity::pid(void) const
+const DWORD& Identity::pid(void) const
 #endif
 {
         return _pid ;
 }
 
 #ifndef WIN32
-        const struct utsname &Identity::hostid(void) const
+const struct utsname &Identity::hostid(void) const
 #else
-        const char* const Identity::hostid(void) const
+const char* Identity::hostid(void) const
 #endif
 {
     return _hostid ;
 }
 
 #ifndef WIN32
-        const uid_t& Identity::uid(void) const
+const uid_t& Identity::uid(void) const
 #else
-        const PSID& Identity::uid(void) const
+const PSID& Identity::uid(void) const
 #endif
 {
         return _uid ;
@@ -249,15 +249,15 @@ const time_t &Identity::start(void) const
 {
         return _start ;
 }
-const char* const Identity::rep (void) const
+const char* Identity::rep (void) const
 {
         return  _dir ;
 }
-const char* const Identity::pwname (void) const
+const char* Identity::pwname (void) const
 {
         return  _pwname ;
 }
-const char* const Identity::adip (void) const
+const char* Identity::adip (void) const
 {
         return _adip ;
 }

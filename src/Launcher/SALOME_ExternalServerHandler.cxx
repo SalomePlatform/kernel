@@ -127,7 +127,7 @@ SALOME::LongVec *SALOME_ExternalServerHandler::listOfChildrenPID()
   std::vector<long> pids(pyh->evalVL(oss.str()));
   std::size_t sz(pids.size());
   ret->length(sz);
-  for(auto i=0;i<sz;i++)
+  for(size_t i=0;i<sz;i++)
     (*ret)[i] = pids[i];
 #endif
   return ret;

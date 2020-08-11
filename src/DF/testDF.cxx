@@ -72,9 +72,8 @@ void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, in
   struct tm transfert;
   struct timeval tval;
   struct timezone tzone;
-  int status;
-
-  status = gettimeofday( &tval, &tzone );
+  
+  gettimeofday( &tval, &tzone );
   memcpy(&transfert, localtime((time_t *)&tval.tv_sec), sizeof(tm));
   
   month    = transfert.tm_mon + 1;
@@ -185,7 +184,7 @@ std::vector<std::string> splitString(const std::string& theValue, char separator
 }
 
 
-int main (int argc, char * argv[])
+int main ()
 {
   std::cout << "Test started " << std::endl;
   

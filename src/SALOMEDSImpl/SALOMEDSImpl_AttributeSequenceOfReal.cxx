@@ -123,7 +123,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::ChangeValue(const int Index,const dou
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   myValue[Index-1] = Value;
   
@@ -144,7 +144,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const int Index)
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   typedef std::vector<double>::iterator VI;
   int i = 1;    
@@ -160,12 +160,12 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const int Index)
 
 int SALOMEDSImpl_AttributeSequenceOfReal::Length() 
 {
-  return myValue.size();
+  return (int)myValue.size(); //!< TODO: conversion from size_t to int, possible loss of data
 }
 
 double SALOMEDSImpl_AttributeSequenceOfReal::Value(const int Index) 
 {
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
   return myValue[Index-1];
 }
 
@@ -175,7 +175,7 @@ std::string SALOMEDSImpl_AttributeSequenceOfReal::Save()
   int aLength = Length();
   char* aResult = new char[aLength * 127];
   aResult[0] = 0;
-  int aPosition = 0;
+  size_t aPosition = 0;
   for (int i = 1; i <= aLength; i++) {
     sprintf(aResult + aPosition , "%.64e ", Value(i));
     aPosition += strlen(aResult + aPosition);

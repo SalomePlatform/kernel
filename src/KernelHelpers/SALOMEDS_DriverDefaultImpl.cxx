@@ -24,27 +24,27 @@
 
 
 //===========================================================================
-    SALOMEDS_DriverDefaultImpl::SALOMEDS_DriverDefaultImpl(CORBA::ORB_ptr orb,
-			                 PortableServer::POA_ptr poa,
-				         PortableServer::ObjectId * contId,
-					 const char *instanceName,
-					 const char *interfaceName) 
+    SALOMEDS_DriverDefaultImpl::SALOMEDS_DriverDefaultImpl(CORBA::ORB_ptr /*orb*/,
+			                 PortableServer::POA_ptr /*poa*/,
+				         PortableServer::ObjectId * /*contId*/,
+					 const char * /*instanceName*/,
+					 const char * /*interfaceName*/) 
 //     :Engines_Component_i(orb, poa, contId, instanceName, interfaceName)
   {
     MESSAGE("SALOMEDS_DriverDefaultImpl::SALOMEDS_DriverDefaultImpl : ");
-  };
+  }
 
 //===========================================================================
   SALOMEDS_DriverDefaultImpl::~SALOMEDS_DriverDefaultImpl()
   {
     MESSAGE("SALOMEDS_DriverDefaultImpl::~SALOMEDS_DriverDefaultImpl");
-  };
+  }
 
 //===========================================================================
-  CORBA::Boolean SALOMEDS_DriverDefaultImpl::Load(SALOMEDS::SComponent_ptr theComponent,
-				  const SALOMEDS::TMPFile & theStream,
-				  const char* theURL,
-				  bool isMultiFile)
+  CORBA::Boolean SALOMEDS_DriverDefaultImpl::Load(SALOMEDS::SComponent_ptr /*theComponent*/,
+				  const SALOMEDS::TMPFile & /*theStream*/,
+				  const char* /*theURL*/,
+				  bool /*isMultiFile*/)
   {
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
@@ -55,13 +55,13 @@
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
     return false;
-  };
+  }
 
 //===========================================================================
-  CORBA::Boolean SALOMEDS_DriverDefaultImpl::LoadASCII(SALOMEDS::SComponent_ptr theComponent,
-				       const SALOMEDS::TMPFile & theStream,
-				       const char* theURL,
-				       bool isMultiFile)
+  CORBA::Boolean SALOMEDS_DriverDefaultImpl::LoadASCII(SALOMEDS::SComponent_ptr /*theComponent*/,
+				       const SALOMEDS::TMPFile & /*theStream*/,
+				       const char* /*theURL*/,
+				       bool /*isMultiFile*/)
   {
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
@@ -72,13 +72,13 @@
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
     return false;
-  };
+  }
 
 //===========================================================================
-  char* SALOMEDS_DriverDefaultImpl::LocalPersistentIDToIOR(SALOMEDS::SObject_ptr theSObject,
-					   const char* aLocalPersistentID,
-					   CORBA::Boolean isMultiFile,
-					   CORBA::Boolean isASCII)
+  char* SALOMEDS_DriverDefaultImpl::LocalPersistentIDToIOR(SALOMEDS::SObject_ptr /*theSObject*/,
+					   const char* /*aLocalPersistentID*/,
+					   CORBA::Boolean /*isMultiFile*/,
+					   CORBA::Boolean /*isASCII*/)
   {
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
@@ -90,12 +90,12 @@
     MESSAGE("--------------------------------------");
     CORBA::String_var aString("");
     return aString._retn();
-  };
+  }
 
 //===========================================================================
-  SALOMEDS::TMPFile* SALOMEDS_DriverDefaultImpl::Save(SALOMEDS::SComponent_ptr theComponent,
-				      const char* theURL,
-				      bool isMultiFile)
+  SALOMEDS::TMPFile* SALOMEDS_DriverDefaultImpl::Save(SALOMEDS::SComponent_ptr /*theComponent*/,
+				      const char* /*theURL*/,
+				      bool /*isMultiFile*/)
   {
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
@@ -107,12 +107,12 @@
     MESSAGE("--------------------------------------");
     SALOMEDS::TMPFile_var aStreamFile = new SALOMEDS::TMPFile(0);
     return aStreamFile._retn();
-  };
+  }
 
 //===========================================================================
-  SALOMEDS::TMPFile* SALOMEDS_DriverDefaultImpl::SaveASCII(SALOMEDS::SComponent_ptr theComponent,
-					   const char* theURL,
-					   bool isMultiFile)
+  SALOMEDS::TMPFile* SALOMEDS_DriverDefaultImpl::SaveASCII(SALOMEDS::SComponent_ptr /*theComponent*/,
+					   const char* /*theURL*/,
+					   bool /*isMultiFile*/)
   {
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
@@ -124,13 +124,13 @@
     MESSAGE("--------------------------------------");
     SALOMEDS::TMPFile_var aStreamFile = new SALOMEDS::TMPFile(0);
     return aStreamFile._retn();
-  };
+  }
 
 //===========================================================================
-  char* SALOMEDS_DriverDefaultImpl::IORToLocalPersistentID(SALOMEDS::SObject_ptr theSObject,
-					   const char* IORString,
-					   CORBA::Boolean isMultiFile,
-					   CORBA::Boolean isASCII)
+  char* SALOMEDS_DriverDefaultImpl::IORToLocalPersistentID(SALOMEDS::SObject_ptr /*theSObject*/,
+					   const char* /*IORString*/,
+					   CORBA::Boolean /*isMultiFile*/,
+					   CORBA::Boolean /*isASCII*/)
   {
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
@@ -142,16 +142,16 @@
     MESSAGE("-----------------------------------------");
     CORBA::String_var aString("");
     return aString._retn();
-  };
+  }
 
 
 //===========================================================================
-  void SALOMEDS_DriverDefaultImpl::Close(SALOMEDS::SComponent_ptr theComponent)
+  void SALOMEDS_DriverDefaultImpl::Close(SALOMEDS::SComponent_ptr /*theComponent*/)
   {
     MESSAGE("------------------------");
     MESSAGE("SALOMEDS_DriverDefaultImpl::Close");
     MESSAGE("------------------------");
-  };
+  }
 
 //===========================================================================
   char* SALOMEDS_DriverDefaultImpl::ComponentDataType()
@@ -165,10 +165,10 @@
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
     return CORBA::string_dup("J aurais du nommer mon type prefere");
-  };
+  }
 
 //===========================================================================
-  bool SALOMEDS_DriverDefaultImpl::CanPublishInStudy(CORBA::Object_ptr theIOR) 
+  bool SALOMEDS_DriverDefaultImpl::CanPublishInStudy(CORBA::Object_ptr /*theIOR*/) 
   {
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
@@ -179,13 +179,12 @@
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
     return false;
-  };
+  }
 
 //===========================================================================
-  SALOMEDS::SObject_ptr SALOMEDS_DriverDefaultImpl::PublishInStudy(SALOMEDS::SObject_ptr theSObject,
-						                                           CORBA::Object_ptr     theObject,
-						                                           const char*           theName)
-    throw (SALOME::SALOME_Exception)
+  SALOMEDS::SObject_ptr SALOMEDS_DriverDefaultImpl::PublishInStudy(SALOMEDS::SObject_ptr /*theSObject*/,
+						                                           CORBA::Object_ptr    /*theObject*/,
+						                                           const char*          /* theName*/)
   {
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
@@ -197,10 +196,10 @@
     MESSAGE("-----------------------------------------");
     SALOMEDS::SObject_var aResultSO;
     return aResultSO._retn();
-  };
+  }
 
 //===========================================================================
-  CORBA::Boolean SALOMEDS_DriverDefaultImpl::CanCopy(SALOMEDS::SObject_ptr theObject) 
+  CORBA::Boolean SALOMEDS_DriverDefaultImpl::CanCopy(SALOMEDS::SObject_ptr /*theObject*/) 
   {
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
@@ -212,11 +211,11 @@
     MESSAGE("-----------------------------------------");
     //return false;
     return true;
-  };
+  }
 
 //===========================================================================
-  SALOMEDS::TMPFile* SALOMEDS_DriverDefaultImpl::CopyFrom(SALOMEDS::SObject_ptr theObject,
-		  			     CORBA::Long& theObjectID)
+  SALOMEDS::TMPFile* SALOMEDS_DriverDefaultImpl::CopyFrom(SALOMEDS::SObject_ptr /*theObject*/,
+		  			     CORBA::Long& /*theObjectID*/)
 {
     MESSAGE("--------------------------------------");
     MESSAGE("--------------------------------------");
@@ -228,12 +227,12 @@
     MESSAGE("--------------------------------------");
     SALOMEDS::TMPFile_var aStreamFile = new SALOMEDS::TMPFile(0);
     return aStreamFile._retn();
-};
+}
 
 //===========================================================================
-  SALOMEDS::SObject_ptr SALOMEDS_DriverDefaultImpl::PasteInto( const SALOMEDS::TMPFile & theStream,
-		  			              CORBA::Long theObjectID,
-						      SALOMEDS::SObject_ptr theSObject)
+  SALOMEDS::SObject_ptr SALOMEDS_DriverDefaultImpl::PasteInto( const SALOMEDS::TMPFile & /*theStream*/,
+		  			              CORBA::Long /*theObjectID*/,
+						      SALOMEDS::SObject_ptr /*theSObject*/)
   {
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
@@ -245,11 +244,11 @@
     MESSAGE("-----------------------------------------");
     SALOMEDS::SObject_var aResultSO;
     return aResultSO._retn();
-  };
+  }
 
 //===========================================================================
-   CORBA::Boolean  SALOMEDS_DriverDefaultImpl::CanPaste ( const char *theComponentName,
-		  			         CORBA::Long theObjectID)
+   CORBA::Boolean  SALOMEDS_DriverDefaultImpl::CanPaste ( const char * /*theComponentName*/,
+		  			         CORBA::Long /*theObjectID*/)
   {
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
@@ -260,6 +259,6 @@
     MESSAGE("-----------------------------------------");
     MESSAGE("-----------------------------------------");
     return false;
-  };
+  }
 
   

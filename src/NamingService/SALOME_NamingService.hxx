@@ -41,7 +41,7 @@
 #include "SALOME_NamingService_defs.hxx"
 
 #ifdef WIN32
-#pragma warning(disable:4290) // Warning Exception ...
+//#pragma warning(disable:4290) // Warning Exception ...
 #endif
 
 class NAMINGSERVICE_EXPORT SALOME_NamingService
@@ -53,29 +53,29 @@ public:
   virtual ~SALOME_NamingService();
 
   void init_orb(CORBA::ORB_ptr orb=0);
-  void Register(CORBA::Object_ptr ObjRef, const char* Path) throw(ServiceUnreachable);
-  CORBA::Object_ptr Resolve(const char* Path) throw( ServiceUnreachable); 
-  CORBA::Object_ptr ResolveFirst(const char* Path) throw( ServiceUnreachable); 
+  void Register(CORBA::Object_ptr ObjRef, const char* Path) ;
+  CORBA::Object_ptr Resolve(const char* Path) ; 
+  CORBA::Object_ptr ResolveFirst(const char* Path) ; 
   CORBA::Object_ptr ResolveComponent(const char* hostname,
                                      const char* containerName,
                                      const char* componentName,
-                                     const int nbproc=0) throw(ServiceUnreachable);
+                                     const int nbproc=0) ;
   std::string ContainerName(const char *ContainerName);
   std::string ContainerName(const Engines::ContainerParameters& params);
   std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
   std::string BuildContainerNameForNS(const Engines::ContainerParameters& params, const char *hostname);
 
-  int Find(const char* name) throw(ServiceUnreachable);
-  bool Create_Directory(const char* Path) throw(ServiceUnreachable);
-  bool Change_Directory(const char* Path) throw(ServiceUnreachable);
-  char* Current_Directory() throw(ServiceUnreachable);
-  void list() throw(ServiceUnreachable);
-  std::vector<std::string> list_directory() throw(ServiceUnreachable);
-  std::vector<std::string> list_subdirs() throw(ServiceUnreachable);
-  std::vector<std::string> list_directory_recurs() throw(ServiceUnreachable);
-  void Destroy_Name(const char* Path) throw(ServiceUnreachable);
-  virtual void Destroy_Directory(const char* Path) throw(ServiceUnreachable);
-  virtual void Destroy_FullDirectory(const char* Path) throw(ServiceUnreachable);
+  int Find(const char* name) ;
+  bool Create_Directory(const char* Path) ;
+  bool Change_Directory(const char* Path) ;
+  char* Current_Directory() ;
+  void list() ;
+  std::vector<std::string> list_directory() ;
+  std::vector<std::string> list_subdirs() ;
+  std::vector<std::string> list_directory_recurs() ;
+  void Destroy_Name(const char* Path) ;
+  virtual void Destroy_Directory(const char* Path) ;
+  virtual void Destroy_FullDirectory(const char* Path) ;
   char *getIORaddr();
   CORBA::ORB_ptr orb();
 

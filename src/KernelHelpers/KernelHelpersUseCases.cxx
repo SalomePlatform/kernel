@@ -82,6 +82,7 @@ bool TEST_getSalomeLauncher() {
   for (int i=0; i<10; i++) {
     try {
       int pid = salomeLauncher->getPID();
+      SALOME_UNUSED(pid); // unused in release mode
       LOG("["<<i<<"] SALOME launcher PID = " << pid);
     }
     catch (const SALOME::SALOME_Exception & ex) {
@@ -111,7 +112,7 @@ bool TEST_getSalomeLauncher() {
 
 
 
-int main (int argc, char * argv[]) {
+int main () {
   TEST_corba();
   TEST_getLifeCycleCORBA();
   TEST_getStudy();

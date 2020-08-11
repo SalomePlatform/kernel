@@ -42,7 +42,7 @@
 #include <unistd.h>
 #endif
 
-UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
+UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection)
 
 SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb) :
   GenericObj_i(SALOMEDS_Study_i::GetThePOA())
@@ -72,7 +72,7 @@ PortableServer::POA_ptr SALOMEDS_GenericAttribute_i::_default_POA()
   return PortableServer::POA::_duplicate(myPOA);
 }
 
-void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) 
+void SALOMEDS_GenericAttribute_i::CheckLocked()
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(GALockProtection);
@@ -130,6 +130,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
   char* aTypeOfAttribute = (char*)aClassType.c_str();
   SALOMEDS::GenericAttribute_var anAttribute;
   SALOMEDS_GenericAttribute_i* attr_servant = NULL;
+  SALOME_UNUSED(attr_servant);
   __CreateGenericCORBAAttribute
 
   return anAttribute._retn(); 

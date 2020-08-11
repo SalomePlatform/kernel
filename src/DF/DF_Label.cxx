@@ -190,7 +190,7 @@ bool DF_Label::ForgetAllAttributes(bool clearChildren) const
   std::vector<DF_Attribute*> va = GetAttributes();
   _node->_attributes.clear();
 
-  for(int i = 0, len = va.size(); i<len; i++) {
+  for(size_t i = 0, len = va.size(); i<len; i++) {
     va[i]->BeforeForget();
     delete va[i];
   }
@@ -246,8 +246,8 @@ std::vector<DF_Attribute*> DF_Label::GetAttributes() const
     sorted.push_back(p->first);
     
   sort(sorted.begin(), sorted.end());
-  int len = sorted.size();    
-  for(int i = 0; i<len; i++)
+  size_t len = sorted.size();
+  for(size_t i = 0; i<len; i++)
     attributes.push_back(_node->_attributes[sorted[i]]);
 
   return attributes;
@@ -484,7 +484,7 @@ DF_LabelNode::~DF_LabelNode()
   for(AI p = _attributes.begin(); p!=_attributes.end(); p++)
     va.push_back(p->second);
 
-  for(int i = 0, len = va.size(); i<len; i++) 
+  for(size_t i = 0, len = va.size(); i<len; i++) 
     delete va[i];
 
   _attributes.clear();
@@ -501,7 +501,7 @@ void DF_LabelNode::Reset()
   for(AI p = _attributes.begin(); p!=_attributes.end(); p++)
     va.push_back(p->second);
 
-  for(int i = 0, len = va.size(); i<len; i++) 
+  for(size_t i = 0, len = va.size(); i<len; i++) 
     delete va[i];
 
   _attributes.clear();

@@ -49,7 +49,7 @@ palm_port_factory::create_data_servant(std::string type) {
 }
 
 uses_port * 
-palm_port_factory::create_data_proxy(std::string type) {
+palm_port_factory::create_data_proxy(std::string /*type*/) {
   uses_port * rtn_port = NULL;
   return rtn_port;
 }

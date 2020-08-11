@@ -198,7 +198,7 @@ void SALOMEDSImpl_ScalarVariable::Load(const std::string& theStrValue)
   }
   else {
 #ifdef OLDSTUDY_COMPATIBILITY
-    int dotpos = strCopy.find(',');
+    size_t dotpos = strCopy.find(',');
     if (dotpos != std::string::npos)
       strCopy.replace(dotpos, 1, ".");
 #endif // OLDSTUDY_COMPATIBILITY

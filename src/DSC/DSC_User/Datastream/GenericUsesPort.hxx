@@ -37,11 +37,11 @@
 
 #include "DSC_Exception.hxx"
 
-// #define GENERATE_USES_PORT(dataManip,portType,portName)                      \
-//   const char * _repository_##portType##_name_ = "IDL:Ports/##portType##:1.0"; \
-//   GenericUsesPort< dataManip, portType, _repository_##portType##_name_ > portName;
+/* #define GENERATE_USES_PORT(dataManip,portType,portName)                      \
+   const char * _repository_##portType##_name_ = "IDL:Ports/##portType##:1.0"; \
+   GenericUsesPort< dataManip, portType, _repository_##portType##_name_ > portName;
 
-//ex : GENERATE_USES_PORT(Ports::Data_Short_Port,data_short_port);
+ex : GENERATE_USES_PORT(Ports::Data_Short_Port,data_short_port);*/
 
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName, 
           typename UsesPort=uses_port > 
@@ -103,7 +103,7 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
   // OLD : Pour l'instant on résoud PB2 en créant une copie de la donnée en cas
   // OLD : de connexions multiples. Il faudra tester la collocalisation.
   // OLD :  DataType copyOfData; // = data; PB1
-  for(int i = 0; i < _my_ports->length(); i++) {
+  for(int i = 0; i < (int)_my_ports->length(); i++) { //TODO: mismatch signed/unsigned
 
     CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
@@ -134,7 +134,7 @@ template <typename DataManipulator, typename CorbaPortType, char * repositoryNam
 void 
 GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort  
                  >::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-                                      const Engines::DSC::Message message)
+                                      const Engines::DSC::Message /*message*/)
 {
   if (_my_ports) delete _my_ports;
 

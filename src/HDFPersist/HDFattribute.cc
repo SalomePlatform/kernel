@@ -98,7 +98,7 @@ hdf_type HDFattribute::GetType()
 size_t HDFattribute::GetSize()
 {
   if(_size == 0) {
-    if((_size = HDFattrGetSize(_id)) < 0)
+    if((long)(_size = HDFattrGetSize(_id)) < 0)
       throw HDFexception("Can't determine the size of data in the attribute");
   }
   return _size;

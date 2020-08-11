@@ -44,8 +44,8 @@
 #include <DF_Document.hxx>
 #include <stdlib.h> 
 
-UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception);
-UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection);
+UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception)
+UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 //============================================================================
 /*! Function : constructor
@@ -207,7 +207,7 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO, 
-                                       SALOMEDS::Driver_ptr aDriver) throw(SALOME::SALOME_Exception)
+                                       SALOMEDS::Driver_ptr aDriver)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBSalomeException);
@@ -229,7 +229,7 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_StudyBuilder_i::Load(SALOMEDS::SObject_ptr sco)
+void SALOMEDS_StudyBuilder_i::Load(SALOMEDS::SObject_ptr /*sco*/)
 {
   MESSAGE ( "This function is not yet implemented");
 }
@@ -383,7 +383,7 @@ void SALOMEDS_StudyBuilder_i::NewCommand()
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_StudyBuilder_i::CommitCommand() throw (SALOMEDS::StudyBuilder::LockProtection)
+void SALOMEDS_StudyBuilder_i::CommitCommand()
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
@@ -423,7 +423,7 @@ void SALOMEDS_StudyBuilder_i::AbortCommand()
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_StudyBuilder_i::Undo() throw (SALOMEDS::StudyBuilder::LockProtection)
+void SALOMEDS_StudyBuilder_i::Undo()
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
@@ -441,7 +441,7 @@ void SALOMEDS_StudyBuilder_i::Undo() throw (SALOMEDS::StudyBuilder::LockProtecti
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_StudyBuilder_i::Redo() throw (SALOMEDS::StudyBuilder::LockProtection)
+void SALOMEDS_StudyBuilder_i::Redo()
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
@@ -504,7 +504,7 @@ void  SALOMEDS_StudyBuilder_i::UndoLimit(CORBA::Long n)
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_StudyBuilder_i::CheckLocked() throw (SALOMEDS::StudyBuilder::LockProtection) 
+void SALOMEDS_StudyBuilder_i::CheckLocked()
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
@@ -522,7 +522,6 @@ void SALOMEDS_StudyBuilder_i::CheckLocked() throw (SALOMEDS::StudyBuilder::LockP
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::SetName(SALOMEDS::SObject_ptr theSO, const char* theValue)
-     throw(SALOMEDS::StudyBuilder::LockProtection)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
@@ -539,7 +538,6 @@ void SALOMEDS_StudyBuilder_i::SetName(SALOMEDS::SObject_ptr theSO, const char* t
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue)
-     throw(SALOMEDS::StudyBuilder::LockProtection)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
@@ -556,7 +554,6 @@ void SALOMEDS_StudyBuilder_i::SetComment(SALOMEDS::SObject_ptr theSO, const char
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue)
- throw(SALOMEDS::StudyBuilder::LockProtection)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);

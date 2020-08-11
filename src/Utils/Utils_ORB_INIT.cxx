@@ -68,7 +68,7 @@ void ORB_INIT::explicit_destroy()
     }
 }
 
-CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv ) throw( CommException )
+CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv )
 {
   try {
     if ( CORBA::is_nil( _orb ) )

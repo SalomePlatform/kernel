@@ -72,9 +72,9 @@ SALOME::StringVec *DataServerManager::listScopes()
   std::vector<std::string> scopes(listOfScopesCpp());
   SALOME::StringVec *ret(new SALOME::StringVec);
   std::size_t sz(scopes.size());
-  ret->length(sz);
+  ret->length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
   for(std::size_t i=0;i<sz;i++)
-    (*ret)[i]=CORBA::string_dup(scopes[i].c_str());
+    (*ret)[(CORBA::ULong)i]=CORBA::string_dup(scopes[i].c_str()); //!< TODO: size_t to CORBA::ULong
   return ret;
 }
 
@@ -91,9 +91,9 @@ SALOME::StringVec *DataServerManager::listAliveAndKickingScopes()
   //
   SALOME::StringVec *ret(new SALOME::StringVec);
   sz=retCpp.size();
-  ret->length(sz);
+  ret->length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
   for(std::size_t i=0;i<sz;i++)
-    (*ret)[i]=CORBA::string_dup(retCpp[i].c_str());
+    (*ret)[(CORBA::ULong)i]=CORBA::string_dup(retCpp[i].c_str()); //!< TODO: size_t to CORBA::ULong
   return ret;
 }
 

@@ -37,7 +37,7 @@ template <class T>
 typename T::_var_type strvec_CPPtoCORBA(const vector<string> & strvecCpp)
 {
   typename T::_var_type strvecCorba = new T;
-  strvecCorba->length(strvecCpp.size());
+  strvecCorba->length((CORBA::ULong)strvecCpp.size());
   for(unsigned int i=0;i<strvecCpp.size();i++)
     strvecCorba[i] = strvecCpp[i].c_str();
   return strvecCorba;

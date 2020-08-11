@@ -519,7 +519,7 @@ Job*
 XML_Persistence::createJobFromString(const std::string& jobDump)
 {
   xmlDocPtr doc;
-  doc = xmlReadMemory(jobDump.c_str(), jobDump.length(), "noname.xml", NULL, 0);
+  doc = xmlReadMemory(jobDump.c_str(), (int)jobDump.length(), "noname.xml", NULL, 0); //TODO: conversion from size_t to int, possible loss of data
   if (doc == NULL)
   {
     std::string error = "Error in xmlReadMemory in XML_Persistence::createJobFromString, could not parse string: " + jobDump;

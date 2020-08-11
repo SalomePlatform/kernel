@@ -353,7 +353,7 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindObjectByName(const std::string& a
     SALOMEDS::Locker lock;
 
     std::vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindObjectByName(anObjectName, aComponentName);
-    aLength = aSeq.size();
+    aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
     for (i = 0; i< aLength; i++) 
       aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
   }
@@ -594,7 +594,7 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& 
 
     std::vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindDependances(*(aSO->GetLocalImpl()));
     if (aSeq.size()) {
-      aLength = aSeq.size();
+      aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
       for (i = 0; i < aLength; i++) 
         aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
     }

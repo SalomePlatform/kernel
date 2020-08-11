@@ -46,7 +46,7 @@ data_short_port_uses::put(CORBA::Short data) {
     std::cerr << "data_short_port_uses::put is NULL" << std::endl;
   else
   {
-    for(int i = 0; i < _my_ports->length(); i++)
+    for(int i = 0; i < (int)_my_ports->length(); i++) //TODO: mismatch signed/unsigned
     {
       Ports::Data_Short_Port_ptr port = Ports::Data_Short_Port::_narrow((*_my_ports)[i]);
       port->put(data);
@@ -56,7 +56,7 @@ data_short_port_uses::put(CORBA::Short data) {
 
 void 
 data_short_port_uses::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-                       const Engines::DSC::Message message)
+                       const Engines::DSC::Message /*message*/)
 {
   if (_my_ports)
     delete _my_ports;

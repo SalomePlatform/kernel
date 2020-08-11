@@ -40,7 +40,7 @@
 
 #ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
-#pragma warning(disable:4290) // Warning Exception ...
+//#pragma warning(disable:4290) // Warning Exception ...
 #endif
 
 // --- WARNING ---
@@ -72,12 +72,12 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
   public:
 
     ResourcesManager_cpp(const char *xmlFilePath);
-    ResourcesManager_cpp() throw(ResourcesException);
+    ResourcesManager_cpp();
 
     ~ResourcesManager_cpp();
 
     std::vector<std::string> 
-    GetFittingResources(const resourceParams& params) throw(ResourcesException);
+    GetFittingResources(const resourceParams& params);
 
     std::string Find(const std::string& policy, const std::vector<std::string>& listOfResources) const;
 

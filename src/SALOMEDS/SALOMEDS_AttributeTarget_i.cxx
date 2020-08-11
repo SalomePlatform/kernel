@@ -44,7 +44,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get()
   SALOMEDS::Locker lock; 
   std::vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_impl)->Get();
   SALOMEDS::Study::ListOfSObject_var aSList = new SALOMEDS::Study::ListOfSObject;
-  int aLength = aSeq.size(), i;
+  int aLength = (int)aSeq.size(), i; //!< TODO: conversion from size_t to int
   if (aLength == 0) return aSList._retn();
   aSList->length(aLength);
   for(i=0; i <aLength; i++) {

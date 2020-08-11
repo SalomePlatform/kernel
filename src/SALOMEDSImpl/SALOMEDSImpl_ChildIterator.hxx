@@ -43,7 +43,7 @@ public:
   SALOMEDSImpl_ChildIterator() {}    
   SALOMEDSImpl_ChildIterator(const SALOMEDSImpl_SObject& theSO);
   SALOMEDSImpl_ChildIterator(const DF_Label& theLabel);
-  ~SALOMEDSImpl_ChildIterator() {};
+  virtual ~SALOMEDSImpl_ChildIterator() {};
 
   virtual void Init();
   virtual void Init(const DF_Label& theLabel);

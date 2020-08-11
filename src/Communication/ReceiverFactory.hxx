@@ -36,11 +36,11 @@
 class COMMUNICATION_EXPORT ReceiverFactory
 {
 public:
-  static double *getValue(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException);
-  static int *getValue(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException);
+  static double *getValue(SALOME::SenderDouble_ptr sender,long &size);
+  static int *getValue(SALOME::SenderInt_ptr sender,long &size);
 private:
-  static double *getValueOneShot(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException);
-  static int *getValueOneShot(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException);
+  static double *getValueOneShot(SALOME::SenderDouble_ptr sender,long &size);
+  static int *getValueOneShot(SALOME::SenderInt_ptr sender,long &size);
 };
 
 #endif

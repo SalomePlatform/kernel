@@ -198,7 +198,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
   std::vector<std::string> aNames;
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
-  for (int i = 0, len = aNames.size(); i < len; i++) {
+  for (size_t i = 0, len = aNames.size(); i < len; i++) {
     myUserName.push_back(aNames[i]);
     myMinute.push_back(aMinutes[i]);
     myHour.push_back(aHours[i]);
@@ -224,7 +224,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
   aProp->Init();
 
   int i;
-  for(i = 0; i < myUserName.size(); i++) {
+  for(i = 0; i < (int)myUserName.size(); i++) {  //TODO: mismatch signed/unsigned
     aProp->SetModification(myUserName[i],
                            myMinute[i], myHour[i],
                            myDay[i], myMonth[i], myYear[i]);
@@ -250,7 +250,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   std::string units = GetUnits();
   std::string comment = GetComment();
 
-  int aLength1 = 0;
+  size_t aLength1 = 0;
   std::map<std::string, std::string> versions;
   versionMap::const_iterator it;
   for (aLength1 = 0, it = myComponentVersions.begin(); it != myComponentVersions.end(); ++it ) {
@@ -284,7 +284,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
             (int)(aMonths[anIndex]),
             (int)(aYears[anIndex]),
             (char*)(aNames[anIndex].c_str()));
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
     aProperty[a++] = 1;
   }
 
@@ -294,7 +294,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   //Write units if need
   if(units.size() > 0) {
     sprintf(&(aProperty[a]),"%s",units.c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
   }
 
   aProperty[a++] = 1; //delimiter of the units and comments
@@ -302,7 +302,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   //Write comments if need
   if(comment.size() > 0) {
     sprintf(&(aProperty[a]),"%s",comment.c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
   }
   
   aProperty[a++] = 30; //delimiter of the component versions
@@ -312,7 +312,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
     sprintf(&(aProperty[a]),"%s=%s",
             (char*)(versionsIt->first.c_str()),
             (char*)(versionsIt->second.c_str()));
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
     aProperty[a++] = 1;
   }
 
@@ -416,7 +416,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
   // - yyyy: year   = 4 bytes
   // - name: user's name = arbitrary value, minimal length is 0 bytes
   // - 1   : records delimiter = 1 byte  
-  for (anIndex = 2; anIndex + 13 < value.size() ;) {
+  for (anIndex = 2; anIndex + 13 < (int)value.size() ;) {  //TODO: mismatch signed/unsigned
     char str[10];
     int aMinute, aHour, aDay, aMonth, aYear;
     str[0] = aCopy[anIndex++];
@@ -449,12 +449,12 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
     anIndex += aNameSize + 1;
     
     //Check end of the modifications section
-    if(anIndex < value.size() && aCopy[anIndex] == 30)
+    if(anIndex < (int)value.size() && aCopy[anIndex] == 30) //TODO: mismatch signed/unsigned
       break;
   }
   
   //Case when study contains units and comment properties
-  if( anIndex < value.size() ) {
+  if( anIndex < (int)value.size() ) {   //TODO: mismatch signed/unsigned
     anIndex++; //skip the delimiter of the sections: char(30)
     int unitsSize;
     for(unitsSize = 0; aCopy[anIndex+unitsSize] != 1; unitsSize++);
@@ -482,8 +482,8 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
   }
 
   //Case when study contains components versions
-  if( anIndex < value.size() ) {
-    while ( anIndex < value.size() && aCopy[anIndex] != 0 ) {
+  if( anIndex < (int)value.size() ) { //TODO: mismatch signed/unsigned
+    while ( anIndex < (int)value.size() && aCopy[anIndex] != 0 ) { //TODO: mismatch signed/unsigned
       int modSize;
       for(modSize = 0; aCopy[anIndex+modSize] != '='; modSize++);
       int verSize;
@@ -499,7 +499,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
         aVersions[verSize] = 0;
         
         std::string mVersions = aVersions;
-        int start = 0, idx = mVersions.find( ';', start );
+        size_t start = 0, idx = mVersions.find( ';', start );
         while ( idx != std::string::npos ) {
           SetComponentVersion( aModule, mVersions.substr( start, idx-start ) );
           start = idx + 1;

@@ -52,8 +52,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
 {
   if (_singleton == 0) // no need of lock when singleton already exists
     {
-      int ret;
-      ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+      pthread_mutex_lock(&_singletonMutex);    // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
         {                                      // the lock after the first test
           DEVTRACE("FileTraceCollector:: instance()");
@@ -70,7 +69,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
           _singleton = myInstance; // _singleton known only when init done
           DEVTRACE("FileTraceCollector:: instance()-end");
         }
-      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+      pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
 }
@@ -86,7 +85,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
  */
 // ============================================================================
 
-void* FileTraceCollector::run(void *bid)
+void* FileTraceCollector::run(void* /*bid*/)
 {
   //DEVTRACE("init run");
   _threadId = new pthread_t;
@@ -168,8 +167,7 @@ void* FileTraceCollector::run(void *bid)
 
 FileTraceCollector:: ~FileTraceCollector()
 {
-  int ret;
-  ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
       DEVTRACE("FileTraceCollector:: ~FileTraceCollector()");
@@ -179,15 +177,15 @@ FileTraceCollector:: ~FileTraceCollector()
       if (_threadId)
         {
           int ret = pthread_join(*_threadId, NULL);
-          if (ret) std::cerr << "error close FileTraceCollector : "<< ret << std::endl;
-          else DEVTRACE("FileTraceCollector destruction OK");
+          if (ret) { std::cerr << "error close FileTraceCollector : "<< ret << std::endl; }
+          else { DEVTRACE("FileTraceCollector destruction OK"); }
           delete _threadId;
           _threadId = 0;
           _threadToClose = 0;
         }
       _singleton = 0;
     }
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+  pthread_mutex_unlock(&_singletonMutex); // release lock
 }
 
 // ============================================================================

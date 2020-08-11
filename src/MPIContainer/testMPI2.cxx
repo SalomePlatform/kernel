@@ -28,12 +28,15 @@
 # include <unistd.h>
 #endif
 
+#include "Basics_MpiUtils.hxx"
+
 int main(int argc, char**argv)
 {
   int *indg;
   double *vector, sum=0., norm=1., etalon=0.;
   int rank, size, grank, gsize, rsize;
-  int vsize=20, lvsize, rlvsize;
+  int vsize=20, lvsize;
+  //int rlvsize;
   int i, k1, k2, imin, imax, nb;
   int srv=0;
   MPI_Comm com, icom;
@@ -58,11 +61,7 @@ int main(int argc, char**argv)
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 
   MPI_Barrier(MPI_COMM_WORLD);
-#if OMPI_MAJOR_VERSION >= 4
-  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#else
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#endif
+  MPI_ERROR_HANDLER(MPI_ERRORS_RETURN);
 
 #ifdef HAVE_MPI2
   MPI_Info_create(&info);
@@ -109,11 +108,7 @@ int main(int argc, char**argv)
       exit(1);
     }
   }
-#if OMPI_MAJOR_VERSION >= 4
-  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#else
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#endif
+  MPI_ERROR_HANDLER(MPI_ERRORS_ARE_FATAL);
   MPI_Bcast(&srv,1,MPI_INT,0,MPI_COMM_WORLD);
   if ( srv )
     MPI_Comm_accept( port_name, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &icom );
@@ -152,7 +147,7 @@ int main(int argc, char**argv)
   }
 
   for(i=0;i<rsize;i++){
-    rlvsize = ((i+1)*vsize) / rsize - (i*vsize) / rsize;
+    //rlvsize = ((i+1)*vsize) / rsize - (i*vsize) / rsize;
     k1 = (i*vsize)/rsize;
     k2 = ((i+1)*vsize)/rsize -1;
 

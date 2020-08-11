@@ -77,7 +77,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 {
   std::string aDirName = theDirectory;
 
-  int i, aLength = theFiles.size();
+  size_t i, aLength = theFiles.size(); 
   for(i=1; i<=aLength; i++) {
     std::string aFile(aDirName);
     aFile += theFiles[i-1];
@@ -118,7 +118,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 //============================================================================
 std::string SALOMEDSImpl_Tool::GetNameFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
-  int pos = thePath.rfind('/');
+  int pos = (int)thePath.rfind('/'); //TODO: conversion from size_t to int
   if(pos >= 0) return thePath.substr(pos+1, thePath.size());
   pos = thePath.rfind('\\'); 
   if(pos >= 0) return thePath.substr(pos+1, thePath.size()); 
@@ -140,7 +140,7 @@ std::string SALOMEDSImpl_Tool::GetDirFromPath(const std::string& thePath) {
 
   std::string path;
   if (!thePath.empty()) {
-    int pos = thePath.rfind('/');
+    int pos = (int)thePath.rfind('/'); //TODO: conversion from size_t to int
     if (pos < 0) pos = thePath.rfind('\\');
     if (pos < 0) pos = thePath.rfind('|');
     
@@ -169,7 +169,7 @@ std::vector<std::string> SALOMEDSImpl_Tool::splitString(const std::string& theVa
 {
   std::vector<std::string> vs;
   if(theValue[0] == separator && theValue.size() == 1) return vs;
-  int pos = theValue.find(separator);
+  int pos = (int)theValue.find(separator); //TODO: conversion from size_t to int
   if(pos < 0) {
     vs.push_back(theValue);
     return vs;
@@ -197,7 +197,7 @@ std::vector<std::string> treatRepetation(const std::string& theValue);
 std::vector<std::string> treatRepetation(const std::string& theValue)
 {
   std::vector<std::string> aResult;
-  int pos = theValue.find(";*=");
+  int pos = (int)theValue.find(";*="); //TODO: conversion from size_t to int
   if(pos < 0 )
     {
       aResult.push_back(theValue);
@@ -217,7 +217,7 @@ std::vector<std::string> SALOMEDSImpl_Tool::splitStringWithEmpty(const std::stri
 {
   std::vector<std::string> aResult;
   if(theValue[0] == sep ) aResult.push_back(std::string());
-  int pos = theValue.find(sep);
+  int pos = (int)theValue.find(sep); //TODO: conversion from size_t to int
   if(pos < 0 ) {
     if(sep == '|')
       {
@@ -266,7 +266,7 @@ std::vector< std::vector<std::string> > SALOMEDSImpl_Tool::splitStringWithEmpty(
   std::vector< std::vector<std::string> > aResult;
   if(theValue.size() > 0) {
     std::vector<std::string> aSections = splitStringWithEmpty( theValue, sep1 );
-    for( int i = 0, n = aSections.size(); i < n; i++ )
+    for( size_t i = 0, n = aSections.size(); i < n; i++ )
       aResult.push_back( splitStringWithEmpty( aSections[i], sep2 ) );
   }
   return aResult;

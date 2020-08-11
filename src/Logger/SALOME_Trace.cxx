@@ -116,7 +116,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
       try {
         obj = inc->resolve(name);
         if (!CORBA::is_nil(obj)) m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
-      } catch(CosNaming::NamingContext::NotFound) {
+      } catch(CosNaming::NamingContext::NotFound&) {
       } catch(...) {
       }
       if (!CORBA::is_nil(m_pInterfaceLogger)) {
@@ -134,7 +134,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
   return 1;
 }
 
-void SALOME_Trace::putMessage(std::ostream& msg)
+void SALOME_Trace::putMessage(std::ostream& /*msg*/)
 {
   //if (!isInitialized) std::cout<<"!!! SALOME_Trace is used without initialising !!!"<<std::endl;
   //write resulting string into Logger CORBA server

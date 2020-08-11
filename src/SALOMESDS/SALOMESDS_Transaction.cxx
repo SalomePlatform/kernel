@@ -35,15 +35,15 @@ void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector
   ret.resize(sz);
   unsigned char *buf(const_cast<unsigned char *>(&ret[0]));
   for(std::size_t i=0;i<sz;i++)
-    buf[i]=bsToBeConv[i];
+    buf[i]=bsToBeConv[(CORBA::ULong)i]; //!< TODO: size_t to CORBA::ULong
 }
 
 void Transaction::FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret)
 {
   std::size_t sz(bsToBeConv.size());
-  ret.length(sz);
+  ret.length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
   for(std::size_t i=0;i<sz;i++)
-    ret[i]=bsToBeConv[i];
+    ret[(CORBA::ULong)i]=bsToBeConv[i]; //!< TODO: size_t to CORBA::ULong
 }
 
 Transaction::~Transaction()
@@ -87,7 +87,7 @@ void TransactionRdExtVarCreate::perform()
   _dsct->createRdExtVarInternal(_var_name,data2);
 }
 
-TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent):_cmp_func_content(compareFuncContent),_cmp_func(nullptr),TransactionRdExtVarCreate(dsct,varName,constValue)
+TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent):TransactionRdExtVarCreate(dsct,varName,constValue),_cmp_func_content(compareFuncContent),_cmp_func(nullptr)
 {
   constexpr char EXPECTED_COMPARE_FUNC_NAME[]="comptchev";
   SALOME::AutoPyRef context(PyDict_New());

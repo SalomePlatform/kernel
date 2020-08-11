@@ -47,8 +47,8 @@ static int MYDEBUG = 0;
 SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& pathList,
                                                            ParserComponents& moduleList,
                                                            ParserTypes& typeMap,
-                                                           TypeList& typeList):_typeMap(typeMap),_typeList(typeList),
-                                                                               _pathList(pathList),_moduleList(moduleList)
+                                                           TypeList& typeList):_pathList(pathList),_moduleList(moduleList),
+                                                                               _typeMap(typeMap),_typeList(typeList)
 
 {
   if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_Handler");

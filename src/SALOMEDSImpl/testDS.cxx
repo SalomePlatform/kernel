@@ -44,7 +44,7 @@
 
 //#include "SALOMEDSImpl_.hxx"
 
-int main (int argc, char * argv[])
+int main ()
 {
   std::cout << "Test started " << std::endl;
 
@@ -55,7 +55,7 @@ int main (int argc, char * argv[])
   aStudy->SetStudyLock("SRN");
   std::cout << "Is study locked = " << aStudy->IsStudyLocked() << std::endl;
   std::vector<std::string> ids = aStudy->GetLockerID();
-  for(int i = 0; i<ids.size(); i++)
+  for(size_t i = 0; i<ids.size(); i++)
     std::cout << "Get study locker : " << ids[i] << std::endl;
   aStudy->UnLockStudy("SRN");
   std::cout << "Is study locked = " << aStudy->IsStudyLocked()  << std::endl;
@@ -124,7 +124,7 @@ int main (int argc, char * argv[])
 
   std::cout << "Check the attributes on SObject" << std::endl;
   std::vector<DF_Attribute*> aSeq = aSO.GetAllAttributes();
-  for(int i = 0; i < aSeq.size(); i++) 
+  for(size_t i = 0; i < aSeq.size(); i++) 
     std::cout << "Found: " << dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i])->Type() << std::endl;
 
 
@@ -173,7 +173,7 @@ int main (int argc, char * argv[])
   std::vector<double> v2 = AP->GetRealArray("1");
   std::cout.precision(10);
   std::cout << " values :  "; 
-  for(int i = 0; i<v2.size(); i++) std::cout << v2[i] << " ";
+  for(size_t i = 0; i<v2.size(); i++) std::cout << v2[i] << " ";
   std::cout << std::endl;
   
   v[0] = 211.111;
@@ -202,17 +202,17 @@ int main (int argc, char * argv[])
   
   v2 = AP->GetRealArray("2");
   std::cout << "Restored real array with id = 2 is: ";
-  for(int i = 0; i<v2.size(); i++) std::cout << v2[i] << " ";
+  for(size_t i = 0; i<v2.size(); i++) std::cout << v2[i] << " ";
   std::cout << std::endl;
 
   vi = AP->GetIntArray("2");
   std::cout << "Restored int array with id = 2 is: ";
-  for(int i = 0; i<vi.size(); i++) std::cout << vi[i] << " ";
+  for(size_t i = 0; i<vi.size(); i++) std::cout << vi[i] << " ";
   std::cout << std::endl;
   
   vs = AP->GetStrArray("3");
   std::cout << "Restored string array with id = 2 is: ";
-  for(int i = 0; i<vs.size(); i++) std::cout << vs[i] << " ";
+  for(size_t i = 0; i<vs.size(); i++) std::cout << vs[i] << " ";
   std::cout << std::endl;
 
   std::cout << "Check RemoveID 1 with type PT_INTEGER" << std::endl;

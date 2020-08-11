@@ -235,7 +235,7 @@ void SALOME_ContainerManager::ShutdownContainers()
             if(!CORBA::is_nil(cont) && pid != cont->getPID())
               lstCont.push_back((*iter));
           }
-        catch(const CORBA::Exception& e)
+        catch(const CORBA::Exception&)
           {
             // ignore this entry and continue
           }
@@ -368,7 +368,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
             break;
           }
       }
-      catch(const SALOME_Exception &ex)
+      catch(const SALOME_Exception &ex) //!< TODO: unused variable
       {
         MESSAGE("[GiveContainer] Exception in ResourceManager find !: " << ex.what());
         return ret;
@@ -380,11 +380,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
       std::string hostname(resource_definition.HostName);
       std::string containerNameInNS;
       if(params.isMPI){
-        int nbproc;
-        if ( params.nb_proc <= 0 )
-          nbproc = 1;
-        else
-          nbproc = params.nb_proc;
+        int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
         try
         {
           if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
@@ -684,7 +680,7 @@ SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& param
     else
       return Engines::Container::_narrow(obj);
   }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception&)
   {
     return Engines::Container::_nil();
   }
@@ -702,7 +698,7 @@ bool isPythonContainer(const char* ContainerName)
 {
   return false; // VSR 02/08/2013: Python containers are no more supported
   bool ret = false;
-  int len = strlen(ContainerName);
+  size_t len = strlen(ContainerName);
 
   if (len >= 2)
     if (strcmp(ContainerName + len - 2, "Py") == 0)
@@ -742,21 +738,12 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
     command = BuildTempFileToLaunchRemoteContainer(resource_name, params, tmpFileName);
   else
   {
-    int nbproc;
     const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_name));
-
-    if (params.isMPI)
-    {
-      if ( params.nb_proc <= 0 )
-        nbproc = 1;
-      else
-        nbproc = params.nb_proc;
-    }
 
     std::string wdir = params.workingdir.in();
 
-    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
-    //  SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
+    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir
+    //      SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
     //  or 
     //  "ssh -l user machine distantLauncher remote -p hostNS -m portNS -d dir
     //      --  SALOME_Container contName -ORBInitRef NameService=IOR:01000..."
@@ -766,6 +753,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
 
     if(params.isMPI)
     {
+      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
       command += " mpirun -np ";
       std::ostringstream o;
       o << nbproc << " ";
@@ -806,18 +794,14 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 {
   tmpFileName = BuildTemporaryFileName();
   std::string command;
-  int nbproc = 0;
 
   std::ostringstream o;
 
   if (params.isMPI)
     {
-      o << "mpirun -np ";
+      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
 
-      if ( params.nb_proc <= 0 )
-        nbproc = 1;
-      else
-        nbproc = params.nb_proc;
+      o << "mpirun -np ";
 
       o << nbproc << " ";
 
@@ -908,7 +892,7 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 
 void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
 {
-  int length = tmpFileName.size();
+  size_t length = tmpFileName.size();
   if ( length  > 0)
     {
 #ifdef WIN32
@@ -1060,15 +1044,9 @@ std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const
 
   if (params.isMPI)
     {
+      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
+
       tempOutputFile << "mpirun -np ";
-      int nbproc;
-
-      if ( params.nb_proc <= 0 )
-        nbproc = 1;
-      else
-        nbproc = params.nb_proc;
-
-      std::ostringstream o;
 
       tempOutputFile << nbproc << " ";
 #ifdef LAM_MPI
@@ -1417,7 +1395,7 @@ long SALOME_ContainerManager::SystemWithPIDThreadSafe(const std::vector<std::str
       for(std::size_t i=0;i<sz;i++)
         args[i] = strdup(command[i].c_str());
       args[sz] = nullptr;
-      execvp( command[0].c_str() , args );
+      execvp( command[0].c_str() , args ); 
       std::ostringstream oss;
       oss << "Error when launching " << command[0];
       throw SALOME_Exception(oss.str().c_str()); // execvp failed
@@ -2010,8 +1988,8 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
 #else
 
 Engines::Container_ptr
-SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params,
-                                              std::string resource_selected)
+SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& /*params*/,
+                                              std::string /*resource_selected*/)
 {
   Engines::Container_ptr ret = Engines::Container::_nil();
   INFOS("[StarPaCOPPContainer] is disabled !");
@@ -2020,45 +1998,45 @@ SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters
 }
 
 std::string
-SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& params,
-                                                                std::string machine_file_name,
-                                                                std::string & proxy_hostname)
+SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& /*params*/,
+                                                                std::string /*machine_file_name*/,
+                                                                std::string & /*proxy_hostname*/)
 {
   return "";
 }
 
 std::string
-SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
-                                                               const std::string & machine_file_name,
-                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
-                                                               const std::string & proxy_hostname)
+SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& /*params*/,
+                                                               const std::string & /*machine_file_name*/,
+                                                               SALOME_ContainerManager::actual_launch_machine_t & /*vect_machine*/,
+                                                               const std::string & /*proxy_hostname*/)
 {
   return "";
 }
 void
-SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
-                                          const std::string & exe_type,
-                                          const std::string & container_name,
-                                          const std::string & hostname,
-                                          std::string & begin,
-                                          std::string & end)
+SALOME_ContainerManager::LogConfiguration(const std::string & /*log_type*/,
+                                          const std::string & /*exe_type*/,
+                                          const std::string & /*container_name*/,
+                                          const std::string & /*hostname*/,
+                                          std::string & /*begin*/,
+                                          std::string & /*end*/)
 {
 }
 
 CORBA::Object_ptr
-SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
-                                                  const Engines::ContainerParameters& params,
-                                                  const std::string& hostname)
+SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& /*command*/,
+                                                  const Engines::ContainerParameters& /*params*/,
+                                                  const std::string& /*hostname*/)
 {
   CORBA::Object_ptr ret = CORBA::Object::_nil();
   return ret;
 }
 
 bool
-SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
-                        const Engines::ContainerParameters& params,
-                        const std::string& name,
-                        SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& /*command*/,
+                        const Engines::ContainerParameters& /*params*/,
+                        const std::string& /*name*/,
+                        SALOME_ContainerManager::actual_launch_machine_t & /*vect_machine*/)
 {
   return false;
 }

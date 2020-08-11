@@ -61,7 +61,7 @@ std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
   if (_isLocal) {
     SALOMEDS::Locker lock;
     std::vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Get();
-    aLength = aSeq.size();
+    aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
     for (i = 0; i < aLength; i++) {
       aSO = new SALOMEDS_SObject(aSeq[i]);
       aVector.push_back(_PTR(SObject)(aSO));

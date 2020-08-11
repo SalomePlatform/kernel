@@ -109,7 +109,7 @@ public :
   static std::list<GENERIC_DESTRUCTOR*> *Destructors;
 
   virtual ~GENERIC_DESTRUCTOR() {};
-  static const int Add(GENERIC_DESTRUCTOR &anObject);
+  static int Add(GENERIC_DESTRUCTOR &anObject);
   virtual void operator()(void) = 0;
 };
 

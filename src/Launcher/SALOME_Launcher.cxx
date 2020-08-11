@@ -641,7 +641,7 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
   result->job_file = CORBA::string_dup(job_parameters.job_file.c_str());
   result->pre_command = CORBA::string_dup(job_parameters.pre_command.c_str());
   result->env_file = CORBA::string_dup(job_parameters.env_file.c_str());
-  result->in_files.length(job_parameters.in_files.size());
+  result->in_files.length((CORBA::ULong)job_parameters.in_files.size()); //!< TODO: conversion from size_t to CORBA::ULong
 
   int i = 0;
   for(const std::string& it : job_parameters.in_files)
@@ -649,7 +649,7 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
     result->in_files[i] = CORBA::string_dup(it.c_str());
     i++;
   }
-  result->out_files.length(job_parameters.out_files.size());
+  result->out_files.length((CORBA::ULong)job_parameters.out_files.size()); //!< TODO: conversion from size_t to CORBA::ULong
   i = 0;
   for(const std::string& it : job_parameters.out_files)
   {
@@ -675,7 +675,7 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
                                        = job_parameters.specific_parameters;
   if (!specific_parameters.empty())
   {
-    result->specific_parameters.length(specific_parameters.size());
+    result->specific_parameters.length((CORBA::ULong)specific_parameters.size()); //!< TODO: conversion from size_t to CORBA::ULong
     CORBA::ULong i = 0;
     for (const auto& it_specific : specific_parameters)
     {

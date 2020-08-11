@@ -22,7 +22,7 @@
 #include <string>
 #include <memory>
 
-int main(int argc, char** argv)
+int main()
 {
   std::string xmlfile("");
 

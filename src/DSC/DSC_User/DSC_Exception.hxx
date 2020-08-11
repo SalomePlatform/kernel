@@ -130,7 +130,7 @@ struct DSC_Exception : public SALOME_Exception {
     _what = oss;
   }
 
-  virtual const char* what( void ) const throw ()
+  virtual const char* what( void ) const noexcept 
   {
     return _what.c_str()  ;
   }
@@ -140,7 +140,7 @@ struct DSC_Exception : public SALOME_Exception {
     
   // Le destructeur de la SALOME_Exception devrait être virtuel
   // sinon pb avec nos attributs de type pointeur.
-  virtual ~DSC_Exception(void) throw() {};
+  virtual ~DSC_Exception(void) noexcept {};
 
   virtual const std::string & getExceptionName() const {return _exceptionName;};
 
@@ -170,12 +170,12 @@ protected:
             ) : DSC_Exception(text,fileName,lineNumber,funcName) {      \
     _exceptionName = #Derived; \
   } \
-    virtual ~Derived(void) throw();\
+    virtual ~Derived(void) noexcept;\
 };\
 
 //Sert à eviter le problème d'identification RTTI des exceptions
 //Crée un unique typeInfo pour tous les bibliothèques composants SALOME
 //dans un fichier cxx
-#define DSC_EXCEPTION_CXX(NameSpace,Derived) NameSpace::Derived::~Derived(void) throw() {};
+#define DSC_EXCEPTION_CXX(NameSpace,Derived) NameSpace::Derived::~Derived(void) noexcept {}
 
 #endif /* DSC_EXCEPTION_HXX */

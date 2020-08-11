@@ -127,7 +127,7 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 {
   std::string aDirName = theDirectory;
 
-  int i, aLength = theFiles.size();
+  size_t i, aLength = theFiles.size();
   for(i=1; i<=aLength; i++) {
     std::string aFile(aDirName);
     aFile += theFiles[i-1];
@@ -174,7 +174,7 @@ namespace
                    const std::vector<std::string>& theFileNames,
                    const int theNamesOnly)
   {
-    int i, aLength = theFiles.size();
+    int i, aLength = (int)theFiles.size(); //!< TODO: conversion from size_t to int
     if(aLength == 0)
       return (new SALOMEDS::TMPFile);
     
@@ -207,10 +207,10 @@ namespace
         std::ifstream aFile(aFullPath.c_str());
 #endif
         aFile.seekg(0, std::ios::end);
-        aFileSize[i] = aFile.tellg();
+        aFileSize[i] = (long)aFile.tellg(); //!< TODO: conversion from std::streamoff to long
         aBufferSize += aFileSize[i];              //Add a space to store the file
       }
-      aFileNameSize[i] = theFileNames[i].length()+1;
+      aFileNameSize[i] = (int)theFileNames[i].length()+1; //!< TODO: conversion from size_t to int
       aBufferSize += aFileNameSize[i];          //Add a space to store the file name
       aBufferSize += (theNamesOnly)?4:12;       //Add 4 bytes: a length of the file name,
       //    8 bytes: length of the file itself
@@ -340,10 +340,10 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
     //Put a file name to aFileName
     memcpy(aFileName, (aBuffer + aCurrentPos), aFileNameSize); 
 #ifdef WIN32
-    for (int i = 0; i < strlen(aFileName); i++)
+    for (int j = 0; j < strlen(aFileName); j++)
     {
-      if (aFileName[i] == ':')
-        aFileName[i] = '_';
+      if (aFileName[j] == ':')
+        aFileName[j] = '_';
     }
 #endif
     aCurrentPos += aFileNameSize;
@@ -382,25 +382,25 @@ std::string SALOMEDS_Tool::GetNameFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
   std::string aPath = thePath;
   bool isFound = false;
-  int pos = aPath.rfind('/');
-  if(pos > 0) {
+  size_t pos = aPath.rfind('/');
+  if(pos != std::string::npos) {
     aPath = aPath.substr(pos+1, aPath.size());
     isFound = true;
   }    
   if(!isFound) {
     pos = aPath.rfind('\\'); 
-    if(pos > 0) {
+    if(pos != std::string::npos) {
       aPath = aPath.substr(pos+1, aPath.size()); 
       isFound = true;
     }  
   }  
   if(!isFound) {  
     pos = aPath.rfind('|');
-    if(pos > 0) aPath =  aPath.substr(pos+1, aPath.size()); 
+    if(pos != std::string::npos) aPath = aPath.substr(pos+1, aPath.size()); 
   }
 
   pos = aPath.rfind('.'); 
-  if(pos > 0)  aPath = aPath.substr(0, pos); //Remove extension
+  if(pos != std::string::npos)  aPath = aPath.substr(0, pos); //Remove extension
     
   return aPath;
 }
@@ -412,18 +412,18 @@ std::string SALOMEDS_Tool::GetNameFromPath(const std::string& thePath) {
 std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
 
-  int pos = thePath.rfind('/');
+  size_t pos = thePath.rfind('/');
   std::string path;
-  if(pos > 0) {
+  if(pos != std::string::npos) {
     path = thePath.substr(0, pos+1);
   }
   if(path.empty()) {
     pos = thePath.rfind('\\');
-    if(pos > 0) path = thePath.substr(0, pos+1); 
+    if(pos != std::string::npos) path = thePath.substr(0, pos+1); 
   }
   if(path.empty()) {
     pos = thePath.rfind('|');
-    if(pos > 0) path = thePath.substr(0, pos+1); 
+    if(pos != std::string::npos) path = thePath.substr(0, pos+1); 
   }
   if(path.empty()) {
     path = thePath+"/";
@@ -433,7 +433,7 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
   if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
-  for(int i = 0, len = path.size(); i<len; i++) 
+  for(size_t i = 0, len = path.size(); i<len; i++) 
     if(path[i] == '|') path[i] = '/';
   return path;
 }
@@ -443,7 +443,7 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
 // Purpose : Retrieve specified flaf from "AttributeFlags" attribute
 //=======================================================================
 bool SALOMEDS_Tool::GetFlag( const int             theFlag,
-                             SALOMEDS::Study_var   theStudy,
+                             SALOMEDS::Study_var   /*theStudy*/,
                              SALOMEDS::SObject_var theObj )
 {
   SALOMEDS::GenericAttribute_var anAttr;

@@ -336,7 +336,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       hasModuleData = true;
 
       unsigned char* aStreamFile = NULL;
-      int aStreamSize = 0;
+      long aStreamSize = 0;
 
       if (hdf_sco_group->ExistInternalObject("FILE_STREAM")) {
         HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group);
@@ -371,8 +371,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       bool aResult = true;
       if(aStreamFile && aStreamSize > 0 ) {
         aResult = (ASCIIfileState[0]=='A')?
-        aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'):
-        aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M');
+        aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'): //!< TODO: conversion from size_t to const long
+        aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'); //!< TODO: conversion from size_t to const long
       }
 
       if(aStreamFile != NULL) delete []aStreamFile; 
@@ -439,7 +439,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::Load(const SALOMEDSImpl_SObject& sco)
+bool SALOMEDSImpl_StudyBuilder::Load(const SALOMEDSImpl_SObject& /*sco*/)
 {
   _errorCode = "Not implemented";
   return false;
@@ -802,7 +802,7 @@ int  SALOMEDSImpl_StudyBuilder::UndoLimit()
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_StudyBuilder::UndoLimit(int n)
+void SALOMEDSImpl_StudyBuilder::UndoLimit(int /*n*/)
 {
   _errorCode = "";
   CheckLocked();

@@ -90,8 +90,7 @@ class KERNELHELPERS_EXPORT SALOMEDS_DriverDefaultImpl:
 
     virtual SALOMEDS::SObject_ptr PublishInStudy(SALOMEDS::SObject_ptr theSObject,
                                                  CORBA::Object_ptr     theObject,
-                                                 const char*           theName)
-      throw (SALOME::SALOME_Exception);
+                                                 const char*           theName);
 
     virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr theObject);
 

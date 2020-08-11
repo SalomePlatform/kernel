@@ -91,6 +91,7 @@ void F_FUNC(cpfin,CPFIN)(long *compo,cal_int *dep,cal_int *err);
 
 void F_FUNC(cpcd,CPCD)(long *compo,STR_PSTR(nom),cal_int *info STR_PLEN(nom))
 {
+  (void)info; // unused parameter
   /* nom is OUT argument */
   cp_cd((void *)*compo,STR_PTR(nom));
   /* replace in place ??? */
@@ -278,7 +279,7 @@ void F_FUNC(cplch,CPLCH)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
       for (index = 0; index < *n; index++)
         {
           strncpy(&tab[index * STR_LEN(tab)], tabChaine[index], strlen(tabChaine[index]));
-          if(STR_LEN(tab) > strlen(tabChaine[index]))
+          if(STR_LEN(tab) > (int)strlen(tabChaine[index]))
             memset(&tab[index * STR_LEN(tab)+strlen(tabChaine[index])],' ',STR_LEN(tab)-strlen(tabChaine[index]));
         }
     }

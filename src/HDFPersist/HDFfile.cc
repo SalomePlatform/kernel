@@ -37,7 +37,7 @@
 #include "HDFfile.hxx"
 #include "HDFexception.hxx"
 
-herr_t file_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+herr_t file_attr(hid_t /*loc_id*/, const char *attr_name, void *operator_data)
 {
    *(char**)operator_data = new char[strlen(attr_name)+1];
    strcpy(*(char**)operator_data, attr_name);

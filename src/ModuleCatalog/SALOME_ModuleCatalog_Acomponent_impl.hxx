@@ -37,7 +37,7 @@
 
 #ifdef WIN32
 #pragma warning(disable:4275) // Disable warning interface non dll
-#pragma warning(disable:4290) // Warning Exception ...
+//#pragma warning(disable:4290) // Warning Exception ...
 #endif
 
 class MODULECATALOG_EXPORT SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acomponent
@@ -61,8 +61,7 @@ public:
     \return the wanted interface
   */
   virtual SALOME_ModuleCatalog::DefinitionInterface* 
-             GetInterface(const char* interfacename)
-             throw(SALOME_ModuleCatalog::NotFound);
+             GetInterface(const char* interfacename);
 
   //! method to get a list of the services name of an interface of a component
  /*!If the specified interface doesn't exist, the Notfound exception is thrown
@@ -70,8 +69,7 @@ public:
    \return a list of the services of the wanted interface
  */
   virtual SALOME_ModuleCatalog::ListOfServices* 
-             GetServiceList(const char* interfacename)
-             throw(SALOME_ModuleCatalog::NotFound);
+             GetServiceList(const char* interfacename);
 
     
   //! method to get one service of an interface of a component
@@ -83,8 +81,7 @@ public:
  */
   virtual SALOME_ModuleCatalog::Service* 
              GetService(const char* interfacename, 
-                        const char* servicename) 
-             throw(SALOME_ModuleCatalog::NotFound);
+                        const char* servicename);
 
   //! method to get the default service of an interface of a component
   /*! If the specified interface doesn't exist, the Notfound exception is thrown
@@ -92,22 +89,20 @@ public:
     \return the default service of the interface
   */
   virtual SALOME_ModuleCatalog::Service* 
-             GetDefaultService(const char* interfacename) 
-             throw(SALOME_ModuleCatalog::NotFound);
+             GetDefaultService(const char* interfacename);
 
   //! method to get the PathPrefix of a computer
  /*! If the wanted computer doesn't exist, the Notfound exception is thrown
    \param machinename const char* arguments 
    \return the prefix path
  */
-  virtual char* GetPathPrefix(const char* machinename) 
-                throw(SALOME_ModuleCatalog::NotFound);
+  virtual char* GetPathPrefix(const char* machinename);
 
   //! method to obtain the constraint affected to a component
   /*! to be resolved by LifeCycle for the computer choice
     \return the constraint
   */
-  virtual char* constraint() ;
+  virtual char* constraint();
 
   //! method to obtain the componentname
   /*!

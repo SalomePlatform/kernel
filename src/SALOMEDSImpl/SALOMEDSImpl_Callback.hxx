@@ -36,6 +36,7 @@ private:
   SALOMEDSImpl_UseCaseBuilder* _builder;
 
 public:
+  virtual ~SALOMEDSImpl_Callback() {}
 
   SALOMEDSImpl_Callback(SALOMEDSImpl_UseCaseBuilder* builder) 
   {
@@ -57,11 +58,12 @@ public:
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AbstractCallback
 {
 public:
-  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
-  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
-  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason ){return false;};
-  virtual bool modifyNB_Notification(const char* theVarName){return false;};
-  virtual void RegisterGenObj  (const std::string& theIOR) {}
-  virtual void UnRegisterGenObj(const std::string& theIOR) {}
+  virtual ~SALOMEDSImpl_AbstractCallback() {}
+  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& /*theSObject*/){return false;}
+  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& /*theSObject*/){return false;}
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& /*theSObject*/, int /*reason*/ ){return false;}
+  virtual bool modifyNB_Notification(const char* /*theVarName*/){return false;}
+  virtual void RegisterGenObj  (const std::string& /*theIOR*/) {}
+  virtual void UnRegisterGenObj(const std::string& /*theIOR*/) {}
 };
 #endif

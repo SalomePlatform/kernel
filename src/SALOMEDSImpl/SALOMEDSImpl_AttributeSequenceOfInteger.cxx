@@ -121,7 +121,7 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::ChangeValue(const int Index,const 
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   myValue[Index-1] = Value;
   
@@ -142,7 +142,7 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const int Index)
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   typedef std::vector<int>::iterator VI;
   int i = 1;    
@@ -158,11 +158,11 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const int Index)
 
 int SALOMEDSImpl_AttributeSequenceOfInteger::Length() 
 {
-  return myValue.size();
+  return (int)myValue.size(); //!< TODO: conversion from size_t to int, possible loss of data
 }
 int SALOMEDSImpl_AttributeSequenceOfInteger::Value(const int Index) 
 {
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   return myValue[Index-1];
 }
@@ -174,7 +174,7 @@ std::string SALOMEDSImpl_AttributeSequenceOfInteger::Save()
   int aLength = Length();
   char* aResult = new char[aLength * 25];
   aResult[0] = 0;
-  int aPosition = 0;
+  size_t aPosition = 0;
   for (int i = 1; i <= aLength; i++) {
     sprintf(aResult + aPosition , "%d ", Value(i));
     aPosition += strlen(aResult + aPosition);

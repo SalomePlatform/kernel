@@ -28,8 +28,8 @@
 #include "NOTIFICATION.hxx"
 
 NOTIFICATION_Consumer::NOTIFICATION_Consumer():
-    proxy_supplier(0),
-    _ok(false)
+    _ok(false),
+    proxy_supplier(0)
 {
     CosNA_EventChannel_ptr channel = NOTIFICATION_channel();
     if (CORBA::is_nil(channel)) {
@@ -126,5 +126,5 @@ bool NOTIFICATION_Consumer::Receive(char** graph, char** node, char** type, char
 void NOTIFICATION_Consumer::disconnect_structured_pull_consumer() {
 }
 
-void NOTIFICATION_Consumer::offer_change(const CosN_EventTypeSeq& added, const CosN_EventTypeSeq& deled) {
+void NOTIFICATION_Consumer::offer_change(const CosN_EventTypeSeq& /*added*/, const CosN_EventTypeSeq& /*deled*/) {
 }

@@ -35,7 +35,7 @@
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
 
-int main (int argc, char * argv[])
+int main ()
 {
   MESSAGE("It's OK");
   return 0;

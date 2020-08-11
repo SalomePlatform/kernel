@@ -119,7 +119,7 @@ int findpathof(const std::string& path, std::string&, const std::string&);
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i () :
-_numInstance(0),_id(0),_NS(0)
+  _NS(0),_id(0),_numInstance(0)
 {
 }
 
@@ -136,7 +136,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           bool activAndRegist,
                                           bool isServantAloneInProcess
                                           ) :
-  _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess),_id(0),_NS(0)
+  _NS(0),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 
@@ -368,7 +368,7 @@ void Engines_Container_i::Shutdown()
     {
       itm->second->destroy();
     }
-    catch(const CORBA::Exception& e)
+    catch(const CORBA::Exception&)
     {
       // ignore this entry and continue
     }
@@ -1217,7 +1217,7 @@ void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 
 Engines::EngineComponent_ptr
 Engines_Container_i::load_impl( const char* genericRegisterName,
-                                const char* componentName )
+                                const char* /*componentName*/ )
 {
   char* reason;
   std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
@@ -1303,7 +1303,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
 bool Engines_Container_i::isPythonContainer(const char* ContainerName)
 {
   bool ret=false;
-  int len=strlen(ContainerName);
+  size_t len=strlen(ContainerName);
   if(len>=2)
     if(strcmp(ContainerName+len-2,"Py")==0)
       ret=true;
@@ -1386,9 +1386,9 @@ void SetCpuUsed() ;
 void CallCancelThread() ;
 
 #ifndef WIN32
-void SigIntHandler(int what ,
+void SigIntHandler(int /*what*/ ,
                    siginfo_t * siginfo ,
-                   void * toto ) 
+                   void * /*toto*/ ) 
 {
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
@@ -1542,7 +1542,7 @@ Engines_Container_i::createSalome_file(const char* origFileName)
       aSalome_file->setLocalFile(origFileName);
       aSalome_file->recvFiles();
     }
-    catch (const SALOME::SALOME_Exception& e)
+    catch (const SALOME::SALOME_Exception& /*e*/) //!< TODO: unused variable
     {
       return Engines::Salome_file::_nil();
     }

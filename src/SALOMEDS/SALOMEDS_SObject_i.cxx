@@ -178,7 +178,7 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
   SALOMEDS::Locker lock;
   std::vector<DF_Attribute*> aSeq = _impl->GetAllAttributes();
   SALOMEDS::ListOfAttributes_var SeqOfAttr = new SALOMEDS::ListOfAttributes;
-  int length = aSeq.size();
+  int length = (int)aSeq.size(); //!< TODO: conversion from size_t to int
 
   SeqOfAttr->length(length);
 
@@ -258,7 +258,7 @@ void  SALOMEDS_SObject_i::Name(const char* name)
 CORBA::Short SALOMEDS_SObject_i::Tag()
 {
   SALOMEDS::Locker lock;
-  return _impl->Tag();
+  return (CORBA::Short)_impl->Tag(); //!< TODO: conversion from int to CORBA::Short
 }
 
 //============================================================================
@@ -280,7 +280,7 @@ CORBA::Short SALOMEDS_SObject_i::GetLastChildTag()
 CORBA::Short SALOMEDS_SObject_i::Depth()
 {
   SALOMEDS::Locker lock;
-  return _impl->Depth();
+  return (CORBA::Short)_impl->Depth(); //!< TODO: conversion from int to CORBA::Short
 }
 
 //============================================================================

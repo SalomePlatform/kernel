@@ -79,7 +79,7 @@ void SALOMEDSTest::testAttributeSequenceOfInteger()
   CPPUNIT_ASSERT(v.size() == 3);
 
 
-  for(int i = 0; i<v.size(); i++) 
+  for(int i = 0; i<(int)v.size(); i++) 
     CPPUNIT_ASSERT((i+1) == v[i]);
 
   v.push_back(5);
