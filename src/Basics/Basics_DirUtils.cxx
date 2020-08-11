@@ -54,7 +54,7 @@ namespace Kernel_Utils
   std::string GetBaseName( const std::string& file_path, const bool with_extension )
   {
     std::string tmp_str = file_path;
-    int pos = file_path.rfind( _separator_ );
+    auto pos = file_path.rfind( _separator_ );
     if ( pos >= 0 )
       tmp_str = pos < (int)file_path.size()-1 ? file_path.substr( pos+1 ) : "";
 
@@ -67,7 +67,7 @@ namespace Kernel_Utils
 
   std::string GetDirName( const std::string& file_path )
   {
-    int pos = file_path.rfind( _separator_ );
+    auto pos = file_path.rfind( _separator_ );
     if ( pos >= 0 )
       return pos < (int)file_path.size()-1 ? file_path.substr(0, pos ) : "";
     return std::string(".");
@@ -190,7 +190,7 @@ namespace Kernel_Utils
   std::string AddExtension( const std::string& name )
   {
     std::string tmp_str = name;
-    int pos = tmp_str.rfind( _extension_ );
+    auto pos = tmp_str.rfind( _extension_ );
     if( pos < 0 )
       return tmp_str.append( _extension_ );
     return tmp_str;

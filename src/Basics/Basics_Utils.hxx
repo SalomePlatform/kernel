@@ -34,6 +34,7 @@
 #else
 #include <windows.h>
 #pragma comment(lib,"winmm.lib")
+#pragma warning (disable : 4251)
 #endif
 
 

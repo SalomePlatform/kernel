@@ -184,9 +184,9 @@ namespace Kernel_Utils
   char* utf8_encode(const wchar_t* encoded)
   {
 	  if (encoded == NULL) return NULL;
-	  int size_needed = WideCharToMultiByte(CP_UTF8, 0, encoded, std::wcslen(encoded), NULL, 0, NULL, NULL);
+    auto size_needed = WideCharToMultiByte(CP_UTF8, 0, encoded, (int)std::wcslen(encoded), NULL, 0, NULL, NULL);
 	  char* strTo = new char[ size_needed + 1 ];
-	  WideCharToMultiByte(CP_UTF8, 0, encoded, std::wcslen(encoded), strTo, size_needed, NULL, NULL);
+	  WideCharToMultiByte(CP_UTF8, 0, encoded, (int)std::wcslen(encoded), strTo, size_needed, NULL, NULL);
 	  strTo[size_needed] = '\0';
 	  return strTo;
   }
@@ -194,9 +194,9 @@ namespace Kernel_Utils
   wchar_t* utf8_decode(const char* decoded)
   {
 	  if (decoded == NULL) return NULL;
-	  int size_needed = MultiByteToWideChar(CP_UTF8, 0, decoded, strlen(decoded), NULL, 0);
+    auto size_needed = MultiByteToWideChar(CP_UTF8, 0, decoded, (int)strlen(decoded), NULL, 0);
 	  wchar_t* wstrTo = new wchar_t[ size_needed + 1 ];
-	  MultiByteToWideChar(CP_UTF8, 0, decoded, strlen(decoded), wstrTo, size_needed);
+	  MultiByteToWideChar(CP_UTF8, 0, decoded, (int)strlen(decoded), wstrTo, size_needed);
 	  wstrTo[size_needed] = '\0';
 	  return wstrTo;
   }

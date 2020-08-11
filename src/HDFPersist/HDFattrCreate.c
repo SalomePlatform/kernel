@@ -43,7 +43,7 @@ hdf_idt HDFattrCreate(hdf_idt pid,char *name,hdf_type type, size_t size)
 {
   hdf_idt aid,attr;
   hdf_err ret;
-  int type_hdf;
+  hid_t type_hdf;
 
   switch(type) {
   case HDF_FLOAT64 :

@@ -196,5 +196,5 @@ const int GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject)
     }
   assert(Destructors);
   Destructors->push_back(&anObject);
-  return Destructors->size();
+  return (int)Destructors->size();
 }
