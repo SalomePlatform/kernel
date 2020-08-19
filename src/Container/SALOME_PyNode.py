@@ -37,11 +37,11 @@ class Generic(SALOME__POA.GenericObj):
     self.cnt=1
 
   def Register(self):
-    print("Register called : %d"%self.cnt)
+    #print("Register called : %d"%self.cnt)
     self.cnt+=1
 
   def UnRegister(self):
-    print("UnRegister called : %d"%self.cnt)
+    #print("UnRegister called : %d"%self.cnt)
     self.cnt-=1
     if self.cnt <= 0:
       oid=self.poa.servant_to_id(self)
@@ -52,7 +52,7 @@ class Generic(SALOME__POA.GenericObj):
     self.UnRegister()
 
   def __del__(self):
-    print("Destuctor called")
+    #print("Destuctor called")
 
 class PyNode_i (Engines__POA.PyNode,Generic):
   """The implementation of the PyNode CORBA IDL"""
