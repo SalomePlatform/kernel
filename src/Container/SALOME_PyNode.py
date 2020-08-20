@@ -53,6 +53,7 @@ class Generic(SALOME__POA.GenericObj):
 
   def __del__(self):
     #print("Destuctor called")
+    pass
 
 class PyNode_i (Engines__POA.PyNode,Generic):
   """The implementation of the PyNode CORBA IDL"""
