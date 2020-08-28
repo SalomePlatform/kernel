@@ -1029,7 +1029,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
     if args[gui_nam] and args["session_gui"]:
         new_args = []
         for sa_obj in args[script_nam]:  # args[script_nam] is a list of ScriptAndArgs objects
-            script = re.sub(r'^python.*\s+', r'', sa_obj.script)
+            script = re.sub(r'^python. *\s+', r'', sa_obj.script)
             new_args.append(ScriptAndArgs(script=script, args=sa_obj.args, out=sa_obj.out))
         #
         args[script_nam] = new_args
