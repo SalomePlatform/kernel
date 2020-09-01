@@ -751,7 +751,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 if 'pyscript' in args:
                     toimport = args['pyscript']
         from salomeContextUtils import formatScriptsAndArgs
-        command = formatScriptsAndArgs(toimport)
+        command = formatScriptsAndArgs(toimport, escapeSpaces=True)
         if command:
             proc = subprocess.Popen(command, shell=True)
             addToKillList(proc.pid, command, args['port'])

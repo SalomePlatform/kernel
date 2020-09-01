@@ -286,12 +286,18 @@ def getScriptsAndArgs(args=None, searchPathList=None):
 # Formatting scripts and args as a Bash-like command-line:
 # script1.py [args] ; script2.py [args] ; ...
 # scriptArgs is a list of ScriptAndArgs objects; their output parameters are omitted
-def formatScriptsAndArgs(scriptArgs=None):
+def formatScriptsAndArgs(scriptArgs=None, escapeSpaces=False):
     if scriptArgs is None:
       return ""
     commands = []
     for sa_obj in scriptArgs:
       cmd = sa_obj.script
+      if escapeSpaces and cmd:
+        if sys.platform == "win32":
+          cmd = cmd.replace(' ', ' "', 1)
+          cmd = cmd + '"'
+        else:
+          cmd = cmd.replace(' ', '\ ').replace('\ ', ' ', 1)
       if sa_obj.args:
         cmd = " ".join([cmd]+sa_obj.args)
       commands.append(cmd)
