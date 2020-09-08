@@ -34,6 +34,7 @@ from server import process_id, Server
 import json
 import subprocess
 from salomeContextUtils import ScriptAndArgsObjectEncoder
+import platform
 
 # -----------------------------------------------------------------------------
 
@@ -271,6 +272,11 @@ class SessionServer(Server):
         #
         self.initArgs()
         self.SCMD1=['SALOME_Session_Server']
+        if "SQUISH_PREFIX" in os.environ:
+            if platform.system() == "Windows" :
+                self.SCMD1 = [os.path.join(os.getenv("SQUISH_PREFIX"), "bin", "dllpreload.exe"),os.path.join(os.getenv("SQUISH_SALOME_PATH"), "W64", "GUI", "bin", "salome", self.SCMD1[0])]
+            else :
+                os.environ["LD_LIBRARY_PATH"] = os.environ["SQUISH_PREFIX"] + "/lib:" + os.environ["LD_LIBRARY_PATH"]
         self.SCMD2=[]
         if 'launcher' in self.args:
             pos = args['launcher'].find(":")
