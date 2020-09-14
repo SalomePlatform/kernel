@@ -159,6 +159,20 @@ SALOME_Launcher::getAssignedHostnames(CORBA::Long job_id)
 }
 
 void
+SALOME_Launcher::exportInputFiles(CORBA::Long job_id)
+{
+  try
+  {
+    _l.exportInputFiles(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
+void
 SALOME_Launcher::getJobResults(CORBA::Long job_id, const char * directory)
 {
   try
