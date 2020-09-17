@@ -24,7 +24,7 @@ echo WORKDIR: $WORKDIR
 cat > $WORKDIR/command.sh <<< 'echo "OK" > result.txt'
 chmod 755 $WORKDIR/command.sh
 pid_launcher=''
-for i in {1..500}
+for i in {1..20}
 do
   ./launcher_use_case.py $WORKDIR 2> $WORKDIR/log$i.err &
   pid_launcher=$pid_launcher" "$!
