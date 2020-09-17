@@ -31,7 +31,7 @@
 #  \endcode
 #
 
-import os, sys, pickle, signal, subprocess,glob
+import re, os, sys, pickle, signal, glob
 import subprocess
 import shlex
 from salome_utils import verbose
@@ -237,12 +237,18 @@ def __killMyPort(port, filedict):
             process_ids=pickle.load(fpid)
             for process_id in process_ids:
                 for pid, cmd in list(process_id.items()):
+                    pid = int(pid)
                     if verbose(): print("stop process %s : %s"% (pid, cmd[0]))
                     try:
                         from salome_utils import killpid
-                        killpid(int(pid))
+                        killpid(pid)
                     except:
                         if verbose(): print("  ------------------ process %s : %s not found"% (pid, cmd[0]))
+                        if pid in checkUnkilledProcess():
+                            try:
+                                killpid(pid)
+                            except:
+                                pass
                         pass
                     pass # for pid ...
                 pass # for process_id ...
@@ -360,7 +366,7 @@ def killMyPortSpy(pid, port):
     dt = 1.0
     while 1:
         from salome_utils import killpid
-        ret = killpid(int(pid), 0)
+        ret = killpid(pid, 0)
         if ret == 0:
             break
         elif ret < 0:
@@ -394,6 +400,41 @@ def killMyPortSpy(pid, port):
     killMyPort(port)
     return
 
+def checkUnkilledProcess():
+    #check processes in system after kill
+    from salome_utils import getUserName
+    user = getUserName()
+    processes = dict()
+
+    if sys.platform != 'win32':
+
+        def _getDictfromOutput(_output, _dic, _cond = None):
+            _pids = dict(zip(list(map(int, _output[::2])), _output[1::2]))
+            if _cond:
+                _pids = {pid:cmd for pid,cmd in _pids.items() if re.match(_cond, cmd)}
+            _dic.update(_pids)
+
+        # 1. SALOME servers plus omniNames
+        cmd = 'ps --noheading -U {user} -o pid,cmd | awk \'{{printf("%s %s\\n", $1, $2)}}\''.format(user=user)
+        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes, '^(SALOME_|omniNames)')
+        # 2. ghs3d
+        cmd = 'ps -fea | grep \'{user}\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
+        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
+        # 3. ompi-server
+        cmd = 'ps -fea | grep \'{user}\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
+        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
+    else:
+        cmd = 'tasklist /fo csv | findstr /i "SALOME_ omniNames"'
+        prc = subprocess.getoutput(cmd)
+        try:
+            prc = prc.split()
+            prc = [prc[i].split(',') for i in range(0, len(prc)) if i % 2 == 0]
+            prc = dict([(int(prc[j][1].replace('"', '')), prc[j][0].replace('"', '')) for j in range(0, len(prc))])
+            processes.update(prc)
+        except:
+            pass
+    return processes
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: ")
@@ -410,6 +451,16 @@ if __name__ == "__main__":
             pass
         sys.exit(0)
         pass
+    elif sys.argv[1] == "--find":
+        processes = checkUnkilledProcess()
+        if processes:
+            print("Unkilled processes: ")
+            print(" --------------------")
+            print(" PID   : Process name")
+            print(" --------------------")
+            for pair in processes.items():
+                print('%6d : %s' % pair)
+        sys.exit(0)
     try:
         from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
         setOmniOrbUserPath()
