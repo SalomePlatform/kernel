@@ -377,7 +377,7 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
         command = "export CSF_ShHealingDefaults=${HOME}/${APPLI}/share/salome/resources/geom\n"
         f.write(command)
         # Create environment for Meshers
-        command = "export SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin\nexport SALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
+        command = "export SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin:GHS3DPRLPlugin\nexport SALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
         f.write(command)
 
     # Create configuration file: configSalome.cfg
@@ -412,7 +412,7 @@ ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
         command = "CSF_ShHealingDefaults=${HOME}/${APPLI}/share/salome/resources/geom\n"
         f.write(command)
         # Create environment for Meshers
-        command = "SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin\nSALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
+        command = "SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin:GHS3DPRLPlugin\nSALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
         f.write(command)
 
 
