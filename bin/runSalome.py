@@ -855,10 +855,12 @@ def foreGround(clt, args):
     dt = 0.1
     nbtot = 100
     nb = 0
+    session_pid = None
     while 1:
         try:
             status = session.GetStatSession()
             gui_detected = status.activeGUI
+            session_pid = session.getPID()
         except:
             pass
         if gui_detected:
@@ -878,9 +880,9 @@ def foreGround(clt, args):
     # --
     server = Server({})
     if sys.platform == "win32":
-      server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(os.getpid()), "%s"%(port)]
+      server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
     else:
-      server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(os.getpid()), "%s"%(port)]
+      server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
     server.run()
     # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
     # --
@@ -922,7 +924,7 @@ def runSalome():
     except:
         pass
     # --
-    test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"
+#    test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"
     test = test and args['foreground']
     # --
     if test:
