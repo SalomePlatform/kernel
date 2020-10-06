@@ -134,8 +134,8 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   }
   // Create file for ns-port-log
   if (is_launcher_file)
-      // for a salome application file, we write NS_PORT_FILE_PATH in launch_tmp_dir
-      launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << launch_tmp_dir << "nsport_XXXXXX) &&\n";
+      // for a salome application file, we write NS_PORT_FILE_PATH in working directory
+      launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << work_directory << "/nsport_" << _launch_date << "_XXXXXX) &&\n";
   else
       launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
 
