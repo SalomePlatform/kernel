@@ -97,7 +97,7 @@ class SalomeOutsideGUI(object):
     def getSelected(self, i):
         """Get the selection number i """
         print("SalomeOutsideGUI: no selection mechanism available outside GUI")
-        return none
+        return None
     
     def AddIObject(self, Entry):
         """Add an entry"""
