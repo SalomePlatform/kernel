@@ -120,9 +120,23 @@ def __isNetworkConnectionActiveOnPort(port):
   except:
     print("Error when trying to access active network connections.")
     if err: print(err)
-    import traceback
-    traceback.print_exc()
-    return False
+    print("... Presumably this package is not installed...Please install netstat if available for your distribution.")
+    print("... Trying socket based approach")
+    try:
+      import socket
+      sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      result = sock.connect_ex(("127.0.0.1", port))
+      if result == 0:
+        print("Port %r:      Closed" % (port))
+        sock.close()
+        return True
+      else:
+        sock.close()
+        return False
+    except:
+      import traceback
+      traceback.print_exc()
+      return False
 
   from io import StringIO
   buf = StringIO(out.decode('utf-8', 'ignore'))
