@@ -24,11 +24,15 @@
 
 /** Canonic constructor. The object can't be used without a setStudy() */
 SALOME_StudyEditor::SALOME_StudyEditor() {
-  _sbuilder = KERNEL::getStudyServant()->NewBuilder();
+}
+
+SALOMEDS::StudyBuilder_var SALOME_StudyEditor::studyBuilder()
+{
+  return KERNEL::getStudyServant()->NewBuilder();
 }
 
 SALOMEDS::SObject_ptr SALOME_StudyEditor::newObject(SALOMEDS::SObject_ptr parent) {
-  return _sbuilder->NewObject(parent);
+  return studyBuilder()->NewObject(parent);
 }
 
 SALOMEDS::SObject_ptr SALOME_StudyEditor::findObject(const char * entry) {
@@ -39,8 +43,8 @@ SALOMEDS::SObject_ptr SALOME_StudyEditor::findObject(const char * entry) {
 SALOMEDS::SComponent_ptr SALOME_StudyEditor::newRoot(const char * moduleName) {
   SALOMEDS::SComponent_var sroot = findRoot(moduleName);
   if ( sroot->_is_nil() ) {
-    sroot = _sbuilder->NewComponent(moduleName);
-    _sbuilder->SetName(sroot,moduleName);
+    sroot = studyBuilder()->NewComponent(moduleName);
+    studyBuilder()->SetName(sroot,moduleName);
   }
   return sroot._retn();
 }
@@ -54,7 +58,7 @@ bool SALOME_StudyEditor::bindEngine(SALOMEDS::SComponent_var studyRoot,
   // raising (eh, you work on SALOME isn't it?)
   SALOMEDS::Driver_var driver = SALOMEDS::Driver::_narrow(engine);
   if ( driver->_is_nil() || studyRoot->_is_nil() ) return false;
-  _sbuilder->DefineComponentInstance(studyRoot, engine);
+  studyBuilder()->DefineComponentInstance(studyRoot, engine);
   return true;
 }
 
@@ -63,7 +67,7 @@ SALOMEDS::SComponent_ptr SALOME_StudyEditor::findRoot(const char * moduleName) {
 }
 
 void SALOME_StudyEditor::setName(SALOMEDS::SObject_var sobject, const char * value) {
-  _sbuilder->SetName(sobject,value);  
+  studyBuilder()->SetName(sobject,value);  
 }
 const char * SALOME_StudyEditor::getName(SALOMEDS::SObject_var sobject) {
   if (sobject->_is_nil()) return NULL;
@@ -83,7 +87,7 @@ const char * SALOME_StudyEditor::getName(SALOMEDS::SObject_var sobject) {
 void SALOME_StudyEditor::setIcon(SALOMEDS::SObject_var sobject, const char * resourcename) {
   SALOMEDS::GenericAttribute_var anAttr;
   SALOMEDS::AttributePixMap_var aPixmap;
-  anAttr = _sbuilder->FindOrCreateAttribute(sobject, "AttributePixMap");
+  anAttr = studyBuilder()->FindOrCreateAttribute(sobject, "AttributePixMap");
   aPixmap = SALOMEDS::AttributePixMap::_narrow(anAttr);
   aPixmap->SetPixMap(resourcename);
 }
@@ -101,7 +105,7 @@ void SALOME_StudyEditor::setIcon(SALOMEDS::SObject_var sobject, const char * res
 void SALOME_StudyEditor::setParameterInt(SALOMEDS::SObject_var sobject, const char * name, int value) { 
   SALOMEDS::GenericAttribute_var anAttr;
   SALOMEDS::AttributeParameter_var aParam;
-  anAttr = _sbuilder->FindOrCreateAttribute(sobject, "AttributeParameter");
+  anAttr = studyBuilder()->FindOrCreateAttribute(sobject, "AttributeParameter");
   aParam = SALOMEDS::AttributeParameter::_narrow(anAttr);
   aParam->SetInt(name,value);
 }
@@ -125,7 +129,7 @@ int SALOME_StudyEditor::getParameterInt(SALOMEDS::SObject_var sobject, const cha
 void SALOME_StudyEditor::setParameterBool(SALOMEDS::SObject_var sobject, const char * name, bool value) {
   SALOMEDS::GenericAttribute_var anAttr;
   SALOMEDS::AttributeParameter_var aParam;
-  anAttr = _sbuilder->FindOrCreateAttribute(sobject, "AttributeParameter");
+  anAttr = studyBuilder()->FindOrCreateAttribute(sobject, "AttributeParameter");
   aParam = SALOMEDS::AttributeParameter::_narrow(anAttr);
   aParam->SetBool(name,value);
 }
