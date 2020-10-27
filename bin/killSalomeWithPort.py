@@ -22,170 +22,174 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-## \file killSalomeWithPort.py
-#  Stop all %SALOME servers from given sessions by killing them
+## @file killSalomeWithPort.py
+#  @brief Forcibly stop %SALOME processes from given session(s).
 #
-#  The sessions are indicated by their ports on the command line as in :
-#  \code
+#  The sessions are indicated by their ports on the command line as in below example:
+#  @code
 #  killSalomeWithPort.py 2811 2815
-#  \endcode
-#
+#  @endcode
 
-import re, os, sys, pickle, signal, glob
-import subprocess
-import shlex
-from salome_utils import verbose
+"""
+Forcibly stop given SALOME session(s).
 
+To stop one or more SALOME sessions, specify network ports they are bound to,
+for example:
 
-def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
+* in shell
+
+    $ killSalomeWithPort.py 2811 2815
+
+* in Python script:
+
+    from killSalomeWithPort import killMyPort
+    killMyPort(2811, 2815)
+
+"""
+
+# pragma pylint: disable=invalid-name
+
+import itertools
+import os
+import os.path as osp
+import pickle
+import re
+import shutil
+import sys
+from contextlib import suppress
+from glob import glob
+from threading import Thread
+from time import sleep
+
+import psutil
+
+from salome_utils import (generateFileName, getHostName, getLogDir, getShortHostName,
+                          getUserName, killOmniNames, killPid, verbose)
+
+def getPiDict(port, appname='salome', full=True, hidden=True, hostname=None):
     """
-    Get file with list of SALOME processes.
+    Get path to the file that stores the list of SALOME processes.
+
     This file is located in the user's home directory
     and named .<user>_<host>_<port>_SALOME_pidict
     where
-    <user> is user name
-    <host> is host name
-    <port> is port number
 
-    Parameters:
-    - port    : port number
-    - appname : application name (default is 'SALOME')
-    - full    : if True, full path to the file is returned, otherwise only file name is returned
-    - hidden  : if True, file name is prefixed with . (dot) symbol; this internal parameter is used
-    to support compatibility with older versions of SALOME
+    - <user> is user name
+    - <host> is host name
+    - <port> is port number
+
+    :param port     : port number
+    :param appname  : application name (default: 'salome')
+    :param full     : if True, full path to the file is returned,
+                      otherwise only file name is returned
+    :param hidden   : if True, file name is prefixed with . (dot) symbol;
+                      this internal parameter is only used to support
+                      compatibility with older versions of SALOME
+    :param hostname : host name (if not given, it is auto-detected)
+    :return pidict file's name or path
     """
-    # bug fix: ensure port is an integer
-    # Note: this function is also called with port='#####' !!!
-    try:
+    # ensure port is an integer
+    # warning: this function is also called with port='#####'!!!
+    with suppress(ValueError):
         port = int(port)
-    except:
-        pass
 
-    from salome_utils import generateFileName, getLogDir
-    dir = ""
-    if not hostname:
-        hostname = os.getenv("NSHOST")
-        if hostname: hostname = hostname.split(".")[0]
-        pass
-    if full:
-        # full path to the pidict file is requested
-        if hidden:
-            # new-style dot-prefixed pidict files
-            # are in the system-dependant temporary directory
-            dir = getLogDir()
-        else:
-            # old-style non-dot-prefixed pidict files
-            # are in the user's home directory
-            dir = os.path.expanduser("~")
-            pass
-        pass
+    # hostname (if not specified via parameter)
+    with suppress(AttributeError):
+        hostname = hostname or os.getenv('NSHOST').split('.')[0]
 
-    return generateFileName(dir,
-                            suffix="pidict",
+    # directory to store pidict file (if `full` is True)
+    # old style: pidict files aren't dot-prefixed, stored in the user's home directory
+    # new style: pidict files are dot-prefixed, stored in the system-dependant temporary directory
+    pidict_dir = getLogDir() if hidden else osp.expanduser('~')
+
+    return generateFileName(pidict_dir if full else '',
+                            suffix='pidict',
                             hidden=hidden,
                             with_username=True,
-                            with_hostname=hostname or True,
+                            with_hostname=(hostname or True),
                             with_port=port,
                             with_app=appname.upper())
 
 def appliCleanOmniOrbConfig(port):
     """
-    Remove omniorb config files related to the port in SALOME application:
+    Remove omniorb config files related to given `port` in SALOME application:
     - ${OMNIORB_USER_PATH}/.omniORB_${USER}_${HOSTNAME}_${NSPORT}.cfg
     - ${OMNIORB_USER_PATH}/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
+    :param port : port number
     """
+    omniorb_user_path = os.getenv('OMNIORB_USER_PATH')
+    if not omniorb_user_path:
+        # outside application context
+        return
+
     if verbose():
-        print("clean OmniOrb config for port %s"%port)
+        print("Cleaning OmniOrb config for port {}".format(port))
 
-    from salome_utils import generateFileName, getUserName
-    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
-    if omniorbUserPath is None:
-        #Run outside application context
-        pass
-    else:
-        omniorb_config      = generateFileName(omniorbUserPath, prefix="omniORB",
-                                               extension="cfg",
-                                               hidden=True,
-                                               with_username=True,
-                                               with_hostname=True,
-                                               with_port=port)
-        last_running_config = generateFileName(omniorbUserPath, prefix="omniORB",
-                                               with_username=True,
-                                               suffix="last",
-                                               extension="cfg",
-                                               hidden=True)
-        if os.access(last_running_config,os.F_OK):
-            if not sys.platform == 'win32':
-                pointedPath = os.readlink(last_running_config)
-                if pointedPath[0] != '/':
-                    pointedPath=os.path.join(os.path.dirname(last_running_config), pointedPath)
-                    pass
-                if pointedPath == omniorb_config:
-                    os.unlink(last_running_config)
-                    pass
-                pass
-            else:
-                os.remove(last_running_config)
-                pass
-            pass
+    omniorb_config = generateFileName(omniorb_user_path,
+                                      prefix='omniORB',
+                                      extension='cfg',
+                                      hidden=True,
+                                      with_username=True,
+                                      with_hostname=True,
+                                      with_port=port)
+    last_running_config = generateFileName(omniorb_user_path,
+                                           prefix='omniORB',
+                                           suffix='last',
+                                           extension='cfg',
+                                           hidden=True,
+                                           with_username=True)
 
-        if os.access(omniorb_config,os.F_OK):
-            os.remove(omniorb_config)
-            pass
+    if os.access(last_running_config, os.F_OK):
+        if sys.platform == 'win32' or osp.samefile(last_running_config, omniorb_config):
+            os.remove(last_running_config)
 
-        if os.path.lexists(last_running_config):return
+    if os.access(omniorb_config, os.F_OK):
+        os.remove(omniorb_config)
 
-        #try to relink last.cfg to an existing config file if any
-        files = glob.glob(os.path.join(omniorbUserPath,".omniORB_"+getUserName()+"_*.cfg"))
-        current_config=None
-        current=0
-        for f in files:
-          stat=os.stat(f)
-          if stat.st_atime > current:
-            current=stat.st_atime
-            current_config=f
-        if current_config:
-          if sys.platform == "win32":
-            import shutil
-            shutil.copyfile(os.path.normpath(current_config), last_running_config)
-            pass
-          else:
-            os.symlink(os.path.normpath(current_config), last_running_config)
-            pass
-          pass
-        pass
-    pass
+    if osp.lexists(last_running_config):
+        return
 
-########## kills all salome processes with the given port ##########
+    # try to relink last.cfg to an existing config file if any
+    cfg_files = [(cfg_file, os.stat(cfg_file)) for cfg_file in \
+                     glob(osp.join(omniorb_user_path,
+                                   '.omniORB_{}_*.cfg'.format(getUserName())))]
+    next_config = next((i[0] for i in sorted(cfg_files, key=lambda i: i[1])), None)
+    if next_config:
+        if sys.platform == 'win32':
+            shutil.copyfile(osp.normpath(next_config), last_running_config)
+        else:
+            os.symlink(osp.normpath(next_config), last_running_config)
 
 def shutdownMyPort(port, cleanup=True):
     """
     Shutdown SALOME session running on the specified port.
-    Parameters:
-    - port - port number
+    :param port    : port number
+    :param cleanup : perform additional cleanup actions (kill omniNames, etc.)
     """
-    if not port: return
-    # bug fix: ensure port is an integer
-    port = int(port)
+    if not port:
+        return
 
-    try:
+    # ensure port is an integer
+    with suppress(ValueError):
+        port = int(port)
+
+    # release port
+    with suppress(ImportError):
+        # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
         from PortManager import releasePort
         releasePort(port)
-    except ImportError:
-        pass
 
-    from salome_utils import generateFileName
-
-    # set OMNIORB_CONFIG variable to the proper file
-    omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
+    # set OMNIORB_CONFIG variable to the proper file (if not set yet)
+    omniorb_user_path = os.getenv('OMNIORB_USER_PATH')
     kwargs = {}
-    if omniorbUserPath is not None:
-        kwargs["with_username"]=True
+    if omniorb_user_path is not None:
+        kwargs['with_username'] = True
     else:
-        omniorbUserPath = os.path.realpath(os.path.expanduser('~'))
-    omniorb_config = generateFileName(omniorbUserPath, prefix="omniORB",
-                                      extension="cfg",
+        omniorb_user_path = osp.realpath(osp.expanduser('~'))
+    omniorb_config = generateFileName(omniorb_user_path,
+                                      prefix='omniORB',
+                                      extension='cfg',
                                       hidden=True,
                                       with_hostname=True,
                                       with_port=port,
@@ -194,281 +198,285 @@ def shutdownMyPort(port, cleanup=True):
     os.environ['NSPORT'] = str(port)
 
     # give the chance to the servers to shutdown properly
-    try:
-        import time
+    with suppress(Exception):
         from omniORB import CORBA
-
         from LifeCycleCORBA import LifeCycleCORBA
-        # shutdown all
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
-        lcc = LifeCycleCORBA(orb) # see (1)
-        print("Terminating SALOME on port %s..."%(port))
+        lcc = LifeCycleCORBA(orb) # see (1) below
+        # shutdown all
+        if verbose():
+            print("Terminating SALOME session on port {}...".format(port))
         lcc.shutdownServers()
         # give some time to shutdown to complete
-        time.sleep(1)
+        sleep(1)
         # shutdown omniNames
         if cleanup:
-          from salome_utils import killOmniNames
-          killOmniNames(port)
-          filedict=getPiDict(port)
-          __killMyPort(port, filedict)
-          from PortManager import releasePort
-          releasePort(port)
-          time.sleep(1)
-          pass
-        pass
-    except:
-        pass
-    sys.exit(0) # see (1)
-    pass
+            killOmniNames(port)
+            __killMyPort(port, getPiDict(port))
+            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
+            from PortManager import releasePort
+            releasePort(port)
+            sleep(1)
+    sys.exit(0) # see (1) below
+
 # (1) If --shutdown-servers option is set to 1, session close procedure is
 # called twice: first explicitly by salome command, second by automatic
 # atexit to handle Ctrl-C. During second call, LCC does not exist anymore and
 # a RuntimeError is raised; we explicitly exit this function with code 0 to
 # prevent parent thread from crashing.
 
+def __killProcesses(processes):
+    '''
+    Terminate and kill all given processes (inernal).
+    :param processes : list of processes, each one is an instance of psutil.Process
+    '''
+    # terminate processes
+    for process in processes:
+        process.terminate()
+    # wait a little, then check for alive
+    _, alive = psutil.wait_procs(processes, timeout=5)
+    # finally kill alive
+    for process in alive:
+        process.kill()
+
+def __killPids(pids):
+    """
+    Kill processes with given `pids`.
+    :param pids : processes IDs
+    """
+    processes = []
+    for pid in pids:
+        try:
+            processes.append(psutil.Process(pid))
+        except psutil.NoSuchProcess:
+            if verbose():
+                print("  ------------------ Process {} not found".format(pid))
+    __killProcesses(processes)
+
 def __killMyPort(port, filedict):
-    # bug fix: ensure port is an integer
-    if port:
+    """
+    Kill processes for given port (internal).
+    :param port     : port number
+    :param filedict : pidict file
+    """
+    # ensure port is an integer
+    with suppress(ValueError):
         port = int(port)
 
-    try:
-        with open(filedict, 'rb') as fpid:
-            process_ids=pickle.load(fpid)
-            for process_id in process_ids:
-                for pid, cmd in list(process_id.items()):
-                    pid = int(pid)
-                    if verbose(): print("stop process %s : %s"% (pid, cmd[0]))
-                    try:
-                        from salome_utils import killpid
-                        killpid(pid)
-                    except:
-                        if verbose(): print("  ------------------ process %s : %s not found"% (pid, cmd[0]))
-                        if pid in checkUnkilledProcess():
-                            try:
-                                killpid(pid)
-                            except:
-                                pass
-                        pass
-                    pass # for pid ...
-                pass # for process_id ...
-            # end with
-    except:
-        print("Cannot find or open SALOME PIDs file for port", port)
-        pass
+    # read pids from pidict file
+    with suppress(Exception), open(filedict, 'rb') as fpid:
+        pids_lists = pickle.load(fpid)
+        # note: pids_list is a list of tuples!
+        for pids in pids_lists:
+            __killPids(pids)
+
+    # finally remove pidict file
     os.remove(filedict)
-    pass
-#
 
 def __guessPiDictFilename(port):
-    from salome_utils import getShortHostName, getHostName
-    filedicts = [
-        # new-style dot-prefixed pidict file
-        getPiDict(port, hidden=True),
-        # provide compatibility with old-style pidict file (not dot-prefixed)
-        getPiDict(port, hidden=False),
-        # provide compatibility with old-style pidict file (short hostname)
-        getPiDict(port, hidden=True, hostname=getShortHostName()),
-        # provide compatibility with old-style pidict file (not dot-prefixed, short hostname
-        getPiDict(port, hidden=False, hostname=getShortHostName()),
-        # provide compatibility with old-style pidict file (long hostname)
-        getPiDict(port, hidden=True, hostname=getHostName()),
-        # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
-        getPiDict(port, hidden=False, hostname=getHostName())
-        ]
+    """
+    Guess and return pidict file for given `port` (internal).
+    :param port : port number
+    :return pidict file's path
+    """
+    # Check all possible versions of pidict file
+    # new-style - dot-prefixed pidict file: hidden is True, auto hostname
+    # old-style - not dot-prefixed pidict file: hidden is False, auto hostname
+    # old-style - dot-prefixed pidict file: hidden is True, short hostname
+    # old-style - not dot-prefixed pidict file: hidden is False, short hostname
+    # old-style - dot-prefixed pidict file: hidden is True, long hostname
+    # old-style - not dot-prefixed pidict file: hidden is False, long hostname
+    for hostname, hidden in itertools.product((None, getShortHostName(), getHostName()),
+                                              (True, False)):
+        filedict = getPiDict(port, hidden=hidden, hostname=hostname)
+        if not osp.exists(filedict):
+            if verbose():
+                print('Trying {}... not found'.format(filedict))
+            continue
+        if verbose():
+            print('Trying {}... OK'.format(filedict))
+        return filedict
 
-    log_msg = ""
-    for filedict in filedicts:
-        log_msg += "Trying %s..."%filedict
-        if os.path.exists(filedict):
-            log_msg += "   ... OK\n"
-            break
-        else:
-            log_msg += "   ... not found\n"
+    return None
 
-    if verbose():
-        print(log_msg)
-
-    return filedict
-#
-
-def killMyPort(port):
+def killMyPort(*ports):
     """
     Kill SALOME session running on the specified port.
-    Parameters:
-    - port - port number
+    :param ports : port numbers
     """
-    # bug fix: ensure port is an integer
-    if port:
-        port = int(port)
+    for port in ports:
+        # ensure port is an integer
+        with suppress(ValueError):
+            port = int(port)
 
-    try:
-        import PortManager # do not remove! Test for PortManager availability!
-        filedict = getPiDict(port)
-        if not os.path.isfile(filedict): # removed by previous call, see (1)
-            if verbose():
-                print("SALOME on port %s: already removed by previous call"%port)
-            # Remove port from PortManager config file
-            try:
-                from PortManager import releasePort
+        with suppress(Exception):
+            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
+            from PortManager import releasePort
+            # get pidict file
+            filedict = getPiDict(port)
+            if not osp.isfile(filedict): # removed by previous call, see (1) above
                 if verbose():
-                    print("Removing port from PortManager configuration file")
-                releasePort(port)
-            except ImportError:
-                pass
-            return
-    except:
-        pass
+                    print("SALOME session on port {} is already stopped".format(port))
+                # remove port from PortManager config file
+                with suppress(ImportError):
+                    if verbose():
+                        print("Removing port from PortManager configuration file")
+                    releasePort(port)
+                return
 
-    # try to shutdown session normally
-    import threading, time
-    threading.Thread(target=shutdownMyPort, args=(port,True)).start()
-    time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
+        # try to shutdown session normally
+        Thread(target=shutdownMyPort, args=(port, True)).start()
+        # wait a little...
+        sleep(3)
+        # ... then kill processes (should be done if shutdown procedure hangs up)
+        try:
+            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
+            import PortManager # pragma pylint: disable=unused-import
+            for file_path in glob('{}*'.format(getPiDict(port))):
+                __killMyPort(port, file_path)
+        except ImportError:
+            __killMyPort(port, __guessPiDictFilename(port))
 
-    try:
-        import PortManager # do not remove! Test for PortManager availability!
-        filedict = getPiDict(port)
-        #filedict = __guessPiDictFilename(port)
-        import glob
-        all_files = glob.glob("%s*"%filedict)
-        for f in all_files:
-            __killMyPort(port, f)
-    except ImportError:
-        filedict = __guessPiDictFilename(port)
-        __killMyPort(port, filedict)
-    #
-
-    appliCleanOmniOrbConfig(port)
-    pass
+        # clear-up omniOrb config files
+        appliCleanOmniOrbConfig(port)
 
 def cleanApplication(port):
     """
     Clean application running on the specified port.
-    Parameters:
-    - port - port number
+    :param port : port number
     """
-    # bug fix: ensure port is an integer
-    if port:
+    # ensure port is an integer
+    with suppress(ValueError):
         port = int(port)
 
-    try:
-        filedict=getPiDict(port)
+    # remove pidict file
+    with suppress(Exception):
+        filedict = getPiDict(port)
         os.remove(filedict)
-    except:
-      #import traceback
-      #traceback.print_exc()
-      pass
 
+    # clear-up omniOrb config files
     appliCleanOmniOrbConfig(port)
-    pass
 
 def killMyPortSpy(pid, port):
-    dt = 1.0
-    while 1:
-        from salome_utils import killpid
-        ret = killpid(pid, 0)
+    """
+    Start daemon process which watches for given process and kills session when process exits.
+    :param pid  : process ID
+    :param port : port number (to kill)
+    """
+    while True:
+        ret = killPid(int(pid), 0) # 0 is used to check process existence without actual killing it
         if ret == 0:
-            break
+            break # process does not exist: exit loop
         elif ret < 0:
-            return
-        from time import sleep
-        sleep(dt)
-        pass
-    filedict = getPiDict(port, hidden=True)
-    if not os.path.exists(filedict):
+            return # something got wrong
+        sleep(1)
+
+    filedict = getPiDict(port)
+    if not osp.exists(filedict):
         return
+
+    # check Session server
     try:
         import omniORB
         orb = omniORB.CORBA.ORB_init(sys.argv, omniORB.CORBA.ORB_ID)
         import SALOME_NamingServicePy
-        ns = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb, 3, True)
-        import SALOME #@UnresolvedImport @UnusedImport
-        session = ns.Resolve("/Kernel/Session")
+        naming_service = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb, 3, True)
+        import SALOME #@UnresolvedImport @UnusedImport # pragma pylint: disable=unused-import
+        session = naming_service.Resolve('/Kernel/Session')
         assert session
-    except:
+    except: # pragma pylint: disable=bare-except
         killMyPort(port)
         return
     try:
         status = session.GetStatSession()
-    except:
-        # -- session is in naming service but has crash
+    except: # pragma pylint: disable=bare-except
+        # -- session is in naming service but likely crashed
         status = None
-        pass
-    if status:
-        if not status.activeGUI:
-            return
-        pass
+    if status is not None and not status.activeGUI:
+        return
     killMyPort(port)
-    return
 
-def checkUnkilledProcess():
-    #check processes in system after kill
-    from salome_utils import getUserName
-    user = getUserName()
-    processes = dict()
+def __checkUnkilledProcesses():
+    '''
+    Check all unkilled SALOME processes (internal).
+    :return: list of unkilled processes
+    '''
+    def _checkUserName(_process):
+        # The following is a workaround for Windows on which
+        # psutil.Process().username() returns 'usergroup' + 'username'
+        return getUserName() == _process.username()
 
-    if sys.platform != 'win32':
+    def _getDictfromOutput(_processes, _wildcard=None):
+        for _process in psutil.process_iter(['name', 'username']):
+            with suppress(psutil.AccessDenied):
+                if _checkUserName(_process) and re.match(_wildcard, _process.info['name']):
+                    _processes.append(_process)
 
-        def _getDictfromOutput(_output, _dic, _cond = None):
-            _pids = dict(zip(list(map(int, _output[::2])), _output[1::2]))
-            if _cond:
-                _pids = {pid:cmd for pid,cmd in _pids.items() if re.match(_cond, cmd)}
-            _dic.update(_pids)
+    processes = list()
+    _getDictfromOutput(processes, '(SALOME_*)')
+    _getDictfromOutput(processes, '(omniNames)')
+    _getDictfromOutput(processes, '(ghs3d)')
+    _getDictfromOutput(processes, '(ompi-server)')
 
-        # 1. SALOME servers plus omniNames
-        cmd = 'ps --noheading -U {user} -o pid,cmd | awk \'{{printf("%s %s\\n", $1, $2)}}\''.format(user=user)
-        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes, '^(SALOME_|omniNames)')
-        # 2. ghs3d
-        cmd = 'ps -fea | grep \'{user}\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{{printf("%s %s\\n", $2, $8)}}\''.format(user=user)
-        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
-        # 3. ompi-server
-        cmd = 'ps -fea | grep \'{user}\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{{printf("%s %s\\n", $2, $8)}}\''.format(user=user)
-        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
-    else:
-        cmd = 'tasklist /fo csv | findstr /i "SALOME_ omniNames"'
-        prc = subprocess.getoutput(cmd)
-        try:
-            prc = prc.split()
-            prc = [prc[i].split(',') for i in range(0, len(prc)) if i % 2 == 0]
-            prc = dict([(int(prc[j][1].replace('"', '')), prc[j][0].replace('"', '')) for j in range(0, len(prc))])
-            processes.update(prc)
-        except:
-            pass
     return processes
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: ")
-        print("  %s <port>" % os.path.basename(sys.argv[0]))
-        print()
-        print("Kills SALOME session running on specified <port>.")
+def killUnkilledProcesses():
+    """
+    Kill processes which could remain even after shutdowning SALOME sessions.
+    """
+    __killProcesses(__checkUnkilledProcesses())
+
+def main():
+    '''
+    Main function
+    '''
+    from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+    formatter = lambda prog: ArgumentDefaultsHelpFormatter(prog, max_help_position=50, width=120)
+    parser = ArgumentParser(description='Forcibly stop given SALOME session(s)',
+                            formatter_class=formatter)
+    parser.add_argument('ports',
+                        help='ports to kill',
+                        nargs='*', type=int)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-s', '--spy',
+                       help='start daemon to watch PID and then kill given PORT',
+                       nargs=2, type=int, metavar=('PID', 'PORT'))
+    group.add_argument('-l', '--list',
+                       help='list unkilled SALOME processes',
+                       action='store_true')
+    args = parser.parse_args()
+
+    if args.ports and (args.spy or args.list):
+        print("{}: error: argument ports cannot be used with -s/--spy or -l/--list"
+              .format(parser.prog), file=sys.stderr)
         sys.exit(1)
-        pass
-    if sys.argv[1] == "--spy":
-        if len(sys.argv) > 3:
-            pid = sys.argv[2]
-            port = sys.argv[3]
-            killMyPortSpy(pid, port)
-            pass
+
+    if args.spy:
+        killMyPortSpy(*args.spy)
         sys.exit(0)
-        pass
-    elif sys.argv[1] == "--find":
-        processes = checkUnkilledProcess()
+
+    if args.list:
+        processes = __checkUnkilledProcesses()
         if processes:
             print("Unkilled processes: ")
-            print(" --------------------")
-            print(" PID   : Process name")
-            print(" --------------------")
-            for pair in processes.items():
-                print('%6d : %s' % pair)
+            print("---------------------")
+            print("   PID : Process name")
+            print("--------------------")
+            for process in processes:
+                print("{0:6} : {1}".format(process.pid, process.name()))
+        else:
+            print("No SALOME related processed found")
         sys.exit(0)
+
     try:
         from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
         setOmniOrbUserPath()
-    except Exception as e:
-        print(e)
+    except Exception as exc: # pragma pylint: disable=broad-except
+        if verbose():
+            print(exc)
         sys.exit(1)
-    for port in sys.argv[1:]:
-        killMyPort(port)
-        pass
-    pass
+
+    killMyPort(*args.ports)
+
+if __name__ == '__main__':
+    main()
