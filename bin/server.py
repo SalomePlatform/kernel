@@ -56,7 +56,7 @@ class Server:
       else:
         raise Exception("Unsupported server launch mode: %s" % mode)
 
-    def run(self):
+    def run(self, daemon=False):
         global process_id
         myargs=self.ARGS
         if self.args.get('xterm'):
@@ -73,7 +73,11 @@ class Server:
         # print("command = ", command)
         if sys.platform == "win32":
           import subprocess
-          pid = subprocess.Popen(command).pid
+          if daemon:
+            DETACHED_PROCESS = 0x00000008
+            pid = subprocess.Popen(command, creationflags=DETACHED_PROCESS).pid
+          else:
+            pid = subprocess.Popen(command).pid
         elif Server.server_launch_mode == "fork":
           pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         else: # Server launch mode is daemon

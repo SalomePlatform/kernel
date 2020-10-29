@@ -899,7 +899,7 @@ def foreGround(clt, args):
       server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
     else:
       server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
-    server.run()
+    server.run(True)
     # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
     # --
     dt = 1.0
@@ -944,6 +944,8 @@ def runSalome():
     test = test and args['foreground']
     # --
     if test:
+        from time import sleep
+        sleep(3.0)
         foreGround(clt, args)
         pass
     pass

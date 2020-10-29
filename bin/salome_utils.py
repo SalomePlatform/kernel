@@ -515,8 +515,10 @@ def killpid(pid, sig = 9):
             import ctypes
             if sig == 0:
                 # PROCESS_QUERY_INFORMATION (0x0400)    Required to retrieve certain information about a process
-                handle = ctypes.windll.kernel32.OpenProcess(0x0400, False, int(pid))
-                if handle: 
+                SYNCHRONIZE = 0x100000
+                handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, int(pid))
+                waitObj = ctypes.windll.kernel32.WaitForSingleObject(handle, 0)
+                if waitObj:
                     ret = 1
                     ctypes.windll.kernel32.CloseHandle(handle)
                 else:

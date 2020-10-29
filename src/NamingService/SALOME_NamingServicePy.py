@@ -51,7 +51,7 @@ class SALOME_NamingServicePy_i(object):
     
     #-------------------------------------------------------------------------
 
-    def __init__(self, orb=None):
+    def __init__(self, orb=None, steps=240, spy=False):
         """
         Standard Constructor, with ORB reference.
  
@@ -63,7 +63,6 @@ class SALOME_NamingServicePy_i(object):
         self._orb = orb
         # initialize root context and current context
         ok = 0
-        steps = 240
         while steps > 0 and ok == 0:
           try:
             obj =self._orb.resolve_initial_references("NameService")
@@ -83,7 +82,10 @@ class SALOME_NamingServicePy_i(object):
           steps = steps - 1
         if steps == 0 and self._root_context is None: 
           MESSAGE ( "Name Service Reference is invalid" )
-          sys.exit(1)
+          if spy:
+            raise ValueError("Name Service Reference is invalid")
+          else:
+            sys.exit(1)
 
     #-------------------------------------------------------------------------
 

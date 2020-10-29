@@ -381,11 +381,12 @@ def killMyPortSpy(pid, port):
         import omniORB
         orb = omniORB.CORBA.ORB_init(sys.argv, omniORB.CORBA.ORB_ID)
         import SALOME_NamingServicePy
-        ns = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb)
+        ns = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb, 3, True)
         import SALOME #@UnresolvedImport @UnusedImport
         session = ns.Resolve("/Kernel/Session")
         assert session
     except:
+        killMyPort(port)
         return
     try:
         status = session.GetStatSession()
