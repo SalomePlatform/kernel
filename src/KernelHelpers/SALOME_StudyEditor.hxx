@@ -56,7 +56,7 @@ public:
   static const int UNDEFINED = -1;
 
 private:
-  SALOMEDS::StudyBuilder_var _sbuilder;
+  SALOMEDS::StudyBuilder_var studyBuilder();
 };
 
 #endif // __STUDY_EDITOR_HXX__
