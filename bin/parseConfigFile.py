@@ -23,6 +23,7 @@ import logging
 import re
 from io import StringIO
 import subprocess
+import collections
 from salomeContextUtils import SalomeContextException #@UnresolvedImport
 
 logging.basicConfig()
@@ -30,7 +31,8 @@ logConfigParser = logging.getLogger(__name__)
 
 ADD_TO_PREFIX = 'ADD_TO_'
 UNSET_KEYWORD = 'UNSET'
-
+# variables defined in this section are set only if not already defined
+DEFAULT_VARS_SECTION_NAME = 'SALOME DEFAULT VALUES'
 
 def _expandSystemVariables(key, val):
   expandedVal = os.path.expandvars(val) # expand environment variables
@@ -193,6 +195,7 @@ def __processConfigFile(config, reserved = None, filename="UNKNOWN FILENAME"):
     reserved = []
   unsetVariables = []
   outputVariables = []
+  defaultValues = []
   # Get raw items for each section, and make some processing for environment variables management
   reservedKeys = [ADD_TO_PREFIX+str(x) for x in reserved] # produce [ 'ADD_TO_reserved_1', 'ADD_TO_reserved_2', ..., ADD_TO_reserved_n ]
   reservedValues = dict([str(i),[]] for i in reserved) # create a dictionary in which keys are the 'ADD_TO_reserved_i' and associated values are empty lists: { 'reserved_1':[], 'reserved_2':[], ..., reserved_n:[] }
@@ -217,7 +220,10 @@ def __processConfigFile(config, reserved = None, filename="UNKNOWN FILENAME"):
           # remove left&right spaces on each element
           vals = [v.strip(' \t\n\r') for v in vals]
         else:
-          outputVariables.append((key, expandedVal))
+          if DEFAULT_VARS_SECTION_NAME == section.upper():
+            defaultValues.append((key, expandedVal))
+          else:
+            outputVariables.append((key, expandedVal))
           pass
         pass # end if key
       pass # end for key,val
@@ -230,7 +236,12 @@ def __processConfigFile(config, reserved = None, filename="UNKNOWN FILENAME"):
     vals = list(set(vals))
     outVars.append((var, ','.join(vals)))
 
-  return unsetVariables, outVars, reservedValues
+  ConfigInfo = collections.namedtuple("ConfigInfo",
+                                      ["unsetVariables",
+                                       "outputVariables",
+                                       "reservedValues",
+                                       "defaultValues"])
+  return ConfigInfo(unsetVariables, outVars, reservedValues, defaultValues)
 #
 
 def _trimColons(var):

@@ -183,6 +183,14 @@ class SalomeContext:
     os.environ[name] = value
   #
 
+  def setDefaultValue(self, name, value):
+    """ Set environment variable only if it is undefined."""
+    env = os.getenv(name, '')
+    if not env:
+      value = os.path.expandvars(value) # expand environment variables
+      self.getLogger().debug("Set environment variable: %s=%s", name, value)
+      os.environ[name] = value
+
   """Unset environment variable"""
   def unsetVariable(self, name):
     if os.environ.has_key(name):
@@ -287,7 +295,11 @@ class SalomeContext:
     if reserved is None:
       reserved = []
     try:
-      unsetVars, configVars, reservedDict = parseConfigFile(filename, reserved)
+      configInfo = parseConfigFile(filename, reserved)
+      unsetVars = configInfo.unsetVariables
+      configVars = configInfo.outputVariables
+      reservedDict = configInfo.reservedValues
+      defaultValues = configInfo.defaultValues
     except SalomeContextException as e:
       msg = "%s"%e
       self.getLogger().error(msg)
@@ -310,6 +322,10 @@ class SalomeContext:
 
     for key,val in configVars:
       self.setVariable(key, val, overwrite=True)
+      pass
+
+    for key,val in defaultValues:
+      self.setDefaultValue(key, val)
       pass
 
     pythonpath = os.getenv('PYTHONPATH','').split(os.pathsep)
