@@ -419,10 +419,10 @@ def checkUnkilledProcess():
         cmd = 'ps --noheading -U {user} -o pid,cmd | awk \'{{printf("%s %s\\n", $1, $2)}}\''.format(user=user)
         _getDictfromOutput(subprocess.getoutput(cmd).split(), processes, '^(SALOME_|omniNames)')
         # 2. ghs3d
-        cmd = 'ps -fea | grep \'{user}\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
+        cmd = 'ps -fea | grep \'{user}\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{{printf("%s %s\\n", $2, $8)}}\''.format(user=user)
         _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
         # 3. ompi-server
-        cmd = 'ps -fea | grep \'{user}\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
+        cmd = 'ps -fea | grep \'{user}\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{{printf("%s %s\\n", $2, $8)}}\''.format(user=user)
         _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
     else:
         cmd = 'tasklist /fo csv | findstr /i "SALOME_ omniNames"'
