@@ -39,28 +39,21 @@ salome_subdir = "salome"
 
 def add_path(directory, variable_name):
     """Function helper to add environment variables"""
-    if sys.platform == "win32":
-      splitsym = ";"
-    else:
-      splitsym = ":"
     if variable_name not in os.environ:
         os.environ[variable_name] = ""
         pass
     if os.path.exists(directory):
         newpath=[]
-        for _dir in os.environ[variable_name].split(splitsym):
+        for _dir in os.environ[variable_name].split(os.pathsep):
             if os.path.exists(_dir):
-                if sys.platform != "win32":
-                    if not os.path.samefile(_dir, directory):
-                        newpath.append(_dir)
-                else:
+                if not os.path.samefile(_dir, directory):
                     newpath.append(_dir)
             else:
                 if os.path.abspath(_dir) != os.path.abspath(directory):
                   newpath.append(_dir)
             pass
         newpath[:0] = [ directory ]
-        newpath = splitsym.join(newpath)
+        newpath = os.pathsep.join(newpath)
         os.environ[variable_name] = newpath
         if variable_name == "PYTHONPATH":
             sys.path[:0] = [os.path.realpath(directory)]
