@@ -24,7 +24,8 @@ import multiprocessing
 import unittest
 import logging
 
-def port_reservation(obtained_ports, preferred=None, test=None, expected=None):
+
+def port_reservation(obtained_ports, preferred=None, name = None, messages=None, expected=None):
   from PortManager import getPort
   if preferred:
     port = getPort(preferred)
@@ -34,16 +35,23 @@ def port_reservation(obtained_ports, preferred=None, test=None, expected=None):
 
   obtained_ports.put(port)
 
-  if expected:
-    test.assertTrue(port == expected, "used = %s, expected = %s"%(port, expected))
+  if expected and messages:
+    _name = name + " : " if name else ""
+    if port != expected:
+      messages.put(_name + "used port= %s, expected port = %s"%(port, expected))
+    else:
+      messages.put(_name + "OK")
 #
 
+
 class TestMinimalExample(unittest.TestCase):
+
   def testSequential(self):
     from PortManager import releasePort, getBusyPorts
     print("\nBEGIN testSequential")
     print("Busy ports", getBusyPorts())
     obtained_ports = multiprocessing.Queue()
+    messages = multiprocessing.Queue()
 
     processes = [
       multiprocessing.Process(target=port_reservation, args=(obtained_ports,))
@@ -58,17 +66,19 @@ class TestMinimalExample(unittest.TestCase):
 
     print("Busy ports", getBusyPorts())
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, self, 2872,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, "testSequential 2872",
+                                                               messages, 2872,))
     p.start()
     p.join()
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812, self,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2812,))
     p.start()
     p.join()
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2899, self, 2899,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2899, "testSequential 2899:1",
+                                                               messages, 2899,))
     p.start()
     p.join()
 
@@ -79,9 +89,16 @@ class TestMinimalExample(unittest.TestCase):
     p.join()
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2899, self, 2899,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2899, "testSequential 2899:2",
+                                                               messages, 2899,))
     p.start()
     p.join()
+
+    # Check results
+    while not messages.empty():
+      message = messages.get()
+      if "OK" not in message:
+        self.fail(message)
 
     # Release ports
     print("Busy ports", getBusyPorts())
@@ -100,6 +117,7 @@ class TestMinimalExample(unittest.TestCase):
     print("\nBEGIN testConcurrent")
     print("Busy ports", getBusyPorts())
     obtained_ports = multiprocessing.Queue()
+    messages = multiprocessing.Queue()
     processes = [
       multiprocessing.Process(target=port_reservation, args=(obtained_ports,))
 
@@ -107,7 +125,8 @@ class TestMinimalExample(unittest.TestCase):
       ]
 
     # Try to get specific port number
-    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, self, 2872,))
+    p = multiprocessing.Process(target=port_reservation, args=(obtained_ports, 2872, "testSequential 2872",
+                                                               messages, 2872,))
     processes.append(p)
 
     # Try to get specific port number
@@ -123,6 +142,12 @@ class TestMinimalExample(unittest.TestCase):
 
     for p in processes:
       p.join()
+
+    # Check results
+    while not messages.empty():
+      message = messages.get()
+      if "OK" not in message:
+        self.fail(message)
 
     # Release ports
     print("Busy ports", getBusyPorts())

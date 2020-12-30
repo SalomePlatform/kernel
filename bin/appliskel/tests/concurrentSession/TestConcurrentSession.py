@@ -35,71 +35,76 @@ def new_instance(running_instances):
   running_instances.put(instance)
 #
 
+def createInstances(nb):
+  running_instances = multiprocessing.Queue()
+  processes = [
+    multiprocessing.Process(target=new_instance, args=(running_instances,))
+    for i in range(nb)
+  ]
+  return running_instances, processes
+#
+
+def terminateInstances(running_instances):
+  import time
+  timeout = time.time() + 60 * 10  # the test duration is about 50 s, we reasonably assume a max duration of 10mn
+
+  while not running_instances.empty() and time.time() < timeout:
+    instance = running_instances.get()
+    print("Terminate instance running on port", instance.get_port())
+    instance.stop()
+#
+
+def session(args=None):
+  if args is None:
+    args = []
+  try:
+    import setenv
+    setenv.main(True)
+    import runSession
+    params, args = runSession.configureSession(args, exe="salome shell")
+    return runSession.runSession(params, args)
+  except SystemExit as e:
+    if str(e) != '0':
+      logging.error(e)
+    pass
+#
+
+def appli(args=None):
+  if args is None:
+    args = []
+  try:
+    sys.argv = ['runSalome', '-t']
+    import setenv
+    setenv.main(True, exeName="salome start")
+    import runSalome
+    runSalome.runSalome()
+  except SystemExit as e:
+    if str(e) != '0':
+      logging.error(e)
+    pass
+#
+
 class TestConcurrentLaunch(unittest.TestCase):
-  def __createInstances(self, nb):
-    running_instances = multiprocessing.Queue()
-    processes = [
-      multiprocessing.Process(target=new_instance, args=(running_instances,))
-      for i in range(nb)
-      ]
-    return running_instances, processes
-  #
-  def __terminateInstances(self, running_instances):
-    import time
-    timeout = time.time() + 60*10 # the test duration is about 50 s, we reasonably assume a max duration of 10mn
 
-    while not running_instances.empty() and time.time() < timeout:
-      instance = running_instances.get()
-      print("Terminate instance running on port", instance.get_port())
-      instance.stop()
-  #
-
-  def appli(self, args=None):
-    if args is None:
-      args = []
-    try:
-      sys.argv = ['runSalome', '-t']
-      import setenv
-      setenv.main(True, exeName="salome start")
-      import runSalome
-      runSalome.runSalome()
-    except SystemExit as e:
-      if str(e) != '0':
-        logging.error(e)
-      pass
-  #
-  def session(self, args=None):
-    if args is None:
-      args = []
-    try:
-      import setenv
-      setenv.main(True)
-      import runSession
-      params, args = runSession.configureSession(args, exe="salome shell")
-      return runSession.runSession(params, args)
-    except SystemExit as e:
-      if str(e) != '0':
-        logging.error(e)
-      pass
-  #
   def test01_SingleSession(self):
     print("** Testing single session **")
-    self.session(["hello.py"])
-  #
+    session(["hello.py"])
+
   def test02_MultiSession(self):
     print("** Testing multi sessions **")
     jobs = []
     for i in range(9):
-      p = multiprocessing.Process(target=self.session, args=(["hello.py"],))
+      p = multiprocessing.Process(target=session, args=(["hello.py"],))
       jobs.append(p)
       p.start()
 
     for j in jobs:
       j.join()
   #
+
   def test03_SingleAppli(self):
     print("** Testing single appli **")
-    running_instances, processes = self.__createInstances(1)
+    running_instances, processes = createInstances(1)
     for p in processes:
       p.start()
       pass
@@ -107,12 +112,13 @@ class TestConcurrentLaunch(unittest.TestCase):
       p.join()
       pass
 
-    self.session(["hello.py"])
-    self.__terminateInstances(running_instances)
+    session(["hello.py"])
+    terminateInstances(running_instances)
   #
+
   def test04_MultiAppli(self):
     print("** Testing multi appli **")
-    running_instances, processes = self.__createInstances(9)
+    running_instances, processes = createInstances(9)
     for p in processes:
       p.start()
       pass
@@ -120,8 +126,8 @@ class TestConcurrentLaunch(unittest.TestCase):
       p.join()
       pass
 
-    self.session(["hello.py"])
-    self.__terminateInstances(running_instances)
+    session(["hello.py"])
+    terminateInstances(running_instances)
   #
 #
 
