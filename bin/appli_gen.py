@@ -286,18 +286,19 @@ def install(prefix, config_file, verbose=0):
         pass
 
 
-    # Copy salome script
-    salome_script = open(os.path.join(appliskel_dir, "salome")).read()
-    salome_file = os.path.join(home_dir, "salome")
-    try:
-        os.remove(salome_file)
-    except:
-        pass
-    env_modules = _config.get('env_modules', [])
-    with open(salome_file, 'w') as fd:
-        fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
-    os.chmod(salome_file, 0o755)
+    # Copy salome / salome_mesa scripts:
 
+    for scripts in ('salome', 'salome_mesa'):
+        salome_script = open(os.path.join(appliskel_dir, scripts)).read()
+        salome_file = os.path.join(home_dir, scripts)
+        try:
+            os.remove(salome_file)
+        except:
+            pass
+        env_modules = _config.get('env_modules', [])
+        with open(salome_file, 'w') as fd:
+            fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
+            os.chmod(salome_file, 0o755)
 
     # Add .salome-completion.sh file
     shutil.copyfile(os.path.join(appliskel_dir, ".salome-completion.sh"),
