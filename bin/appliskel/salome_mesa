@@ -48,8 +48,8 @@ def main(args):
         args.append(env_modules_option)
 
     # Activate MESA rendering (see ...)
-    os.environ["XLIB_SKIP_ARGB_VISUALS"]=1
-    os.environ["MESA_GL_VERSION_OVERRIDE"]=4.5
+    os.environ["XLIB_SKIP_ARGB_VISUALS"]="1"
+    os.environ["MESA_GL_VERSION_OVERRIDE"]="4.5"
 
     appliPath = os.path.dirname(os.path.realpath(__file__))
     os.environ["ROOT_SALOME_INSTALL"]=appliPath
