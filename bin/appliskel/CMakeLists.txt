@@ -35,6 +35,7 @@ SET(SCRIPTS
   .salome_run # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
   salome # this is the Python wrapper (without .py extension to avoid conflicts when importing salome python package)
   salome_mesa # this is the Python wrapper using MESA (work around display issue)
+  salome_common.py
   salome_starter.py
   .salome-completion.sh
 )

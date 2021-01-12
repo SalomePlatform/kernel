@@ -18,31 +18,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os
-import subprocess
+import salome_common
 import sys
 
-MODULES = []
-
-
-def main(args):
-    ''' Load modules then launch salome
-    '''
-    if MODULES:
-        env_modules = MODULES[:]
-        env_modules_option = "--with-env-modules="
-        env_modules_l = [x for x in args if x.startswith(env_modules_option)]
-        if env_modules_l:
-            env_modules += env_modules_l[-1][len(env_modules_option):].split(',')
-            args = [x for x in args if not x.startswith(env_modules_option)]
-        env_modules_option += "%s" % ','.join(env_modules)
-        args.append(env_modules_option)
-
-    appliPath = os.path.dirname(os.path.realpath(__file__))
-    os.environ["ROOT_SALOME_INSTALL"]=appliPath
-    proc = subprocess.Popen([os.path.join(appliPath, '.salome_run')] + args, close_fds=True)
-    out, err = proc.communicate()
-    sys.exit(proc.returncode)
-
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    salome_common.main(sys.argv[1:])

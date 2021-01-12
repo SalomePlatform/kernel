@@ -288,7 +288,7 @@ def install(prefix, config_file, verbose=0):
 
     # Copy salome / salome_mesa scripts:
 
-    for scripts in ('salome', 'salome_mesa'):
+    for scripts in ('salome', 'salome_mesa', 'salome_common.py'):
         salome_script = open(os.path.join(appliskel_dir, scripts)).read()
         salome_file = os.path.join(home_dir, scripts)
         try:
