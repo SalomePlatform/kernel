@@ -40,6 +40,7 @@ SET(SCRIPTS
   SALOME_ComponentPy.py
   SALOME_PyNode.py
   SALOME_Container.py
+  SALOME_ContainerPy.py
 )
 
 ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${OMNIORB_DEFINITIONS})

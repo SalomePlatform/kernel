@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 //
-#ifndef MODULECATALOG_IMPL_H
-#define MODULECATALOG_IMPL_H
+#pragma once
 
 #include "SALOME_ModuleCatalog.hxx"
+#include "SALOME_KernelServices.hxx"
 
 #include <string>
 #include <map>
@@ -41,6 +41,11 @@
 #pragma warning(disable:4275) // Disable warning interface non dll
 #pragma warning(disable:4290) // Warning Exception ...
 #endif
+
+namespace KERNEL
+{
+  MODULECATALOG_EXPORT SALOME_ModuleCatalog::ModuleCatalog_ptr getModuleComponentServantSA(const char *listOfCatalogs = nullptr);
+}
 
 class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog
 {
@@ -140,5 +145,3 @@ private:
   CORBA::ORB_ptr _orb;
   Private* myPrivate;
 };
-
-#endif // MODULECATALOG_IMPL_H

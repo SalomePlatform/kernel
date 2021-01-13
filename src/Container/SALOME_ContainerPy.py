@@ -46,7 +46,10 @@ from launchConfigureParser import verbose
 
 #define an implementation of the container interface for the container implemented in Python
 
-class SALOME_ContainerPy_i (Engines__POA.Container):
+class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
+    """
+    Implementation without naming_service server
+    """
     _orb = None
     _poa = None
     _numInstance = 0
@@ -62,76 +65,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         Container_path = "/Containers/" + myMachine + "/" + containerName
         self._containerName = Container_path
         if verbose(): print("container name ",self._containerName)
-
-        naming_service = SALOME_NamingServicePy_i(self._orb)
-        self._naming_service = naming_service
-        MESSAGE( str(Container_path) )
-        naming_service.Register(self._this(), Container_path)
-            
-    #-------------------------------------------------------------------------
-
-    def start_impl(self, ContainerName):
-        MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) )
-        myMachine=getShortHostName()
-        theContainer = "/Containers/" + myMachine + "/" + ContainerName
-        try:
-            obj = self._naming_service.Resolve(theContainer)
-        except :
-            obj = None
-            MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object not found in Naming Service" )
-        if obj is None:
-            container = None
-        else:
-            container = obj._narrow(Engines.Container)
-            if container is None:
-                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(containerName) + ".object exists but is not a Container" )
-            else :
-                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without new launch" )
-            return container
-        #shstr = os.getenv( "PWD" ) + "/"
-        #shstr += "runSession ./SALOME_ContainerPy.py "
-        shstr = os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/SALOME_ContainerPy.py ";
-        #shstr = "runSession SALOME_ContainerPy.py "
-        shstr += ContainerName
-
-        # mpv: fix for SAL4731 - always create new file to write log of server
-        num = 1
-        fileName = ""
-        while 1:
-            fileName = "/tmp/"+ContainerName+"_%i.log"%num
-            if not os.path.exists(fileName):
-                break
-            num += 1
-            pass
-        
-        shstr += " > "
-        shstr += fileName
-        shstr += " 2>&1 &"
-        
-        #shstr += " > /tmp/"
-        #shstr += ContainerName
-        #shstr += ".log 2>&1 &"
-        
-        MESSAGE(  "SALOME_ContainerPy_i::start_impl " + "os.system(" + str(shstr) + ")" )
-        os.system( shstr )
-        count = 21
-        while container is None :
-            time.sleep(1)
-            count = count - 1
-            MESSAGE(  str(count) + ". Waiting for " + str(theContainer) )
-            try :
-                obj = self._naming_service.Resolve(theContainer)
-            except :
-                obj = None
-            if obj is None:
-                container = None
-            else:
-                container = obj._narrow(Engines.Container)
-                if container is None:
-                    MESSAGE(  str(containerName) + ".object exists but is not a Container" )
-                return container
-            if count == 0 :
-                return container
 
     #-------------------------------------------------------------------------
 
@@ -305,6 +238,84 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
       return os.getcwd()
 
 #=============================================================================
+
+class SALOME_ContainerPy_i(SALOME_ContainerPy_Gen_i):
+    """
+    Implementation with naming_service server
+    """
+    def __init__(self, orb, poa, containerName):
+        SALOME_ContainerPy_Gen_i.__init__(self, orb, poa, containerName)
+        naming_service = SALOME_NamingServicePy_i(self._orb)
+        self._naming_service = naming_service
+        MESSAGE( str(Container_path) )
+        naming_service.Register(self._this(), Container_path)
+    
+    #-------------------------------------------------------------------------
+
+    def start_impl(self, ContainerName):
+        MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) )
+        myMachine=getShortHostName()
+        theContainer = "/Containers/" + myMachine + "/" + ContainerName
+        try:
+            obj = self._naming_service.Resolve(theContainer)
+        except :
+            obj = None
+            MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object not found in Naming Service" )
+        if obj is None:
+            container = None
+        else:
+            container = obj._narrow(Engines.Container)
+            if container is None:
+                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(containerName) + ".object exists but is not a Container" )
+            else :
+                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without new launch" )
+            return container
+        #shstr = os.getenv( "PWD" ) + "/"
+        #shstr += "runSession ./SALOME_ContainerPy.py "
+        shstr = os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/SALOME_ContainerPy.py ";
+        #shstr = "runSession SALOME_ContainerPy.py "
+        shstr += ContainerName
+
+        # mpv: fix for SAL4731 - always create new file to write log of server
+        num = 1
+        fileName = ""
+        while 1:
+            fileName = "/tmp/"+ContainerName+"_%i.log"%num
+            if not os.path.exists(fileName):
+                break
+            num += 1
+            pass
+        
+        shstr += " > "
+        shstr += fileName
+        shstr += " 2>&1 &"
+        
+        #shstr += " > /tmp/"
+        #shstr += ContainerName
+        #shstr += ".log 2>&1 &"
+        
+        MESSAGE(  "SALOME_ContainerPy_i::start_impl " + "os.system(" + str(shstr) + ")" )
+        os.system( shstr )
+        count = 21
+        while container is None :
+            time.sleep(1)
+            count = count - 1
+            MESSAGE(  str(count) + ". Waiting for " + str(theContainer) )
+            try :
+                obj = self._naming_service.Resolve(theContainer)
+            except :
+                obj = None
+            if obj is None:
+                container = None
+            else:
+                container = obj._narrow(Engines.Container)
+                if container is None:
+                    MESSAGE(  str(containerName) + ".object exists but is not a Container" )
+                return container
+            if count == 0 :
+                return container
+
+    pass
 
 if __name__ == "__main__":
   # change the stdout buffering to line buffering (same as C++ cout buffering)

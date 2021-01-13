@@ -32,6 +32,7 @@ from SALOME_NamingServicePy import *
 from SALOME_utilities import *
 import Engines
 import SALOME
+import SALOME_ModuleCatalog
 
 orb = None
 lcc = None
@@ -39,9 +40,26 @@ naming_service = None
 cm = None
 esm = None
 dsm = None
+modulcat = None
+
+def list_of_catalogs_regarding_environement():
+    """
+    Method to detect XML module catalogs regarding environement variables
+    """
+    import os
+    KEY_IN_ENV_VAR = "_ROOT_DIR"
+    modules_env_var = [elt for elt in os.environ.keys() if elt[-len(KEY_IN_ENV_VAR):]==KEY_IN_ENV_VAR]
+    list_catalogs = []
+    for module_env_var in modules_env_var:
+        module_upper_case = module_env_var[:-len(KEY_IN_ENV_VAR)]
+        file_candidate = os.path.join(os.environ[module_env_var],"share","salome","resources",module_upper_case.lower(),"{}Catalog.xml".format(module_upper_case))
+        if os.path.isfile(file_candidate):
+            list_catalogs.append(file_candidate)
+        pass
+    return list_catalogs
 
 def salome_kernel_init():
-    global orb, lcc, naming_service, cm, esm, dsm
+    global orb, lcc, naming_service, cm, esm, dsm, modulcat
     
     if not orb:
         # initialise the ORB
@@ -62,5 +80,8 @@ def salome_kernel_init():
         #
         obj = naming_service.Resolve('/DataServerManager')
         dsm = obj._narrow(SALOME.DataServerManager)
+        #
+        obj = naming_service.Resolve('Kernel/ModulCatalog')
+        modulcat = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
         
-    return orb, lcc, naming_service, cm, esm, dsm
+    return orb, lcc, naming_service, cm, esm, dsm, modulcat

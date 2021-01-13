@@ -161,11 +161,82 @@ if not flags:
 #    sys.setdlopenflags(flags)
 #    pass
 
-orb, lcc, naming_service, cm, sg, esm, dsm = None,None,None,None,None,None,None
+orb, lcc, naming_service, cm, sg, esm, dsm, modulcat = None,None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
 
 salome_initial=True
+
+__EMB_SERVANT_ENV_VAR_NAME = "SALOME_EMB_SERVANT"
+
+def standalone():
+    import os
+    os.environ[__EMB_SERVANT_ENV_VAR_NAME] = "1"
+
 def salome_init(path=None, embedded=False):
+    import os
+    if __EMB_SERVANT_ENV_VAR_NAME in os.environ:
+        salome_init_without_session()
+    else:
+        salome_init_with_session(path, embedded)
+
+class StandAloneLifecyle:
+    def FindOrLoadComponent(self,contName,moduleName):
+        global orb
+        if contName == "FactoryServer" and moduleName == "GEOM":
+            import GeomHelper
+            geom_ior = GeomHelper.BuildGEOMInstance()
+            import GEOM
+            import CORBA
+            orb=CORBA.ORB_init([''])
+            geom = orb.string_to_object(geom_ior)
+            return geom
+        if contName == "FactoryServer" and moduleName == "SMESH":
+            import SMeshHelper
+            smesh_ior = SMeshHelper.BuildSMESHInstance()
+            import SMESH
+            import CORBA
+            orb=CORBA.ORB_init([''])
+            smeshInst = orb.string_to_object(smesh_ior)
+            return smeshInst
+        if contName == "FactoryServer" and moduleName == "SHAPERSTUDY":
+            from SHAPERSTUDY import SHAPERSTUDY_No_Session
+            from SALOME_ContainerPy import SALOME_ContainerPy_Gen_i
+            import PortableServer
+            import KernelServices
+            obj = orb.resolve_initial_references("RootPOA")
+            poa = obj._narrow(PortableServer.POA)
+            pman = poa._get_the_POAManager()
+            #
+            cont = SALOME_ContainerPy_Gen_i(orb,poa,"FactoryServer")
+            conId = poa.activate_object(cont)
+            conObj = poa.id_to_reference(conId)
+            #
+            pman.activate()
+            #
+            compoName = "SHAPERSTUDY"
+            servant = SHAPERSTUDY_No_Session(orb,poa,conObj,"FactoryServer","SHAPERSTUDY_inst_1",compoName)
+            ret = servant.getCorbaRef()
+            KernelServices.RegisterCompo(compoName,ret)
+            return ret
+        raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
+
+def salome_init_without_session():
+    global lcc,myStudy,orb,modulcat
+    lcc = StandAloneLifecyle()
+    import KernelDS
+    myStudy = KernelDS.myStudy()
+    import CORBA
+    orb=CORBA.ORB_init([''])
+    import KernelModuleCatalog
+    import SALOME_ModuleCatalog
+    from salome_kernel import list_of_catalogs_regarding_environement
+    modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
+    # activate poaManager to accept co-localized CORBA calls.
+    poa = orb.resolve_initial_references("RootPOA")
+    poaManager = poa._get_the_POAManager()
+    poaManager.activate()
+
+def salome_init_with_session(path=None, embedded=False):
     """
     Performs only once SALOME general purpose initialisation for scripts.
     Provides:
@@ -175,12 +246,13 @@ def salome_init(path=None, embedded=False):
     cm              reference to the container manager
     esm             reference to external server manager
     dsm             reference to shared dataserver manager
+    modulcat        reference to modulecatalog instance
     sg              access to SALOME GUI (when linked with IAPP GUI)
     myStudy         active study itself (CORBA reference)
     myStudyName     active study name
     """
     global salome_initial
-    global orb, lcc, naming_service, cm, esm, dsm
+    global orb, lcc, naming_service, cm, esm, dsm, modulcat
     global sg
     global myStudy, myStudyName
 
@@ -188,7 +260,7 @@ def salome_init(path=None, embedded=False):
         if salome_initial:
             salome_initial=False
             sg = salome_iapp_init(embedded)
-            orb, lcc, naming_service, cm, esm, dsm = salome_kernel_init()
+            orb, lcc, naming_service, cm, esm, dsm, modulcat = salome_kernel_init()
             myStudy, myStudyName = salome_study_init(path)
             pass
         pass

@@ -54,7 +54,10 @@ _Sleeping = 0
 ## define an implementation of the component interface Engines::Component
 #
 #
-class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
+class SALOME_ComponentPy_Gen_i (Engines__POA.EngineComponent):
+    """
+    Implementation Without naming_service server
+    """
     _orb = None
     _poa = None
     _fieldsDict = []
@@ -82,42 +85,13 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
         self._Executed = 0
         self._contId = contID
 
-        naming_service = SALOME_NamingServicePy_i(self._orb)
         myMachine=getShortHostName()
-        Component_path = self._containerName + "/" + self._instanceName
-        MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
         id_o = poa.activate_object(self)
-        compo_o = poa.id_to_reference(id_o)
-        naming_service.Register(compo_o, Component_path)
+        self._compo_o = poa.id_to_reference(id_o)
+        self._notifSupplier = NOTIFICATION_Supplier_Swig(instanceName, self._notif)
 
-        # Add componentinstance to registry
-        obj = naming_service.Resolve('/Registry')
-        if obj is None:
-            MESSAGE(  "Registry Reference is invalid" )
-        else:
-            regist = obj._narrow(Registry.Components)
-            if regist is None:
-                MESSAGE(  "Registry Reference is invalid" )
-            else:
-                ior = orb.object_to_string(contID)
-                MESSAGE(  ior )
-
-                lesInfos = Identity(self._instanceName)
-                infos = Registry.Infos(lesInfos._name,
-                                       lesInfos._pid,
-                                       lesInfos._machine,
-                                       lesInfos._adip,
-                                       lesInfos._uid,
-                                       lesInfos._pwname,
-                                       int(lesInfos._tc_start),
-                                       0,0,0,
-                                       lesInfos._cdir,
-                                       -1,
-                                       ior)
-
-                res = regist.add(infos)
-
-        self._notifSupplier = NOTIFICATION_Supplier_Swig(instanceName, notif)
+    def getCorbaRef(self):
+        return self._compo_o
 
     #-------------------------------------------------------------------------
 
@@ -315,3 +289,42 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     #-------------------------------------------------------------------------
 
     pass # end of SALOME_ComponentPy_i
+
+class SALOME_ComponentPy_i(SALOME_ComponentPy_Gen_i):
+    """
+    Implementation with naming_service server
+    """
+    def __init__ (self, orb, poa, contID, containerName, instanceName, interfaceName, notif=False):
+        SALOME_ComponentPy_Gen_i.__init__(self, orb, poa, contID, containerName, instanceName, interfaceName, notif)
+        naming_service = SALOME_NamingServicePy_i(self._orb)
+        Component_path = self._containerName + "/" + self._instanceName
+        MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
+        naming_service.Register(self._compo_o, Component_path)
+        # Add componentinstance to registry
+        obj = naming_service.Resolve('/Registry')
+        if obj is None:
+            MESSAGE(  "Registry Reference is invalid" )
+        else:
+            regist = obj._narrow(Registry.Components)
+            if regist is None:
+                MESSAGE(  "Registry Reference is invalid" )
+            else:
+                ior = orb.object_to_string(contID)
+                MESSAGE(  ior )
+
+                lesInfos = Identity(self._instanceName)
+                infos = Registry.Infos(lesInfos._name,
+                                       lesInfos._pid,
+                                       lesInfos._machine,
+                                       lesInfos._adip,
+                                       lesInfos._uid,
+                                       lesInfos._pwname,
+                                       int(lesInfos._tc_start),
+                                       0,0,0,
+                                       lesInfos._cdir,
+                                       -1,
+                                       ior)
+
+                res = regist.add(infos)
+
+    pass

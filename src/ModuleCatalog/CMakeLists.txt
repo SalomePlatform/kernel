@@ -17,15 +17,21 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+include(${SWIG_USE_FILE})
+
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
+  ${CMAKE_CURRENT_SOURCE_DIR}/../KernelHelpers
+  ${CMAKE_CURRENT_SOURCE_DIR}/../LifeCycleCORBA
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${PROJECT_BINARY_DIR}/idl
 )
 
@@ -36,6 +42,7 @@ SET(COMMON_LIBS
   SALOMELocalTrace
   SALOMEBasics
   SalomeIDLKernel
+  SalomeKernelHelpers
   ${LIBXML2_LIBRARIES}
   ${PTHREAD_LIBRARIES}
 )
@@ -57,6 +64,26 @@ TARGET_LINK_LIBRARIES(SALOME_ModuleCatalog_Server SalomeCatalog ${COMMON_LIBS} $
 
 ADD_EXECUTABLE(SALOME_ModuleCatalog_Client SALOME_ModuleCatalog_Client.cxx)
 TARGET_LINK_LIBRARIES(SALOME_ModuleCatalog_Client SalomeCatalog ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+
+#
+
+SET(KernelModuleCatalog_HEADERS KernelModuleCatalog.hxx KernelModuleCatalog.i)
+SET(KernelModuleCatalog_SOURCES KernelModuleCatalog.cxx ${KernelModuleCatalog_HEADERS})
+SET_SOURCE_FILES_PROPERTIES(KernelModuleCatalog.i PROPERTIES CPLUSPLUS ON)
+SET_SOURCE_FILES_PROPERTIES(KernelModuleCatalog.i PROPERTIES SWIG_FLAGS "-py3")
+SET_SOURCE_FILES_PROPERTIES(KernelModuleCatalog_wrap.cpp PROPERTIES COMPILE_FLAGS "-DHAVE_CONFIG_H")
+SET(_swig_SCRIPTS ${CMAKE_CURRENT_BINARY_DIR}/KernelModuleCatalog.py )
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0") 
+  SWIG_ADD_MODULE(KernelModuleCatalog python ${KernelModuleCatalog_SOURCES})
+ELSE()
+  SWIG_ADD_LIBRARY(KernelModuleCatalog LANGUAGE python SOURCES ${KernelModuleCatalog_SOURCES})
+ENDIF()
+SWIG_LINK_LIBRARIES(KernelModuleCatalog ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} SalomeCatalog SalomeKernelHelpers)
+install(TARGETS _KernelModuleCatalog DESTINATION ${SALOME_INSTALL_LIBS})
+install(FILES ${KernelModuleCatalog_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+SALOME_INSTALL_SCRIPTS("${_swig_SCRIPTS}"  ${SALOME_INSTALL_BINS} EXTRA_DPYS "${SWIG_MODULE_KernelModuleCatalog_REAL_NAME}")
+
+#
 
 INSTALL(TARGETS SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client 
         EXPORT ${PROJECT_NAME}TargetGroup

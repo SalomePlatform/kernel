@@ -19,8 +19,7 @@
 
 // Author: Guillaume Boulant (EDF/R&D) 
 
-#ifndef __KERNEL_SERVICES_H__
-#define __KERNEL_SERVICES_H__
+#pragma once
 
 #include "KernelHelpers.hxx"
 
@@ -54,7 +53,8 @@ namespace KERNEL {
   KERNELHELPERS_EXPORT CORBA::Object_ptr   SObjectToObject(SALOMEDS::SObject_ptr);
   
 
-
+  KERNELHELPERS_EXPORT void RegisterCompo(const std::string& compoName, CORBA::Object_var compoPtr);
+  KERNELHELPERS_EXPORT CORBA::Object_var RetrieveCompo(const std::string& compoName);
   /*!
    * This template function provides you with the servant (CORBA
    * object narrowed to its interface) corresponding to the specified
@@ -101,5 +101,3 @@ namespace KERNEL {
 #include "Utils_CorbaException.hxx"
 // Tip: CORBA exceptions can be used with LOG (or more generally in streams)
 // Ex: LOG("An exception occurs: "<<e) will log the data of the exception e
-
-#endif // KERNEL_SERVICES

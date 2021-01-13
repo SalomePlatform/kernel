@@ -21,6 +21,10 @@
 
 #include "SALOME_KernelServices.hxx"
 
+#include <map>
+
+std::map<std::string,CORBA::Object_var> _compo_map;
+
 namespace KERNEL {
   
   /**
@@ -64,6 +68,7 @@ namespace KERNEL {
   /**
    * This returns a static reference to the SALOME study. The
    * study can be used to get informations about it.
+   * \sa getStudyServantSA
    */
   SALOMEDS::Study_ptr getStudyServant() {
     static SALOMEDS::Study_ptr aStudy;
@@ -160,5 +165,24 @@ namespace KERNEL {
     es.text = CORBA::string_dup(text);
     return SALOME::SALOME_Exception(es);
   }
-
+  
+  void RegisterCompo(const std::string& compoName, CORBA::Object_var compoPtr)
+  {
+    _compo_map[compoName] = compoPtr;
+  }
+  
+  CORBA::Object_var RetrieveCompo(const std::string& compoName)
+  {
+    auto it = _compo_map.find(compoName);
+    if( it != _compo_map.end() )
+    {
+      return (*it).second;
+    }
+    else
+    {
+      SALOME::SALOME_Exception ex(createSalomeException("RetrieveCompo : not implemented yet !"));
+      throw ex;
+    //GetLCC()->FindOrLoad_Component( "FactoryServer", compoName );
+    }
+  }
 }
