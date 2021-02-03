@@ -16,7 +16,9 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
+#ifndef __KERNEL_MODULE_CATALOG_HXX__
+#define __KERNEL_MODULE_CATALOG_HXX__
 #include <string>
 
 std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped);
+#endif

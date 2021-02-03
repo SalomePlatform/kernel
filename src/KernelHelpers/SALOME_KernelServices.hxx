@@ -18,7 +18,8 @@
 //
 
 // Author: Guillaume Boulant (EDF/R&D) 
-
+#ifndef __SALOME_KERNEL_SERVICES_HXX__
+#define __SALOME_KERNEL_SERVICES_HXX__
 #pragma once
 
 #include "KernelHelpers.hxx"
@@ -101,3 +102,4 @@ namespace KERNEL {
 #include "Utils_CorbaException.hxx"
 // Tip: CORBA exceptions can be used with LOG (or more generally in streams)
 // Ex: LOG("An exception occurs: "<<e) will log the data of the exception e
+#endif //__SALOME_KERNEL_SERVICES_HXX__

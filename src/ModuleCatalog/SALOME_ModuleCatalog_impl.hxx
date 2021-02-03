@@ -26,6 +26,8 @@
 //  Module : SALOME
 //  $Header$
 //
+#ifndef __SALOME_MODULECATALOG_IMPL_HXX__
+#define __SALOME_MODULECATALOG_IMPL_HXX__
 #pragma once
 
 #include "SALOME_ModuleCatalog.hxx"
@@ -145,3 +147,4 @@ private:
   CORBA::ORB_ptr _orb;
   Private* myPrivate;
 };
+#endif //__SALOME_MODULECATALOG_IMPL_HXX__
