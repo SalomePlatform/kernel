@@ -182,43 +182,12 @@ def salome_init(path=None, embedded=False):
 class StandAloneLifecyle:
     def FindOrLoadComponent(self,contName,moduleName):
         global orb
-        if contName == "FactoryServer" and moduleName == "GEOM":
-            import GeomHelper
-            geom_ior = GeomHelper.BuildGEOMInstance()
-            import GEOM
-            import CORBA
-            orb=CORBA.ORB_init([''])
-            geom = orb.string_to_object(geom_ior)
-            return geom
-        if contName == "FactoryServer" and moduleName == "SMESH":
-            import SMeshHelper
-            smesh_ior = SMeshHelper.BuildSMESHInstance()
-            import SMESH
-            import CORBA
-            orb=CORBA.ORB_init([''])
-            smeshInst = orb.string_to_object(smesh_ior)
-            return smeshInst
-        if contName == "FactoryServer" and moduleName == "SHAPERSTUDY":
-            from SHAPERSTUDY import SHAPERSTUDY_No_Session
-            from SALOME_ContainerPy import SALOME_ContainerPy_Gen_i
-            import PortableServer
-            import KernelServices
-            obj = orb.resolve_initial_references("RootPOA")
-            poa = obj._narrow(PortableServer.POA)
-            pman = poa._get_the_POAManager()
-            #
-            cont = SALOME_ContainerPy_Gen_i(orb,poa,"FactoryServer")
-            conId = poa.activate_object(cont)
-            conObj = poa.id_to_reference(conId)
-            #
-            pman.activate()
-            #
-            compoName = "SHAPERSTUDY"
-            servant = SHAPERSTUDY_No_Session(orb,poa,conObj,"FactoryServer","SHAPERSTUDY_inst_1",compoName)
-            ret = servant.getCorbaRef()
-            KernelServices.RegisterCompo(compoName,ret)
-            return ret
-        raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
+        import importlib
+        builder_name = moduleName + "_SalomeSessionless"
+        moduleObj = importlib.import_module(builder_name)
+        result, orb = moduleObj.buildInstance(orb)
+        return result
+        #raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
 
 def salome_init_without_session():
     global lcc,myStudy,orb,modulcat
