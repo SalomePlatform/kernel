@@ -190,7 +190,7 @@ class StandAloneLifecyle:
         #raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
 
 def salome_init_without_session():
-    global lcc,myStudy,orb,modulcat
+    global lcc,myStudy,orb,modulcat,sg
     lcc = StandAloneLifecyle()
     import KernelDS
     myStudy = KernelDS.myStudy()
@@ -204,6 +204,7 @@ def salome_init_without_session():
     poa = orb.resolve_initial_references("RootPOA")
     poaManager = poa._get_the_POAManager()
     poaManager.activate()
+    sg = SalomeOutsideGUI()
 
 def salome_init_with_session(path=None, embedded=False):
     """
