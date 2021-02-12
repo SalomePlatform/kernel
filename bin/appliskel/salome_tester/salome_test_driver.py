@@ -26,6 +26,7 @@ import sys
 import os
 import subprocess
 import signal
+from contextlib import suppress
 
 # Run test
 def runTest(command):
@@ -41,16 +42,40 @@ def runTest(command):
 
 # Display output and errors
 def processResult(res, out, err):
+  # Decode output
+  out = out.decode('utf_8') if out else ''
+  err = err.decode('utf_8') if err else ''
+
+  # Execute hook if it is installed
+  if getattr(processResult, '__hook', None):
+    res, out, err = getattr(processResult, '__hook')(res, out, err)
+
+  # Print standard output
   if out:
-    print(out.decode('utf_8'))
-    pass
+    print(out)
+
+  # Print standard error
   if err:
     print("    ** Detected error **")
     print("Error code: ", res)
-    print(err.decode('utf_8'), end=' \n')
+    print(err, end=' \n')
     print("    ** end of message **")
-    pass
+
   return res
+#
+
+def installHook(hook=None):
+  """Install custome hook to process test result."""
+  with suppress(AttributeError, IndexError):
+    hook = hook.split(',')
+    hook_path = hook.pop(0)
+    hook_func = hook.pop(0)
+    if os.path.exists(hook_path) and hook_func:
+      with open(hook_path, 'rb') as hook_script:
+        dic = {}
+        exec(hook_script.read(), dic)
+        processResult.__hook = dic.get(hook_func)
+        print("Custom hook has been installed")
 #
 
 # Timeout management
@@ -64,6 +89,13 @@ def timeoutHandler(signum, frame):
 if __name__ == "__main__":
   timeout_delay = sys.argv[1]
   args = sys.argv[2:]
+
+  # Install hook if supplied via command line
+  with suppress(IndexError, ValueError):
+    index = args.index('--hook')
+    args.pop(index)
+    hook = args.pop(index)
+    installHook(hook)
 
   # Add explicit call to python executable if a Python script is passed as
   # first argument
