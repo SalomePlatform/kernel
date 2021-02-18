@@ -111,11 +111,13 @@ class SALOMEDS_DriverFactory_i : public virtual SALOMEDSImpl_DriverFactory
 {
 protected:  
   CORBA::ORB_var        _orb;
-  SALOME_NamingService* _name_service = nullptr;
+  SALOME_NamingService_Abstract* _name_service = nullptr;
 
 public:
   
   SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, bool isNSAvail = true);
+  
+  SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, SALOME_NamingService_Abstract *ns);
 
   virtual ~SALOMEDS_DriverFactory_i();
    

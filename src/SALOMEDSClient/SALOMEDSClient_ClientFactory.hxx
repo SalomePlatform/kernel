@@ -62,6 +62,11 @@ public:
    *  Creates and returns a client Study wrapper
    */
   static void createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+  
+  /*!
+   * Creates and returns a client Study wrapper without external NS process
+   */
+  static void createStudyWithoutNS(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
 
   /*!
    *  Returns a client StudyBuilder wrapper that corresponds %theStudy

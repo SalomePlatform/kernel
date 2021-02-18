@@ -815,11 +815,11 @@ void
 NamingServiceTest::testContainerName()
 {
   std::string ref0 = "FactoryServer";
-  std::string ret = _NS.ContainerName("");
+  std::string ret = SALOME_NamingService_Abstract::ContainerName("");
   CPPUNIT_ASSERT(ret == ref0);
 
   ref0 = "MyContainerName";
-  ret = _NS.ContainerName(ref0.c_str());
+  ret = SALOME_NamingService_Abstract::ContainerName(ref0.c_str());
   CPPUNIT_ASSERT(ret == ref0);
 }
 
@@ -855,11 +855,11 @@ void
 NamingServiceTest::testBuildContainerNameForNS()
 {
   std::string ref0 = "/Containers/theHostName/theContainerName";
-  std::string ret = _NS.BuildContainerNameForNS("theContainerName","theHostName");
+  std::string ret = SALOME_NamingService_Abstract::BuildContainerNameForNS("theContainerName","theHostName");
   CPPUNIT_ASSERT(ret == ref0);
 
   ref0 = "/Containers/theHostName/FactoryServer";
-  ret = _NS.BuildContainerNameForNS("","theHostName");
+  ret = SALOME_NamingService_Abstract::BuildContainerNameForNS("","theHostName");
   CPPUNIT_ASSERT(ret == ref0);
 }
 

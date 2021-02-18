@@ -111,7 +111,8 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
   Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
-  _NS->Register(refContMan,_ResourcesManagerNameInNS);
+  if(_NS)
+    _NS->Register(refContMan,_ResourcesManagerNameInNS);
 
   MESSAGE("SALOME_ResourcesManager constructor end");
 }
@@ -137,6 +138,8 @@ SALOME_ResourcesManager::~SALOME_ResourcesManager()
 void SALOME_ResourcesManager::Shutdown()
 {
   MESSAGE("Shutdown");
+  if(!_NS)
+    return ;
   _NS->Destroy_Name(_ResourcesManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);

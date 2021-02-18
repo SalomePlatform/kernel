@@ -31,6 +31,8 @@ SET(SalomeNS_SOURCES
   SALOME_NamingService.cxx
   ServiceUnreachable.cxx
   NamingService_WaitForServerReadiness.cxx
+  SALOME_Fake_NamingService.cxx
+  SALOME_NamingService_Abstract.cxx
 )
 
 

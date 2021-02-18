@@ -58,13 +58,24 @@ const char *SALOME_Launcher::_LauncherNameInNS = "/SalomeLauncher";
  *  \param orb
  */
 //=============================================================================
-SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa) : _l()
+SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa)
 {
   MESSAGE("SALOME_Launcher constructor");
   _NS = new SALOME_NamingService(orb);
-  _ResManager = new SALOME_ResourcesManager(orb,poa,_NS);
+  init(orb,poa);
+  MESSAGE("SALOME_Launcher constructor end");
+}
+
+SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *externalNS):_NS(externalNS)
+{
+  init(orb,poa);
+}
+
+void SALOME_Launcher::init(CORBA::ORB_ptr orb, PortableServer::POA_var poa)
+{
+  _ResManager = new SALOME_ResourcesManager(orb,poa,tradNS());
   _l.SetResourcesManager(_ResManager->GetImpl());
-  _ContManager = new SALOME_ContainerManager(orb,poa,_NS);
+  _ContManager = new SALOME_ContainerManager(orb,poa,tradNS());
   _ResManager->_remove_ref();
   _ContManager->_remove_ref();
 
@@ -73,9 +84,7 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
   Engines::SalomeLauncher_var refContMan = Engines::SalomeLauncher::_narrow(obj);
-
   _NS->Register(refContMan,_LauncherNameInNS);
-  MESSAGE("SALOME_Launcher constructor end");
 }
 
 //=============================================================================
@@ -373,6 +382,8 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
 void SALOME_Launcher::Shutdown()
 {
   MESSAGE("Shutdown");
+  if(!_NS)
+    return;
   _NS->Destroy_Name(_LauncherNameInNS);
   _ContManager->Shutdown();
   _ResManager->Shutdown();
@@ -690,4 +701,21 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
   result->launcher_file = CORBA::string_dup(job_parameters.launcher_file.c_str());
   result->launcher_args = CORBA::string_dup(job_parameters.launcher_args.c_str());
   return result;
+}
+
+static SALOME_Launcher *_launcher_singleton_ssl = nullptr;
+
+#include "SALOME_Fake_NamingService.hxx"
+
+SALOME_Launcher *KERNEL::getLauncherSA()
+{
+  if(!_launcher_singleton_ssl)
+  {
+    int argc(0);
+    CORBA::ORB_var orb = CORBA::ORB_init(argc,nullptr);
+    PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
+    SALOME_Fake_NamingService *ns=new SALOME_Fake_NamingService(orb);
+    _launcher_singleton_ssl = new SALOME_Launcher(orb,root_poa,ns);//3rd arg is important to skip NS !
+  }
+  return _launcher_singleton_ssl;
 }

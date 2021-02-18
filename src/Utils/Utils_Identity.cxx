@@ -29,11 +29,10 @@
 # include <iostream>
 # include "utilities.h"
 # include "Utils_Identity.hxx"
+# include <cstring>
 
 extern "C"
 {
-# include <string.h>
-
 #ifndef WIN32 /* unix functionality */
 # include <pwd.h>
 #endif

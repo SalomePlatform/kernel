@@ -46,9 +46,12 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
+class SALOME_NamingService_Abstract;
+
 namespace KERNEL
 {
   Standard_EXPORT SALOMEDS::Study_ptr getStudyServantSA();
+  Standard_EXPORT void setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_var poa);
 }
 
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
@@ -66,7 +69,7 @@ private:
 
 public:
   //! standard constructor
-  SALOMEDS_Study_i(CORBA::ORB_ptr);
+  SALOMEDS_Study_i(CORBA::ORB_ptr, SALOME_NamingService_Abstract * = nullptr);
   //! standard constructor
   SALOMEDS_Study_i(CORBA::ORB_ptr, SALOME::Session_ptr session);
   

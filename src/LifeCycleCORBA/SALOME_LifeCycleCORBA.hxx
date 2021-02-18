@@ -50,7 +50,7 @@
 #endif
 
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 
 class LIFECYCLECORBA_EXPORT IncompatibleComponent : public SALOME_Exception
 {
@@ -62,7 +62,7 @@ public :
 class LIFECYCLECORBA_EXPORT SALOME_LifeCycleCORBA
 {
 public:
-  SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
+  SALOME_LifeCycleCORBA(SALOME_NamingService_Abstract *ns = 0);
   virtual ~SALOME_LifeCycleCORBA();
 
   Engines::EngineComponent_ptr 
@@ -95,7 +95,7 @@ public:
 
   Engines::ContainerManager_ptr getContainerManager();
   Engines::ResourcesManager_ptr getResourcesManager();
-  SALOME_NamingService * namingService();
+  SALOME_NamingService_Abstract * namingService();
   CORBA::ORB_ptr orb();
   void copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest);
 
@@ -118,8 +118,8 @@ protected:
   _LoadComponent(const Engines::ContainerParameters& params,
                  const char *componentName);
 
-  SALOME_NamingService *_NS;
-  SALOME_NamingService *_NSnew;
+  SALOME_NamingService_Abstract *_NS;
+  SALOME_NamingService_Abstract *_NSnew;
   Engines::ContainerManager_var _ContManager;
   Engines::ResourcesManager_var _ResManager;
   

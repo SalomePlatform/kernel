@@ -25,14 +25,14 @@
 
 #include "SALOME_Launcher_defs.hxx"
 
-#include <SALOMEconfig.h>
+#include "SALOME_NamingService.hxx"
+#include "SALOMEconfig.h"
 #include CORBA_CLIENT_HEADER(SALOME_Launcher)
 #include "Launcher.hxx"
 
 #include <string>
 #include <list>
 
-class SALOME_NamingService;
 class SALOME_ContainerManager;
 class SALOME_ResourcesManager;
 
@@ -43,8 +43,8 @@ class SALOMELAUNCHER_EXPORT SALOME_Launcher:
 
 public:
   SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa);
+  SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *externalNS);
   virtual ~SALOME_Launcher();
-
   // Main methods
   CORBA::Long createJob    (const Engines::JobParameters & job_parameters);
   void        launchJob    (CORBA::Long job_id);
@@ -86,20 +86,30 @@ public:
   static Engines::JobParameters_var
     JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters);
 
+  SALOME_NamingService *tradNS() { return SALOME_NamingService::GetTraditionalNS(_NS); }
+
 protected:
   // Internal methods
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data);
-
+  void init(CORBA::ORB_ptr orb, PortableServer::POA_var poa);
 protected:
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   SALOME_ContainerManager *_ContManager;
   SALOME_ResourcesManager *_ResManager;
-  SALOME_NamingService *_NS;
+  SALOME_NamingService_Abstract *_NS = nullptr;
 
   std::list<Engines::SalomeLauncherObserver_var> _observers;
 
   Launcher_cpp _l;
 };
+
+/*!
+ * Methods to be used in SSL mode to skip NS.
+ */
+namespace KERNEL
+{
+  SALOMELAUNCHER_EXPORT SALOME_Launcher *getLauncherSA();
+}
 
 #endif

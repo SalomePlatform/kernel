@@ -54,6 +54,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_FileTransfer_i.hxx"
 #include "Salome_file_i.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_Fake_NamingService.hxx"
 #include "Basics_Utils.hxx"
 
 #ifdef _XOPEN_SOURCE
@@ -133,14 +134,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           PortableServer::POA_ptr poa,
                                           char *containerName ,
                                           int argc , char* argv[],
-                                          bool activAndRegist,
+                                          SALOME_NamingService_Abstract *ns,
                                           bool isServantAloneInProcess
                                           ) :
   _NS(0),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 
-  if(activAndRegist)
+  if(ns)
     ActSigIntHandler() ;
 
   _argc = argc ;
@@ -177,10 +178,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   // Pour les containers paralleles: il ne faut pas enregistrer et activer
   // le container generique, mais le container specialise
 
-  if(activAndRegist)
   {
     _id = _poa->activate_object(this);
-    _NS = new SALOME_NamingService();
+    _NS = ns==nullptr ? new SALOME_NamingService : ns->clone();
     _NS->init_orb( _orb ) ;
     CORBA::Object_var obj=_poa->id_to_reference(*_id);
     Engines::Container_var pCont 
@@ -1900,42 +1900,35 @@ void Engines_Container_i::clearTemporaryFiles()
   _tmp_files.clear();
 }
 
-/*
-std::string Engines_Container_i::AnotherMethodeToReplace_PyString_AsString(PyObject * result)
-{
-    std::string my_result = "";
-    if (PyUnicode_Check(result)) {
-        // Convert string to bytes.
-        // strdup() bytes into my_result.
-        PyObject * temp_bytes = PyUnicode_AsEncodedString(result, "ASCII", "strict"); // Owned reference
-        if (temp_bytes != NULL) {
-            my_result = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
-            my_result = strdup(my_result);
-            Py_DECREF(temp_bytes);
-        } else {
-            // TODO PY3: Handle encoding error.
-            Py_DECREF(temp_bytes);
-        }
+static Engines_Container_i *_container_singleton_ssl = nullptr;
 
-    } else if (PyBytes_Check(result)) {
-        // strdup() bytes into my_result.
-        my_result = PyBytes_AS_STRING(result); // Borrowed pointer
-        my_result = strdup(my_result);
-    } else {
-        // Convert into your favorite string representation.
-        // Convert string to bytes if it is not already.
-        // strdup() bytes into my_result.
-        // TODO PY3: Check if only bytes is ok. 
-        PyObject * temp_bytes = PyObject_Bytes(result); // Owned reference
-        if (temp_bytes != NULL) {
-            my_result = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
-            my_result = strdup(my_result);
-            Py_DECREF(temp_bytes);
-        } else {
-            // TODO PY3: Handle error.
-            Py_DECREF(temp_bytes);
-        }
-    }
-    return my_result;
+static Engines::Container_var _container_ref_singleton_ssl;
+
+Engines_Container_i *KERNEL::getContainerSA()
+{
+  if(!_container_singleton_ssl)
+  {
+    int argc(0);
+    CORBA::ORB_var orb = CORBA::ORB_init(argc,nullptr);
+    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+    PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
+    PortableServer::POAManager_var pman = poa->the_POAManager();
+    CORBA::PolicyList policies;
+    policies.length(0);
+    //
+    char *argv[4] = {"Container","FactoryServer","toto",nullptr};
+    SALOME_Fake_NamingService ns;
+    _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,&ns,false);
+    PortableServer::ObjectId * cont_id = _container_singleton_ssl->getCORBAId();
+    //
+    CORBA::Object_var zeRef = poa->id_to_reference(*cont_id);
+    _container_ref_singleton_ssl = Engines::Container::_narrow(zeRef);
+  }
+  return _container_singleton_ssl;
 }
-*/
+
+Engines::Container_var KERNEL::getContainerRefSA()
+{
+  getContainerSA();
+  return _container_ref_singleton_ssl;
+}

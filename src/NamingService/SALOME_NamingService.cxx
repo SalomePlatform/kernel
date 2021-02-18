@@ -73,6 +73,11 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
   _initialize_root_context();
 }
 
+SALOME_NamingService_Abstract *SALOME_NamingService::clone()
+{
+  return new SALOME_NamingService(_orb);
+}
+
 // ============================================================================
 /*! \brief Standard destructor.
  *
@@ -85,6 +90,12 @@ SALOME_NamingService::~SALOME_NamingService()
   // Problem MESSAGE with singleton: late destruction,
   // after trace system destruction ?
   //MESSAGE("SALOME_NamingService destruction");
+}
+
+SALOME_NamingService *SALOME_NamingService::GetTraditionalNS(SALOME_NamingService_Abstract *ns)
+{
+  SALOME_NamingService *nsc(dynamic_cast<SALOME_NamingService *>(ns));
+  return nsc;
 }
 
 // ============================================================================
@@ -549,29 +560,6 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 }
 
 // ============================================================================
-/*! \brief provide a default container name if empty.
- *
- *  the given container name is returned unchanged, unless it is empty.
- * \param  containerName
- * \return container name, where empty input is replaced by "FactoryServer",
- *         without the path.
- * \sa BuildContainerNameForNS(const char *containerName, const char *hostname)
- */
-// ============================================================================
-
-std::string SALOME_NamingService::ContainerName(const char *containerName)
-{
-  std::string ret,containerNameCpp(containerName);
-
-  if (containerNameCpp.empty())
-    ret = "FactoryServer";
-  else
-    ret = containerName;
-
-  return ret;
-}
-
-// ============================================================================
 /*! \brief build a container name, given a ContainerParameters struct.
  *
  *  Build a container name with a ContainerParameters struct. In case of multi
@@ -595,7 +583,7 @@ std::string SALOME_NamingService::ContainerName(const Engines::ContainerParamete
   else
     nbproc = params.nb_proc;
 
-  std::string ret(ContainerName(params.container_name));
+  std::string ret(SALOME_NamingService_Abstract::ContainerName(params.container_name));
 
   if ( nbproc >= 1 )
     {
@@ -603,30 +591,6 @@ std::string SALOME_NamingService::ContainerName(const Engines::ContainerParamete
           suffix << "_" << nbproc;
       ret += suffix.str();
     }
-
-  return ret;
-}
-
-// ============================================================================
-/*! \brief build a string representing a container in Naming Service.
- *
- *  Build a string representing the absolute pathname of a container in
- *  SALOME_NamingService. This form gives a suffixed containerName in case of
- *  multi processor machine.
- * \param containerName name of the container in which the component is
-                        instantiated.
- * \param hostname name of the host of the container, without domain names.
- * \return the path under the form /Containers/hostname/containerName
- * \sa ContainerName(const Engines::MachineParameters& params)
- */
-// ============================================================================
-
-std::string SALOME_NamingService::BuildContainerNameForNS(const char *containerName, const char *hostname)
-{
-  std::string ret("/Containers/");
-  ret += hostname;
-  ret += "/";
-  ret += ContainerName(containerName);
 
   return ret;
 }

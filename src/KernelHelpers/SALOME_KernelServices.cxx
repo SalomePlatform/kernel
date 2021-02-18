@@ -20,10 +20,14 @@
 // Author: Guillaume Boulant (EDF/R&D) 
 
 #include "SALOME_KernelServices.hxx"
+#include "SALOME_Fake_NamingService.hxx"
 
 #include <map>
+#include <memory>
 
 std::map<std::string,CORBA::Object_var> _compo_map;
+
+std::unique_ptr<SALOME_NamingService_Abstract> _naming_service;
 
 namespace KERNEL {
   
@@ -41,15 +45,28 @@ namespace KERNEL {
     return orb;
   }
   
+  void assignNamingServiceSL()
+  {
+    if ( !_naming_service.get() )
+    {
+      _naming_service.reset( new SALOME_Fake_NamingService );
+    }
+    else
+    {
+      THROW_SALOME_EXCEPTION("assignNamingServiceSL : NS SALOME Wrapper is already set !");
+    }
+  }
+
   /**
    * This function returns a static reference to the SALOME naming service.
    */
-  SALOME_NamingService * getNamingService() {
-    static SALOME_NamingService * namingService;
-    if ( namingService == NULL ) {
-      namingService = new SALOME_NamingService(getORB());
+  SALOME_NamingService_Abstract *getNamingService()
+  {
+    if ( !_naming_service.get() )
+    {
+      _naming_service.reset( new SALOME_NamingService(getORB()) );
     }
-    return namingService;
+    return _naming_service.get();
   }
   
   /**
@@ -58,7 +75,7 @@ namespace KERNEL {
   SALOME_LifeCycleCORBA * getLifeCycleCORBA() {
     static SALOME_LifeCycleCORBA * lifeCycleCORBA;
     if ( lifeCycleCORBA == NULL ) {
-      SALOME_NamingService *aNamingService = getNamingService();
+      SALOME_NamingService_Abstract *aNamingService = getNamingService();
       lifeCycleCORBA = new SALOME_LifeCycleCORBA(aNamingService);
     }
     return lifeCycleCORBA;
@@ -73,7 +90,7 @@ namespace KERNEL {
   SALOMEDS::Study_ptr getStudyServant() {
     static SALOMEDS::Study_ptr aStudy;
     if(CORBA::is_nil(aStudy)){
-      SALOME_NamingService *aNamingService = getNamingService();
+      SALOME_NamingService_Abstract *aNamingService = getNamingService();
       CORBA::Object_ptr anObject = aNamingService->Resolve("/Study");
       aStudy = SALOMEDS::Study::_narrow(anObject);
     }
@@ -88,7 +105,7 @@ namespace KERNEL {
   SALOME::Session_ptr getSalomeSession() {
     static SALOME::Session_ptr salomeSession;
     if(CORBA::is_nil(salomeSession)){
-      SALOME_NamingService *aNamingService = getNamingService();
+      SALOME_NamingService_Abstract *aNamingService = getNamingService();
       CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
       salomeSession = SALOME::Session::_narrow(obj);
     }
@@ -105,7 +122,7 @@ namespace KERNEL {
     static Engines::SalomeLauncher_ptr salomeLauncher;
     if(CORBA::is_nil(salomeLauncher)){
       //LOG("KERNEL_services::getSalomeLauncher(): creating the static instance");
-      SALOME_NamingService *aNamingService = getNamingService();
+      SALOME_NamingService_Abstract *aNamingService = getNamingService();
       CORBA::Object_ptr obj = aNamingService->Resolve("/SalomeLauncher");
       salomeLauncher = Engines::SalomeLauncher::_narrow(obj);
     }
@@ -115,7 +132,7 @@ namespace KERNEL {
   Engines::ResourcesManager_ptr getResourcesManager() {
     static Engines::ResourcesManager_ptr resourcesManager;
     if(CORBA::is_nil(resourcesManager)){
-      SALOME_NamingService *aNamingService = getNamingService();
+      SALOME_NamingService_Abstract *aNamingService = getNamingService();
       CORBA::Object_ptr obj = aNamingService->Resolve("/ResourcesManager");
       resourcesManager = Engines::ResourcesManager::_narrow(obj);
     }

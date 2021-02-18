@@ -31,7 +31,7 @@ bool TEST_corba() {
     LOG("TEST_Corba: orb ERROR");
     return false;
   }
-  SALOME_NamingService *  ns  = KERNEL::getNamingService();
+  SALOME_NamingService_Abstract *  ns  = KERNEL::getNamingService();
   if ( ns == NULL ) {
     LOG("TEST_Corba: ns ERROR");
     return false;

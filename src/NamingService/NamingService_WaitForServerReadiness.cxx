@@ -26,6 +26,8 @@
 //  $Header$
 //
 #include "NamingService_WaitForServerReadiness.hxx"
+#include "SALOME_NamingService.hxx"
+
 #include "utilities.h"
 #include <iostream>
 #include <ctime>
@@ -100,4 +102,11 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
     INFOS("Server "<< serverName <<" not found, abort...");
     exit(EXIT_FAILURE);
     }
+}
+
+/*!
+ * Fake NS : no need to wait ;)
+ */
+void NamingService_WaitForServerReadiness(SALOME_Fake_NamingService* NS, std::string serverName)
+{
 }

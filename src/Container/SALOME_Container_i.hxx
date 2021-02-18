@@ -48,7 +48,7 @@
 #include <list>
 #include <string>
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 
 class CONTAINER_EXPORT Engines_Container_i:
   public virtual POA_Engines::Container,
@@ -60,7 +60,7 @@ public:
                       PortableServer::POA_ptr poa,
                       char * containerName ,
                       int argc, char* argv[],
-                      bool activAndRegist = true,
+                      SALOME_NamingService_Abstract *ns = nullptr,
                       bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
@@ -140,6 +140,7 @@ public:
   void registerTemporaryFile( const std::string& fileName );
   void unregisterTemporaryFile( const std::string& fileName );
   void clearTemporaryFiles();
+  PortableServer::ObjectId *getCORBAId() const { return _id; }
 
 protected:
 
@@ -150,7 +151,7 @@ protected:
 
   bool _isSupervContainer;
 
-  SALOME_NamingService *_NS ;
+  SALOME_NamingService_Abstract *_NS ;
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;
@@ -172,5 +173,14 @@ protected:
   long   _pid;
   bool   _isServantAloneInProcess;
 };
+
+/*!
+ * Methods to be used in SSL mode to skip NS.
+ */
+namespace KERNEL
+{
+  CONTAINER_EXPORT Engines_Container_i *getContainerSA();
+  CONTAINER_EXPORT Engines::Container_var getContainerRefSA();
+}
 
 #endif

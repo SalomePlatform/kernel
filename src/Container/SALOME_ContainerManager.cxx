@@ -99,10 +99,9 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   threadPol->destroy();
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
-  Engines::ContainerManager_var refContMan =
-    Engines::ContainerManager::_narrow(obj);
-
-  _NS->Register(refContMan,_ContainerManagerNameInNS);
+  Engines::ContainerManager_var refContMan = Engines::ContainerManager::_narrow(obj);
+  if(_NS)
+    _NS->Register(refContMan,_ContainerManagerNameInNS);
   _isAppliSalomeDefined = (GetenvThreadSafe("APPLI") != 0);
 
 #ifdef HAVE_MPI2
@@ -195,7 +194,8 @@ void SALOME_ContainerManager::Shutdown()
 {
   MESSAGE("Shutdown");
   ShutdownContainers();
-  _NS->Destroy_Name(_ContainerManagerNameInNS);
+  if(_NS)
+    _NS->Destroy_Name(_ContainerManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
 }
@@ -209,7 +209,8 @@ void SALOME_ContainerManager::Shutdown()
 void SALOME_ContainerManager::ShutdownContainers()
 {
   MESSAGE("ShutdownContainers");
-
+  if(!_NS)
+    return ;
   SALOME::Session_var session = SALOME::Session::_nil();
   CORBA::Long pid = 0;
   CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");

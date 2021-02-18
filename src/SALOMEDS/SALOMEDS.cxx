@@ -35,6 +35,7 @@
 #include "SALOMEDSClient.hxx"
 #include "SALOMEDSClient_IParameters.hxx"
 #include "SALOMEDS_IParameters.hxx"
+#include "SALOME_Fake_NamingService.hxx"
 
 #include "SALOMEDS_Defines.hxx"
 
@@ -105,10 +106,8 @@ extern "C"
     return new SALOMEDS_StudyBuilder(theBuilder);
   }
 
-  SALOMEDS_EXPORT
-  void CreateStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+  void CreateStudyNSAbstract(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa, SALOME_NamingService_Abstract& namingService)
   {
-    SALOME_NamingService namingService(orb);
     CORBA::Object_var obj = namingService.Resolve( "/Study" );
     SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow( obj );
     if( CORBA::is_nil(aStudy) ) {
@@ -125,15 +124,30 @@ extern "C"
       threadPol->destroy();
 
       SALOMEDS_Study_i::SetThePOA(poa);
-      SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb);
+      SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb,&namingService);
 
       // Activate the objects.  This tells the POA that the objects are ready to accept requests.
       PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
       aStudy = aStudy_i->_this();
+      KERNEL::setStudyServantSA(aStudy,poa);
       namingService.Register(aStudy, "/Study");
       aStudy_i->GetImpl()->GetDocument()->SetModified(false);
       aStudy_i->_remove_ref();
     }
+  }
+
+  SALOMEDS_EXPORT
+  void CreateStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+  {
+    SALOME_NamingService namingService(orb);
+    CreateStudyNSAbstract(orb,root_poa,namingService);
+  }
+  
+  SALOMEDS_EXPORT
+  void CreateStudyWithoutNS(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+  {
+    SALOME_Fake_NamingService namingService(orb);
+    CreateStudyNSAbstract(orb,root_poa,namingService);
   }
 
   SALOMEDS_EXPORT

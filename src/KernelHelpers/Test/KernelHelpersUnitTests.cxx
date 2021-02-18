@@ -59,7 +59,7 @@ void KernelHelpersUnitTests::TEST_corba()
   CPPUNIT_ASSERT(!CORBA::is_nil(orb));
 
 
-  SALOME_NamingService *  ns  = KERNEL::getNamingService();
+  SALOME_NamingService_Abstract *  ns  = KERNEL::getNamingService();
   CPPUNIT_ASSERT(ns!=NULL);
 
   SALOME_LifeCycleCORBA * lcc = KERNEL::getLifeCycleCORBA();

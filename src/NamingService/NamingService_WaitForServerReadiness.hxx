@@ -28,11 +28,16 @@
 #ifndef _NAMINGSERVICE_WAITFORSERVERREADINESS_HXX_
 #define _NAMINGSERVICE_WAITFORSERVERREADINESS_HXX_
 
-#include "SALOME_NamingService.hxx"
+#include "SALOME_NamingService_defs.hxx"
 
 #include <string>
 
-void NAMINGSERVICE_EXPORT NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
-                                          std::string serverName);
+class SALOME_NamingService;
+
+void NAMINGSERVICE_EXPORT NamingService_WaitForServerReadiness(SALOME_NamingService* NS, std::string serverName);
+
+class SALOME_Fake_NamingService;
+
+void NAMINGSERVICE_EXPORT NamingService_WaitForServerReadiness(SALOME_Fake_NamingService* NS, std::string serverName);
 
 #endif

@@ -40,14 +40,15 @@ static void* _libHandle = NULL;
 #endif
 #endif
 
-#define SOBJECT_FACTORY      "SObjectFactory"
-#define SCOMPONENT_FACTORY   "SComponentFactory"
-#define STUDY_FACTORY        "StudyFactory"
-#define STUDY_CREATE         "CreateStudy"
-#define BUILDER_FACTORY      "BuilderFactory"
-#define GET_PARAMETERS       "GetIParameters"
-#define CONVERT_SOBJECT      "ConvertSObject"
-#define CONVERT_BUILDER      "ConvertBuilder"
+#define SOBJECT_FACTORY         "SObjectFactory"
+#define SCOMPONENT_FACTORY      "SComponentFactory"
+#define STUDY_FACTORY           "StudyFactory"
+#define STUDY_CREATE            "CreateStudy"
+#define STUDY_CREATE_WITHOUT_NS "CreateStudyWithoutNS"
+#define BUILDER_FACTORY         "BuilderFactory"
+#define GET_PARAMETERS          "GetIParameters"
+#define CONVERT_SOBJECT         "ConvertSObject"
+#define CONVERT_BUILDER         "ConvertBuilder"
 
 typedef SALOMEDSClient_SObject* (*SOBJECT_FACTORY_FUNCTION) (SALOMEDS::SObject_ptr);
 typedef SALOMEDSClient_SComponent* (*SCOMPONENT_FACTORY_FUNCTION) (SALOMEDS::SComponent_ptr);
@@ -124,6 +125,19 @@ void ClientFactory::createStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa)
 #else
   if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
   if(!aCreateFactory) aCreateFactory = (STUDY_CREATE_FUNCTION) dlsym(_libHandle, STUDY_CREATE);
+#endif
+
+  if(aCreateFactory) aCreateFactory(orb, poa);
+}
+
+void ClientFactory::createStudyWithoutNS(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa)
+{
+#ifdef WIN32
+  if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
+  if(!aCreateFactory) aCreateFactory = (STUDY_CREATE_FUNCTION)::GetProcAddress(_libHandle, STUDY_CREATE_WITHOUT_NS);
+#else
+  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
+  if(!aCreateFactory) aCreateFactory = (STUDY_CREATE_FUNCTION) dlsym(_libHandle, STUDY_CREATE_WITHOUT_NS);
 #endif
 
   if(aCreateFactory) aCreateFactory(orb, poa);

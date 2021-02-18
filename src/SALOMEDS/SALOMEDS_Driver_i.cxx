@@ -348,13 +348,16 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(bool isPublished,
 //                                          SALOMEDS_DriverFactory
 //###############################################################################################################
 
-SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, bool isNSAvail)
+SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, bool isNSAvail):_orb( CORBA::ORB::_duplicate(theORB) )
 {
-  _orb = CORBA::ORB::_duplicate(theORB);
   if(isNSAvail)
     _name_service = new SALOME_NamingService(_orb);
 }
 
+SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, SALOME_NamingService_Abstract *ns):_orb( CORBA::ORB::_duplicate(theORB) )
+{
+  _name_service = ns->clone();
+}
 
 SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i()
 {

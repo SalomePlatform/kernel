@@ -81,7 +81,7 @@ public:
     return oss_.str();
   }
 
-  // Surtout ne pas écrire le code suivant:
+  // Surtout ne pas ï¿½crire le code suivant:
   // car oss_.str() renvoie une string temporaire
   //   operator const char*()
   //   {
@@ -91,32 +91,25 @@ public:
 }; /* end class OSS */
 #endif
 
-
-// Cette fonction provient de Utils_SALOME_Exception
-// Solution pas très élégante mais contrainte par les manques de la classe SALOME_Exception
-const char *makeText( const char *text, const char *fileName, const unsigned int lineNumber);
-
 struct DSC_Exception : public SALOME_Exception {
 
-  // Attention, en cas de modification des paramètres par défaut
+  // Attention, en cas de modification des paramï¿½tres par dï¿½faut
   // il est necessaire de les repporter dans la macro DSC_EXCEPTION ci-dessous
   // Le constructeur de la SALOME_Exception demande une chaine non vide
-  // Du coup on est obliger de la désallouer avant d'y mettre la notre
+  // Du coup on est obliger de la dï¿½sallouer avant d'y mettre la notre
   // car le what n'est pas virtuel donc il faut que le contenu de SALOME_Exception::_text
   // soit utilisable.
-  // Ne pas mettre lineNumber=0 à cause du calcul log dans la SALOME_Exception si fileName est défini
+  // Ne pas mettre lineNumber=0 ï¿½ cause du calcul log dans la SALOME_Exception si fileName est dï¿½fini
   DSC_Exception( const std::string & text, 
                  const char *fileName="", 
                  const unsigned int lineNumber=0, 
                  const char *funcName="" ):
-    SALOME_Exception(text.c_str()) ,
+    SALOME_Exception(text) ,
     _dscText(text),
     _filefuncName(setFileFuncName(fileName?fileName:"",funcName?funcName:"")),
     _lineNumber(lineNumber),
     _exceptionName("DSC_Exception")
   {
-    // Mise en cohérence avec l'exception SALOME (à revoir)
-    delete [] ((char*)SALOME_Exception::_text);
     if (! _filefuncName.empty() )
       SALOME_Exception::_text = makeText(text.c_str(),_filefuncName.c_str(),lineNumber) ;
     else
@@ -135,10 +128,10 @@ struct DSC_Exception : public SALOME_Exception {
     return _what.c_str()  ;
   }
 
-  // L'opérateur = de SALOME_Exception n'est pas défini
-  // problème potentiel concernant la recopie de son pointeur _text
+  // L'opï¿½rateur = de SALOME_Exception n'est pas dï¿½fini
+  // problï¿½me potentiel concernant la recopie de son pointeur _text
     
-  // Le destructeur de la SALOME_Exception devrait être virtuel
+  // Le destructeur de la SALOME_Exception devrait ï¿½tre virtuel
   // sinon pb avec nos attributs de type pointeur.
   virtual ~DSC_Exception(void) noexcept {};
 
@@ -173,8 +166,8 @@ protected:
     virtual ~Derived(void) noexcept;\
 };\
 
-//Sert à eviter le problème d'identification RTTI des exceptions
-//Crée un unique typeInfo pour tous les bibliothèques composants SALOME
+//Sert ï¿½ eviter le problï¿½me d'identification RTTI des exceptions
+//Crï¿½e un unique typeInfo pour tous les bibliothï¿½ques composants SALOME
 //dans un fichier cxx
 #define DSC_EXCEPTION_CXX(NameSpace,Derived) NameSpace::Derived::~Derived(void) noexcept {}
 
