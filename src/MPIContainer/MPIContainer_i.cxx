@@ -46,7 +46,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(CORBA::ORB_ptr orb,
                                                PortableServer::POA_ptr poa,
                                                char * containerName,
                                                int argc, char *argv[]) 
-  : Engines_Container_i(orb,poa,containerName,argc,argv,false)
+  : Engines_Container_i(orb,poa,containerName,argc,argv,nullptr,false)
 {
 
   _id = _poa->activate_object(this);
