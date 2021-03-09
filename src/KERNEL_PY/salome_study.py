@@ -279,6 +279,35 @@ def openStudy(theStudyPath):
 
     #--------------------------------------------------------------------------
 
+def salome_study_init_without_session(theStudyPath=None):
+    """
+    Performs only once study creation or connection.
+    optional argument : theStudyPath
+        None        : attach to the currently active single study;
+                      create new empty study if there is active study
+        <URL> (str) : open study with the given file name
+    """
+    global myStudy, myStudyName
+    global orb, lcc, naming_service, cm
+
+    if verbose(): print("theStudyPath:", theStudyPath)
+    if not myStudy:
+        import CORBA
+        orb = CORBA.ORB_init([''])
+
+        # get Study reference
+        if verbose(): print("looking for study...")
+        import KernelDS
+        myStudy = KernelDS.myStudy()
+        if verbose(): print("Study found")
+        pass
+
+    myStudyName = myStudy._get_Name()
+
+    return myStudy, myStudyName
+
+    #--------------------------------------------------------------------------
+
 def salome_study_init(theStudyPath=None):
     """
     Performs only once study creation or connection.

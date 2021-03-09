@@ -205,6 +205,7 @@ def salome_init_without_session():
     poaManager = poa._get_the_POAManager()
     poaManager.activate()
     sg = SalomeOutsideGUI()
+    salome_study_init_without_session()
 
 def salome_init_with_session(path=None, embedded=False):
     """
