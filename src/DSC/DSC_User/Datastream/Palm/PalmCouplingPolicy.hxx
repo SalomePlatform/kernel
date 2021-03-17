@@ -139,12 +139,12 @@ public:
  
       // Pas encore testé
       DataIdIterator(const InternalDataIdContainer<TTIME,TTAG> & pc):
-        _pc(pc),_itTime(pc._lTime.begin()),_itTag(pc._lTag.begin()) {}
+        _itTime(pc._lTime.begin()),_itTag(pc._lTag.begin()),_pc(pc){}
       DataIdIterator(const InternalDataIdContainer<TTIME,TTAG> & pc, ItTime itTime, ItTag itTag):
-        _pc(pc),_itTime(itTime),_itTag(itTag) {}
+        _itTime(itTime),_itTag(itTag),_pc(pc) {}
       // Pas encore testé
       DataIdIterator(const DataIdIterator & dIt):
-        _pc(dIt._pc),_itTime(dIt._itTime),_itTag(dIt._itTag) {}
+        _itTime(dIt._itTime),_itTag(dIt._itTag), _pc(dIt._pc) {}
       ~DataIdIterator() {}
       
 

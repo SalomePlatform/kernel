@@ -61,6 +61,7 @@ OPTION(SALOME_BUILD_TESTS "Build SALOME tests" ON)
 # Advanced:
 OPTION(SALOME_LIGHT_ONLY "Build SALOME Light only (no CORBA)" OFF)
 OPTION(SALOME_USE_LIBBATCH "Use LibBatch in KERNEL" OFF)
+OPTION(SALOME_USE_64BIT_IDS "Size of IDs to refer cells and nodes. 32 bits when OFF (default), 64 bits when ON." OFF)
 CMAKE_DEPENDENT_OPTION(SALOME_PACO_PARALLEL "Build with PACO (implies SALOME_USE_MPI)" OFF
                        "NOT SALOME_LIGHT_ONLY" OFF)
 CMAKE_DEPENDENT_OPTION(SALOME_USE_MPI "Use MPI containers" OFF
