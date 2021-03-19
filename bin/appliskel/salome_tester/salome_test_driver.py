@@ -43,8 +43,8 @@ def runTest(command):
 # Display output and errors
 def processResult(res, out, err):
   # Decode output
-  out = out.decode('utf_8') if out else ''
-  err = err.decode('utf_8') if err else ''
+  out = out.decode('utf_8', errors='ignore') if out else ''
+  err = err.decode('utf_8', errors='ignore') if err else ''
 
   # Execute hook if it is installed
   if getattr(processResult, '__hook', None):
