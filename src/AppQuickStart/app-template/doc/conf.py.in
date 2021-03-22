@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '(name_of_application)'
-copyright = '2010-2020 CEA/DEN, EDF R&D, OPEN CASCADE, ASTEK INDUSTRIE'
+copyright = '2010-2021 CEA/DEN, EDF R&D, OPEN CASCADE, ASTEK INDUSTRIE'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
