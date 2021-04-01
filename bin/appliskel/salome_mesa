@@ -32,6 +32,7 @@ import sys
 
 if __name__ == "__main__":
     import os
-    os.environ["XLIB_SKIP_ARGB_VISUALS"]="1"
+    if os.name != "posix":
+        os.environ["XLIB_SKIP_ARGB_VISUALS"]="1"
     os.environ["MESA_GL_VERSION_OVERRIDE"]="4.5"
     salome_common.main(sys.argv[1:])
