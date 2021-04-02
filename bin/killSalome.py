@@ -22,83 +22,76 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-## \file killSalome.py
-#  Stop all %SALOME servers from all sessions by killing them
-#
+## @file killSalome.py
+#  @brief Forcibly stop all running %SALOME sessions.
 
-import os, sys, re, signal
+"""
+Forcibly stop all running SALOME sessions.
 
-from killSalomeWithPort import killMyPort, getPiDict, checkUnkilledProcess
-#from salome_utils import getHostName, getShortHostName
-from salome_utils import getUserName
+To stop all SALOME sessions, do the following:
+
+* in shell:
+
+    $ killSalome.py
+
+* in Python script:
+
+    from killSalome import killAllPorts
+    killAllPorts()
+"""
+
+# pragma pylint: disable=invalid-name
+
+import os
+import os.path as osp
+import re
+import sys
+from contextlib import suppress
+from glob import glob
+
+from killSalomeWithPort import getPiDict, killMyPort, killUnkilledProcesses
 
 def killAllPorts():
     """
-    Kill all SALOME sessions belonging to the user.
+    Stop all running SALOME sessions owned by the current user.
     """
-    user = getUserName()
-    #hostname  = getHostName()
-    #shostname = getShortHostName()
-    # new-style dot-prefixed pidict file
-    #fpidict   = getPiDict('(\d*)',hidden=True)
-    #problem with WIN32 path slashes
-    fpidict   = getPiDict('#####',hidden=True)
-    dirpidict = os.path.dirname(fpidict)
-    fpidict   = os.path.basename(fpidict)
-    #if hostname in fpidict:
-    #    fpidict = fpidict.replace(hostname, shostname+".*")
-    fpidict   = fpidict.replace('#####', '(\d*)')
-    fnamere   = re.compile("^%s" % fpidict)
-    try:
-        for f in os.listdir(dirpidict):
-            mo = fnamere.match(f)
-            try:
-                killMyPort(mo.group(1))
-            except:
-                pass
-            pass
-        pass
-    except:
-        pass
-    # provide compatibility with old-style pidict file (not dot-prefixed)
-    #fpidict   = getPiDict('(\d*)',hidden=False)
-    fpidict   = getPiDict('#####',hidden=False)
-    dirpidict = os.path.dirname(fpidict)
-    fpidict   = os.path.basename(fpidict)
-    #if hostname in fpidict:
-    #    fpidict = fpidict.replace(hostname, shostname+".*")
-    fpidict = fpidict.replace('#####', '(\d*)')
-    fnamere   = re.compile("^%s$" % fpidict)
-    try:
-        for f in os.listdir(dirpidict):
-            mo = fnamere.match(f)
-            try:
-                killMyPort(mo.group(1))
-            except:
-                pass
-            pass
-        pass
-    except:
-        pass
-    # kill other processes
-    for pid in checkUnkilledProcess():
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except:
-            pass
-        pass
-    if sys.platform != 'win32':
-        # delete uri files needed by ompi-server
-        cmd = "rm -f " + os.path.expanduser("~") + "/.urifile_*"
-        os.system(cmd)
-    pass
+    # detect ports used by SALOME session and kill processes
+    for hidden in (True, False):
+        pidict_t = getPiDict(port='#####', hidden=hidden)
+        dir_pidict_t = osp.dirname(pidict_t)
+        fn_pidict_t = osp.basename(pidict_t).replace('#####', r'(\d*)')
+        fn_rex = re.compile('^{}'.format(fn_pidict_t))
+        with suppress(IOError):
+            for fname in os.listdir(dir_pidict_t):
+                m_res = fn_rex.match(fname)
+                if m_res:
+                    killMyPort(m_res.group(1))
 
-if __name__ == "__main__":
+    # kill possibly unkilled processes
+    killUnkilledProcesses()
+
+    # other clean-up actions
+    # - delete uri files needed by ompi-server
+    for path in glob(osp.join(osp.expanduser('~'), '.urifile_*')):
+        with suppress(IOError):
+            os.remove(path)
+
+def main():
+    """
+    Main function
+    """
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description='Forcibly stop all running SALOME sessions')
+    parser.parse_args()
+
     try:
         from salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
-    except Exception as e:
-        print(e)
+    except Exception as exc: # pragma pylint: disable=broad-except
+        print(exc)
         sys.exit(1)
+
     killAllPorts()
-    pass
+
+if __name__ == '__main__':
+    main()
