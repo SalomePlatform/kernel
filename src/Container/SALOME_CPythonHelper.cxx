@@ -36,7 +36,9 @@ Py_DecodeLocale(const char *arg, size_t *size)
 void SALOME_CPythonHelper::initializePython(int argc, char *argv[])
 {
   Py_Initialize();
+#if PY_VERSION_HEX < 0x03070000
   PyEval_InitThreads();
+#endif
   wchar_t **changed_argv = new wchar_t*[argc]; // Setting arguments
   for (int i = 0; i < argc; i++)
     changed_argv[i] = Py_DecodeLocale(argv[i], NULL);

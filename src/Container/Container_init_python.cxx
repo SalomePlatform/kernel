@@ -202,8 +202,9 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   script += "del _custom_except_hook, sys\n";
   PyRun_SimpleString(script.c_str());
   // VSR (22/09/2016): end of workaround
+#if PY_VERSION_HEX < 0x03070000
   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
-
+#endif
   // Create python objects to capture stdout and stderr
   PyObject* _vout=(PyObject*)ContainerNewPyStdOut( false ); // stdout
   PyObject* _verr=(PyObject*)ContainerNewPyStdOut( true );  // stderr
