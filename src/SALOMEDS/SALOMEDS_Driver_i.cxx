@@ -356,7 +356,7 @@ SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, bool i
 
 SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, SALOME_NamingService_Abstract *ns):_orb( CORBA::ORB::_duplicate(theORB) )
 {
-  _name_service = ns->clone();
+  _name_service = ns->cloneCoVar();
 }
 
 SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i()

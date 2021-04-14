@@ -22,10 +22,11 @@
 
 #include "SALOME_ResourcesManager_Client.hxx"
 #include "SALOME_ResourcesManager.hxx"
+#include "SALOME_NamingService_Abstract.hxx"
 
 using namespace std;
 
-SALOME_ResourcesManager_Client::SALOME_ResourcesManager_Client(SALOME_NamingService *ns)
+SALOME_ResourcesManager_Client::SALOME_ResourcesManager_Client(SALOME_NamingService_Abstract *ns)
   : _rm(Engines::ResourcesManager::_nil())
 {
   CORBA::Object_var objRM = ns->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);

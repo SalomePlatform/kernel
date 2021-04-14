@@ -24,27 +24,40 @@
 #include "SALOME_NamingService_Abstract.hxx"
 
 #include <mutex>
+#include <utility>
 #include <string>
 #include <map>
 
 class NAMINGSERVICE_EXPORT SALOME_Fake_NamingService : public SALOME_NamingService_Abstract
 {
 public:
-    SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
-    SALOME_Fake_NamingService() = default;
-    void init_orb(CORBA::ORB_ptr orb=0) override;
-    void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
-    CORBA::Object_ptr Resolve(const char* Path) override;
-    CORBA::Object_ptr ResolveFirst(const char* Path) override;
-    void Destroy_Name(const char* Path) override;
-    void Destroy_Directory(const char* Path) override;
-    void Destroy_FullDirectory(const char* Path) override;
-    bool Change_Directory(const char* Path) override;
-    std::vector<std::string> list_subdirs() override;
-    std::vector<std::string> list_directory() override;
-    SALOME_NamingService_Abstract *clone() override;
-    CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) override;
+  SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
+  SALOME_Fake_NamingService() = default;
+  static void SetLogContainersFile(const std::string& logFileName);
+  static std::string GetLogContainersFile();
+  static void FlushLogContainersFile();
+  std::vector< std::string > repr() override;
+  void init_orb(CORBA::ORB_ptr orb=0) override;
+  void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
+  CORBA::Object_ptr Resolve(const char* Path) override;
+  CORBA::Object_ptr ResolveFirst(const char* Path) override;
+  void Destroy_Name(const char* Path) override;
+  void Destroy_Directory(const char* Path) override;
+  void Destroy_FullDirectory(const char* Path) override;
+  bool Change_Directory(const char* Path) override;
+  std::vector<std::string> list_subdirs() override;
+  std::vector<std::string> list_directory() override;
+  std::vector<std::string> list_directory_recurs() override;
+  SALOME_NamingService_Abstract *clone() override;
+  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) override;
 private:
-    static std::mutex _mutex;
-    static std::map<std::string,CORBA::Object_var> _map;
+  static std::string ReprOfContainersIORS_NoThreadSafe();
+  static std::string ReprOfContainersIORS();
+  static std::vector< std::pair< std::string, Engines::Container_var> > ListOfContainersInNS_NoThreadSafe();
+  static void FlushLogContainersFile_NoThreadSafe();
+private:
+  static std::mutex _mutex;
+  static std::map<std::string,CORBA::Object_var> _map;
+  static bool _log_container_file_thread_launched;
+  static std::string _log_container_file_name;
 };

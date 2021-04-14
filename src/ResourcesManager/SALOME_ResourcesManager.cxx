@@ -58,7 +58,7 @@ const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesMana
 
 SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
                                                  PortableServer::POA_var poa,
-                                                 SALOME_NamingService *ns,
+                                                 SALOME_NamingService_Abstract *ns,
                                                  const char *xmlFilePath)
 : _rm(new ResourcesManager_cpp(xmlFilePath))
 {
@@ -94,7 +94,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
 
 SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
                                                  PortableServer::POA_var poa, 
-                                                 SALOME_NamingService *ns) : _rm(new ResourcesManager_cpp())
+                                                 SALOME_NamingService_Abstract *ns) : _rm(new ResourcesManager_cpp())
 {
   MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;

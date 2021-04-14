@@ -17,13 +17,20 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+#include "SALOME_KernelORB.hxx"
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
-{
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
+namespace KERNEL {
+  /**
+   * This function returns a static reference to the orb. The orb can
+   * be used for example to initialize CORBA variables or to serialize
+   * and unserialize the CORBA objet to/from an IOR string.
+   */
+  CORBA::ORB_ptr getORB() {
+    static CORBA::ORB_ptr orb;
+    if(CORBA::is_nil(orb)){
+      int argc=0;
+      orb = CORBA::ORB_init(argc,0);
+    }
+    return orb;
+  }
 }

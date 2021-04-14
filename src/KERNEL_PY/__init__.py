@@ -177,7 +177,11 @@ def salome_init(path=None, embedded=False):
     if __EMB_SERVANT_ENV_VAR_NAME in os.environ:
         salome_init_without_session()
     else:
-        salome_init_with_session(path, embedded)
+        import KernelBasis
+        if KernelBasis.getSSLMode():
+            salome_init_without_session()
+        else:
+            salome_init_with_session(path, embedded)
 
 class StandAloneLifecyle:
     def FindOrLoadComponent(self,contName,moduleName):
@@ -190,8 +194,10 @@ class StandAloneLifecyle:
         #raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
 
 def salome_init_without_session():
-    global lcc,myStudy,orb,modulcat,sg
+    global lcc,myStudy,orb,modulcat,sg,cm
     lcc = StandAloneLifecyle()
+    import KernelBasis
+    KernelBasis.setSSLMode(True)
     import KernelDS
     myStudy = KernelDS.myStudy()
     import CORBA
@@ -200,6 +206,8 @@ def salome_init_without_session():
     import SALOME_ModuleCatalog
     from salome_kernel import list_of_catalogs_regarding_environement
     modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
+    import KernelLauncher
+    cm = KernelLauncher.myContainerManager()
     # activate poaManager to accept co-localized CORBA calls.
     poa = orb.resolve_initial_references("RootPOA")
     poaManager = poa._get_the_POAManager()
@@ -226,7 +234,8 @@ def salome_init_with_session(path=None, embedded=False):
     global orb, lcc, naming_service, cm, esm, dsm, modulcat
     global sg
     global myStudy, myStudyName
-
+    import KernelBasis
+    KernelBasis.setSSLMode(False)
     try:
         if salome_initial:
             salome_initial=False

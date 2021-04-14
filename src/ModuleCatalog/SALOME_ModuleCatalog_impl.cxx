@@ -29,6 +29,8 @@
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 #include "SALOME_ModuleCatalog_Handler.hxx"
+#include "SALOME_Fake_NamingService.hxx"
+
 #include <libxml/parser.h>
 #include <fstream>
 #include <map>
@@ -60,6 +62,8 @@ static int MYDEBUG = 0;
 static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
 
+const char SALOME_ModuleCatalogImpl::ENTRY_IN_NS[] = "/Kernel/ModulCatalog";
+
 SALOME_ModuleCatalog::ModuleCatalog_ptr KERNEL::getModuleComponentServantSA(const char *listOfCatalogs)
 {
   static SALOME_ModuleCatalog::ModuleCatalog_var moduleCata;
@@ -72,6 +76,8 @@ SALOME_ModuleCatalog::ModuleCatalog_ptr KERNEL::getModuleComponentServantSA(cons
       argv[2] = const_cast<char*>(listOfCatalogs);
     SALOME_ModuleCatalogImpl *servant = new SALOME_ModuleCatalogImpl(NB_OF_ELT_IN_CMD,argv,orb);
     moduleCata = servant->_this();
+    SALOME_Fake_NamingService NS;
+    NS.Register(moduleCata,SALOME_ModuleCatalogImpl::ENTRY_IN_NS);
   }
   return SALOME_ModuleCatalog::ModuleCatalog::_duplicate(moduleCata);
 }

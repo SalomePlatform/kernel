@@ -33,6 +33,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
   ${CMAKE_CURRENT_SOURCE_DIR}/../GenericObj
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMETraceCollector/Test
+  ${CMAKE_CURRENT_SOURCE_DIR}/../KernelHelpers
   ${PROJECT_BINARY_DIR}/idl
 )
 
@@ -96,14 +97,21 @@ SET(SALOME_Container_LIBS
   ${MPI_LIBRARIES}
 )
 
-ADD_EXECUTABLE(SALOME_Container SALOME_Container.cxx SALOME_Container_SignalsHandler.cxx)
-TARGET_LINK_LIBRARIES(SALOME_Container ${SALOME_Container_LIBS})
+ADD_LIBRARY(SalomeContainerServer SALOME_Container_Common.cxx SALOME_Container_SignalsHandler.cxx)
+TARGET_LINK_LIBRARIES(SalomeContainerServer ${SALOME_Container_LIBS})
+INSTALL(TARGETS SalomeContainerServer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+
+ADD_EXECUTABLE(SALOME_Container SALOME_Container.cxx)
+TARGET_LINK_LIBRARIES(SALOME_Container SalomeContainerServer)
+
+ADD_EXECUTABLE(SALOME_Container_No_NS_Serv SALOME_Container_No_NS_Serv.cxx)
+TARGET_LINK_LIBRARIES(SALOME_Container_No_NS_Serv SalomeContainerServer)
 
 IF(SALOME_BUILD_TESTS)
   ADD_EXECUTABLE(TestSalome_file TestSalome_file.cxx)
   TARGET_LINK_LIBRARIES(TestSalome_file SALOMETraceCollectorTest ${SALOME_Container_LIBS})
 ENDIF()
-INSTALL(TARGETS SALOME_Container DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(TARGETS SALOME_Container SALOME_Container_No_NS_Serv DESTINATION ${SALOME_INSTALL_BINS})
 
 # Executable scripts to be installed
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})

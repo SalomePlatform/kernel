@@ -17,13 +17,21 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
+#include "KernelLauncher.hxx"
+
+#include "SALOME_Launcher.hxx"
+#include "SALOME_ContainerManager.hxx"
+#include "SALOME_Fake_NamingService.hxx"
 #include "SALOME_KernelServices.hxx"
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
+#include <cstring>
+
+std::string GetContainerManagerInstance()
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
+  SALOME_Launcher *launcher = KERNEL::getLauncherSA();
+  SALOME_Fake_NamingService ns;
+  CORBA::Object_var cm = ns.Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::String_var ior = orb->object_to_string(cm);
+  return std::string(ior.in());
 }

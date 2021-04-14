@@ -55,6 +55,7 @@ int SIGUSR1 = 1000;
 #include "Salome_file_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Fake_NamingService.hxx"
+#include "SALOME_Embedded_NamingService_Client.hxx"
 #include "Basics_Utils.hxx"
 
 #ifdef _XOPEN_SOURCE
@@ -134,10 +135,10 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           PortableServer::POA_ptr poa,
                                           char *containerName ,
                                           int argc , char* argv[],
-                                          SALOME_NamingService_Abstract *ns,
+                                           SALOME_NamingService_Container_Abstract *ns,
                                           bool isServantAloneInProcess
                                           ) :
-  _NS(0),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
+  _NS(nullptr),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 
@@ -180,19 +181,18 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   {
     _id = _poa->activate_object(this);
+    // key point : if ns is nullptr : this servant is alone in its process
+    //             if ns is not null : this servant embedded into single process.
     _NS = ns==nullptr ? new SALOME_NamingService : ns->clone();
     _NS->init_orb( _orb ) ;
     CORBA::Object_var obj=_poa->id_to_reference(*_id);
-    Engines::Container_var pCont 
-      = Engines::Container::_narrow(obj);
+    Engines::Container_var pCont = Engines::Container::_narrow(obj);
     _remove_ref();
 
-    _containerName = _NS->BuildContainerNameForNS(containerName,
-      hostname.c_str());
+    _containerName =  SALOME_NamingService_Abstract::BuildContainerNameForNS(containerName, hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
-    MESSAGE("Engines_Container_i::Engines_Container_i : Container name "
-      << _containerName);
+    MESSAGE("Engines_Container_i::Engines_Container_i : Container name " << _containerName);
 
     // Python: 
     // import SALOME_Container
@@ -379,8 +379,17 @@ void Engines_Container_i::Shutdown()
   }
   _listInstances_map.clear();
 
-  _NS->Destroy_FullDirectory(_containerName.c_str());
-  _NS->Destroy_Name(_containerName.c_str());
+  // NS unregistering may throw in SSL mode if master process hosting SALOME_Embedded_NamingService servant has vanished
+  // In this case it's skip it and still continue.
+  try
+  {
+    _NS->Destroy_FullDirectory(_containerName.c_str());
+    _NS->Destroy_Name(_containerName.c_str());
+  }
+  catch(...)
+  {
+  }
+  //
   if(_isServantAloneInProcess)
   {
     MESSAGE("Effective Shutdown of container Begins...");
@@ -1226,6 +1235,20 @@ Engines_Container_i::load_impl( const char* genericRegisterName,
     iobject = find_or_create_instance(genericRegisterName, impl_name);
   CORBA::string_free(reason);
   return iobject._retn();
+}
+
+Engines::EmbeddedNamingService_ptr Engines_Container_i::get_embedded_NS_if_ssl()
+{
+  SALOME_Embedded_NamingService_Client *nsc(dynamic_cast<SALOME_Embedded_NamingService_Client *>(this->_NS));
+  if(nsc)
+  {
+    Engines::EmbeddedNamingService_var obj = nsc->GetObject();
+    return Engines::EmbeddedNamingService::_duplicate(obj);
+  }
+  else
+  {
+    return Engines::EmbeddedNamingService::_nil();
+  } 
 }
 
 //=============================================================================

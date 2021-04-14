@@ -30,6 +30,7 @@
 #include "SALOMEDS.idl"
 #include "SALOME_Exception.idl"
 #include "SALOME_PyNode.idl"
+#include "SALOME_Embedded_NamingService.idl"
 
 /*! \file SALOME_Component.idl \brief interfaces for EngineComponent and Container
 */
@@ -147,6 +148,9 @@ module Engines
       \param component_i     Component to be removed
     */
     void remove_impl(in EngineComponent component_i);
+    
+    //! In case of SSL mode Returns entry to Embedded NS
+    EmbeddedNamingService get_embedded_NS_if_ssl();
 
     //!  Unload component libraries from the container.
     void finalize_removal() ;

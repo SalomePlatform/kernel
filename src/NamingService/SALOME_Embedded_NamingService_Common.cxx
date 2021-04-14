@@ -17,13 +17,32 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+#include "SALOME_Embedded_NamingService_Common.hxx"
+#include "SALOME_KernelORB.hxx"
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
+#include <memory>
+#include <cstring>
+
+CORBA::Object_var IORToObject(const Engines::IORType& ObjRef)
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
+  CORBA::ORB_ptr orb(KERNEL::getORB());
+  CORBA::ULong size(ObjRef.length());
+  std::unique_ptr<char[]> pt(new char[size+1]);
+  pt[size] = '\0';
+  for(CORBA::ULong i = 0 ; i < size ; ++i)
+    pt[i] = ObjRef[i];
+  CORBA::Object_var obj = orb->string_to_object(pt.get());
+  return obj;
+}
+
+Engines::IORType *ObjectToIOR(CORBA::Object_ptr obj)
+{
+  std::unique_ptr<Engines::IORType> ret(new Engines::IORType);
+  CORBA::ORB_ptr orb(KERNEL::getORB());
+  CORBA::String_var ior = orb->object_to_string(obj);
+  auto len( strlen(ior) );
+  ret->length( len );
+  for(std::size_t i = 0 ; i < len ; ++i)
+    (*ret)[i] = ior[i];
+  return ret.release();
 }

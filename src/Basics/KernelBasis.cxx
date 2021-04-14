@@ -17,13 +17,16 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+#include "KernelBasis.hxx"
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
+static bool DEFAULT_SSL_MODE = false;
+
+bool getSSLMode()
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
+  return DEFAULT_SSL_MODE;
+}
+
+void setSSLMode(bool sslMode)
+{
+  DEFAULT_SSL_MODE = sslMode;
 }

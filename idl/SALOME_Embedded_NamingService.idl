@@ -1,4 +1,4 @@
-// Copyright (C) 2021  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2021  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,21 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+#ifndef _SALOME_EMBEDDED_NAMINGSERVICE_IDL_
+#define _SALOME_EMBEDDED_NAMINGSERVICE_IDL_
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
+module Engines
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
-}
+  typedef sequence<octet> IORType;
+
+  interface EmbeddedNamingService
+  {
+    void Register(in IORType ObjRef, in string Path);
+    void Destroy_FullDirectory(in string Path);
+    void Destroy_Name(in string Path);
+    IORType Resolve(in string Path);
+    IORType ResolveFirst(in string Path);
+  };
+};
+
+#endif

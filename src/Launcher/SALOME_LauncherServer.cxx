@@ -118,6 +118,7 @@ int main(int argc, char* argv[])
       SALOME_CPythonHelper cPyh;
       cPyh.initializePython(argc,argv);
       SALOME_Launcher *lServ(new SALOME_Launcher(orb,safePOA));
+      lServ->DeclareUsingSalomeSession();
       lServ->_remove_ref();
       //
       SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(&cPyh,orb,root_poa));

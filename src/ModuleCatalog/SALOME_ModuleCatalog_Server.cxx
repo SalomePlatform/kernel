@@ -147,7 +147,7 @@ int main(int argc,char **argv)
       // initialise Naming Service
       SALOME_NamingService _NS(orb);
       // register Catalog in Naming Service
-      _NS.Register(myCata ,"/Kernel/ModulCatalog");
+      _NS.Register(myCata ,SALOME_ModuleCatalogImpl::ENTRY_IN_NS);
 
       MESSAGE("Running CatalogServer.");
 

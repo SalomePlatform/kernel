@@ -17,13 +17,14 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+#pragma once
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
-{
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
-}
+#include "SALOME_NamingService_defs.hxx"
+
+#include <SALOMEconfig.h>
+
+#include CORBA_CLIENT_HEADER(SALOME_Embedded_NamingService)
+
+CORBA::Object_var IORToObject(const Engines::IORType& ObjRef);
+
+Engines::IORType *ObjectToIOR(CORBA::Object_ptr obj);

@@ -26,7 +26,7 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
 #include <SALOMEconfig.h>
-#include "SALOME_NamingService.hxx"
+#include "SALOME_NamingService_Abstract.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include <string>
 #include <fstream>
@@ -53,8 +53,8 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
   public:
 
-    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns, const char *xmlFilePath);
-    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns);
+    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns, const char *xmlFilePath);
+    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns);
 
     ~SALOME_ResourcesManager();
 
@@ -82,7 +82,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     static const char *_ResourcesManagerNameInNS;
   protected:
 
-    SALOME_NamingService *_NS;
+    SALOME_NamingService_Abstract *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
     std::shared_ptr<ResourcesManager_cpp> _rm;

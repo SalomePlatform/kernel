@@ -25,7 +25,7 @@
 
 #include "SALOME_ResourcesManager_Common.hxx"
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 
 // This class is fully thread-safe because the ResourcesManager CORBA object
 // runs in a single-thread POA.
@@ -33,7 +33,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager_Client
 {
 public:
 
-  SALOME_ResourcesManager_Client(SALOME_NamingService *ns);
+  SALOME_ResourcesManager_Client(SALOME_NamingService_Abstract *ns);
   ~SALOME_ResourcesManager_Client();
 
   std::vector<std::string> GetFittingResources(const resourceParams& params);

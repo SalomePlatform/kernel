@@ -17,13 +17,21 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+#pragma once
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
+#include "SALOME_NamingService_defs.hxx"
+
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_Embedded_NamingService)
+
+Engines::EmbeddedNamingService_var NAMINGSERVICE_EXPORT GetEmbeddedNamingService();
+
+class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService : public virtual POA_Engines::EmbeddedNamingService
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
-}
+public:
+  void Register(const Engines::IORType& ObjRef, const char *Path) override;
+  void Destroy_FullDirectory(const char *Path) override;
+  void Destroy_Name(const char *Path) override;
+  Engines::IORType *Resolve(const char *Path) override;
+  Engines::IORType *ResolveFirst(const char *Path) override;
+};

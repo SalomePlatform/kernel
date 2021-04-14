@@ -77,6 +77,8 @@ public:
   // Save and load methods
   virtual void loadJobs(const char* jobs_file);
   virtual void saveJobs(const char* jobs_file);
+  
+  void DeclareUsingSalomeSession();
 
   static const char *_LauncherNameInNS;
 
@@ -85,8 +87,6 @@ public:
 
   static Engines::JobParameters_var
     JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters);
-
-  SALOME_NamingService *tradNS() { return SALOME_NamingService::GetTraditionalNS(_NS); }
 
 protected:
   // Internal methods

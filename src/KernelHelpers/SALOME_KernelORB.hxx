@@ -1,4 +1,4 @@
-// Copyright (C) 2021  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,15 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_ModuleCatalog_impl.hxx"
-#include "SALOME_KernelServices.hxx"
+// Author: Guillaume Boulant (EDF/R&D) 
 
-std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
+#pragma once
+
+#include "KernelHelpers.hxx"
+
+#include <omniORB4/CORBA.h>
+
+namespace KERNEL
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(cata);
-    return std::string(ior.in());
+  KERNELHELPERS_EXPORT CORBA::ORB_ptr getORB();
 }

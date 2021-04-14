@@ -31,20 +31,6 @@ std::unique_ptr<SALOME_NamingService_Abstract> _naming_service;
 
 namespace KERNEL {
   
-  /**
-   * This function returns a static reference to the orb. The orb can
-   * be used for example to initialize CORBA variables or to serialize
-   * and unserialize the CORBA objet to/from an IOR string.
-   */
-  CORBA::ORB_ptr getORB() {
-    static CORBA::ORB_ptr orb;
-    if(CORBA::is_nil(orb)){
-      int argc=0;
-      orb = CORBA::ORB_init(argc,0);
-    }
-    return orb;
-  }
-  
   void assignNamingServiceSL()
   {
     if ( !_naming_service.get() )

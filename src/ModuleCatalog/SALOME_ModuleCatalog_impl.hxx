@@ -132,6 +132,8 @@ public:
   //! shutdown server
   void shutdown();
 
+  static const char ENTRY_IN_NS[];
+
 private:
   //! method to parse arguments to get general and personal catalog files
   /*!

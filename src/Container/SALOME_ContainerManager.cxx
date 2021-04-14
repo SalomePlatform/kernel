@@ -25,6 +25,7 @@
 #include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ResourcesManager_Client.hxx"
+#include "SALOME_Embedded_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
@@ -81,7 +82,7 @@ Utils_Mutex SALOME_ContainerManager::_systemMutex;
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns)
   : _nbprocUsed(1)
 {
   MESSAGE("constructor");
@@ -469,7 +470,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
     // TODO -> separates Mpi from Classic/Exe
     // Classic or Exe ?
-    std::string container_exe = "SALOME_Container"; // Classic container
+    std::string container_exe = this->_isSSL ? "SALOME_Container_No_NS_Serv" : "SALOME_Container"; // Classic container
     Engines::ContainerParameters local_params(params);
     int found=0;
     try
@@ -864,11 +865,21 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
         o << container_exe + " ";
 
     }
+  
+  o << _NS->ContainerName(params) << " ";
 
-  o << _NS->ContainerName(params);
-  o << " -";
-  AddOmninamesParams(o);
-
+  if( this->_isSSL )
+  {
+    Engines::EmbeddedNamingService_var ns = GetEmbeddedNamingService();
+    CORBA::String_var iorNS = _orb->object_to_string(ns);
+    o << iorNS;
+  }
+  else
+  {
+    o << "-";
+    AddOmninamesParams(o);
+  }
+  
   std::ofstream command_file( tmpFileName.c_str() );
   command_file << o.str();
   command_file.close();
@@ -951,11 +962,15 @@ void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream) const
  */
 //=============================================================================
 
-void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService *ns)
+void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService_Abstract *ns)
 {
-  CORBA::String_var iorstr(ns->getIORaddr());
-  fileStream << "ORBInitRef NameService=";
-  fileStream << iorstr;
+  SALOME_NamingService *nsTrad(dynamic_cast<SALOME_NamingService *>(ns));
+  if(nsTrad)
+  {
+    CORBA::String_var iorstr(nsTrad->getIORaddr());
+    fileStream << "ORBInitRef NameService=";
+    fileStream << iorstr;
+  }
 }
 
 void SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(std::string& command)

@@ -41,6 +41,7 @@ import Engines, Engines__POA
 import Registry
 from Utils_Identity import *
 from SALOME_NamingServicePy import *
+from SALOME_Embedded_NamingService_ClientPy import SALOME_Embedded_NamingService_ClientPy
 from libNOTIFICATION import *
 
 from SALOME_utilities import *
@@ -296,12 +297,16 @@ class SALOME_ComponentPy_i(SALOME_ComponentPy_Gen_i):
     """
     def __init__ (self, orb, poa, contID, containerName, instanceName, interfaceName, notif=False):
         SALOME_ComponentPy_Gen_i.__init__(self, orb, poa, contID, containerName, instanceName, interfaceName, notif)
-        naming_service = SALOME_NamingServicePy_i(self._orb)
+        emb_ns = self._contId.get_embedded_NS_if_ssl()
+        if CORBA.is_nil(emb_ns):
+            self._naming_service = SALOME_NamingServicePy_i(self._orb)
+        else:
+            self._naming_service = SALOME_Embedded_NamingService_ClientPy(emb_ns)
         Component_path = self._containerName + "/" + self._instanceName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
-        naming_service.Register(self._compo_o, Component_path)
+        self._naming_service.Register(self._compo_o, Component_path)
         # Add componentinstance to registry
-        obj = naming_service.Resolve('/Registry')
+        obj = self._naming_service.Resolve('/Registry')
         if obj is None:
             MESSAGE(  "Registry Reference is invalid" )
         else:

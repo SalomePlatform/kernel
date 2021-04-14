@@ -218,7 +218,7 @@ IF(NOT SALOME_LIGHT_ONLY)
     DF SalomeLoggerServer with_loggerTraceCollector SalomeNS SalomeGenericObj
     Registry SalomeCatalog ResourcesManager SalomeResourcesManager
     SalomeNotification SalomeContainer SalomeSDS Launcher SalomeLauncher
-    SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers
+    SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers SalomeORB
     SalomeDSImpl SalomeDS SalomeCommunication SalomeDSCContainer)
   # Temporary solution for package src\DSC on windows
   IF(NOT WIN32)

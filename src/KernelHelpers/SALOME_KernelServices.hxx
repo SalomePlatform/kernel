@@ -34,11 +34,12 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 
+#include "SALOME_KernelORB.hxx"
+
 namespace KERNEL {
 
   // ---------------------------------------------
   // SALOME KERNEL main services
-  KERNELHELPERS_EXPORT CORBA::ORB_ptr                getORB();
   KERNELHELPERS_EXPORT SALOME_NamingService_Abstract *getNamingService();
   KERNELHELPERS_EXPORT void assignNamingServiceSL();
   KERNELHELPERS_EXPORT SALOME_LifeCycleCORBA *       getLifeCycleCORBA();

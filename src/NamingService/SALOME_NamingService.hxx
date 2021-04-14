@@ -51,9 +51,7 @@ public:
   SALOME_NamingService(CORBA::ORB_ptr orb);
 
   virtual ~SALOME_NamingService();
-  
-  static SALOME_NamingService *GetTraditionalNS(SALOME_NamingService_Abstract *ns);
-
+  std::vector< std::string > repr() override;
   void init_orb(CORBA::ORB_ptr orb=0) override;
   void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
   CORBA::Object_ptr Resolve(const char* Path) override; 
@@ -62,8 +60,6 @@ public:
                                      const char* containerName,
                                      const char* componentName,
                                      const int nbproc=0) override;
-  std::string ContainerName(const Engines::ContainerParameters& params);
-  std::string BuildContainerNameForNS(const Engines::ContainerParameters& params, const char *hostname);
 
   int Find(const char* name) ;
   bool Create_Directory(const char* Path) ;
@@ -72,7 +68,7 @@ public:
   void list() ;
   std::vector<std::string> list_directory() override;
   std::vector<std::string> list_subdirs() override;
-  std::vector<std::string> list_directory_recurs() ;
+  std::vector<std::string> list_directory_recurs() override ;
   void Destroy_Name(const char* Path) override;
   void Destroy_Directory(const char* Path) override;
   void Destroy_FullDirectory(const char* Path) override;

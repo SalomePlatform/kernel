@@ -18,10 +18,21 @@
 //
 
 #include "SALOME_Container_Common.hxx"
-#include "SALOME_NamingService.hxx"
+#include "SALOME_Embedded_NamingService_Client.hxx"
+#include "Utils_SALOME_Exception.hxx"
+#include "SALOME_KernelORB.hxx"
 
 int main(int argc, char* argv[])
 {
-  std::unique_ptr<SALOME_NamingService_Container_Abstract> ns;
+  if(argc<3)
+    THROW_SALOME_EXCEPTION( "SALOME_Container_No_NS_Serv : requires 2 input arguments <containerName> <IOR of Engines::EmbeddedNamingService>" );
+  CORBA::ORB_ptr orb(KERNEL::getORB());
+  CORBA::Object_var ns_serv_obj_base = orb->string_to_object(argv[2]);
+  if( CORBA::is_nil(ns_serv_obj_base) )
+    THROW_SALOME_EXCEPTION( "SALOME_Container_No_NS_Serv : argument 2 is NOT a valid IOR" );
+  Engines::EmbeddedNamingService_var ns_serv_obj = Engines::EmbeddedNamingService::_narrow(ns_serv_obj_base);
+  if( CORBA::is_nil(ns_serv_obj) )
+    THROW_SALOME_EXCEPTION( "SALOME_Container_No_NS_Serv : argument 2 is NOT a valid IOR of Engines::EmbeddedNamingService" );
+  std::unique_ptr<SALOME_NamingService_Container_Abstract> ns( new SALOME_Embedded_NamingService_Client(ns_serv_obj) );
   return container_common_main(argc,argv,std::move(ns));
 }
