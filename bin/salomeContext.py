@@ -292,6 +292,7 @@ class SalomeContext:
   #
 
   def __setContextFromConfigFile(self, filename, reserved=None):
+    mesa_root_dir = "MESA_ROOT_DIR"
     if reserved is None:
       reserved = []
     try:
@@ -309,6 +310,16 @@ class SalomeContext:
     for var in unsetVars:
       self.unsetVariable(var)
 
+    # mesa stuff
+    if "MESA_GL_VERSION_OVERRIDE" in os.environ:
+      configVarsDict = {k:v for (k,v) in configVars}
+      if mesa_root_dir in configVarsDict:
+        path_to_mesa_lib = os.path.join(configVarsDict[mesa_root_dir],"lib")
+        if os.name == "posix":
+          self.addToVariable("LD_LIBRARY_PATH",path_to_mesa_lib)
+        else:
+          self.addToVariable("PATH",path_to_mesa_lib)
+
     # set context
     for reserved in reservedDict:
       a = [_f for _f in reservedDict[reserved] if _f] # remove empty elements
@@ -319,6 +330,7 @@ class SalomeContext:
       else:
         self.addToVariable(reserved, reformattedVals)
       pass
+
 
     for key,val in configVars:
       self.setVariable(key, val, overwrite=True)
