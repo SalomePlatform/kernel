@@ -325,6 +325,22 @@ def cleanDir(path):
 
 # ---
 
+def makeDir(path, mode=0o777):
+    """
+    Make directory with the specified path.
+    :param path : directory path
+    :param mode : access mode
+    """
+    try:
+        oldmask = os.umask(0)
+        os.makedirs(path, mode=mode, exist_ok=True)
+    except IOError:
+        pass
+    finally:
+        os.umask(oldmask)
+
+# ---
+
 def makeTmpDir(path, mode=0o777):
     """
     Make temporary directory with the specified path.
@@ -332,8 +348,7 @@ def makeTmpDir(path, mode=0o777):
     :param path : directory path
     :param mode : access mode
     """
-    with suppress(OSError):
-        os.makedirs(path, mode=mode, exist_ok=True)
+    makeDir(path, mode)
     cleanDir(path)
 
 # ---
