@@ -26,37 +26,24 @@
 //  Module : SALOME
 //  $Header$
 //
-# include "Utils_ORB_INIT.hxx"
 # include "RegistryConnexion.hxx"
 # include "SALOME_NamingService.hxx"
 # include "Utils_Identity.hxx"
-# include "Utils_SINGLETON.hxx"
 # include "Utils_CommException.hxx"
 # include "OpUtil.hxx"
 # include "utilities.h"
 
-extern "C"
-{
-# include <stdio.h>
-}
+# include <cstdio>
 
-Registry::Components_var Connexion( int argc , char **argv , const char */*ptrSessionName*/ )
+Registry::Components_var Connexion(SALOME_NamingService_Abstract *naming)
 {
         Registry::Components_var varComponents = 0 ;
         const char *registryName = "Registry" ;
 
         try
         {
-                ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-                ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-                CORBA::ORB_var &orb = init( argc , argv ) ;
-        
-                SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
-                ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
-                naming.init_orb( orb ) ;
-
                 // Recuperation de la reference de l'objet
-                CORBA::Object_var object = naming.Resolve( registryName ) ;
+                CORBA::Object_var object = naming->Resolve( registryName ) ;
                 if(CORBA::is_nil(object)) throw CommException( "unable to find the RegistryService" ) ;
 
                 // Specialisation de l'objet generique
@@ -71,8 +58,8 @@ Registry::Components_var Connexion( int argc , char **argv , const char */*ptrSe
 }
 
 
-RegistryConnexion::RegistryConnexion( int argc , char **argv , const char *ior , const char *ptrSessionName, const char *componentName ): \
-        _Ior(duplicate(ior)), _VarComponents( Connexion(argc,argv,ptrSessionName) ), _SessionName(ptrSessionName),_Name(""), _Id(0)
+RegistryConnexion::RegistryConnexion(const char *ior , const char *ptrSessionName, const char *componentName, SALOME_NamingService_Abstract *ns ): \
+        _Ior(duplicate(ior)), _VarComponents( Connexion(ns) ), _SessionName(ptrSessionName),_Name(""), _Id(0)
 {
         this->add( componentName ) ;
 }
