@@ -404,7 +404,7 @@ def __checkUnkilledProcesses():
     def _checkUserName(_process):
         # The following is a workaround for Windows on which
         # psutil.Process().username() returns 'usergroup' + 'username'
-        return getUserName() == _process.username()
+        return getUserName() == _process.username().split('\\')[-1]
 
     def _getDictfromOutput(_processes, _wildcard=None):
         for _process in psutil.process_iter(['name', 'username']):

@@ -451,7 +451,7 @@ def getOmniNamesPid(port):
     """
     processes = {p.info['pid']: p.info['name'] for p in psutil.process_iter(['pid', 'name'])}
     return next((c.pid for c in psutil.net_connections(kind='inet') \
-                     if c.laddr.port == port and processes.get(c.pid) == 'omniNames'), None)
+                     if str(c.laddr.port) == str(port) and processes.get(c.pid).startswith('omniNames')), None)
 # --
 
 def killOmniNames(port):
