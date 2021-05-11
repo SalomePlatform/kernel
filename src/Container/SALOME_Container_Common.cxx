@@ -48,6 +48,7 @@
 #else
 #include <process.h>
 #endif
+#include "SALOME_Container_Common.hxx"
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
 #include "Utils_ORB_INIT.hxx"
