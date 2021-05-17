@@ -31,7 +31,11 @@
 #include "SALOME_Container_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "Basics_Utils.hxx"
-#include <stdio.h>
+#include "Utils_SINGLETON.hxx"
+#include "Utils_ORB_INIT.hxx"
+#include "SALOME_NamingService.hxx"
+
+#include <cstdio>
 #ifndef WIN32
 #include <dlfcn.h>
 #endif
@@ -115,8 +119,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   if(regist)
     {
       const CORBA::String_var ior = _orb->object_to_string(o);
-      _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession",
-                                                     _instanceName.c_str());
+      _myConnexionToRegistry = new RegistryConnexion(ior,"theSession",
+                                                     _instanceName.c_str(), getNS());
     }
 
   if(notif)
@@ -165,13 +169,23 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   const CORBA::String_var ior = _orb->object_to_string(_container);
   if(regist)
   {
-    _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
+    _myConnexionToRegistry = new RegistryConnexion(ior,"theSession", _instanceName.c_str(),getNS());
   }
   if(notif)
     _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 
 }
 
+SALOME_NamingService_Abstract *Engines_Component_i::getNS()
+{
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+  CORBA::ORB_var &orb = init( 0 , 0 ) ;
+
+  SALOME_NamingService *naming = SINGLETON_<SALOME_NamingService>::Instance() ;
+  naming->init_orb( orb ) ;
+  return naming;
+}
 
 //=============================================================================
 /*!

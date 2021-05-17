@@ -39,6 +39,8 @@
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
 #include <string>
 
+class SALOME_NamingService_Abstract;
+
 class REGISTRY_EXPORT RegistryConnexion
 {
 protected :
@@ -52,7 +54,8 @@ protected :
         RegistryConnexion( void );
 
 public :
-        RegistryConnexion( int argc , char **argv , const char *ior , const char *ptrSessionName, const char *componentName );
+        RegistryConnexion( const char *ior , const char *ptrSessionName, const char *componentName,
+        SALOME_NamingService_Abstract *ns );
         ~RegistryConnexion();
 } ;
 
