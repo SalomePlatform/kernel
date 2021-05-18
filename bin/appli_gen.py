@@ -285,6 +285,16 @@ def install(prefix, config_file, verbose=0):
         shutil.copyfile(filename, os.path.join(home_dir,"config_appli.xml"))
         pass
 
+    # Creation of env.d directory
+    virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
+
+    # Get the env modules which will be loaded
+    # In the same way as: module load [MODULE_LIST]
+    env_modules = _config.get('env_modules', [])
+    if env_modules:
+        with open(os.path.join(home_dir, 'env.d', 'envModules.sh'), 'w') as fd:
+            fd.write('#!/bin/bash\n')
+            fd.write('module load %s\n' % (' '.join(env_modules)))
 
     # Copy salome / salome_mesa scripts:
 
@@ -293,9 +303,8 @@ def install(prefix, config_file, verbose=0):
         salome_file = os.path.join(home_dir, scripts)
         try:
             os.remove(salome_file)
-        except:
+        except Exception:
             pass
-        env_modules = _config.get('env_modules', [])
         with open(salome_file, 'w') as fd:
             fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
             os.chmod(salome_file, 0o755)
@@ -303,10 +312,6 @@ def install(prefix, config_file, verbose=0):
     # Add .salome-completion.sh file
     shutil.copyfile(os.path.join(appliskel_dir, ".salome-completion.sh"),
                     os.path.join(home_dir, ".salome-completion.sh"))
-
-
-    # Creation of env.d directory
-    virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
     if "prereq_path" in _config and os.path.isfile(_config["prereq_path"]):
         shutil.copyfile(_config["prereq_path"],
