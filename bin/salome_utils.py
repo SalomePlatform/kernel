@@ -325,6 +325,22 @@ def cleanDir(path):
 
 # ---
 
+def makeDir(path, mode=0o777):
+    """
+    Make directory with the specified path.
+    :param path : directory path
+    :param mode : access mode
+    """
+    try:
+        oldmask = os.umask(0)
+        os.makedirs(path, mode=mode, exist_ok=True)
+    except IOError:
+        pass
+    finally:
+        os.umask(oldmask)
+
+# ---
+
 def makeTmpDir(path, mode=0o777):
     """
     Make temporary directory with the specified path.
@@ -332,8 +348,7 @@ def makeTmpDir(path, mode=0o777):
     :param path : directory path
     :param mode : access mode
     """
-    with suppress(OSError):
-        os.makedirs(path, mode=mode, exist_ok=True)
+    makeDir(path, mode)
     cleanDir(path)
 
 # ---
@@ -436,7 +451,7 @@ def getOmniNamesPid(port):
     """
     processes = {p.info['pid']: p.info['name'] for p in psutil.process_iter(['pid', 'name'])}
     return next((c.pid for c in psutil.net_connections(kind='inet') \
-                     if c.laddr.port == port and processes.get(c.pid) == 'omniNames'), None)
+                     if str(c.laddr.port) == str(port) and processes.get(c.pid).startswith('omniNames')), None)
 # --
 
 def killOmniNames(port):

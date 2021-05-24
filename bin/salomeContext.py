@@ -435,7 +435,10 @@ class SalomeContext:
     if os.getenv("NSHOST") == "no_host":
       os.unsetenv("NSHOST")
     for port in ports:
-      proc = subprocess.Popen(["killSalomeWithPort.py", port])
+      if sys.platform == "win32":
+        proc = subprocess.Popen([os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", str(port)])
+      else:
+        proc = subprocess.Popen(["killSalomeWithPort.py", str(port)])
       proc.communicate()
 
     return 0
@@ -454,7 +457,10 @@ class SalomeContext:
 
       if ports:
         for port in ports:
-          proc = subprocess.Popen(["killSalomeWithPort.py", str(port)])
+          if sys.platform == "win32":
+            proc = subprocess.Popen([os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", str(port)])
+          else:
+            proc = subprocess.Popen(["killSalomeWithPort.py", str(port)])
           proc.communicate()
     except ImportError:
       # :TODO: should be declared obsolete

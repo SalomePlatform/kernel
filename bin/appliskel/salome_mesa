@@ -35,4 +35,5 @@ if __name__ == "__main__":
     if os.name != "posix":
         os.environ["XLIB_SKIP_ARGB_VISUALS"]="1"
     os.environ["MESA_GL_VERSION_OVERRIDE"]="4.5"
+    os.environ["SALOME_USE_MESA"]="1"
     salome_common.main(sys.argv[1:])

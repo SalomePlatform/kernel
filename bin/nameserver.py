@@ -24,7 +24,7 @@
 import os, sys, re, socket
 #import commands
 from server import Server
-from salome_utils import getHostName
+from salome_utils import getHostName, makeDir
 from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
@@ -40,10 +40,7 @@ class NamingServer(Server):
     def initNSArgs(self):
         from salome_utils import getLogDir
         upath = getLogDir()
-        try:
-            os.makedirs(upath, mode=0o777)
-        except:
-            pass
+        makeDir(upath)
 
         if verbose(): print("Name Service... ", end =' ')
         hname = getHostName()
