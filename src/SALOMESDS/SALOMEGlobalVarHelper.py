@@ -23,7 +23,7 @@
 import SALOME
 import pickle
 
-class List(object):
+class List:
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_StringDataServer))
         self._var_ptr=varPtr
@@ -67,7 +67,7 @@ class List(object):
 
     pass
 
-class Tuple(object):
+class Tuple:
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_StringDataServer))
         self._var_ptr=varPtr
@@ -106,9 +106,9 @@ class Tuple(object):
         return (tuple,(self.local_copy(),))
 
     pass
-        
 
-class Int(object):
+
+class Int:
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_StringDataServer))
         self._var_ptr=varPtr
@@ -148,7 +148,7 @@ class Int(object):
 
     pass
 
-class Dict(object):
+class Dict:
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_StringDataServer))
         self._var_ptr=varPtr

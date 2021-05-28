@@ -116,8 +116,14 @@ def getUserName():
 
     :return user name
     """
-    return os.getenv('USERNAME', 'unknown') if sys.platform == 'win32' \
-        else os.getenv('USER', os.getenv('LOGNAME', 'unknown'))
+    if sys.platform == 'win32':
+        username = os.getenv('USERNAME')
+    else:
+        username = os.getenv('USER', os.getenv('LOGNAME'))
+    if username is None:
+        import getpass
+        username = getpass.getuser()
+    return username
 
 # ---
 

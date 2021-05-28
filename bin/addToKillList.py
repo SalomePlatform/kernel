@@ -55,7 +55,7 @@ def addToKillList(command_pid, command, port=None):
     try:
         with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
-    except:
+    except Exception:
         process_ids=[]
         pass
     # check if PID is already in dictionary
@@ -81,7 +81,7 @@ def addToKillList(command_pid, command, port=None):
             if not os.path.exists(dir): os.makedirs(dir, 0o777)
             with open(filedict,'wb') as fpid:
                 pickle.dump(process_ids, fpid)
-        except:
+        except Exception:
             if verbose(): print("addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command ))
             pass
         pass
@@ -105,7 +105,7 @@ def killList(port=None):
     try:
         with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
-    except:
+    except Exception:
         process_ids=[]
         pass
     # kill processes
@@ -114,7 +114,7 @@ def killList(port=None):
         for pid, cmd in list(process_id.items()):
             try:
                 os.kill(int(pid),signal.SIGKILL)
-            except:
+            except Exception:
                 print("  ------------------ process %s : %s inexistant"% (pid, cmd[0]))
                 pass
             pass

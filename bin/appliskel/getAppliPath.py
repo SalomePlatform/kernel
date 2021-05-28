@@ -23,29 +23,8 @@
 #
 
 import os
-import sys
-
-######
-# Warning: relpath might be replaced by equivalent os.relpath introduced in
-# Python 2.6 (Calibre 7).
-# It is still here to ensure compatibility with Calibre 6 (Python 2.5)
-def relpath(target, base):
-    """ Find relative path from base to target
-        if target== "/local/chris/appli" and base== "/local/chris" the result is appli
-        if target== /tmp/appli and base /local/chris the result is ../../tmp/appli
-    """
-    target=target.split(os.path.sep)
-    base=base.split(os.path.sep)
-    for i in range(len(base)):
-      if base[i] != target[i]:
-        i=i-1
-        #not in base
-        break
-    p=['..']*(len(base)-i-1)+target[i+1:]
-    if p == []:
-      return '.'
-    return os.path.join( *p )
 #
+
 
 def get_appli_path(filePath=None):
     if filePath is None:
@@ -56,10 +35,7 @@ def get_appli_path(filePath=None):
     return applipath
 #
 
+
 if __name__ == "__main__":
-    if sys.hexversion < 0x02060000: # Python older than 2.6.0
-        applipath = relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.path.expanduser("~")))
-    else:
-        applipath = get_appli_path()
-    print(applipath)
+    print(get_appli_path())
 #

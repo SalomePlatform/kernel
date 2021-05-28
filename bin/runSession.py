@@ -153,7 +153,7 @@ User "myself" connects to remotemachine to run the script concatenate.py in
         try:
             # keep short name for host, for a correct comparison with getShortHostName() later
             host=host.split('.')[0]
-        except:
+        except Exception:
             pass
       else:
         # No running session
@@ -220,7 +220,7 @@ def __runLocalSession(command):
         if proc.returncode != 0:
           any_error = True
           error_code = proc.returncode
-      except:
+      except Exception:
           any_error = True
           pass
 

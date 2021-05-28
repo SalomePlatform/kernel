@@ -210,7 +210,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False, keepEnvironment=
                         mod=__import__(module.lower()+"_setenv")
                         mod.set_env(args)
                         pass
-                    except:
+                    except Exception:
                         pass
                     pass
                 pass

@@ -111,7 +111,7 @@ class SalomeContext:
     try:
       out, err = subprocess.Popen([modulecmd, "python", "load"] + env_modules, stdout=subprocess.PIPE).communicate()
       exec(out)  # define specific environment variables
-    except:
+    except Exception:
       raise SalomeContextException("Failed to load env modules: %s ..." % ' '.join(env_modules))
       pass
   #
@@ -262,7 +262,7 @@ class SalomeContext:
       path = os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome", "appliskel"))
       add_path(path, "PYTHONPATH")
 
-    except:
+    except Exception:
       pass
 
     command, options = self.__parseArguments(args)
@@ -503,7 +503,7 @@ class SalomeContext:
           versions[software.upper()] = version
           if len(software) > max_len:
             max_len = len(software)
-        except:
+        except Exception:
           pass
         pass
       pass

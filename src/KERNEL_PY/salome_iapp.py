@@ -68,7 +68,7 @@ def hasDesktop():
 
 salome_iapp_initial = 1
 
-class SalomeOutsideGUI(object):
+class SalomeOutsideGUI:
     """
     Provides a replacement for class SalomeGUI outside GUI process.
     Do almost nothing
@@ -202,5 +202,5 @@ def register_module_in_study(name, syncCall=True):
                 session_server.emitMessage(message)
             else:
                 session_server.emitMessageOneWay(message)
-    except:
+    except Exception:
          pass

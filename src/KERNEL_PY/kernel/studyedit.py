@@ -461,7 +461,7 @@ class StudyEditor:
             else:
                 self.builder.RemoveObject(item)
             ok = True
-        except:
+        except Exception:
             ok = False
         return ok
 

@@ -19,7 +19,7 @@
 #
 
 ## \defgroup enumerate enumerate
-#  \{ 
+#  \{
 #  \details Emulates a C-like enum for python
 #  \}
 
@@ -30,13 +30,13 @@ __date__ = "$1 avr. 2010 09:08:02$"
 #  of strings to be used as the enum symbolic keys. The enum values are automatically
 #  generated as sequencing integer starting at the specified offset value.
 #  \ingroup enumerate
-class Enumerate(object):
+class Enumerate:
     """
     This class emulates a C-like enum for python. It is initialized with a list
     of strings to be used as the enum symbolic keys. The enum values are automatically
     generated as sequencing integer starting at the specified offset value.
     """
-    
+
     ## Canonical constructor.
     #  \param keys a list of string to be used as the enum symbolic keys. The enum values
     #  are automatically generated as a sequence of integers starting at the specified

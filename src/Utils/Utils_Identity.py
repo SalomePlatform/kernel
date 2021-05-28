@@ -82,7 +82,7 @@ try:
   versnb = string.strip(string.split(s, ":")[1])
   dirname=".salome_"+versnb
   file.close()
-except:
+except Exception:
   versnb = ""
   dirname=".salome"
 

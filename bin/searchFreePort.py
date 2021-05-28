@@ -58,7 +58,7 @@ def __setup_config(nsport, args, save_config):
         os.symlink(omniorb_config, last_running_config)
         pass
       pass
-    except:
+    except Exception:
       pass
   #
 #

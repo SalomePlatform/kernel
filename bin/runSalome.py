@@ -50,7 +50,7 @@ def killLocalPort():
     my_port=str(args['port'])
     try:
         killMyPort(my_port)
-    except:
+    except Exception:
         print("problem in killLocalPort()")
         pass
     pass
@@ -65,7 +65,7 @@ def givenPortKill(port):
     my_port=port
     try:
         killMyPort(my_port)
-    except:
+    except Exception:
         print("problem in LocalPortKill(), killMyPort(%s)"%port)
         pass
     pass
@@ -655,7 +655,7 @@ def startSalome(args, modules_list, modules_root_dir):
     try:
         if 'interp' in args:
             nbaddi = args['interp']
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         print("-------------------------------------------------------------")
@@ -692,7 +692,7 @@ def useSalome(args, modules_list, modules_root_dir):
     clt=None
     try:
         clt = startSalome(args, modules_list, modules_root_dir)
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         print()
@@ -736,7 +736,7 @@ def useSalome(args, modules_list, modules_root_dir):
 
         if not args['gui'] or not args['session_gui']:
             if args['shutdown_servers']:
-                class __utils__(object):
+                class __utils__:
                     def __init__(self, port):
                         self.port = port
                         import killSalomeWithPort
@@ -877,7 +877,7 @@ def foreGround(clt, args):
             status = session.GetStatSession()
             gui_detected = status.activeGUI
             session_pid = session.getPID()
-        except:
+        except Exception:
             pass
         if gui_detected:
             break
@@ -908,7 +908,7 @@ def foreGround(clt, args):
             try:
                 status = session.GetStatSession()
                 assert status.activeGUI
-            except:
+            except Exception:
                 break
             from time import sleep
             sleep(dt)
@@ -937,7 +937,7 @@ def runSalome():
         from ctypes import POINTER, c_int, cast, pythonapi
         iflag_ptr = cast(pythonapi.Py_InteractiveFlag, POINTER(c_int))
         test = test and not iflag_ptr.contents.value
-    except:
+    except Exception:
         pass
     # --
 #    test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"

@@ -23,7 +23,7 @@ import SALOME
 import pickle
 import SALOMEWrappedStdType
 
-class InvokatorStyle(object):
+class InvokatorStyle:
     def __init__(self,varPtr):
         self._var_ptr=varPtr
     def ptr(self):

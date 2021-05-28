@@ -87,10 +87,10 @@ class SALOME_Container_i:
               ret=ret+traceback.format_exc(10)
             except ImportError as ee:
               ret="ImplementationNotFound"
-            except:
+            except Exception:
               if verbose():print("error when calling find_module")
               ret="ImplementationNotFound"
-        except:
+        except Exception:
             ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
             ret=ret+traceback.format_exc(10)
             if verbose():
@@ -117,7 +117,7 @@ class SALOME_Container_i:
             MESSAGE( "SALOME_Container_i::create_component_instance : OK")
             comp_o = comp_i._this()
             comp_iors = self._orb.object_to_string(comp_o)
-        except:
+        except Exception:
             ret=traceback.format_exc(10)
             traceback.print_exc()
             MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
@@ -131,7 +131,7 @@ class SALOME_Container_i:
           comp_o = self._poa.id_to_reference(id_o)
           comp_iors = self._orb.object_to_string(comp_o)
           return 0,comp_iors
-        except:
+        except Exception:
           exc_typ,exc_val,exc_fr=sys.exc_info()
           l=traceback.format_exception(exc_typ,exc_val,exc_fr)
           return 1,"".join(l)
@@ -143,7 +143,7 @@ class SALOME_Container_i:
           comp_o = self._poa.id_to_reference(id_o)
           comp_iors = self._orb.object_to_string(comp_o)
           return 0,comp_iors
-        except:
+        except Exception:
           exc_typ,exc_val,exc_fr=sys.exc_info()
           l=traceback.format_exception(exc_typ,exc_val,exc_fr)
           return 1,"".join(l)

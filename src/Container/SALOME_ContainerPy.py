@@ -117,7 +117,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
                 print(reason)
                 pass
             pass
-        except:
+        except Exception:
             import traceback
             print("cannot import %s" % componentName)
             traceback.print_exc()
@@ -157,7 +157,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
             MESSAGE( "SALOME_Container_i::create_component_instance : OK")
             comp_o = comp_i._this()
             self._listInstances_map[instanceName] = comp_i
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")

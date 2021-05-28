@@ -136,7 +136,7 @@ if not flags:
         # dl module can be unavailable
         import dl
         flags = dl.RTLD_NOW | dl.RTLD_GLOBAL
-    except:
+    except Exception:
         pass
     pass
 if not flags:
@@ -144,7 +144,7 @@ if not flags:
         # DLFCN module can be unavailable
         import DLFCN
         flags = DLFCN.RTLD_NOW | DLFCN.RTLD_GLOBAL
-    except:
+    except Exception:
         pass
     pass
 if not flags:
@@ -152,7 +152,7 @@ if not flags:
         # ctypes module can be unavailable
         import ctypes
         flags = ctypes.RTLD_GLOBAL
-    except:
+    except Exception:
         pass
     pass
 
@@ -341,7 +341,7 @@ def salome_close():
     try:
         # study can be clear either from GUI or directly with salome.myStudy.Clear()
         myStudy.Clear()
-    except:
+    except Exception:
         pass
     salome_initial=True
     salome_iapp_close()
@@ -392,7 +392,7 @@ def salome_shutdown_containers_with_session():
     for cont,(root,cont_name) in li:
         try:
             cont.Shutdown()
-        except:
+        except Exception:
             pass
         ref_in_ns = "/".join(root+[cont_name])
         naming_service.Destroy_Name(ref_in_ns)

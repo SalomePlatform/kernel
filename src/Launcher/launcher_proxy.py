@@ -26,7 +26,7 @@ import time
 
 JOB_FILE_NAME = "jobDump.xml"
 
-class Job(object):
+class Job:
   """
   This class makes an easier access to SalomeLauncher.
   It adds an automatic save of the job's parameters after the launch. The save
@@ -62,7 +62,7 @@ class Job(object):
       with open(job_file_path, "r") as f:
         job_string = f.read()
       myjob.job_id = launcher.restoreJob(job_string)
-    except:
+    except Exception:
       myjob = None
     return myjob
 

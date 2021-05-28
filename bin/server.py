@@ -111,7 +111,7 @@ class Server:
           try:
             os.kill(childpid,0)
             return childpid
-          except:
+          except Exception:
             return None
 
         #first child

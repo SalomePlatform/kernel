@@ -49,7 +49,7 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     def Version(self):
         try:
             return self.getVersion()
-        except:
+        except Exception:
             return ''
 
     def Save(self, theComponent, theURL, isMultiFile):

@@ -70,7 +70,7 @@ def getVersion( mod = "KERNEL", full = False ):
                     elif "version" in key.lower() or mod in key:
                         _salome_versions[ mod ][ 0 ] = val
                     pass
-            except:
+            except Exception:
                 pass
     v = _salome_versions[ mod ][ 0 ]
     if full and v is not None:
@@ -87,7 +87,7 @@ def getVersionMajor( mod = "KERNEL" ):
     ver = getVersion( mod )
     try:
         return ver.split( "." )[ 0 ]
-    except:
+    except Exception:
         pass
     return None
 
@@ -101,7 +101,7 @@ def getVersionMinor( mod = "KERNEL" ):
     ver = getVersion( mod )
     try:
         return ver.split( "." )[ 1 ]
-    except:
+    except Exception:
         pass
     return None
 
@@ -115,7 +115,7 @@ def getVersionRelease( mod = "KERNEL" ):
     ver = getVersion( mod )
     try:
         return ver.split( "." )[ 2 ]
-    except:
+    except Exception:
         pass
     return None
 
@@ -128,17 +128,17 @@ def getVersions( mod = "KERNEL" ):
     """
     try:
         major = int( getVersionMajor( mod ) )
-    except:
+    except Exception:
         major = 0
         pass
     try:
         minor = int( getVersionMinor( mod ) )
-    except:
+    except Exception:
         minor = 0
         pass
     try:
         rel = int( getVersionRelease( mod ) )
-    except:
+    except Exception:
         rel = 0
         pass
     return [ major, minor, rel ]

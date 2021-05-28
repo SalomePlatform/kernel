@@ -68,13 +68,13 @@ if __name__ == "__main__":
     salome_instance = SalomeInstance.start(with_gui=True, args=test_and_args)
   except TimeoutException:
     print("FAILED : timeout(%s) is reached"%timeout_delay)
-  except:
+  except Exception:
     import traceback
     traceback.print_exc()
     pass
   try:
     salome_instance.stop()
-  except:
+  except Exception:
     pass
   if sys.platform == 'win32':
     timer.cancel()

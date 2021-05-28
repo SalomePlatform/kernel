@@ -37,7 +37,7 @@ def closeSalome():
         from PortManager import releasePort
         print("### release current port:", port)
         releasePort(port)
-    except:
+    except Exception:
         pass
 
 
@@ -54,7 +54,7 @@ def killNamingService():
     try:
       pid=output_com.split()[0]
       os.kill(int(pid),signal.SIGKILL)
-    except:
+    except Exception:
       print("killNamingService failed.")
 
 
@@ -68,7 +68,7 @@ def killProcess(process_id):
         print("stop process %s : %s"% (pid, cmd[0]))
         try:
             os.kill(int(pid),signal.SIGKILL)
-        except:
+        except Exception:
             print("  ---- process %s : %s inexistant"% (pid, cmd[0]))
             pass
         del process_id[pid]

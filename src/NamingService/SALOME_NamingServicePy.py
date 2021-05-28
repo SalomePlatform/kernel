@@ -40,7 +40,7 @@ from string import *
 from SALOME_utilities import *
 #=============================================================================
 
-class SALOME_NamingServicePy_i(object):
+class SALOME_NamingServicePy_i:
     """
       A class to manage SALOME naming service from python code
     """

@@ -145,7 +145,7 @@ def TEST_serialize():
     try:
         res_testdata.setName("An other name")
         print(res_testdata.getName())
-    except:
+    except Exception:
         print(e)
         return False
     return True

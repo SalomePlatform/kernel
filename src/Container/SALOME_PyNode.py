@@ -87,7 +87,7 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     try:
       ccode=compile(code,self.nodeName,'exec')
       exec(ccode, self.context)
-    except:
+    except Exception:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
   def execute(self,funcName,argsin):
@@ -98,7 +98,7 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       argsout=func(*argsin,**kws)
       argsout=pickle.dumps(argsout,-1)
       return argsout
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
@@ -134,14 +134,14 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     try:
       ccode=compile(code,self.nodeName,'exec')
       exec(ccode, self.context)
-    except:
+    except Exception:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
   def assignNewCompiledCode(self,codeStr):
     try:
       self.code=codeStr
       self.ccode=compile(codeStr,self.nodeName,'exec')
-    except:
+    except Exception:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode.assignNewCompiledCode (%s) : code to be executed \"%s\"" %(self.nodeName,codeStr),0))
 
   def execute(self,outargsname,argsin):
@@ -157,7 +157,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
         argsout.append(self.context[arg])
       argsout=pickle.dumps(tuple(argsout),-1)
       return argsout
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
@@ -168,7 +168,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     try:
       _,kws=pickle.loads(argsin)
       self.context.update(kws)
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:First %s" % (self.nodeName),0))
@@ -184,7 +184,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
         argsout.append(self.context[arg])
       argsout=pickle.dumps(tuple(argsout),-1)
       return argsout
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
@@ -192,7 +192,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   def getValueOfVarInContext(self,varName):
     try:
       return pickle.dumps(self.context[varName],-1)
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
@@ -201,7 +201,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   def assignVarInContext(self, varName, value):
     try:
       self.context[varName][0] = pickle.loads(value)
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
@@ -210,7 +210,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   def callMethodOnVarInContext(self, varName, methodName, args):
     try:
       return pickle.dumps( getattr(self.context[varName][0],methodName)(*pickle.loads(args)),-1 )
-    except:
+    except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))

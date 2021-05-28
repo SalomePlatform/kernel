@@ -63,7 +63,7 @@ class NamingServer(Server):
         upath = os.path.join(upath, "omniNames_%s"%(aPort))
         try:
           os.mkdir(upath)
-        except:
+        except Exception:
           # print("Can't create " + upath)
           pass
 
@@ -71,7 +71,7 @@ class NamingServer(Server):
         for fname in os.listdir(upath):
           try:
             os.remove(upath + "/" + fname)
-          except:
+          except Exception:
             pass
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 

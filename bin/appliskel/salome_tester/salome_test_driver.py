@@ -133,14 +133,14 @@ if __name__ == "__main__":
     res = processResult(res, out, err)
   except TimeoutException:
     print("FAILED : timeout(%s) is reached"%timeout_delay)
-  except:
+  except Exception:
     import traceback
     traceback.print_exc()
     pass
   try:
     salome_instance.stop()
     os.kill(pid, signal.SIGTERM)
-  except:
+  except Exception:
     pass
   if sys.platform == 'win32':
     timer.cancel()

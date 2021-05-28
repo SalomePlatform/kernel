@@ -119,7 +119,7 @@ def version():
             match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', v )
             if match :
                 return match.group( 1 )
-    except:
+    except Exception:
         pass
     return ''
 
@@ -325,7 +325,7 @@ class xml_parser:
             else:
                 if isinstance( strloc, bytes):
                     strloc = strloc.decode().strip()
-        except:
+        except Exception:
             pass
         return strloc
 
@@ -435,7 +435,7 @@ class xml_parser:
                     pass
                 pass
             pass
-        except:
+        except Exception:
             if verbose(): print("Configure parser: Error : can not read configuration file %s" % absfname)
         pass
 
@@ -912,7 +912,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
 
     try:
         dirs.remove('') # to remove empty dirs if the variable terminate by ":" or if there are "::" inside
-    except:
+    except Exception:
         pass
 
     _opts = {} # associative array of options to be filled
@@ -926,7 +926,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
             try:
                 p = xml_parser(filename, _opts, [])
                 _opts = p.opts
-            except:
+            except Exception:
                 if verbose(): print("Configure parser: Error : can not read configuration file %s" % filename)
             pass
 
@@ -944,7 +944,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
         try:
             p = xml_parser(user_config, _opts, [])
             _opts = p.opts
-        except:
+        except Exception:
             if verbose(): print('Configure parser: Error : can not read user configuration file')
             user_config = ""
 

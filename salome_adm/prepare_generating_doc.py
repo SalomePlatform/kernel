@@ -45,7 +45,7 @@ def main(input_file, output_file = None):
     # open input file
     try:
         infile = open(input_file, 'rb')
-    except:
+    except Exception:
         sys.exit("File %s is not found" % input_file)
         pass
 
@@ -54,7 +54,7 @@ def main(input_file, output_file = None):
     # open output file
     try:
         outfile = open(output_file, 'wb')
-    except:
+    except Exception:
         sys.exit("File %s cannot be opened for write" % output_file)
         pass
 

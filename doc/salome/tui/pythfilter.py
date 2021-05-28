@@ -526,12 +526,12 @@ def convert(srcpath, destpath):
         if os.path.isdir(dname):
             try:
                 shutil.rmtree(dname)
-            except:
+            except Exception:
                 print("Can't remove obsolete directory '%s'"%dname)
         else:
             try:
                 os.remove(dname)
-            except:
+            except Exception:
                 print("Can't remove obsolete file '%s'"%dname)
 
     return count

@@ -179,7 +179,7 @@ class client:
         while(1):
           try:
             os.kill(thePID,0)
-          except:
+          except Exception:
             raise RuntimeError("Process %d for %s not found" % (thePID,theName))
           aCount += 1
           anObj = self.Resolve(theName)

@@ -262,7 +262,7 @@ def getScriptsAndArgs(args=None, searchPathList=None):
                 break
               pass
             fn.close()
-          except:
+          except Exception:
             pass
           if not ispython and script_extension == ".py":
             currentKey = "@PYTHONBIN@ "+currentScript
@@ -335,7 +335,7 @@ def setOmniOrbUserPath():
       if not os.access(temp_dir, os.W_OK):
         raise Exception("Unable to get write access to directory: %s"%temp_dir)
       os.environ["OMNIORB_USER_PATH"] = temp_dir
-    except:
+    except Exception:
       homePath = os.path.realpath(os.path.expanduser('~'))
       #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
       defaultOmniorbUserPath = homePath

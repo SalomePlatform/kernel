@@ -24,7 +24,7 @@ import os
 # Example of args:
 #      args=["--gui", "--show-desktop=1", "--splash=0"]
 #      args=["--terminal","--modules=FIELDS,PARAVIS,GUI"]
-class SalomeInstance(object):
+class SalomeInstance:
 
   def __init__(self):
     self.port = None
@@ -53,7 +53,7 @@ class SalomeInstance(object):
       with open(port_log) as f:
         salome_instance.port = int(f.readline())
       os.remove(port_log)
-    except:
+    except Exception:
       pass
 
     return salome_instance
