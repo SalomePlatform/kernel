@@ -60,7 +60,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(CORBA::ORB_ptr orb,
     _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
 
     std::string hostname = Kernel_Utils::GetHostname();
-    _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
+    _containerName = SALOME_NamingService_Abstract::BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
 
