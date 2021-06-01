@@ -41,6 +41,10 @@ INCLUDE_DIRECTORIES(
 
 SWIG_ADD_LIBRARY(${Launcher_target_name} LANGUAGE python SOURCES Launcher.i)
 
+IF(${MACHINE} STREQUAL WINDOWS)
+  SET_TARGET_PROPERTIES(_${Launcher_target_name} PROPERTIES DEBUG_OUTPUT_NAME _${Launcher_target_name}_d)
+ENDIF(${MACHINE} STREQUAL WINDOWS)
+
 SWIG_LINK_LIBRARIES(${Launcher_target_name} ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} Launcher)
 
 SWIG_CHECK_GENERATION(${Launcher_target_name})
