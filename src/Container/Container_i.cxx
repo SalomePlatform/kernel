@@ -98,10 +98,10 @@ extern "C" {void SigIntHandler( int ) ; }
 #define SLASH '/'
 #endif
 
-std::map<std::string, int> Engines_Container_i::_cntInstances_map;
-std::map<std::string, void *> Engines_Container_i::_library_map;
-std::map<std::string, void *> Engines_Container_i::_toRemove_map;
-omni_mutex Engines_Container_i::_numInstanceMutex ;
+std::map<std::string, int> Abstract_Engines_Container_i::_cntInstances_map;
+std::map<std::string, void *> Abstract_Engines_Container_i::_library_map;
+std::map<std::string, void *> Abstract_Engines_Container_i::_toRemove_map;
+omni_mutex Abstract_Engines_Container_i::_numInstanceMutex ;
 
 static PyObject* _pyCont;
 
@@ -120,8 +120,8 @@ int findpathof(const std::string& path, std::string&, const std::string&);
 */
 //=============================================================================
 
-Engines_Container_i::Engines_Container_i () :
-  _NS(0),_id(0),_numInstance(0)
+Abstract_Engines_Container_i::Abstract_Engines_Container_i () :
+  _NS(nullptr),_id(nullptr),_numInstance(0)
 {
 }
 
@@ -131,13 +131,13 @@ Engines_Container_i::Engines_Container_i () :
 */
 //=============================================================================
 
-Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-                                          PortableServer::POA_ptr poa,
-                                          char *containerName ,
-                                          int argc , char* argv[],
-                                           SALOME_NamingService_Container_Abstract *ns,
-                                          bool isServantAloneInProcess
-                                          ) :
+Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb, 
+                                                            PortableServer::POA_ptr poa,
+                                                            char *containerName ,
+                                                            int argc , char* argv[],
+                                                            SALOME_NamingService_Container_Abstract *ns,
+                                                            bool isServantAloneInProcess
+                                                            ) :
   _NS(nullptr),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
@@ -251,9 +251,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 */
 //=============================================================================
 
-Engines_Container_i::~Engines_Container_i()
+Abstract_Engines_Container_i::~Abstract_Engines_Container_i()
 {
-  MESSAGE("Container_i::~Container_i()");
+  MESSAGE("Abstract_Container_i::~Abstract_Container_i()");
   if(_id)
     delete _id;
   if(_NS)
@@ -268,7 +268,7 @@ Engines_Container_i::~Engines_Container_i()
 */
 //=============================================================================
 
-char* Engines_Container_i::name()
+char* Abstract_Engines_Container_i::name()
 {
   return CORBA::string_dup(_containerName.c_str()) ;
 }
@@ -280,7 +280,7 @@ char* Engines_Container_i::name()
 */
 //=============================================================================
 
-char* Engines_Container_i::workingdir()
+char* Abstract_Engines_Container_i::workingdir()
 {
   char wd[256];
   getcwd (wd,256);
@@ -294,13 +294,13 @@ char* Engines_Container_i::workingdir()
 */
 //=============================================================================
 
-char* Engines_Container_i::logfilename()
+char* Abstract_Engines_Container_i::logfilename()
 {
   return CORBA::string_dup(_logfilename.c_str()) ;
 }
 
 //! Set container log file name
-void Engines_Container_i::logfilename(const char* name)
+void Abstract_Engines_Container_i::logfilename(const char* name)
 {
   _logfilename=name;
 }
@@ -312,7 +312,7 @@ void Engines_Container_i::logfilename(const char* name)
 */
 //=============================================================================
 
-char* Engines_Container_i::getHostName()
+char* Abstract_Engines_Container_i::getHostName()
 {
   std::string s = Kernel_Utils::GetHostname();
   //  MESSAGE("Engines_Container_i::getHostName " << s);
@@ -326,7 +326,7 @@ char* Engines_Container_i::getHostName()
 */
 //=============================================================================
 
-CORBA::Long Engines_Container_i::getPID()
+CORBA::Long Abstract_Engines_Container_i::getPID()
 {
   return (CORBA::Long)getpid();
 }
@@ -337,7 +337,7 @@ CORBA::Long Engines_Container_i::getPID()
 *  CORBA method: check if servant is still alive
 */
 //=============================================================================
-void Engines_Container_i::ping()
+void Abstract_Engines_Container_i::ping()
 {
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
@@ -351,7 +351,7 @@ void Engines_Container_i::ping()
 *  - orb shutdown if no other servants in the process 
 */
 //=============================================================================
-void Engines_Container_i::Shutdown()
+void Abstract_Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
 
@@ -408,7 +408,7 @@ void Engines_Container_i::Shutdown()
 */
 //=============================================================================
 bool
-Engines_Container_i::load_component_Library(const char* componentName, CORBA::String_out reason)
+Abstract_Engines_Container_i::load_component_Library(const char* componentName, CORBA::String_out reason)
 {
 
   //=================================================================
@@ -496,7 +496,7 @@ Engines_Container_i::load_component_Library(const char* componentName, CORBA::St
 */
 //=============================================================================
 bool
-Engines_Container_i::load_component_CppImplementation(const char* componentName, std::string& reason)
+Abstract_Engines_Container_i::load_component_CppImplementation(const char* componentName, std::string& reason)
 {
   std::string aCompName(componentName);
   std::string impl_name = std::string(LIB) + aCompName + ENGINESO;
@@ -586,7 +586,7 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
 */
 //=============================================================================
 bool
-Engines_Container_i::load_component_PythonImplementation(const char* componentName, std::string& reason)
+Abstract_Engines_Container_i::load_component_PythonImplementation(const char* componentName, std::string& reason)
 {
   std::string aCompName(componentName);
 
@@ -641,7 +641,7 @@ Engines_Container_i::load_component_PythonImplementation(const char* componentNa
 */
 //=============================================================================
 bool
-Engines_Container_i::load_component_ExecutableImplementation(const char* componentName, std::string& reason)
+Abstract_Engines_Container_i::load_component_ExecutableImplementation(const char* componentName, std::string& reason)
 {
   std::string aCompName(componentName);
   std::string executable=aCompName+".exe";
@@ -688,7 +688,7 @@ Engines_Container_i::load_component_ExecutableImplementation(const char* compone
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::create_component_instance(const char*genericRegisterName)
+Abstract_Engines_Container_i::create_component_instance(const char*genericRegisterName)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
@@ -711,7 +711,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName)
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::create_component_instance_env(const char*genericRegisterName,
+Abstract_Engines_Container_i::create_component_instance_env(const char*genericRegisterName,
                                                    const Engines::FieldsDict& env,
                                                    CORBA::String_out reason)
 {
@@ -764,9 +764,9 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::createExecutableInstance(std::string CompName,
-                                              const Engines::FieldsDict& env,
-                                              std::string& reason)
+Abstract_Engines_Container_i::createExecutableInstance(std::string CompName,
+                                                      const Engines::FieldsDict& env,
+                                                      std::string& reason)
 {
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
 
@@ -921,7 +921,7 @@ Engines_Container_i::createExecutableInstance(std::string CompName,
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::createPythonInstance(std::string CompName,
+Abstract_Engines_Container_i::createPythonInstance(std::string CompName,
                                           std::string& reason)
 {
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
@@ -960,7 +960,7 @@ Engines_Container_i::createPythonInstance(std::string CompName,
 }
 
 char *
-Engines_Container_i::create_python_service_instance(const char * CompName,
+Abstract_Engines_Container_i::create_python_service_instance(const char * CompName,
                                                     CORBA::String_out reason)
 {
   CORBA::Object_var object = CORBA::Object::_nil();
@@ -1014,7 +1014,7 @@ Engines_Container_i::create_python_service_instance(const char * CompName,
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::createInstance(std::string genericRegisterName,
+Abstract_Engines_Container_i::createInstance(std::string genericRegisterName,
                                     void *handle,
                                     std::string& reason)
 {
@@ -1111,7 +1111,7 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
 */
 //=============================================================================
 Engines::EngineComponent_ptr
-Engines_Container_i::find_component_instance( const char* registeredName)
+Abstract_Engines_Container_i::find_component_instance( const char* registeredName)
 {
   Engines::EngineComponent_var anEngine = Engines::EngineComponent::_nil();
   std::map<std::string,Engines::EngineComponent_var>::iterator itm =_listInstances_map.begin();
@@ -1137,7 +1137,7 @@ Engines_Container_i::find_component_instance( const char* registeredName)
 */
 //=============================================================================
 
-void Engines_Container_i::remove_impl(Engines::EngineComponent_ptr component_i)
+void Abstract_Engines_Container_i::remove_impl(Engines::EngineComponent_ptr component_i)
 {
   ASSERT(! CORBA::is_nil(component_i));
   std::string instanceName = component_i->instanceName() ;
@@ -1155,7 +1155,7 @@ void Engines_Container_i::remove_impl(Engines::EngineComponent_ptr component_i)
 *  CORBA method: Discharges unused libraries from the container.
 */
 //=============================================================================
-void Engines_Container_i::finalize_removal()
+void Abstract_Engines_Container_i::finalize_removal()
 {
   MESSAGE("finalize unload : dlclose");
   _numInstanceMutex.lock(); // lock to be alone
@@ -1183,7 +1183,7 @@ void Engines_Container_i::finalize_removal()
 *
 */
 //=============================================================================
-void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
+void Abstract_Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 {
   if(_cntInstances_map.count(genericRegisterName)==0)
     return;
@@ -1225,8 +1225,8 @@ void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 //=============================================================================
 
 Engines::EngineComponent_ptr
-Engines_Container_i::load_impl( const char* genericRegisterName,
-                                const char* /*componentName*/ )
+Abstract_Engines_Container_i::load_impl( const char* genericRegisterName,
+                                         const char* /*componentName*/ )
 {
   char* reason;
   std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
@@ -1237,7 +1237,7 @@ Engines_Container_i::load_impl( const char* genericRegisterName,
   return iobject._retn();
 }
 
-Engines::EmbeddedNamingService_ptr Engines_Container_i::get_embedded_NS_if_ssl()
+Engines::EmbeddedNamingService_ptr Abstract_Engines_Container_i::get_embedded_NS_if_ssl()
 {
   SALOME_Embedded_NamingService_Client *nsc(dynamic_cast<SALOME_Embedded_NamingService_Client *>(this->_NS));
   if(nsc)
@@ -1275,8 +1275,8 @@ Engines::EmbeddedNamingService_ptr Engines_Container_i::get_embedded_NS_if_ssl()
 //=============================================================================
 
 Engines::EngineComponent_ptr
-Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
-                                             std::string componentLibraryName)
+Abstract_Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
+                                                      std::string componentLibraryName)
 {
   std::string aGenRegisterName = genericRegisterName;
   std::string impl_name = componentLibraryName;
@@ -1323,7 +1323,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
 *  Retrieves only with container naming convention if it is a python container
 */
 //=============================================================================
-bool Engines_Container_i::isPythonContainer(const char* ContainerName)
+bool Abstract_Engines_Container_i::isPythonContainer(const char* ContainerName)
 {
   bool ret=false;
   size_t len=strlen(ContainerName);
@@ -1340,7 +1340,7 @@ bool Engines_Container_i::isPythonContainer(const char* ContainerName)
 *  To remove :  never returns !
 */
 //=============================================================================
-bool Engines_Container_i::Kill_impl()
+bool Abstract_Engines_Container_i::Kill_impl()
 {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
     << _containerName.c_str() << " machineName "
@@ -1507,7 +1507,7 @@ void SigIntHandler( int what )
 */
 //=============================================================================
 Engines::fileRef_ptr
-Engines_Container_i::createFileRef(const char* origFileName)
+Abstract_Engines_Container_i::createFileRef(const char* origFileName)
 {
   std::string origName(origFileName);
   Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
@@ -1542,7 +1542,7 @@ Engines_Container_i::createFileRef(const char* origFileName)
 */
 //=============================================================================
 Engines::fileTransfer_ptr
-Engines_Container_i::getFileTransfer()
+Abstract_Engines_Container_i::getFileTransfer()
 {
   Engines::fileTransfer_var aFileTransfer
     = Engines::fileTransfer::_duplicate(_fileTransfer);
@@ -1553,7 +1553,7 @@ Engines_Container_i::getFileTransfer()
 //! Create a Salome file
 //=============================================================================
 Engines::Salome_file_ptr
-Engines_Container_i::createSalome_file(const char* origFileName)
+Abstract_Engines_Container_i::createSalome_file(const char* origFileName)
 {
   std::string origName(origFileName);
   if (CORBA::is_nil(_Salome_file_map[origName]))
@@ -1590,7 +1590,7 @@ Engines_Container_i::createSalome_file(const char* origFileName)
  * \param localFile the local file
  */
 //=============================================================================
-void Engines_Container_i::copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile)
+void Abstract_Engines_Container_i::copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile)
 {
   Engines::fileTransfer_var fileTransfer = container->getFileTransfer();
 
@@ -1635,7 +1635,7 @@ void Engines_Container_i::copyFile(Engines::Container_ptr container, const char*
  * \return the PyNode
  */
 //=============================================================================
-Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, const char* code)
+Engines::PyNode_ptr Abstract_Engines_Container_i::createPyNode(const char* nodeName, const char* code)
 {
   Engines::PyNode_var node= Engines::PyNode::_nil();
 
@@ -1695,7 +1695,7 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
  *
  */
 //=============================================================================
-Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode(const char *nodeName)
+Engines::PyNode_ptr Abstract_Engines_Container_i::getDefaultPyNode(const char *nodeName)
 {
   Utils_Locker lck(&_mutexForDftPy);
   std::map<std::string,Engines::PyNode_var>::iterator it(_dftPyNode.find(nodeName));
@@ -1718,7 +1718,7 @@ Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode(const char *nodeName)
  * \return the PyScriptNode
  */
 //=============================================================================
-Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* nodeName, const char* code)
+Engines::PyScriptNode_ptr Abstract_Engines_Container_i::createPyScriptNode(const char* nodeName, const char* code)
 {
   Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
 
@@ -1772,7 +1772,7 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
   }
 }
 
-void Engines_Container_i::removePyScriptNode(const char *nodeName)
+void Abstract_Engines_Container_i::removePyScriptNode(const char *nodeName)
 {
   std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
   if(it==_dftPyScriptNode.end())
@@ -1787,7 +1787,7 @@ void Engines_Container_i::removePyScriptNode(const char *nodeName)
   _dftPyScriptNode.erase(it);
 }
 
-void Engines_Container_i::cleanAllPyScripts()
+void Abstract_Engines_Container_i::cleanAllPyScripts()
 {
   for(std::map<std::string,Engines::PyNode_var>::iterator it=_dftPyNode.begin();it!=_dftPyNode.end();it++)
     {
@@ -1810,7 +1810,7 @@ void Engines_Container_i::cleanAllPyScripts()
  *
  */
 //=============================================================================
-Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode(const char *nodeName)
+Engines::PyScriptNode_ptr Abstract_Engines_Container_i::getDefaultPyScriptNode(const char *nodeName)
 {
   Utils_Locker lck(&_mutexForDftPy);
   std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
@@ -1886,18 +1886,18 @@ int findpathof(const std::string& path, std::string& pth, const std::string& fil
   return found;
 }
 
-void Engines_Container_i::registerTemporaryFile( const std::string& fileName )
+void Abstract_Engines_Container_i::registerTemporaryFile( const std::string& fileName )
 {
   _tmp_files.remove( fileName );
   _tmp_files.push_back( fileName );
 }
 
-void Engines_Container_i::unregisterTemporaryFile( const std::string& fileName )
+void Abstract_Engines_Container_i::unregisterTemporaryFile( const std::string& fileName )
 {
   _tmp_files.remove( fileName );
 }
 
-void Engines_Container_i::clearTemporaryFiles()
+void Abstract_Engines_Container_i::clearTemporaryFiles()
 {
   std::list<std::string>::const_iterator it;
   for ( it = _tmp_files.begin(); it != _tmp_files.end(); ++it ) {
@@ -1923,11 +1923,11 @@ void Engines_Container_i::clearTemporaryFiles()
   _tmp_files.clear();
 }
 
-static Engines_Container_i *_container_singleton_ssl = nullptr;
+static Engines_Container_SSL_i *_container_singleton_ssl = nullptr;
 
 static Engines::Container_var _container_ref_singleton_ssl;
 
-Engines_Container_i *KERNEL::getContainerSA()
+Engines_Container_SSL_i *KERNEL::getContainerSA()
 {
   if(!_container_singleton_ssl)
   {
@@ -1941,7 +1941,7 @@ Engines_Container_i *KERNEL::getContainerSA()
     //
     char *argv[4] = {"Container","FactoryServer","toto",nullptr};
     SALOME_Fake_NamingService ns;
-    _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,&ns,false);
+    _container_singleton_ssl = new Engines_Container_SSL_i(orb,poa,"FactoryServer",2,argv,&ns,false);
     PortableServer::ObjectId * cont_id = _container_singleton_ssl->getCORBAId();
     //
     CORBA::Object_var zeRef = poa->id_to_reference(*cont_id);

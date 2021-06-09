@@ -48,44 +48,45 @@
 #include <list>
 #include <string>
 
-class  SALOME_NamingService_Container_Abstract;
+class SALOME_NamingService_Container_Abstract;
 
-class CONTAINER_EXPORT Engines_Container_i:
-  public virtual POA_Engines::Container,
-  public virtual PortableServer::ServantBase
+class CONTAINER_EXPORT Abstract_Engines_Container_i : public virtual POA_Engines::Container,
+                                                      public virtual PortableServer::ServantBase
 {
 public:
-  Engines_Container_i();
-  Engines_Container_i(CORBA::ORB_ptr orb, 
-                      PortableServer::POA_ptr poa,
-                      char * containerName ,
-                      int argc, char* argv[],
-                      SALOME_NamingService_Container_Abstract *ns = nullptr,
-                      bool isServantAloneInProcess = true);
-  virtual ~Engines_Container_i();
+  Abstract_Engines_Container_i();
+  Abstract_Engines_Container_i(CORBA::ORB_ptr orb,
+                               PortableServer::POA_ptr poa,
+                               char *containerName,
+                               int argc, char *argv[],
+                               SALOME_NamingService_Container_Abstract *ns = nullptr,
+                               bool isServantAloneInProcess = true);
+  virtual ~Abstract_Engines_Container_i();
+
+  virtual bool isSSLMode() const = 0;
 
   // --- CORBA methods
 
-  virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
+  virtual bool load_component_Library(const char *componentName, CORBA::String_out reason);
 
   virtual Engines::EngineComponent_ptr
-  create_component_instance( const char* componentName);
+  create_component_instance(const char *componentName);
 
   virtual Engines::EngineComponent_ptr
-  create_component_instance_env( const char* componentName,
-                                 const Engines::FieldsDict& env,
-                                 CORBA::String_out reason);
+  create_component_instance_env(const char *componentName,
+                                const Engines::FieldsDict &env,
+                                CORBA::String_out reason);
 
   virtual char *
-  create_python_service_instance(const char* CompName,
+  create_python_service_instance(const char *CompName,
                                  CORBA::String_out reason);
 
   Engines::EngineComponent_ptr
-  find_component_instance( const char* registeredName);
+  find_component_instance(const char *registeredName);
 
   Engines::EngineComponent_ptr
-  load_impl(const char* nameToRegister,
-            const char* componentName);
+  load_impl(const char *nameToRegister,
+            const char *componentName);
 
   Engines::EmbeddedNamingService_ptr get_embedded_NS_if_ssl() override;
 
@@ -93,43 +94,43 @@ public:
   void finalize_removal();
 
   virtual void ping();
-  char* name();
-  char* workingdir();
-  char* logfilename();
-  void logfilename(const char* name);
+  char *name();
+  char *workingdir();
+  char *logfilename();
+  void logfilename(const char *name);
 
   virtual void Shutdown();
-  char* getHostName();
+  char *getHostName();
   CORBA::Long getPID();
   //! Kill current container
   bool Kill_impl();
 
-  Engines::fileRef_ptr createFileRef(const char* origFileName);
+  Engines::fileRef_ptr createFileRef(const char *origFileName);
   Engines::fileTransfer_ptr getFileTransfer();
 
-  virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
-  void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
-  Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
+  virtual Engines::Salome_file_ptr createSalome_file(const char *origFileName);
+  void copyFile(Engines::Container_ptr container, const char *remoteFile, const char *localFile);
+  Engines::PyNode_ptr createPyNode(const char *nodeName, const char *code);
   Engines::PyNode_ptr getDefaultPyNode(const char *nodeName);
-  Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
+  Engines::PyScriptNode_ptr createPyScriptNode(const char *nodeName, const char *code);
   void removePyScriptNode(const char *nodeName) override;
   void cleanAllPyScripts() override;
   Engines::PyScriptNode_ptr getDefaultPyScriptNode(const char *nodeName);
   // --- local C++ methods
 
   Engines::EngineComponent_ptr
-  find_or_create_instance( std::string genericRegisterName,
-                           std::string componentLibraryName);
+  find_or_create_instance(std::string genericRegisterName,
+                          std::string componentLibraryName);
 
-  bool load_component_CppImplementation(const char* componentName,std::string& reason);
-  bool load_component_PythonImplementation(const char* componentName,std::string& reason);
-  bool load_component_ExecutableImplementation(const char* componentName,std::string& reason);
+  bool load_component_CppImplementation(const char *componentName, std::string &reason);
+  bool load_component_PythonImplementation(const char *componentName, std::string &reason);
+  bool load_component_ExecutableImplementation(const char *componentName, std::string &reason);
 
-  Engines::EngineComponent_ptr createPythonInstance(std::string CompName, std::string& error);
-  Engines::EngineComponent_ptr createExecutableInstance(std::string CompName, const Engines::FieldsDict& env, std::string& error);
-  Engines::EngineComponent_ptr createInstance(std::string genericRegisterName, void *handle, std::string& error);
+  Engines::EngineComponent_ptr createPythonInstance(std::string CompName, std::string &error);
+  Engines::EngineComponent_ptr createExecutableInstance(std::string CompName, const Engines::FieldsDict &env, std::string &error);
+  Engines::EngineComponent_ptr createInstance(std::string genericRegisterName, void *handle, std::string &error);
 
-  static bool isPythonContainer(const char* ContainerName);
+  static bool isPythonContainer(const char *ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
   //??? char* machineName();
 
@@ -138,41 +139,68 @@ public:
   int getArgc() { return _argc; }
   char **getArgv() { return _argv; }
 
-  void registerTemporaryFile( const std::string& fileName );
-  void unregisterTemporaryFile( const std::string& fileName );
+  void registerTemporaryFile(const std::string &fileName);
+  void unregisterTemporaryFile(const std::string &fileName);
   void clearTemporaryFiles();
   PortableServer::ObjectId *getCORBAId() const { return _id; }
 
 protected:
-
   static std::map<std::string, int> _cntInstances_map;
-  static std::map<std::string, void *> _library_map; // library names, loaded
-  static std::map<std::string, void *> _toRemove_map;// library names to remove
-  static omni_mutex _numInstanceMutex ; // lib and instance protection
+  static std::map<std::string, void *> _library_map;  // library names, loaded
+  static std::map<std::string, void *> _toRemove_map; // library names to remove
+  static omni_mutex _numInstanceMutex;                // lib and instance protection
 
   bool _isSupervContainer;
 
-  SALOME_NamingService_Container_Abstract *_NS ;
+  SALOME_NamingService_Container_Abstract *_NS;
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
-  PortableServer::ObjectId * _id ;
-  int _numInstance ;
-  std::map<std::string,Engines::EngineComponent_var> _listInstances_map;
-  std::map<std::string,Engines::fileRef_var> _fileRef_map;
-  std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
-  std::map<std::string,Engines::PyScriptNode_var> _dftPyScriptNode;
-  std::map<std::string,Engines::PyNode_var> _dftPyNode;
+  PortableServer::ObjectId *_id;
+  int _numInstance;
+  std::map<std::string, Engines::EngineComponent_var> _listInstances_map;
+  std::map<std::string, Engines::fileRef_var> _fileRef_map;
+  std::map<std::string, Engines::Salome_file_var> _Salome_file_map;
+  std::map<std::string, Engines::PyScriptNode_var> _dftPyScriptNode;
+  std::map<std::string, Engines::PyNode_var> _dftPyNode;
   Utils_Mutex _mutexForDftPy;
   std::list<std::string> _tmp_files;
   Engines::fileTransfer_var _fileTransfer;
 
-  int    _argc ;
-  char** _argv ;
-  long   _pid;
-  bool   _isServantAloneInProcess;
+  int _argc;
+  char **_argv;
+  long _pid;
+  bool _isServantAloneInProcess;
+};
+
+class CONTAINER_EXPORT Engines_Container_i : public Abstract_Engines_Container_i
+{
+public:
+  Engines_Container_i();
+  Engines_Container_i(CORBA::ORB_ptr orb,
+                      PortableServer::POA_ptr poa,
+                      char *containerName,
+                      int argc, char *argv[],
+                      SALOME_NamingService_Container_Abstract *ns = nullptr,
+                      bool isServantAloneInProcess = true) :
+                      Abstract_Engines_Container_i(orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+  bool isSSLMode() const override { return false; }
+};
+
+class CONTAINER_EXPORT Engines_Container_SSL_i : public Abstract_Engines_Container_i
+{
+public:
+  Engines_Container_SSL_i();
+  Engines_Container_SSL_i(CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char *containerName,
+                          int argc, char *argv[],
+                          SALOME_NamingService_Container_Abstract *ns = nullptr,
+                          bool isServantAloneInProcess = true) :
+                          Abstract_Engines_Container_i(orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+    bool isSSLMode() const override { return true; }
 };
 
 /*!
@@ -180,8 +208,8 @@ protected:
  */
 namespace KERNEL
 {
-  CONTAINER_EXPORT Engines_Container_i *getContainerSA();
+  CONTAINER_EXPORT Engines_Container_SSL_i *getContainerSA();
   CONTAINER_EXPORT Engines::Container_var getContainerRefSA();
-}
+} // namespace KERNEL
 
 #endif
