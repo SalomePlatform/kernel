@@ -34,6 +34,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "SALOME_NamingService.hxx"
+#include "Utils_CorbaException.hxx"
 
 #include <cstdio>
 #ifndef WIN32
@@ -174,6 +175,20 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   if(notif)
     _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 
+}
+
+CORBA::Boolean Engines_Component_i::isSSLMode()
+{
+  PortableServer::ServantBase *serv(_poa->reference_to_servant(_container));
+  if(!serv)
+    THROW_SALOME_CORBA_EXCEPTION("_container and component are not managed by the same POA ! Looks bad !", SALOME::INTERNAL_ERROR);
+  Abstract_Engines_Container_i *elt=dynamic_cast<Abstract_Engines_Container_i *>(serv);
+  if(!elt)
+    THROW_SALOME_CORBA_EXCEPTION("_container servant object if not a Abstract_Engines_Container_i ! It smells bad !", SALOME::INTERNAL_ERROR);
+  SALOME_NamingService_Container_Abstract *ns(elt->getNS());
+  if(!ns)
+    THROW_SALOME_CORBA_EXCEPTION("_container servant object points to a nullptr NS ! It smells bad !", SALOME::INTERNAL_ERROR);
+  return elt->isSSLMode() && (!dynamic_cast<SALOME_NamingService *>(ns));
 }
 
 SALOME_NamingService_Abstract *Engines_Component_i::getNS()

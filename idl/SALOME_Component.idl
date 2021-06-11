@@ -264,6 +264,7 @@ module Engines
     //!  Determines whether the server has already been loaded or not.
     void ping();
 
+    boolean isSSLMode() raises(SALOME::SALOME_Exception);
     //! Remove component instance from container
     /*!
       Deactivates the %Component.

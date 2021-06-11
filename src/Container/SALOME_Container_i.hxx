@@ -90,6 +90,8 @@ public:
 
   Engines::EmbeddedNamingService_ptr get_embedded_NS_if_ssl() override;
 
+  SALOME_NamingService_Container_Abstract *getNS() const { return _NS; }
+
   void remove_impl(Engines::EngineComponent_ptr component_i);
   void finalize_removal();
 

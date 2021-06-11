@@ -71,6 +71,8 @@ public:
                       const char *interfaceName,
                       bool notif = false,
                       bool regist = true);
+                      
+  CORBA::Boolean isSSLMode() override;
 
   virtual ~Engines_Component_i();
 
