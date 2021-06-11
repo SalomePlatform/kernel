@@ -454,6 +454,18 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
   return ret;
 }
 
+std::string SALOME_ContainerManager::GetCppBinaryOfKernelContainer() const
+{
+  std::string ret = this->_isSSL ? "SALOME_Container_No_NS_Serv" : "SALOME_Container";
+  return ret;
+}
+
+std::string SALOME_ContainerManager::GetRunRemoteExecutableScript() const
+{
+  std::string ret = this->_isSSL ? "runRemoteSSL.sh" : "runRemote.sh";
+  return ret;
+}
+
 Engines::Container_ptr
 SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& params,
                                          const std::string & resource_selected,
@@ -470,7 +482,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
     // TODO -> separates Mpi from Classic/Exe
     // Classic or Exe ?
-    std::string container_exe = this->_isSSL ? "SALOME_Container_No_NS_Serv" : "SALOME_Container"; // Classic container
+    std::string container_exe = this->GetCppBinaryOfKernelContainer();
     Engines::ContainerParameters local_params(params);
     int found=0;
     try
@@ -778,9 +790,11 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
       command += " " +container_exe+ " ";
 
     command += _NS->ContainerName(params);
-    command += " -";
-    AddOmninamesParams(command);
-
+    if(!this->_isSSL)
+    {
+      command += " -";
+      AddOmninamesParams(command);
+    }
     MESSAGE("command =" << command);
   }
 
@@ -1232,7 +1246,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
                                                                   const std::string & hostname,
                                                                   const std::string & username,
                                                                   const std::string & applipath,
-                                                                  const std::string & workdir)
+                                                                  const std::string & workdir) const
 {
   std::ostringstream command;
   switch (protocol)
@@ -1298,10 +1312,21 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
   {
     // generate a command with runRemote.sh
     command <<  remoteapplipath;
-    command <<  "/runRemote.sh ";
-    command <<  GetenvThreadSafeAsString("NSHOST"); // hostname of CORBA name server
-    command <<  " ";
-    command <<  GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
+    command <<  "/" << this->GetRunRemoteExecutableScript() << " ";
+
+    if(this->_isSSL)
+    {
+      Engines::EmbeddedNamingService_var ns = GetEmbeddedNamingService();
+      CORBA::String_var iorNS = _orb->object_to_string(ns);
+      command << iorNS;
+    }
+    else
+    {
+      command <<  GetenvThreadSafeAsString("NSHOST"); // hostname of CORBA name server
+      command <<  " ";
+      command <<  GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
+    }
+    
     if(workdir != "")
     {
       command << " WORKINGDIR ";

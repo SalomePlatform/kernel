@@ -274,6 +274,7 @@ def install(prefix, config_file, verbose=0):
                'getAppliPath.py',
                'kill_remote_containers.py',
                'runRemote.sh',
+               'runRemoteSSL.sh',
                '.salome_run',
                'update_catalogs.py',
                '.bashrc',

@@ -67,6 +67,10 @@ protected:
   FindContainer(const Engines::ContainerParameters& params,
                 const std::string& resource);
 
+  std::string GetCppBinaryOfKernelContainer() const;
+  
+  std::string GetRunRemoteExecutableScript() const;
+
   std::string BuildCommandToLaunchRemoteContainer(const std::string & resource_name,
                                                   const Engines::ContainerParameters& params,
                                                   const std::string& container_exe="SALOME_Container") const;
@@ -91,11 +95,11 @@ protected:
 
   std::string machinesFile(const int nbproc);
 
- static std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, 
-                                                 const std::string & hostname, 
-                                                 const std::string & username,
-                                                 const std::string & applipath,
-                                                 const std::string & workdir="");
+  std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, 
+                                          const std::string & hostname, 
+                                          const std::string & username,
+                                          const std::string & applipath,
+                                          const std::string & workdir="") const;
 
   Engines::Container_ptr
   LaunchContainer(const Engines::ContainerParameters& params,

@@ -28,6 +28,7 @@ ADD_SUBDIRECTORY(tests)
 SET(SCRIPTS
   envd
   runRemote.sh
+  runRemoteSSL.sh
   .bashrc
   getAppliPath.py
   update_catalogs.py
