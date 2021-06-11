@@ -180,7 +180,7 @@ protected:
 class CONTAINER_EXPORT Engines_Container_i : public Abstract_Engines_Container_i
 {
 public:
-  Engines_Container_i();
+  Engines_Container_i() { }
   Engines_Container_i(CORBA::ORB_ptr orb,
                       PortableServer::POA_ptr poa,
                       char *containerName,
