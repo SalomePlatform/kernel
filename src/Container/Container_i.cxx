@@ -390,6 +390,8 @@ void Abstract_Engines_Container_i::Shutdown()
   {
   }
   //
+  this->cleanAllPyScripts();
+  //
   if(_isServantAloneInProcess)
   {
     MESSAGE("Effective Shutdown of container Begins...");
