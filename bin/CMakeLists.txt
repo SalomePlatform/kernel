@@ -46,6 +46,7 @@ SET(SCRIPTS
   parseConfigFile.py
   PortManager.py
   runSalome.py
+  runSalomeNoServer.py
   runSession.py
   runConsole.py
   runRemote.py
