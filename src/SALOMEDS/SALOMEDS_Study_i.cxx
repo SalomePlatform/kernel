@@ -51,6 +51,9 @@
 
 #include "Basics_Utils.hxx"
 #include "SALOME_KernelServices.hxx"
+#include "SALOME_Fake_NamingService.hxx"
+
+#include <memory>
 
 #ifdef WIN32
 #include <process.h>
@@ -80,7 +83,8 @@ SALOMEDS::Study_ptr KERNEL::getStudyServantSA()
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
     _poa = PortableServer::POA::_duplicate(poa);
-    SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb,SALOME::Session::_nil());
+    SALOME_Fake_NamingService ns;
+    SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb,&ns);
     _study = servant->_this();
   }
   return SALOMEDS::Study::_duplicate(_study);
@@ -1220,10 +1224,11 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath,
     throw SALOMEDS::Study::StudyInvalidReference();  
 
   std::string aPath((char*)thePath), aBaseName((char*)theBaseName);
-  SALOMEDS_DriverFactory_i* factory = new SALOMEDS_DriverFactory_i(_orb);
-  bool ret = _impl->DumpStudy(aPath, aBaseName, isPublished, isMultiFile, factory);
-  delete factory;
-
+  bool ret = false;
+  {
+    std::unique_ptr<SALOMEDS_DriverFactory_i> factory( new SALOMEDS_DriverFactory_i(_orb,_factory->getNS()) );
+    ret = _impl->DumpStudy(aPath, aBaseName, isPublished, isMultiFile, factory.get());
+  }
   return ret;
 }
 

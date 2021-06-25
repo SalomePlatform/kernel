@@ -119,6 +119,8 @@ public:
   
   SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB, SALOME_NamingService_Abstract *ns);
 
+  SALOME_NamingService_Abstract *getNS() const { return _name_service; }
+
   virtual ~SALOMEDS_DriverFactory_i();
    
   virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType);
