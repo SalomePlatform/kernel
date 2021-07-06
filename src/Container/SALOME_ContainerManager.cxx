@@ -1249,6 +1249,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
                                                                   const std::string & workdir) const
 {
   std::ostringstream command;
+  bool envd = true; // source the environment
   switch (protocol)
   {
   case rsh:
@@ -1271,6 +1272,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
     // no need to redefine the user with srun, the job user is taken by default
     // (note: for srun, user id can be specified with " --uid=<user>")
     command << "srun -n 1 -N 1 -s --mem-per-cpu=0 --cpu-bind=none --nodelist=" << hostname << " ";
+    envd = false;
     break;
   case pbsdsh:
     command << "pbsdsh -o -h " << hostname << " ";
@@ -1313,6 +1315,8 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
     // generate a command with runRemote.sh
     command <<  remoteapplipath;
     command <<  "/" << this->GetRunRemoteExecutableScript() << " ";
+    if (!envd)
+      command <<  "--noenvd ";
 
     if(this->_isSSL)
     {

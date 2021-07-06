@@ -32,6 +32,7 @@
 # ssh cli76ce ${APPLI}/runRemoteSSL.sh IOR_OF_CURSTOM_NS SALOME_Container myContainerName
 # --- local arguments
 #     $0 : ${APPLI}/runRemote.sh: from arg name, rebuild and export $APPLI variable
+#     --noenvd : optional argument. If present, the envd file is NOT sourced.
 #     $1 : IOR_OF_CURSTOM_NS of reference to Engines::EmbeddedNamingService servant
 #     $2 : WORKINGDIR (if $2 == WORKINDIR a working dir is given in $3. If not the working dir is $HOME)
 #     $3 : if $2 == WORKINGDIR, the path to the workingdir
@@ -45,7 +46,12 @@ export APPLI=$("${APPLI_HOME}/getAppliPath.py")
 # Sourcing files with parameters works with bash, not with dash. This is why
 # we must use bash for this script.
 
-. "${HOME}/${APPLI}/envd" "${HOME}/${APPLI}"
+if "$1" == "--noenvd"
+then
+  shift
+else
+  . "${HOME}/${APPLI}/envd" "${HOME}/${APPLI}"
+fi
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 export CUSTOM_NS_IOR=$1
