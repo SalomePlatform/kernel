@@ -271,7 +271,10 @@ def __killMyPort(port, filedict):
             __killPids(pids)
 
     # finally remove pidict file
-    os.remove(filedict)
+    try:
+        os.remove(filedict)
+    except:
+        pass
 
 def __guessPiDictFilename(port):
     """
