@@ -31,8 +31,11 @@ class NoSessionServer(runSalome.SessionServer):
         SalomeAppSLConfig=os.getenv("SalomeAppConfig","")
         os.putenv("SalomeAppSLConfig", SalomeAppSLConfig)
 
-if __name__ == "__main__":
+def main():
     args, modules_list, modules_root_dir = setenv.get_config()
     mySessionServ = NoSessionServer(args, modules_list, modules_root_dir)
     mySessionServ.setpath(modules_list, modules_root_dir)
     mySessionServ.run()
+
+if __name__ == "__main__":
+    main()
