@@ -224,6 +224,7 @@ class SalomeContext:
 
     availableCommands = {
       'start'   : '_runAppli',
+      'sessionless' : '_sessionless',
       'context' : '_setContext',
       'shell'   : '_runSession',
       'remote'  : '_runRemote',
@@ -356,6 +357,14 @@ class SalomeContext:
     import runSalome
     runSalome.runSalome()
     return 0
+  #
+
+  def _sessionless(self, args=None):
+    if args is None:
+      args = []
+    sys.argv = ['runSalome'] + args
+    import runSalomeNoServer
+    runSalomeNoServer.main()
   #
 
   def _setContext(self, args=None):

@@ -35,11 +35,13 @@
 # ssh cli76ce ${APPLI}/runRemote.sh cli76cd 2810 SALOME_Container myContainerName
 # --- local arguments
 #     $0 : ${APPLI}/runRemote.sh: from arg name, rebuild and export $APPLI variable
+#     --noenvd : optional argument. If present, the envd file is NOT sourced.
 #     $1 : computer name for CORBA name service (where SALOME was launched)
 #     $2 : port for CORBA name service
 #     $3 : WORKINGDIR (if $3 == WORKINDIR a working dir is given in $4. If not the working dir is $HOME)
 #     $4 : if $3 == WORKINGDIR, the path to the workingdir
 #     $5 (or $3 if no workingdir given) and following : local command to execute, with args
+
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
 APPLI_HOME=$(dirname "$0")
@@ -49,7 +51,12 @@ export APPLI=$("${APPLI_HOME}/getAppliPath.py")
 # Sourcing files with parameters works with bash, not with dash. This is why
 # we must use bash for this script.
 
-. "${HOME}/${APPLI}/envd" "${HOME}/${APPLI}"
+if [ "$1" == "--noenvd" ]
+then
+  shift
+else
+  . "${HOME}/${APPLI}/envd" "${HOME}/${APPLI}"
+fi
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 export NSHOST=$1

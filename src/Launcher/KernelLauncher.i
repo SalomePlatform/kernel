@@ -28,6 +28,7 @@
 %inline
 {
   std::string GetContainerManagerInstance();
+  std::string GetResourcesManagerInstance();
 }
 
 %pythoncode %{
@@ -36,4 +37,10 @@ def myContainerManager():
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetContainerManagerInstance())
+
+def myResourcesManager():
+  import Engines
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(GetResourcesManagerInstance())
 %}

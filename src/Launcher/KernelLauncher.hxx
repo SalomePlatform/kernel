@@ -22,3 +22,4 @@
 #include <string>
 
 std::string GetContainerManagerInstance();
+std::string GetResourcesManagerInstance();

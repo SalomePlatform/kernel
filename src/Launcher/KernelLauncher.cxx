@@ -23,6 +23,7 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Fake_NamingService.hxx"
 #include "SALOME_KernelServices.hxx"
+#include "SALOME_ResourcesManager.hxx"
 
 #include <cstring>
 
@@ -31,6 +32,16 @@ std::string GetContainerManagerInstance()
   SALOME_Launcher *launcher = KERNEL::getLauncherSA();
   SALOME_Fake_NamingService ns;
   CORBA::Object_var cm = ns.Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::String_var ior = orb->object_to_string(cm);
+  return std::string(ior.in());
+}
+
+std::string GetResourcesManagerInstance()
+{
+  SALOME_Launcher *launcher = KERNEL::getLauncherSA();
+  SALOME_Fake_NamingService ns;
+  CORBA::Object_var cm = ns.Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
   CORBA::ORB_ptr orb = KERNEL::getORB();
   CORBA::String_var ior = orb->object_to_string(cm);
   return std::string(ior.in());
