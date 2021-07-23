@@ -46,7 +46,7 @@ export APPLI=$("${APPLI_HOME}/getAppliPath.py")
 # Sourcing files with parameters works with bash, not with dash. This is why
 # we must use bash for this script.
 
-if "$1" == "--noenvd"
+if [ "$1" == "--noenvd" ]
 then
   shift
 else
