@@ -36,6 +36,7 @@ from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA
 from SALOME_NamingServicePy import *
+from SALOME_Embedded_NamingService import SALOME_Embedded_NamingService
 from SALOME_ComponentPy import *
 
 from SALOME_utilities import *
@@ -316,6 +317,18 @@ class SALOME_ContainerPy_i(SALOME_ContainerPy_Gen_i):
                 return container
 
     pass
+
+class SALOME_ContainerPy_SSL_i(SALOME_ContainerPy_Gen_i):
+    """
+    Implementation with naming_service server
+    """
+    def __init__(self, orb, poa, containerName):
+        SALOME_ContainerPy_Gen_i.__init__(self, orb, poa, containerName)
+        naming_service = SALOME_Embedded_NamingService()
+        self._naming_service = naming_service._this()
+    
+    def get_embedded_NS_if_ssl(self):
+        return self._naming_service
 
 if __name__ == "__main__":
   # change the stdout buffering to line buffering (same as C++ cout buffering)
