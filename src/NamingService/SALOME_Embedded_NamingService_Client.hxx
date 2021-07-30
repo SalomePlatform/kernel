@@ -30,6 +30,7 @@ class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService_Client : public SALOME_
 public:
   SALOME_Embedded_NamingService_Client(Engines::EmbeddedNamingService_var remoteNSServ):_remote_ns_serv(remoteNSServ) { }
   void init_orb(CORBA::ORB_ptr orb=0) override;
+  bool IsTrueNS() const override { return false; }
   SALOME_NamingService_Container_Abstract *clone() override;
   void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
   void Destroy_FullDirectory(const char* Path) override;

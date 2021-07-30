@@ -36,6 +36,7 @@ public:
   static void SetLogContainersFile(const std::string& logFileName);
   static std::string GetLogContainersFile();
   static void FlushLogContainersFile();
+  bool IsTrueNS() const override { return false; }
   std::vector< std::string > repr() override;
   void init_orb(CORBA::ORB_ptr orb=0) override;
   void Register(CORBA::Object_ptr ObjRef, const char* Path) override;

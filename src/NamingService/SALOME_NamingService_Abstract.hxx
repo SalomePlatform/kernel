@@ -38,6 +38,7 @@ public:
   virtual void Destroy_Name(const char* Path) = 0;
   virtual CORBA::Object_ptr Resolve(const char* Path) = 0;
   virtual CORBA::Object_ptr ResolveFirst(const char* Path) = 0;
+  virtual bool IsTrueNS() const = 0;
   static constexpr char SEP = '/';
 };
 
