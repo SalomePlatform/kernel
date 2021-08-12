@@ -35,7 +35,8 @@
 
 #include <sstream>
 
-Launcher::Job_SALOME::Job_SALOME() {}
+Launcher::Job_SALOME::Job_SALOME(bool activateSession)
+: _activateSession(activateSession){}
 
 Launcher::Job_SALOME::~Job_SALOME() {}
 
@@ -132,32 +133,35 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
     launch_script_stream << "} > $CATALOG_FILE" << std::endl;
     launch_script_stream << "fi" << std::endl;
   }
-  // Create file for ns-port-log
-  if (is_launcher_file)
-      // for a salome application file, we write NS_PORT_FILE_PATH in working directory
-      launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << work_directory << "/nsport_" << _launch_date << "_XXXXXX) &&\n";
-  else
-      launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
+  if(_activateSession)
+  {
+    // Create file for ns-port-log
+    if (is_launcher_file)
+        // for a salome application file, we write NS_PORT_FILE_PATH in working directory
+        launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << work_directory << "/nsport_" << _launch_date << "_XXXXXX) &&\n";
+    else
+        launch_script_stream << "NS_PORT_FILE_PATH=$(mktemp " << _resource_definition.AppliPath << "/USERS/nsport_XXXXXX) &&\n";
 
-  // Launch SALOME with an appli
-  if (is_launcher_file)
-      launch_script_stream << _resource_definition.AppliPath << " start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
-  else
-      launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
-  launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
-  launch_script_stream << "current=0 &&\n"
-                       << "stop=20 &&\n"
-                       << "while ! test -s \"$NS_PORT_FILE_PATH\"\n"
-                       << "do\n"
-                       << "  sleep 2\n"
-                       << "  current=$((current+1))\n"
-                       << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
-                       << "    echo Error Naming Service failed ! >&2\n"
-                       << "    exit\n"
-                       << "  fi\n"
-                       << "done &&\n"
-                       << "appli_port=$(cat \"$NS_PORT_FILE_PATH\") &&\n"
-                       << "rm \"$NS_PORT_FILE_PATH\" &&\n";
+    // Launch SALOME with an appli
+    if (is_launcher_file)
+        launch_script_stream << _resource_definition.AppliPath << " start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
+    else
+        launch_script_stream << _resource_definition.AppliPath << "/salome start --terminal --ns-port-log=\"$NS_PORT_FILE_PATH\" --server-launch-mode=fork ";
+    launch_script_stream << "> logs/salome_" << _launch_date << ".log 2>&1 &&" << std::endl;
+    launch_script_stream << "current=0 &&\n"
+                        << "stop=20 &&\n"
+                        << "while ! test -s \"$NS_PORT_FILE_PATH\"\n"
+                        << "do\n"
+                        << "  sleep 2\n"
+                        << "  current=$((current+1))\n"
+                        << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
+                        << "    echo Error Naming Service failed ! >&2\n"
+                        << "    exit\n"
+                        << "  fi\n"
+                        << "done &&\n"
+                        << "appli_port=$(cat \"$NS_PORT_FILE_PATH\") &&\n"
+                        << "rm \"$NS_PORT_FILE_PATH\" &&\n";
+  }
 
   // Call real job type
   addJobTypeSpecificScript(launch_script_stream);
@@ -165,10 +169,13 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo $? > logs/exit_code.log" << std::endl;
 
   // End
-  if (is_launcher_file)
-      launch_script_stream << _resource_definition.AppliPath << " kill \"$appli_port\"" << std::endl;
-  else
-      launch_script_stream << _resource_definition.AppliPath << "/salome kill \"$appli_port\"" << std::endl;
+  if(_activateSession)
+  {
+    if (is_launcher_file)
+        launch_script_stream << _resource_definition.AppliPath << " kill \"$appli_port\"" << std::endl;
+    else
+        launch_script_stream << _resource_definition.AppliPath << "/salome kill \"$appli_port\"" << std::endl;
+  }
 
   // Return
   launch_script_stream.flush();
