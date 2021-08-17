@@ -60,6 +60,11 @@ void SALOME_Fake_NamingService::Register(CORBA::Object_ptr ObjRef, const char* P
 
 void SALOME_Fake_NamingService::Destroy_Name(const char* Path)
 {
+  std::lock_guard<std::mutex> g(_mutex);
+  std::string pathCpp(Path);
+  auto it = _map.find(pathCpp);
+  if(it!=_map.end())
+    _map.erase(it);
 }
 
 void SALOME_Fake_NamingService::Destroy_Directory(const char* Path)
@@ -72,7 +77,31 @@ void SALOME_Fake_NamingService::Destroy_FullDirectory(const char* Path)
 
 bool SALOME_Fake_NamingService::Change_Directory(const char* Path)
 {
+  std::lock_guard<std::mutex> g(_mutex);
+  _current_dir = Path;
   return true;
+}
+
+std::vector<std::string> SALOME_Fake_NamingService::SplitDir(const std::string& fullPath)
+{
+  constexpr char SEP = '/';
+  std::vector<std::string> ret;
+  if(fullPath.empty())
+    THROW_SALOME_EXCEPTION("Empty input string");
+  if(fullPath.at(0) != SEP)
+    THROW_SALOME_EXCEPTION("input string is expected to start with " << SEP);
+  auto len = fullPath.length();
+  if( len == 1 )
+    THROW_SALOME_EXCEPTION("input string is expected to be different from " << SEP);
+  std::size_t pos = 1;
+  while(pos < len)
+  {
+    std::size_t endPos = fullPath.find_first_of(SEP,pos);
+    std::string elt(fullPath.substr(pos,endPos==std::string::npos?std::string::npos:endPos-pos));
+    ret.push_back(elt);
+    pos = endPos==std::string::npos?std::string::npos:endPos+1;
+  }
+  return ret;
 }
 
 std::vector<std::string> SALOME_Fake_NamingService::list_subdirs()
@@ -82,7 +111,21 @@ std::vector<std::string> SALOME_Fake_NamingService::list_subdirs()
 
 std::vector<std::string> SALOME_Fake_NamingService::list_directory()
 {
-  return std::vector<std::string>();
+  std::lock_guard<std::mutex> g(_mutex);
+  std::vector<std::string> ret;
+  std::vector<std::string> splitCWD(SplitDir(_current_dir));
+  auto len = _current_dir.length();
+  for(auto it : _map)
+  {
+    std::vector<std::string> splitIt(SplitDir(it.first));
+    if(splitIt.size()<=splitCWD.size())
+      continue;
+    std::vector<std::string> partSplitIt(splitIt.cbegin(),splitIt.cbegin()+splitCWD.size());
+    if(partSplitIt!=splitCWD)
+      continue;
+    ret.push_back(splitIt.at(splitCWD.size()));
+  }
+  return ret;
 }
 
 std::vector<std::string> SALOME_Fake_NamingService::list_directory_recurs()

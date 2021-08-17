@@ -23,17 +23,60 @@
 
 %{
 #include "KernelSDS.hxx"
+#include "Utils_SALOME_Exception.hxx"
 %}
+
+
+class SALOME_Exception
+{
+  public:
+  SALOME_Exception(const std::string& text);
+  %extend
+  {
+    std::string __str__() const
+    {
+      return std::string(self->what());
+    }
+  }
+};
+
+%exception {
+  try {
+    $action
+  }
+  catch (SALOME_Exception& _e) {
+    // Reraise with SWIG_Python_Raise
+    SWIG_Python_Raise(SWIG_NewPointerObj((new SALOME_Exception(static_cast< const SALOME_Exception& >(_e.what()))),SWIGTYPE_p_SALOME_Exception,SWIG_POINTER_OWN), "SALOME_Exception", SWIGTYPE_p_SALOME_Exception);
+    SWIG_fail;
+  }
+}
 
 %inline
 {
-  std::string GetDSMInstanceInternal();
+  std::string GetDSMInstanceInternal(PyObject *argv)
+  {
+    if(!PyList_Check(argv))
+      THROW_SALOME_EXCEPTION("Not a pylist");
+    Py_ssize_t sz=PyList_Size(argv);
+    std::vector<std::string> argvCpp(sz);
+    for(Py_ssize_t i = 0 ; i < sz ; ++i)
+    {
+      PyObject *obj = PyList_GetItem(argv,i);
+      if(!PyUnicode_Check(obj))
+        THROW_SALOME_EXCEPTION("Not a pylist of strings");
+      {
+        Py_ssize_t dummy;
+        argvCpp[i] = PyUnicode_AsUTF8AndSize(obj,&dummy);
+      }
+    }
+    return GetDSMInstanceInternal(argvCpp);
+  }
 }
 
 %pythoncode %{
-def GetDSMInstance():
+def GetDSMInstance(argv):
   import SALOME
   import CORBA
   orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetDSMInstanceInternal())
+  return orb.string_to_object(GetDSMInstanceInternal(argv))
 %}

@@ -204,7 +204,7 @@ class StandAloneLifecyle:
       return self._rm
 
 def salome_init_without_session():
-    global lcc,naming_service,myStudy,orb,modulcat,sg,cm
+    global lcc,naming_service,myStudy,orb,modulcat,sg,cm,dsm
     import KernelBasis
     KernelBasis.setSSLMode(True)
     import KernelDS
@@ -226,6 +226,9 @@ def salome_init_without_session():
     sg = SalomeOutsideGUI()
     salome_study_init_without_session()
     naming_service = NamingService()
+    from KernelSDS import GetDSMInstance
+    import sys
+    dsm = GetDSMInstance(sys.argv)
 
 def salome_init_with_session(path=None, embedded=False):
     """

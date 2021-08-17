@@ -56,9 +56,12 @@ private:
   static std::string ReprOfContainersIORS();
   static std::vector< std::pair< std::string, Engines::Container_var> > ListOfContainersInNS_NoThreadSafe();
   static void FlushLogContainersFile_NoThreadSafe();
+  static std::vector<std::string> SplitDir(const std::string& fullPath);
 private:
   static std::mutex _mutex;
   static std::map<std::string,CORBA::Object_var> _map;
   static bool _log_container_file_thread_launched;
   static std::string _log_container_file_name;
+private:
+  mutable std::string _current_dir;
 };

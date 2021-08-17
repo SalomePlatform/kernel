@@ -43,7 +43,7 @@ def generateKey(varName,scopeName):
   time.sleep(3)
   dss.atomicApply([t])
 def work(t):
-  i,varName,scopeName=t
+  IORNS,i,varName,scopeName=t
   if i==0:
     generateKey(varName,scopeName)
     return 0
@@ -51,7 +51,7 @@ def work(t):
     import TestSalomeSDSHelper0
     import os,subprocess
     fname=os.path.splitext(TestSalomeSDSHelper0.__file__)[0]+".py"
-    proc = subprocess.Popen(["python3", fname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(["python3", fname, IORNS], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
       print("-------------- work -----------")
@@ -96,7 +96,8 @@ def func_test7(scopeName,cv,cv2,cv3,sharedNum):
 class SalomeSDSTest(unittest.TestCase):
   
   def testList1(self):
-    a=SalomeSDSClt.CreateRdExtGlobalVar([],"a","Scope0")
+    scopeName = "Scope0"
+    a=SalomeSDSClt.CreateRdExtGlobalVar([],"a",scopeName)
     self.assertEqual(a.local_copy(),[])
     a.append(5)
     self.assertEqual(a.local_copy(),[5])
@@ -112,10 +113,15 @@ class SalomeSDSTest(unittest.TestCase):
     a[4].append(7)
     self.assertEqual(a.local_copy(),[5,["rt",8],5,["rt",8],["rt",8,7]])
     a.ptr().getMyDataScopeServer().deleteVar("a")
+    del a
+    import gc
+    gc.collect(0)
+    salome.dsm.removeDataScope(scopeName)
     pass
   
   def testDict1(self):
-    a=SalomeSDSClt.CreateRdExtGlobalVar({},"a","Scope0")
+    scopeName = "Scope0"
+    a=SalomeSDSClt.CreateRdExtGlobalVar({},"a",scopeName)
     a["ab"]=4
     self.assertEqual(a.local_copy(),{"ab":4})
     a["cd"]=[5]
@@ -133,13 +139,24 @@ class SalomeSDSTest(unittest.TestCase):
     a["gh"]["cd"].append(99) ; a["cd"].append(88)
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77,88],"ef":["a","bb","ccc"],"gh":{"ab":4,"cd":[5,77,99],"ef":["a","bb","ccc"]}})
     a.ptr().getMyDataScopeServer().deleteVar("a")
+    del a
+    import gc
+    gc.collect(0)
+    salome.dsm.removeDataScope(scopeName)
     pass
 
   def testReadOnly1(self):
-    a=SalomeSDSClt.CreateRdOnlyGlobalVar({"ab":4,"cd":[5,77]},"a","Scope0")
+    scopeName = "Scope0"
+    #
+    a=SalomeSDSClt.CreateRdOnlyGlobalVar({"ab":4,"cd":[5,77]},"a",scopeName)
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
     self.assertRaises(Exception,a.__getitem__,"ab")
     a.ptr().getMyDataScopeServer().deleteVar("a")
+    del a
+    import gc
+    gc.collect(0)
+    #
+    salome.dsm.removeDataScope(scopeName)
 
   def testTransaction1(self):
     scopeName="Scope1"
@@ -166,7 +183,8 @@ class SalomeSDSTest(unittest.TestCase):
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
-    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in range(nbProc)])
+    from NamingService import NamingService
+    asyncResult=pool.map_async(work,[(NamingService.IOROfNS(),i,varName,scopeName) for i in range(nbProc)])
     print("asyncResult=", asyncResult)
     self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
@@ -194,6 +212,7 @@ class SalomeSDSTest(unittest.TestCase):
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
     wk.waitFor()
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
+    dsm.removeDataScope(scopeName)
 
   def testTransaction3(self):
     scopeName="Scope1"
@@ -216,6 +235,7 @@ class SalomeSDSTest(unittest.TestCase):
     t2=dss.removeKeyInVarErrorIfNotAlreadyExisting(varName,obj2Str("ab"))
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'cd':[7,8,9,10]})
+    dsm.removeDataScope(scopeName)
 
   def testTransaction4(self):
     scopeName="Scope1"
@@ -240,6 +260,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
+    dsm.removeDataScope(scopeName)
 
   def testTransaction5(self):
     """ Like testTransaction2 but without transactions. """
@@ -274,6 +295,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
     self.assertEqual(set(keys),set(['ab','cd']))
+    dsm.removeDataScope(scopeName)
 
   def testTransaction6(self):
     """ Test to test RdWr global vars with transaction"""
@@ -346,6 +368,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t1])
     self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
+    dsm.removeDataScope(scopeName)
     pass
 
   def testTransaction8(self):
@@ -383,6 +406,7 @@ class SalomeSDSTest(unittest.TestCase):
     t4=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent)
     self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t4]) # d is in dict pointed by var. Func returns false -> rejected
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
+    dsm.removeDataScope(scopeName)
     pass
   
   def testTransaction9(self):
@@ -412,6 +436,7 @@ class SalomeSDSTest(unittest.TestCase):
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("c"),obj2Str(3))
     dss.atomicApply([t1])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value2)
+    dsm.removeDataScope(scopeName)
     pass
 
     
@@ -466,10 +491,11 @@ class SalomeSDSTest(unittest.TestCase):
       self.assertTrue(s>=0.99*nbOfSecWait and s<nbOfSecWait*1.01) # expect to be not locked
     # finishing
     p.join()
+    dsm.removeDataScope(scopeName)
     pass
 
   def setUp(self):
-    salome.salome_init()
+    salome.salome_init_without_session()
     pass
   
   pass

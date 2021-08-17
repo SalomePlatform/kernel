@@ -71,11 +71,11 @@ void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_
   return _ds->fetchAndGetAccessOfVar(varName,access,data);
 }
 
-DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Abstract *ns):_ns(ns),_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
+DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):_ns(ns),_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
 {
 }
 
-DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_ns(other._ns->cloneCoVar()),_pyHelper(other._pyHelper),_name(other._name),_vars(other._vars),_killer(other._killer)
+DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_ns(other._ns->clone()),_pyHelper(other._pyHelper),_name(other._name),_vars(other._vars),_killer(other._killer)
 {
 }
 
@@ -473,7 +473,7 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterat
 
 ///////
 
-DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
+DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
 {
 }
 
@@ -520,7 +520,7 @@ DataScopeServer::~DataScopeServer()
 
 ////////
 
-DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
+DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
 {
   CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));

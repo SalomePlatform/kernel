@@ -20,5 +20,6 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
-std::string GetDSMInstanceInternal();
+std::string GetDSMInstanceInternal(const std::vector<std::string>& argv);

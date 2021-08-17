@@ -20,17 +20,25 @@
 
 #include "SALOME_DataScopeServer_Common.cxx"
 
-#include "SALOME_NamingService.hxx"
+#include "SALOME_Embedded_NamingService_Client.hxx"
+#include "Utils_SALOME_Exception.hxx"
 
 int main(int argc, char *argv[])
 {
   CORBA::ORB_var orb = GetCustomORB();
   std::string scopeName;
-  if(argc<=1)
+  if(argc<=2)
     throw SALOMESDS::Exception("In the main of SALOME_DataScopeServer.cxx !");
   scopeName=argv[1];
   std::istringstream isTransacSS(argv[2]);
   int isTransac(0);
   isTransacSS >> isTransac;
-  return CommonDataScopeServerMain(argc,argv,orb,scopeName,isTransac,[](CORBA::ORB_ptr orb2) { return new SALOME_NamingService(orb2); });
+  std::string IORFakeNS(argv[3]);
+  CORBA::Object_var ns_serv_obj_base = orb->string_to_object(IORFakeNS.c_str());
+  if( CORBA::is_nil(ns_serv_obj_base) )
+    THROW_SALOME_EXCEPTION( "SALOME_DataScopeServer_SSL : argument 3 is NOT a valid IOR" );
+  Engines::EmbeddedNamingService_var ns_serv_obj = Engines::EmbeddedNamingService::_narrow(ns_serv_obj_base);
+  if( CORBA::is_nil(ns_serv_obj) )
+    THROW_SALOME_EXCEPTION( "SALOME_DataScopeServer_SSL : argument 3 is NOT a valid IOR of Engines::EmbeddedNamingService" );
+  return CommonDataScopeServerMain(argc,argv,orb,scopeName,isTransac,[ns_serv_obj](CORBA::ORB_ptr orb) { return new SALOME_Embedded_NamingService_Client(ns_serv_obj); });
 }
