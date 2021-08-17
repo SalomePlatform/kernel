@@ -280,6 +280,8 @@ def salome_close():
     salome_iapp_close()
     salome_study_close()
     myStudy, myStudyName = None, None
+    import KernelDS
+    KernelDS.KillGlobalSessionInstance()
     pass
 
 def salome_NS():

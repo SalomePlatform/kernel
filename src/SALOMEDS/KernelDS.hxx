@@ -21,4 +21,7 @@
 #include <string>
 
 std::string GetSessionInstance();
+std::string GetNewSessionInstance();
+void KillGlobalSessionInstance();
+
 #endif

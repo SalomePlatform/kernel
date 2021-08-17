@@ -26,8 +26,22 @@
 
 std::string GetSessionInstance()
 {
-    SALOMEDS::Study_var study = KERNEL::getStudyServantSA();
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(study);
-    return std::string(ior.in());
+  SALOMEDS::Study_var study = KERNEL::getStudyServantSA();
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::String_var ior = orb->object_to_string(study);
+  return std::string(ior.in());
+}
+
+std::string GetNewSessionInstance()
+{
+  SALOMEDS::Study_var study = KERNEL::retrieveNewStudyServantSA();
+  KERNEL::setStudyServantSA(study);
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::String_var ior = orb->object_to_string(study);
+  return std::string(ior.in());
+}
+
+void KillGlobalSessionInstance()
+{
+  KERNEL::killStudyServantSA();
 }

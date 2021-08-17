@@ -302,6 +302,14 @@ def salome_study_init_without_session(theStudyPath=None):
         if verbose(): print("Study found")
         pass
 
+    import types
+    if theStudyPath and isinstance(theStudyPath, (str, bytes)):
+        if isinstance(theStudyPath, bytes):
+            theStudyPath = str(theStudyPath, 'UTF8')
+        openStudy(theStudyPath)
+    else:
+        myStudy.Init()
+
     myStudyName = myStudy._get_Name()
 
     return myStudy, myStudyName

@@ -27,7 +27,9 @@
 
 %inline
 {
-    std::string GetSessionInstance();
+  std::string GetSessionInstance();
+  std::string GetNewSessionInstance();
+  void KillGlobalSessionInstance();
 }
 
 %pythoncode %{
@@ -36,4 +38,10 @@ def myStudy():
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetSessionInstance())
+
+def myNewStudy():
+  import SALOMEDS
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(GetNewSessionInstance())
 %}
