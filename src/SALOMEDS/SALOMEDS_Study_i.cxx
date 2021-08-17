@@ -76,24 +76,28 @@ static SALOMEDS::Study_var _study;
  */
 SALOMEDS::Study_ptr KERNEL::getStudyServantSA()
 {
-
   if(CORBA::is_nil(_study))
   {
-    CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
-    PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
-    _poa = PortableServer::POA::_duplicate(poa);
-    SALOME_Fake_NamingService ns;
-    SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb,&ns);
-    _study = servant->_this();
+    _study = retrieveNewStudyServantSA();
   }
   return SALOMEDS::Study::_duplicate(_study);
 }
 
-/**
- * If a study is already built and activated elsewhere (for example in GUI context)
- */
-void KERNEL::setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_var poa)
+SALOMEDS::Study_var KERNEL::retrieveNewStudyServantSA()
+{
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+  PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
+  if(CORBA::is_nil(_poa))
+    _poa = poa;
+  SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
+  SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb,ns);
+  SALOMEDS::Study_var study = servant->_this();
+  servant->_remove_ref();
+  return study;
+}
+
+void KERNEL::killStudyServantSA()
 {
   if( ! CORBA::is_nil(_study) )
   {
@@ -101,12 +105,29 @@ void KERNEL::setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_va
     try
     {
       serv = _poa->reference_to_servant(_study);
+      PortableServer::ObjectId_var anObjectId = _poa->servant_to_id(serv);
+      _poa->deactivate_object(anObjectId);
     }
     catch(...) { }
     if(serv)
       serv->_remove_ref();
   }
-  _study = study; _poa = poa;
+  _study = SALOMEDS::Study::_nil();
+}
+
+/**
+ * If a study is already built and activated elsewhere (for example in GUI context)
+ */
+void KERNEL::setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_var poa)
+{
+  _poa = poa;
+  setStudyServantSA(study);
+}
+
+void KERNEL::setStudyServantSA(SALOMEDS::Study_var study)
+{
+  killStudyServantSA();
+  _study = study;
 }
 
 namespace SALOMEDS
@@ -290,9 +311,8 @@ namespace SALOMEDS
    */
   //================================================================================
 
-  void sendMessageToGUI(const char* msg )
+  void sendMessageToGUI(SALOME_NamingService_Abstract *aNamingService, const char* msg)
   {
-    SALOME_NamingService_Abstract *aNamingService = KERNEL::getNamingService();
     CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
     SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
     sendMessageToGUIGivenSession(aSession,msg);
@@ -302,12 +322,12 @@ namespace SALOMEDS
 
 SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME_NamingService_Abstract *ns)
 {
-  SALOME_NamingService_Abstract *aNamingService = ns==nullptr?KERNEL::getNamingService():ns;
+  _ns = ns==nullptr?KERNEL::getNamingService():ns;
   _orb     = CORBA::ORB::_duplicate(orb);
   _impl    = new SALOMEDSImpl_Study();
-  _factory = new SALOMEDS_DriverFactory_i(_orb,aNamingService);
+  _factory = new SALOMEDS_DriverFactory_i(_orb,_ns);
   _closed  = true;
-  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+  CORBA::Object_var obj = _ns->Resolve("/Kernel/Session");
   SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
   Init(aSession);
 }
@@ -319,6 +339,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME_NamingService_Abst
 //============================================================================
 SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME::Session_ptr session)
 {
+  _ns = KERNEL::getNamingService();
   _orb     = CORBA::ORB::_duplicate(orb);
   _impl    = new SALOMEDSImpl_Study();
   _factory = new SALOMEDS_DriverFactory_i(_orb,!CORBA::is_nil(session));
@@ -337,12 +358,15 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
   Clear();
   delete _factory;
   delete _impl;
+  //_ns is owned by SALOMEDS_Study_i only if IsTrueNS() returns false
+  if(_ns)
+    if(!_ns->IsTrueNS())
+      delete _ns;
 }
 
 void SALOMEDS_Study_i::Init()
 {
-  SALOME_NamingService_Abstract *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+  CORBA::Object_var obj = _ns->Resolve("/Kernel/Session");
   SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
   Init(aSession);
 }
@@ -432,7 +456,7 @@ void SALOMEDS_Study_i::Clear()
   }
 
   // Notify GUI that study is cleared
-  SALOMEDS::sendMessageToGUI( "studyCleared" );
+  SALOMEDS::sendMessageToGUI( _ns, "studyCleared" );
 
   _impl->Clear();
   _impl->setNotifier(0);
@@ -480,7 +504,7 @@ bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
 
   // update desktop title with new study name
   //NameChanged();
-  SALOMEDS::sendMessageToGUI( "connect_to_study" );
+  SALOMEDS::sendMessageToGUI( _ns, "connect_to_study" );
 
   if ( !res )
     THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
@@ -1051,8 +1075,7 @@ void SALOMEDS_Study_i::URL(const wchar_t* wurl)
   _impl->URL(Kernel_Utils::encode_s(wurl));
 
   // update desktop title with new study name
-  SALOME_NamingService_Abstract *aNamingService = KERNEL::getNamingService();
-  CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
+  CORBA::Object_var obj = _ns->Resolve("/Kernel/Session");
   SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
   NameChanged(aSession);
 }

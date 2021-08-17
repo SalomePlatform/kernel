@@ -51,6 +51,9 @@ class SALOME_NamingService_Abstract;
 namespace KERNEL
 {
   Standard_EXPORT SALOMEDS::Study_ptr getStudyServantSA();
+  Standard_EXPORT SALOMEDS::Study_var retrieveNewStudyServantSA();
+  Standard_EXPORT void killStudyServantSA();
+  Standard_EXPORT void setStudyServantSA(SALOMEDS::Study_var study);
   Standard_EXPORT void setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_var poa);
 }
 
@@ -66,6 +69,8 @@ private:
   SALOMEDSImpl_AbstractCallback* _genObjRegister;
   SALOMEDS_DriverFactory_i*      _factory;
   bool                           _closed;
+  //! naming service object to retrieve session. _ns is owned by SALOMEDS_Study_i only if IsTrueNS() returns false
+  SALOME_NamingService_Abstract *_ns = nullptr;
 
 public:
   //! standard constructor
