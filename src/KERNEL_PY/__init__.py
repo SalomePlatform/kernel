@@ -204,7 +204,7 @@ class StandAloneLifecyle:
       return self._rm
 
 def salome_init_without_session():
-    global lcc,myStudy,orb,modulcat,sg,cm
+    global lcc,naming_service,myStudy,orb,modulcat,sg,cm
     import KernelBasis
     KernelBasis.setSSLMode(True)
     import KernelDS
@@ -216,6 +216,7 @@ def salome_init_without_session():
     from salome_kernel import list_of_catalogs_regarding_environement
     modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
     import KernelLauncher
+    from NamingService import NamingService
     cm = KernelLauncher.myContainerManager()
     lcc = StandAloneLifecyle(cm, KernelLauncher.myResourcesManager())
     # activate poaManager to accept co-localized CORBA calls.
@@ -224,6 +225,7 @@ def salome_init_without_session():
     poaManager.activate()
     sg = SalomeOutsideGUI()
     salome_study_init_without_session()
+    naming_service = NamingService()
 
 def salome_init_with_session(path=None, embedded=False):
     """

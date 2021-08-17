@@ -68,6 +68,8 @@ public:
   std::vector< std::string > repr();
   static std::string GetLogContainersFile();
   static void FlushLogContainersFile();
+  void Destroy_Name(const char* Path);
+  void Destroy_FullDirectory(const char* Path);
   %extend {
     static void SetLogContainersFileInternal(const std::string& logFileName)
     {
@@ -85,6 +87,13 @@ public:
       CORBA::ORB_ptr orb = KERNEL::getORB();
       CORBA::Object_var obj = orb->string_to_object(ior);
       self->Register(obj,Path);
+    }
+    std::string _Resolve_DirInternal(const char *Path)
+    {
+      CORBA::ORB_ptr orb = KERNEL::getORB();
+      CORBA::Object_var ret = self->Resolve(Path);
+      CORBA::String_var ior = orb->object_to_string(ret);
+      return std::string(ior.in());
     }
     static std::string IOROfNS()
     {
@@ -106,8 +115,14 @@ def NamingService_Register(self,obj,Path):
   import CORBA
   orb=CORBA.ORB_init([''])
   self._RegisterInternal( orb.object_to_string(obj) , Path)
+def NamingService_Resolve_Dir(self,Path):
+  ret = self._Resolve_DirInternal( Path )
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(ret)
 NamingService.Resolve = NamingService_Resolve
 NamingService.Register = NamingService_Register
+NamingService.Resolve_Dir = NamingService_Resolve_Dir
 def NamingService_SetLogContainersFile(cls,logFileName = None):
   if logFileName is None:
     import tempfile
