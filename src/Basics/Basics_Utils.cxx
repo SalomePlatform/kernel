@@ -32,6 +32,8 @@
 #include <execinfo.h>
 #endif
 
+#include <memory>
+#include <functional>
 
 namespace Kernel_Utils
 {
@@ -144,7 +146,8 @@ namespace Kernel_Utils
 
   std::string encode_s(const wchar_t* decoded)
   {
-    return std::string(encode(decoded));
+    std::unique_ptr<char,std::function<void(char*)>> tmp((char *)encode(decoded),[](char *ptr) { delete [] ptr; });
+    return std::string(tmp.get());
   }
 
 #ifndef WIN32
