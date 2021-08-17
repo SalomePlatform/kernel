@@ -31,8 +31,8 @@ void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA:
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  char *aSeq = CORBA::string_dup(theSequence);
-  dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->SetObject(aSeq, IsScript);
+  CORBA::String_var aSeq = CORBA::string_dup(theSequence);
+  dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->SetObject(aSeq.in(), IsScript);
 }
 
 char* SALOMEDS_AttributePythonObject_i::GetObject() 
