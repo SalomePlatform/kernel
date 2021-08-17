@@ -43,9 +43,10 @@ SALOME::DataScopeServerTransaction_ptr RequestSwitcherDSM::giveADataScopeTransac
   return _dsm->giveADataScopeTransactionCalled(scopeName,isCreated);
 }
 
-DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
+DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa, SALOME_NamingService_Abstract *ns):_orb(CORBA::ORB::_duplicate(orb))
 {
-  DataScopeServer *dftScope(new DataScopeServer(pyHelper,orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
+  _ns = ns==nullptr?new SALOME_NamingService(_orb):ns;
+  DataScopeServer *dftScope(new DataScopeServer(pyHelper,orb,SALOME::DataScopeKiller::_nil(),DFT_SCOPE_NAME_IN_NS,_ns->cloneCoVar()));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
   PortableServer::POAManager_var pman(poa->the_POAManager());
   CORBA::PolicyList policies;
   policies.length(1);
@@ -58,13 +59,18 @@ DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA
   CORBA::Object_var obj(_poa->id_to_reference(id));
   SALOME::DataServerManager_var obj2(SALOME::DataServerManager::_narrow(obj));
   // publish Data server manager in NS
-  SALOME_NamingService ns(orb);
-  ns.Register(obj2,NAME_IN_NS);
+  _ns->Register(obj2,NAME_IN_NS);
   // the default DataScopeServer object is the only one hosted by the current process
   dftScope->setPOA(_poa);
   obj=dftScope->activate();
   SALOME::DataScopeServer_var dftScopePtr(SALOME::DataScopeServer::_narrow(obj));
   dftScope->registerInNS(dftScopePtr);// agy : Very important ! invoke this method BEFORE activation ! Because this method initializes Python !
+}
+
+DataServerManager::~DataServerManager()
+{
+  //_ns is owned by DataServerManager
+  delete _ns;
 }
 
 SALOME::StringVec *DataServerManager::listScopes()
@@ -115,7 +121,7 @@ CORBA::Boolean DataServerManager::isAliveAndKicking(const char *scopeName)
 }
 
 template<class T>
-typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService& ns)
+typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract& ns)
 {
   int isTransactionInt(T::IsTransaction);
   if(std::find(scopes.begin(),scopes.end(),scopeName)!=scopes.end())
@@ -148,7 +154,7 @@ typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vec
 }
 
 template<class T>
-typename T::PtrType GiveADataScopeCalled(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService& ns, CORBA::Boolean& isCreated)
+typename T::PtrType GiveADataScopeCalled(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract& ns, CORBA::Boolean& isCreated)
 {
   if(std::find(scopes.begin(),scopes.end(),scopeName)==scopes.end())
     {
@@ -157,7 +163,7 @@ typename T::PtrType GiveADataScopeCalled(const std::string& scopeName, const std
     }
   else
     {
-      SALOME::DataScopeServerBase_var ret(SALOMESDS::DataServerManager::GetScopePtrGivenName(scopeName,scopes,ns));
+      SALOME::DataScopeServerBase_var ret(SALOMESDS::DataServerManager::GetScopePtrGivenName(scopeName,scopes,&ns));
       if(SALOMESDS::DataServerManager::IsAliveAndKicking(ret))
         {
           isCreated=false;
@@ -207,26 +213,22 @@ public:
 
 SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scopeName)
 {
-  SALOME_NamingService ns(_orb);
-  return CreateDataScope<NormalFunctor>(scopeName,listOfScopesCpp(),ns);
+  return CreateDataScope<NormalFunctor>(scopeName,listOfScopesCpp(),*_ns);
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
-  SALOME_NamingService ns(_orb);
-  return GiveADataScopeCalled<NormalFunctor>(scopeName,listOfScopesCpp(),ns,isCreated);
+  return GiveADataScopeCalled<NormalFunctor>(scopeName,listOfScopesCpp(),*_ns,isCreated);
 }
 
 SALOME::DataScopeServerTransaction_ptr DataServerManager::createDataScopeTransaction(const char *scopeName)
 {
-  SALOME_NamingService ns(_orb);
-  return CreateDataScope<TransactionFunctor>(scopeName,listOfScopesCpp(),ns);
+  return CreateDataScope<TransactionFunctor>(scopeName,listOfScopesCpp(),*_ns);
 }
 
 SALOME::DataScopeServerTransaction_ptr DataServerManager::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
-  SALOME_NamingService ns(_orb);
-  return GiveADataScopeCalled<TransactionFunctor>(scopeName,listOfScopesCpp(),ns,isCreated);
+  return GiveADataScopeCalled<TransactionFunctor>(scopeName,listOfScopesCpp(),*_ns,isCreated);
 }
 
 SALOME::DataScopeServerBase_ptr DataServerManager::retriveDataScope(const char *scopeName)
@@ -246,14 +248,13 @@ void DataServerManager::removeDataScope(const char *scopeName)
 
 void DataServerManager::cleanScopesInNS()
 {
-  SALOME_NamingService ns(_orb);
   std::vector<std::string> scopes(listOfScopesCpp());
   for(std::vector<std::string>::const_iterator it=scopes.begin();it!=scopes.end();it++)
     {
       if(!isAliveAndKicking((*it).c_str()))
         {
           std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(*it));
-          ns.Destroy_Name(fullScopeName.c_str());
+          _ns->Destroy_Name(fullScopeName.c_str());
         }
     }
 }
@@ -291,13 +292,12 @@ CORBA::Boolean DataServerManager::IsAliveAndKicking(SALOME::DataScopeServerBase_
 
 std::vector<std::string> DataServerManager::listOfScopesCpp()
 {
-  SALOME_NamingService ns(_orb);
-  ns.Change_Directory(NAME_IN_NS);
-  std::vector<std::string> ret(ns.list_directory());
+  _ns->Change_Directory(NAME_IN_NS);
+  std::vector<std::string> ret(_ns->list_directory());
   return ret;
 }
 
-SALOME::DataScopeServerBase_var DataServerManager::GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService& ns)
+SALOME::DataScopeServerBase_var DataServerManager::GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract *ns)
 {
   if(std::find(scopes.begin(),scopes.end(),scopeName)==scopes.end())
     {
@@ -305,15 +305,14 @@ SALOME::DataScopeServerBase_var DataServerManager::GetScopePtrGivenName(const st
       throw Exception(oss.str());
     }
   std::string fullScopeName(CreateAbsNameInNSFromScopeName(scopeName));
-  CORBA::Object_var obj(ns.Resolve(fullScopeName.c_str()));
+  CORBA::Object_var obj(ns->Resolve(fullScopeName.c_str()));
   SALOME::DataScopeServerBase_var ret(SALOME::DataScopeServerBase::_narrow(obj));
   return ret;
 }
 
 SALOME::DataScopeServerBase_var DataServerManager::getScopePtrGivenName(const std::string& scopeName)
 {
-  SALOME_NamingService ns(_orb);
-  return GetScopePtrGivenName(scopeName,listOfScopesCpp(),ns);
+  return GetScopePtrGivenName(scopeName,listOfScopesCpp(),_ns);
 }
 
 SALOME::RequestSwitcherDSM_ptr DataServerManager::getRequestSwitcher()

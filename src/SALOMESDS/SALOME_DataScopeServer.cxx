@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
   //
   SALOMESDS::DataScopeServerBase *server(nullptr);
   if(!isTransac)
-    server=new SALOMESDS::DataScopeServer(&cPyHelper,orb,killerObj,scopeName);
+    server=new SALOMESDS::DataScopeServer(&cPyHelper,orb,killerObj,scopeName,new SALOME_NamingService(orb));
   else
-    server=new SALOMESDS::DataScopeServerTransaction(&cPyHelper,orb,killerObj,scopeName);
+    server=new SALOMESDS::DataScopeServerTransaction(&cPyHelper,orb,killerObj,scopeName,new SALOME_NamingService(orb));
   //
   CORBA::PolicyList policies;
   policies.length(3);

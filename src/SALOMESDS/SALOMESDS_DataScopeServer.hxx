@@ -38,6 +38,8 @@
 #include <vector>
 #include <list>
 
+class SALOME_NamingService_Abstract;
+
 namespace SALOMESDS
 {
   class SALOMESDS_EXPORT DataScopeKiller : public POA_SALOME::DataScopeKiller
@@ -73,7 +75,7 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT DataScopeServerBase : public virtual POA_SALOME::DataScopeServerBase, public POAHolder
   {
   public:
-    DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
+    DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Abstract *ns);
     DataScopeServerBase(const DataScopeServerBase& other);
   public: // remote access methods
     void ping();
@@ -115,6 +117,7 @@ namespace SALOMESDS
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator retrieveVarInternal4(const std::string& varName);
   protected:
+    SALOME_NamingService_Abstract *_ns = nullptr;
     const SALOME_CPythonHelper *_pyHelper = nullptr;
     PortableServer::POA_var _poa;
     CORBA::ORB_var _orb;
@@ -127,7 +130,7 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT DataScopeServer : public DataScopeServerBase, public virtual POA_SALOME::DataScopeServer
   {
   public:
-    DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
+    DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Abstract *ns);
     DataScopeServer(const DataScopeServer& other);
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName) { return retrieveVarInternal(varName); }
     SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
@@ -139,7 +142,7 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT DataScopeServerTransaction : public DataScopeServerBase, public virtual POA_SALOME::DataScopeServerTransaction
   {
   public://not remotely callable
-    DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
+    DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Abstract *ns);
     DataScopeServerTransaction(const DataScopeServerTransaction& other);
     ~DataScopeServerTransaction();
     void createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
