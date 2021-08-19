@@ -23,3 +23,4 @@
 
 std::string GetContainerManagerInstance();
 std::string GetResourcesManagerInstance();
+std::string GetExternalServerInstance();

@@ -493,13 +493,11 @@ class SalomeSDSTest(unittest.TestCase):
     p.join()
     dsm.removeDataScope(scopeName)
     pass
-
-  def setUp(self):
-    salome.salome_init_without_session()
-    pass
   
   pass
 
 if __name__=="__main__":
-  unittest.main()
+  with salome.SessionContextManager():
+    unittest.main()
+
 

@@ -35,20 +35,20 @@ std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     if(!CORBA::is_nil(obj))
       root_poa = PortableServer::POA::_narrow(obj);
-    SALOME_CPythonHelper cPyh;
+    SALOME_CPythonHelper* cPyh(SALOME_CPythonHelper::Singleton());
     {
       int argcInit((int)argv.size());
       char **argvInit = new char *[argcInit+1];
       argvInit[argcInit] = nullptr;
       for(int i = 0 ; i < argcInit ; ++i)
         argvInit[i] = strdup(argv[i].c_str());
-      cPyh.initializePython(argcInit,argvInit);
+      cPyh->initializePython(argcInit,argvInit);
       for(int i = 0 ; i < argcInit ; ++i)
         free(argvInit[i]);
       delete [] argvInit;
     }
     SALOME_Fake_NamingService *ns(new SALOME_Fake_NamingService);
-    SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(&cPyh,orb,root_poa,ns));
+    SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(cPyh,orb,root_poa,ns));
     dsm->_remove_ref();
     CORBA::Object_var objRef = ns->Resolve(SALOMESDS::DataServerManager::NAME_IN_NS);
     _dsm_singleton = SALOME::DataServerManager::_narrow(objRef);

@@ -21,8 +21,6 @@ import pickle
 import salome
 import sys
 
-salome.salome_init_without_session()
-
 scopeName="Scope1"
 varName="a"
 
@@ -47,4 +45,6 @@ def waitKey(IORNS):
 
 if __name__=="__main__":
     IORNS = sys.argv[-1]
-    sys.exit(not waitKey(IORNS))
+    with salome.SessionContextManager():
+        if waitKey(IORNS) is not True:
+            raise AssertionError("Not the expected result")

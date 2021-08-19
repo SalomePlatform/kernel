@@ -28,14 +28,14 @@
 
 #include <string>
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 class SALOME_ExternalServerLauncher;
 class SALOME_CPythonHelper;
 
 class SALOMELAUNCHER_EXPORT SALOME_ExternalServerHandler : public POA_SALOME::ExternalServerHandler
 {
  public:
-  SALOME_ExternalServerHandler(SALOME_ExternalServerLauncher *boss, const std::string& name, SALOME_NamingService *ns, long pid);
+  SALOME_ExternalServerHandler(SALOME_ExternalServerLauncher *boss, const std::string& name, SALOME_NamingService_Abstract *ns, long pid);
   virtual ~SALOME_ExternalServerHandler();
   void registerToKill(const SALOME_CPythonHelper *pyHelper) const;
   static void KillPID(long pid);
@@ -49,7 +49,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerHandler : public POA_SALOME::Ex
  private:
   std::string _name;
   long _pid;
-  SALOME_NamingService *_NS;
+  SALOME_NamingService_Abstract *_NS;
   SALOME_ExternalServerLauncher *_boss;
   static unsigned CNT;
 };

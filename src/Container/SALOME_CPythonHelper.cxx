@@ -20,6 +20,8 @@
 
 #include "SALOME_CPythonHelper.hxx"
 
+SALOME_CPythonHelper *SALOME_CPythonHelper::_CPYTHONHELPER_INSTANCE = nullptr;
+
 #if PY_VERSION_HEX < 0x03050000
 static char*
 Py_EncodeLocale(const wchar_t *arg, size_t *size)
@@ -32,6 +34,19 @@ Py_DecodeLocale(const char *arg, size_t *size)
   return _Py_char2wchar(arg, size);
 }
 #endif
+
+SALOME_CPythonHelper *SALOME_CPythonHelper::Singleton()
+{
+  if(!_CPYTHONHELPER_INSTANCE)
+    _CPYTHONHELPER_INSTANCE = new SALOME_CPythonHelper;
+  return _CPYTHONHELPER_INSTANCE;
+}
+
+void SALOME_CPythonHelper::KillSingleton()
+{
+  delete _CPYTHONHELPER_INSTANCE;
+  _CPYTHONHELPER_INSTANCE = nullptr;
+}
 
 void SALOME_CPythonHelper::initializePython(int argc, char *argv[])
 {
@@ -105,9 +120,13 @@ std::string SALOME_CPythonHelper::evalS(const std::string& pyCode) const
   return ret;
 }
 
+
 SALOME_CPythonHelper::~SALOME_CPythonHelper()
 {
   // _globals is borrowed ref -> do nothing
+
+  /*if(_locals){ auto refcount_locals = Py_REFCNT(_locals); }*/
+  
   Py_XDECREF(_locals);
   Py_XDECREF(_pickler);
 }

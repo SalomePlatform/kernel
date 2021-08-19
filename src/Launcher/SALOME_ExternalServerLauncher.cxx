@@ -44,9 +44,9 @@ const char SALOME_ExternalServerLauncher::NAME_IN_NS[]="/ExternalServers";
 
 unsigned SALOME_ExternalServerLauncher::CNT = 0;
 
-SALOME_ExternalServerLauncher::SALOME_ExternalServerLauncher(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_var poa):_pyHelper(pyHelper),_poa(poa)
+SALOME_ExternalServerLauncher::SALOME_ExternalServerLauncher(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_var poa,SALOME_NamingService_Abstract *ns):_pyHelper(pyHelper),_poa(poa)
 {
-  _NS = new SALOME_NamingService(orb);
+  _NS = ns == nullptr ? new SALOME_NamingService(orb) : ns;
   PortableServer::ObjectId_var id(_poa->activate_object(this));
   CORBA::Object_var obj(_poa->id_to_reference(id));
   SALOME::ExternalServerLauncher_var refPtr(SALOME::ExternalServerLauncher::_narrow(obj));
@@ -211,7 +211,7 @@ SALOME::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const ch
   return ret.release();
 }
 
-std::vector<std::string> SALOME_ExternalServerLauncher::ListOfExternalServersCpp(SALOME_NamingService *ns)
+std::vector<std::string> SALOME_ExternalServerLauncher::ListOfExternalServersCpp(SALOME_NamingService_Abstract *ns)
 {
   ns->Change_Directory(NAME_IN_NS);
   std::vector<std::string> ret(ns->list_directory());
@@ -236,7 +236,7 @@ bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME::ExternalServerHand
   return ret;
 }
 
-bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME_NamingService *ns, const std::string& serverName)
+bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME_NamingService_Abstract *ns, const std::string& serverName)
 {
   SALOME::ExternalServerHandler_var pt(GetServerHandlerGivenName(ns, serverName));
   if( CORBA::is_nil(pt) )
@@ -244,7 +244,7 @@ bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME_NamingService *ns, 
   return IsAliveAndKicking(pt);
 }
 
-SALOME::ExternalServerHandler_var SALOME_ExternalServerLauncher::GetServerHandlerGivenName(SALOME_NamingService *ns, const std::string& serverName)
+SALOME::ExternalServerHandler_var SALOME_ExternalServerLauncher::GetServerHandlerGivenName(SALOME_NamingService_Abstract *ns, const std::string& serverName)
 {
   std::vector<std::string> serverNames(ListOfExternalServersCpp(ns));
   if(std::find(serverNames.begin(),serverNames.end(),serverName)==serverNames.end())

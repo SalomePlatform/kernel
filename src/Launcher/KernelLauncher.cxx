@@ -24,6 +24,8 @@
 #include "SALOME_Fake_NamingService.hxx"
 #include "SALOME_KernelServices.hxx"
 #include "SALOME_ResourcesManager.hxx"
+#include "SALOME_ExternalServerLauncher.hxx"
+#include "SALOME_CPythonHelper.hxx"
 
 #include <cstring>
 
@@ -44,5 +46,25 @@ std::string GetResourcesManagerInstance()
   CORBA::Object_var cm = ns.Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
   CORBA::ORB_ptr orb = KERNEL::getORB();
   CORBA::String_var ior = orb->object_to_string(cm);
+  return std::string(ior.in());
+}
+
+std::string GetExternalServerInstance()
+{
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+  PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+  //
+  PortableServer::POA_var safePOA = root_poa->find_POA("SingleThreadPOA",true);
+  //
+  SALOME_CPythonHelper *cPyh(SALOME_CPythonHelper::Singleton());
+  SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
+  SALOME_ExternalServerLauncher *esm(new SALOME_ExternalServerLauncher(cPyh,orb,safePOA,ns));
+  esm->_remove_ref();
+  //
+  CORBA::Object_var esmPtr = safePOA->servant_to_reference(esm);
+  SALOME::ExternalServerLauncher_var esmCPtr = SALOME::ExternalServerLauncher::_narrow(esmPtr);
+  //
+  CORBA::String_var ior = orb->object_to_string(esmCPtr);
   return std::string(ior.in());
 }

@@ -24,6 +24,7 @@
 %{
 #include "KernelSDS.hxx"
 #include "Utils_SALOME_Exception.hxx"
+#include "SALOME_CPythonHelper.hxx"
 %}
 
 
@@ -53,6 +54,10 @@ class SALOME_Exception
 
 %inline
 {
+  void KillCPythonHelper()
+  {
+    SALOME_CPythonHelper::KillSingleton();
+  }
   std::string GetDSMInstanceInternal(PyObject *argv)
   {
     if(!PyList_Check(argv))

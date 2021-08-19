@@ -29,6 +29,7 @@
 {
   std::string GetContainerManagerInstance();
   std::string GetResourcesManagerInstance();
+  std::string GetExternalServerInstance();
 }
 
 %pythoncode %{
@@ -43,4 +44,10 @@ def myResourcesManager():
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetResourcesManagerInstance())
+
+def GetExternalServer():
+  import SALOME
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(GetExternalServerInstance())
 %}
