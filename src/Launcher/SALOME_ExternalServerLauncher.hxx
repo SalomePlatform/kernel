@@ -29,13 +29,13 @@
 #include <vector>
 #include <string>
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 class SALOME_CPythonHelper;
 
 class SALOMELAUNCHER_EXPORT SALOME_ExternalServerLauncher : public POA_SALOME::ExternalServerLauncher
 {
  public:
-  SALOME_ExternalServerLauncher(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_var poa);
+  SALOME_ExternalServerLauncher(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns = nullptr);
   virtual ~SALOME_ExternalServerLauncher();
  public:
   SALOME::ExternalServerHandler_ptr launchServer(const char *server_name, const char *working_dir, const SALOME::CmdList& command_list ) override;
@@ -49,13 +49,13 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerLauncher : public POA_SALOME::E
   const SALOME_CPythonHelper *getPyHelper() const { return _pyHelper; }
  private:
   static std::string CreateAbsNameInNSFromServerName(const std::string& scopeName);
-  static std::vector<std::string> ListOfExternalServersCpp(SALOME_NamingService *ns);
+  static std::vector<std::string> ListOfExternalServersCpp(SALOME_NamingService_Abstract *ns);
   static bool IsAliveAndKicking(SALOME::ExternalServerHandler_ptr server);
-  static bool IsAliveAndKicking(SALOME_NamingService *ns, const std::string& serverName);
-  static SALOME::ExternalServerHandler_var GetServerHandlerGivenName(SALOME_NamingService *ns, const std::string& serverName);
+  static bool IsAliveAndKicking(SALOME_NamingService_Abstract *ns, const std::string& serverName);
+  static SALOME::ExternalServerHandler_var GetServerHandlerGivenName(SALOME_NamingService_Abstract *ns, const std::string& serverName);
  private:
   const SALOME_CPythonHelper *_pyHelper = nullptr;
-  SALOME_NamingService *_NS = nullptr;
+  SALOME_NamingService_Abstract *_NS = nullptr;
   PortableServer::POA_var _poa;
   static unsigned CNT;
   std::vector<long> _list_of_pids_to_kill;

@@ -36,7 +36,7 @@
 
 unsigned SALOME_ExternalServerHandler::CNT = 0;
 
-SALOME_ExternalServerHandler::SALOME_ExternalServerHandler(SALOME_ExternalServerLauncher *boss, const std::string& name, SALOME_NamingService *ns, long pid):_name(name),_pid(pid),_NS(ns),_boss(boss)
+SALOME_ExternalServerHandler::SALOME_ExternalServerHandler(SALOME_ExternalServerLauncher *boss, const std::string& name, SALOME_NamingService_Abstract *ns, long pid):_name(name),_pid(pid),_NS(ns),_boss(boss)
 {
 }
 

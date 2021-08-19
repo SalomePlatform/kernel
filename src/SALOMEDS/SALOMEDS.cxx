@@ -139,15 +139,15 @@ extern "C"
   SALOMEDS_EXPORT
   void CreateStudy(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
   {
-    SALOME_NamingService namingService(orb);
-    CreateStudyNSAbstract(orb,root_poa,namingService);
+    SALOME_NamingService *namingService = new SALOME_NamingService(orb);
+    CreateStudyNSAbstract(orb,root_poa,*namingService);
   }
   
   SALOMEDS_EXPORT
   void CreateStudyWithoutNS(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
   {
-    SALOME_Fake_NamingService namingService(orb);
-    CreateStudyNSAbstract(orb,root_poa,namingService);
+    SALOME_Fake_NamingService *namingService = new SALOME_Fake_NamingService(orb);
+    CreateStudyNSAbstract(orb,root_poa,*namingService);
   }
 
   SALOMEDS_EXPORT

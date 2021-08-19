@@ -32,7 +32,7 @@
 
 #include <string>
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 
 namespace SALOMESDS
 {
@@ -53,7 +53,8 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME::DataServerManager
   {
   public:
-    DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+    DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa, SALOME_NamingService_Abstract *ns = nullptr);
+    ~DataServerManager();
     SALOME::StringVec *listScopes();
     SALOME::StringVec *listAliveAndKickingScopes();
     SALOME::DataScopeServer_ptr getDefaultScope();
@@ -74,7 +75,7 @@ namespace SALOMESDS
     CORBA::ORB_var getORB() { return _orb; }
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
     static CORBA::Boolean IsAliveAndKicking(SALOME::DataScopeServerBase_ptr scopePtr);
-    static SALOME::DataScopeServerBase_var GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService& ns);
+    static SALOME::DataScopeServerBase_var GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract *ns);
   public:
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];
@@ -82,6 +83,8 @@ namespace SALOMESDS
     std::vector<std::string> listOfScopesCpp();
     SALOME::DataScopeServerBase_var getScopePtrGivenName(const std::string& scopeName);
   private:
+    //! naming service object is owned
+    SALOME_NamingService_Abstract *_ns = nullptr;
     CORBA::ORB_var _orb;
     //! single thread poa
     PortableServer::POA_var _poa;

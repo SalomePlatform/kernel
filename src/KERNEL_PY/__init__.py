@@ -204,7 +204,7 @@ class StandAloneLifecyle:
       return self._rm
 
 def salome_init_without_session():
-    global lcc,naming_service,myStudy,orb,modulcat,sg,cm
+    global lcc,naming_service,myStudy,orb,modulcat,sg,cm,dsm,esm
     import KernelBasis
     KernelBasis.setSSLMode(True)
     import KernelDS
@@ -226,6 +226,12 @@ def salome_init_without_session():
     sg = SalomeOutsideGUI()
     salome_study_init_without_session()
     naming_service = NamingService()
+    from KernelSDS import GetDSMInstance
+    import sys
+    dsm = GetDSMInstance(sys.argv)
+    # esm inherits from SALOME_CPythonHelper singleton already initialized by GetDSMInstance
+    # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
+    esm = KernelLauncher.GetExternalServer()
 
 def salome_init_with_session(path=None, embedded=False):
     """
@@ -282,8 +288,12 @@ def salome_close():
     salome_iapp_close()
     salome_study_close()
     myStudy, myStudyName = None, None
-    import KernelDS
-    KernelDS.KillGlobalSessionInstance()
+    import KernelBasis
+    if KernelBasis.getSSLMode():
+        import KernelDS
+        KernelDS.KillGlobalSessionInstance()
+        import KernelSDS
+        KernelSDS.KillCPythonHelper()
     pass
 
 def salome_NS():
@@ -329,6 +339,12 @@ def salome_shutdown_containers():
         naming_service.Destroy_Name(ref_in_ns)
     print("Number of containers in NS after clean : {}".format( len( list(salome_walk_on_containers(ns,[""])) )))
 
+class SessionContextManager:
+    def __enter__(self):
+        standalone()
+        salome_init()
+    def __exit__(self, type, value, traceback):
+        salome_close()
 
 #to expose all objects to pydoc
 __all__=dir()

@@ -17,37 +17,9 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module KernelLauncher
+#pragma once
 
-%include "std_string.i"
+#include <string>
+#include <vector>
 
-%{
-#include "KernelLauncher.hxx"
-%}
-
-%inline
-{
-  std::string GetContainerManagerInstance();
-  std::string GetResourcesManagerInstance();
-  std::string GetExternalServerInstance();
-}
-
-%pythoncode %{
-def myContainerManager():
-  import Engines
-  import CORBA
-  orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetContainerManagerInstance())
-
-def myResourcesManager():
-  import Engines
-  import CORBA
-  orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetResourcesManagerInstance())
-
-def GetExternalServer():
-  import SALOME
-  import CORBA
-  orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetExternalServerInstance())
-%}
+std::string GetDSMInstanceInternal(const std::vector<std::string>& argv);

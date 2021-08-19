@@ -38,6 +38,10 @@ class CONTAINER_EXPORT SALOME_CPythonHelper
   PyObject *getGlobals() const { return _globals; }
   PyObject *getLocals() const { return _locals; }
   PyObject *getPickler() const  { return _pickler; }
+  static SALOME_CPythonHelper *Singleton();
+  static void KillSingleton();
+ private:
+  static SALOME_CPythonHelper *_CPYTHONHELPER_INSTANCE;
  private:
   PyObject *_globals = nullptr;
   PyObject *_locals = nullptr;

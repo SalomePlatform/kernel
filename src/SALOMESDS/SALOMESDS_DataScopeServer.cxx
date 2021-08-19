@@ -27,7 +27,7 @@
 #include "SALOMESDS_TrustTransaction.hxx"
 #include "SALOMESDS_KeyWaiter.hxx"
 #include "SALOMESDS_Transaction.hxx"
-#include "SALOME_NamingService.hxx"
+#include "SALOME_NamingService_Abstract.hxx"
 #include "SALOMESDS_Exception.hxx"
 
 #include <sstream>
@@ -71,11 +71,11 @@ void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_
   return _ds->fetchAndGetAccessOfVar(varName,access,data);
 }
 
-DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
+DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):_ns(ns),_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
 {
 }
 
-DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_pyHelper(other._pyHelper),_name(other._name),_vars(other._vars),_killer(other._killer)
+DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniServant(other),ServantBase(other),_ns(other._ns->clone()),_pyHelper(other._pyHelper),_name(other._name),_vars(other._vars),_killer(other._killer)
 {
 }
 
@@ -89,6 +89,7 @@ DataScopeServerBase::~DataScopeServerBase()
            obj->decrRef();
          }
     }
+  delete _ns;
 }
 
 /*!
@@ -165,14 +166,13 @@ void DataScopeServerBase::deleteVar(const char *varName)
 
 CORBA::Boolean DataScopeServerBase::shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer)
 {
-  SALOME_NamingService ns(_orb);
-  CORBA::Object_var obj(ns.Resolve(DataServerManager::NAME_IN_NS));
+  CORBA::Object_var obj(_ns->Resolve(DataServerManager::NAME_IN_NS));
   SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(obj));
   if(CORBA::is_nil(dsm))
     throw Exception("Unable to reach in the NS the unique DataServerManager instance of the Session !");
   // destroy ref in the naming service
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
-  ns.Destroy_Name(fullScopeName.c_str());
+  _ns->Destroy_Name(fullScopeName.c_str());
   // establish if dsm and this shared the same POA. If yes dsm and this are collocated !
   PortableServer::ServantBase *ret(0);
   try
@@ -302,8 +302,7 @@ void DataScopeServerBase::setPOA(PortableServer::POA_var poa)
 void DataScopeServerBase::registerInNS(SALOME::DataScopeServerBase_ptr ptr)
 {
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
-  SALOME_NamingService ns(_orb);
-  ns.Register(ptr,fullScopeName.c_str());
+  _ns->Register(ptr,fullScopeName.c_str());
 }
 
 std::string DataScopeServerBase::BuildTmpVarNameFrom(const std::string& varName)
@@ -474,7 +473,7 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterat
 
 ///////
 
-DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(pyHelper,orb,killer,scopeName)
+DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
 {
 }
 
@@ -521,7 +520,7 @@ DataScopeServer::~DataScopeServer()
 
 ////////
 
-DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName):DataScopeServerBase(pyHelper,orb,killer,scopeName)
+DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
 {
   CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
