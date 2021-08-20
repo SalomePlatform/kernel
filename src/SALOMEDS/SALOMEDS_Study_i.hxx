@@ -216,6 +216,8 @@ public:
   */  
   virtual SALOMEDS::SComponentIterator_ptr NewComponentIterator();
 
+  SALOMEDS_SComponentIterator_i *NewComponentIteratorImpl();
+
   //! method to Create a StudyBuilder
   /*!
     \return StudyBuilder_ptr arguments, the created StudyBuilder
