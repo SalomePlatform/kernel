@@ -54,6 +54,7 @@
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
+#include "KernelBasis.hxx"
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -129,6 +130,7 @@ void unexpectedHandler(void)
 
 int container_common_main(int argc, char* argv[], std::unique_ptr<SALOME_NamingService_Container_Abstract> ns)
 {
+  setSSLMode(!ns->IsTrueNS());
 #ifdef _MPI_SEQ_CONTAINER_
   #ifdef HAVE_MPI2
   MPI_Init(&argc,&argv);
