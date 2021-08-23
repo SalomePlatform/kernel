@@ -460,6 +460,10 @@ def useSalome(args, modules_list, modules_root_dir):
     import salome
     salome.standalone()
 
+    SalomeAppSLConfig=os.getenv("SalomeAppConfig","")
+    os.putenv("SalomeAppSLConfig", SalomeAppSLConfig)
+
+
     if args["gui"] and not args['launcher_only']:
         mySessionServ = SessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
