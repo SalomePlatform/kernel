@@ -27,6 +27,7 @@ import time
 import sys
 
 if __name__ == '__main__':
+  salome.standalone()
   salome.salome_init()
   launcher = salome.naming_service.Resolve('/SalomeLauncher')
   job_params = salome.JobParameters()

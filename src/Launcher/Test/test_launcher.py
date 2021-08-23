@@ -104,6 +104,7 @@ class TestCompo(unittest.TestCase):
 
 # verify import salome
 import salome
+salome.standalone()
 salome.salome_init()
 
 f = open('result.txt', 'w')
@@ -666,5 +667,6 @@ f.close()
 if __name__ == '__main__':
     # create study
     import salome
+    salome.standalone()
     salome.salome_init()
     unittest.main()

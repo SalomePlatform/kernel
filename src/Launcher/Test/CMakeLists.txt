@@ -27,7 +27,7 @@ IF(NOT WIN32)
 #           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
 #           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
 #          )
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py ${CMAKE_CURRENT_SOURCE_DIR}/TestSSLAttached.py
           DESTINATION ${KERNEL_TEST_DIR}/Launcher)
 
   INSTALL(FILES CTestTestfileInstall.cmake
