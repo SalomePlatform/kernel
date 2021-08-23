@@ -239,7 +239,11 @@ def salome_init_without_session():
     # activate poaManager to accept co-localized CORBA calls.
     from KernelSDS import GetDSMInstance
     import sys
-    dsm = GetDSMInstance(sys.argv)
+    if hasattr(sys, 'argv'):
+      argv = sys.argv
+    else:
+      argv = ['']
+    dsm = GetDSMInstance(argv)
     # esm inherits from SALOME_CPythonHelper singleton already initialized by GetDSMInstance
     # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
     esm = KernelLauncher.GetExternalServer()
