@@ -21,5 +21,10 @@
 
 #include "SALOME_Basics.hxx"
 
+#include <string>
+
 bool BASICS_EXPORT getSSLMode();
 void BASICS_EXPORT setSSLMode(bool sslMode);
+
+std::string BASICS_EXPORT getIOROfEmbeddedNS();
+void BASICS_EXPORT setIOROfEmbeddedNS(const std::string& ior);

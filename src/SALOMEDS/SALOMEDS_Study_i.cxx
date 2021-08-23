@@ -416,14 +416,20 @@ void SALOMEDS_Study_i::Clear()
 
   //delete the builder servant
   PortableServer::POA_var poa=_default_POA();
-  PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
-  poa->deactivate_object(anObjectId.in());
-  _builder->_remove_ref();
-
+  try
+  {
+    PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
+    poa->deactivate_object(anObjectId.in());
+    _builder->_remove_ref();
+  }
+  catch(const CORBA::OBJECT_NOT_EXIST&)
+  {
+  delete _builder;
+  }
   RemovePostponed(-1);
 
   if (_impl->GetDocument()) {
-    SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
+    std::unique_ptr<SALOMEDS_SComponentIterator_i> itcomponent ( NewComponentIteratorImpl() );
     for (; itcomponent->More(); itcomponent->Next()) {
       SALOMEDS::SComponent_var sco = itcomponent->Value();
       CORBA::String_var compodatatype=sco->ComponentDataType();
@@ -450,9 +456,6 @@ void SALOMEDS_Study_i::Clear()
       }
       sco->UnRegister();
     }
-
-    //Does not need any more this iterator
-    itcomponent->UnRegister();
   }
 
   // Notify GUI that study is cleared
@@ -935,12 +938,7 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 }
 
 
-//============================================================================
-/*! Function : NewComponentIterator
- *  Purpose  : Create a SComponentIterator
- */
-//============================================================================
-SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
+SALOMEDS_SComponentIterator_i *SALOMEDS_Study_i::NewComponentIteratorImpl()
 {
   SALOMEDS::Locker lock; 
 
@@ -949,8 +947,18 @@ SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
 
   SALOMEDS_SComponentIterator_i* it_servant = new SALOMEDS_SComponentIterator_i(_impl->NewComponentIterator(), _orb);
   it_servant->Init();
-  SALOMEDS::SComponentIterator_var it = it_servant->_this();
+  return it_servant;
+}
 
+//============================================================================
+/*! Function : NewComponentIterator
+ *  Purpose  : Create a SComponentIterator
+ */
+//============================================================================
+SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
+{
+  SALOMEDS_SComponentIterator_i* it_servant = NewComponentIteratorImpl();
+  SALOMEDS::SComponentIterator_var it = it_servant->_this();
   return it._retn();
 }
 

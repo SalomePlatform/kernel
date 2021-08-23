@@ -23,5 +23,10 @@
 #include "KernelBasis.hxx"
 %}
 
+%include "std_string.i"
+
 bool getSSLMode();
 void setSSLMode(bool sslMode);
+
+std::string getIOROfEmbeddedNS();
+void setIOROfEmbeddedNS(const std::string& ior);
