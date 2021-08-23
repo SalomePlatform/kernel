@@ -21,6 +21,9 @@
 
 static bool DEFAULT_SSL_MODE = false;
 
+// IOR of SALOME_Embedded_NamingService servant
+static std::string IOR_OF_EMBEDDED_NS;
+
 bool getSSLMode()
 {
   return DEFAULT_SSL_MODE;
@@ -29,4 +32,14 @@ bool getSSLMode()
 void setSSLMode(bool sslMode)
 {
   DEFAULT_SSL_MODE = sslMode;
+}
+
+std::string BASICS_EXPORT getIOROfEmbeddedNS()
+{
+  return IOR_OF_EMBEDDED_NS;
+}
+
+void BASICS_EXPORT setIOROfEmbeddedNS(const std::string& ior)
+{
+  IOR_OF_EMBEDDED_NS = ior;
 }

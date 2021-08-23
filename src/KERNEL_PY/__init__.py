@@ -171,17 +171,22 @@ __EMB_SERVANT_ENV_VAR_NAME = "SALOME_EMB_SERVANT"
 def standalone():
     import os
     os.environ[__EMB_SERVANT_ENV_VAR_NAME] = "1"
+    import KernelBasis
+    KernelBasis.setSSLMode(True)
 
 def salome_init(path=None, embedded=False):
     import os
+    import KernelBasis
     if __EMB_SERVANT_ENV_VAR_NAME in os.environ:
-        salome_init_without_session()
-    else:
-        import KernelBasis
-        if KernelBasis.getSSLMode():
+        KernelBasis.setSSLMode(True)
+    #
+    if KernelBasis.getSSLMode():
+        if KernelBasis.getIOROfEmbeddedNS() == "":
             salome_init_without_session()
         else:
-            salome_init_with_session(path, embedded)
+            salome_init_without_session_attached()
+    else:
+        salome_init_with_session(path, embedded)
 
 class StandAloneLifecyle:
     def __init__(self, containerManager, resourcesManager):
@@ -203,8 +208,8 @@ class StandAloneLifecyle:
     def getResourcesManager(self):
       return self._rm
 
-def salome_init_without_session():
-    global lcc,naming_service,myStudy,orb,modulcat,sg,cm,dsm,esm
+def salome_init_without_session_common():
+    global lcc,naming_service,myStudy,orb,modulcat,sg
     import KernelBasis
     KernelBasis.setSSLMode(True)
     import KernelDS
@@ -215,23 +220,48 @@ def salome_init_without_session():
     import SALOME_ModuleCatalog
     from salome_kernel import list_of_catalogs_regarding_environement
     modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
-    import KernelLauncher
-    from NamingService import NamingService
-    cm = KernelLauncher.myContainerManager()
-    lcc = StandAloneLifecyle(cm, KernelLauncher.myResourcesManager())
-    # activate poaManager to accept co-localized CORBA calls.
+    #
     poa = orb.resolve_initial_references("RootPOA")
     poaManager = poa._get_the_POAManager()
     poaManager.activate()
     sg = SalomeOutsideGUI()
     salome_study_init_without_session()
+    #
+    from NamingService import NamingService
     naming_service = NamingService()
+
+def salome_init_without_session():
+    salome_init_without_session_common()
+    global lcc,cm,dsm,esm
+    import KernelLauncher
+    cm = KernelLauncher.myContainerManager()
+    lcc = StandAloneLifecyle(cm, KernelLauncher.myResourcesManager())
+    # activate poaManager to accept co-localized CORBA calls.
     from KernelSDS import GetDSMInstance
     import sys
     dsm = GetDSMInstance(sys.argv)
     # esm inherits from SALOME_CPythonHelper singleton already initialized by GetDSMInstance
     # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
     esm = KernelLauncher.GetExternalServer()
+    
+def salome_init_without_session_attached():
+    """
+    Configuration SSL inside a python interpretor launched in the SALOME_Container_No_NS_Serv.
+    In this configuration, 
+    """
+    salome_init_without_session_common()
+    global lcc,cm,dsm,esm
+    import CORBA
+    orb=CORBA.ORB_init([''])
+    import Engines
+    import KernelBasis
+    nsAbroad = orb.string_to_object( KernelBasis.getIOROfEmbeddedNS() )
+    import SALOME
+    cm = orb.string_to_object( nsAbroad.Resolve("/ContainerManager").decode() )
+    rm = orb.string_to_object( nsAbroad.Resolve("/ResourcesManager").decode() )
+    lcc = StandAloneLifecyle(cm,rm)
+    dsm = orb.string_to_object( nsAbroad.Resolve("/DataServerManager").decode() )
+    esm = orb.string_to_object( nsAbroad.Resolve("/ExternalServers").decode() )
 
 def salome_init_with_session(path=None, embedded=False):
     """
