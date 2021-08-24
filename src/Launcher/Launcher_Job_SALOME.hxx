@@ -35,7 +35,7 @@ namespace Launcher
   class LAUNCHER_EXPORT Job_SALOME : virtual public Launcher::Job
   {
     public:
-      Job_SALOME();
+      Job_SALOME(bool activateSession=true);
       virtual ~Job_SALOME();
 
       virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
@@ -46,6 +46,8 @@ namespace Launcher
       std::string buildSalomeScript(Batch::Parametre params);
       virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream) = 0;
 #endif
+  private:
+      bool _activateSession;
   };
 }
 
