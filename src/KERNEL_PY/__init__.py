@@ -182,9 +182,9 @@ def salome_init(path=None, embedded=False):
     #
     if KernelBasis.getSSLMode():
         if KernelBasis.getIOROfEmbeddedNS() == "":
-            salome_init_without_session()
+            salome_init_without_session(path, embedded)
         else:
-            salome_init_without_session_attached()
+            salome_init_without_session_attached(path, embedded)
     else:
         salome_init_with_session(path, embedded)
 
@@ -208,7 +208,7 @@ class StandAloneLifecyle:
     def getResourcesManager(self):
       return self._rm
 
-def salome_init_without_session_common():
+def salome_init_without_session_common(path=None, embedded=False):
     global lcc,naming_service,myStudy,orb,modulcat,sg
     import KernelBasis
     KernelBasis.setSSLMode(True)
@@ -224,14 +224,15 @@ def salome_init_without_session_common():
     poa = orb.resolve_initial_references("RootPOA")
     poaManager = poa._get_the_POAManager()
     poaManager.activate()
-    sg = SalomeOutsideGUI()
-    salome_study_init_without_session()
+    #
+    sg = salome_iapp_init(embedded)
+    salome_study_init_without_session(path)
     #
     from NamingService import NamingService
     naming_service = NamingService()
 
-def salome_init_without_session():
-    salome_init_without_session_common()
+def salome_init_without_session(path=None, embedded=False):
+    salome_init_without_session_common(path,embedded)
     global lcc,cm,dsm,esm
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
@@ -244,12 +245,12 @@ def salome_init_without_session():
     # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
     esm = KernelLauncher.GetExternalServer()
     
-def salome_init_without_session_attached():
+def salome_init_without_session_attached(path=None, embedded=False):
     """
     Configuration SSL inside a python interpretor launched in the SALOME_Container_No_NS_Serv.
     In this configuration, 
     """
-    salome_init_without_session_common()
+    salome_init_without_session_common(path,embedded)
     global lcc,cm,dsm,esm
     import CORBA
     orb=CORBA.ORB_init([''])
