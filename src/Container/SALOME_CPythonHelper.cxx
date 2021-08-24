@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOME_CPythonHelper.hxx"
+#include "PythonCppUtils.hxx"
 
 SALOME_CPythonHelper *SALOME_CPythonHelper::_CPYTHONHELPER_INSTANCE = nullptr;
 
@@ -78,6 +79,7 @@ void SALOME_CPythonHelper::initializePython(int argc, char *argv[])
 
 void SALOME_CPythonHelper::registerToSalomePiDict(const std::string& processName, long pid) const
 {
+  AutoGIL agil;
   PyObject *mod(PyImport_ImportModule("addToKillList"));//new value
   if(!mod)
     return;
@@ -96,6 +98,7 @@ void SALOME_CPythonHelper::registerToSalomePiDict(const std::string& processName
 
 std::vector<long> SALOME_CPythonHelper::evalVL(const std::string& pyCode) const
 {
+  AutoGIL agil;
   PyObject* code(Py_CompileString(pyCode.c_str(),"evalVL.py", Py_eval_input));
   PyObject *res(PyEval_EvalCode( code, _globals, _locals));
   Py_DECREF(code);
@@ -112,6 +115,7 @@ std::vector<long> SALOME_CPythonHelper::evalVL(const std::string& pyCode) const
 
 std::string SALOME_CPythonHelper::evalS(const std::string& pyCode) const
 {
+  AutoGIL agil;
   PyObject* code(Py_CompileString(pyCode.c_str(),"evalS.py", Py_eval_input));
   PyObject *res(PyEval_EvalCode( code, _globals, _locals));
   Py_DECREF(code);
@@ -126,7 +130,7 @@ SALOME_CPythonHelper::~SALOME_CPythonHelper()
   // _globals is borrowed ref -> do nothing
 
   /*if(_locals){ auto refcount_locals = Py_REFCNT(_locals); }*/
-  
+  AutoGIL agil;
   Py_XDECREF(_locals);
   Py_XDECREF(_pickler);
 }
