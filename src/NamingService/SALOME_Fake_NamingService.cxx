@@ -114,7 +114,6 @@ std::vector<std::string> SALOME_Fake_NamingService::list_directory()
   std::lock_guard<std::mutex> g(_mutex);
   std::vector<std::string> ret;
   std::vector<std::string> splitCWD(SplitDir(_current_dir));
-  auto len = _current_dir.length();
   for(auto it : _map)
   {
     std::vector<std::string> splitIt(SplitDir(it.first));
@@ -130,7 +129,12 @@ std::vector<std::string> SALOME_Fake_NamingService::list_directory()
 
 std::vector<std::string> SALOME_Fake_NamingService::list_directory_recurs()
 {
-  return std::vector<std::string>();
+  std::vector<std::string> result;
+  for(const std::pair< std::string,CORBA::Object_var>& it : _map)
+    if( it.first.length() >= _current_dir.length() &&
+        it.first.compare(0, _current_dir.length(), _current_dir) == 0)
+      result.push_back(it.first);
+  return result;
 }
 
 CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
