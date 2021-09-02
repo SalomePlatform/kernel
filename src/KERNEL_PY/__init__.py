@@ -262,11 +262,21 @@ def salome_init_without_session_attached(path=None, embedded=False):
     import KernelBasis
     nsAbroad = orb.string_to_object( KernelBasis.getIOROfEmbeddedNS() )
     import SALOME
-    cm = orb.string_to_object( nsAbroad.Resolve("/ContainerManager").decode() )
-    rm = orb.string_to_object( nsAbroad.Resolve("/ResourcesManager").decode() )
+    CM_NAME_IN_NS = "/ContainerManager"
+    cm = orb.string_to_object( nsAbroad.Resolve(CM_NAME_IN_NS).decode() )
+    naming_service.Register(cm,CM_NAME_IN_NS)
+    RM_NAME_IN_NS = "/ResourcesManager"
+    rm = orb.string_to_object( nsAbroad.Resolve(RM_NAME_IN_NS).decode() )
+    naming_service.Register(rm,RM_NAME_IN_NS)
+    #
+    DSM_NAME_IN_NS = "/DataServerManager"
     lcc = StandAloneLifecyle(cm,rm)
-    dsm = orb.string_to_object( nsAbroad.Resolve("/DataServerManager").decode() )
-    esm = orb.string_to_object( nsAbroad.Resolve("/ExternalServers").decode() )
+    dsm = orb.string_to_object( nsAbroad.Resolve(DSM_NAME_IN_NS).decode() )
+    naming_service.Register(dsm,DSM_NAME_IN_NS)
+    #
+    ESM_NAME_IN_NS = "/ExternalServers"
+    esm = orb.string_to_object( nsAbroad.Resolve(ESM_NAME_IN_NS).decode() )
+    naming_service.Register(esm,ESM_NAME_IN_NS)
 
 def salome_init_with_session(path=None, embedded=False):
     """
