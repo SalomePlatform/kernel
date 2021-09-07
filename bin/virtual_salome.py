@@ -63,7 +63,7 @@ def symlink(src, dest):
         if verbose:
             print('Creating symlink %s' % dest)
             pass
-        os.symlink(src, dest)
+        os.symlink(os.path.relpath(src,os.path.dirname(dest)), dest)
     else:
         if verbose:
             print('Symlink %s already exists' % dest)
