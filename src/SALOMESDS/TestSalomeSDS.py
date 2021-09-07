@@ -77,9 +77,9 @@ def func_test7(scopeName,cv,cv2,cv3,sharedNum):
     ####### End Barrier
     s=datetime.now()
     t0=dss.createRdWrVarTransac(varName,obj2Str(zeValue))
+    dss.atomicApply([t0])
     s=(datetime.now()-s).total_seconds()
     assert(s>=0.99*nbOfSecWait and s<nbOfSecWait*1.01) # expect to wait nearly nbOfSecWait seconds
-    dss.atomicApply([t0])
     ######### end of micro-test1
     ######### micro-test2 - after activeRequests everything work well
     s=datetime.now()
