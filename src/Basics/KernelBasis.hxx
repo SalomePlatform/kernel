@@ -25,6 +25,8 @@
 
 bool BASICS_EXPORT getSSLMode();
 void BASICS_EXPORT setSSLMode(bool sslMode);
+bool BASICS_EXPORT getGUIMode();
+void BASICS_EXPORT setGUIMode(bool guiMode);
 
 std::string BASICS_EXPORT getIOROfEmbeddedNS();
 void BASICS_EXPORT setIOROfEmbeddedNS(const std::string& ior);

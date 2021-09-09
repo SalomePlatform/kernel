@@ -334,7 +334,7 @@ def salome_close():
     salome_study_close()
     myStudy, myStudyName = None, None
     import KernelBasis
-    if KernelBasis.getSSLMode():
+    if KernelBasis.getSSLMode() and not KernelBasis.getGUIMode():
         import KernelDS
         KernelDS.KillGlobalSessionInstance()
         import KernelSDS

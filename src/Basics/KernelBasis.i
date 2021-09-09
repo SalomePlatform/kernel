@@ -28,5 +28,8 @@
 bool getSSLMode();
 void setSSLMode(bool sslMode);
 
+bool getGUIMode();
+void setGUIMode(bool guiMode);
+
 std::string getIOROfEmbeddedNS();
 void setIOROfEmbeddedNS(const std::string& ior);

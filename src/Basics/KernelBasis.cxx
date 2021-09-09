@@ -20,6 +20,7 @@
 #include "KernelBasis.hxx"
 
 static bool DEFAULT_SSL_MODE = false;
+static bool GUI_MODE = false;
 
 // IOR of SALOME_Embedded_NamingService servant
 static std::string IOR_OF_EMBEDDED_NS;
@@ -32,6 +33,16 @@ bool getSSLMode()
 void setSSLMode(bool sslMode)
 {
   DEFAULT_SSL_MODE = sslMode;
+}
+
+bool getGUIMode()
+{
+  return GUI_MODE;
+}
+
+void setGUIMode(bool guiMode)
+{
+  GUI_MODE = guiMode;
 }
 
 std::string BASICS_EXPORT getIOROfEmbeddedNS()
