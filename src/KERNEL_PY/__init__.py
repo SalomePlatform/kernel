@@ -370,7 +370,7 @@ def salome_walk_on_containers(ns,root):
         pass
     pass
 
-def salome_shutdown_containers():
+def salome_shutdown_containers_with_session():
     salome_init()
     ns=salome_NS()
     li = [elt for elt in salome_walk_on_containers(ns,[""])]
@@ -383,6 +383,22 @@ def salome_shutdown_containers():
         ref_in_ns = "/".join(root+[cont_name])
         naming_service.Destroy_Name(ref_in_ns)
     print("Number of containers in NS after clean : {}".format( len( list(salome_walk_on_containers(ns,[""])) )))
+    
+def salome_shutdown_containers_without_session():
+    containersEntries = [elt for elt in naming_service.repr() if "/Containers/" == elt[:12]]
+    for containerEntry in containersEntries:
+        cont = naming_service.Resolve(containerEntry)
+        try:
+            cont.Shutdown()
+        except:
+            pass
+
+def salome_shutdown_containers():
+    import KernelBasis
+    if KernelBasis.getSSLMode():
+        salome_shutdown_containers_without_session()
+    else:
+        salome_shutdown_containers_with_session()
 
 class SessionContextManager:
     def __enter__(self):
