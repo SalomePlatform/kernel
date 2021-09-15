@@ -209,6 +209,20 @@ class StandAloneLifecyle:
       return self._rm
 
 def salome_init_without_session_common(path=None, embedded=False):
+    from ORBConfigFile import writeORBConfigFileSSL
+    OMNIORB_USER_PATH = "OMNIORB_USER_PATH"
+    def RemoveOmniorbConfigFile():
+        import os
+        if "OMNIORB_CONFIG" in os.environ:
+            fileToRemove = os.environ["OMNIORB_CONFIG"]
+            if os.path.exists(fileToRemove):
+                os.unlink(fileToRemove)
+
+    if OMNIORB_USER_PATH in os.environ:
+        import atexit
+        writeORBConfigFileSSL(os.environ[OMNIORB_USER_PATH],kwargs={"with_pid":True})
+        atexit.register(RemoveOmniorbConfigFile)
+
     global lcc,naming_service,myStudy,orb,modulcat,sg
     import KernelBasis
     KernelBasis.setSSLMode(True)

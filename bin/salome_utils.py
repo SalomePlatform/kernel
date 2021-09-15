@@ -170,6 +170,9 @@ def getAppName():
     """
     return os.getenv('APPNAME', 'SALOME') # 'SALOME' is default user name
 
+def getPid():
+    return os.getpid()
+
 # ---
 
 def getPortNumber(use_default=True):
@@ -246,6 +249,7 @@ def generateFileName(path, prefix=None, suffix=None, extension=None,
     - with_hostname : use host name:
     - with_port : use port number:
     - with_app      : use application name:
+    - with_pid      : use current pid
 
     Any of these keyword arguments can accept either explicit string value,
     or `True` to automatically deduce value from current configuration.
@@ -270,6 +274,7 @@ def generateFileName(path, prefix=None, suffix=None, extension=None,
     _with_kwarg('with_hostname', getShortHostName)
     _with_kwarg('with_port', getPortNumber)
     _with_kwarg('with_app', getAppName)
+    _with_kwarg('with_pid', getPid)
     _with_str(suffix)
 
     # raise an exception if file name is empty

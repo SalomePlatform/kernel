@@ -39,6 +39,40 @@ def readORBConfigFile(filename):
   return host, port
 #
 
+def fillOrbConfigFileNoNS(prefix,orbdata):
+  GIOP_MaxMsgSize = 2097152000  # 2 GBytes
+  orbdata.append("%sgiopMaxMsgSize = %s # 2 GBytes"%(prefix,GIOP_MaxMsgSize))
+  orbdata.append("%straceLevel = 0 # critical errors only"%(prefix))
+  orbdata.append("%smaxGIOPConnectionPerServer = 500 # to allow containers parallel launch"%(prefix))
+  orbdata.append("%snativeCharCodeSet = UTF-8"%(prefix))
+  return GIOP_MaxMsgSize
+
+
+def getPrefix():
+  from omniORB import CORBA
+  prefix = "" if CORBA.ORB_ID == "omniORB4" else "ORB"
+  return prefix
+  
+def writeORBConfigFileSSL(path, kwargs={}):
+  from salome_utils import generateFileName
+  omniorb_config = generateFileName(path, prefix="omniORB",
+                                    extension="cfg",
+                                    hidden=True,
+                                    with_hostname=True,
+                                    **kwargs)
+  import os
+  os.environ['OMNIORB_CONFIG'] = omniorb_config
+  prefix = getPrefix()
+
+  orbdata = []
+  GIOP_MaxMsgSize = fillOrbConfigFileNoNS(prefix,orbdata)
+  orbdata.append("")
+
+  with open(omniorb_config, "w") as f:
+    f.write("\n".join(orbdata))
+    
+  return [ omniorb_config, GIOP_MaxMsgSize ]
+
 # IMPORTANT NOTE: do not add any print call (cf. note at the bottom of the file)
 def writeORBConfigFile(path, host, port, kwargs={}):
 
@@ -54,17 +88,11 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   os.environ['NSPORT'] = "%s"%(port)
   os.environ['NSHOST'] = "%s"%(host)
 
-  from omniORB import CORBA
-  prefix = "" if CORBA.ORB_ID == "omniORB4" else "ORB"
-
-  GIOP_MaxMsgSize = 2097152000  # 2 GBytes
+  prefix = getPrefix()
 
   orbdata = []
   orbdata.append("%sInitRef = NameService=corbaname::%s:%s"%(prefix,host,port))
-  orbdata.append("%sgiopMaxMsgSize = %s # 2 GBytes"%(prefix,GIOP_MaxMsgSize))
-  orbdata.append("%straceLevel = 0 # critical errors only"%(prefix))
-  orbdata.append("%smaxGIOPConnectionPerServer = 500 # to allow containers parallel launch"%(prefix))
-  orbdata.append("%snativeCharCodeSet = UTF-8"%(prefix))
+  GIOP_MaxMsgSize = fillOrbConfigFileNoNS(prefix,orbdata)
 
   orbdata.append("")
 
