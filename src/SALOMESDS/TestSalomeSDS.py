@@ -494,6 +494,16 @@ class SalomeSDSTest(unittest.TestCase):
     dsm.removeDataScope(scopeName)
     pass
   
+  def testShutdownScopes(self):
+    """ Test shutdownScopes.
+    """
+    salome.salome_init()
+    dss, isCreated = salome.dsm.giveADataScopeTransactionCalled('scope0')
+    t0 = dss.createRdExtVarTransac('a', obj2Str({}))
+    dss.atomicApply([t0])
+    salome.dsm.shutdownScopes() # no exception expected
+    pass
+
   pass
 
 if __name__=="__main__":

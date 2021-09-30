@@ -36,8 +36,8 @@ namespace SALOMESDS
   {
   public:
     RequestSwitcherBase(CORBA::ORB_ptr orb);
-    void holdRequests();
-    void activeRequests();
+    virtual void holdRequests();
+    virtual void activeRequests();
     PortableServer::POA_var getPOA() const { return _poa_for_request_control; }
   private:
     PortableServer::POA_var _poa_for_request_control;

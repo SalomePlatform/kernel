@@ -31,6 +31,7 @@
 #include "SALOMESDS_Defines.hxx"
 
 #include <string>
+#include <mutex>
 
 class SALOME_NamingService_Abstract;
 
@@ -44,6 +45,8 @@ namespace SALOMESDS
     RequestSwitcherDSM(CORBA::ORB_ptr orb, DataServerManager *dsm):RequestSwitcherBase(orb),_dsm(dsm) { }
     SALOME::StringVec *listScopes();
     SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
+    void holdRequests()override;
+    void activeRequests()override;
   private:
     DataServerManager *_dsm;
   };
@@ -71,17 +74,25 @@ namespace SALOMESDS
     void cleanScopesInNS();
     void shutdownScopes();
     SALOME::RequestSwitcherDSM_ptr getRequestSwitcher();
+    void holdRequests();
+    void activeRequests();
+
   public:
     CORBA::ORB_var getORB() { return _orb; }
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
     static CORBA::Boolean IsAliveAndKicking(SALOME::DataScopeServerBase_ptr scopePtr);
     static SALOME::DataScopeServerBase_var GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract *ns);
+    SALOME::StringVec *listScopes_unsafe();
+    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled_unsafe(
+                              const char *scopeName, CORBA::Boolean& isCreated);
   public:
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];
   private:
     std::vector<std::string> listOfScopesCpp();
     SALOME::DataScopeServerBase_var getScopePtrGivenName(const std::string& scopeName);
+    CORBA::Boolean isAliveAndKicking_unsafe(const char *scopeName);
+    SALOME::DataScopeServerBase_ptr retriveDataScope_unsafe(const char *scopeName);
   private:
     //! naming service object is owned
     SALOME_NamingService_Abstract *_ns = nullptr;
@@ -89,6 +100,7 @@ namespace SALOMESDS
     //! single thread poa
     PortableServer::POA_var _poa;
     AutoServantPtr<RequestSwitcherDSM> _rs;
+    std::mutex _mutex;
   };
 }
 

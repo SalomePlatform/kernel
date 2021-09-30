@@ -37,13 +37,24 @@ const char DataServerManager::DFT_SCOPE_NAME_IN_NS[]="Default";
 
 SALOME::StringVec *RequestSwitcherDSM::listScopes()
 {
-  return _dsm->listScopes();
+  return _dsm->listScopes_unsafe();
 }
 
 SALOME::DataScopeServerTransaction_ptr RequestSwitcherDSM::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
-  return _dsm->giveADataScopeTransactionCalled(scopeName,isCreated);
+  return _dsm->giveADataScopeTransactionCalled_unsafe(scopeName,isCreated);
 }
+
+void RequestSwitcherDSM::holdRequests()
+{
+  _dsm->holdRequests();
+}
+
+void RequestSwitcherDSM::activeRequests()
+{
+  _dsm->activeRequests();
+}
+
 
 DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa, SALOME_NamingService_Abstract *ns):_orb(CORBA::ORB::_duplicate(orb))
 {
@@ -54,7 +65,8 @@ DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA
   policies.length(1);
   PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-  _poa=poa->create_POA("SingleThPOA4SDS",pman,policies);
+  PortableServer::POA_var safePoa = poa->create_POA("SingleThPOA4SDS",pman,policies);
+  _poa = poa;
   threadPol->destroy();
   // activate this to be ready to be usable from NS.
   PortableServer::ObjectId_var id(_poa->activate_object(this));
@@ -75,7 +87,7 @@ DataServerManager::~DataServerManager()
   delete _ns;
 }
 
-SALOME::StringVec *DataServerManager::listScopes()
+SALOME::StringVec * DataServerManager::listScopes_unsafe()
 {
   std::vector<std::string> scopes(listOfScopesCpp());
   SALOME::StringVec *ret(new SALOME::StringVec);
@@ -86,14 +98,21 @@ SALOME::StringVec *DataServerManager::listScopes()
   return ret;
 }
 
+SALOME::StringVec *DataServerManager::listScopes()
+{
+  const std::lock_guard<std::mutex> lock(_mutex);
+  return listScopes_unsafe();
+}
+
 SALOME::StringVec *DataServerManager::listAliveAndKickingScopes()
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   std::vector<std::string> scopes(listOfScopesCpp());
   std::size_t sz(scopes.size());
   std::vector<std::string> retCpp; retCpp.reserve(sz);
   for(std::size_t i=0;i<sz;i++)
     {
-      if(isAliveAndKicking(scopes[i].c_str()))
+      if(isAliveAndKicking_unsafe(scopes[i].c_str()))
         retCpp.push_back(scopes[i]);
     }
   //
@@ -107,7 +126,8 @@ SALOME::StringVec *DataServerManager::listAliveAndKickingScopes()
 
 SALOME::DataScopeServer_ptr DataServerManager::getDefaultScope()
 {
-  SALOME::DataScopeServerBase_var ret(retriveDataScope(DFT_SCOPE_NAME_IN_NS));
+  const std::lock_guard<std::mutex> lock(_mutex);
+  SALOME::DataScopeServerBase_var ret(retriveDataScope_unsafe(DFT_SCOPE_NAME_IN_NS));
   if(CORBA::is_nil(ret))
     return SALOME::DataScopeServer::_narrow(ret);
   SALOME::DataScopeServer_ptr ret2(SALOME::DataScopeServer::_narrow(ret));
@@ -117,6 +137,12 @@ SALOME::DataScopeServer_ptr DataServerManager::getDefaultScope()
 }
 
 CORBA::Boolean DataServerManager::isAliveAndKicking(const char *scopeName)
+{
+  const std::lock_guard<std::mutex> lock(_mutex);
+  return isAliveAndKicking_unsafe(scopeName);
+}
+
+CORBA::Boolean DataServerManager::isAliveAndKicking_unsafe(const char *scopeName)
 {
   SALOME::DataScopeServerBase_var scopePtr(getScopePtrGivenName(scopeName));
   return IsAliveAndKicking(scopePtr);
@@ -226,25 +252,43 @@ public:
 
 SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scopeName)
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   return CreateDataScope<NormalFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns);
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   return GiveADataScopeCalled<NormalFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns,isCreated);
 }
 
 SALOME::DataScopeServerTransaction_ptr DataServerManager::createDataScopeTransaction(const char *scopeName)
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   return CreateDataScope<TransactionFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns);
 }
 
-SALOME::DataScopeServerTransaction_ptr DataServerManager::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
+SALOME::DataScopeServerTransaction_ptr
+DataServerManager::giveADataScopeTransactionCalled_unsafe(
+                              const char *scopeName, CORBA::Boolean& isCreated)
 {
   return GiveADataScopeCalled<TransactionFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns,isCreated);
 }
 
+
+SALOME::DataScopeServerTransaction_ptr DataServerManager::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
+{
+  const std::lock_guard<std::mutex> lock(_mutex);
+  return giveADataScopeTransactionCalled_unsafe(scopeName, isCreated);
+}
+
 SALOME::DataScopeServerBase_ptr DataServerManager::retriveDataScope(const char *scopeName)
+{
+  const std::lock_guard<std::mutex> lock(_mutex);
+  return retriveDataScope_unsafe(scopeName);
+}
+
+SALOME::DataScopeServerBase_ptr DataServerManager::retriveDataScope_unsafe(const char *scopeName)
 {
   SALOME::DataScopeServerBase_var ret(getScopePtrGivenName(scopeName));
   return SALOME::DataScopeServerBase::_duplicate(ret);
@@ -252,6 +296,7 @@ SALOME::DataScopeServerBase_ptr DataServerManager::retriveDataScope(const char *
 
 void DataServerManager::removeDataScope(const char *scopeName)
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   SALOME::DataScopeServerBase_var scs(getScopePtrGivenName(scopeName));
   SALOME::DataScopeKiller_ptr killer;
   if(scs->shutdownIfNotHostedByDSM(killer))
@@ -261,10 +306,11 @@ void DataServerManager::removeDataScope(const char *scopeName)
 
 void DataServerManager::cleanScopesInNS()
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   std::vector<std::string> scopes(listOfScopesCpp());
   for(std::vector<std::string>::const_iterator it=scopes.begin();it!=scopes.end();it++)
     {
-      if(!isAliveAndKicking((*it).c_str()))
+      if(!isAliveAndKicking_unsafe((*it).c_str()))
         {
           std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(*it));
           _ns->Destroy_Name(fullScopeName.c_str());
@@ -274,6 +320,7 @@ void DataServerManager::cleanScopesInNS()
 
 void DataServerManager::shutdownScopes()
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   std::vector<std::string> scopeNames(listOfScopesCpp());
   for(std::vector<std::string>::const_iterator it=scopeNames.begin();it!=scopeNames.end();it++)
     {
@@ -330,10 +377,21 @@ SALOME::DataScopeServerBase_var DataServerManager::getScopePtrGivenName(const st
 
 SALOME::RequestSwitcherDSM_ptr DataServerManager::getRequestSwitcher()
 {
+  const std::lock_guard<std::mutex> lock(_mutex);
   if(_rs.isNull())
     {
       _rs=new RequestSwitcherDSM(_orb,this);
     }
   CORBA::Object_var obj(_rs->activate());
   return SALOME::RequestSwitcherDSM::_narrow(obj);
+}
+
+void DataServerManager::holdRequests()
+{
+  _mutex.lock();
+}
+
+void DataServerManager::activeRequests()
+{
+  _mutex.unlock();
 }
