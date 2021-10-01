@@ -81,5 +81,6 @@ int CommonDataScopeServerMain(int argc, char *argv[], CORBA::ORB_var orb, const 
   //
   orb->run();
   delete killer;
+  Py_Finalize();
   return 0;
 }

@@ -48,7 +48,6 @@ std::size_t DataScopeServerBase::COUNTER=0;
 
 void DataScopeKiller::shutdown()
 {
-  Py_Finalize();
   _orb->shutdown(0);
 }
 
