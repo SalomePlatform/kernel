@@ -21,11 +21,11 @@ ADD_SUBDIRECTORY(parametric)
 
 SALOME_CONFIGURE_FILE(logconfig.py.in logconfig.py)
 SALOME_CONFIGURE_FILE(kernelpy_autotest.sh.in kernelpy_autotest.sh)
+SALOME_CONFIGURE_FILE(__init__.py __init__.py INSTALL ${SALOME_INSTALL_PYTHON}/salome/kernel)
 
 # This first set of modules could be used in any context, you just
 # have to get a python environment.
 SET(mypkgpython_PYTHON
-    __init__.py
     deprecation.py
     logger.py
     termcolor.py
