@@ -62,6 +62,7 @@ SET(SCRIPTS
   virtual_salome.py
   waitContainers.py
   waitNS.py
+  pythonpath_reduction.py
   )
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})
