@@ -153,7 +153,12 @@ class SalomeOutsideGUI(object):
         """Get component user name from component name"""
         print("SalomeOutsideGUI.getComponentUserName: not available outside GUI")
         return ""
-        
+
+    def UpdateView(self):
+        """Update current view"""
+        print("SalomeOutsideGUI.UpdateView: not available outside GUI")
+        pass
+
     #--------------------------------------------------------------------------
 
     
