@@ -64,6 +64,7 @@ int SIGUSR1 = 1000;
 
 #include <Python.h>
 #include "Container_init_python.hxx"
+#include <boost/python.hpp>
 
 bool _Sleeping = false ;
 
@@ -340,6 +341,197 @@ CORBA::Long Abstract_Engines_Container_i::getPID()
 void Abstract_Engines_Container_i::ping()
 {
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
+}
+
+//=============================================================================
+//! Get number of CPU cores in the calculation node
+/*!
+*  CORBA method: get number of CPU cores
+*/
+//=============================================================================
+
+CORBA::Long Abstract_Engines_Container_i::getNumberOfCPUCores()
+{
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *result = PyObject_CallMethod(module,
+                                         (char*)"getNumberOfCPUCores", NULL);
+  int n = PyLong_AsLong(result);
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return (CORBA::Long)n;
+}
+
+//=============================================================================
+//! Get a load of each CPU core in the calculation node
+/*!
+*  CORBA method: get a load of each CPU core
+*/
+//=============================================================================
+namespace {
+  std::string parseException()
+  {
+    std::string error;
+    if (PyErr_Occurred())
+    {
+      PyObject *ptype = nullptr;
+      PyObject *pvalue = nullptr;
+      PyObject *ptraceback = nullptr;
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+      if (ptype == nullptr)
+        return std::string("Null exception type");
+      PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
+      if (ptraceback != nullptr)
+        PyException_SetTraceback(pvalue, ptraceback);
+      boost::python::handle<> htype(ptype);
+      boost::python::handle<> hvalue(boost::python::allow_null(pvalue));
+      boost::python::handle<> htraceback(boost::python::allow_null(ptraceback));
+      boost::python::object traceback = boost::python::import("traceback");
+      boost::python::object format_exc = traceback.attr("format_exception");
+      boost::python::object formatted = format_exc(htype, hvalue, htraceback);
+      error = boost::python::extract<std::string>(boost::python::str("\n").join(formatted));
+    }
+    return error;
+  }
+}
+  
+Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
+{
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *result = PyObject_CallMethod(module,
+                                         (char*)"loadOfCPUCores", "s",
+                                         _load_script.c_str());
+  if (PyErr_Occurred())
+  {
+    std::string error = parseException();
+    PyErr_Print();
+    PyGILState_Release(gstate);
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = CORBA::string_dup(error.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
+
+  int n = this->getNumberOfCPUCores();
+  if (!PyList_Check(result) || PyList_Size(result) != n) {
+    // bad number of cores
+    PyGILState_Release(gstate);
+    Py_DECREF(result);
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "wrong number of cores";
+    throw SALOME::SALOME_Exception(es);
+  }
+
+  Engines::vectorOfDouble_var loads = new Engines::vectorOfDouble;
+  loads->length(n);
+  for (Py_ssize_t i = 0; i < PyList_Size(result); ++i) {
+    PyObject* item = PyList_GetItem(result, i);
+    double foo = PyFloat_AsDouble(item);
+    if (foo < 0.0 || foo > 1.0)
+    {
+      // value not in [0, 1] range
+      PyGILState_Release(gstate);
+      Py_DECREF(result);
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = "load not in [0, 1] range";
+      throw SALOME::SALOME_Exception(es);
+    }
+    loads[i] = foo;
+  }
+
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return loads._retn();
+}
+
+//=============================================================================
+//! Set custom script to calculate a load of each CPU core
+/*!
+*  CORBA method: Set custom script to calculate CPU load
+*  \param script Python script to execute
+*/
+//=============================================================================
+
+void Abstract_Engines_Container_i::setPyScriptForCPULoad(const char *script)
+{
+  _load_script = script;
+}
+
+//=============================================================================
+//! Nullify custom script to calculate each CPU core's load
+/*!
+*  CORBA method: reset script for load calculation to default implementation
+*/
+//=============================================================================
+
+void Abstract_Engines_Container_i::resetScriptForCPULoad()
+{
+  _load_script = "";
+}
+
+//=============================================================================
+//! Get total physical memory of calculation node, in megabytes
+/*!
+*  CORBA method: get total physical memory of calculation node
+*/
+//=============================================================================
+
+CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemory()
+{
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *result = PyObject_CallMethod(module,
+                                         (char*)"getTotalPhysicalMemory", NULL);
+  int n = PyLong_AsLong(result);
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return (CORBA::Long)n;
+}
+
+//=============================================================================
+//! Get used physical memory of calculation node, in megabytes
+/*!
+*  CORBA method: get used physical memory of calculation node
+*/
+//=============================================================================
+
+CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUse()
+{
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *result = PyObject_CallMethod(module,
+                                         (char*)"getTotalPhysicalMemoryInUse", NULL);
+  int n = PyLong_AsLong(result);
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return (CORBA::Long)n;
+}
+
+//=============================================================================
+//! Obtain physical memory, used by the current process, in megabytes.
+/*!
+*  CORBA method: get physical memory, used by the current process
+*/
+//=============================================================================
+
+CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUseByMe()
+{
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *result = PyObject_CallMethod(module,
+                                         (char*)"getTotalPhysicalMemoryInUseByMe", NULL);
+  int n = PyLong_AsLong(result);
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return (CORBA::Long)n;
 }
 
 //=============================================================================

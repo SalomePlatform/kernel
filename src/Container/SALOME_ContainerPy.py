@@ -35,6 +35,7 @@ import string
 from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA
+import salome_psutil
 from SALOME_NamingServicePy import *
 from SALOME_Embedded_NamingService import SALOME_Embedded_NamingService
 from SALOME_ComponentPy import *
@@ -55,6 +56,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
     _poa = None
     _numInstance = 0
     _listInstances_map = {}
+    _script = ""
 
     #-------------------------------------------------------------------------
 
@@ -62,6 +64,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
         MESSAGE( "SALOME_ContainerPy_i::__init__" )
         self._orb = orb
         self._poa = poa
+        self._load_script = None
         myMachine=getShortHostName()
         Container_path = "/Containers/" + myMachine + "/" + containerName
         self._containerName = Container_path
@@ -202,6 +205,41 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
 
     def getPID(self):
         return os.getpid()
+
+    #-------------------------------------------------------------------------
+
+    def getNumberOfCPUCores(self):
+        return salome_psutil.getNumberOfCPUCores()
+
+    #-------------------------------------------------------------------------
+
+    def loadOfCPUCores(self):
+        return salome_psutil.loadOfCPUCores(self._load_script)
+
+    #-------------------------------------------------------------------------
+
+    def setPyScriptForCPULoad(self, script):
+        self._load_script = script
+
+    #-------------------------------------------------------------------------
+
+    def resetScriptForCPULoad(self):
+        self._load_script = None
+
+    #-------------------------------------------------------------------------
+
+    def getTotalPhysicalMemory(self):
+        return salome_psutil.getTotalPhysicalMemory()
+
+    #-------------------------------------------------------------------------
+
+    def getTotalPhysicalMemoryInUse(self):
+        return salome_psutil.getTotalPhysicalMemoryInUse()
+
+    #-------------------------------------------------------------------------
+
+    def getTotalPhysicalMemoryInUseByMe(self):
+        return salome_psutil.getTotalPhysicalMemoryInUseByMe()
 
     #-------------------------------------------------------------------------
 

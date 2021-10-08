@@ -96,6 +96,13 @@ public:
   void finalize_removal();
 
   virtual void ping();
+  CORBA::Long getNumberOfCPUCores();
+  Engines::vectorOfDouble* loadOfCPUCores();
+  void setPyScriptForCPULoad(const char *script);
+  void resetScriptForCPULoad();
+  CORBA::Long getTotalPhysicalMemory();
+  CORBA::Long getTotalPhysicalMemoryInUse();
+  CORBA::Long getTotalPhysicalMemoryInUseByMe();
   char *name();
   char *workingdir();
   char *logfilename();
@@ -158,6 +165,7 @@ protected:
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;
+  std::string _load_script;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId *_id;
