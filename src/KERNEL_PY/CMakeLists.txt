@@ -39,6 +39,7 @@ SET(salomepython_PYTHON
     salome_notebook.py
     salome_pynode.py
     salome_genericobj.py
+    salome_psutil.py
   )
 
 SALOME_INSTALL_SCRIPTS("${salomepython_PYTHON}" ${SALOME_INSTALL_PYTHON})

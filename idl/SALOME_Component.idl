@@ -62,6 +62,7 @@ module Engines
   };
 
   typedef sequence<KeyValuePair> FieldsDict;
+  typedef sequence<double> vectorOfDouble;
 
   interface EngineComponent ;
   interface fileRef ;
@@ -247,6 +248,30 @@ module Engines
      * Previous scripts created on container may have been stored in a map. This method removes them. It then clean all the contexts dict attached to them.
      */
     void cleanAllPyScripts();
+
+    //! Return number of CPU cores in the calculation node.
+    long getNumberOfCPUCores();
+
+    //! Return a load of each CPU core.
+    vectorOfDouble loadOfCPUCores() raises(SALOME::SALOME_Exception);
+
+    //! Set custom script to calculate a load of each CPU core.
+    /*!
+      \param script Python script to execute
+     */
+    void setPyScriptForCPULoad(in string script);
+
+    //! Nullify custom script to calculate each CPU core's load.
+    void resetScriptForCPULoad();
+
+    //! Get total physical memory of calculation node, in megabytes.
+    long getTotalPhysicalMemory();
+
+    //! Get used physical memory of calculation node, in megabytes.
+    long getTotalPhysicalMemoryInUse();
+
+    //! Obtain physical memory, used by the current process, in megabytes.
+    long getTotalPhysicalMemoryInUseByMe();
   };
 
   /*! \brief Interface of the %component.

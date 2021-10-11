@@ -29,12 +29,12 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 #include <hdf5.h>
 #include "hdfi.h"
 
-int HDFdatasetGetSize(hdf_idt id)
+long HDFdatasetGetSize(hdf_idt id)
 {
   hdf_size size;
 
   if ((long)(size = H5Dget_storage_size(id)) < 0)
     return -1;
 
-  return (int) size;
+  return (long) size;
 }
