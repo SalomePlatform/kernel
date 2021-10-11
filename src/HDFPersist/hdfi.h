@@ -108,7 +108,7 @@ extern
 hdf_err HDFdatasetGetDim(hdf_idt id,hdf_size dim[]);
 
 extern
-int HDFdatasetGetSize(hdf_idt id);
+long HDFdatasetGetSize(hdf_idt id);
 
 extern 
 hdf_byte_order HDFdatasetGetOrder(hdf_idt id);
