@@ -53,8 +53,7 @@
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 
-#include "Utils_ORB_INIT.hxx" 
-#include "Utils_SINGLETON.hxx" 
+#include "OpUtil.hxx"
 
 #include "Basics_Utils.hxx"
 
@@ -105,9 +104,7 @@ SALOMEDS_Study::~SALOMEDS_Study()
 
 void SALOMEDS_Study::InitORB()
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  _orb = init(0 , 0 ) ;
+  _orb = KERNEL::GetRefToORB();
 }
 
 void SALOMEDS_Study::Init()

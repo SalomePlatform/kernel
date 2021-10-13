@@ -33,9 +33,11 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
+#include "ArgvKeeper.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 #include <Basics_Utils.hxx>
 
@@ -45,8 +47,8 @@ int main (int argc, char * argv[])
   try
     {
       // --- Initialize omniORB
-
-      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+      SetArgcArgv(argc, argv);
+      CORBA::ORB_var orb = KERNEL::GetRefToORB();
     
       // --- Obtain a reference to the root POA
 

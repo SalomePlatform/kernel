@@ -35,8 +35,9 @@ extern "C"
 # include <stdio.h>
 }
 
+#include "ArgvKeeper.hxx"
 #include "utilities.h"
-#include "Utils_ORB_INIT.hxx"
+#include "OpUtil.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
@@ -50,8 +51,8 @@ extern "C"
 
 int main( int argc , char **argv )
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
+  SetArgcArgv( argc, argv );
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   BEGIN_OF( argv[0] )
     INFOS_COMPILATION 

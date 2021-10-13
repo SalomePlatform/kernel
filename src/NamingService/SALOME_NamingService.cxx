@@ -28,6 +28,7 @@
 //
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
+#include "OpUtil.hxx"
 
 #include "utilities.h"
 
@@ -113,10 +114,7 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
   if(orb)
     _orb = CORBA::ORB::_duplicate(orb);
   else
-    {
-      int argc=0;
-      _orb = CORBA::ORB_init(argc, 0); // Here we make the assumption that the orb has already been initialized
-    }
+    _orb = KERNEL::GetRefToORB(); // Here we make the assumption that the orb has already been initialized
 
   _initialize_root_context();
 }

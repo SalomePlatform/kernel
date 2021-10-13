@@ -36,10 +36,10 @@
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
 #include "SALOME_NamingService.hxx"
+#include "ArgvKeeper.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "Basics_Utils.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
+#include "OpUtil.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
 
@@ -82,8 +82,8 @@ Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
 int main (int argc, char * argv[])
 {
   // Initializing omniORB
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_ptr orb = init( argc , argv ) ;
+  SetArgcArgv( argc, argv );
+  CORBA::ORB_ptr orb = KERNEL::GetRefToORB();
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
 
   try

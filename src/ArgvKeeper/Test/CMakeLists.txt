@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,33 +17,21 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/salome_test_driver.py")
-SET(PYTHON_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/python_test_driver.py")
+INCLUDE_DIRECTORIES(
+  ${CPPUNIT_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/src/ArgvKeeper
+  ${CMAKE_SOURCE_DIR}/src/Basics/Test
+)
 
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
+SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/ArgvKeeper)
 
-SET(KERNEL_TEST_LIB "$ENV{KERNEL_ROOT_DIR}/@KERNEL_TEST_LIB@")
+ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS})
 
-# Add all test subdirs
-SUBDIRS( ArgvKeeper
-         Launcher
-         Launcher_SWIG
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Container
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+ADD_EXECUTABLE(TestArgvKeeper ArgvKeeperTest.cxx TestArgvKeeper.cxx)
+TARGET_LINK_LIBRARIES(TestArgvKeeper ArgvKeeper ${CPPUNIT_LIBRARIES})
+
+INSTALL(TARGETS TestArgvKeeper DESTINATION ${LOCAL_TEST_DIR})
+INSTALL(FILES test_ArgvKeeper.py DESTINATION ${LOCAL_TEST_DIR})
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${LOCAL_TEST_DIR}
+        RENAME CTestTestfile.cmake)

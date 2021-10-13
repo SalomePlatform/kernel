@@ -23,24 +23,22 @@
 #include "SALOMESDS_Exception.hxx"
 #include "SALOME_CPythonHelper.hxx"
 #include "SALOME_NamingService_Abstract.hxx"
+#include "ArgvKeeper.hxx"
+#include "OpUtil.hxx"
 
 #include <string>
 #include <sstream>
 #include <functional>
+#include <vector>
 
 CORBA::ORB_var GetCustomORB()
 {
   CORBA::ORB_var orb;
   {
-    int argc(3);
-    char **argv=new char *[3];
-    char *p0(strdup("DTC")),*p1(strdup("-ORBsupportCurrent")),*p2(strdup("0"));
-    argv[0]=p0;
-    argv[1]=p1;// by disabling supportCurrent it make the POAManager::hold_requests work !
-    argv[2]=p2;
-    orb=CORBA::ORB_init(argc,argv);
-    free(p0); free(p1); free(p2);
-    delete [] argv;
+    // by disabling supportCurrent it make the POAManager::hold_requests work !
+    std::vector<std::string> args = {"DTC", "-ORBsupportCurrent", "0"};
+    SetArgcArgv(args);
+    orb=KERNEL::GetRefToORB();
   }
   return orb;
 }

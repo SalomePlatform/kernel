@@ -22,7 +22,7 @@
 
 //  SALOME ParallelContainerProxyMpi : Launching the proxy of a MPI PaCO++ object
 //  File   : SALOME_ParallelContainerProxyMpi.cxx
-//  Author : André Ribes, EDF
+//  Author : Andrï¿½ Ribes, EDF
 //  Module : SALOME PARALLEL
 //
 #include <iostream>
@@ -45,9 +45,8 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "ArgvKeeper.hxx"
 #include "Basics_Utils.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
@@ -122,7 +121,8 @@ int main(int argc, char* argv[])
   // MPI Init
   int provided;
   MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED ,&provided);
-  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   KERNEL_PYTHON::init_python(argc,argv);
 
 #ifdef _DEBUG_

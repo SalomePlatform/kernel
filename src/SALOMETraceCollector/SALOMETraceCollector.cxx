@@ -33,14 +33,11 @@
 #include <cstdlib>
 #include <omniORB4/CORBA.h>
 
+#include "Utils_SALOME_Exception.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "TraceCollector_WaitForServerReadiness.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(Logger)
-
-// Class attributes initialisation, for class method SALOMETraceCollector::run
-
-CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
 
 // ============================================================================
 /*!
@@ -60,10 +57,6 @@ BaseTraceCollector* SALOMETraceCollector::instance()
       if (_singleton == 0)                     // another thread may have got
         {                                      // the lock after the first test
           BaseTraceCollector* myInstance = new SALOMETraceCollector();
-          int argc=0;
-          char *_argv=0;
-          char ** argv = &_argv;
-          _orb = CORBA::ORB_init (argc, argv);
 
           sem_init(&_sem,0,0); // to wait until run thread is initialized
           pthread_t traceThread;
@@ -101,7 +94,7 @@ void* SALOMETraceCollector::run(void* /*bid*/)
   SALOME_Logger::Logger_var m_pInterfaceLogger;
   CORBA::Object_var obj;
 
-  obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
+  obj = TraceCollector_WaitForServerReadiness("Logger");
   if (!CORBA::is_nil(obj))
     m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
   if (CORBA::is_nil(m_pInterfaceLogger))
@@ -130,7 +123,8 @@ void* SALOMETraceCollector::run(void* /*bid*/)
         }
 
       myTraceBuffer->retrieve(myTrace);
-      if (!CORBA::is_nil(_orb))
+      //if (!CORBA::is_nil(_orb))
+      if (true)
         {
           if (myTrace.traceType == ABORT_MESS)
             {

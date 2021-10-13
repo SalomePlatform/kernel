@@ -32,7 +32,6 @@
 #include <omniORB4/CORBA.h> 
 #include <string>
 
-CORBA::Object_ptr  TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr theOrb,
-                                                         std::string serverName);
+CORBA::Object_ptr  TraceCollector_WaitForServerReadiness(const std::string& serverName);
 
 #endif

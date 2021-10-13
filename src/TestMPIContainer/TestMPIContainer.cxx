@@ -36,9 +36,8 @@
 #include CORBA_CLIENT_HEADER(SALOME_MPIContainer)
 #include CORBA_CLIENT_HEADER(SALOME_TestMPIComponent)
 
+#include "ArgvKeeper.hxx"
 #include "Basics_Utils.hxx"
-# include "Utils_ORB_INIT.hxx"
-# include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
 
@@ -46,9 +45,9 @@ int main (int argc, char * argv[])
 {
 
   // Initializing omniORB
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
-  //  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  SetArgcArgv(argc, argv);
+   CORBA::ORB_ptr orb = KERNEL::GetRefToORB();
+ //  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
     
   BEGIN_OF(argv[0])
   try{

@@ -29,6 +29,7 @@
 #include <unistd.h>
 #endif
 #include <SALOMEconfig.h>
+#include "ArgvKeeper.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ResourcesManager.hxx"
 #include "SALOME_ContainerManager.hxx"
@@ -36,8 +37,6 @@
 #include "SALOME_ResourcesManager.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "OpUtil.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
 #include "Basics_DirUtils.hxx"
@@ -53,8 +52,8 @@ int main (int argc, char * argv[])
   int status;
 
   // Initializing omniORB
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_ptr orb = init( argc , argv ) ;
+  SetArgcArgv( argc, argv ) ;
+  CORBA::ORB_ptr orb = KERNEL::GetRefToORB();
 
   SALOME_NamingService *_NS=new SALOME_NamingService(orb);
 

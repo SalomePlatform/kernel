@@ -22,7 +22,7 @@
 
 //  SALOME ParallelContainerNodeMpi : Launch mpi PaCO++ object nodes
 //  File   : SALOME_ParallelContainerNodeMpi.cxx
-//  Author : André Ribes, EDF
+//  Author : Andrï¿½ Ribes, EDF
 //  Module : SALOME PARALLEL
 //
 #include <iostream>
@@ -46,9 +46,8 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "ArgvKeeper.hxx"
 #include "Basics_Utils.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
@@ -139,7 +138,8 @@ int main(int argc, char* argv[])
   std::cerr << "Level MPI_THREAD_MULTIPLE : " << MPI_THREAD_MULTIPLE << std::endl;
   std::cerr << "Level provided : " << provided << std::endl;
   // Initialise the ORB.
-  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   KERNEL_PYTHON::init_python(argc,argv);
 
   // Code pour choisir le reseau infiniband .....
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-    // On récupère le proxy 
+    // On rï¿½cupï¿½re le proxy 
     std::string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
                                                        proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());

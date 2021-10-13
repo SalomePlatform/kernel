@@ -38,8 +38,7 @@
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-#include "Utils_ORB_INIT.hxx" 
-#include "Utils_SINGLETON.hxx" 
+#include "OpUtil.hxx"
 
 #include "Basics_Utils.hxx"
 
@@ -342,9 +341,7 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject::GetSObject()
 
 void SALOMEDS_SObject::init_orb()
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  _orb = init(0 , 0 ) ;     
+  _orb = KERNEL::GetRefToORB();    
 }
 
 void SALOMEDS_SObject::SetAttrString(const std::string& name, const std::string& value)

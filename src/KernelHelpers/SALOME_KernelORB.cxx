@@ -18,6 +18,7 @@
 //
 
 #include "SALOME_KernelORB.hxx"
+#include "OpUtil.hxx"
 
 namespace KERNEL {
   /**
@@ -28,8 +29,7 @@ namespace KERNEL {
   CORBA::ORB_ptr getORB() {
     static CORBA::ORB_ptr orb;
     if(CORBA::is_nil(orb)){
-      int argc=0;
-      orb = CORBA::ORB_init(argc,0);
+      orb = KERNEL::GetRefToORB();
     }
     return orb;
   }

@@ -27,12 +27,10 @@
 //
 #include "NOTIFICATION.hxx"
 
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
+#include "OpUtil.hxx"
 
 CosNA_EventChannel_ptr NOTIFICATION_channel() {
-    ORB_INIT&      init = *SINGLETON_<ORB_INIT>::Instance(); ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-    CORBA::ORB_ptr orb  = init(0, 0);
+    CORBA::ORB_ptr orb  = KERNEL::GetRefToORB();
 
     CosNA_EventChannel_ptr       channel = CosNA_EventChannel::_nil();
     CosNaming::NamingContext_var name_context;

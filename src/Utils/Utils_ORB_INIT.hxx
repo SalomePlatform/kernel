@@ -57,7 +57,7 @@ public :
         ORB_INIT( void );
         virtual ~ORB_INIT();
         void explicit_destroy();
-        CORBA::ORB_var & operator() ( int argc , char **argv );
+        CORBA::ORB_var & operator() ();
 
         inline CORBA::ORB_var &orb( void );
 } ;

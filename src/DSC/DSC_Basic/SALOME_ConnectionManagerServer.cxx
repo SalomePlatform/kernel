@@ -25,6 +25,8 @@
 //  Module : KERNEL
 //
 #include "ConnectionManager_i.hxx"
+#include "ArgvKeeper.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 #include <iostream>
 
@@ -33,7 +35,9 @@ int main(int argc, char* argv[])
   PortableServer::POA_var root_poa;
   PortableServer::POAManager_var pman;
   CORBA::Object_var obj;
-  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
+
   try{
     obj = orb->resolve_initial_references("RootPOA");
     if(!CORBA::is_nil(obj))

@@ -27,8 +27,10 @@
 /* $Header$ */
 
 #include <iostream>
+#include "ArgvKeeper.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 #include "Utils_SINGLETON.hxx"
 
@@ -39,7 +41,8 @@
 int main(int argc,char **argv)
 {
   // initialize the ORB
-  CORBA::ORB_var orb = CORBA::ORB_init (argc, argv);
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
@@ -98,7 +101,7 @@ int main(int argc,char **argv)
                   INFOS( "Module Catalog Server: Naming Service was found" );
                   if(EnvL==1)
                     {
-                      CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
+                      CORBA::ORB_var orb1 = KERNEL::GetRefToORB() ;
                       SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
                       NS.init_orb( orb1 ) ;
                       for(int j=1; j<=NumberOfTries; j++)

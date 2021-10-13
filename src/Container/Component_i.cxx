@@ -31,8 +31,8 @@
 #include "SALOME_Container_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "Basics_Utils.hxx"
+#include "OpUtil.hxx"
 #include "Utils_SINGLETON.hxx"
-#include "Utils_ORB_INIT.hxx"
 #include "SALOME_NamingService.hxx"
 #include "Utils_CorbaException.hxx"
 
@@ -193,9 +193,7 @@ CORBA::Boolean Engines_Component_i::isSSLMode()
 
 SALOME_NamingService_Abstract *Engines_Component_i::getNS()
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-  CORBA::ORB_var &orb = init( 0 , 0 ) ;
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
 
   SALOME_NamingService *naming = SINGLETON_<SALOME_NamingService>::Instance() ;
   naming->init_orb( orb ) ;

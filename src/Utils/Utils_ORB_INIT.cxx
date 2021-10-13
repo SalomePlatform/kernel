@@ -27,14 +27,24 @@
 //  $Header$
 //
 # include "Utils_ORB_INIT.hxx" 
+# include "Utils_SALOME_Exception.hxx"
 # include "utilities.h" 
+# include "ArgvKeeper.hxx"
 
 # include "SALOMEconfig.h"
+
+# include <string>
+# include <vector>
+#include <mutex>
 
 ORB_INIT::ORB_INIT( void ): _orb( CORBA::ORB::_nil() )
 {
 }
 
+namespace
+{
+  std::recursive_mutex mutex; //!< mutex to protect access to static data
+}
 
 ORB_INIT::~ORB_INIT()
 {
@@ -68,18 +78,30 @@ void ORB_INIT::explicit_destroy()
     }
 }
 
-CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv )
+CORBA::ORB_var &ORB_INIT::operator() ()
 {
   try {
+    std::lock_guard<std::recursive_mutex> g(mutex);  
     if ( CORBA::is_nil( _orb ) )
       {
         try
           {
-#if OMNIORB_VERSION >= 4
+            if (!ArgcArgvInitialized())
+            {
+              MESSAGE("WARNING: ORB_INIT(): argc and argv are not initialized");
+            }
+            std::vector<std::string> args = GetArgcArgv();
+            int argc = args.size();
+            char** argv = argc > 0 ? new char*[argc] : nullptr;
+            for (int i = 0; i < argc; ++i) {
+              argv[i] = new char[args.at(i).size()+1];
+              strcpy(argv[i], args.at(i).c_str());
+            }
             _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
-#else
-            _orb = CORBA::ORB_init( argc, argv, "omniORB3" ) ;
-#endif
+            for (int i = 0; i < argc; ++i)
+              delete[] argv[i];
+            if (argc>0)
+              delete[] argv;
           }
         catch( const CORBA::Exception & )
           {

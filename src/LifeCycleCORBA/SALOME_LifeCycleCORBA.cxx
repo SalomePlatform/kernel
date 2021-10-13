@@ -37,6 +37,7 @@
 #endif
 
 #include "Basics_Utils.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 
 #include <ServiceUnreachable.hxx>
@@ -86,10 +87,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService_Abstract *ns)
 {
   // be sure to have an instance of traceCollector, when used via SWIG
   // in a Python module
-  int argc = 0;
-  char *xargv = (char*)"";
-  char **argv = &xargv;
-  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   _NSnew=0;
   if (!ns)
@@ -561,10 +559,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
     }
 
   // 7) Logger
-  int argc = 0;
-  char *xargv = (char*)"";
-  char **argv = &xargv;
-  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
 
   CORBA::Object_var objLog = CORBA::Object::_nil();
   CosNaming::NamingContext_var inc;

@@ -20,14 +20,18 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "ArgvKeeper.hxx"
 #include "SALOME_Launcher.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
 #include "SALOME_ExternalServerLauncher.hxx"
 #include "SALOME_CPythonHelper.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
+#include <vector>
 #include <libxml/parser.h>
 
 void AttachDebugger();
@@ -80,16 +84,13 @@ int main(int argc, char* argv[])
   CORBA::Object_var obj;
   CORBA::ORB_var orb;
   {
-    int myArgc(argc+2);
-    char **myArgv(new char *[myArgc]);
+    std::vector<std::string> args;
     for(int i=0;i<argc;i++)
-      myArgv[i]=strdup(argv[i]);
-    myArgv[argc+0]=strdup("-ORBsupportCurrent");
-    myArgv[argc+1]=strdup("0");
-    orb = CORBA::ORB_init( myArgc , myArgv ) ;
-    for(int i=0;i<myArgc;i++)
-      free(myArgv[i]);
-    delete [] myArgv;
+      args.push_back(argv[i]);
+    args.push_back("-ORBsupportCurrent");
+    args.push_back("0");
+    SetArgcArgv(args);
+    orb = KERNEL::GetRefToORB();
   }
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;

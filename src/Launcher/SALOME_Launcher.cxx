@@ -716,8 +716,7 @@ SALOME_Launcher *KERNEL::getLauncherSA()
 {
   if(!_launcher_singleton_ssl)
   {
-    int argc(0);
-    CORBA::ORB_var orb = CORBA::ORB_init(argc,nullptr);
+    CORBA::ORB_var orb = KERNEL::GetRefToORB();
     PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
     PortableServer::POAManager_var pman = root_poa->the_POAManager();
     CORBA::PolicyList policies;

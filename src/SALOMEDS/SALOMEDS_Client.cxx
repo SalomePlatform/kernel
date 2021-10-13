@@ -30,7 +30,9 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "SALOME_KernelServices.hxx"
+#include "ArgvKeeper.hxx"
 #include "Basics_Utils.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 #include "HDFOI.hxx"
 
@@ -254,11 +256,8 @@ int main(int argc, char** argv)
 { 
   try {
     // Initialise the ORB.
-#if OMNIORB_VERSION >= 4
-    CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
-#else
-    CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB3" );
-#endif
+    SetArgcArgv(argc, argv);
+    CORBA::ORB_var orb = KERNEL::GetRefToORB() ;
     
     // Obtain a reference to the root POA.
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
