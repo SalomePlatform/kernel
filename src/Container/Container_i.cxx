@@ -64,7 +64,9 @@ int SIGUSR1 = 1000;
 
 #include <Python.h>
 #include "Container_init_python.hxx"
+#ifdef BOS26455_WITH_BOOST_PYTHON
 #include <boost/python.hpp>
+#endif
 
 bool _Sleeping = false ;
 
@@ -375,6 +377,7 @@ namespace {
     std::string error;
     if (PyErr_Occurred())
     {
+#ifdef BOS26455_WITH_BOOST_PYTHON
       PyObject *ptype = nullptr;
       PyObject *pvalue = nullptr;
       PyObject *ptraceback = nullptr;
@@ -391,6 +394,9 @@ namespace {
       boost::python::object format_exc = traceback.attr("format_exception");
       boost::python::object formatted = format_exc(htype, hvalue, htraceback);
       error = boost::python::extract<std::string>(boost::python::str("\n").join(formatted));
+#else
+      error = "Python exception is caught";
+#endif
     }
     return error;
   }
