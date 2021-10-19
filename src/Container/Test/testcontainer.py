@@ -71,7 +71,7 @@ class TestResourceManager(unittest.TestCase):
         # Check custom script
         cont = self.getContainer("test_container_2")
         import multiprocessing as mp
-        ref_load = [max(0.1*(i+1),1.0) for i in range(mp.cpu_count())]
+        ref_load = [min(0.1*(i+1),1.0) for i in range(mp.cpu_count())]
         cont.setPyScriptForCPULoad('cpu_loads = {}'.format(ref_load))
         loads1 = cont.loadOfCPUCores()
         self.assertEqual(loads1, ref_load)
