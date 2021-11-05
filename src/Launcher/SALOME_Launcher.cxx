@@ -719,8 +719,17 @@ SALOME_Launcher *KERNEL::getLauncherSA()
     int argc(0);
     CORBA::ORB_var orb = CORBA::ORB_init(argc,nullptr);
     PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
+    PortableServer::POAManager_var pman = root_poa->the_POAManager();
+    CORBA::PolicyList policies;
+    policies.length(1);
+    PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+    policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+    PortableServer::POA_var safePOA = root_poa->create_POA("SingleThreadPOA",
+                                                           pman,
+                                                           policies);
+    threadPol->destroy();
     SALOME_Fake_NamingService *ns=new SALOME_Fake_NamingService(orb);
-    _launcher_singleton_ssl = new SALOME_Launcher(orb,root_poa,ns);//3rd arg is important to skip NS !
+    _launcher_singleton_ssl = new SALOME_Launcher(orb,safePOA,ns);//3rd arg is important to skip NS !
   }
   return _launcher_singleton_ssl;
 }
