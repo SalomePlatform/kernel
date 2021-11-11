@@ -23,7 +23,36 @@
 
 %{
 #include "KernelServices.hxx"
+#include "Utils_SALOME_Exception.hxx"
 %}
+
+%exceptionclass SALOME_Exception;
+
+class SALOME_Exception
+{
+public:
+  SALOME_Exception(const std::string& text);
+  ~SALOME_Exception() noexcept;
+  const char *what() const noexcept;
+  %extend
+  {
+    std::string __str__() const
+    {
+      return std::string(self->what());
+    }
+  }
+};
+
+%exception {
+  try {
+    $action
+  }
+  catch (SALOME_Exception& _e) {
+    // Reraise with SWIG_Python_Raise
+    SWIG_Python_Raise(SWIG_NewPointerObj((new SALOME_Exception(static_cast< const SALOME_Exception& >(_e))),SWIGTYPE_p_SALOME_Exception,SWIG_POINTER_OWN), "SALOME_Exception", SWIGTYPE_p_SALOME_Exception);
+    SWIG_fail;
+  }
+}
 
 %inline
 {
