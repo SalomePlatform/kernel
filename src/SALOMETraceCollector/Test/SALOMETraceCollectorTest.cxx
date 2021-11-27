@@ -69,6 +69,7 @@ void *PrintHello(void *threadid);
 void 
 SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 {
+  LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
   std::string s = "with_logger";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
@@ -92,7 +93,6 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
     }
   MESSAGE(" ---- end of PrintHello threads ---- ");
 
-  LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
   CPPUNIT_ASSERT(bp1);
   bp1->deleteInstance(bp1);
 }

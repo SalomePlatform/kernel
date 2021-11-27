@@ -30,8 +30,7 @@
 #endif
 #include "omniORB4/poa.h"
 #include "omnithread.h"
-#include "Utils_SINGLETON.hxx"
-#include "Utils_ORB_INIT.hxx"
+#include "OpUtil.hxx"
 #include "Basics_MpiUtils.hxx"
 #include "utilities.h"
 
@@ -39,8 +38,7 @@
 
 #ifndef WIN32
 CORBA::ORB_var &getGlobalORB(){
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
-  CORBA::ORB_var &orb = init(0,0);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   return orb;
 }
 #endif

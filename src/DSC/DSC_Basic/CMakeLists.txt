@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
+  ${PROJECT_SOURCE_DIR}/src/ArgvKeeper
   ${PROJECT_SOURCE_DIR}/src/Container
   ${PROJECT_SOURCE_DIR}/src/GenericObj
   ${PROJECT_SOURCE_DIR}/src/Notification
@@ -49,6 +50,7 @@ SET(SALOME_ConnectionManagerServer_SOURCES
 )
 
 SET(SALOME_ConnectionManagerServer_LIBS
+  ArgvKeeper
   SalomeIDLKernel
   SalomeNS
   SALOMELocalTrace

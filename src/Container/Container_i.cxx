@@ -48,6 +48,7 @@ int SIGUSR1 = 1000;
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 #include <pthread.h>  // must be before Python.h !
+#include "OpUtil.hxx"
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_FileRef_i.hxx"
@@ -2245,8 +2246,7 @@ Engines_Container_SSL_i *KERNEL::getContainerSA()
 {
   if(!_container_singleton_ssl)
   {
-    int argc(0);
-    CORBA::ORB_var orb = CORBA::ORB_init(argc,nullptr);
+    CORBA::ORB_var orb = KERNEL::GetRefToORB();
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
     PortableServer::POAManager_var pman = poa->the_POAManager();

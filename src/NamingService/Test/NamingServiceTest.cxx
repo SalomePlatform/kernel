@@ -21,8 +21,7 @@
 //
 
 #include "NamingServiceTest.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
+#include "OpUtil.hxx"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
@@ -144,11 +143,7 @@ NamingServiceTest::setUp()
 
   // --- Get or initialize the orb
 
-  int _argc = 1;
-  char* _argv[] = {(char*)""};
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  _orb = init(_argc , _argv ) ;
+  _orb = KERNEL::GetRefToORB();
 
   // --- Create a SALOME_NamingService instance
 

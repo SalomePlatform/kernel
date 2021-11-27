@@ -31,6 +31,7 @@ INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${LIBBATCH_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
@@ -53,6 +54,7 @@ ENDIF(SALOME_USE_LIBBATCH)
 
 # This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
+  ArgvKeeper
   Registry
   SalomeNotification
   SalomeContainer

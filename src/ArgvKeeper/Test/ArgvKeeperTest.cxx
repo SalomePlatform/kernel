@@ -1,8 +1,5 @@
 // Copyright (C) 2007-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
@@ -20,26 +17,22 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Utils : general SALOME's definitions and tools
-//  File   : OpUtil.hxx
-//  Module : SALOME
-//
-#ifndef _OPUTIL_HXX
-#define _OPUTIL_HXX
+#include "ArgvKeeperTest.hxx"
+#include "ArgvKeeper.hxx"
 
-#include "SALOME_Utils.hxx"
+#include <string>
+#include <vector>
 
-UTILS_EXPORT const char *duplicate(const char * const);
-
-#if !defined(SALOME_LIGHT)
-
-#include <omniORB4/CORBA.h>
-
-namespace KERNEL
+void ArgvKeeperUnitTests::TEST_argvKeeper()
 {
-  UTILS_EXPORT CORBA::ORB_var GetRefToORB();
+  // args not set
+  CPPUNIT_ASSERT_EQUAL(GetArgcArgv().size(), size_t(0));
+
+  // args set
+  std::vector<std::string> params = {"aaa", "bbb", "ccc"};
+  SetArgcArgv(params);
+  CPPUNIT_ASSERT_EQUAL(GetArgcArgv().size(), size_t(3));
+  CPPUNIT_ASSERT_EQUAL(GetArgcArgv()[0], params[0]);
+  CPPUNIT_ASSERT_EQUAL(GetArgcArgv()[1], params[1]);
+  CPPUNIT_ASSERT_EQUAL(GetArgcArgv()[2], params[2]);
 }
-
-#endif
-
-#endif

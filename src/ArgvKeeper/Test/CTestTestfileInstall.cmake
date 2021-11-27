@@ -17,33 +17,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/salome_test_driver.py")
-SET(PYTHON_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/python_test_driver.py")
-
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
-
-SET(KERNEL_TEST_LIB "$ENV{KERNEL_ROOT_DIR}/@KERNEL_TEST_LIB@")
-
-# Add all test subdirs
-SUBDIRS( ArgvKeeper
-         Launcher
-         Launcher_SWIG
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Container
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+IF(NOT WIN32)
+  ADD_TEST(${COMPONENT_NAME}_ArgvKeeperCxx TestArgvKeeper)
+  SET_TESTS_PROPERTIES(${COMPONENT_NAME}_ArgvKeeperCxx PROPERTIES
+                       LABELS "${COMPONENT_NAME}"
+                       ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+                      )
+  ADD_TEST(${COMPONENT_NAME}_ArgvKeeperPy ${PYTHON_TEST_DRIVER} ${TIMEOUT} test_ArgvKeeper.py)
+  SET_TESTS_PROPERTIES(${COMPONENT_NAME}_ArgvKeeperPy PROPERTIES
+                       LABELS "${COMPONENT_NAME}"
+                       ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+		       )
+ENDIF()

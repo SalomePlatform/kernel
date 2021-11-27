@@ -23,6 +23,7 @@ INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${PTHREAD_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../ArgvKeeper
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace
@@ -47,6 +48,7 @@ INCLUDE_DIRECTORIES(
 # This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
  ${CPPUNIT_LIBRARIES}
+ ArgvKeeper
  SALOMEBasics
  SalomeResourcesManager
  SalomeContainer

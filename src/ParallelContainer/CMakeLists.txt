@@ -23,6 +23,7 @@ INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
   ${PACO_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
+  ${PROJECT_SOURCE_DIR}/src/ArgvKeeper
   ${PROJECT_SOURCE_DIR}/src/Container
   ${PROJECT_SOURCE_DIR}/src/Notification
   ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
@@ -38,6 +39,7 @@ INCLUDE_DIRECTORIES(
 
 # This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
+  ArgvKeeper
   SalomeContainer
   SalomeNS
   SALOMELocalTrace

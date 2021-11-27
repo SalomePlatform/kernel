@@ -27,6 +27,8 @@
 /* $Header$ */
 
 #include <iostream>
+#include "ArgvKeeper.hxx"
+#include "OpUtil.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
 #include <string>
@@ -50,8 +52,8 @@ int main(int argc,char **argv)
   try {
 
         // initialize the ORB
-
-  orb = CORBA::ORB_init (argc, argv);
+  SetArgcArgv(argc, argv);
+  orb = KERNEL::GetRefToORB();
 
  
   // Get CORBA reference of the catalog

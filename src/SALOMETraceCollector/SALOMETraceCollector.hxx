@@ -29,7 +29,6 @@
 #define _SALOMETRACECOLLECTOR_HXX_
 
 #include <string>
-#include <omniORB4/CORBA.h>
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
 
@@ -56,9 +55,6 @@ class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector:
 
  protected:
   SALOMETraceCollector();
-
- private:
-  static CORBA::ORB_ptr _orb;
 };
 
 #endif

@@ -23,8 +23,7 @@
 #include "SALOMEDSTest.hxx"
 
 #include "utilities.h"
-#include "Utils_SINGLETON.hxx"
-#include "Utils_ORB_INIT.hxx"
+#include "OpUtil.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 
@@ -48,12 +47,7 @@
  
 void SALOMEDSTest::setUp()
 {  
-  int argc = 1;
-  char* argv[] = {(char*)""};
-
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  _orb = init(argc , argv ) ;
+  _orb = KERNEL::GetRefToORB();
   SALOME_NamingService NS(_orb);
   CORBA::Object_var obj = NS.Resolve( "/Study" );
   _study = SALOMEDS::Study::_narrow( obj );
@@ -120,12 +114,7 @@ void SALOMEDSTest::tearDown()
  
 void SALOMEDSTest_Embedded::setUp()
 {  
-  int argc = 1;
-  char* argv[] = {(char*)""};
-
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  _orb = init(argc , argv ) ;
+  _orb = KERNEL::GetRefToORB();
   SALOME_NamingService NS(_orb);
   CORBA::Object_var obj = NS.Resolve( "/Study_embedded" );
   _study = SALOMEDS::Study::_narrow( obj );

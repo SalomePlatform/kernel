@@ -1,4 +1,5 @@
-# Copyright (C) 2015-2021  CEA/DEN, EDF R&D
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,33 +18,17 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/salome_test_driver.py")
-SET(PYTHON_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/python_test_driver.py")
+import unittest
+import ArgvKeeper
 
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
+from time import sleep
 
-SET(KERNEL_TEST_LIB "$ENV{KERNEL_ROOT_DIR}/@KERNEL_TEST_LIB@")
+class TestArgvKeeper(unittest.TestCase):
+    def test1(self):
+        self.assertEqual(ArgvKeeper.GetArgcArgv(), ())
+        args = ('aaa', 'bbb', 'ccc')
+        ArgvKeeper.SetArgcArgv(args)
+        self.assertEqual(ArgvKeeper.GetArgcArgv(), args)
 
-# Add all test subdirs
-SUBDIRS( ArgvKeeper
-         Launcher
-         Launcher_SWIG
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Container
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+if __name__ == '__main__':
+    unittest.main()

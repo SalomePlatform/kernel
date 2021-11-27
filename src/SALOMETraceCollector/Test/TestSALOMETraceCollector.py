@@ -47,6 +47,8 @@ clt.waitLogger("Logger")
 # execute Unit Test
 
 command = ['./TestSALOMETraceCollector']
+valgrind = ['valgrind', '--leak-check=full']
+#command = valgrind+command
 ret = subprocess.call(command)
 
 # kill Test process

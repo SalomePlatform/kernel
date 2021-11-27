@@ -46,8 +46,7 @@
 #include "DF_Attribute.hxx"
 
 #include "Utils_CorbaException.hxx"
-#include "Utils_ORB_INIT.hxx" 
-#include "Utils_SINGLETON.hxx" 
+#include "OpUtil.hxx"
 
 pthread_mutex_t SALOMEDS_StudyBuilder::_remoteBuilderMutex;
 
@@ -549,7 +548,5 @@ SALOMEDS::StudyBuilder_ptr SALOMEDS_StudyBuilder::GetBuilder()
 
 void SALOMEDS_StudyBuilder::init_orb()
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()); 
-  _orb = init(0 , 0 );     
+  _orb = KERNEL::GetRefToORB();  
 }

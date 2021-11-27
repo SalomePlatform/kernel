@@ -27,6 +27,8 @@
 //
 #include <iostream>
 #include "SALOME_Logger_Server.hxx"
+#include "OpUtil.hxx"
+#include "ArgvKeeper.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -60,7 +62,8 @@ int main(int argc, char **argv)
       PortableServer::POA_var poa;
       PortableServer::POAManager_var pman;   
 
-      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv) ;
+      SetArgcArgv(argc, argv);
+      CORBA::ORB_var orb = KERNEL::GetRefToORB() ;
 
       for (i = 1; i <= NumberOfTries; i++)
           {

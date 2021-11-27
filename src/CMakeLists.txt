@@ -18,6 +18,7 @@
 #
 
 SET(SUBDIR_BASE
+  ArgvKeeper
   AppQuickStart
   Basics
   SALOMELocalTrace

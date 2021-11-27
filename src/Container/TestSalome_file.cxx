@@ -18,6 +18,8 @@
 //
 
 #include "Salome_file_i.hxx"
+#include "ArgvKeeper.hxx"
+#include "OpUtil.hxx"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -84,7 +86,8 @@ int main (int argc, char * argv[])
   print_state(state);
 
   // We start CORBA ...
-  CORBA::ORB_ptr orb = CORBA::ORB_init(argc , argv);
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_ptr orb = KERNEL::GetRefToORB();
   obj = orb->resolve_initial_references("RootPOA");
   root_poa = PortableServer::POA::_narrow(obj);
   pman = root_poa->the_POAManager();

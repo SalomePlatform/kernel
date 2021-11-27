@@ -1,8 +1,5 @@
 // Copyright (C) 2007-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
@@ -20,26 +17,16 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Utils : general SALOME's definitions and tools
-//  File   : OpUtil.hxx
-//  Module : SALOME
-//
-#ifndef _OPUTIL_HXX
-#define _OPUTIL_HXX
+#pragma once
 
-#include "SALOME_Utils.hxx"
+#include <cppunit/extensions/HelperMacros.h>
 
-UTILS_EXPORT const char *duplicate(const char * const);
-
-#if !defined(SALOME_LIGHT)
-
-#include <omniORB4/CORBA.h>
-
-namespace KERNEL
+class ArgvKeeperUnitTests: public CppUnit::TestFixture
 {
-  UTILS_EXPORT CORBA::ORB_var GetRefToORB();
-}
+  CPPUNIT_TEST_SUITE(ArgvKeeperUnitTests);
+  CPPUNIT_TEST(TEST_argvKeeper);
+  CPPUNIT_TEST_SUITE_END();
 
-#endif
-
-#endif
+public:
+  void TEST_argvKeeper();
+};

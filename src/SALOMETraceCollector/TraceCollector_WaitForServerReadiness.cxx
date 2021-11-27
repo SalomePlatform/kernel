@@ -26,6 +26,7 @@
 //  $Header$
 //
 #include "TraceCollector_WaitForServerReadiness.hxx"
+#include "OpUtil.hxx"
 #include <iostream>
 #include <ctime>
 
@@ -47,8 +48,7 @@
  */
 // ============================================================================
 
-CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
-                                                        std::string serverName)
+CORBA::Object_ptr TraceCollector_WaitForServerReadiness(const std::string& serverName)
 {
   long TIMESleep = 500000000;
   int NumberOfTries = 40;
@@ -60,6 +60,7 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
   ts_rem.tv_nsec=0;
   ts_rem.tv_sec=0;
 
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   CORBA::Object_var obj;
 
   try

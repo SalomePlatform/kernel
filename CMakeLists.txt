@@ -182,6 +182,11 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileInstall.cmake
         DESTINATION ${KERNEL_TEST_DIR}
         RENAME CTestTestfile.cmake)
 
+
+IF(SALOME_LIGHT_ONLY)
+  ADD_DEFINITIONS(-DSALOME_LIGHT)
+ENDIF()
+
 # Sources
 # ========
 IF(NOT SALOME_LIGHT_ONLY)
@@ -207,7 +212,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
 SET(_${PROJECT_NAME}_exposed_targets
-  SALOMEBasics SALOMELocalTrace SalomeHDFPersist OpUtil)
+  SALOMEBasics ArgvKeeper SALOMELocalTrace SalomeHDFPersist OpUtil)
 
 # CORBA specific targets:
 IF(NOT SALOME_LIGHT_ONLY)

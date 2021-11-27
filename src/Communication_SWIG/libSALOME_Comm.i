@@ -30,6 +30,7 @@
   #include "SALOME_Comm_i.hxx"
   #include "SALOMEMultiComm.hxx"
   #include "SenderFactory.hxx"
+  #include "OpUtil.hxx"
 %}
 
 %typemap(in) SALOME::SenderDouble_ptr
@@ -53,10 +54,7 @@
  
   // Ask omniORB to convert IOR string to SALOME::SenderDouble_ptr
 
-  int argc = 0;
-  char *xargv = (char*)"";
-  char **argv = &xargv;
-  CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+  CORBA::ORB_var ORB = KERNEL::GetRefToORB();
   CORBA::Object_var O =  ORB->string_to_object(s);
   SALOME::SenderDouble_ptr t = SALOME::SenderDouble::_narrow(O);
   $1 = t;
@@ -83,10 +81,7 @@
  
   // Ask omniORB to convert IOR string to SALOME::SenderInt_ptr
 
-  int argc = 0;
-  char *xargv = (char*)"";
-  char **argv = &xargv;
-  CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+  CORBA::ORB_var ORB = KERNEL::GetRefToORB();
   CORBA::Object_var O =  ORB->string_to_object(s);
   SALOME::SenderInt_ptr t = SALOME::SenderInt::_narrow(O);
   $1 = t;
@@ -101,10 +96,7 @@
                    pdict, pdict);
    PyObject* orb = PyDict_GetItemString(pdict, "o");
    // Get the orb Corba C++
-   int argc = 0;
-   char *xargv = (char*)"";
-   char **argv = &xargv;
-   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+   CORBA::ORB_var ORB = KERNEL::GetRefToORB();
    std::string s =  ORB->object_to_string($1);
    PyObject * tmp = PyString_FromString(s.c_str());
    $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);
@@ -119,10 +111,7 @@
                    pdict, pdict);
    PyObject* orb = PyDict_GetItemString(pdict, "o");
    // Get the orb Corba C++
-   int argc = 0;
-   char *xargv = (char*)"";
-   char **argv = &xargv;
-   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+   CORBA::ORB_var ORB = KERNEL::GetRefToORB();
    std::string s =  ORB->object_to_string($1);
    PyObject * tmp = PyString_FromString(s.c_str());
    $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);

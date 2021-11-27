@@ -24,12 +24,14 @@ IF(NOT SALOME_LIGHT_ONLY)
     ${PTHREAD_INCLUDE_DIR}
     ${PROJECT_BINARY_DIR}/salome_adm
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
     ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
     ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
     ${PROJECT_BINARY_DIR}/idl
   )
   ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${PTHREAD_DEFINITIONS})
   SET(COMMON_LIBS
+    ArgvKeeper
     SALOMELocalTrace 
     SalomeIDLKernel 
     ${OMNIORB_LIBRARIES} 
@@ -45,6 +47,7 @@ IF(NOT SALOME_LIGHT_ONLY)
     Utils_DESTRUCTEUR_GENERIQUE.cxx
     Utils_ExceptHandlers.cxx
     Utils_Mutex.cxx
+    OpUtil.cxx
   )
   FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx" )
   
@@ -54,18 +57,21 @@ ELSE()
     ${PTHREAD_INCLUDE_DIR}
     ${PROJECT_BINARY_DIR}/salome_adm
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
     ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
     ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   )
   SET(COMMON_LIBS
+    ArgvKeeper
     SALOMELocalTrace
     ${PTHREAD_LIBRARIES}
   )
   SET(OpUtil_SOURCES
     Utils_SALOME_Exception.cxx
     duplicate.cxx
+    OpUtil.cxx
   )  
-  SET(COMMON_HEADERS_HXX Utils_SALOME_Exception.hxx) 
+  SET(COMMON_HEADERS_HXX Utils_SALOME_Exception.hxx OpUtil.hxx)
   
 ENDIF()
 

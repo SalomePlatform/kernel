@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
@@ -40,6 +41,7 @@ SET(SalomeTestComponentEngine_SOURCES
 )
 
 SET(COMMON_LIBS
+  ArgvKeeper
   SalomeContainer
   Registry
   SalomeNotification

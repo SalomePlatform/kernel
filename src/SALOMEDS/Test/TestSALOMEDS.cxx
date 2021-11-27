@@ -46,8 +46,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "utilities.h"
-#include "Utils_SINGLETON.hxx"
-#include "Utils_ORB_INIT.hxx"
+#include "ArgvKeeper.hxx"
+#include "OpUtil.hxx"
 #include "Basics_Utils.hxx"
 #include "SALOME_NamingService.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
@@ -67,8 +67,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 
 int main(int argc, char* argv[])
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var orb = init(argc , argv ) ;
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_var orb = KERNEL::GetRefToORB();
   std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
   if(wait_Superv) host = Kernel_Utils::GetHostname();

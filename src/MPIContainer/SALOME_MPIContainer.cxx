@@ -22,9 +22,9 @@
 
 #include <mpi.h>
 #include <iostream>
+#include "ArgvKeeper.hxx"
 #include "MPIContainer_i.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
+#include "OpUtil.hxx"
 #include "utilities.h"
 
 int main(int argc, char* argv[])
@@ -36,8 +36,8 @@ int main(int argc, char* argv[])
   MPI_Comm_rank(MPI_COMM_WORLD,&numproc);
 
   // Initialise the ORB.
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_ptr orb = KERNEL::GetRefToORB();
   //  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
  
   BEGIN_OF("[" << numproc << "] " << argv[0])

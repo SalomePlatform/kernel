@@ -48,11 +48,10 @@
 #else
 #include <process.h>
 #endif
+#include "ArgvKeeper.hxx"
 #include "SALOME_Container_Common.hxx"
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
 #include "KernelBasis.hxx"
 
@@ -150,9 +149,8 @@ int container_common_main(int argc, char* argv[], std::unique_ptr<SALOME_NamingS
   // Initialise the ORB.
   //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
   //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  CORBA::ORB_ptr orb = init(argc , argv ) ;
+  SetArgcArgv(argc, argv);
+  CORBA::ORB_ptr orb = KERNEL::GetRefToORB();
 
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
