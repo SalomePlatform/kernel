@@ -21,6 +21,7 @@
 
 #include "SALOME_KernelServices.hxx"
 #include "SALOME_Fake_NamingService.hxx"
+#include "Utils_SALOME_Exception.hxx"
 
 #include <map>
 #include <memory>
@@ -176,16 +177,19 @@ namespace KERNEL {
   
   CORBA::Object_var RetrieveCompo(const std::string& compoName)
   {
+    CORBA::Object_var ret;
     auto it = _compo_map.find(compoName);
     if( it != _compo_map.end() )
     {
-      return (*it).second;
+      ret = (*it).second;
     }
     else
     {
-      SALOME::SALOME_Exception ex(createSalomeException("RetrieveCompo : not implemented yet !"));
-      throw ex;
-    //GetLCC()->FindOrLoad_Component( "FactoryServer", compoName );
+      //SALOME::SALOME_Exception ex(createSalomeException("RetrieveCompo : not implemented yet !"));
+      //throw ex;
+      throw SALOME_Exception("RetrieveCompo : not implemented yet !");
+      //GetLCC()->FindOrLoad_Component( "FactoryServer", compoName );
     }
+    return ret._retn();
   }
 }
