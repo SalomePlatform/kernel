@@ -24,4 +24,5 @@
 
 #include <memory>
 
+template<class ContainerServant>
 int CONTAINER_EXPORT container_common_main(int argc, char* argv[], std::unique_ptr<SALOME_NamingService_Container_Abstract> ns);

@@ -46,8 +46,6 @@ class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
     SALOME_DriverPy.SALOME_DriverPy_i.__init__(self, interfaceName)
     # create the DSC proxy
     self.proxy=calcium.PySupervCompo(orb,poa,contID,instanceName,interfaceName )
-    # Store a reference on naming service in _naming_service attribute 
-    self._naming_service = SALOME_ComponentPy.SALOME_NamingServicePy_i( self._orb )
 
   def init_service(self,service):
     return True

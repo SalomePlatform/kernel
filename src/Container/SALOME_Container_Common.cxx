@@ -127,6 +127,7 @@ void unexpectedHandler(void)
   AttachDebugger();
 }
 
+template<class ContainerServant>
 int container_common_main(int argc, char* argv[], std::unique_ptr<SALOME_NamingService_Container_Abstract> ns)
 {
   setSSLMode(ns?!ns->IsTrueNS():false);
@@ -182,7 +183,7 @@ int container_common_main(int argc, char* argv[], std::unique_ptr<SALOME_NamingS
       system(aCommand.str().c_str());
 #endif
       
-      new Engines_Container_i(orb, root_poa, containerName , argc , argv, ns.get() );
+      new ContainerServant(orb, root_poa, containerName , argc , argv, ns.get() );
       ns.release();
 
       pman->activate();

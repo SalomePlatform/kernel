@@ -17,11 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_Container_Common.hxx"
+#include "SALOME_Container_Common.cxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_Container_i.hxx"
 
 int main(int argc, char* argv[])
 {
   std::unique_ptr<SALOME_NamingService_Container_Abstract> ns;
-  return container_common_main(argc,argv,std::move(ns));
+  return container_common_main<Engines_Container_i>(argc,argv,std::move(ns));
 }

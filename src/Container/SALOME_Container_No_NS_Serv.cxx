@@ -17,7 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SALOME_Container_Common.hxx"
+#include "SALOME_Container_Common.cxx"
+#include "SALOME_Container_i.hxx"
 #include "SALOME_Embedded_NamingService_Client.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "SALOME_KernelORB.hxx"
@@ -37,5 +38,5 @@ int main(int argc, char* argv[])
   if( CORBA::is_nil(ns_serv_obj) )
     THROW_SALOME_EXCEPTION( "SALOME_Container_No_NS_Serv : argument 2 is NOT a valid IOR of Engines::EmbeddedNamingService" );
   std::unique_ptr<SALOME_NamingService_Container_Abstract> ns( new SALOME_Embedded_NamingService_Client(ns_serv_obj) );
-  return container_common_main(argc,argv,std::move(ns));
+  return container_common_main<Engines_Container_SSL_i>(argc,argv,std::move(ns));
 }

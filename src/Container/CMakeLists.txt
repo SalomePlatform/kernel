@@ -99,7 +99,7 @@ SET(SALOME_Container_LIBS
   ${MPI_LIBRARIES}
 )
 
-ADD_LIBRARY(SalomeContainerServer SALOME_Container_Common.cxx SALOME_Container_SignalsHandler.cxx)
+ADD_LIBRARY(SalomeContainerServer SALOME_Container_SignalsHandler.cxx)
 TARGET_LINK_LIBRARIES(SalomeContainerServer ${SALOME_Container_LIBS})
 INSTALL(TARGETS SalomeContainerServer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 

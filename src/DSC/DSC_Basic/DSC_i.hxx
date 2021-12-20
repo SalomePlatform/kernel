@@ -62,8 +62,8 @@ public:
                           Engines::Container_ptr container, 
                           const char *instanceName,
                           const char *interfaceName,
-        bool notif = false,
-        bool regist = true );
+                          bool notif = false,
+                          bool regist = false );
 
   virtual ~Engines_DSC_i();
 

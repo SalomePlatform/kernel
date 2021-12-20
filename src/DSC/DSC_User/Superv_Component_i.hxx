@@ -67,7 +67,7 @@ public:
                      const char *instanceName,
                      const char *interfaceName,
                      bool notif = false,
-         bool regist = true );
+                     bool regist = false );
   virtual ~Superv_Component_i();
 
   // Exceptions declarations.
