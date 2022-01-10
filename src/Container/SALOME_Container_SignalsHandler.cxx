@@ -29,7 +29,11 @@
 // CCRT porting
 // #include "CASCatch_SignalsHandler.h" // CAREFUL ! position of this file is critic : see Lucien PIGNOLONI / OCC
 
-extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB)
+extern "C" 
+#ifdef WIN32
+__declspec(dllexport)
+#endif
+void HandleServerSideSignals(CORBA::ORB_ptr theORB)
 {
  // CCRT porting
  //  CASCatch_SignalsHandler aSignalsHandler;
