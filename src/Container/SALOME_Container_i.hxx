@@ -88,6 +88,8 @@ public:
   load_impl(const char *nameToRegister,
             const char *componentName);
 
+  bool is_SSL_mode() override { return this->isSSLMode(); }
+
   Engines::EmbeddedNamingService_ptr get_embedded_NS_if_ssl() override;
 
   SALOME_NamingService_Container_Abstract *getNS() const { return _NS; }

@@ -57,6 +57,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Fake_NamingService.hxx"
 #include "SALOME_Embedded_NamingService_Client.hxx"
+#include "SALOME_Embedded_NamingService.hxx"
 #include "Basics_Utils.hxx"
 
 #ifdef _XOPEN_SOURCE
@@ -1562,7 +1563,14 @@ Engines::EmbeddedNamingService_ptr Abstract_Engines_Container_i::get_embedded_NS
   }
   else
   {
-    return Engines::EmbeddedNamingService::_nil();
+    SALOME_Fake_NamingService *fns(dynamic_cast<SALOME_Fake_NamingService *>(this->_NS));
+    if(fns)
+    {
+      Engines::EmbeddedNamingService_var ret = GetEmbeddedNamingService();
+      return ret._retn();
+    }
+    else
+      return Engines::EmbeddedNamingService::_nil();
   } 
 }
 

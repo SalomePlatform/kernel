@@ -302,7 +302,7 @@ class SALOME_ComponentPy_i(SALOME_ComponentPy_Gen_i):
             self._naming_service = SALOME_NamingServicePy_i(self._orb)
         else:
             self._naming_service = SALOME_Embedded_NamingService_ClientPy(emb_ns)
-        Component_path = self._containerName + "/" + self._instanceName
+        Component_path = contID.name + "/" + self._instanceName#self._containerName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
         self._naming_service.Register(self._compo_o, Component_path)
         # Add componentinstance to registry

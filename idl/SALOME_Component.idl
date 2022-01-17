@@ -152,6 +152,8 @@ module Engines
     
     //! In case of SSL mode Returns entry to Embedded NS
     EmbeddedNamingService get_embedded_NS_if_ssl();
+    
+    boolean is_SSL_mode();
 
     //!  Unload component libraries from the container.
     void finalize_removal() ;

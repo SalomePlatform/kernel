@@ -160,9 +160,27 @@ SALOME_NamingService_Abstract *SALOME_Fake_NamingService::clone()
 CORBA::Object_ptr SALOME_Fake_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
 {
   std::ostringstream oss;
-  oss << SEP << "Containers" << SEP << hostname << SEP << containerName << SEP << componentName;
+  oss << SEP << "Containers" << SEP << hostname << SEP << containerName << SEP << componentName << "_inst_";
   std::string entryToFind(oss.str());
-  return Resolve(entryToFind.c_str());
+  {
+    std::lock_guard<std::mutex> g(_mutex);
+    std::vector<std::string> candidates;
+    for(auto it : _map)
+    {
+      if(it.first.find(entryToFind) == 0)
+        candidates.push_back(it.first);
+    }
+    if(candidates.size() == 1)
+    {
+      auto it = _map.find(candidates[0]);
+      return CORBA::Object::_duplicate((*it).second);
+    }
+    else
+    {
+      return CORBA::Object::_nil();
+    }
+    
+  }
 }
 
 std::vector< std::pair< std::string, Engines::Container_var> > SALOME_Fake_NamingService::ListOfContainersInNS_NoThreadSafe()
