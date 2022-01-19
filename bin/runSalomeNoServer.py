@@ -33,7 +33,7 @@ class NoSessionServer(runSalome.SessionServer):
 
 def main():
     args, modules_list, modules_root_dir = setenv.get_config()
-    mySessionServ = NoSessionServer(args, modules_list, modules_root_dir)
+    mySessionServ = NoSessionServer(args, args.get('modules', []), modules_root_dir)
     mySessionServ.setpath(modules_list, modules_root_dir)
     mySessionServ.run()
 
