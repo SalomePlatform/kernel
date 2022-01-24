@@ -251,6 +251,9 @@ def salome_init_without_session(path=None, embedded=False):
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
     lcc = StandAloneLifecyle(cm, KernelLauncher.myResourcesManager())
+    # create a FactoryServer Container servant
+    import KernelContainer
+    KernelContainer.myContainer()
     # activate poaManager to accept co-localized CORBA calls.
     from KernelSDS import GetDSMInstance
     import sys
