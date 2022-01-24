@@ -188,26 +188,6 @@ def salome_init(path=None, embedded=False):
     else:
         salome_init_with_session(path, embedded)
 
-class StandAloneLifecyle:
-    def __init__(self, containerManager, resourcesManager):
-        self._cm = containerManager
-        self._rm = resourcesManager
-
-    def FindOrLoadComponent(self,contName,moduleName):
-        global orb
-        import importlib
-        builder_name = moduleName + "_SalomeSessionless"
-        moduleObj = importlib.import_module(builder_name)
-        result, orb = moduleObj.buildInstance(orb)
-        return result
-        #raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
-
-    def getContainerManager(self):
-      return self._cm
-
-    def getResourcesManager(self):
-      return self._rm
-
 def salome_init_without_session_common(path=None, embedded=False):
     from ORBConfigFile import writeORBConfigFileSSL
     OMNIORB_USER_PATH = "OMNIORB_USER_PATH"
@@ -250,7 +230,8 @@ def salome_init_without_session(path=None, embedded=False):
     global lcc,cm,dsm,esm
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
-    lcc = StandAloneLifecyle(cm, KernelLauncher.myResourcesManager())
+    from LifeCycleCORBA import LifeCycleCORBASSL
+    lcc = LifeCycleCORBASSL()
     # create a FactoryServer Container servant
     import KernelContainer
     KernelContainer.myContainer()
@@ -286,8 +267,9 @@ def salome_init_without_session_attached(path=None, embedded=False):
     rm = orb.string_to_object( nsAbroad.Resolve(RM_NAME_IN_NS).decode() )
     naming_service.Register(rm,RM_NAME_IN_NS)
     #
+    from LifeCycleCORBA import LifeCycleCORBASSL
+    lcc = LifeCycleCORBASSL()
     DSM_NAME_IN_NS = "/DataServerManager"
-    lcc = StandAloneLifecyle(cm,rm)
     dsm = orb.string_to_object( nsAbroad.Resolve(DSM_NAME_IN_NS).decode() )
     naming_service.Register(dsm,DSM_NAME_IN_NS)
     #

@@ -125,4 +125,10 @@ protected:
   
 } ;
 
+class SALOME_LifeCycleCORBASSL : public SALOME_LifeCycleCORBA
+{
+public:
+  SALOME_LifeCycleCORBASSL();
+};
+
 #endif

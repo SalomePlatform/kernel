@@ -89,7 +89,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService_Abstract *ns)
   // in a Python module
   CORBA::ORB_var orb = KERNEL::GetRefToORB();
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
-  _NSnew=0;
+  _NSnew = nullptr;
   if (!ns)
     {
       _NS = new SALOME_NamingService(orb);
@@ -836,4 +836,11 @@ CORBA::ORB_ptr SALOME_LifeCycleCORBA::orb()
   if(!_NS)
     THROW_SALOME_EXCEPTION("SALOME_LifeCycleCORBA::orb : not a CORBA SALOME_NamingService ");
   return NSC->orb();
+}
+
+#include "SALOME_Fake_NamingService.hxx"
+
+SALOME_LifeCycleCORBASSL::SALOME_LifeCycleCORBASSL():SALOME_LifeCycleCORBA(new SALOME_Fake_NamingService)
+{
+  _NSnew = _NS;//give to SALOME_LifeCycleCORBA owenership of _NS
 }

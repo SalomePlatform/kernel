@@ -30,15 +30,19 @@
 import Engines
 from libSALOME_LifeCycleCORBA import *
 
-class LifeCycleCORBA (SALOME_LifeCycleCORBA):
+class LifeCycleCORBA(SALOME_LifeCycleCORBA):
 
     def __init__(self, orb = None):
         SALOME_LifeCycleCORBA.__init__(self)
 
     def FindOrLoadComponent(self, containerName, componentName):
-        return SALOME_LifeCycleCORBA.FindOrLoad_Component(self,
-                                                          containerName,
-                                                          componentName)
+        return SALOME_LifeCycleCORBA.FindOrLoad_Component(self,containerName,componentName)
+
+class LifeCycleCORBASSL(SALOME_LifeCycleCORBASSL):
+    def __init__(self):
+        SALOME_LifeCycleCORBASSL.__init__(self)
+    def FindOrLoadComponent(self, containerName, componentName):
+        return SALOME_LifeCycleCORBA.FindOrLoad_Component(self,containerName,componentName)
 
 class ContainerParameters (Engines.ContainerParameters):
   def __init__(self, container_name='', mode='start', workingdir='', nb_proc=0, isMPI=False, parallelLib='',resource_params=None):
