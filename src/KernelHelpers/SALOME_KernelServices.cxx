@@ -185,10 +185,9 @@ namespace KERNEL {
     }
     else
     {
-      //SALOME::SALOME_Exception ex(createSalomeException("RetrieveCompo : not implemented yet !"));
-      //throw ex;
-      throw SALOME_Exception("RetrieveCompo : not implemented yet !");
-      //GetLCC()->FindOrLoad_Component( "FactoryServer", compoName );
+      Engines::EngineComponent_var compo = getLifeCycleCORBA()->FindOrLoad_Component( "FactoryServer", compoName.c_str() );
+      ret = CORBA::Object::_narrow(compo);
+      _compo_map[compoName] = ret;
     }
     return ret._retn();
   }
