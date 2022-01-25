@@ -22,6 +22,7 @@
 #include "SALOME_KernelServices.hxx"
 #include "SALOME_Fake_NamingService.hxx"
 #include "Utils_SALOME_Exception.hxx"
+#include "KernelBasis.hxx"
 
 #include <map>
 #include <memory>
@@ -51,7 +52,10 @@ namespace KERNEL {
   {
     if ( !_naming_service.get() )
     {
-      _naming_service.reset( new SALOME_NamingService(getORB()) );
+      if(getSSLMode())
+        _naming_service.reset( new SALOME_Fake_NamingService );
+      else
+        _naming_service.reset( new SALOME_NamingService(getORB()) );
     }
     return _naming_service.get();
   }
