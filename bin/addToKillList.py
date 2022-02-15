@@ -120,7 +120,8 @@ def killList(port=None):
             pass
         pass
     # remove processes dictionary file
-    os.remove(filedict)
+    if os.path.exists(filedict):
+        os.remove(filedict)
     pass
 
 if __name__ == "__main__":

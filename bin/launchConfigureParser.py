@@ -84,6 +84,7 @@ useport_nam    = "useport"
 salomecfgname  = "salome"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
+verbosity_nam  = "verbosity"
 
 # possible choices for the "embedded" and "standalone" parameters
 embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
@@ -817,6 +818,16 @@ Python file arguments, if any, must be comma-separated (without blank characters
                       dest="language",
                       help=help_str)
 
+    # Verbosity
+    help_str  = "Level of verbosity"
+    pars.add_argument("-V",
+                      "--verbose",
+                      metavar="<2/1/0>",
+                      dest="verbosity",
+                      default="0",
+                      help=help_str)
+
+
     # Positional arguments (hdf file, python file)
     pars.add_argument("arguments", nargs=argparse.REMAINDER)
 
@@ -1033,6 +1044,8 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
             new_args.append(ScriptAndArgs(script=script, args=sa_obj.args, out=sa_obj.out))
         #
         args[script_nam] = new_args
+
+    args[verbosity_nam] = cmd_opts.verbosity
 
     # xterm
     if cmd_opts.xterm is not None:

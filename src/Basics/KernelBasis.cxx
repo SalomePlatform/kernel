@@ -19,7 +19,7 @@
 
 #include "KernelBasis.hxx"
 
-static bool DEFAULT_SSL_MODE = false;
+static bool DEFAULT_SSL_MODE = true;
 static bool GUI_MODE = false;
 
 // IOR of SALOME_Embedded_NamingService servant

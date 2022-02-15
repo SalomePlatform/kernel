@@ -28,7 +28,7 @@
 #
 import sys, os,signal,string,subprocess
 import subprocess
-import runSalome
+import runSalomeOld
 import setenv
 import orbmodule
 import TestKiller
@@ -52,26 +52,26 @@ clt=orbmodule.client()
 
 # launch CORBA logger server
 
-myServer=runSalome.LoggerServer(args)
+myServer=runSalomeOld.LoggerServer(args)
 myServer.run()
 clt.waitLogger("Logger")
 
 # launch registry server
 
-myServer=runSalome.RegistryServer(args)
+myServer=runSalomeOld.RegistryServer(args)
 myServer.run()
 clt.waitNS("/Registry")
 
 # launch module catalog server
 
-cataServer=runSalome.CatalogServer(args)
+cataServer=runSalomeOld.CatalogServer(args)
 cataServer.setpath(modules_list,modules_root_dir)
 cataServer.run()
 clt.waitNS("/Kernel/ModulCatalog")
 
 # launch container manager server
 
-myCmServer = runSalome.LauncherServer(args)
+myCmServer = runSalomeOld.LauncherServer(args)
 myCmServer.setpath(modules_list,modules_root_dir)
 myCmServer.run()
 clt.waitNS("/SalomeLauncher")
@@ -95,6 +95,6 @@ launcher.Shutdown()
 
 addToKillList.killList()
 
-TestKiller.killProcess(runSalome.process_id)
+TestKiller.killProcess(runSalomeOld.process_id)
 TestKiller.closeSalome()
 exit(ret)

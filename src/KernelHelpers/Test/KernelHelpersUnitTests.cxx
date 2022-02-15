@@ -24,6 +24,7 @@
 
 #include "SALOME_KernelServices.hxx"
 #include "Basics_Utils.hxx"
+#include "KernelBasis.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
@@ -36,6 +37,7 @@
 
 void KernelHelpersUnitTests::setUp()
 {
+  setSSLMode(false);
 }
 
 // ============================================================================

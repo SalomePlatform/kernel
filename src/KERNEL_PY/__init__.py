@@ -166,20 +166,15 @@ myStudy, myStudyName = None,None
 
 salome_initial=True
 
-__EMB_SERVANT_ENV_VAR_NAME = "SALOME_EMB_SERVANT"
-
 def standalone():
-    import os
-    os.environ[__EMB_SERVANT_ENV_VAR_NAME] = "1"
+    pass
+
+def withServers():
     import KernelBasis
-    KernelBasis.setSSLMode(True)
+    KernelBasis.setSSLMode(False)
 
 def salome_init(path=None, embedded=False):
-    import os
     import KernelBasis
-    if __EMB_SERVANT_ENV_VAR_NAME in os.environ:
-        KernelBasis.setSSLMode(True)
-    #
     if KernelBasis.getSSLMode():
         if KernelBasis.getIOROfEmbeddedNS() == "":
             salome_init_without_session(path, embedded)

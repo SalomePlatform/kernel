@@ -45,8 +45,9 @@ SET(SCRIPTS
   ORBConfigFile.py
   parseConfigFile.py
   PortManager.py
+  runSalomeCommon.py
   runSalome.py
-  runSalomeSL.py
+  runSalomeOld.py
   runSalomeNoServer.py
   runSession.py
   runConsole.py

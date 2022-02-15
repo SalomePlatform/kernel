@@ -23,7 +23,7 @@
 
 import sys, os,signal,string,subprocess
 import subprocess
-import runSalome
+import runSalomeOld
 import setenv
 import orbmodule
 import TestKiller
@@ -46,7 +46,7 @@ clt=orbmodule.client()
 
 # launch CORBA logger server
 
-myServer=runSalome.LoggerServer(args)
+myServer=runSalomeOld.LoggerServer(args)
 myServer.run()
 clt.waitLogger("Logger")
 
@@ -59,6 +59,6 @@ ret = subprocess.call(command)
 
 # kill Test process
 
-TestKiller.killProcess(runSalome.process_id)
+TestKiller.killProcess(runSalomeOld.process_id)
 TestKiller.closeSalome()
 exit(ret)

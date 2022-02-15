@@ -23,7 +23,6 @@
 
 import sys, signal,string,subprocess
 import subprocess
-import runSalome
 import setenv
 
 # get SALOME environment :

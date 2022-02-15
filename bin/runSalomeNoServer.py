@@ -18,24 +18,34 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 import setenv
-import runSalome
+import runSalomeCommon
 import os
+import logging
+logger = logging.getLogger()
 
-class NoSessionServer(runSalome.SessionServer):
+class NoSessionServer(runSalomeCommon.CommonSessionServer):
     def __init__(self,args,modules_list,modules_root_dir):
         super().__init__(args,modules_list,modules_root_dir)
-        for i in range (len(self.SCMD1)):
-            if self.SCMD1[i] == "SALOME_Session_Server" :
-                self.SCMD1[i] = "SALOME_Session_Server_No_Server"
-        os.putenv("SALOME_EMB_SERVANT", "1")
         SalomeAppSLConfig=os.getenv("SalomeAppConfig","")
         os.putenv("SalomeAppSLConfig", SalomeAppSLConfig)
+    def getSessionServerExe(self):
+        return "SALOME_Session_Server_No_Server"
+
+from server import process_id
+from addToKillList import addToKillList,killList
 
 def main():
     args, modules_list, modules_root_dir = setenv.get_config()
     mySessionServ = NoSessionServer(args, args.get('modules', []), modules_root_dir)
+    runSalomeCommon.setVerbose(mySessionServ.args["verbosity"])
+    if mySessionServ.args["killall"]:
+        killList()
+    logger.debug("Effective args : {}".format(mySessionServ.args))
     mySessionServ.setpath(modules_list, modules_root_dir)
     mySessionServ.run()
+    for pid, cmd in list(process_id.items()):
+        logger.debug("Killing {} {}".format(pid, cmd))
+        addToKillList(pid, cmd)
 
 if __name__ == "__main__":
     main()
