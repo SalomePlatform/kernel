@@ -367,7 +367,7 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
       aFile.close();  
       aCurrentPos += aFileSize;
     }
-    aFiles.push_back(CORBA::string_dup(aFileName));
+    aFiles.push_back(aFileName);
     delete[] aFileName;
   }
 
