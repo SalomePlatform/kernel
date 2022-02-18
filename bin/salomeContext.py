@@ -32,7 +32,6 @@ import sys
 import platform
 
 from salomeContextUtils import SalomeContextException
-from addToKillList import killList
 
 def usage():
   msg = '''\
@@ -478,6 +477,7 @@ class SalomeContext:
       from killSalome import killAllPorts
       killAllPorts()
       pass
+    from addToKillList import killList
     killList()
     return 0
   #
