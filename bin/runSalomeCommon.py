@@ -242,6 +242,7 @@ class LoggerServer(Server):
 
 # ---
 import abc
+import tempfile
 class CommonSessionServer(Server):
     def __init__(self,args,modules_list,modules_root_dir):
         self.args = args.copy()
@@ -321,6 +322,11 @@ class CommonSessionServer(Server):
             pass
         if 'language' in self.args:
             self.SCMD2+=['--language=%s' % self.args['language']]
+        tempfile.mkstemp()
+        os_handle, iorfakens = tempfile.mkstemp()
+        self.iorfakens = iorfakens
+        os.close(os_handle)
+        self.SCMD2+=["--iorfakens={}".format(iorfakens)]
         pass
 
     @abc.abstractmethod

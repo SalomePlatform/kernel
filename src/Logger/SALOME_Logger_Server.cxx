@@ -27,6 +27,7 @@
 //
 #include <iostream>
 #include "SALOME_Logger_Server.hxx"
+#include "SALOME_KernelServices.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
 #ifndef WIN32
@@ -38,6 +39,17 @@
 #endif
 
 omni_mutex Logger::myLock;
+
+SALOME_Logger::Logger_ptr KERNEL::getLoggerServantSA()
+{
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+  PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
+  Logger *servant = new Logger;
+  SALOME_Logger::Logger_ptr logger = servant->_this();
+  servant->_remove_ref();
+  return logger;
+}
 
 /////////////////////////////////////////////////////////////////////
 // Construction/Destruction

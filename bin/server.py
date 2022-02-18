@@ -24,6 +24,7 @@
 import os, sys, string
 from salome_utils import getHostName
 process_id = {}
+import logging
 
 # -----------------------------------------------------------------------------
 #
@@ -70,6 +71,11 @@ class Server:
                                    + os.getenv("LD_LIBRARY_PATH")]
               myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
+        for sapcfg in ["SalomeAppSLConfig","SalomeAppConfig"]:
+          if sapcfg in os.environ:
+            logging.getLogger().debug("{}={}".format(sapcfg,os.environ[sapcfg]))
+        command1 = (" ".join(command)).replace("(","\\\(") ; command1 = command1.replace(")","\\\)")
+        logging.getLogger().debug("Command to be launched : {}".format(command1))
         # print("command = ", command)
         if sys.platform == "win32":
           import subprocess
@@ -86,6 +92,7 @@ class Server:
           #store process pid if it really exists
           process_id[pid]=self.CMD
         self.PID = pid
+        logging.getLogger().debug("PID of launched command : {}".format(pid))
         return pid
 
     def daemonize(self,args):

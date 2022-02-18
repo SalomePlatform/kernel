@@ -173,11 +173,14 @@ def withServers():
     import KernelBasis
     KernelBasis.setSSLMode(False)
 
-def salome_init(path=None, embedded=False):
+def salome_init(path=None, embedded=False, iorfakensfile=None):
+    """
+    :param iorfakensfile: filename inside which IOR of fake NS will be written
+    """
     import KernelBasis
     if KernelBasis.getSSLMode():
         if KernelBasis.getIOROfEmbeddedNS() == "":
-            salome_init_without_session(path, embedded)
+            salome_init_without_session(path, embedded, iorfakensfile)
         else:
             salome_init_without_session_attached(path, embedded)
     else:
@@ -220,7 +223,7 @@ def salome_init_without_session_common(path=None, embedded=False):
     from NamingService import NamingService
     naming_service = NamingService()
 
-def salome_init_without_session(path=None, embedded=False):
+def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     salome_init_without_session_common(path,embedded)
     global lcc,cm,dsm,esm
     import KernelLauncher
@@ -241,6 +244,14 @@ def salome_init_without_session(path=None, embedded=False):
     # esm inherits from SALOME_CPythonHelper singleton already initialized by GetDSMInstance
     # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
     esm = KernelLauncher.GetExternalServer()
+    #
+    import KernelLogger
+    naming_service.Register(KernelLogger.myLogger(),"/Logger")
+    #
+    from NamingService import NamingService
+    if iorfakensfile is not None:
+        with open(iorfakensfile,"w") as iorfakensf:
+            iorfakensf.write(NamingService.IOROfNS())
     
 def salome_init_without_session_attached(path=None, embedded=False):
     """

@@ -26,9 +26,12 @@
 //  $Header$
 //
 #include "TraceCollector_WaitForServerReadiness.hxx"
+#include "KernelBasis.hxx"
+#include "SALOME_Fake_NamingService.hxx"
 #include "OpUtil.hxx"
 #include <iostream>
 #include <ctime>
+#include <memory>
 
 
 #if defined(WIN32) && defined(_MSC_VER) && _MSC_VER < 1900
@@ -68,60 +71,78 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(const std::string& serve
       // NB. You can't use SALOME_NamingService class because
       // it uses MESSAGE macro
       // Otherwise, you will get segmentation fault.   
-
-      CosNaming::NamingContext_var inc;
-      CosNaming::Name name;
-      name.length(1);
-      name[0].id = CORBA::string_dup(serverName.c_str());
-      CORBA::Object_var theObj=CORBA::Object::_nil();
-
-      for (int itry=0; itry < NumberOfTries; itry++)
+      if(getSSLMode())
+      {
+        std::string regName(std::string("/")+serverName);
+        std::unique_ptr<SALOME_Fake_NamingService> ns(new SALOME_Fake_NamingService);
+        for (int itry=0; itry < NumberOfTries; itry++)
         {
-          try
-            { 
-              if(!CORBA::is_nil(orb)) 
-                theObj = orb->resolve_initial_references("NameService");
-              if (!CORBA::is_nil(theObj))
-                inc = CosNaming::NamingContext::_narrow(theObj);
-            }  
-          catch( CORBA::SystemException& )
-            {
-              std::cout << "TraceCollector_WaitForServerReadiness: "
-                   << "CORBA::SystemException: "
-                   << "Unable to contact the Naming Service" << std::endl;
-            }
-          catch(...)
-            {
-              std::cout << "TraceCollector_WaitForServerReadiness: "
-                   << "Unknown exception dealing with Naming Service" << std::endl;
-            }
-          
-          obj=CORBA::Object::_nil();
-          if(!CORBA::is_nil(inc))
-            {
-              try
-                {
-                  obj = inc->resolve(name);
-                  if (!CORBA::is_nil(obj))
-                    {
-                      //cout << "TraceCollector_WaitForServerReadiness: "
-                      //           << serverName << " found in CORBA Name Service" << endl;
-                      break;
-                    }
-                }
-              catch (const CosNaming::NamingContext::NotFound&)
-                {
-                  std::cout << "Caught exception: Naming Service can't found Logger";
-                }
-            }
-#ifndef WIN32
-          nanosleep(&ts_req,&ts_rem);
-#else
-          Sleep(TIMESleep / 1000000);
-#endif
-		  std::cout << "TraceCollector_WaitForServerReadiness: retry look for"
-               << serverName << std::endl;
-        }          
+          obj = ns->Resolve(regName.c_str());
+          if(!CORBA::is_nil(obj))
+            break;
+  #ifndef WIN32
+            nanosleep(&ts_req,&ts_rem);
+  #else
+            Sleep(TIMESleep / 1000000);
+  #endif
+        }
+      }
+      else
+      {
+        CosNaming::NamingContext_var inc;
+        CosNaming::Name name;
+        name.length(1);
+        name[0].id = CORBA::string_dup(serverName.c_str());
+        CORBA::Object_var theObj=CORBA::Object::_nil();
+
+        for (int itry=0; itry < NumberOfTries; itry++)
+          {
+            try
+              { 
+                if(!CORBA::is_nil(orb)) 
+                  theObj = orb->resolve_initial_references("NameService");
+                if (!CORBA::is_nil(theObj))
+                  inc = CosNaming::NamingContext::_narrow(theObj);
+              }  
+            catch( CORBA::SystemException& )
+              {
+                std::cout << "TraceCollector_WaitForServerReadiness: "
+                    << "CORBA::SystemException: "
+                    << "Unable to contact the Naming Service" << std::endl;
+              }
+            catch(...)
+              {
+                std::cout << "TraceCollector_WaitForServerReadiness: "
+                    << "Unknown exception dealing with Naming Service" << std::endl;
+              }
+            
+            obj=CORBA::Object::_nil();
+            if(!CORBA::is_nil(inc))
+              {
+                try
+                  {
+                    obj = inc->resolve(name);
+                    if (!CORBA::is_nil(obj))
+                      {
+                        //cout << "TraceCollector_WaitForServerReadiness: "
+                        //           << serverName << " found in CORBA Name Service" << endl;
+                        break;
+                      }
+                  }
+                catch (const CosNaming::NamingContext::NotFound&)
+                  {
+                    std::cout << "Caught exception: Naming Service can't found Logger";
+                  }
+              }
+  #ifndef WIN32
+            nanosleep(&ts_req,&ts_rem);
+  #else
+            Sleep(TIMESleep / 1000000);
+  #endif
+        std::cout << "TraceCollector_WaitForServerReadiness: retry look for"
+                << serverName << std::endl;
+          }
+      }       
     }
   catch (const CosNaming::NamingContext::NotFound&)
     {

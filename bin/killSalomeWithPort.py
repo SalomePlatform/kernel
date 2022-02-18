@@ -302,6 +302,38 @@ def __guessPiDictFilename(port):
 
     return None
 
+def killMyPortSSL(*ports):
+    """ Called by runSalome.py after CTRL-C"""
+    for port in ports:
+        # ensure port is an integer
+        with suppress(ValueError):
+            port = int(port)
+
+        with suppress(Exception):
+            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
+            from PortManager import releasePort
+            # get pidict file
+            filedict = getPiDict(port)
+            if not osp.isfile(filedict): # removed by previous call, see (1) above
+                if verbose():
+                    print("SALOME session on port {} is already stopped".format(port))
+                # remove port from PortManager config file
+                with suppress(ImportError):
+                    if verbose():
+                        print("Removing port from PortManager configuration file")
+                    releasePort(port)
+                return
+        try:
+            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
+            import PortManager # pragma pylint: disable=unused-import
+            for file_path in glob('{}*'.format(getPiDict(port))):
+                __killMyPort(port, file_path)
+        except ImportError:
+            __killMyPort(port, __guessPiDictFilename(port))
+
+        # clear-up omniOrb config files
+        appliCleanOmniOrbConfig(port)
+
 def killMyPort(*ports):
     """
     Kill SALOME session running on the specified port.
