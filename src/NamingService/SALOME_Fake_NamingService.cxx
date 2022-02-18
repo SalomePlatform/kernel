@@ -159,9 +159,7 @@ SALOME_NamingService_Abstract *SALOME_Fake_NamingService::clone()
 
 CORBA::Object_ptr SALOME_Fake_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
 {
-  std::ostringstream oss;
-  oss << SEP << "Containers" << SEP << hostname << SEP << containerName << SEP << componentName << "_inst_";
-  std::string entryToFind(oss.str());
+  std::string entryToFind(BuildComponentName(hostname,containerName,componentName,nbproc));
   {
     std::lock_guard<std::mutex> g(_mutex);
     std::vector<std::string> candidates;

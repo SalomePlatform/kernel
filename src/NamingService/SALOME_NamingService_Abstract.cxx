@@ -137,3 +137,45 @@ std::string SALOME_NamingService_Abstract::BuildContainerNameForNS(const Engines
 
   return ret;
 }
+std::string SALOME_NamingService_Abstract::BuildComponentName(const char* hostname, const char* containerName, const char* componentName, const int /*nbproc*/)
+{
+  std::ostringstream oss;
+  oss << SEP << "Containers" << SEP << hostname << SEP << containerName << SEP << componentName << "_inst_";
+  return oss.str();
+}
+
+std::vector< std::string > SALOME_NamingService_Abstract_Decorator::repr()
+{
+  return std::vector< std::string >();
+}
+
+void SALOME_NamingService_Abstract_Decorator::Destroy_Directory(const char* Path)
+{
+  THROW_SALOME_EXCEPTION("SALOME_NamingService_Abstract_Decorator::Destroy_Directory");
+}
+
+bool SALOME_NamingService_Abstract_Decorator::Change_Directory(const char* Path)
+{//do nothing
+  return true;
+}
+
+std::vector<std::string> SALOME_NamingService_Abstract_Decorator::list_subdirs()
+{
+  THROW_SALOME_EXCEPTION("SALOME_NamingService_Abstract_Decorator::list_subdirs");
+}
+
+std::vector<std::string> SALOME_NamingService_Abstract_Decorator::list_directory()
+{
+  THROW_SALOME_EXCEPTION("SALOME_NamingService_Abstract_Decorator::list_directory");
+}
+
+std::vector<std::string> SALOME_NamingService_Abstract_Decorator::list_directory_recurs()
+{
+  THROW_SALOME_EXCEPTION("SALOME_NamingService_Abstract_Decorator::list_directory_recurs");
+}
+
+CORBA::Object_ptr SALOME_NamingService_Abstract_Decorator::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
+{
+  std::string entryToFind(BuildComponentName(hostname,containerName,componentName,nbproc));
+  return _ns_cont->Resolve(entryToFind.c_str());
+}

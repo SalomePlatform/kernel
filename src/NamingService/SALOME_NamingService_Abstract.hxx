@@ -58,4 +58,31 @@ public:
   static std::string ContainerName(const char *ContainerName);
   static std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
   static std::string BuildContainerNameForNS(const Engines::ContainerParameters& params, const char *hostname);
+  static std::string BuildComponentName(const char* hostname, const char* containerName, const char* componentName, const int nbproc);
 };
+
+class SALOME_NamingService_Abstract_Decorator : public SALOME_NamingService_Abstract
+{
+public:
+  SALOME_NamingService_Abstract_Decorator(SALOME_NamingService_Container_Abstract *ns_cont):_ns_cont(ns_cont) { }
+  void init_orb(CORBA::ORB_ptr orb=0) override { _ns_cont->init_orb(orb); }
+  SALOME_NamingService_Container_Abstract *clone() override { return new SALOME_NamingService_Abstract_Decorator(_ns_cont); }
+  void Register(CORBA::Object_ptr ObjRef, const char* Path) override { _ns_cont->Register(ObjRef,Path); }
+  void Destroy_FullDirectory(const char* Path) override { _ns_cont->Destroy_FullDirectory(Path); }
+  void Destroy_Name(const char* Path) override { _ns_cont->Destroy_Name(Path); }
+  CORBA::Object_ptr Resolve(const char* Path) override { return _ns_cont->Resolve(Path); }
+  CORBA::Object_ptr ResolveFirst(const char* Path) override { return _ns_cont->ResolveFirst(Path); }
+  bool IsTrueNS() const override { return _ns_cont->IsTrueNS(); }
+  //
+  std::vector< std::string > repr() override;
+  void Destroy_Directory(const char* Path) override;
+  bool Change_Directory(const char* Path) override;
+  std::vector<std::string> list_subdirs() override;
+  std::vector<std::string> list_directory() override;
+  std::vector<std::string> list_directory_recurs() override;
+  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) override;
+private:
+  //! take no ownership of decoree
+  SALOME_NamingService_Container_Abstract *_ns_cont = nullptr;
+};
+
