@@ -61,7 +61,7 @@ public:
   static std::string BuildComponentName(const char* hostname, const char* containerName, const char* componentName, const int nbproc);
 };
 
-class SALOME_NamingService_Abstract_Decorator : public SALOME_NamingService_Abstract
+class NAMINGSERVICE_EXPORT SALOME_NamingService_Abstract_Decorator : public SALOME_NamingService_Abstract
 {
 public:
   SALOME_NamingService_Abstract_Decorator(SALOME_NamingService_Container_Abstract *ns_cont):_ns_cont(ns_cont) { }

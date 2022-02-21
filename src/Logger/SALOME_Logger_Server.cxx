@@ -34,10 +34,6 @@
 # include <unistd.h>
 #endif
 
-#ifdef WIN32
-#include <omnithread/pthread_nt.h>
-#endif
-
 omni_mutex Logger::myLock;
 
 SALOME_Logger::Logger_ptr KERNEL::getLoggerServantSA()

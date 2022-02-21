@@ -53,7 +53,7 @@
 
 namespace KERNEL
 {
-  SALOME_Logger::Logger_ptr getLoggerServantSA();
+  LOGGER_EXPORT SALOME_Logger::Logger_ptr getLoggerServantSA();
 }
 
 class LOGGER_EXPORT Logger :
