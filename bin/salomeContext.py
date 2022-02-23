@@ -365,8 +365,12 @@ class SalomeContext:
     if args is None:
       args = []
     sys.argv = ['runSalome'] + args
-    import runSalomeNoServer
-    runSalomeNoServer.main()
+    import setenv
+    setenv.main(True, exeName="salome withsession")
+    
+    import runSalome
+    runSalome.runSalome()
+    return 0
   #
 
   def _setContext(self, args=None):
