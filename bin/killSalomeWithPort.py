@@ -65,6 +65,8 @@ import psutil
 
 from salome_utils import (generateFileName, getHostName, getLogDir, getShortHostName,
                           getUserName, killOmniNames, killPid, verbose)
+import logging
+logger = logging.getLogger()
 
 def getPiDict(port, appname='salome', full=True, hidden=True, hostname=None):
     """
@@ -247,6 +249,7 @@ def __killPids(pids):
     processes = []
     for pid in pids:
         try:
+            logger.debug("Add process with PID = {} into PIDList to kill".format(pid))
             processes.append(psutil.Process(pid))
         except psutil.NoSuchProcess:
             if verbose():
@@ -262,7 +265,7 @@ def __killMyPort(port, filedict):
     # ensure port is an integer
     with suppress(ValueError):
         port = int(port)
-
+    logger.debug("Into __killMyPort with port {}. File containing PID to kill is {}".format(port,filedict))
     # read pids from pidict file
     with suppress(Exception), open(filedict, 'rb') as fpid:
         pids_lists = pickle.load(fpid)

@@ -209,11 +209,23 @@ SALOMETraceCollector::SALOMETraceCollector()
  */
 // ============================================================================
 
+#include "KernelBasis.hxx"
+#include "SALOME_Logger_Server.hxx"
+#include "SALOME_Fake_NamingService.hxx"
+
+#include <memory>
+
 extern "C"
 {
  SALOMETRACECOLLECTOR_EXPORT
   BaseTraceCollector *SingletonInstance(void)
   {
+    if(getSSLMode())
+    {
+      SALOME_Logger::Logger_var logger = KERNEL::getLoggerServantSA();
+      std::unique_ptr<SALOME_Fake_NamingService> ns(new SALOME_Fake_NamingService);
+      ns->Register(logger,"/Logger");
+    }
     BaseTraceCollector *instance = SALOMETraceCollector::instance();
     return instance;
   }

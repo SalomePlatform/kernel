@@ -322,7 +322,6 @@ class CommonSessionServer(Server):
             pass
         if 'language' in self.args:
             self.SCMD2+=['--language=%s' % self.args['language']]
-        tempfile.mkstemp()
         os_handle, iorfakens = tempfile.mkstemp()
         self.iorfakens = iorfakens
         os.close(os_handle)

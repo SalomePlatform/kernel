@@ -80,6 +80,7 @@ def startSalome(args, modules_list, modules_root_dir):
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
         ior_fakens_filename = mySessionServ.iorfakens
+        logger.debug("Rendez-vous file for to retrieve IOR of session is \"{}\"".format(ior_fakens_filename))
     
     end_time = os.times()
 
@@ -106,7 +107,7 @@ def startSalome(args, modules_list, modules_root_dir):
     logger.debug("additional external python interpreters: {}".format(nbaddi))
     if nbaddi:
         for i in range(nbaddi):
-            anInterp=InterpServer(args)
+            anInterp=runSalomeCommon.InterpServer(args)
             anInterp.run()
 
     # set PYTHONINSPECT variable (python interpreter in interactive mode)
@@ -174,7 +175,7 @@ def addToPidict(args):
     global process_id
     from addToKillList import addToKillList
     for pid, cmd in list(process_id.items()):
-        addToKillList(pid, cmd, args['port'])
+        addToKillList(pid, cmd)
 
 # -----------------------------------------------------------------------------
 
@@ -187,6 +188,26 @@ def main(exeName=None):
     # --
     setenv.set_env(args, modules_list, modules_root_dir, keepEnvironment=keep_env)
     ior_fakens_filename = useSalome(args, modules_list, modules_root_dir)
+    # Management of -t <script.py>
+    toimport = []
+    if 'gui' in args and 'session_gui' in args:
+        if not args['gui'] or not args['session_gui']:
+            if 'study_hdf' in args:
+                toopen = args['study_hdf']
+                if toopen:
+                    import salome
+                    salome.salome_init(path=toopen)
+            if 'pyscript' in args:
+                toimport = args['pyscript']
+    from salomeContextUtils import formatScriptsAndArgs
+    from addToKillList import addToKillList
+    command = formatScriptsAndArgs(toimport, escapeSpaces=True)
+    if command:
+        logger.debug("Launching following shell command : {}".format(str(command)))
+        proc = subprocess.Popen(command, shell=True)
+        addToKillList(proc.pid, command)
+        res = proc.wait()
+        if res: sys.exit(1) 
     return args, ior_fakens_filename
 
 # -----------------------------------------------------------------------------
@@ -273,12 +294,14 @@ def foreGround(args, ior_fakens_filename):
                 status = session.GetStatSession()
                 assert status.activeGUI
             except Exception:
+                logger.debug("Process of the session under monitoring {} has vanished !".format(session_pid))
                 break
             from time import sleep
             sleep(dt)
             pass
         pass
     except KeyboardInterrupt:
+        logger.debug("Keyboard requested : killing all process attached to port {}".format(port))
         from killSalomeWithPort import killMyPortSSL
         killMyPortSSL(port)
         pass

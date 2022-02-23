@@ -37,42 +37,60 @@ if ("SALOME_trace" in os.environ):
   if (os.environ["SALOME_trace"] == "with_logger"):
     trace="logger"
 
+def ReturnLoggerOld():
+      m_pInterfaceLogger = None
+      ok = 0
+      steps = 40
+      while steps > 0 and ok == 0:
+
+            try:
+                  orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
+                  theObj = orb.resolve_initial_references("NameService")
+                  inc = theObj._narrow(CosNaming.NamingContext)
+                  name = [CosNaming.NameComponent("Logger","")]
+                  obj = inc.resolve(name);
+
+                  m_pInterfaceLogger = obj._narrow(SALOME_Logger.Logger)
+
+                  if not m_pInterfaceLogger is None:
+                        ok = 1
+            except CosNaming.NamingContext.NotFound as e :
+                  if steps == 1: print("Caught exception: Naming Service can't found Logger")
+            except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+                  if steps == 1: print("Caught CORBA::SystemException CommFailure")
+            except CORBA.SystemException as e:
+                  if steps == 1: print("Caught CORBA::SystemException.")
+            except CORBA.Exception as e:
+                  if steps == 1: print("Caught CORBA::Exception.")
+            except Exception as e:
+                  if steps == 1: print("Caught unknown exception.")
+
+            time.sleep(0.25)
+            steps = steps - 1
+      return m_pInterfaceLogger
+      
+def ReturnLoggerSSL():
+      import KernelLogger
+      m_pInterfaceLogger = None
+      try:
+            m_pInterfaceLogger = KernelLogger.myLogger()
+      except Exception:
+            pass
+      return m_pInterfaceLogger
+
 class SALOME_Trace :
     def __init__(self):
         self.m_pInterfaceLogger = None
         if trace=="logger":
-            ok = 0
-            steps = 40
-            while steps > 0 and ok == 0:
+            import KernelBasis
+            if KernelBasis.getSSLMode():
+                  self.m_pInterfaceLogger = ReturnLoggerSSL()
+            else:
+                  self.m_pInterfaceLogger = ReturnLoggerOld()
 
-              try:
-                orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
-                theObj = orb.resolve_initial_references("NameService")
-                inc = theObj._narrow(CosNaming.NamingContext)
-                name = [CosNaming.NameComponent("Logger","")]
-                obj = inc.resolve(name);
-
-                self.m_pInterfaceLogger = obj._narrow(SALOME_Logger.Logger)
-
-                if not self.m_pInterfaceLogger is None:
-                  ok = 1
-
-              except CosNaming.NamingContext.NotFound as e :
-                    if steps == 1: print("Caught exception: Naming Service can't found Logger")
-              except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
-                    if steps == 1: print("Caught CORBA::SystemException CommFailure")
-              except CORBA.SystemException as e:
-                    if steps == 1: print("Caught CORBA::SystemException.")
-              except CORBA.Exception as e:
-                    if steps == 1: print("Caught CORBA::Exception.")
-              except Exception as e:
-                    if steps == 1: print("Caught unknown exception.")
-
-              time.sleep(0.25)
-              steps = steps - 1
 
     def putMessage ( self, LogMsg ) :
         if (CORBA.is_nil(self.m_pInterfaceLogger)):
-            print(LogMsg);
+            print(LogMsg)
         else:
-            self.m_pInterfaceLogger.putMessage (LogMsg)
+            self.m_pInterfaceLogger.putMessage(LogMsg)

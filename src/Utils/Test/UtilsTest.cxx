@@ -30,6 +30,7 @@
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
 #include "utilities.h"
+#include "KernelBasis.hxx"
 
 #ifdef WIN32
 #define setenv Kernel_Utils::setenv
@@ -53,6 +54,7 @@ UtilsTest::_getTraceFileName()
 void
 UtilsTest::setUp()
 {
+  setSSLMode(false);
   LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
   CPPUNIT_ASSERT(bp1);
   bp1->deleteInstance(bp1);

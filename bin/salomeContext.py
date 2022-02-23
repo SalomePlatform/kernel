@@ -367,7 +367,7 @@ class SalomeContext:
     sys.argv = ['runSalome'] + args
     import setenv
     setenv.main(True, exeName="salome withsession")
-    
+
     import runSalome
     runSalome.runSalome()
     return 0

@@ -32,6 +32,7 @@
 #include <SALOMEconfig.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include "KernelBasis.hxx"
 
 #ifndef WIN32
 # include <unistd.h>
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
       CORBA::Object_var obj;
       PortableServer::POA_var poa;
       PortableServer::POAManager_var pman;   
-
+      setSSLMode(false);
       SetArgcArgv(argc, argv);
       CORBA::ORB_var orb = KERNEL::GetRefToORB() ;
 
