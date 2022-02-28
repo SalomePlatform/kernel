@@ -143,7 +143,8 @@ def appliCleanOmniOrbConfig(port):
                                            with_username=True)
 
     if os.access(last_running_config, os.F_OK):
-        if sys.platform == 'win32' or osp.samefile(last_running_config, omniorb_config):
+        if sys.platform == 'win32' or (os.access(omniorb_config, os.F_OK) and \
+                                       osp.samefile(last_running_config, omniorb_config)):
             os.remove(last_running_config)
 
     if os.access(omniorb_config, os.F_OK):
