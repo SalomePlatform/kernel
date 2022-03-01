@@ -125,8 +125,7 @@ def appliCleanOmniOrbConfig(port):
         # outside application context
         return
 
-    if verbose():
-        print("Cleaning OmniOrb config for port {}".format(port))
+    logging.getLogger().debug("Cleaning OmniOrb config for port {}".format(port))
 
     omniorb_config = generateFileName(omniorb_user_path,
                                       prefix='omniORB',
@@ -141,10 +140,10 @@ def appliCleanOmniOrbConfig(port):
                                            extension='cfg',
                                            hidden=True,
                                            with_username=True)
-
-    if os.access(last_running_config, os.F_OK):
-        if sys.platform == 'win32' or (os.access(omniorb_config, os.F_OK) and \
-                                       osp.samefile(last_running_config, omniorb_config)):
+    logging.getLogger().debug("Omniorb_config file deduced by port : {}".format(omniorb_config))
+    logging.getLogger().debug("Omniorb_config file of last : {}".format(last_running_config))
+    if osp.exists(last_running_config):
+        if sys.platform == 'win32' or ( osp.exists(omniorb_config) and osp.samefile(last_running_config,omniorb_config) ):
             os.remove(last_running_config)
 
     if os.access(omniorb_config, os.F_OK):
@@ -253,8 +252,7 @@ def __killPids(pids):
             logger.debug("Add process with PID = {} into PIDList to kill".format(pid))
             processes.append(psutil.Process(pid))
         except psutil.NoSuchProcess:
-            if verbose():
-                print("  ------------------ Process {} not found".format(pid))
+            logger.debug("  ------------------ Process {} not found".format(pid))
     __killProcesses(processes)
 
 def __killMyPort(port, filedict):
@@ -306,37 +304,39 @@ def __guessPiDictFilename(port):
 
     return None
 
-def killMyPortSSL(*ports):
-    """ Called by runSalome.py after CTRL-C"""
-    for port in ports:
-        # ensure port is an integer
-        with suppress(ValueError):
-            port = int(port)
+def killProcessSSL(port, pids_list):
+    """ Called by runSalome.py after CTRL-C.
+    This method :
+    - Kill all PIDS in pids
+    - update file of pidict 
+    """
+    __killPids(pids_list)
 
-        with suppress(Exception):
-            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
-            from PortManager import releasePort
-            # get pidict file
-            filedict = getPiDict(port)
-            if not osp.isfile(filedict): # removed by previous call, see (1) above
-                if verbose():
-                    print("SALOME session on port {} is already stopped".format(port))
-                # remove port from PortManager config file
-                with suppress(ImportError):
-                    if verbose():
-                        print("Removing port from PortManager configuration file")
-                    releasePort(port)
-                return
-        try:
-            # DO NOT REMOVE NEXT LINE: it tests PortManager availability!
-            import PortManager # pragma pylint: disable=unused-import
-            for file_path in glob('{}*'.format(getPiDict(port))):
-                __killMyPort(port, file_path)
-        except ImportError:
-            __killMyPort(port, __guessPiDictFilename(port))
-
-        # clear-up omniOrb config files
-        appliCleanOmniOrbConfig(port)
+    with suppress(ValueError):
+        port = int(port)
+        
+    for filedict in glob('{}*'.format(getPiDict(port))):
+        with suppress(Exception), open(filedict, 'rb') as fpid:
+            logging.getLogger().debug("Removing following PIDS from file \"{}\" : {}"
+            .format(filedict,pids_list))
+            pids_lists_in_file = pickle.load(fpid)
+        for dico_of_pids in pids_lists_in_file:
+            for pid in pids_list:
+                if pid in dico_of_pids:
+                    del dico_of_pids[pid]
+        pids_lists_in_file = [elt for elt in pids_lists_in_file if len(elt)>0]
+        if len(pids_lists_in_file) == 0:
+            try:
+                logging.getLogger().debug("List of PIDS to Kill is now empty -> Remove file \"{}\"".format(filedict))
+                os.remove(filedict)
+            except:
+                pass
+            continue
+        with suppress(Exception), open(filedict, 'wb') as fpid:
+            logging.getLogger().debug("Writing back into file \"{}\"".format(filedict))
+            pickle.dump(pids_lists_in_file,fpid)
+    # clear-up omniOrb config files
+    appliCleanOmniOrbConfig(port)
 
 def killMyPort(*ports):
     """

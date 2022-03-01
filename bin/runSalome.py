@@ -171,14 +171,6 @@ def execScript(script_path):
 
 # -----------------------------------------------------------------------------
 
-def addToPidict(args):
-    global process_id
-    from addToKillList import addToKillList
-    for pid, cmd in list(process_id.items()):
-        addToKillList(pid, cmd)
-
-# -----------------------------------------------------------------------------
-
 def main(exeName=None):
     """Salome launch as a main application"""
     keep_env = not os.getenv('SALOME_PLEASE_SETUP_ENVIRONMENT_AS_BEFORE')
@@ -190,13 +182,14 @@ def main(exeName=None):
     ior_fakens_filename = useSalome(args, modules_list, modules_root_dir)
     # Management of -t <script.py>
     toimport = []
+    env = os.environ
     if 'gui' in args and 'session_gui' in args:
         if not args['gui'] or not args['session_gui']:
             if 'study_hdf' in args:
                 toopen = args['study_hdf']
                 if toopen:
-                    import salome
-                    salome.salome_init(path=toopen)
+                    os.environ["PATH_TO_STUDY_FILE_TO_INITIATE"] = toopen
+                    logger.debug("An input Study has been specified {} -> pass it with PATH_TO_STUDY_FILE_TO_INITIATE env var".format(toopen))
             if 'pyscript' in args:
                 toimport = args['pyscript']
     from salomeContextUtils import formatScriptsAndArgs
@@ -204,7 +197,7 @@ def main(exeName=None):
     command = formatScriptsAndArgs(toimport, escapeSpaces=True)
     if command:
         logger.debug("Launching following shell command : {}".format(str(command)))
-        proc = subprocess.Popen(command, shell=True)
+        proc = subprocess.Popen(command, shell=True, env = env)
         addToKillList(proc.pid, command)
         res = proc.wait()
         if res: sys.exit(1) 
@@ -279,14 +272,6 @@ def foreGround(args, ior_fakens_filename):
     from salome_utils import getPortNumber
     port = getPortNumber()
     # --
-    server = Server({})
-    if sys.platform == "win32":
-      server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
-    else:
-      server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
-    server.run(True)
-    # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
-    # --
     dt = 1.0
     try:
         while 1:
@@ -302,9 +287,9 @@ def foreGround(args, ior_fakens_filename):
         pass
     except KeyboardInterrupt:
         logger.debug("Keyboard requested : killing all process attached to port {}".format(port))
-        from killSalomeWithPort import killMyPortSSL
-        killMyPortSSL(port)
-        pass
+    finally:
+        from killSalomeWithPort import killProcessSSL
+        killProcessSSL(port,[session_pid])
     return
 #
 

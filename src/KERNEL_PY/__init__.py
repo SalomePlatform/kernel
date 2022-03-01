@@ -177,9 +177,14 @@ def salome_init(path=None, embedded=False, iorfakensfile=None):
     """
     :param iorfakensfile: filename inside which IOR of fake NS will be written
     """
+    PATH_TO_STUDY_FILE_TO_INITIATE = "PATH_TO_STUDY_FILE_TO_INITIATE"
     import KernelBasis
     if KernelBasis.getSSLMode():
         if KernelBasis.getIOROfEmbeddedNS() == "":
+            import os
+            # make runSalome.py -t study.hdf toto.py
+            if path is None and PATH_TO_STUDY_FILE_TO_INITIATE in os.environ:
+                path = os.environ[PATH_TO_STUDY_FILE_TO_INITIATE]
             salome_init_without_session(path, embedded, iorfakensfile)
         else:
             salome_init_without_session_attached(path, embedded)
