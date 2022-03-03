@@ -322,7 +322,7 @@ def salome_init_with_session(path=None, embedded=False):
         import time
         time.sleep(0.2)
         x = inst
-        print("salome.salome_init():", x)
+        print("salome.salome_init_with_session():", x)
         print("""
         ============================================
         May be there is no running SALOME session
