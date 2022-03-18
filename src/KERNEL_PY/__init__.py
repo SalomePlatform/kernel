@@ -175,8 +175,15 @@ def withServers():
 
 def salome_init(path=None, embedded=False, iorfakensfile=None):
     """
+    Initialize SALOME client process (that can also be server).
+    3 modes of initialization exists:
+    - SSL mode (see salome_init_without_session)
+    - SSL mode attached in the context of python execution inside SALOME_Container_No_NS_Serv server (typically YACS)
+    - Classical mode (see salome_init_with_session)
     :param iorfakensfile: filename inside which IOR of fake NS will be written
     """
+    if lcc is not None:
+        return
     PATH_TO_STUDY_FILE_TO_INITIATE = "PATH_TO_STUDY_FILE_TO_INITIATE"
     import KernelBasis
     if KernelBasis.getSSLMode():
@@ -229,6 +236,10 @@ def salome_init_without_session_common(path=None, embedded=False):
     naming_service = NamingService()
 
 def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
+    """
+    Force creation of all servants needed by SALOME session in the current process.
+    A Fake NamingService is created storing reference of all servants in the current process.
+    """
     salome_init_without_session_common(path,embedded)
     global lcc,cm,dsm,esm
     import KernelLauncher
@@ -261,7 +272,8 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
 def salome_init_without_session_attached(path=None, embedded=False):
     """
     Configuration SSL inside a python interpretor launched in the SALOME_Container_No_NS_Serv.
-    In this configuration, 
+    In this configuration, a local FakeNamingService is created and remote objects are stored in it.
+    lcc is pointing to the FakeNamingService above.
     """
     salome_init_without_session_common(path,embedded)
     global lcc,cm,dsm,esm
