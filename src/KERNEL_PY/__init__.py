@@ -345,7 +345,7 @@ def salome_init_with_session(path=None, embedded=False):
         raise
     
 def salome_close():
-    global salome_initial, myStudy, myStudyName
+    global salome_initial, myStudy, myStudyName, lcc
     try:
         # study can be clear either from GUI or directly with salome.myStudy.Clear()
         myStudy.Clear()
@@ -355,6 +355,7 @@ def salome_close():
     salome_iapp_close()
     salome_study_close()
     myStudy, myStudyName = None, None
+    lcc = None # to salome_init to rebuild all in case of salome_init after salome_close
     import KernelBasis
     if KernelBasis.getSSLMode() and not KernelBasis.getGUIMode():
         import KernelDS
