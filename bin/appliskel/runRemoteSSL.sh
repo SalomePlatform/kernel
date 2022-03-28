@@ -53,9 +53,6 @@ else
   . "${HOME}/${APPLI}/envd" "${HOME}/${APPLI}"
 fi
 
-# --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
-export CUSTOM_NS_IOR=$1
-
 #go to the requested working directory if any
 if test "x$2" == "xWORKINGDIR"; then
   if test "x$3" = "x\$TEMPDIR"; then
@@ -86,4 +83,4 @@ fi
 
 # --- execute the command in the SALOME environment
 
-"${KERNEL_ROOT_DIR}/bin/salome/envSalome.py" /bin/sh -c "$* $CUSTOM_NS_IOR"
+"${KERNEL_ROOT_DIR}/bin/salome/envSalome.py" /bin/sh -c "$* "

@@ -789,8 +789,14 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
     else
       command += " " +container_exe+ " ";
 
-    command += _NS->ContainerName(params);
-    if(!this->_isSSL)
+    command += _NS->ContainerName(params) + " ";
+    if(this->_isSSL)
+    {
+      Engines::EmbeddedNamingService_var ns = GetEmbeddedNamingService();
+      CORBA::String_var iorNS = _orb->object_to_string(ns);
+      command += std::string(iorNS);
+    }
+    else //if(!this->_isSSL)
     {
       command += " -";
       AddOmninamesParams(command);
@@ -1290,9 +1296,11 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
   else
     remoteapplipath = applipath;
 
-  ASSERT(GetenvThreadSafe("NSHOST"));
-  ASSERT(GetenvThreadSafe("NSPORT"));
-
+  if(!this->_isSSL)
+  {
+    ASSERT(GetenvThreadSafe("NSHOST"));
+    ASSERT(GetenvThreadSafe("NSPORT"));
+  }
   // $APPLI points either to an application directory, or to a salome launcher file
   // we prepare the remote command according to the case
   struct stat statbuf;
@@ -1301,11 +1309,14 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
     // if $APPLI is a regular file, we asume it's a salome Launcher
     // generate a command with a salome launcher
     command << remoteapplipath 
-            << " remote"
-            << " -m "
-            <<  GetenvThreadSafeAsString("NSHOST") // hostname of CORBA name server
-            << " -p "
-            <<  GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
+            << " remote" ;
+    if(!this->_isSSL)
+    {
+      command << " -m "
+              <<  GetenvThreadSafeAsString("NSHOST") // hostname of CORBA name server
+              << " -p "
+              <<  GetenvThreadSafeAsString("NSPORT"); // port of CORBA name server
+    }
     if (workdir != "")
       command << "-d " << workdir;
     command <<  " -- " ;
