@@ -173,7 +173,7 @@ def withServers():
     import KernelBasis
     KernelBasis.setSSLMode(False)
 
-def salome_init(path=None, embedded=False, iorfakensfile=None):
+def salome_init(path=None, embedded=False, iorfakensfile=None, forced=False):
     """
     Initialize SALOME client process (that can also be server).
     3 modes of initialization exists:
@@ -181,9 +181,12 @@ def salome_init(path=None, embedded=False, iorfakensfile=None):
     - SSL mode attached in the context of python execution inside SALOME_Container_No_NS_Serv server (typically YACS)
     - Classical mode (see salome_init_with_session)
     :param iorfakensfile: filename inside which IOR of fake NS will be written
+    :param forced: tell if the multi-initialization protection mecanism of salome_init must be skiped of not
+                   (typically in the context where a path to a study is given whereas a previous initialisation without it was done)
     """
-    if lcc is not None:
-        return
+    if not forced:
+        if lcc is not None:# multi-initialization protection mecanism is based on lcc global var
+            return
     PATH_TO_STUDY_FILE_TO_INITIATE = "PATH_TO_STUDY_FILE_TO_INITIATE"
     import KernelBasis
     if KernelBasis.getSSLMode():
