@@ -29,11 +29,11 @@
 
 // --- Registers the fixture into the 'registry'
 
-CPPUNIT_TEST_SUITE_REGISTRATION( SALOMELocalTraceTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( SALOMETraceCollectorTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( UtilsTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( NamingServiceTest );
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( SALOMELocalTraceTest,"0" );
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( SALOMETraceCollectorTest,"1" );
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( UtilsTest,"2" );
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( NamingServiceTest,"3" );
 
 // --- generic Main program from Basic/Test
 
-#include "BasicMainTest.hxx"
+#include "BasicMainTestOrdered.hxx"
