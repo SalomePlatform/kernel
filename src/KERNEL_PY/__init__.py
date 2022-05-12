@@ -237,6 +237,7 @@ def salome_init_without_session_common(path=None, embedded=False):
     #
     from NamingService import NamingService
     naming_service = NamingService()
+    myStudyName = myStudy.Name
 
 def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     """
