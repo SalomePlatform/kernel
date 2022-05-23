@@ -101,6 +101,7 @@ SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
 # For all prerequisites, load the corresponding targets if the package was used
 # in CONFIG mode. This ensures dependent projects link correctly
 # without having to set LD_LIBRARY_PATH:
+unset(Boost_USE_DEBUG_RUNTIME) # problem detected in 9.9.0 with persalys. After a first find_package (Boost) FIND_PACKAGE 15 lines under failed
 SET(_PREREQ_@PROJECT_NAME@ @_PREREQ_LIST@)
 SET(_PREREQ_@PROJECT_NAME@_CONFIG_DIR @_PREREQ_DIR_LIST@)
 SET(_PREREQ_@PROJECT_NAME@_COMPONENTS "@_PREREQ_COMPO_LIST@")
