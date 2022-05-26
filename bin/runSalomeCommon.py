@@ -331,6 +331,10 @@ class CommonSessionServer(Server):
                     self.SCMD2+=['--pyscript=%s'%(msg)]
                     pass
                 pass
+                if self.args['gui_log_file'] is not None:
+                    self.SCMD2+=['--gui-log-file=%s'%self.args['gui_log_file']]
+                    pass
+                pass
             pass
         if self.args['noexcepthandler']:
             self.SCMD2+=['--no-exception-handler']
