@@ -332,7 +332,15 @@ class CommonSessionServer(Server):
                     pass
                 pass
                 if self.args['gui_log_file'] is not None:
-                    self.SCMD2+=['--gui-log-file=%s'%self.args['gui_log_file']]
+                    guilogfile = self.args['gui_log_file']
+                    if os.path.exists(guilogfile) and os.path.isfile(guilogfile):
+                        try:
+                            os.remove(guilogfile)
+                        except:
+                            print("Error: cannot remove existing log file", guilogfile)
+                            guilogfile = None
+                    if guilogfile is not None:
+                        self.SCMD2+=['--gui-log-file=%s'%guilogfile]
                     pass
                 pass
             pass
