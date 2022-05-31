@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2021  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2022  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -237,6 +237,7 @@ def salome_init_without_session_common(path=None, embedded=False):
     #
     from NamingService import NamingService
     naming_service = NamingService()
+    myStudyName = myStudy.Name
 
 def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     """
