@@ -216,7 +216,7 @@ def salome_init_without_session_common(path=None, embedded=False):
         writeORBConfigFileSSL(os.environ[OMNIORB_USER_PATH],kwargs={"with_pid":True})
         atexit.register(RemoveOmniorbConfigFile)
 
-    global lcc,naming_service,myStudy,orb,modulcat,sg
+    global lcc,naming_service,myStudy,myStudyName,orb,modulcat,sg
     import KernelBasis
     KernelBasis.setSSLMode(True)
     import KernelDS
