@@ -34,7 +34,7 @@
 import os
 import sys
 import traceback
-import imp
+import importlib
 from omniORB import CORBA, PortableServer
 import SALOMEDS
 import Engines, Engines__POA
@@ -74,14 +74,15 @@ class SALOME_Container_i:
         ret=""
         try:
             if verbose(): print("try import ",componentName)
-            __import__(componentName)
+            importlib.import_module(componentName)
             if verbose(): print("import ",componentName," successful")
-        except ImportError as e:
+        except ImportError:
             #can't import python module componentName
             #try to find it in python path
             try:
-              fp, pathname, description = imp.find_module(componentName)
-              if fp:fp.close()
+              _specs = importlib.util.find_spec(componentName)
+              _module = importlib.util.module_from_spec(_specs)
+              _specs.loader.exec_module(_module)
               #module file found in path
               ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
               ret=ret+traceback.format_exc(10)
@@ -97,7 +98,7 @@ class SALOME_Container_i:
               traceback.print_exc()
               print("import ",componentName," not possible")
         return ret
-        
+
     #-------------------------------------------------------------------------
 
     def create_component_instance(self, componentName, instanceName):
@@ -105,7 +106,7 @@ class SALOME_Container_i:
         comp_iors=""
         ret=""
         try:
-            component=__import__(componentName)
+            component=importlib.import_module(componentName)
             factory=getattr(component,componentName)
             comp_i=factory(self._orb,
                            self._poa,
@@ -122,7 +123,7 @@ class SALOME_Container_i:
             traceback.print_exc()
             MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
         return comp_iors, ret
-        
+
 
     def create_pynode(self,nodeName,code):
         try:
