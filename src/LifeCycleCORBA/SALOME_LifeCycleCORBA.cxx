@@ -309,7 +309,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 
 bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 {
-  try
+  /*try
   {
     CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
     SALOME_ModuleCatalog::ModuleCatalog_var Catalog =
@@ -332,7 +332,8 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
   {
     INFOS("Caught unknown exception.");
   }
-  return false;
+  return false;*/
+  return true;
 }
 
 //=============================================================================

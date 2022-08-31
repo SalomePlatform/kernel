@@ -28,6 +28,7 @@
 //
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "Basics_Utils.hxx"
+#include "utilities.h"
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -161,10 +162,10 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
        iter != _resources_list.end();
        iter++)
   {
-    std::cerr << "************************************************" << std::endl;
-    std::cerr << "Resource " << (*iter).first << " found:" << std::endl;
-    std::cerr << (*iter).second;
-    std::cerr << "************************************************" << std::endl;
+    MESSAGE( "************************************************" );
+    MESSAGE( "Resource " << (*iter).first << " found:" );
+    MESSAGE( (*iter).second );
+    MESSAGE( "************************************************" );
   }
 #endif
 }
@@ -182,8 +183,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a hostname" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a hostname" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
     return false;
   }
 
@@ -198,7 +199,7 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
   {
     resource.Name = resource.HostName;
     resource.DataForSort._Name = resource.HostName;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name );
   }
 
   if (xmlHasProp(cluster_descr, (const xmlChar*)test_use))
@@ -209,8 +210,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a use" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a use" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
     return false;
   }
 
@@ -222,8 +223,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a nbOfProc" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a nbOfProc" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
     return false;
   }
 
@@ -260,8 +261,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
   // Test: Il faut au moins un membre pour que le cluster soit correct !
   if (resource.ClusterMembersList.empty())
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a member" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a member" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
     return false;
   }
   return true;
@@ -278,8 +279,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a hostname" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a hostname" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
 
@@ -292,16 +293,16 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     }
     catch (const ResourcesException & )
     {
-      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
-      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" );
+      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
       return false;
     }
     xmlFree(protocol);
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a protocol" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a protocol" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
 
@@ -314,16 +315,16 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     }
     catch (const ResourcesException &)
     {
-      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
-      std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" );
+      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
       return false;
     }
     xmlFree(iprotocol);
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a protocol" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a protocol" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
 
@@ -335,8 +336,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a user name" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a user name" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
 
@@ -348,8 +349,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a nbOfNodes" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a nbOfNodes" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
 
@@ -361,8 +362,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a nbOfProcPerNode" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a nbOfProcPerNode" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
 
@@ -374,8 +375,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a AppliPath" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a AppliPath" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
     return false;
   }
   return true;
@@ -392,8 +393,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   }
   else
   {
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMachine : Warning found a machine without a hostname" << std::endl;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMachine : Warning this machine will not be added" << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMachine : Warning found a machine without a hostname" );
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMachine : Warning this machine will not be added" );
     return false;
   }
 
@@ -408,16 +409,16 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   {
     resource.Name = resource.HostName;
     resource.DataForSort._Name = resource.HostName;
-    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMachine : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name << std::endl;
+    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMachine : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name );
   }
 
   // This block is for compatibility with files created in Salome 6.
   // It can safely be removed in Salome 8.
   if (xmlHasProp(machine_descr, (const xmlChar*)test_mode))
   {
-    cerr << "Warning: parameter \"" << test_mode << "\" defined for resource \"" <<
+    MESSAGE( "Warning: parameter \"" << test_mode << "\" defined for resource \"" <<
             resource.Name << "\" is deprecated. It will be replaced when your resource " <<
-            "file is saved." << endl;
+            "file is saved." );
     xmlChar* mode=xmlGetProp(machine_descr, (const xmlChar*)test_mode);
     switch ( mode[0] )
     {
@@ -435,9 +436,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_is_cluster_head))
   {
-    cerr << "Warning: parameter \"" << test_is_cluster_head << "\" defined for resource \"" <<
+    MESSAGE( "Warning: parameter \"" << test_is_cluster_head << "\" defined for resource \"" <<
             resource.Name << "\" is deprecated. It will be replaced when your resource " <<
-            "file is saved." << endl;
+            "file is saved." );
     xmlChar* is_cluster_head = xmlGetProp(machine_descr, (const xmlChar*)test_is_cluster_head);
     std::string str_ich = (const char*)is_cluster_head;
     if (str_ich == "true")
@@ -464,16 +465,16 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
+      MESSAGE( "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
               resource.Name << "\", using default value \"" << resource.getResourceTypeStr() <<
-              "\"" << endl;
+              "\"" ) ;
     }
     xmlFree(type);
   }
   else
   {
-    cerr << "Warning, no type found for resource \"" << resource.Name <<
-            "\", using default value \"" << resource.getResourceTypeStr() << "\"" << endl;
+      MESSAGE( "Warning, no type found for resource \"" << resource.Name <<
+            "\", using default value \"" << resource.getResourceTypeStr() << "\"");
   }
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_batch_queue))
@@ -499,9 +500,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid protocol \"" << (const char*)protocol << "\" for resource \"" <<
+      MESSAGE( "Warning, invalid protocol \"" << (const char*)protocol << "\" for resource \"" <<
               resource.Name << "\", using default value \"" <<
-              resource.getAccessProtocolTypeStr() << "\"" << endl;
+              resource.getAccessProtocolTypeStr() << "\"" );
     }
     xmlFree(protocol);
   }
@@ -515,9 +516,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid internal protocol \"" << (const char*)iprotocol <<
+      MESSAGE( "Warning, invalid internal protocol \"" << (const char*)iprotocol <<
               "\" for resource \"" << resource.Name << "\", using default value \"" <<
-              resource.getClusterInternalProtocolStr() << "\"" << endl;
+              resource.getClusterInternalProtocolStr() << "\"" );
     }
     xmlFree(iprotocol);
   }
@@ -533,9 +534,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid batch manager \"" << (const char*)batch <<
+      MESSAGE( "Warning, invalid batch manager \"" << (const char*)batch <<
               "\" for resource \"" << resource.Name << "\", using default value \"" <<
-              resource.getBatchTypeStr() << "\"" << endl;
+              resource.getBatchTypeStr() << "\"" );
     }
     xmlFree(batch);
   }
@@ -549,9 +550,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid MPI implementation \"" << (const char*)mpi <<
+      MESSAGE( "Warning, invalid MPI implementation \"" << (const char*)mpi <<
               "\" for resource \"" << resource.Name << "\", using default value \"" <<
-              resource.getMpiImplTypeStr() << "\"" << endl;
+              resource.getMpiImplTypeStr() << "\"" );
     }
     xmlFree(mpi);
   }
@@ -614,9 +615,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid can_launch_batch_jobs parameter value \"" <<
+      MESSAGE( "Warning, invalid can_launch_batch_jobs parameter value \"" <<
               (const char*)can_launch_batch_jobs << "\" for resource \"" << resource.Name <<
-              "\", using default value \"" << resource.getCanLaunchBatchJobsStr() << "\"" << endl;
+              "\", using default value \"" << resource.getCanLaunchBatchJobsStr() << "\"" );
     }
     xmlFree(can_launch_batch_jobs);
   }
@@ -630,9 +631,9 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      cerr << "Warning, invalid can_run_containers parameter value \"" <<
+      MESSAGE( "Warning, invalid can_run_containers parameter value \"" <<
               (const char*)can_run_containers << "\" for resource \"" << resource.Name <<
-              "\", using default value \"" << resource.getCanRunContainersStr() << "\"" << endl;
+              "\", using default value \"" << resource.getCanRunContainersStr() << "\"" );
     }
     xmlFree(can_run_containers);
   }
