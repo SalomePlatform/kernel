@@ -36,6 +36,7 @@
 
 __all__ = [ "deprecation", "logger", "termcolor", "logconfig" ]
 __version__ = "@SALOMEKERNEL_GIT_SHA1@"
+__config_datetime__ = "@SALOMEKERNEL_CONFIG_TIME@"
 
 # WARN: This file SHOULD NOT import salome stuff so that modules of the
 # package could be used outside of a SALOME session context when
