@@ -44,12 +44,37 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record):
         RESET_SEQ = "\033[0m"
         COLOR_SEQ = "\033[1;%dm"
+        import inspect
+        frame = inspect.currentframe()
+        for i in range(8):
+            frame = frame.f_back
         record.levelname = COLOR_SEQ % ColoredFormatter.COLORS[record.levelname] + record.levelname + RESET_SEQ
+        record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
+        return logging.Formatter.format(self, record)
+
+class BackTraceFormatter(logging.Formatter):
+    def __init__(self, *args, **kwargs):
+        logging.Formatter.__init__(self, *args, **kwargs)
+    def format(self, record):
+        import inspect
+        frame = inspect.currentframe()
+        # go upward of the stack to catch the effective callsite. Not very steady....
+        # should be replaced by an analysis of frame.f_code
+        for i in range(8):
+            frame = frame.f_back
+        record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
         return logging.Formatter.format(self, record)
 
 def setVerbose(verbose):
+    from packaging import version
+    current_version = version.parse("{}.{}".format(sys.version_info.major,sys.version_info.minor))
+    version_ref = version.parse("3.5.0")
     global logger
-    formatter = logging.Formatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
+    formatter = None
+    if current_version >= version_ref:
+        formatter = BackTraceFormatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
+    else:
+        formatter = logging.Formatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
     formatter.default_time_format = '%H:%M:%S'
     formatter.default_msec_format = "%s.%03d"
     stream_handler = logging.StreamHandler()
