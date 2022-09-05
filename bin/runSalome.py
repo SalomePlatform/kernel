@@ -210,7 +210,7 @@ def foreGround(args, ior_fakens_filename):
     import os
     gui_detected = False
     dt = 0.1
-    nbtot = 100
+    nbtot = 200
     nb = 0
     if ior_fakens_filename is None:
         logger.warn("No file set to host IOR of the fake naming server")
