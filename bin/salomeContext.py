@@ -195,7 +195,7 @@ class SalomeContext:
 
   """Unset environment variable"""
   def unsetVariable(self, name):
-    if os.environ.has_key(name):
+    if name in os.environ:
       del os.environ[name]
   #
 
