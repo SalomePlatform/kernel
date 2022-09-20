@@ -18,15 +18,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import unittest
-import tempfile
-
-import os
-import sys
-import imp
-from io import StringIO
-import multiprocessing
 import logging
+import multiprocessing
+import sys
+import unittest
 
 def new_instance(running_instances):
   from salome_instance import SalomeInstance
