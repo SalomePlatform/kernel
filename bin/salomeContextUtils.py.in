@@ -261,9 +261,10 @@ def getScriptsAndArgs(args=None, searchPathList=None):
                 ispython = True
                 break
               pass
-            fn.close()
           except Exception:
             pass
+          finally:
+            fn.close()
           if not ispython and script_extension == ".py":
             currentKey = "@PYTHONBIN@ "+currentScript
           else:

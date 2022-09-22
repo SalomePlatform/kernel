@@ -207,7 +207,8 @@ def set_env(args, modules_list, modules_root_dir, silent=False, keepEnvironment=
                 # set environment by modules from the list
                 if port:
                     try:
-                        mod=__import__(module.lower()+"_setenv")
+                        import importlib
+                        mod=importlib.import_module(module.lower()+"_setenv")
                         mod.set_env(args)
                         pass
                     except Exception:

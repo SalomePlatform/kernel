@@ -411,11 +411,11 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
         # Create environment for virtual env
         if venv_directory_path:
             command = """# SALOME venv Configuration
-export SALOME_VENV_DIRECTORY=%s
+export SALOME_VENV_DIRECTORY=${HOME}/${APPLI}/venv
 export PATH=${HOME}/${APPLI}/venv/bin:$PATH
 export LD_LIBRARY_PATH=${HOME}/${APPLI}/venv/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=${HOME}/${APPLI}/venv/lib/python%s/site-packages
-""" % (venv_directory_path, versionPython)
+""" % (versionPython)
             f.write(command)
             pass
 
@@ -456,11 +456,11 @@ ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
         # Create environment for virtual env
         if venv_directory_path:
             command = """[SALOME venv Configuration]
-SALOME_VENV_DIRECTORY: %s
+SALOME_VENV_DIRECTORY: ${HOME}/${APPLI}/venv
 ADD_TO_PATH: ${HOME}/${APPLI}/venv/bin
 ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/venv/lib
 ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/venv/lib/python%s/site-packages
-""" % (venv_directory_path, versionPython)
+""" % (versionPython)
             f.write(command)
             pass
 

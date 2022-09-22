@@ -96,8 +96,9 @@ def getComponent(componentName = "SalomeTestComponent",
     """
     Get a SALOME CORBA component from its name
     """
+    import importlib
     print("INF: getting component %s from CORBA module %s ..."%(componentName,corbaModule))
-    __import__(corbaModule)
+    importlib.import_module(corbaModule)
     component=salome.lcc.FindOrLoadComponent(containerType,componentName)
     if component is None:
         print("ERR: the SALOME component "+componentName+" can't be reached")

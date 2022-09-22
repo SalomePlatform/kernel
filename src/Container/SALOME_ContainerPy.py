@@ -30,10 +30,10 @@
 #
 import os
 import sys
-import string
+import importlib
 
 from omniORB import CORBA, PortableServer
-import SALOMEDS 
+import SALOMEDS
 import Engines, Engines__POA
 import salome_psutil
 from SALOME_NamingServicePy import *
@@ -77,7 +77,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
         self._numInstance = self._numInstance +1
         instanceName = nameToRegister + "_inst_" + repr(self._numInstance)
 
-        component=__import__(componentName)
+        component=importlib.import_module(componentName)
         factory=getattr(component,componentName)
         comp_i=factory(self._orb, self._poa, self._this(), self._containerName,
                        instanceName, nameToRegister)
@@ -100,16 +100,16 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
         exec(the_command)
         comp_o = comp_i._this()
         return comp_o
-    
+
     #-------------------------------------------------------------------------
-    
+
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )
         reason = ""
         try:
             if verbose(): print("try import %s" % componentName)
             # try import component
-            module=__import__(componentName)
+            module=importlib.import_module(componentName)
             if verbose(): print("import %s is done successfully" % componentName)
             # if import successfully, check that component is loadable
             if not hasattr(module, componentName):
@@ -133,7 +133,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
         interfaceName = componentName
         reason = self.import_component(componentName)
         return reason == "", reason
-    
+
     #-------------------------------------------------------------------------
 
     def create_component_instance_env(self, componentName, env):
@@ -145,7 +145,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
         instanceName = componentName + "_inst_" + repr(self._numInstance)
         comp_iors=""
         try:
-            component=__import__(componentName)
+            component=importlib.import_module(componentName)
             factory=getattr(component,componentName)
             comp_i=factory(self._orb,
                            self._poa,
@@ -153,7 +153,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
                            self._containerName,
                            instanceName,
                            componentName)
-            
+
             MESSAGE( "SALOME_Container_i::create_component_instance : OK")
             comp_o = comp_i._this()
             self._listInstances_map[instanceName] = comp_i
@@ -172,13 +172,13 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
                 anEngine = self._listInstances_map[instance]
                 return anEngine._this()
         return anEngine
-        
+
 
     #-------------------------------------------------------------------------
 
     def create_python_service_instance(self, CompName):
         return self.create_component_instance(CompName)
-      
+
     #-------------------------------------------------------------------------
 
     def remove_impl(self, component):
@@ -255,7 +255,7 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
         return self._machineName
 
     #-------------------------------------------------------------------------
-    
+
     def _get_machineName(self):
         MESSAGE( "SALOME_ContainerPy_i::_get_MachineName" )
         self._machineName = "localhost"
@@ -288,7 +288,7 @@ class SALOME_ContainerPy_i(SALOME_ContainerPy_Gen_i):
         self._naming_service = naming_service
         MESSAGE( str(Container_path) )
         naming_service.Register(self._this(), Container_path)
-    
+
     #-------------------------------------------------------------------------
 
     def start_impl(self, ContainerName):
@@ -324,15 +324,15 @@ class SALOME_ContainerPy_i(SALOME_ContainerPy_Gen_i):
                 break
             num += 1
             pass
-        
+
         shstr += " > "
         shstr += fileName
         shstr += " 2>&1 &"
-        
+
         #shstr += " > /tmp/"
         #shstr += ContainerName
         #shstr += ".log 2>&1 &"
-        
+
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + "os.system(" + str(shstr) + ")" )
         os.system( shstr )
         count = 21
@@ -364,7 +364,7 @@ class SALOME_ContainerPy_SSL_i(SALOME_ContainerPy_Gen_i):
         SALOME_ContainerPy_Gen_i.__init__(self, orb, poa, containerName)
         naming_service = SALOME_Embedded_NamingService()
         self._naming_service = naming_service._this()
-    
+
     def get_embedded_NS_if_ssl(self):
         return self._naming_service
 
@@ -382,7 +382,7 @@ if __name__ == "__main__":
   MESSAGE( str(sys.argv) )
   containerName = sys.argv[1]
   cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
-  if verbose():print("SALOME_ContainerPy_i instance created ",cpy_i) 
+  if verbose():print("SALOME_ContainerPy_i instance created ",cpy_i)
   cpy_o = cpy_i._this()
   if verbose():print("SALOME_ContainerPy_i instance activated ",cpy_o)
   sys.stdout.flush()

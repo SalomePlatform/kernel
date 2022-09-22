@@ -21,6 +21,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import importlib
 import sys
 import unittest
 
@@ -44,7 +45,7 @@ def main(modules=None):
     for module in modules:
         test_name = '{}_test'.format(module.lower())
         try:
-            __import__(test_name)
+            importlib.import_module(test_name)
             test_module = sys.modules[test_name]
             suite.addTest(loader.loadTestsFromModule(test_module))
         except ImportError:

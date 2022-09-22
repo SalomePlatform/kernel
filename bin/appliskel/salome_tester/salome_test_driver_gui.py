@@ -22,10 +22,9 @@
 Usage: salome_test_driver_gui.py <timeout_delay> <test command> [test command arguments]
 """
 
-import sys
 import os
-import subprocess
 import signal
+import sys
 
 # Timeout management
 class TimeoutException(Exception):
