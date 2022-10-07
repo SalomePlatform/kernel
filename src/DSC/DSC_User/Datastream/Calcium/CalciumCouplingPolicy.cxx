@@ -105,14 +105,14 @@ CalciumCouplingPolicy::getEffectiveTime(CalciumCouplingPolicy::TimeType ti,
 void CalciumCouplingPolicy::disconnect(bool provideLastGivenValue) {
 
   if (provideLastGivenValue) {
-#ifdef MYDEBUG
-    std::cout << "-------- CalciumCouplingPolicy::disconnect CP_CONT  ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- CalciumCouplingPolicy::disconnect CP_CONT  ------------------" << std::endl;
+
     _disconnectDirective = CalciumTypes::CONTINUE;
   } else {
-#ifdef MYDEBUG
-    std::cout << "-------- CalciumCouplingPolicy::disconnect CP_ARRET  ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- CalciumCouplingPolicy::disconnect CP_ARRET  ------------------" << std::endl;
+
     _disconnectDirective = CalciumTypes::STOP;
   }
 

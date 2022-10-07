@@ -109,7 +109,7 @@ void RegistryService::remove( CORBA::ULong id)
         ASSERT(_SessionName) ;
         ASSERT(strlen(_SessionName)>0) ;
         
-        ASSERT(_reg.find(id)!=_reg.end()) 
+        ASSERT(_reg.find(id)!=_reg.end());
         _reg[id]->_status=TERMINATED;
         _reg[id]->_ts_end = (long)time(NULL) ; //!< TODO: conversation from time_t to long
 
@@ -131,7 +131,7 @@ void RegistryService::hello( CORBA::ULong id )
         ASSERT(_SessionName) ;
         ASSERT(strlen(_SessionName)>0) ;
 
-        ASSERT(_reg.find(id)!=_reg.end()) 
+        ASSERT(_reg.find(id)!=_reg.end()); 
         _reg[id]->_ts_hello = (long)time(NULL) ; //!< TODO: conversation from time_t to long
                 
         END_OF("RegistryService::hello") ;

@@ -28,6 +28,7 @@ SET(COMMON_HEADERS
   LocalTraceBufferPool.hxx
   BaseTraceCollector.hxx
   SALOME_LocalTrace.hxx
+  libSALOMELog.hxx
 )
 
 SET(SALOMELocalTrace_SOURCES
@@ -40,6 +41,8 @@ SET(SALOMELocalTrace_SOURCES
   LocalTraceBufferPool.cxx
   LocalTraceBufferPool.hxx
   SALOME_LocalTrace.hxx
+  libSALOMELog.hxx
+  libSALOMELog.cxx
 )
 
 ADD_LIBRARY(SALOMELocalTrace ${SALOMELocalTrace_SOURCES})

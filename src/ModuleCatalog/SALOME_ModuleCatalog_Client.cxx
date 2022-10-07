@@ -62,7 +62,7 @@ int main(int argc,char **argv)
 
    SALOME_ModuleCatalog::ModuleCatalog_var Catalogue 
      = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objVarN); 
-   MESSAGE("Distant catalog of component found")
+   MESSAGE("Distant catalog of component found");
 
      // Get component list
    SALOME_ModuleCatalog::ListOfComponents_var list_composants 

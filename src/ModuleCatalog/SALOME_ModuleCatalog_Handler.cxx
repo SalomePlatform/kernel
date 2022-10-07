@@ -34,11 +34,6 @@
 
 #include <sstream>
 
-#ifdef _DEBUG_
-static int MYDEBUG = 0;
-#else
-static int MYDEBUG = 0;
-#endif
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_Handler
@@ -51,7 +46,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
                                                                                _typeMap(typeMap),_typeList(typeList)
 
 {
-  if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_Handler");
+  BEGIN_OF("SALOME_ModuleCatalog_Handler");
 
   // XML Tags initialisation
   // Used in the function endElement
@@ -108,7 +103,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
   test_component_list = "component-list";
   test_component="component";
 
-  if(MYDEBUG) END_OF("SALOME_ModuleCatalog_Handler");
+  END_OF("SALOME_ModuleCatalog_Handler");
 }
 
 //----------------------------------------------------------------------
@@ -117,8 +112,8 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 {
-  if(MYDEBUG) BEGIN_OF("~SALOME_ModuleCatalog_Handler()")
-  if(MYDEBUG) END_OF("~SALOME_ModuleCatalog_Handler()")
+  BEGIN_OF("~SALOME_ModuleCatalog_Handler()");
+  END_OF("~SALOME_ModuleCatalog_Handler()");
 }
 
 
@@ -130,7 +125,7 @@ SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 
 void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-  if(MYDEBUG) MESSAGE("Begin parse document");
+  MESSAGE("Begin parse document");
   // Empty the private elements
   _pathList.resize(0);
   _pathPrefix.listOfComputer.resize(0);

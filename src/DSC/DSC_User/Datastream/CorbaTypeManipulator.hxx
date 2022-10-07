@@ -30,11 +30,11 @@
 #ifndef _CORBA_TYPE_MANIPULATION_HXX_
 #define _CORBA_TYPE_MANIPULATION_HXX_
 
+#include "utilities.h"
+
 #include <iostream>
 #include <cstring>
 #include <omniORB4/CORBA.h>
-
-//#define MYDEBUG
 
 // Classes manipulation
 // -------------------
@@ -229,24 +229,24 @@ public:
     // En non collocalisé on recrée une séquence avec le buffer de la première dont on
     // a demandé la propriété.
 
-#ifdef MYDEBUG
-    std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1 ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1 ------------------" << std::endl;
+
     if ( data.release() ) {
       InnerType * p_data = const_cast<seq_T &>(data).get_buffer(true);
 
     // Crée une nouvelle sequence propriétaire des données du buffer (pas de recopie)
     // Les données de la nouvelle séquence seront automatiquement désallouées 
     // par appel à la méthode freebuf dans le destructeur de la séquence (cf  delete_data).
-#ifdef MYDEBUG
-      std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(0 copy) bis ------"<<  p_data <<"------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(0 copy) bis ------" <<  p_data << "------------" << std::endl;
     
       return  new seq_T (max, len, p_data, true);
     }
-#ifdef MYDEBUG
-    std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(recopie) bis ------"<<  &data <<"------------" << std::endl;
-#endif
+
+    if (SALOME::VerbosityActivated())
+      std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(recopie) bis ------" <<  &data << "------------" << std::endl;
+
     // Crée une nouvelle sequence propriétaire des données du buffer (avec recopie)    
     return new seq_T(data);
 
@@ -393,23 +393,23 @@ public:
     // Récupère et devient propriétaire des données reçues dans la séquence 
     // la séquence sera désalloué (mais pas le buffer)
     // au retour de la méthode put (car mapping de type IN : const seq & )
-     if ( data.release() ) {
-       InnerType * p_data = const_cast<seq_T &>(data).get_buffer(true);
+    if ( data.release() ) {
+      InnerType * p_data = const_cast<seq_T &>(data).get_buffer(true);
 
-    // Crée une nouvelle sequence propriétaire des données du buffer (généralement pas de recopie)
-    // Les données seront automatiquement désallouées par appel interne à la méthode freebuf
-    // lors de la destruction de l'objet par appel à delete_data.
-#ifdef MYDEBUG
-    std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1bis Pas de Duplication  -----------" << std::endl;
-#endif
-       return new seq_T (len, p_data, true);
-     }
-#ifdef MYDEBUG
-    std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1bis Duplication pour en devenir propriétaire -----------" << std::endl;
-#endif
+      // Crée une nouvelle sequence propriétaire des données du buffer (généralement pas de recopie)
+      // Les données seront automatiquement désallouées par appel interne à la méthode freebuf
+      // lors de la destruction de l'objet par appel à delete_data.
+      if (SALOME::VerbosityActivated())
+        std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1bis Pas de Duplication  -----------" << std::endl;
+
+      return new seq_T (len, p_data, true);
+    }
+
+    if (SALOME::VerbosityActivated())
+      std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1bis Duplication pour en devenir propriétaire -----------" << std::endl;
+
     // Crée une nouvelle sequence propriétaire des données du buffer (avec recopie)    
     return new seq_T(data);
-
   }
 
   static inline size_t size(Type data) { 

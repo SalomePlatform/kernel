@@ -37,6 +37,7 @@
 
 
 #include "LocalTraceBufferPool.hxx"
+#include "libSALOMELog.hxx"
 
 /*!
  * For each message to put in the trace, a specific ostingstream object is
@@ -101,40 +102,26 @@
 #error INFOS_COMPILATION already defined
 #endif
 
-#if defined(_DEBUG_) || defined(_DEBUG)
+// --- the following MACROS can be enabled in debug and release versions
+// --- by SALOME_VERBOSE environment variable
 
-// --- the following MACROS are useful at debug time
-
-#define INFOS_COMPILATION { MESS_BEGIN("COMPILED with ") << COMPILER \
+#define INFOS_COMPILATION { if (SALOME::VerbosityActivated()) { MESS_BEGIN("COMPILED with ") << COMPILER \
                                        << ", " << __DATE__ \
-                                       << " at " << __TIME__ << MESS_END }
+                                       << " at " << __TIME__ << MESS_END }}
+                                                                                
 
-#define MESSAGE(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
-#define SCRUTE(var)  {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}
+#define MESSAGE(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << msg << MESS_END}}
+#define SCRUTE(var)  { if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}}
 
 #define REPERE ("------- ")
-#define BEGIN_OF(msg) {MESS_BEGIN(REPERE) << "Begin of: "      << msg << MESS_END} 
-#define END_OF(msg)   {MESS_BEGIN(REPERE) << "Normal end of: " << msg << MESS_END} 
+#define BEGIN_OF(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Begin of: " << msg << MESS_END}}
+#define END_OF(msg)   { if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Normal end of: " << msg << MESS_END}}
 
 #ifndef ASSERT
 #define ASSERT(condition) \
-        if (!(condition)){INTERRUPTION("CONDITION "<<#condition<<" NOT VERIFIED")}
+        { if (SALOME::VerbosityActivated()) { \
+        if (!(condition)){INTERRUPTION("CONDITION "<<#condition<<" NOT VERIFIED")} \
+        }}
 #endif /* ASSERT */
-
-
-#else /* ifdef _DEBUG_*/
-
-#define INFOS_COMPILATION
-#define MESSAGE(msg) {}
-#define SCRUTE(var) {}
-#define REPERE
-#define BEGIN_OF(msg) {}
-#define END_OF(msg) {}
-
-#ifndef ASSERT
-#define ASSERT(condition) {}
-#endif /* ASSERT */
-
-#endif /* ifdef _DEBUG_*/
 
 #endif /* ifndef UTILITIES_H */

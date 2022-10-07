@@ -36,8 +36,6 @@
 
 #include <cstdio>
 
-//#define MYDEBUG
-
 //Les demandes de copies vers l'espace utilisateur
 //proviennent d'une procédure de lecture  
 
@@ -105,31 +103,30 @@ struct Copy2UserSpace<false, DataManipulator> {
   //Recopie le contenu de la donnée CORBA dans le buffer utilisateur de longueur nRead
   template <class T1, class T2>
   static void apply( T1 * &data, T2 & corbaData, size_t nRead){
-
-    typedef typename DataManipulator::InnerType        InnerType;
+    typedef typename DataManipulator::InnerType InnerType;
     
-  
-#ifdef MYDEBUG
-    InnerType * dataPtr = NULL;
-    // Affiche la valeur du pointeur de la structure corba
-    //  et les pointeurs contenus le cas échéant
-    dataPtr  = DataManipulator::getPointer(corbaData,false);
-    std::cerr << "-------- Copy2UserSpace<false> MARK 1a --dataPtr("<<dataPtr<<")[0.."<<
-      DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
-    std::copy(dataPtr,dataPtr+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
-    for (int i=0; i< DataManipulator::size(corbaData); ++i) 
-      fprintf(stderr,"pointer[%d]=%p ",i, dataPtr[i]);
-    std::cerr << std::endl;
+    if (SALOME::VerbosityActivated())
+    {
+      InnerType * dataPtr = NULL;
+      // Affiche la valeur du pointeur de la structure corba
+      //  et les pointeurs contenus le cas échéant
+      dataPtr  = DataManipulator::getPointer(corbaData,false);
+      std::cerr << "-------- Copy2UserSpace<false> MARK 1a --dataPtr("<<dataPtr<<")[0.."<<
+        DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
+      std::copy(dataPtr,dataPtr+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
+      for (int i=0; i< DataManipulator::size(corbaData); ++i) 
+        fprintf(stderr,"pointer[%d]=%p ",i, dataPtr[i]);
+      std::cerr << std::endl;
 
-    T1 * tmpData = data;
-    //Cette affichage peut provoquer la détection d'écriture d'un espace non initailisé.
-    std::cerr << "-------- Copy2UserSpace<false> MARK 1b --data("<<tmpData<<")[0.."<<
-      DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
-    std::copy(tmpData,tmpData+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
-    for (int i=0; i< DataManipulator::size(corbaData); ++i) 
-      fprintf(stderr,"pointer[%d]=%p ",i, tmpData[i]);
-    std::cerr << std::endl;
-#endif
+      T1 * tmpData = data;
+      //Cette affichage peut provoquer la détection d'écriture d'un espace non initailisé.
+      std::cerr << "-------- Copy2UserSpace<false> MARK 1b --data("<<tmpData<<")[0.."<<
+        DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
+      std::copy(tmpData,tmpData+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
+      for (int i=0; i< DataManipulator::size(corbaData); ++i) 
+        fprintf(stderr,"pointer[%d]=%p ",i, tmpData[i]);
+      std::cerr << std::endl;
+    }
 
     // Pour les types pointeurs et ref il faut effectuer une recopie profonde.
     // On la délègue au manipulateur de données. 
@@ -142,18 +139,17 @@ struct Copy2UserSpace<false, DataManipulator> {
     //std::copy(dataPtr,dataPtr+nRead,data);
     DataManipulator::copy(corbaData,data,nRead);
       
-#ifdef MYDEBUG
-    tmpData = data;
-    std::cerr << "-------- Copy2UserSpace<false> MARK 1c --data("<<tmpData<<")[0.."<<
-      DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
-    std::copy(tmpData,tmpData+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
-    for (int i=0; i< DataManipulator::size(corbaData); ++i) 
-      fprintf(stderr,"pointer[%d]=%p ",i, tmpData[i]);
-    std::cerr << std::endl;
-#endif
-    
+    if (SALOME::VerbosityActivated())
+    {
+      T1 * tmpData = data;
+      std::cerr << "-------- Copy2UserSpace<false> MARK 1c --data("<<tmpData<<")[0.."<<
+        DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
+      std::copy(tmpData,tmpData+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
+      for (int i=0; i< DataManipulator::size(corbaData); ++i) 
+        fprintf(stderr,"pointer[%d]=%p ",i, tmpData[i]);
+      std::cerr << std::endl;
+    }
   }
-  
 };
 
 

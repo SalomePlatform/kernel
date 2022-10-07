@@ -54,9 +54,9 @@ int main( int argc , char **argv )
   SetArgcArgv( argc, argv );
   CORBA::ORB_var orb = KERNEL::GetRefToORB();
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
-  BEGIN_OF( argv[0] )
-    INFOS_COMPILATION 
-    SCRUTE(argc) 
+  BEGIN_OF( argv[0] );
+    INFOS_COMPILATION;
+    SCRUTE(argc);
     if( argc<3 )
       {
         MESSAGE("you must provide the Salome session name when you call SALOME_Registry_Server") ;
@@ -224,7 +224,7 @@ int main( int argc , char **argv )
     }
   catch( const SALOME_Exception &ex )
     {
-      MESSAGE( "Communication Error : " << ex.what() )
+      MESSAGE( "Communication Error : " << ex.what() );
         return EXIT_FAILURE ;
     }
         

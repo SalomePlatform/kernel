@@ -47,8 +47,6 @@
 #include <algorithm>
 #include <iterator>
 
-//#define MYDEBUG
-
 // Classe GenericPort
 // --------------------------------
 //
@@ -111,9 +109,9 @@ template < typename DataManipulator, typename COUPLING_POLICY>
 GenericPort<DataManipulator, COUPLING_POLICY>::~GenericPort() {
   typename DataTable::iterator it;
   for (it=storedDatas.begin(); it!=storedDatas.end(); ++it) {
-#ifdef MYDEBUG
-    std::cerr << "~GenericPort() : destruction de la donnnée associée au DataId :"<<  (*it).first << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cerr << "~GenericPort() : destruction de la donnnée associée au DataId :" << (*it).first << std::endl;
+
     DataManipulator::delete_data( (*it).second );
   }
 }
@@ -129,19 +127,21 @@ GenericPort<DataManipulator, COUPLING_POLICY>::close (PortableServer::POA_var po
 template < typename DataManipulator, typename COUPLING_POLICY> void
 GenericPort<DataManipulator, COUPLING_POLICY>::wakeupWaiting()
 {
-#ifdef MYDEBUG
-  std::cout << "-------- wakeupWaiting ------------------" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cout << "-------- wakeupWaiting ------------------" << std::endl;
+
   storedDatas_mutex.lock();
   if (waitingForAnyDataId || waitingForConvenientDataId) {
-#ifdef MYDEBUG
-    std::cout << "-------- wakeupWaiting:signal --------" << std::endl;
-    std::cout << std::flush;
-#endif
-    cond_instance.signal();
-   }
-  storedDatas_mutex.unlock();
+    if (SALOME::VerbosityActivated())
+    {
+      std::cout << "-------- wakeupWaiting:signal --------" << std::endl;
+      std::cout << std::flush;
+    }
 
+    cond_instance.signal();
+  }
+
+  storedDatas_mutex.unlock();
 }
 
 /* Methode put_generique
@@ -157,11 +157,12 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
   fflush(stdout);
   fflush(stderr);
   try {
-#ifdef MYDEBUG
-    // Affichage des donnees pour DEBUGging
-    std::cerr << "parametres emis: " << time << ", " << tag << std::endl;
-    DataManipulator::dump(dataParam);
-#endif
+    if (SALOME::VerbosityActivated())
+    {
+      // Affichage des donnees pour DEBUGging
+      std::cerr << "parametres emis: " << time << ", " << tag << std::endl;
+      DataManipulator::dump(dataParam);
+    }
   
     // L'intérêt des paramètres time et tag pour ce port est décidé dans la politique de couplage
     // Il est possible de filtrer en prenant en compte uniquement un paramètre time/tag ou les deux
@@ -180,45 +181,42 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
 
     bool expectedDataReceived = false;
 
-#ifdef MYDEBUG
-    std::cout << "-------- Put : MARK 1 ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Put : MARK 1 ------------------" << std::endl;
+
     if ( dataIds.empty() ) return;
-#ifdef MYDEBUG
-    std::cout << "-------- Put : MARK 1bis ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Put : MARK 1bis ------------------" << std::endl;
 
     // Recupere les donnees venant de l'ORB et relâche les structures CORBA 
     // qui n'auraient plus cours en sortie de méthode put
     DataType data = DataManipulator::get_data(dataParam);
 
-
     int nbOfIter = 0;
 
-#ifdef MYDEBUG
-    std::cout << "-------- Put : MARK 2 ------ "<< (dataIdIt == dataIds.end()) << "------------" << std::endl;
-    std::cout << "-------- Put : MARK 2bis "<< (*dataIdIt) <<"------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+    {
+      std::cout << "-------- Put : MARK 2 ------ "<< (dataIdIt == dataIds.end()) << "------------" << std::endl;
+      std::cout << "-------- Put : MARK 2bis "<< (*dataIdIt) <<"------------------" << std::endl;
+    }
     storedDatas_mutex.lock();
 
     for (;dataIdIt != dataIds.end();++dataIdIt) {
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Put : MARK 3 ------------------" << std::endl;
 
-#ifdef MYDEBUG
-      std::cout << "-------- Put : MARK 3 ------------------" << std::endl;
-#endif
       // Duplique l'instance de donnée pour les autres dataIds 
       if (nbOfIter > 0) data = DataManipulator::clone(data);
-#ifdef MYDEBUG
-      std::cout << "-------- Put : MARK 3bis -----"<< dataIdIt.operator*() <<"------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Put : MARK 3bis -----"<< dataIdIt.operator*() <<"------------" << std::endl;
     
       DataId currentDataId=*dataIdIt;
 
-#ifdef MYDEBUG
+    if (SALOME::VerbosityActivated())
+    {
       std::cerr << "processing dataId : "<< currentDataId << std::endl;
-
       std::cout << "-------- Put : MARK 4 ------------------" << std::endl;
-#endif
+    }
  
       // Ajoute l'instance de la donnee a sa place dans la table de données
       // ou remplace une instance précédente si elle existe
@@ -228,24 +226,23 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       // <=> premier emplacement où l'on pourrait insérer notre DataId
       // <=> en général équivaux à (*wDataIt).first >= currentDataId
       typename DataTable::iterator wDataIt = storedDatas.lower_bound(currentDataId);
-#ifdef MYDEBUG
-      std::cout << "-------- Put : MARK 5 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Put : MARK 5 ------------------" << std::endl;
 
       // On n'a pas trouvé de dataId supérieur au notre ou 
       // on a trouvé une clé >  à cet Id          
       if (wDataIt == storedDatas.end() || storedDatas.key_comp()(currentDataId,(*wDataIt).first) ) {
-#ifdef MYDEBUG
-        std::cout << "-------- Put : MARK 6 ------------------" << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Put : MARK 6 ------------------" << std::endl;
+
         // Ajoute la donnee dans la table
         wDataIt = storedDatas.insert(wDataIt, make_pair (currentDataId, data));
       } else  {
         // Si on n'est pas en fin de liste et qu'il n'y a pas de relation d'ordre strict
         // entre notre dataId et le DataId pointé c'est qu'ils sont identiques
-#ifdef MYDEBUG
-        std::cout << "-------- Put : MARK 7 ------------------" << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Put : MARK 7 ------------------" << std::endl;
+
         // Les données sont remplacées par les nouvelles valeurs
         // lorsque que le dataId existe déjà
         DataType old_data = (*wDataIt).second;
@@ -254,19 +251,20 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
         DataManipulator::delete_data (old_data);
       }
   
-#ifdef MYDEBUG
-      std::cout << "-------- Put : MARK 8 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Put : MARK 8 ------------------" << std::endl;
+
       // Compte le nombre de dataIds à traiter
       ++nbOfIter;
 
-#ifdef MYDEBUG
-      std::cout << "-------- Put : waitingForConvenientDataId : " << waitingForConvenientDataId <<"---" << std::endl;
-      std::cout << "-------- Put : waitingForAnyDataId : " << waitingForAnyDataId <<"---" << std::endl;
-      std::cout << "-------- Put : currentDataId  : " << currentDataId <<"---" << std::endl;
-      std::cout << "-------- Put : expectedDataId : " << expectedDataId <<"---" << std::endl;
-      std::cout << "-------- Put : MARK 9 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+      {
+        std::cout << "-------- Put : waitingForConvenientDataId : " << waitingForConvenientDataId << "---" << std::endl;
+        std::cout << "-------- Put : waitingForAnyDataId : " << waitingForAnyDataId << "---" << std::endl;
+        std::cout << "-------- Put : currentDataId  : " << currentDataId << "---" << std::endl;
+        std::cout << "-------- Put : expectedDataId : " << expectedDataId << "---" << std::endl;
+        std::cout << "-------- Put : MARK 9 ------------------" << std::endl;
+      }
 
       // A simplifier mais :
       // - pas possible de mettre des arguments optionnels à cause
@@ -284,19 +282,20 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       if ( waitingForAnyDataId || 
            ( waitingForConvenientDataId && 
              this->isDataIdConveniant(storedDatas, expectedDataId, dummy1, dummy2, dummy3) ) 
-           ) {
-#ifdef MYDEBUG
-        std::cout << "-------- Put : MARK 10 ------------------" << std::endl;
-#endif
+           )
+      {
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Put : MARK 10 ------------------" << std::endl;
+
         //Doit pouvoir réveiller le get ici (a vérifier)
         expectedDataReceived = true;
       }
     }
    
     if (expectedDataReceived) {
-#ifdef MYDEBUG
-      std::cout << "-------- Put : MARK 11 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Put : MARK 11 ------------------" << std::endl;
+
       // si waitingForAnyDataId était positionné, c'est forcément lui qui a activer
       // expectedDataReceived à true
       if (waitingForAnyDataId) 
@@ -312,22 +311,22 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       // Pb2 : également si deux attentes de DataIds même différents car on n'en stocke qu'un !
       // Conclusion : Pour l'instant on ne gère pas un service multithreadé qui effectue
       // des lectures simultanées sur le même port !
-#ifdef MYDEBUG
-      std::cerr << "-------- Put : new datas available ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cerr << "-------- Put : new datas available ------------------" << std::endl;
+
       fflush(stdout);fflush(stderr);
       cond_instance.signal();
     }
-#ifdef MYDEBUG
-    std::cout << "-------- Put : MARK 12 ------------------" << std::endl;
-#endif
+
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Put : MARK 12 ------------------" << std::endl;
 
     // Deverouille l'acces a la table : On peut remonter l'appel au dessus de expected...
     storedDatas_mutex.unlock();
 
-#ifdef MYDEBUG
-    std::cout << "-------- Put : MARK 13 ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Put : MARK 13 ------------------" << std::endl;
+
     fflush(stdout);
     fflush(stderr);
 
@@ -373,13 +372,12 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
   bool     isEqual, isBounded;
   typedef typename DataManipulator::InnerType InnerType;
 
-#ifdef MYDEBUG
-  std::cout << "-------- Get : MARK 1 ------------------" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cout << "-------- Get : MARK 1 ------------------" << std::endl;
+
   expectedDataId   = DataId(time,tag);
-#ifdef MYDEBUG
-  std::cout << "-------- Get : MARK 2 ------------------" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cout << "-------- Get : MARK 2 ------------------" << std::endl;
  
   typename DataTable::iterator wDataIt1;
 
@@ -395,46 +393,44 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
       //   - l'itérateur wDataIt1 est tel que wDataIt1->first < wdataId < (wDataIt1+1)->first
       // Méthode provenant de la COUPLING_POLICY
       this->isDataIdConveniant(storedDatas,expectedDataId,isEqual,isBounded,wDataIt1);
-#ifdef MYDEBUG
-      std::cout << "-------- Get : MARK 3 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Get : MARK 3 ------------------" << std::endl;
 
       // L'ordre des différents tests est important
       if ( isEqual ) {
- 
-#ifdef MYDEBUG
-        std::cout << "-------- Get : MARK 4 ------------------" << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Get : MARK 4 ------------------" << std::endl;
+
         // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM.
         // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent
         // C'est EraseDataId qui choisi ou non de supprimer la donnée
         // Du coup interaction potentielle entre le 0 copy et gestion de l'historique
         dataToTransmit = (*wDataIt1).second; 
 
-#ifdef MYDEBUG
-        std::cout << "-------- Get : MARK 5 ------------------" << std::endl;
-        std::cout << "-------- Get : Données trouvées à t : " << std::endl;
-        typename DataManipulator::InnerType const * const InIt1 = DataManipulator::getPointer(dataToTransmit);
-        size_t   N = DataManipulator::size(dataToTransmit);
-        std::copy(InIt1,        InIt1 + N,
-                  std::ostream_iterator< InnerType > (std::cout," "));
-        std::cout << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+        {
+          std::cout << "-------- Get : MARK 5 ------------------" << std::endl;
+          std::cout << "-------- Get : Données trouvées à t : " << std::endl;
+          typename DataManipulator::InnerType const * const InIt1 = DataManipulator::getPointer(dataToTransmit);
+          size_t   N = DataManipulator::size(dataToTransmit);
+          std::copy(InIt1,        InIt1 + N,
+                    std::ostream_iterator< InnerType > (std::cout," "));
+          std::cout << std::endl;
+        }
 
         // Décide de la suppression de certaines  instances de données 
         // La donnée contenu dans la structure CORBA et son dataId sont désallouées
         // Méthode provenant de la COUPLING_POLICY 
         typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
         processEraseDataId.apply(storedDatas,wDataIt1);
-#ifdef MYDEBUG
-        std::cout << "-------- Get : MARK 6 ------------------" << std::endl;
-#endif
-        break;
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Get : MARK 6 ------------------" << std::endl;
 
+        break;
       }
-#ifdef MYDEBUG
-      std::cout << "-------- Get : MARK 7 ------------------" << std::endl;
-#endif
+
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Get : MARK 7 ------------------" << std::endl;
 
       //if (  isBounded() && COUPLING_POLICY::template needToProcessBoundedDataId() ) {
       // Le DataId demandé n'est pas trouvé mais est encadré ET la politique de couplage
@@ -446,9 +442,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
         // Cependant  comme les données sont censées être produites
         // par ordre croissant de DataId, de nouvelles données ne devrait pas améliorer
         // l'interpolation.
-#ifdef MYDEBUG
+      if (SALOME::VerbosityActivated())
         std::cout << "-------- Get : MARK 8 ------------------" << std::endl;
-#endif
 
         typedef typename COUPLING_POLICY::template BoundedDataIdProcessor<DataManipulator> BDI;
         BDI processBoundedDataId(*this);
@@ -464,16 +459,17 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
         // A déplacer en paramètre de la méthode précédente ? ou déléguer ce choix au mode de couplage ?
         storedDatas[expectedDataId]=dataToTransmit;
 
-#ifdef MYDEBUG
-        std::cout << "-------- Get : Données calculées à t : " << std::endl;
-        typename DataManipulator::InnerType const * const InIt1 = DataManipulator::getPointer(dataToTransmit);
-        size_t   N = DataManipulator::size(dataToTransmit);
- 
-        std::copy(InIt1,        InIt1 + N,
-                  std::ostream_iterator< InnerType > (std::cout," "));
-        std::cout << std::endl;
-        std::cout << "-------- Get : MARK 9 ------------------" << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+        {
+          std::cout << "-------- Get : Données calculées à t : " << std::endl;
+          typename DataManipulator::InnerType const * const InIt1 = DataManipulator::getPointer(dataToTransmit);
+          size_t   N = DataManipulator::size(dataToTransmit);
+  
+          std::copy(InIt1,        InIt1 + N,
+                    std::ostream_iterator< InnerType > (std::cout," "));
+          std::cout << std::endl;
+          std::cout << "-------- Get : MARK 9 ------------------" << std::endl;
+        }
 
         typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
         processEraseDataId.apply(storedDatas,wDataIt1);
@@ -488,17 +484,19 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
     
       // Réception bloquante sur le dataId demandé
       // Si l'instance de donnée n'est pas trouvee
-#ifdef MYDEBUG
-      std::cout << "-------- Get : MARK 10 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Get : MARK 10 ------------------" << std::endl;
+
       //Positionné à faux dans la méthode put
       waitingForConvenientDataId = true; 
-#ifdef MYDEBUG
-      std::cout << "-------- Get : MARK 11 ------------------" << std::endl;
-     
-      // Ici on attend que la méthode put recoive la donnée 
-      std::cout << "-------- Get : waiting datas ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+      {
+        std::cout << "-------- Get : MARK 11 ------------------" << std::endl;
+      
+        // Ici on attend que la méthode put recoive la donnée 
+        std::cout << "-------- Get : waiting datas ------------------" << std::endl;
+      }
+
       fflush(stdout);fflush(stderr);
       unsigned long ts, tns,rs=Superv_Component_i::dscTimeOut;
       if(rs==0)
@@ -518,12 +516,9 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
             }
         }
 
-
-#ifdef MYDEBUG
-      std::cout << "-------- Get : MARK 12 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Get : MARK 12 ------------------" << std::endl;
     }
-
   } catch (...) {
     waitingForConvenientDataId = true;
     storedDatas_mutex.unlock();
@@ -532,9 +527,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
 
   // Deverouille l'acces a la table
   storedDatas_mutex.unlock();
-#ifdef MYDEBUG
-  std::cout << "-------- Get : MARK 13 ------------------" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cout << "-------- Get : MARK 13 ------------------" << std::endl;
 
   // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM
   // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent
@@ -571,9 +565,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
   try {
     storedDatas_mutex.lock();// Gérer les Exceptions ds le corps de la méthode
 
-#ifdef MYDEBUG
-    std::cout << "-------- Next : MARK 1 ---lastDataIdSet ("<<lastDataIdSet<<")---------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Next : MARK 1 ---lastDataIdSet ("<<lastDataIdSet<<")---------------" << std::endl;
 
     typename DataTable::iterator wDataIt1;
     wDataIt1 = storedDatas.end();
@@ -604,16 +597,19 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
         waitingForAnyDataId = false; break;
       }
   
-#ifdef MYDEBUG
-      std::cout << "-------- Next : MARK 2 ------------------" << std::endl;
-#endif
+      if (SALOME::VerbosityActivated())
+        std::cout << "-------- Next : MARK 2 ------------------" << std::endl;
+
       //Positionné à faux dans la méthode put
       waitingForAnyDataId   = true;
-#ifdef MYDEBUG
-      std::cout << "-------- Next : MARK 3 ------------------" << std::endl;
-      // Ici on attend que la méthode put recoive la donnée 
-      std::cout << "-------- Next : waiting datas ------------------" << std::endl;
-#endif
+
+      if (SALOME::VerbosityActivated())
+      {
+        std::cout << "-------- Next : MARK 3 ------------------" << std::endl;
+        // Ici on attend que la méthode put recoive la donnée 
+        std::cout << "-------- Next : waiting datas ------------------" << std::endl;
+      }
+
       fflush(stdout);fflush(stderr);
       unsigned long ts, tns,rs=Superv_Component_i::dscTimeOut;
       if(rs==0)
@@ -634,51 +630,48 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
         }
 
       if (lastDataIdSet) {
-#ifdef MYDEBUG
-        std::cout << "-------- Next : MARK 4 ------------------" << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Next : MARK 4 ------------------" << std::endl;
+
         wDataIt1 = storedDatas.upper_bound(lastDataId);
       } else  {
-#ifdef MYDEBUG
-        std::cout << "-------- Next : MARK 5 ------------------" << std::endl;
-#endif
+        if (SALOME::VerbosityActivated())
+          std::cout << "-------- Next : MARK 5 ------------------" << std::endl;
+
         lastDataIdSet = true;
         wDataIt1      = storedDatas.begin();
       }
     }
 
-#ifdef MYDEBUG
-    std::cout << "-------- Next : MARK 6 ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Next : MARK 6 ------------------" << std::endl;
 
     t   = this->getTime( (*wDataIt1).first );
     tag = this->getTag ( (*wDataIt1).first );
     dataToTransmit = (*wDataIt1).second;
  
-#ifdef MYDEBUG
-    std::cout << "-------- Next : MARK 7 ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Next : MARK 7 ------------------" << std::endl;
+
     lastDataId    = (*wDataIt1).first;
 
     typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
     processEraseDataId.apply(storedDatas, wDataIt1);
 
-#ifdef MYDEBUG
-    std::cout << "-------- Next : MARK 8 ------------------" << std::endl;   
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Next : MARK 8 ------------------" << std::endl;   
   } catch (...) {
-#ifdef MYDEBUG
-    std::cout << "-------- Next : MARK 8bis ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "-------- Next : MARK 8bis ------------------" << std::endl;
+
     waitingForAnyDataId = false;
     storedDatas_mutex.unlock();
     throw;
   }
   storedDatas_mutex.unlock();
   
-#ifdef MYDEBUG
-  std::cout << "-------- Next : MARK 9 ------------------" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cout << "-------- Next : MARK 9 ------------------" << std::endl;
 
   // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM
   // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent

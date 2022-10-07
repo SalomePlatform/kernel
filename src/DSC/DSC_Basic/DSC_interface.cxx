@@ -35,7 +35,7 @@
 #include <sstream>
 #include <stdlib.h>
 
-//#define MYDEBUG
+#include "utilities.h"
 
 Engines_DSC_interface::Engines_DSC_interface() {}
 
@@ -154,9 +154,10 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
     Engines::DSC::BadPortType BPT;
     BPT.expected = CORBA::string_dup("Expected a uses port");
     BPT.received = CORBA::string_dup((std::string("Received a provides/none port : ")+uses_port_name).c_str());
-#ifdef MYDEBUG
-   std::cout << "---- DSC_Interface : MARK 1 ---- exception : " << uses_port_name << "----" << std::endl;
-#endif
+
+    if (SALOME::VerbosityActivated())
+      std::cout << "---- DSC_Interface : MARK 1 ---- exception : " << uses_port_name << "----" << std::endl;
+
     throw BPT;
   }
 
@@ -165,12 +166,12 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
     rtn_port = new Engines::DSC::uses_port(my_ports[uses_port_name]->uses_port_refs);
   }
   else
-    {
-#ifdef MYDEBUG
-   std::cout << "---- DSC_Interface : MARK 2 ---- exception : " << uses_port_name << "----" << std::endl;
-#endif
+  {
+    if (SALOME::VerbosityActivated())
+      std::cout << "---- DSC_Interface : MARK 2 ---- exception : " << uses_port_name << "----" << std::endl;
+
     throw Engines::DSC::PortNotConnected();
-    }
+  }
   
   return rtn_port;
 }

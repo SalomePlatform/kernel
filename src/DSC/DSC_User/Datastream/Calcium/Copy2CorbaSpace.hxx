@@ -35,7 +35,6 @@
 #include <iostream>
 #include "CalciumPortTraits.hxx"
 
-//#define MYDEBUG
 
 template <bool zerocopy, typename DataManipulator> 
 struct Copy2CorbaSpace  {
@@ -48,19 +47,17 @@ struct Copy2CorbaSpace  {
     //ESSAI:     typedef typename PortType::DataManipulator         DataManipulator;
     typedef typename DataManipulator::InnerType        InnerType;
 
-#ifdef MYDEBUG
-    std::cerr << "-------- Copy2CorbaSpace<true> MARK 1 ------------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cerr << "-------- Copy2CorbaSpace<true> MARK 1 ------------------" << std::endl;
+
     // Crée le type corba à partir du data sans lui en donner la propriété.
     // Le const_cast supprime le caractère const du type T2 const & de data car 
     // DataManipulator::create n'a pas le caractère const sur son paramètre data pour le
     // cas de figure où  la propriété de la donnée lui est donnée.
     corbaData = DataManipulator::create(nRead,const_cast<T2 * > (&data),false);
-#ifdef MYDEBUG
-    std::cerr << "-------- Copy2CorbaSpace<true> MARK 2 --(dataPtr : " 
+    if (SALOME::VerbosityActivated())
+      std::cerr << "-------- Copy2CorbaSpace<true> MARK 2 --(dataPtr : " 
               << DataManipulator::getPointer(corbaData,false)<<")----------------" << std::endl;
-#endif
-
   }
 };
 
@@ -79,25 +76,25 @@ Copy2CorbaSpace<false, DataManipulator>  {
     corbaData = DataManipulator::create(nRead);
     InnerType * dataPtr  = DataManipulator::getPointer(corbaData,false);
 
-#ifdef MYDEBUG
-    std::cerr << "-------- Copy2CorbaSpace<false> MARK 1 --(dataPtr : " <<
-      dataPtr<<")----------------" << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cerr << "-------- Copy2CorbaSpace<false> MARK 1 --(dataPtr : " <<
+        dataPtr<<")----------------" << std::endl;
+
     // Attention : Pour les chaines ou tout autre object complexe il faut utiliser une recopie profonde !   
     std::copy(&data,&data+nRead,dataPtr);
  
-#ifdef MYDEBUG
-    std::cerr << "-------- Copy2CorbaSpace<false> MARK 2 --(nRead: "<<nRead<<")-------------" << std::endl;
- 
-    std::cerr << "-------- Copy2CorbaSpace<false> MARK 3 : " ;
-    std::copy(dataPtr,dataPtr+nRead,std::ostream_iterator<InnerType>(std::cout," "));
-    std::cout << std::endl;
-    std::cerr << "-------- Copy2CorbaSpace<false> MARK 4 --(data : " <<data<<") :" ;
-    for (int i=0; i<nRead; ++i)
-      std::cerr << (*corbaData)[i] << " ";
-    std::cout << std::endl;
-#endif
-    
+    if (SALOME::VerbosityActivated())
+    {
+      std::cerr << "-------- Copy2CorbaSpace<false> MARK 2 --(nRead: "<<nRead<<")-------------" << std::endl;
+  
+      std::cerr << "-------- Copy2CorbaSpace<false> MARK 3 : " ;
+      std::copy(dataPtr,dataPtr+nRead,std::ostream_iterator<InnerType>(std::cout," "));
+      std::cout << std::endl;
+      std::cerr << "-------- Copy2CorbaSpace<false> MARK 4 --(data : " <<data<<") :" ;
+      for (int i=0; i<nRead; ++i)
+        std::cerr << (*corbaData)[i] << " ";
+      std::cout << std::endl;
+    }
   }
 };
 

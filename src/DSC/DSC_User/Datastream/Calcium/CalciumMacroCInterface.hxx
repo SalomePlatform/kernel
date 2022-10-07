@@ -76,7 +76,7 @@ Id          : $Id$
     size_t         _bufferLength=bufferLength;                                                                   \
                                                                                                                  \
     if ( IsSameType< _porttype , cplx >::value ) _bufferLength*=2;                                               \
-    DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" )                        \
+    DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" );                       \
     try                                                                                                          \
       {                                                                                                          \
         CalciumInterface::ecp_lecture< _type,_porttype >( *_component, dependencyType, _ti, _tf, *i, nomvar,     \
@@ -89,21 +89,21 @@ Id          : $Id$
       }                                                                                                          \
     catch ( ... )                                                                                                \
       {                                                                                                          \
-        DEBTRACE( "Unexpected exception ") ;                                                                     \
+        DEBTRACE( "Unexpected exception ");                                                                      \
         return CalciumTypes::CPATAL;                                                                             \
       }                                                                                                          \
     if ( IsSameType< _porttype , cplx >::value )                                                                 \
       {                                                                                                          \
         *nRead=_nRead/2;                                                                                         \
-        DEBTRACE( "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" )                \
-        DEBTRACE( "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead )                         \
-        DEBTRACE( "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead )                         \
+        DEBTRACE( "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" );               \
+        DEBTRACE( "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead );                        \
+        DEBTRACE( "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead );                        \
       }                                                                                                          \
     else                                                                                                         \
       *nRead = _nRead;                                                                                           \
     if (dependencyType == CalciumTypes::CP_SEQUENTIEL )                                                          \
       *ti=(CalTimeType< _type _qual >::TimeType)(_ti);                                                           \
-    DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data )                             \
+    DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data );                            \
     return CalciumTypes::CPOK;                                                                                   \
   }                                                                                                              \
                                                                                                                  \
@@ -120,7 +120,7 @@ Id          : $Id$
                                                           const char * const nomvar, size_t bufferLength, \
                                                           _type _qual * data )                            \
   {                                                                                                       \
-    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 0 ------------------" )                \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 0 ------------------" );               \
     Superv_Component_i * _component = static_cast<Superv_Component_i *>(component);                       \
     /* Je ne sais pas pourquoi, je n'arrive pas à passer t par valeur : corruption de la pile*/           \
     double         _t=0.;                                                                                 \
@@ -128,11 +128,11 @@ Id          : $Id$
       _t=*t;                                                                                              \
     size_t         _bufferLength=bufferLength;                                                            \
     if ( IsSameType< _porttype , cplx >::value ) _bufferLength=_bufferLength*2;                           \
-    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" )                \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" );               \
     try                                                                                                   \
       {                                                                                                   \
         /*printf("-------- CalciumInterface(ecriture Inter Part), cp_name : Nom de la var. de type %s : %s\n",#_type,nomvar);*/ \
-        DEBTRACE( "----------->-" << nomvar )                                                             \
+        DEBTRACE( "----------->-" << nomvar );                                                            \
         CalciumInterface::ecp_ecriture< _type, _porttype >( *_component, dependencyType,                  \
                                                             _t,i,nomvar,_bufferLength,*data);             \
       }                                                                                                   \
@@ -146,7 +146,7 @@ Id          : $Id$
         DEBTRACE("Unexpected exception " );                                                               \
         return CalciumTypes::CPATAL;                                                                      \
       }                                                                                                   \
-    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data :" << data )                \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data :" << data );               \
     return CalciumTypes::CPOK;                                                                            \
   }                                                                                                      \
 

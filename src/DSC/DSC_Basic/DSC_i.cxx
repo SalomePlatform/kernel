@@ -26,7 +26,6 @@
 //
 #include "DSC_i.hxx"
 
-//#define MYDEBUG
 
 Engines_DSC_i::
 Engines_DSC_i(CORBA::ORB_ptr orb,
@@ -43,9 +42,8 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
                                                               false
                                                          )
 {
-#ifdef MYDEBUG
-  std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
 }
 
 Engines_DSC_i::
@@ -58,9 +56,8 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
               bool regist) : 
     Engines_Component_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
 {
-#ifdef MYDEBUG
-  std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
-#endif
+  if (SALOME::VerbosityActivated())
+    std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
 }
 
 Engines_DSC_i::~Engines_DSC_i() {}

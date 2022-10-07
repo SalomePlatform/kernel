@@ -34,8 +34,7 @@
 // Pour affichage
 #include "DisplayPair.hxx"
 //
-
-//#define MYDEBUG
+#include "utilities.h"
 
 // Suppose que le container est trié
 template < typename T > struct AdjacentFunctor {
@@ -53,31 +52,34 @@ template < typename T > struct AdjacentFunctor {
 
   // Suppose que les valeurs passées en paramètres sont triées par ordre croissant
   bool operator()(const T &v1) {
-#ifdef MYDEBUG
-    std::cout << "AdjacentFunctor: " << _minValue << _maxValue << std::endl;
-    std::cout << "AdjacentFunctor: " << _min << _max << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+    {
+      std::cout << "AdjacentFunctor: " << _minValue << _maxValue << std::endl;
+      std::cout << "AdjacentFunctor: " << _min << _max << std::endl;
+    }
+
     if ( v1 <= _minValue && v1 >= _maxValue)    
     {
       _equal= true;
-#ifdef MYDEBUG
-      std::cout << "AdjacentFunctor: _equal : " << v1 << std::endl;   
-#endif
+
+      if (SALOME::VerbosityActivated())
+        std::cout << "AdjacentFunctor: _equal : " << v1 << std::endl;   
+
       return true; 
     }
     if ( v1 < _minValue )    
     {
       _min=v1;_minFound=true;
-#ifdef MYDEBUG
-      std::cout << "AdjacentFunctor: _minFound : " <<_min << std::endl;
-#endif
+
+      if (SALOME::VerbosityActivated())
+        std::cout << "AdjacentFunctor: _minFound : " <<_min << std::endl;
     }
     else if ( v1 > _maxValue )
     {
       _max=v1;_maxFound=true;
-#ifdef MYDEBUG
-      std::cout << "AdjacentFunctor: _maxFound : " <<_max << std::endl;
-#endif
+
+      if (SALOME::VerbosityActivated())
+        std::cout << "AdjacentFunctor: _maxFound : " <<_max << std::endl;
     }
 
 
@@ -104,9 +106,9 @@ template < typename T > struct AdjacentFunctor {
   bool isEqual()   const { return _equal;}
   bool isBounded() const { return _minFound && _maxFound;}
   bool getBounds(TNoConst & min, TNoConst & max) const {
-#ifdef MYDEBUG
-    std::cout << "_minFound : " <<_minFound << ", _maxFound " << _maxFound << std::endl;
-#endif
+    if (SALOME::VerbosityActivated())
+      std::cout << "_minFound : " <<_minFound << ", _maxFound " << _maxFound << std::endl;
+
     if (_minFound && _maxFound ) { min=_min; max=_max; return true; }
     return false;
   }

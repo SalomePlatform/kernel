@@ -86,7 +86,7 @@ SALOME_Launcher_Handler::GetLauncherAfterParsing() const
 
 void SALOME_Launcher_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-//   if (MYDEBUG) cout << "Begin parse document" << endl;
+  // cout << "Begin parse document" << endl;
 
   // Empty private elements
   _launch.Clear();

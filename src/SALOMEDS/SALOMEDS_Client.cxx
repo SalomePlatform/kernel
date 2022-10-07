@@ -246,7 +246,7 @@ static void Test()
   }
   catch(HDFexception)
     {
-      MESSAGE( "HDFexception ! " )
+      MESSAGE("HDFexception ! ");
     } 
 }
 
@@ -275,19 +275,19 @@ int main(int argc, char** argv)
     orb->destroy();
   }
   catch(CORBA::SystemException&) {
-    MESSAGE("Caught CORBA::SystemException." )
+    MESSAGE("Caught CORBA::SystemException.");
   }
   catch(CORBA::Exception&) {
-    MESSAGE( "Caught CORBA::Exception." )
+    MESSAGE("Caught CORBA::Exception.");
   }
   catch(omniORB::fatalException& fe) { //!< TODO: unused variable
-    MESSAGE( "Caught omniORB::fatalException:" )
-    MESSAGE( "  file: " << fe.file() )
-    MESSAGE( "  line: " << fe.line() )
-    MESSAGE( "  mesg: " << fe.errmsg() )
+    MESSAGE("Caught omniORB::fatalException:");
+    MESSAGE("  file: " << fe.file());
+    MESSAGE("  line: " << fe.line());
+    MESSAGE("  mesg: " << fe.errmsg());
   }
   catch(...) {
-    MESSAGE( "Caught unknown exception." )
+    MESSAGE("Caught unknown exception.");
   }
   return 0;
 }

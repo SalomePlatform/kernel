@@ -787,7 +787,7 @@ char *SALOME_NamingService::Current_Directory()
       path += splitPath[k];
     }
 
-  SCRUTE(path)
+  SCRUTE(path);
   _current_context = ref_context ;
 
   return strdup(path.c_str());
