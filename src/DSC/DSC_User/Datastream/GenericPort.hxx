@@ -39,6 +39,7 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "DSC_Exception.hxx"
 #include "utilities.h"
+#include "DisplayPair.hxx"
 
 #include <iostream>
 #include <map>
