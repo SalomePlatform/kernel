@@ -1,4 +1,4 @@
-    #! /usr/bin/env python3
+#! /usr/bin/env python3
 # Copyright (C) 2021-2022  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
@@ -18,18 +18,19 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import json
 import os
 import subprocess
 import sys
-
-MODULES = []
 
 
 def main(args):
     ''' Load modules then launch salome
     '''
-    if MODULES:
-        env_modules = MODULES[:]
+    appliPath = os.path.dirname(os.path.realpath(__file__))
+    MODULES_FILE = os.path.join(appliPath, "env_modules.json")
+    if os.path.isfile(MODULES_FILE):
+        env_modules = json.loads(open(MODULES_FILE).read()).get('env_modules')
         env_modules_option = "--with-env-modules="
         env_modules_l = [x for x in args if x.startswith(env_modules_option)]
         if env_modules_l:
@@ -38,8 +39,7 @@ def main(args):
         env_modules_option += "%s" % ','.join(env_modules)
         args.append(env_modules_option)
 
-    appliPath = os.path.dirname(os.path.realpath(__file__))
-    os.environ["ROOT_SALOME_INSTALL"]=appliPath
+    os.environ["ROOT_SALOME_INSTALL"] = appliPath
     proc = subprocess.Popen([os.path.join(appliPath, '.salome_run')] + args, close_fds=True)
     out, err = proc.communicate()
     sys.exit(proc.returncode)

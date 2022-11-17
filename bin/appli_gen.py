@@ -21,16 +21,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-## \file appli_gen.py
+# \file appli_gen.py
 #  Create a %SALOME application (virtual Salome installation)
 #
-usage = """%(prog)s [options]
-Typical use is:
-  python %(prog)s
-Typical use with options is:
-  python %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
-"""
 
+import json
 import os
 import sys
 import shutil
@@ -39,15 +34,22 @@ import xml.sax
 import optparse
 import subprocess
 
+usage = """%(prog)s [options]
+Typical use is:
+  python %(prog)s
+Typical use with options is:
+  python %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
+"""
+
 # --- names of tags in XML configuration file
-appli_tag   = "application"
-prereq_tag  = "prerequisites"
+appli_tag = "application"
+prereq_tag = "prerequisites"
 context_tag = "context"
 venv_directory_tag = "venv_directory"
 sha1_collect_tag = "sha1_collections"
-system_conf_tag  = "system_conf"
+system_conf_tag = "system_conf"
 modules_tag = "modules"
-module_tag  = "module"
+module_tag = "module"
 samples_tag = "samples"
 extra_tests_tag = "extra_tests"
 extra_test_tag = "extra_test"
@@ -57,17 +59,17 @@ env_module_tag = "env_module"
 python_tag = "python"
 
 # --- names of attributes in XML configuration file
-nam_att  = "name"
+nam_att = "name"
 path_att = "path"
-gui_att  = "gui"
+gui_att = "gui"
 version_att = "version"
-
 # -----------------------------------------------------------------------------
+
 
 # --- xml reader for SALOME application configuration file
 
 class xml_parser:
-    def __init__(self, fileName ):
+    def __init__(self, fileName):
         print("Configure parser: processing %s ..." % fileName)
         self.space = []
         self.config = {}
@@ -80,7 +82,7 @@ class xml_parser:
         parser.parse(fileName)
         pass
 
-    def boolValue( self, text):
+    def boolValue(self, text):
         if text in ("yes", "y", "1"):
             return 1
         elif text in ("no", "n", "0"):
@@ -281,6 +283,9 @@ def install(prefix, config_file, verbose=0):
                'runRemote.sh',
                'runRemoteSSL.sh',
                '.salome_run',
+               'salome',
+               'salome_mesa',
+               'salome_common.py',
                'update_catalogs.py',
                '.bashrc',
                ):
@@ -302,22 +307,11 @@ def install(prefix, config_file, verbose=0):
     # In the same way as: module load [MODULE_LIST]
     env_modules = _config.get('env_modules', [])
     if env_modules:
+        with open(os.path.join(home_dir, 'env_modules.json'), 'w') as fd:
+            json.dump({"env_modules": env_modules}, fd)
         with open(os.path.join(home_dir, 'env.d', 'envModules.sh'), 'w') as fd:
             fd.write('#!/bin/bash\n')
             fd.write('module load %s\n' % (' '.join(env_modules)))
-
-    # Copy salome / salome_mesa scripts:
-
-    for scripts in ('salome', 'salome_mesa', 'salome_common.py'):
-        salome_script = open(os.path.join(appliskel_dir, scripts)).read()
-        salome_file = os.path.join(home_dir, scripts)
-        try:
-            os.remove(salome_file)
-        except Exception:
-            pass
-        with open(salome_file, 'w') as fd:
-            fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
-            os.chmod(salome_file, 0o755)
 
     # Add .salome-completion.sh file
     shutil.copyfile(os.path.join(appliskel_dir, ".salome-completion.sh"),
