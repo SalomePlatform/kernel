@@ -18,6 +18,7 @@
 #
 
 ADD_SUBDIRECTORY(appliskel)
+ADD_SUBDIRECTORY(SalomeOnDemandTK)
 
 SALOME_CONFIGURE_FILE(VERSION.in VERSION INSTALL ${SALOME_INSTALL_BINS})
 SALOME_CONFIGURE_FILE(salomeContextUtils.py.in salomeContextUtils.py)
@@ -48,6 +49,7 @@ SET(SCRIPTS
   runSalomeCommon.py
   runSalome.py
   runSalomeOld.py
+  runSalomeOnDemand.py
   runSalomeNoServer.py
   runSession.py
   runConsole.py
