@@ -23,7 +23,6 @@
 #
 
 import sys, os, string, glob, time, pickle
-import orbmodule
 from launchConfigureParser import verbose
 
 # this file is extraction of set_env from runSalome.py

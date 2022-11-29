@@ -34,6 +34,11 @@ import subprocess
 from salomeContextUtils import ScriptAndArgsObjectEncoder
 import platform
 import logging
+
+# Setting formatter in setVerbose() was commented because adding of handler
+# breaks using of root logger in other modules and cause many double lines in logs.
+FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
+logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 
 class ColoredFormatter(logging.Formatter):
@@ -66,20 +71,20 @@ class BackTraceFormatter(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 def setVerbose(verbose):
-    from packaging import version
-    current_version = version.parse("{}.{}".format(sys.version_info.major,sys.version_info.minor))
-    version_ref = version.parse("3.5.0")
-    global logger
-    formatter = None
-    if current_version >= version_ref:
-        formatter = BackTraceFormatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
-    else:
-        formatter = logging.Formatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
-    formatter.default_time_format = '%H:%M:%S'
-    formatter.default_msec_format = "%s.%03d"
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    # from packaging import version
+    # current_version = version.parse("{}.{}".format(sys.version_info.major,sys.version_info.minor))
+    # version_ref = version.parse("3.5.0")
+    # global logger
+    # formatter = None
+    # if current_version >= version_ref:
+    #     formatter = BackTraceFormatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
+    # else:
+    #     formatter = logging.Formatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
+    # formatter.default_time_format = '%H:%M:%S'
+    # formatter.default_msec_format = "%s.%03d"
+    # stream_handler = logging.StreamHandler()
+    # stream_handler.setFormatter(formatter)
+    # logger.addHandler(stream_handler)
 
     verbose_map = { "0": logging.WARNING, "1": logging.INFO, "2": logging.DEBUG}
     if verbose in verbose_map:
@@ -356,7 +361,7 @@ class CommonSessionServer(Server):
     @abc.abstractmethod
     def getSessionServerExe(self):
         pass
-    
+
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
         list_modules.reverse()
@@ -407,7 +412,7 @@ class SessionServer(CommonSessionServer):
         super().__init__(args,modules_list,modules_root_dir)
         import KernelBasis
         KernelBasis.setSSLMode(False)
-    
+
     def getSessionServerExe(self):
         return "SALOME_Session_Server"
 # ---

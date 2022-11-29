@@ -85,6 +85,7 @@ salomecfgname  = "salome"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
 verbosity_nam  = "verbosity"
+on_demand_nam  = "on_demand"
 
 # possible choices for the "embedded" and "standalone" parameters
 embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
@@ -92,7 +93,7 @@ standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer"]
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam, launcher_only_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam, launcher_only_nam, on_demand_nam )
 intKeys = ( interp_nam, )
 strKeys = ( launcher_nam )
 
@@ -827,6 +828,17 @@ Python file arguments, if any, must be comma-separated (without blank characters
                       default="0",
                       help=help_str)
 
+    # On demand
+    help_str  = "Use installed salome on-demand extensions."
+    help_str += "0 to run without salome extensions [default], "
+    help_str += "1 to run only installed salome extensions. "
+    pars.add_argument("--on-demand",
+                      dest="on_demand",
+                      metavar="<0/1>",
+                      action=StoreBooleanAction,
+                      default=False,
+                      help=help_str)
+
 
     # Positional arguments (hdf file, python file)
     pars.add_argument("arguments", nargs=argparse.REMAINDER)
@@ -868,20 +880,20 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
     global args
     config_var = appname+'Config'
 
-    # check KERNEL_ROOT_DIR
-    kernel_root_dir = os.environ.get("KERNEL_ROOT_DIR", None)
-    if kernel_root_dir is None:
-        print("""
-        For each SALOME module, the environment variable <moduleN>_ROOT_DIR must be set.
-        KERNEL_ROOT_DIR is mandatory.
-        """)
-        sys.exit(1)
-
     ############################
     # parse command line options
     pars = CreateOptionParser(exeName=exeName)
     cmd_opts = pars.parse_args(sys.argv[1:])
     ############################
+
+    # check KERNEL_ROOT_DIR
+    kernel_root_dir = os.environ.get("KERNEL_ROOT_DIR", None)
+    if kernel_root_dir is None and not cmd_opts.on_demand:
+        print("""
+        For each SALOME module, the environment variable <moduleN>_ROOT_DIR must be set.
+        KERNEL_ROOT_DIR is mandatory.
+        """)
+        sys.exit(1)
 
     # Process --print-port option
     if cmd_opts.print_port:
@@ -906,7 +918,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
 
-    if not keepEnvironment:
+    if not keepEnvironment and not cmd_opts.on_demand:
         if os.getenv("GUI_ROOT_DIR") and os.path.isdir(os.getenv("GUI_ROOT_DIR")):
             gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
             if os.path.isdir(gui_resources_dir):
@@ -1002,7 +1014,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
     if cmd_opts.batch is not None:
         args[batch_nam] = True
 
-    if not os.getenv("GUI_ROOT_DIR") or not os.path.isdir(os.getenv("GUI_ROOT_DIR")):
+    if ( not os.getenv("GUI_ROOT_DIR") or not os.path.isdir(os.getenv("GUI_ROOT_DIR")) ) and not cmd_opts.on_demand:
         args[gui_nam] = False
 
     if args[gui_nam]:
@@ -1046,6 +1058,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
         args[script_nam] = new_args
 
     args[verbosity_nam] = cmd_opts.verbosity
+    args[on_demand_nam] = cmd_opts.on_demand
 
     # xterm
     if cmd_opts.xterm is not None:
@@ -1145,23 +1158,24 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
 
     # now modify SalomeAppConfig environment variable
     # to take into account the SALOME modules
-    if os.sys.platform == 'win32':
-        dirs = re.split('[;]', os.environ[config_var] )
-    else:
-        dirs = re.split('[;|:]', os.environ[config_var] )
-    for module in args[modules_nam]:
-        if module not in ["KERNEL", "GUI", ""] and os.getenv("{0}_ROOT_DIR".format(module)):
-            d1 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources",module.lower())
-            d2 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources")
-            #if os.path.exists( "%s/%s.xml"%(d1, appname) ):
-            if os.path.exists( os.path.join(d1,"{0}.xml".format(salomeappname)) ):
-                dirs.append( d1 )
-            #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
-            elif os.path.exists( os.path.join(d2,"{0}.xml".format(salomeappname)) ):
-                dirs.append( d2 )
+    if not args[on_demand_nam]:
+        if os.sys.platform == 'win32':
+            dirs = re.split('[;]', os.environ[config_var] )
         else:
-            # print("* '"+m+"' should be deleted from ",args[modules_nam])
-            pass
+            dirs = re.split('[;|:]', os.environ[config_var] )
+        for module in args[modules_nam]:
+            if module not in ["KERNEL", "GUI", ""] and os.getenv("{0}_ROOT_DIR".format(module)):
+                d1 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources",module.lower())
+                d2 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources")
+                #if os.path.exists( "%s/%s.xml"%(d1, appname) ):
+                if os.path.exists( os.path.join(d1,"{0}.xml".format(salomeappname)) ):
+                    dirs.append( d1 )
+                #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
+                elif os.path.exists( os.path.join(d2,"{0}.xml".format(salomeappname)) ):
+                    dirs.append( d2 )
+            else:
+                # print("* '"+m+"' should be deleted from ",args[modules_nam])
+                pass
 
     # Test
     if cmd_opts.test_script_file is not None:
