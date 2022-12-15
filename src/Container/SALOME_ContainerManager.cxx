@@ -29,6 +29,7 @@
 #include "SALOME_ModuleCatalog.hh"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
+#include "PythonCppUtils.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
@@ -39,6 +40,7 @@
 #include "Utils_CorbaException.hxx"
 #include <sstream>
 #include <string>
+#include <queue>
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -603,7 +605,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     logFilename += ".log" ;
     command += " > " + logFilename + " 2>&1";
     MakeTheCommandToBeLaunchedASync(command);
-
+    
     // launch container with a system call
     status=SystemThreadSafe(command.c_str());
   }//end of critical of section
@@ -808,85 +810,186 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
 }
 
 //=============================================================================
+//! Return a path to the directory with scripts templates
+/*! 
+ *  \return the path pointed by SALOME_KERNEL_SCRIPTS_DIR environment variable, if it is defined,
+ *  ${KERNEL_ROOT_DIR}/share/salome/resources/separator/kernel/ScriptsTemplate - otherwise
+ */
+//=============================================================================
+std::string getScriptTemplateFilePath()
+{
+  auto parseScriptTemplateFilePath = []() -> std::string
+  {
+    std::string scriptTemplateFilePath = SALOME_ContainerManager::GetenvThreadSafeAsString("SALOME_KERNEL_SCRIPTS_DIR");
+    if (!scriptTemplateFilePath.empty())
+    {
+      return scriptTemplateFilePath;
+    }
+    else {
+      return SALOME_ContainerManager::GetenvThreadSafeAsString("KERNEL_ROOT_DIR") +
+             "/share/salome/resources/kernel/ScriptsTemplate";
+    }
+  };
+
+  static const std::string scriptTemplateFilePath = parseScriptTemplateFilePath();
+  return scriptTemplateFilePath;
+}
+
+//=============================================================================
+//! Return a command line constructed based on Python scripts templates
+/*! 
+ *  \param theScriptName        the name of Python script template
+ *  \param theScriptParameters  the queue of parameter values
+ *  \return the command line constructed according to the given parameters
+ */
+//=============================================================================
+std::string GetCommandFromTemplate(const std::string& theScriptName,
+                                   std::queue<std::string>& theScriptParameters)
+{
+  std::string command;
+  AutoGIL agil;
+  // manage GIL
+
+  PyObject* mod(PyImport_ImportModule(theScriptName.c_str()));
+  if (!mod)
+  {
+    PyObject* sys = PyImport_ImportModule("sys");
+    PyObject* sys_path = PyObject_GetAttrString(sys, "path");
+    PyObject* folder_path = PyUnicode_FromString(getScriptTemplateFilePath().c_str());
+    PyList_Append(sys_path, folder_path);
+
+    mod = PyImport_ImportModule(theScriptName.c_str());
+
+    Py_XDECREF(folder_path);
+    Py_XDECREF(sys_path);
+    Py_XDECREF(sys);
+  }
+
+  if (mod)
+  {
+    PyObject* meth(PyObject_GetAttrString(mod, "command"));
+    if (!meth)
+    {
+      Py_XDECREF(mod);
+    }
+    else
+    {
+      int id = -1;
+      PyObject* tuple(PyTuple_New(theScriptParameters.size()));
+
+      auto insert_parameter = [&tuple, &theScriptParameters, &id]()
+      {
+        if (!theScriptParameters.empty())
+        {
+          PyTuple_SetItem(tuple, ++id, PyUnicode_FromString(theScriptParameters.front().c_str()));
+          theScriptParameters.pop();
+        }
+      };
+
+      while (!theScriptParameters.empty())
+      {
+        insert_parameter();
+      }
+      
+      PyObject *args(PyTuple_New(1));
+      PyTuple_SetItem(args, 0, tuple);
+
+      PyObject *res(PyObject_CallObject(meth, args));
+      if (res)
+      {
+        command = PyUnicode_AsUTF8(res);
+        Py_XDECREF(res);
+      }
+
+      Py_XDECREF(args);
+      Py_XDECREF(tuple);
+      Py_XDECREF(meth);
+      Py_XDECREF(mod);
+    }
+  }
+
+  MESSAGE("Command from template is ... " << command << std::endl);
+  return command;
+}
+//=============================================================================
+
+//=============================================================================
 /*!
  *  builds the command to be launched.
  */
 //=============================================================================
 std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe, std::string& tmpFileName) const
 {
-  tmpFileName = BuildTemporaryFileName();
-  std::string command;
+  // Prepare name of the script to be used
+  std::string script_name = "SALOME_CM_LOCAL_NO_MPI";
+  if (params.isMPI)
+  {
+#ifdef LAM_MPI
+    script_name = "SALOME_CM_LOCAL_MPI_LAN";
+#elif defined(OPEN_MPI)
+    script_name = "SALOME_CM_LOCAL_MPI_OPENMPI";
+#elif defined(MPICH)
+    script_name = "SALOME_CM_LOCAL_MPI_MPICH";
+#endif
+  }
+  
+  // Prepare parameters to use in the Python script:
+  // 1. All parameters are strings.
+  // 2. For some booleans use "1" = True, "0" = False.
+  // 3. If a parameter is NULL, then its value is "NULL".
+
+  std::queue<std::string> script_parameters;
+  
+  // ===== Number of processes (key = "nb_proc")
+  script_parameters.push(params.isMPI ? std::to_string(params.nb_proc <= 0 ? 1 : params.nb_proc) : "NULL");
+
+  // ===== Working directory (key = "workdir") and temporary directory flag (key = "isTmpDir")
+  // A working directory is requested
+  std::string workdir = params.workingdir.in();
+  std::string isTmpDir = std::to_string(0);
+  if (workdir == "$TEMPDIR")
+  {
+    // A new temporary directory is requested
+    isTmpDir = std::to_string(1);
+    workdir = Kernel_Utils::GetTmpDir();
+  }
+  script_parameters.push(workdir);
+  script_parameters.push(isTmpDir);
+  
+  // ===== Server name (key = "name_server")
+  script_parameters.push(Kernel_Utils::GetHostname());
+
+  // ===== Container (key = "container")
+  std::string container;
+  if (params.isMPI)
+  {
+    container = isPythonContainer(params.container_name) ? "pyMPI SALOME_ContainerPy.py" : "SALOME_MPIContainer";
+  }
+  else
+  {
+    container = isPythonContainer(params.container_name) ? "SALOME_ContainerPy.py" : container_exe;
+  }
+  script_parameters.push(container);
+
+  // ===== Container name (key = "container_name")
+  script_parameters.push(_NS->ContainerName(params));
+
+  // ===== LIBBATCH node file (key = "libbatch_nodefile")
+  script_parameters.push(std::to_string(GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL ? 1 : 0));
+
+  // ===== Machine file (key = "machine_file")
+  script_parameters.push(machinesFile.empty() ? "NULL" : machinesFile);
+
+  // ===== OMPI uri file (key = "ompi_uri_file")
+  std::string ompi_uri_file = GetenvThreadSafeAsString("OMPI_URI_FILE");
+  script_parameters.push(ompi_uri_file.empty() ? "NULL" : ompi_uri_file);
+
+  std::string command_from_template = GetCommandFromTemplate(script_name, script_parameters);
 
   std::ostringstream o;
-
-  if (params.isMPI)
-    {
-      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
-
-      o << "mpirun -np ";
-
-      o << nbproc << " ";
-
-      if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
-        o << "-machinefile " << machinesFile << " ";
-
-#ifdef LAM_MPI
-      o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-#elif defined(OPEN_MPI)
-      if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
-        o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
-      else
-        {
-          o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-          o << GetenvThreadSafeAsString("OMPI_URI_FILE");
-        }
-#elif defined(MPICH)
-      o << "-nameserver " + Kernel_Utils::GetHostname();
-#endif
-
-      if (isPythonContainer(params.container_name))
-        o << " pyMPI SALOME_ContainerPy.py ";
-      else
-        o << " SALOME_MPIContainer ";
-    }
-
-  else
-    {
-      std::string wdir=params.workingdir.in();
-      if(wdir != "")
-        {
-          // a working directory is requested
-          if(wdir == "$TEMPDIR")
-            {
-              // a new temporary directory is requested
-              std::string dir = Kernel_Utils::GetTmpDir();
-#ifdef WIN32
-              o << "cd /d " << dir << std::endl;
-#else
-              o << "cd " << dir << ";";
-#endif
-
-            }
-          else
-            {
-              // a permanent directory is requested use it or create it
-#ifdef WIN32
-              o << "mkdir " + wdir << std::endl;
-              o << "cd /D " + wdir << std::endl;
-#else
-              o << "mkdir -p " << wdir << " && cd " << wdir + ";";
-#endif
-            }
-        }
-
-      if (isPythonContainer(params.container_name))
-        o << "SALOME_ContainerPy.py ";
-      else
-        o << container_exe + " ";
-
-    }
+  o << command_from_template << " ";
   
-  o << _NS->ContainerName(params) << " ";
+  //==================================================================================== */
 
   if( this->_isSSL )
   {
@@ -900,6 +1003,7 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
     AddOmninamesParams(o);
   }
   
+  tmpFileName = BuildTemporaryFileName();
   std::ofstream command_file( tmpFileName.c_str() );
   command_file << o.str();
   command_file.close();
@@ -907,8 +1011,8 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 #ifndef WIN32
   chmod(tmpFileName.c_str(), 0x1ED);
 #endif
-  command = tmpFileName;
-
+  
+  std::string command = tmpFileName;
   MESSAGE("Command is file ... " << command);
   MESSAGE("Command is ... " << o.str());
   return command;
@@ -1255,6 +1359,83 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
                                                                   const std::string & workdir) const
 {
   std::ostringstream command;
+  
+  // Prepare parameters to use in the Python script:
+  // 1. All parameters are strings.
+  // 2. For some booleans use "1" = True, "0" = False.
+  // 3. If a parameter is NULL, then its value is "NULL".
+  
+  std::queue<std::string> script_parameters;
+
+  // ===== Protocol (key = "protocol")
+  std::string strProtocol;
+  switch (protocol)
+  {
+  case rsh: strProtocol = "rsh"; break;
+  case ssh: strProtocol = "ssh"; break;
+  case srun: strProtocol = "srun"; break;
+  case pbsdsh: strProtocol = "pbsdsh"; break;
+  case blaunch: strProtocol = "blaunch"; break;
+  default:
+    throw SALOME_Exception("Unknown protocol");
+  }
+  script_parameters.push(strProtocol);
+
+  // ===== User name (key = "user")
+  script_parameters.push(username.empty() ? "NULL" : username);
+  
+  // ===== Host name (key = "host")
+  script_parameters.push(hostname.empty() ? "NULL" : hostname);
+  
+ 
+  // ===== Remote APPLI path (key = "appli")
+  script_parameters.push(applipath.empty() ? GetenvThreadSafeAsString("APPLI") : applipath);
+  
+  if(!this->_isSSL)
+  {
+    ASSERT(GetenvThreadSafe("NSHOST"));
+    ASSERT(GetenvThreadSafe("NSPORT"));
+  }
+
+  struct stat statbuf;
+  std::string appli_mode = (stat(GetenvThreadSafe("APPLI"), &statbuf) == 0 && S_ISREG(statbuf.st_mode)) ? "launcher" : "dir";
+
+  // ===== Working directory (key = "workdir")
+  script_parameters.push(workdir == "$TEMPDIR" ? "\\$TEMPDIR" : workdir);
+  
+  // ===== SSL (key = "ssl")
+  script_parameters.push(this->_isSSL ? "1" : "0");
+  
+  // ===== Hostname of CORBA name server (key = "nshost")
+  std::string nshost = GetenvThreadSafeAsString("NSHOST");
+  script_parameters.push(nshost.empty() ? "NULL" : nshost);
+
+  // ===== Port of CORBA name server (key = "nsport")
+  std::string nsport = GetenvThreadSafeAsString("NSPORT");
+  script_parameters.push(nsport.empty() ? "NULL" : nsport);
+
+  // ===== Remote script (key = "remote_script")
+  std::string remoteScript = this->GetRunRemoteExecutableScript();
+  script_parameters.push(remoteScript.empty() ? "NONE" : remoteScript);
+  
+  // ===== Naming service (key = "naming_service")
+  std::string namingService = "NONE";
+  if(this->_isSSL)
+  {
+    Engines::EmbeddedNamingService_var ns = GetEmbeddedNamingService();
+    CORBA::String_var iorNS = _orb->object_to_string(ns);
+    namingService = iorNS;
+  }
+  script_parameters.push(namingService);
+
+  // ===== APPLI mode (key = "appli_mode")
+  // $APPLI points either to an application directory, or to a salome launcher file
+  // we prepare the remote command according to the case
+  script_parameters.push(appli_mode);
+
+  command << GetCommandFromTemplate("SALOME_CM_REMOTE", script_parameters);
+  
+  /* //====================================================================================
   bool envd = true; // source the environment
   switch (protocol)
   {
@@ -1353,6 +1534,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
       command << "'";
     }
   }
+  //==================================================================================== */
 
   return command.str();
 }

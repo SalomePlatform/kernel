@@ -31,6 +31,7 @@ class CONTAINER_EXPORT SALOME_CPythonHelper
 {
  public:
   void initializePython(int argc, char *argv[]);
+  void allowPythonCallsFromDifferentThread() const;
   void registerToSalomePiDict(const std::string& processName, long pid) const;
   std::vector<long> evalVL(const std::string& pyCode) const;
   std::string evalS(const std::string& pyCode) const;
