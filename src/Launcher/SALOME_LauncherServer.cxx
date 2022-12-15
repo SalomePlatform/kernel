@@ -118,6 +118,7 @@ int main(int argc, char* argv[])
       threadPol->destroy();
       SALOME_CPythonHelper cPyh;
       cPyh.initializePython(argc,argv);
+      cPyh.allowPythonCallsFromDifferentThread();
       SALOME_Launcher *lServ(new SALOME_Launcher(orb,safePOA));
       lServ->DeclareUsingSalomeSession();
       lServ->_remove_ref();

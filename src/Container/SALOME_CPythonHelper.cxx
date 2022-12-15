@@ -77,6 +77,14 @@ void SALOME_CPythonHelper::initializePython(int argc, char *argv[])
   PyDict_SetItemString(_globals,"socket",socket);
 }
 
+void SALOME_CPythonHelper::allowPythonCallsFromDifferentThread() const
+{
+#if PY_VERSION_HEX < 0x03070000
+  PyEval_InitThreads(); /* Create (and acquire) the interpreter lock (for threads)*/
+#endif
+  PyEval_SaveThread(); /* Release the thread state */
+}
+
 void SALOME_CPythonHelper::registerToSalomePiDict(const std::string& processName, long pid) const
 {
   AutoGIL agil;
