@@ -30,15 +30,16 @@
 #include <algorithm>
 
 #ifndef WIN32
-# include <sys/stat.h>
-# include <dirent.h>
-# include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 #else
 #include <io.h>
 #define F_OK 0
 #define access _access
-# include <windows.h>
-# include <time.h>
+#include <windows.h>
+#include <time.h>
+#include <process.h>
 #endif
 
 #ifdef WIN32
@@ -79,7 +80,7 @@ namespace Kernel_Utils
    std::wstring w_tmp_path_env = utf8_decode_s( tmp_path_env );
    wchar_t* val = _wgetenv( w_tmp_path_env.c_str() );
    std::string dir = val ? utf8_encode_s(val) : "";
-#else 
+#else
     char* val = getenv( tmp_path_env.c_str() );
 	std::string dir = val ? val : "";
 #endif
@@ -130,7 +131,13 @@ namespace Kernel_Utils
 
     aTmpDir += aSubDir; //Get RND sub directory
 
-    std::string aDir = aTmpDir;
+#ifdef WIN32
+    int pid = _getpid();
+#else
+    int pid = getpid();
+#endif
+
+    std::string aDir = aTmpDir + std::to_string(pid) + "_";
 
     for ( aRND = 0; IsExists( aDir ); aRND++ )
     {
@@ -140,7 +147,7 @@ namespace Kernel_Utils
 
     if ( aDir.back() != _separator_ ) aDir += _separator_;
 
-#ifdef WIN32	
+#ifdef WIN32
 #ifdef UNICODE
 	std::wstring aDirToCreate = utf8_decode_s(aDir);
 #else
@@ -165,7 +172,7 @@ namespace Kernel_Utils
   //============================================================================
   // function : GetTempFileName
   // purpose  : Returns the unique temporary file name without any extension /tmp/something/file for Unix or c:\something\file for WIN32
-  //============================================================================ 
+  //============================================================================
   std::string GetTmpFileName()
   {
     std::string tmpDir = GetTmpDir();
@@ -177,7 +184,7 @@ namespace Kernel_Utils
       sprintf(buffer, "%d", aRND);
       std::string aSubDir(buffer);
       if(aSubDir.size() <= 1) aSubDir = std::string("123409876");
-      
+
       aFilePath = tmpDir;
       for(aRND = 0; IsExists(aFilePath); aRND++) {
         sprintf(buffer, "%d", aRND);
@@ -186,7 +193,7 @@ namespace Kernel_Utils
     }
     return aFilePath;
   }
-  
+
   std::string AddExtension( const std::string& name )
   {
     std::string tmp_str = name;
@@ -199,13 +206,13 @@ namespace Kernel_Utils
   //============================================================================
   // function : IsExists
   // purpose  : Returns True(False) if the path (not)exists
-  //============================================================================ 
-  bool IsExists(const std::string& thePath) 
+  //============================================================================
+  bool IsExists(const std::string& thePath)
   {
 #if defined WIN32 && defined UNICODE
 	int status = _waccess( utf8_decode_s( thePath).c_str(), F_OK );
 #else
-    int status = access ( thePath.c_str() , F_OK ); 
+    int status = access ( thePath.c_str() , F_OK );
 #endif
     if (status != 0) return false;
     return true;
@@ -214,7 +221,7 @@ namespace Kernel_Utils
   //============================================================================
   // function : IsWritable
   // purpose  : Returns True(False) if the path is (not) writable
-  //============================================================================ 
+  //============================================================================
   bool IsWritable(const std::string& thePath)
   {
 #ifdef WIN32
@@ -228,8 +235,8 @@ namespace Kernel_Utils
         return false;
       }
     }
-#else 
-    int status = access(thePath.c_str(),W_OK); 
+#else
+    int status = access(thePath.c_str(),W_OK);
     if (status != 0) return false;
 #endif
     return true;
@@ -239,7 +246,7 @@ namespace Kernel_Utils
   //============================================================================
   // function : GetDirByPath
   // purpose  : Returns directory by path and converts it to native system format
-  //============================================================================ 
+  //============================================================================
   std::string GetDirByPath(const std::string& thePath)
   {
     if (thePath.empty())
@@ -293,8 +300,8 @@ namespace Kernel_Utils
   // function : IsEmptyDir
   // purpose  : Returns True(False) if the path (not) empty
   //            Also returns False if the path is not valid
-  //============================================================================ 
-  bool IsEmptyDir(const std::string& thePath) 
+  //============================================================================
+  bool IsEmptyDir(const std::string& thePath)
   {
     if ( thePath.empty() || !IsExists(thePath))
       return false;
@@ -343,9 +350,9 @@ namespace Kernel_Utils
   }
 
   //============================================================================
-  // function : BackSlashToSlash  
+  // function : BackSlashToSlash
   // purpose  : Convert back slash to slash
-  //============================================================================ 
+  //============================================================================
   std::string BackSlashToSlash(const std::string& path) {
 	  std::string res = path;
 	  std::replace(res.begin(), res.end(), '\\', '/');
@@ -354,14 +361,14 @@ namespace Kernel_Utils
 
 
   //============================================================================
-  // function : BackSlashToSlash  
+  // function : BackSlashToSlash
   // purpose  : Convert back slash to slash
-  //============================================================================ 
+  //============================================================================
   std::string HomePath() {
 #ifdef WIN32
     std::string homedir = getenv("USERPROFILE");
 #else
-    std::string homedir = getenv("HOME");       
+    std::string homedir = getenv("HOME");
 #endif
     return homedir;
   }
