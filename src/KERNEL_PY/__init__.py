@@ -161,7 +161,7 @@ if not flags:
 #    sys.setdlopenflags(flags)
 #    pass
 
-orb, lcc, naming_service, cm, sg, esm, dsm, modulcat = None,None,None,None,None,None,None,None
+orb, lcc, naming_service, cm, sg, esm, dsm, modulcat, rm = None,None,None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
 
 salome_initial=True
@@ -245,9 +245,10 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     A Fake NamingService is created storing reference of all servants in the current process.
     """
     salome_init_without_session_common(path,embedded)
-    global lcc,cm,dsm,esm
+    global lcc,cm,dsm,esm,rm
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
+    rm = KernelLauncher.myResourcesManager()
     from LifeCycleCORBA import LifeCycleCORBASSL
     lcc = LifeCycleCORBASSL()
     # create a FactoryServer Container servant
@@ -280,7 +281,7 @@ def salome_init_without_session_attached(path=None, embedded=False):
     lcc is pointing to the FakeNamingService above.
     """
     salome_init_without_session_common(path,embedded)
-    global lcc,cm,dsm,esm
+    global lcc,cm,dsm,esm,rm
     import CORBA
     orb=CORBA.ORB_init([''])
     import Engines
