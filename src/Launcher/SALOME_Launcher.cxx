@@ -717,7 +717,8 @@ SALOME_Launcher *KERNEL::getLauncherSA()
   if(!_launcher_singleton_ssl)
   {
     CORBA::ORB_var orb = KERNEL::GetRefToORB();
-    PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
+    //[EDF26673] : do not release the POA object returned by _the_root_poa.
+    PortableServer::POA_ptr root_poa = PortableServer::POA::_the_root_poa();
     PortableServer::POAManager_var pman = root_poa->the_POAManager();
     CORBA::PolicyList policies;
     policies.length(1);
