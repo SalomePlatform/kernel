@@ -33,3 +33,12 @@ std::string RetrieveCompoInternal(const std::string& compoName)
     CORBA::String_var ior = orb->object_to_string(obj);
     return std::string(ior.in());
 }
+
+/*!
+ * This method generates a SIGSEGV to test robustness of higher level layers.
+ */
+void GenerateViolentMemoryFaultForTestPurpose()
+{
+    double *a = nullptr;
+    *a = 0;
+}

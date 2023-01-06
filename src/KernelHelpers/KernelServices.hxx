@@ -22,4 +22,5 @@
 
 void RegisterCompoInternal(const std::string& compoName, const std::string& compoIOR);
 std::string RetrieveCompoInternal(const std::string& compoName);
+void GenerateViolentMemoryFaultForTestPurpose();
 #endif
