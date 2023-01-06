@@ -196,6 +196,8 @@ interface ResourcesManager
 
   //! Return list of resources available (regarding content of CatalogResources.xml). And for each resource the number of proc available of it.
   void ListAllAvailableResources(out ResourceList machines, out IntegerList nbProcsOfMachines) raises (SALOME::SALOME_Exception);
+
+  ResourceList ListAllResourcesInCatalog() raises (SALOME::SALOME_Exception);
 };
 
 };
