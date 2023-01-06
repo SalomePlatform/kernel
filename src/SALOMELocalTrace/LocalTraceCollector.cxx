@@ -25,12 +25,14 @@
 //  Module : KERNEL
 //  $Header$
 //
+
+#include "LocalTraceCollector.hxx"
+#include "libSALOMELog.hxx"
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-
-#include "LocalTraceCollector.hxx"
 
 // ============================================================================
 /*!
@@ -98,37 +100,42 @@ void* LocalTraceCollector::run(void* /*bid*/)
       myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)
         {
-          std::cout << std::flush ;
+          if( SALOME::VerbosityActivated() )
+          {
+            std::cout << std::flush ;
 #ifndef WIN32
-          std::cerr << "INTERRUPTION from thread " << myTrace.threadId
-               << " : " <<  myTrace.trace;
+            std::cerr << "INTERRUPTION from thread " << myTrace.threadId
+                << " : " <<  myTrace.trace;
 #else
-          std::cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-               << " : " <<  myTrace.trace;
+            std::cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+                << " : " <<  myTrace.trace;
 #endif
-          std::cerr << std::flush ; 
+            std::cerr << std::flush ; 
+          }
           exit(1);     
         }
       else if (myTrace.traceType == NORMAL_MESS)
         {
-          std::cout << std::flush ;
+          if( SALOME::VerbosityActivated() )
+          {
+            std::cout << std::flush ;
 #ifndef WIN32
-          std::cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
+            std::cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-          std::cerr << "th. " << (void*)(&myTrace.threadId)
-               << " " << myTrace.trace;
+            std::cerr << "th. " << (void*)(&myTrace.threadId)
+                << " " << myTrace.trace;
 #endif
-          std::cerr << std::flush ; 
+            std::cerr << std::flush ;
+          } 
         }
       else 
         {
-          std::cout << std::flush ;
-#ifndef WIN32
-          std::cerr << myTrace.trace;
-#else
-          std::cerr << myTrace.trace;
-#endif
-          std::cerr << std::flush ; 
+          if( SALOME::VerbosityActivated() )
+          {
+            std::cout << std::flush ;
+            std::cerr << myTrace.trace;
+            std::cerr << std::flush ;
+          }
         }
     }
   pthread_exit(NULL);
