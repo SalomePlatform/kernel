@@ -255,7 +255,7 @@ class SALOME_ComponentPy_Gen_i (Engines__POA.EngineComponent):
     def CpuUsed_impl(self):
         if ( self._ThreadId | self._Executed ) :
             if self._ThreadId == get_ident() :
-                cpu = time.clock()
+                cpu = time.process_time()
                 self._ThreadCpuUsed = cpu - self._StartUsed
                 MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( int(cpu) ) + " - " + str( self._StartUsed ) + " = " + str( self._ThreadCpuUsed ) )
                 return self._ThreadCpuUsed
