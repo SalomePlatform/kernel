@@ -103,6 +103,42 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
 
+class SenderByte_i(SALOME__POA.SenderByte,Generic):
+  def __init__(self,poa,bytesToSend):
+    Generic.__init__(self,poa)
+    self.bytesToSend = bytesToSend
+
+  def getSize(self):
+    return len(self.bytesToSend)
+
+  def sendPart(self,n1,n2):
+    return self.bytesToSend[n1:n2]
+    
+class SeqByteReceiver:
+  CHUNK_SIZE = 2000000000
+  def __init__(self,sender):
+    self._obj = sender
+  def __del__(self):
+    self._obj.UnRegister()
+    pass
+  def data(self):
+    size = self._obj.getSize()
+    if size <= SeqByteReceiver.CHUNK_SIZE:
+      return self.fetchOneShot( size )
+    else:
+      return self.fetchByChunks( size )
+  def fetchOneShot(self,size):
+    return self._obj.sendPart(0,size)
+  def fetchByChunks(self,size):
+      data_for_split_case = bytes(0)
+      EFF_CHUNK_SIZE = SeqByteReceiver.CHUNK_SIZE // 8
+      iStart = 0 ; iEnd = EFF_CHUNK_SIZE
+      while iStart!=iEnd and iEnd <= size:
+        part = self._obj.sendPart(iStart,iEnd)
+        data_for_split_case = bytes(0).join( [data_for_split_case,part] )
+        iStart = iEnd; iEnd = min(iStart + EFF_CHUNK_SIZE,size)
+      return data_for_split_case
+
 class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   """The implementation of the PyScriptNode CORBA IDL that executes a script"""
   def __init__(self, nodeName,code,poa,my_container):
@@ -166,7 +202,11 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     """ Same than first part of self.execute to reduce memory peak."""
     import time
     try:
-      _,kws=pickle.loads(argsin)
+      data = None
+      if True: # to force call of SeqByteReceiver's destructor
+        argsInPy = SeqByteReceiver( argsin )
+        data = argsInPy.data()
+      _,kws=pickle.loads(data)
       self.context.update(kws)
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
@@ -183,7 +223,10 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
           raise KeyError("There is no variable %s in context" % arg)
         argsout.append(self.context[arg])
       argsout=pickle.dumps(tuple(argsout),-1)
-      return argsout
+      ret = SenderByte_i( self.poa,argsout )
+      id_o = self.poa.activate_object(ret)
+      retObj = self.poa.id_to_reference(id_o)
+      return retObj._narrow( SALOME.SenderByte )
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)

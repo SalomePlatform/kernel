@@ -26,6 +26,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
+  ${CMAKE_CURRENT_SOURCE_DIR}/../GenericObj
   ${PROJECT_BINARY_DIR}/idl
 )
 
@@ -33,6 +34,7 @@ SET(COMMON_LIBS
   OpUtil
   SALOMELocalTrace
   SalomeIDLKernel
+  SalomeGenericObj
   ${PYTHON_LIBRARIES}
   ${MPI_CXX_LIBRARIES}
 )
@@ -45,6 +47,7 @@ SET(SalomeCommunication_SOURCES
   SALOMEMultiComm.cxx
   ReceiverFactory.cxx
   MatrixClient.cxx
+  SenderByteImpl.cxx
 )
 
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${MPI_DEFINITIONS})
@@ -64,6 +67,7 @@ SET(COMMON_HEADERS_HXX
   SALOME_Communication.hxx
   SALOME_Matrix_i.hxx
   SenderFactory.hxx
+  SenderByteImpl.hxx
 )
 
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})

@@ -411,9 +411,12 @@ def salome_shutdown_containers_with_session():
         ref_in_ns = "/".join(root+[cont_name])
         naming_service.Destroy_Name(ref_in_ns)
     print("Number of containers in NS after clean : {}".format( len( list(salome_walk_on_containers(ns,[""])) )))
+
+def retrieve_containers_in_ns():
+    return [elt for elt in naming_service.repr() if "/Containers/" == elt[:12]]
     
 def salome_shutdown_containers_without_session():
-    containersEntries = [elt for elt in naming_service.repr() if "/Containers/" == elt[:12]]
+    containersEntries = retrieve_containers_in_ns()
     for containerEntry in containersEntries:
         cont = naming_service.Resolve(containerEntry)
         try:

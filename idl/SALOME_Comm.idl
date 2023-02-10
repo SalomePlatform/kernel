@@ -23,6 +23,7 @@
 #ifndef _SALOME_COMM_IDL_
 #define _SALOME_COMM_IDL_
 
+#include "SALOME_GenericObj.idl"
 #include "SALOME_Exception.idl"
 
 /*!
@@ -39,6 +40,8 @@ module SALOME {
   typedef sequence<double> vectorOfDouble;
   
   typedef sequence<long> vectorOfLong;
+  
+  typedef sequence<octet> vectorOfByte;
   
   interface MultiCommClass {
     void setProtocol(in TypeOfCommunication typ);
@@ -131,6 +134,12 @@ module SALOME {
     SenderDouble getData();
     long getSizeOfColumn();
     void release();
+  };
+
+  interface SenderByte : GenericObj
+  {
+    unsigned long long getSize();
+    vectorOfByte sendPart(in unsigned long long n1,in unsigned long long n2);
   };
 };
 

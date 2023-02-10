@@ -43,5 +43,23 @@ private:
   static int *getValueOneShot(SALOME::SenderInt_ptr sender,long &size);
 };
 
+#include <memory>
+
+class COMMUNICATION_EXPORT SeqByteReceiver
+{
+public:
+  SeqByteReceiver(SALOME::SenderByte_ptr sender);
+  char *data(unsigned long& size);
+  ~SeqByteReceiver();
+private:
+  void fetchOneShot(unsigned long size);
+  void fetchByChunks(unsigned long size);
+private:
+  static constexpr unsigned long CHUNK_SIZE = 2000000000;
+  std::unique_ptr<char[]> _data_for_split_case;
+  std::unique_ptr<SALOME::vectorOfByte> _data_one_shot;
+  SALOME::SenderByte_var _obj;
+};
+
 #endif
 
