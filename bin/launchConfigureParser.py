@@ -1045,6 +1045,9 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
             args[file_nam] = [cmd_opts.log_file]
 
     # GUI Log file
+    if os.environ.get("GUI_LOG_FILE") is not None:
+        args["gui_log_file"] = os.environ["GUI_LOG_FILE"]
+
     if cmd_opts.gui_log_file is not None:
         args["gui_log_file"] = cmd_opts.gui_log_file
 
