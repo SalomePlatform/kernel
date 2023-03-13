@@ -111,7 +111,7 @@ class SalomeContext:
       raise SalomeContextException("Module environment not present")
       return
     try:
-      out, err = subprocess.Popen([modulecmd, "python", "load"] + env_modules, stdout=subprocess.PIPE).communicate()
+      out, err = subprocess.Popen([modulecmd, "python", "try-load"] + env_modules, stdout=subprocess.PIPE).communicate()
       exec(out)  # define specific environment variables
     except Exception:
       raise SalomeContextException("Failed to load env modules: %s ..." % ' '.join(env_modules))
