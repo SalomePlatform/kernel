@@ -27,7 +27,7 @@ import sys
 def main(args):
     ''' Load modules then launch salome
     '''
-    appliPath = os.path.dirname(os.path.realpath(__file__))
+    appliPath = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
     MODULES_FILE = os.path.join(appliPath, "env_modules.json")
     if os.path.isfile(MODULES_FILE):
         env_modules = json.loads(open(MODULES_FILE).read()).get('env_modules')
