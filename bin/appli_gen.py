@@ -283,9 +283,6 @@ def install(prefix, config_file, verbose=0):
                'runRemote.sh',
                'runRemoteSSL.sh',
                '.salome_run',
-               'salome',
-               'salome_mesa',
-               'salome_common.py',
                'update_catalogs.py',
                '.bashrc',
                ):
@@ -312,6 +309,19 @@ def install(prefix, config_file, verbose=0):
         with open(os.path.join(home_dir, 'env.d', 'envModules.sh'), 'w') as fd:
             fd.write('#!/bin/bash\n')
             fd.write('module load %s\n' % (' '.join(env_modules)))
+
+    # Copy salome / salome_mesa scripts:
+
+    for scripts in ('salome', 'salome_mesa', 'salome_common.py'):
+        salome_script = open(os.path.join(appliskel_dir, scripts)).read()
+        salome_file = os.path.join(home_dir, scripts)
+        try:
+            os.remove(salome_file)
+        except Exception:
+            pass
+        with open(salome_file, 'w') as fd:
+            fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
+            os.chmod(salome_file, 0o755)
 
     # Add .salome-completion.sh file
     shutil.copyfile(os.path.join(appliskel_dir, ".salome-completion.sh"),
