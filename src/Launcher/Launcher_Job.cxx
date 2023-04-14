@@ -37,6 +37,7 @@
 #include <process.h>
 #else
   static const char SEPARATOR = '/';
+#include <pwd.h>
 #endif
 
 Launcher::Job::Job()
@@ -191,7 +192,12 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
   if (resource_definition.UserName == "")
   {
 #ifndef WIN32
-    user_name = getenv("USER");
+    struct passwd *pwd = getpwuid(getuid());
+    if (pwd) {
+      user_name = std::string(pwd->pw_name);
+    }
+    if (user_name == "")
+      user_name = getenv("USER");
 #else
     user_name = getenv("USERNAME");
 #endif
