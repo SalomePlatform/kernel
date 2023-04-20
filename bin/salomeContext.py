@@ -199,7 +199,7 @@ class SalomeContext:
       del os.environ[name]
   #
 
-  """Append value to environment variable"""
+  """Prepend value to environment variable"""
   def addToVariable(self, name, value, separator=os.pathsep):
     if value == '':
       return
@@ -212,6 +212,19 @@ class SalomeContext:
     else:
       os.environ[name] = value + separator + env
   #
+
+  """Append a variable"""
+  def appendVariable(self, name, value, separator=os.pathsep):
+    if value == '':
+      return
+
+    value = os.path.expandvars(value) # expand environment variables
+    env = os.getenv(name, None)
+    if env is None:
+      os.environ[name] = value
+    else:
+      os.environ[name] = env + separator + value
+    return
 
   ###################################
   # This begins the private section #
