@@ -64,7 +64,7 @@
 // --- Some macros are always defined (without _DEBUG_): for use with release version
 
 #define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
-#define BRIEF_INFOS(msg) {std::ostringstream os; os<< msg << std::endl; LocalTraceBufferPool::instance()->insert(BRIEF_MESS, os.str().c_str());}
+#define BRIEF_INFOS(msg) {std::cout << msg << std::endl;}
 #define PYSCRIPT(msg) {MESS_INIT("---PYSCRIPT--- ") << msg << MESS_END}
 #define INTERRUPTION(msg) {MESS_BEGIN("- INTERRUPTION: ")<< msg << MESS_ABORT}
 
