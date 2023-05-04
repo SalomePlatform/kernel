@@ -175,7 +175,7 @@ namespace Kernel_Utils
   {
     std::stringstream sstr;
     sstr<<name<<'='<<value;
-    if(rewrite || std::string(getenv(name)).length() == 0)
+    if(rewrite || getenv(name) == nullptr || std::string(getenv(name)).length() == 0)
       return _putenv(sstr.str().c_str());
     else return -1;
   }
