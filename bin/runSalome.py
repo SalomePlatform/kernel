@@ -230,7 +230,7 @@ def foreGround(args, ior_fakens_filename):
         return
     import CORBA
     #import Engines
-    #import SALOME
+    import SALOME
     from time import sleep
     orb = CORBA.ORB_init([''], CORBA.ORB_ID)
     ior_fakens = None
@@ -254,6 +254,11 @@ def foreGround(args, ior_fakens_filename):
         logger.debug("Unfortunately Session not found into {} : Sleep and retry. {}/{}".format(ior_fakens_filename,nb,nbtot))
         if nb == nbtot:
             break
+
+    if session is None:
+        logger.debug("Couldn't find /Kernel/Session in the child process. Return.")
+        return
+
     nb = 0
     # --
     # Wait until gui is arrived
@@ -277,6 +282,7 @@ def foreGround(args, ior_fakens_filename):
         pass
     # --
     if not gui_detected:
+        logger.debug("Couldn't find active GUI in the current session. Return.")
         return
     # --
     from salome_utils import getPortNumber
