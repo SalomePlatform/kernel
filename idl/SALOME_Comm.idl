@@ -141,6 +141,8 @@ module SALOME {
     unsigned long long getSize();
     vectorOfByte sendPart(in unsigned long long n1,in unsigned long long n2);
   };
+
+  typedef sequence<SenderByte> SenderByteSeq;
 };
 
 #endif

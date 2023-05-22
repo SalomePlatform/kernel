@@ -96,7 +96,7 @@ module Engines
 
     /*! \brief second and last part of execute method. This split is to reduce the memory peak.
     */
-    SALOME::SenderByte executeSecond(in listofstring outargsname) raises (SALOME::SALOME_Exception);
+    SALOME::SenderByteSeq executeSecond(in listofstring outargsname) raises (SALOME::SALOME_Exception);
 
     pickledArgs getValueOfVarInContext(in string varName) raises (SALOME::SALOME_Exception);
 
