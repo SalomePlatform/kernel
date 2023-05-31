@@ -91,7 +91,14 @@ def command(args):
 
     if options.appli_mode == "dir":
         cmd.append(options.appli + "/" + options.remote_script)
-            
+        if not envd:
+            cmd.append("--noenvd")
+        if options.ssl:
+            cmd.append(options.naming_service)
+        else:
+            cmd.append(options.nshost)
+            cmd.append(options.nsport)
+
         if options.workdir:
             cmd.append(" WORKINGDIR '%s'" % options.workdir)
 

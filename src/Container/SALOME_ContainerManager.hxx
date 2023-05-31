@@ -94,8 +94,21 @@ protected:
   std::string GetMPIZeroNode(const std::string machine, const std::string machinesFile) const;
 
   std::string machinesFile(const int nbproc);
+  
+  std::string getCommandToRunRemoteProcessCommon(const std::string& templateName, const std::string& remoteScript, 
+                                          AccessProtocolType protocol, 
+                                          const std::string & hostname, 
+                                          const std::string & username,
+                                          const std::string & applipath,
+                                          const std::string & workdir) const;
 
   std::string getCommandToRunRemoteProcess(AccessProtocolType protocol, 
+                                          const std::string & hostname, 
+                                          const std::string & username,
+                                          const std::string & applipath,
+                                          const std::string & workdir="") const;
+                                          
+  std::string getCommandToRunRemoteProcessNoAppli(AccessProtocolType protocol, 
                                           const std::string & hostname, 
                                           const std::string & username,
                                           const std::string & applipath,
