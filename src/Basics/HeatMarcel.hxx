@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2022  CEA/DEN, EDF R&D
+// Copyright (C) 2023  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,38 +17,13 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module KernelBasis
+#pragma once
 
-%{
-#include "KernelBasis.hxx"
-#include "HeatMarcel.hxx"
-using namespace SALOME;
-%}
+#include "SALOME_Basics.hxx"
 
-%include "std_string.i"
-
-%rename (HeatMarcel) HeatMarcelSwig;
-
-bool getSSLMode();
-void setSSLMode(bool sslMode);
-
-bool getGUIMode();
-void setGUIMode(bool guiMode);
-
-std::string getIOROfEmbeddedNS();
-void setIOROfEmbeddedNS(const std::string& ior);
-
-double GetTimeAdjustmentCst();
-
-%inline
+namespace SALOME
 {
-PyObject *HeatMarcelSwig(double timeAjustment, unsigned int nbThreads = 0)
-{
-  double timeInS = 0.0;
-  long double piVal = HeatMarcel(timeAjustment,timeInS,nbThreads);
-  PyObject *ret(PyTuple_New(2));
-  PyTuple_SetItem(ret,0,SWIG_From_double((double)piVal));
-  PyTuple_SetItem(ret,1,SWIG_From_double(timeInS));
-  return ret;
-}
+  double BASICS_EXPORT GetTimeAdjustmentCst();
+
+  long double BASICS_EXPORT HeatMarcel(double timeAjustment, double& timeInS, unsigned int nbThreads = 0);
 }

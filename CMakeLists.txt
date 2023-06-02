@@ -213,7 +213,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
 SET(_${PROJECT_NAME}_exposed_targets
-  SALOMEBasics ArgvKeeper SALOMELocalTrace SalomeHDFPersist OpUtil)
+  SALOMELog SALOMEBasics ArgvKeeper SALOMELocalTrace SalomeHDFPersist OpUtil)
 
 # CORBA specific targets:
 IF(NOT SALOME_LIGHT_ONLY)

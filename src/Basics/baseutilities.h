@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2022  CEA/DEN, EDF R&D
+// Copyright (C) 2023  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,38 +17,13 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module KernelBasis
+#include "libSALOMELog.hxx"
+#include <sstream>
+#include <iostream>
 
-%{
-#include "KernelBasis.hxx"
-#include "HeatMarcel.hxx"
-using namespace SALOME;
-%}
+#pragma once
 
-%include "std_string.i"
-
-%rename (HeatMarcel) HeatMarcelSwig;
-
-bool getSSLMode();
-void setSSLMode(bool sslMode);
-
-bool getGUIMode();
-void setGUIMode(bool guiMode);
-
-std::string getIOROfEmbeddedNS();
-void setIOROfEmbeddedNS(const std::string& ior);
-
-double GetTimeAdjustmentCst();
-
-%inline
-{
-PyObject *HeatMarcelSwig(double timeAjustment, unsigned int nbThreads = 0)
-{
-  double timeInS = 0.0;
-  long double piVal = HeatMarcel(timeAjustment,timeInS,nbThreads);
-  PyObject *ret(PyTuple_New(2));
-  PyTuple_SetItem(ret,0,SWIG_From_double((double)piVal));
-  PyTuple_SetItem(ret,1,SWIG_From_double(timeInS));
-  return ret;
-}
-}
+#define SIMPLE_MESS_END std::endl; std::cout << os.str() << std::flush;
+#define SIMPLE_MESS_INIT(deb) std::ostringstream os; os<< deb
+#define SIMPLE_MESS_BEGIN(deb) SIMPLE_MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
+#define SIMPLE_MESSAGE(msg) { if (SALOME::VerbosityActivated()) {SIMPLE_MESS_BEGIN("- Trace ") << msg << SIMPLE_MESS_END}}
