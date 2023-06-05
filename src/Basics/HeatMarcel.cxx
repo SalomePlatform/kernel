@@ -27,8 +27,7 @@
 #include <vector>
 #include <numeric>
 #include <chrono>
-
-#include <iostream>
+#include <iomanip>
 
 template<class T>
 static void GetSlice(T start, T stop, const unsigned int sliceId, const unsigned int nbOfSlices, T& startSlice, T& stopSlice)
@@ -59,7 +58,7 @@ static void SimulateOneCoreOfComputationNode(std::uint64_t start, std::uint64_t 
 
 static long double SimulateOnAllCoresOfComputationNodeInternal(std::uint64_t nbTurn, unsigned int nbThreads)
 {
-  SIMPLE_MESSAGE( "Number of turn = 10**" << std::log10((double)nbTurn) );
+  SIMPLE_MESSAGE( "Number of turn = " << std::scientific << std::setprecision(12) << (double)nbTurn );
   std::vector< std::thread > threads(nbThreads);
   std::vector<long double> res(nbThreads);
   for(auto iCore = 0 ; iCore < nbThreads ; ++iCore)

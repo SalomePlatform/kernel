@@ -103,6 +103,10 @@ module Engines
     void assignVarInContext(in string varName, in pickledArgs value) raises (SALOME::SALOME_Exception);
 
     pickledArgs callMethodOnVarInContext(in string varName, in string methodName, in pickledArgs args) raises (SALOME::SALOME_Exception);
+    
+    listofstring listAllVarsInContext() raises (SALOME::SALOME_Exception);
+
+    void removeAllVarsInContext() raises (SALOME::SALOME_Exception);
   } ;
 
 };

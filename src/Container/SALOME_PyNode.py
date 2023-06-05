@@ -132,7 +132,7 @@ def GetBigObjectDirectory():
   import os
   if SALOME_FILE_BIG_OBJ_DIR not in os.environ:
     raise RuntimeError("An object of size higher than limit detected and no directory specified to dump it in file !")
-  return os.environ[SALOME_FILE_BIG_OBJ_DIR]
+  return os.path.expandvars( os.path.expandvars( os.environ[SALOME_FILE_BIG_OBJ_DIR] ) )
 
 def GetBigObjectFileName():
   """
@@ -295,6 +295,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
         data = argsInPy.data()
       _,kws=pickle.loads(data)
       for elt in kws:
+        # fetch real data if necessary
         kws[elt] = UnProxyObject( kws[elt] )
       self.context.update(kws)
     except Exception:
@@ -313,6 +314,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
         argsout.append(self.context[arg])
       ret = [ ]
       for arg in argsout:
+        # the proxy mecanism is catched here
         argPickle = SpoolPickleObject( arg )
         retArg = SenderByte_i( self.poa,argPickle )
         id_o = self.poa.activate_object(retArg)
@@ -323,6 +325,15 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
+
+  def listAllVarsInContext(self):
+      import re
+      pat = re.compile("^__([a-z]+)__$")
+      return [elt for elt in self.context if not pat.match(elt)]
+      
+  def removeAllVarsInContext(self):
+      for elt in self.listAllVarsInContext():
+        del self.context[elt]
 
   def getValueOfVarInContext(self,varName):
     try:
