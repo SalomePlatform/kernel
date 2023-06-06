@@ -143,7 +143,7 @@ def GetBigObjectFileName():
     ret = f.name
   return ret
 
-class BigObjectOnDisk:
+class BigObjectOnDiskBase:
   def __init__(self, fileName, objSerialized):
     """
     :param fileName: the file used to dump into.
@@ -153,6 +153,9 @@ class BigObjectOnDisk:
     self._filename = fileName
     self._destroy = False
     self.__dumpIntoFile(objSerialized)
+
+  def getDestroyStatus(self):
+    return self._destroy
 
   def unlinkOnDestructor(self):
     self._destroy = True
@@ -179,6 +182,40 @@ class BigObjectOnDisk:
     import pickle
     with open(self._filename,"rb") as f:
       return pickle.load(f)
+      
+class BigObjectOnDisk(BigObjectOnDiskBase):
+  def __init__(self, fileName, objSerialized):
+    BigObjectOnDiskBase.__init__(self, fileName, objSerialized)
+    
+class BigObjectOnDiskListElement(BigObjectOnDiskBase):
+  def __init__(self, pos, length, fileName):
+    self._filename = fileName
+    self._destroy = False
+    self._pos = pos
+    self._length = length
+
+  def get(self):
+    fullObj = BigObjectOnDiskBase.get(self)
+    return fullObj[ self._pos ]
+    
+class BigObjectOnDiskSequence(BigObjectOnDiskBase):
+  def __init__(self, length, fileName, objSerialized):
+    BigObjectOnDiskBase.__init__(self, fileName, objSerialized)
+    self._length = length
+
+  def __getitem__(self, i):
+    return BigObjectOnDiskListElement(i, self._length, self.getFileName())
+
+  def __len__(self):
+    return self._length
+
+class BigObjectOnDiskList(BigObjectOnDiskSequence):
+  def __init__(self, length, fileName, objSerialized):
+    BigObjectOnDiskSequence.__init__(self, length, fileName, objSerialized)
+    
+class BigObjectOnDiskTuple(BigObjectOnDiskSequence):
+  def __init__(self, length, fileName, objSerialized):
+    BigObjectOnDiskSequence.__init__(self, length, fileName, objSerialized)
 
 def SpoolPickleObject( obj ):
   import pickle
@@ -186,14 +223,23 @@ def SpoolPickleObject( obj ):
   if len(pickleObjInit) < GetBigObjectOnDiskThreshold():
     return pickleObjInit
   else:
-    proxyObj = BigObjectOnDisk( GetBigObjectFileName() , pickleObjInit )
+    if isinstance( obj, list):
+      proxyObj = BigObjectOnDiskList( len(obj), GetBigObjectFileName() , pickleObjInit )
+    elif isinstance( obj, tuple):
+      proxyObj = BigObjectOnDiskTuple( len(obj), GetBigObjectFileName() , pickleObjInit )
+    else:
+      proxyObj = BigObjectOnDisk( GetBigObjectFileName() , pickleObjInit )
     pickleProxy = pickle.dumps( proxyObj , pickle.HIGHEST_PROTOCOL )
     return pickleProxy
 
 def UnProxyObject( obj ):
-  if isinstance(obj,BigObjectOnDisk):
+  if isinstance(obj,BigObjectOnDiskBase):
     obj.doNotTouchFile()
     return obj.get()
+  if isinstance(obj,list) or isinstance(obj,tuple):
+    for elt in obj:
+      if isinstance(elt,BigObjectOnDiskBase):
+        elt.doNotTouchFile()
   else:
     return obj
     
