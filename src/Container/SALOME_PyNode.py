@@ -240,6 +240,7 @@ def UnProxyObject( obj ):
     for elt in obj:
       if isinstance(elt,BigObjectOnDiskBase):
         elt.doNotTouchFile()
+    return obj
   else:
     return obj
     
