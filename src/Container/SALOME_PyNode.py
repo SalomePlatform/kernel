@@ -245,6 +245,17 @@ def SpoolPickleObject( obj ):
     pickleProxy = pickle.dumps( proxyObj , pickle.HIGHEST_PROTOCOL )
     return pickleProxy
 
+def UnProxyObjectSimple( obj ):
+  if isinstance(obj,BigObjectOnDiskBase):
+    return obj.get()
+  elif isinstance( obj, list):
+    retObj = []
+    for elt in obj:
+      retObj.append( UnProxyObjectSimple(elt) )
+    return retObj
+  else:
+    return obj
+
 def UnProxyObject( obj ):
   if isinstance(obj,BigObjectOnDiskBase):
     obj.doNotTouchFile()
