@@ -132,7 +132,7 @@ def GetBigObjectDirectory():
   import os
   if SALOME_FILE_BIG_OBJ_DIR not in os.environ:
     raise RuntimeError("An object of size higher than limit detected and no directory specified to dump it in file !")
-  return os.path.expandvars( os.path.expandvars( os.environ[SALOME_FILE_BIG_OBJ_DIR] ) )
+  return os.path.expanduser( os.path.expandvars( os.environ[SALOME_FILE_BIG_OBJ_DIR] ) )
 
 def GetBigObjectFileName():
   """
@@ -182,6 +182,19 @@ class BigObjectOnDiskBase:
     import pickle
     with open(self._filename,"rb") as f:
       return pickle.load(f)
+
+  def __float__(self):
+    return float( self.get() )
+    
+  def __int__(self):
+    return int( self.get() )
+    
+  def __str__(self):
+    obj = self.get()
+    if isinstance(obj,str):
+        return obj
+    else:
+        raise RuntimeError("Not a string")
       
 class BigObjectOnDisk(BigObjectOnDiskBase):
   def __init__(self, fileName, objSerialized):
