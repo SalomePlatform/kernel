@@ -375,6 +375,11 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     self.ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context[MY_CONTAINER_ENTRY_IN_GLBS] = self.my_container
+    
+  def __del__(self):
+    # force removal of self.context. Don t know why it s not done by default
+    self.removeAllVarsInContext()
+    pass
 
   def getContainer(self):
     return self.my_container
