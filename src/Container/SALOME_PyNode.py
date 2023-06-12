@@ -30,6 +30,8 @@ import Engines__POA
 import SALOME__POA
 import SALOME
 
+MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
+
 class Generic(SALOME__POA.GenericObj):
   """A Python implementation of the GenericObj CORBA IDL"""
   def __init__(self,poa):
@@ -66,7 +68,7 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     linecache.cache[nodeName]=0,None,code.split('\n'),nodeName
     ccode=compile(code,nodeName,'exec')
     self.context={}
-    self.context["my_container"] = self.my_container
+    self.context[MY_CONTAINER_ENTRY_IN_GLBS] = self.my_container
     exec(ccode, self.context)
 
   def getContainer(self):
@@ -372,7 +374,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     linecache.cache[nodeName]=0,None,code.split('\n'),nodeName
     self.ccode=compile(code,nodeName,'exec')
     self.context={}
-    self.context["my_container"] = self.my_container
+    self.context[MY_CONTAINER_ENTRY_IN_GLBS] = self.my_container
 
   def getContainer(self):
     return self.my_container
@@ -464,7 +466,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   def listAllVarsInContext(self):
       import re
       pat = re.compile("^__([a-z]+)__$")
-      return [elt for elt in self.context if not pat.match(elt)]
+      return [elt for elt in self.context if not pat.match(elt) and elt != MY_CONTAINER_ENTRY_IN_GLBS]
       
   def removeAllVarsInContext(self):
       for elt in self.listAllVarsInContext():
