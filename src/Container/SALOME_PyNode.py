@@ -121,6 +121,43 @@ SALOME_BIG_OBJ_ON_DISK_THRES_VAR = "SALOME_BIG_OBJ_ON_DISK_THRES"
 # default is 50 MB
 SALOME_BIG_OBJ_ON_DISK_THRES_DFT = 50000000
 
+from ctypes import c_int
+TypeCounter = c_int
+
+def GetSizeOfTCnt():
+  return len( bytes(TypeCounter(0) ) )
+
+def GetObjectFromFile(fname):
+  with open(fname,"rb") as f:
+    cntb = f.read( GetSizeOfTCnt() )
+    cnt = TypeCounter.from_buffer_copy( cntb ).value
+    obj = pickle.load(f)
+  return obj,cnt
+
+def DumpInFile(obj,fname):
+  with open(fname,"wb") as f:
+    f.write( bytes( TypeCounter(1) ) )
+    f.write( obj )
+
+def IncrRefInFile(fname):
+  with open(fname,"rb") as f:
+    cntb = f.read( GetSizeOfTCnt() )
+  cnt = TypeCounter.from_buffer_copy( cntb ).value
+  with open(fname,"rb+") as f:
+    f.write( bytes( TypeCounter(cnt+1) ) )
+
+def DecrRefInFile(fname):
+  import os
+  with open(fname,"rb") as f:
+    cntb = f.read( GetSizeOfTCnt() )
+  cnt = TypeCounter.from_buffer_copy( cntb ).value
+  #
+  if cnt == 1:
+    os.unlink( fname )
+  else:
+    with open(fname,"rb+") as f:
+        f.write( bytes( TypeCounter(cnt-1) ) )
+
 def GetBigObjectOnDiskThreshold():
   import os
   if SALOME_BIG_OBJ_ON_DISK_THRES_VAR in os.environ:
@@ -151,11 +188,28 @@ class BigObjectOnDiskBase:
     :type objSerialized: bytes
     """
     self._filename = fileName
+    # attribute _destroy is here to tell client side or server side
+    # only client side can be with _destroy set to True. server side due to risk of concurrency
+    # so pickled form of self must be done with this attribute set to False.
     self._destroy = False
     self.__dumpIntoFile(objSerialized)
 
   def getDestroyStatus(self):
     return self._destroy
+
+  def incrRef(self):
+    if self._destroy:
+      IncrRefInFile( self._filename )
+    else:
+      # should never happen !
+      RuntimeError("Invalid call to incrRef !")
+
+  def decrRef(self):
+    if self._destroy:
+      DecrRefInFile( self._filename )
+    else:
+      # should never happen !
+      RuntimeError("Invalid call to decrRef !")
 
   def unlinkOnDestructor(self):
     self._destroy = True
@@ -168,20 +222,17 @@ class BigObjectOnDiskBase:
 
   def __del__(self):
     if self._destroy:
-      import os
-      os.unlink( self._filename )
+      DecrRefInFile( self._filename )
 
   def getFileName(self):
     return self._filename
   
   def __dumpIntoFile(self, objSerialized):
-    with open(self._filename,"wb") as f:
-      f.write(objSerialized)
+    DumpInFile( objSerialized, self._filename )
 
   def get(self):
-    import pickle
-    with open(self._filename,"rb") as f:
-      return pickle.load(f)
+    obj, _ = GetObjectFromFile( self._filename )
+    return obj
 
   def __float__(self):
     return float( self.get() )
@@ -210,6 +261,12 @@ class BigObjectOnDiskListElement(BigObjectOnDiskBase):
   def get(self):
     fullObj = BigObjectOnDiskBase.get(self)
     return fullObj[ self._pos ]
+    
+  def __getitem__(self, i):
+    return self.get()[i]
+
+  def __len__(self):
+    return len(self.get())
     
 class BigObjectOnDiskSequence(BigObjectOnDiskBase):
   def __init__(self, length, fileName, objSerialized):
@@ -246,7 +303,12 @@ def SpoolPickleObject( obj ):
     return pickleProxy
 
 def UnProxyObjectSimple( obj ):
+  """
+  Method to be called in Remote mode. Alterate the obj _status attribute. 
+  Because the slave process does not participate in the reference counting
+  """
   if isinstance(obj,BigObjectOnDiskBase):
+    obj.doNotTouchFile()
     return obj.get()
   elif isinstance( obj, list):
     retObj = []
@@ -256,15 +318,17 @@ def UnProxyObjectSimple( obj ):
   else:
     return obj
 
-def UnProxyObject( obj ):
+def UnProxyObjectSimpleLocal( obj ):
+  """
+  Method to be called in Local mode. Do not alterate the PyObj counter
+  """
   if isinstance(obj,BigObjectOnDiskBase):
-    obj.doNotTouchFile()
     return obj.get()
-  if isinstance(obj,list) or isinstance(obj,tuple):
+  elif isinstance( obj, list):
+    retObj = []
     for elt in obj:
-      if isinstance(elt,BigObjectOnDiskBase):
-        elt.doNotTouchFile()
-    return obj
+      retObj.append( UnProxyObjectSimpleLocal(elt) )
+    return retObj
   else:
     return obj
     
@@ -367,7 +431,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       _,kws=pickle.loads(data)
       for elt in kws:
         # fetch real data if necessary
-        kws[elt] = UnProxyObject( kws[elt] )
+        kws[elt] = UnProxyObjectSimple( kws[elt] )
       self.context.update(kws)
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
