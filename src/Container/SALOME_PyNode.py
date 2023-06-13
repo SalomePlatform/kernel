@@ -167,6 +167,13 @@ def GetBigObjectOnDiskThreshold():
   else:
     return SALOME_BIG_OBJ_ON_DISK_THRES_DFT
 
+def ActivateProxyMecanismOrNot( sizeInByte ):
+  thres = GetBigObjectOnDiskThreshold()
+  if thres == -1:
+    return False
+  else:
+    return sizeInByte > thres
+
 def GetBigObjectDirectory():
   import os
   if SALOME_FILE_BIG_OBJ_DIR not in os.environ:
@@ -292,7 +299,7 @@ class BigObjectOnDiskTuple(BigObjectOnDiskSequence):
 def SpoolPickleObject( obj ):
   import pickle
   pickleObjInit = pickle.dumps( obj , pickle.HIGHEST_PROTOCOL )
-  if len(pickleObjInit) < GetBigObjectOnDiskThreshold():
+  if not ActivateProxyMecanismOrNot( len(pickleObjInit) ):
     return pickleObjInit
   else:
     if isinstance( obj, list):
