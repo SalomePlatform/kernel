@@ -193,16 +193,17 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
     }
   else
     {
-      Py_ACQUIRE_NEW_THREAD;
-      PyObject *mainmod = PyImport_AddModule((char *)"__main__");
-      PyObject *globals = PyModule_GetDict(mainmod);
-      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-      PyObject *result = PyObject_CallMethod(pyCont,
-                                             (char*)"import_component",
-                                             (char*)"s",componentName);
-      std::string ret= PyUnicode_AsUTF8(result);
-      SCRUTE(ret);
-      Py_RELEASE_NEW_THREAD;
+      {
+        AutoGIL agil;
+        PyObject *mainmod = PyImport_AddModule((char *)"__main__");
+        PyObject *globals = PyModule_GetDict(mainmod);
+        PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+        PyObject *result = PyObject_CallMethod(pyCont,
+                                              (char*)"import_component",
+                                              (char*)"s",componentName);
+        std::string ret= PyUnicode_AsUTF8(result);
+        SCRUTE(ret);
+      }
   
       if (ret=="") // import possible: Python component
         {
@@ -268,21 +269,22 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     std::string component_registerName =
       _containerName + "/" + instanceName;
 
-    Py_ACQUIRE_NEW_THREAD;
-    PyObject *mainmod = PyImport_AddModule((char*)"__main__");
-    PyObject *globals = PyModule_GetDict(mainmod);
-    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-    PyObject *result = PyObject_CallMethod(pyCont,
-                                           (char*)"create_component_instance",
-                                           (char*)"ss",
-                                           aCompName.c_str(),
-                                           instanceName.c_str());
-    const char *ior;
-    const char *error;
-    PyArg_ParseTuple(result,"ss", &ior, &error);
-    std::string iors = ior;
-    SCRUTE(iors);
-    Py_RELEASE_NEW_THREAD;
+    {
+      AutoGIL agil;
+      PyObject *mainmod = PyImport_AddModule((char*)"__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+      PyObject *result = PyObject_CallMethod(pyCont,
+                                            (char*)"create_component_instance",
+                                            (char*)"ss",
+                                            aCompName.c_str(),
+                                            instanceName.c_str());
+      const char *ior;
+      const char *error;
+      PyArg_ParseTuple(result,"ss", &ior, &error);
+      std::string iors = ior;
+      SCRUTE(iors);
+    }
   
     CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
     iobject = Engines::EngineComponent::_narrow( obj ) ;

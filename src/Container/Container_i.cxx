@@ -59,6 +59,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_Embedded_NamingService_Client.hxx"
 #include "SALOME_Embedded_NamingService.hxx"
 #include "Basics_Utils.hxx"
+#include "PythonCppUtils.hxx"
 
 #ifdef _XOPEN_SOURCE
 #undef _XOPEN_SOURCE
@@ -215,34 +216,33 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb,
     //approach leads to the deadlock of the main thread of the application on Windows platform
     //in case if cppContainer runs in the standalone mode. The problem with the PyThreadState 
     //described by ABN seems not reproduced, to be checked carefully later...
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    
-    //// [ABN]: using the PyGILState* API here is unstable. omniORB logic is invoked
-    //// by the Python code executed below, and in some (random) cases, the Python code
-    //// execution ends with a PyThreadState which was not the one we have here.
-    //// (TODO: understand why ...)
-    //// To be on the safe side we get and load the thread state ourselves:    
-    //PyEval_AcquireLock();  // get GIL
-    //PyThreadState * mainThreadState = PyThreadState_Get();
-    //PyThreadState_Swap(mainThreadState);
+    {
+      AutoGIL gstate;    
+      //// [ABN]: using the PyGILState* API here is unstable. omniORB logic is invoked
+      //// by the Python code executed below, and in some (random) cases, the Python code
+      //// execution ends with a PyThreadState which was not the one we have here.
+      //// (TODO: understand why ...)
+      //// To be on the safe side we get and load the thread state ourselves:    
+      //PyEval_AcquireLock();  // get GIL
+      //PyThreadState * mainThreadState = PyThreadState_Get();
+      //PyThreadState_Swap(mainThreadState);
 
 #ifdef WIN32
-    // mpv: this is temporary solution: there is a unregular crash if not
-    //Sleep(2000);
-    //
-    // first element is the path to Registry.dll, but it's wrong
-    PyRun_SimpleString("import sys\n");
-    PyRun_SimpleString("sys.path = sys.path[1:]\n");
+      // mpv: this is temporary solution: there is a unregular crash if not
+      //Sleep(2000);
+      //
+      // first element is the path to Registry.dll, but it's wrong
+      PyRun_SimpleString("import sys\n");
+      PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
-    PyRun_SimpleString("import SALOME_Container\n");
-    PyRun_SimpleString((char*)myCommand.c_str());
-    PyObject *mainmod = PyImport_AddModule("__main__");
-    PyObject *globals = PyModule_GetDict(mainmod);
-    _pyCont = PyDict_GetItemString(globals, "pyCont");
-
-    //PyThreadState_Swap(NULL);
-    //PyEval_ReleaseLock();
-    PyGILState_Release(gstate);
+      PyRun_SimpleString("import SALOME_Container\n");
+      PyRun_SimpleString((char*)myCommand.c_str());
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      _pyCont = PyDict_GetItemString(globals, "pyCont");
+      //PyThreadState_Swap(NULL);
+      //PyEval_ReleaseLock();
+    }
 
     fileTransfer_i* aFileTransfer = new fileTransfer_i();
     CORBA::Object_var obref=aFileTransfer->_this();
@@ -357,13 +357,12 @@ void Abstract_Engines_Container_i::ping()
 
 CORBA::Long Abstract_Engines_Container_i::getNumberOfCPUCores()
 {
-  PyGILState_STATE gstate = PyGILState_Ensure();
+  AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
   PyObject *result = PyObject_CallMethod(module,
                                          (char*)"getNumberOfCPUCores", NULL);
   int n = PyLong_AsLong(result);
   Py_DECREF(result);
-  PyGILState_Release(gstate);
 
   return (CORBA::Long)n;
 }
@@ -520,7 +519,7 @@ namespace {
   
 Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
 {
-  PyGILState_STATE gstate = PyGILState_Ensure();
+  AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
   PyObject *result = PyObject_CallMethod(module,
                                          (char*)"loadOfCPUCores", "s",
@@ -529,7 +528,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
   {
     std::string error = parseException();
     PyErr_Print();
-    PyGILState_Release(gstate);
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
     es.text = CORBA::string_dup(error.c_str());
@@ -539,7 +537,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
   int n = this->getNumberOfCPUCores();
   if (!PyList_Check(result) || PyList_Size(result) != n) {
     // bad number of cores
-    PyGILState_Release(gstate);
     Py_DECREF(result);
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
@@ -555,7 +552,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
     if (foo < 0.0 || foo > 1.0)
     {
       // value not in [0, 1] range
-      PyGILState_Release(gstate);
       Py_DECREF(result);
       SALOME::ExceptionStruct es;
       es.type = SALOME::INTERNAL_ERROR;
@@ -566,7 +562,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
   }
 
   Py_DECREF(result);
-  PyGILState_Release(gstate);
 
   return loads._retn();
 }
@@ -605,13 +600,12 @@ void Abstract_Engines_Container_i::resetScriptForCPULoad()
 
 CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemory()
 {
-  PyGILState_STATE gstate = PyGILState_Ensure();
+  AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
   PyObject *result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemory", NULL);
   int n = PyLong_AsLong(result);
   Py_DECREF(result);
-  PyGILState_Release(gstate);
 
   return (CORBA::Long)n;
 }
@@ -625,13 +619,12 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemory()
 
 CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUse()
 {
-  PyGILState_STATE gstate = PyGILState_Ensure();
+  AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
   PyObject *result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemoryInUse", NULL);
   int n = PyLong_AsLong(result);
   Py_DECREF(result);
-  PyGILState_Release(gstate);
 
   return (CORBA::Long)n;
 }
@@ -645,13 +638,12 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUse()
 
 CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUseByMe()
 {
-  PyGILState_STATE gstate = PyGILState_Ensure();
+  AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
   PyObject *result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemoryInUseByMe", NULL);
   int n = PyLong_AsLong(result);
   Py_DECREF(result);
-  PyGILState_Release(gstate);
 
   return (CORBA::Long)n;
 }
@@ -915,15 +907,16 @@ Abstract_Engines_Container_i::load_component_PythonImplementation(const char* co
   }
   _numInstanceMutex.unlock() ;
 
-  PyGILState_STATE gstate = PyGILState_Ensure();
-  PyObject *result = PyObject_CallMethod(_pyCont,
-                                         (char*)"import_component",
-                                         (char*)"s",componentName);
+  {
+    AutoGIL gstate;
+    PyObject *result = PyObject_CallMethod(_pyCont,
+                                          (char*)"import_component",
+                                          (char*)"s",componentName);
 
-  reason=PyUnicode_AsUTF8(result);
-  Py_XDECREF(result);
-  SCRUTE(reason);
-  PyGILState_Release(gstate);
+    reason=PyUnicode_AsUTF8(result);
+    Py_XDECREF(result);
+    SCRUTE(reason);
+  }
 
   if (reason=="")
   {
@@ -1251,20 +1244,21 @@ Abstract_Engines_Container_i::createPythonInstance(std::string CompName,
   sprintf( aNumI , "%d" , numInstance ) ;
   std::string instanceName = CompName + "_inst_" + aNumI ;
   std::string component_registerName = _containerName + "/" + instanceName;
-
-  PyGILState_STATE gstate = PyGILState_Ensure();
-  PyObject *result = PyObject_CallMethod(_pyCont,
-                                         (char*)"create_component_instance",
-                                         (char*)"ss",
-                                         CompName.c_str(),
-                                         instanceName.c_str());
-  const char *ior;
-  const char *error;
-  PyArg_ParseTuple(result,"ss", &ior, &error);
-  std::string iors = ior;
-  reason=error;
-  Py_DECREF(result);
-  PyGILState_Release(gstate);
+  std::string iors;
+  {
+    AutoGIL gstate;
+    PyObject *result = PyObject_CallMethod(_pyCont,
+                                          (char*)"create_component_instance",
+                                          (char*)"ss",
+                                          CompName.c_str(),
+                                          instanceName.c_str());
+    const char *ior;
+    const char *error;
+    PyArg_ParseTuple(result,"ss", &ior, &error);
+    iors = ior;
+    reason=error;
+    Py_DECREF(result);
+  }
 
   if( iors!="" )
   {
@@ -1291,20 +1285,21 @@ Abstract_Engines_Container_i::create_python_service_instance(const char * CompNa
   std::string instanceName = std::string(CompName) + "_inst_" + aNumI ;
   std::string component_registerName = _containerName + "/" + instanceName;
 
-  PyGILState_STATE gstate = PyGILState_Ensure();
-  PyObject *result = PyObject_CallMethod(_pyCont,
-                                         (char*)"create_component_instance",
-                                         (char*)"ss",
-                                         CompName,
-                                         instanceName.c_str());
-  const char *ior;
-  const char *error;
-  PyArg_ParseTuple(result,"ss", &ior, &error);
-  reason = CORBA::string_dup(error);
-  char * _ior = CORBA::string_dup(ior);
-  Py_DECREF(result);
-  PyGILState_Release(gstate);
-
+  char * _ior = nullptr;
+  {
+    AutoGIL gstate;
+    PyObject *result = PyObject_CallMethod(_pyCont,
+                                          (char*)"create_component_instance",
+                                          (char*)"ss",
+                                          CompName,
+                                          instanceName.c_str());
+    const char *ior;
+    const char *error;
+    PyArg_ParseTuple(result,"ss", &ior, &error);
+    reason = CORBA::string_dup(error);
+    _ior = CORBA::string_dup(ior);
+    Py_DECREF(result);
+  }
   return _ior;
 }
 
@@ -1961,28 +1956,29 @@ void Abstract_Engines_Container_i::copyFile(Engines::Container_ptr container, co
 Engines::PyNode_ptr Abstract_Engines_Container_i::createPyNode(const char* nodeName, const char* code)
 {
   Engines::PyNode_var node= Engines::PyNode::_nil();
-
-  PyGILState_STATE gstate = PyGILState_Ensure();
-  PyObject *res = PyObject_CallMethod(_pyCont,
-    (char*)"create_pynode",
-    (char*)"ss",
-    nodeName,
-    code);
-  if(res==NULL)
+  long ierr(-1);
+  std::string astr;
   {
-    //internal error
-    PyErr_Print();
-    PyGILState_Release(gstate);
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "can not create a python node";
-    throw SALOME::SALOME_Exception(es);
+    AutoGIL gstate;
+    PyObject *res = PyObject_CallMethod(_pyCont,
+      (char*)"create_pynode",
+      (char*)"ss",
+      nodeName,
+      code);
+    if(res==NULL)
+    {
+      //internal error
+      PyErr_Print();
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = "can not create a python node";
+      throw SALOME::SALOME_Exception(es);
+    }
+    ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
+    PyObject* result=PyTuple_GetItem(res,1);
+    astr = PyUnicode_AsUTF8(result);
+    Py_DECREF(res);
   }
-  long ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
-  PyObject* result=PyTuple_GetItem(res,1);
-  std::string astr=PyUnicode_AsUTF8(result);
-  Py_DECREF(res);
-  PyGILState_Release(gstate);
   if(ierr==0)
   {
     Utils_Locker lck(&_mutexForDftPy);
@@ -2044,28 +2040,29 @@ Engines::PyNode_ptr Abstract_Engines_Container_i::getDefaultPyNode(const char *n
 Engines::PyScriptNode_ptr Abstract_Engines_Container_i::createPyScriptNode(const char* nodeName, const char* code)
 {
   Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
-
-  PyGILState_STATE gstate = PyGILState_Ensure();
-  PyObject *res = PyObject_CallMethod(_pyCont,
-    (char*)"create_pyscriptnode",
-    (char*)"ss",
-    nodeName,
-    code);
-  if(res==NULL)
+  long ierr(-1);
+  std::string astr;
   {
-    //internal error
-    PyErr_Print();
-    PyGILState_Release(gstate);
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "can not create a python node";
-    throw SALOME::SALOME_Exception(es);
+    AutoGIL gstate;
+    PyObject *res = PyObject_CallMethod(_pyCont,
+      (char*)"create_pyscriptnode",
+      (char*)"ss",
+      nodeName,
+      code);
+    if(res==NULL)
+    {
+      //internal error
+      PyErr_Print();
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = "can not create a python node";
+      throw SALOME::SALOME_Exception(es);
+    }
+    ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
+    PyObject* result=PyTuple_GetItem(res,1);
+    astr = PyUnicode_AsUTF8(result);
+    Py_DECREF(res);
   }
-  long ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
-  PyObject* result=PyTuple_GetItem(res,1);
-  std::string astr=PyUnicode_AsUTF8(result);
-  Py_DECREF(res);
-  PyGILState_Release(gstate);
 
   if(ierr==0)
   {

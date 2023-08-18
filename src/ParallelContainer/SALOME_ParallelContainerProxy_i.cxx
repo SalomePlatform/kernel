@@ -57,10 +57,11 @@ Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb,
   myCommand += _containerName + "','";
   myCommand += sior;
   myCommand += "')\n";
-  Py_ACQUIRE_NEW_THREAD;
-  PyRun_SimpleString("import SALOME_Container\n");
-  PyRun_SimpleString((char*)myCommand.c_str());
-  Py_RELEASE_NEW_THREAD;
+  {
+    AutoGIL agil;
+    PyRun_SimpleString("import SALOME_Container\n");
+    PyRun_SimpleString((char*)myCommand.c_str());
+  }
 }
 
 Container_proxy_impl_final:: ~Container_proxy_impl_final() {
@@ -209,16 +210,17 @@ Container_proxy_impl_final::load_component_Library(const char* componentName, CO
 #endif
 
       MESSAGE("Try to import Python component "<<componentName);
-      Py_ACQUIRE_NEW_THREAD;
-      PyObject *mainmod = PyImport_AddModule("__main__");
-      PyObject *globals = PyModule_GetDict(mainmod);
-      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-      PyObject *result = PyObject_CallMethod(pyCont,
-                                             (char*)"import_component",
-                                             (char*)"s",componentName);
-      std::string ret_p= PyUnicode_AsUTF8(result);
-      Py_XDECREF(result);
-      Py_RELEASE_NEW_THREAD;
+      {
+        AutoGIL agil;
+        PyObject *mainmod = PyImport_AddModule("__main__");
+        PyObject *globals = PyModule_GetDict(mainmod);
+        PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+        PyObject *result = PyObject_CallMethod(pyCont,
+                                              (char*)"import_component",
+                                              (char*)"s",componentName);
+        std::string ret_p= PyUnicode_AsUTF8(result);
+        Py_XDECREF(result);
+      }
 
       if (ret_p=="") // import possible: Python component
       {
