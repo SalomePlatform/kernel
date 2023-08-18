@@ -63,6 +63,7 @@ module Engines
 
   typedef sequence<KeyValuePair> FieldsDict;
   typedef sequence<double> vectorOfDouble;
+  typedef sequence<string> vectorOfString;
 
   interface EngineComponent ;
   interface fileRef ;
@@ -76,6 +77,10 @@ module Engines
 
   interface Container
   {
+
+    void override_environment( in FieldsDict env );
+
+    FieldsDict get_os_environment();
 
     /*! \brief Loads a new component class (dynamic library).
 

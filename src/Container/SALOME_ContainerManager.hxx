@@ -32,7 +32,9 @@
 
 #include "Utils_Mutex.hxx"
 
+#include <vector>
 #include <string>
+#include <utility>
 #include <set>
 
 class SALOME_NamingService_Abstract;
@@ -46,9 +48,13 @@ public:
   ~SALOME_ContainerManager();
 
   // Corba Methods
-  Engines::Container_ptr GiveContainer(const Engines::ContainerParameters& params);
+  Engines::Container_ptr GiveContainer(const Engines::ContainerParameters& params) override;
 
-  void ShutdownContainers();
+  void ShutdownContainers() override;
+
+  void SetOverrideEnvForContainers(const Engines::KeyValDict& env) override;
+
+  Engines::KeyValDict *GetOverrideEnvForContainers() override;
 
   // C++ Methods
   void Shutdown();
@@ -193,5 +199,7 @@ public:
   static const int TIME_OUT_TO_LAUNCH_CONT;
   static Utils_Mutex _getenvMutex;
   static Utils_Mutex _systemMutex;
+private:
+  std::vector< std::pair<std::string, std::string> > _override_env;
 };
 #endif

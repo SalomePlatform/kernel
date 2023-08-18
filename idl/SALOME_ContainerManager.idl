@@ -67,6 +67,14 @@ struct ContainerParameters
   ResourceParameters resource_params;
 };
 
+struct KeyValPairString
+{
+  string key;
+  string val;
+};
+
+typedef sequence<KeyValPairString> KeyValDict;
+
 /*! \brief Interface of the %containerManager
     This interface is used for interaction with the unique instance
     of ContainerManager
@@ -80,6 +88,10 @@ interface ContainerManager
 
   //!  Shutdown all containers that have been launched by the container manager
   void ShutdownContainers();
+
+  void SetOverrideEnvForContainers(in KeyValDict env);
+
+  KeyValDict GetOverrideEnvForContainers();
 } ;
 
 };

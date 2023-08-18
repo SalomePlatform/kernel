@@ -31,11 +31,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
+#include <memory>
 #ifndef WIN32
 #include <sys/time.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <stdlib.h>
 #else
 #include <signal.h>
 #include <process.h>
@@ -990,7 +993,7 @@ Abstract_Engines_Container_i::load_component_ExecutableImplementation(const char
 //! Create a new component instance
 /*! 
 *  CORBA method: Creates a new servant instance of a component.
-*  The servant registers itself to naming service and Registry.
+*  The servant registers itself to naming service and Registry.tdlib
 *  \param genericRegisterName  Name of the component instance to register
 *                         in Registry & Name Service (without _inst_n suffix)
 *  \return a loaded component
@@ -1005,6 +1008,63 @@ Abstract_Engines_Container_i::create_component_instance(const char*genericRegist
     create_component_instance_env(genericRegisterName, env, reason);
   CORBA::string_free(reason);
   return compo;
+}
+
+void EffectiveOverrideEnvironment( const Engines::FieldsDict& env )
+{
+  MESSAGE("Positionning environment on container ");
+  for (CORBA::ULong i=0; i < env.length(); i++)
+  {
+    if (env[i].value.type()->kind() == CORBA::tk_string)
+    {
+      const char* value;
+      env[i].value >>= value;
+      MESSAGE( env[i].key << " = " << value);
+#ifndef WIN32
+      if( setenv(env[i].key,value,1) != 0 )
+      {
+        int errsv = errno;
+        std::string sErr( strerror( errsv) );
+        MESSAGE(sErr);
+      }
+#endif
+    }
+  }
+}
+
+std::vector< std::pair<std::string,std::string> > GetOSEnvironment()
+{
+  std::vector< std::pair<std::string,std::string> > ret;
+#ifndef WIN32
+  char **envPt( environ );
+  for(;*envPt != nullptr; ++envPt)
+  {
+    std::string s( *envPt );
+    auto pos = s.find_first_of('=');
+    std::string k( s.substr(0,pos) ),v( s.substr(pos+1) );
+    ret.emplace_back( std::pair<std::string,std::string>(k,v) );
+  }
+#endif
+  return ret;
+}
+
+void Abstract_Engines_Container_i::override_environment( const Engines::FieldsDict& env )
+{
+  EffectiveOverrideEnvironment(env);
+}
+
+Engines::FieldsDict *Abstract_Engines_Container_i::get_os_environment()
+{
+  std::unique_ptr<Engines::FieldsDict> ret( new Engines::FieldsDict );
+  std::vector< std::pair<std::string,std::string> > retCpp( GetOSEnvironment() );
+  auto sz = retCpp.size();
+  ret->length( sz );
+  for(auto i = 0 ; i < sz ; ++i)
+  {
+    (*ret)[i].key = CORBA::string_dup( retCpp[i].first.c_str() );
+    (*ret)[i].value <<= CORBA::string_dup( retCpp[i].second.c_str() );
+  }
+  return ret.release();
 }
 
 //=============================================================================
@@ -1128,18 +1188,7 @@ Abstract_Engines_Container_i::createExecutableInstance(std::string CompName,
   pid_t pid = fork();
   if(pid == 0) // child
   {
-    for (CORBA::ULong i=0; i < env.length(); i++)
-    {
-      if (env[i].value.type()->kind() == CORBA::tk_string)
-      {
-        const char* value;
-        env[i].value >>= value;
-        std::string s(env[i].key);
-        s+='=';
-        s+=value;
-        putenv(strdup(s.c_str()));
-      }
-    }
+    EffectiveOverrideEnvironment(env);
 
     execl("/bin/sh", "sh", "-c", command.c_str() , (char *)0);
     status=-1;

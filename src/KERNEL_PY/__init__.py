@@ -248,6 +248,7 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     global lcc,cm,dsm,esm,rm
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
+    type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
     rm = KernelLauncher.myResourcesManager()
     from LifeCycleCORBA import LifeCycleCORBASSL
     lcc = LifeCycleCORBASSL()
@@ -290,6 +291,7 @@ def salome_init_without_session_attached(path=None, embedded=False):
     import SALOME
     CM_NAME_IN_NS = "/ContainerManager"
     cm = orb.string_to_object( nsAbroad.Resolve(CM_NAME_IN_NS).decode() )
+    type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
     naming_service.Register(cm,CM_NAME_IN_NS)
     RM_NAME_IN_NS = "/ResourcesManager"
     rm = orb.string_to_object( nsAbroad.Resolve(RM_NAME_IN_NS).decode() )
@@ -437,6 +439,10 @@ class SessionContextManager:
         salome_init()
     def __exit__(self, type, value, traceback):
         salome_close()
+
+def ContainerManagerSetOverrideEnvForContainersSimple(self,env):
+    envEff = [ Engines.KeyValPairString(key=k,val=v) for k,v in env ]
+    return self.SetOverrideEnvForContainers( envEff )
 
 #to expose all objects to pydoc
 __all__=dir()

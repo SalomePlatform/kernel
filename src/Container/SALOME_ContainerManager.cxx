@@ -279,6 +279,27 @@ void SALOME_ContainerManager::ShutdownContainers()
   }
 }
 
+void SALOME_ContainerManager::SetOverrideEnvForContainers(const Engines::KeyValDict& env)
+{
+  this->_override_env.clear();
+  auto sz = env.length();
+  for(auto i = 0 ; i < sz ; ++i)
+    _override_env.emplace_back( std::pair<std::string, std::string>(env[i].key,env[i].val) );
+}
+
+Engines::KeyValDict *SALOME_ContainerManager::GetOverrideEnvForContainers()
+{
+  std::unique_ptr<Engines::KeyValDict> ret( new Engines::KeyValDict );
+  auto sz = _override_env.size();
+  ret->length(sz);
+  for(auto i = 0 ; i < sz ; ++i)
+  {
+    (*ret)[i].key = CORBA::string_dup( _override_env[i].first.c_str() );
+    (*ret)[i].val = CORBA::string_dup( _override_env[i].second.c_str() );
+  }
+  return ret.release();
+}
+
 //=============================================================================
 //! Give a suitable Container given constraints
 /*! CORBA Method:
@@ -439,6 +460,20 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
       if (!CORBA::is_nil(cont))
       {
         INFOS("[GiveContainer] container " << containerNameInNS << " launched");
+        std::ostringstream envInfo;
+        std::for_each( _override_env.begin(), _override_env.end(), [&envInfo](const std::pair<std::string,std::string>& p) { envInfo << p.first << " = " << p.second << std::endl; } );
+        INFOS("[GiveContainer] container " << containerNameInNS << " override " << envInfo.str());
+        Engines::FieldsDict envCorba;
+        {
+          auto sz = _override_env.size();
+          envCorba.length(sz);
+          for(auto i = 0 ; i < sz ; ++i)
+          {
+            envCorba[i].key = CORBA::string_dup( _override_env[i].first.c_str() );
+            envCorba[i].value <<= CORBA::string_dup( _override_env[i].second.c_str() );
+          }
+        }
+        cont->override_environment( envCorba );
         return cont._retn();
       }
       else
