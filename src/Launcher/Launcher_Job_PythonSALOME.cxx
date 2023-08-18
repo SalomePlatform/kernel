@@ -43,7 +43,7 @@ Launcher::Job_PythonSALOME::addJobTypeSpecificScript(std::ofstream & launch_scri
   struct stat statbuf;
   if(stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
       // case where AppliPath hold a salome launcher file
-      launch_script_stream << _resource_definition.AppliPath << " shell -- python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
+      launch_script_stream << _resource_definition.AppliPath << " shell -- python3 " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
   else
-      launch_script_stream << _resource_definition.AppliPath << "/salome shell -- python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
+      launch_script_stream << _resource_definition.AppliPath << "/salome shell -- python3 " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
 }
