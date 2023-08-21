@@ -80,6 +80,8 @@ module Engines
 
     void override_environment( in FieldsDict env );
 
+    void override_environment_python( in FieldsDict env );
+
     FieldsDict get_os_environment();
 
     /*! \brief Loads a new component class (dynamic library).

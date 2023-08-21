@@ -473,7 +473,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
             envCorba[i].value <<= CORBA::string_dup( _override_env[i].second.c_str() );
           }
         }
-        cont->override_environment( envCorba );
+        cont->override_environment_python( envCorba );
         return cont._retn();
       }
       else

@@ -416,6 +416,18 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     except Exception:
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode.assignNewCompiledCode (%s) : code to be executed \"%s\"" %(self.nodeName,codeStr),0))
 
+  def executeSimple(self, key, val):
+    """
+    Same as execute method except that no pickelization mecanism is implied here. No output is expected
+    """
+    try:
+      self.context.update({ "env" : [(k,v) for k,v in zip(key,val)]})
+      exec(self.ccode,self.context)
+    except Exception:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" % (self.nodeName),0))
+    
   def execute(self,outargsname,argsin):
     """Execute the script stored in attribute ccode with pickled args (argsin)"""
     try:

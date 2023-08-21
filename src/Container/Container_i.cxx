@@ -1017,7 +1017,7 @@ void EffectiveOverrideEnvironment( const Engines::FieldsDict& env )
   {
     if (env[i].value.type()->kind() == CORBA::tk_string)
     {
-      const char* value;
+      const char *value = nullptr;
       env[i].value >>= value;
       MESSAGE( env[i].key << " = " << value);
 #ifndef WIN32
@@ -1051,6 +1051,28 @@ std::vector< std::pair<std::string,std::string> > GetOSEnvironment()
 void Abstract_Engines_Container_i::override_environment( const Engines::FieldsDict& env )
 {
   EffectiveOverrideEnvironment(env);
+}
+
+void Abstract_Engines_Container_i::override_environment_python( const Engines::FieldsDict& env )
+{
+  constexpr char NODE_NAME[] = "ScriptNodeForEnv";
+  constexpr char SCRIPT[] = R"foo(
+import os
+for k,v in env:
+  os.environ[k] = v
+)foo";
+  Engines::PyScriptNode_var scriptNode = this->createPyScriptNode(NODE_NAME,SCRIPT);
+  auto sz = env.length();
+  Engines::listofstring keys( sz ), vals( sz );
+  for( auto i = 0 ; i < sz ; ++i )
+  {
+    keys[i] = CORBA::string_dup( env[i].key );
+    const char *value = nullptr;
+    env[i].value >>= value;
+    vals[i] = CORBA::string_dup( value );
+  }
+  scriptNode->executeSimple(keys,vals);
+  this->removePyScriptNode(NODE_NAME);
 }
 
 Engines::FieldsDict *Abstract_Engines_Container_i::get_os_environment()

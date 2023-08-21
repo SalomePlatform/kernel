@@ -90,6 +90,8 @@ module Engines
     */
     pickledArgs execute(in listofstring outargsname, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
 
+    void executeSimple(in listofstring key, in listofstring val) raises (SALOME::SALOME_Exception);
+
     /*! \brief first part of whole execute method. This split is to reduce the memory peak.
     */
     void executeFirst(in SALOME::SenderByte inargs) raises (SALOME::SALOME_Exception);
