@@ -18,7 +18,7 @@
 #
 
 SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/Container)
-INSTALL(FILES testcontainer.py DESTINATION ${LOCAL_TEST_DIR})
+INSTALL(FILES testcontainer.py testProxy.py DESTINATION ${LOCAL_TEST_DIR})
 
 INSTALL(FILES CTestTestfileInstall.cmake
         DESTINATION ${LOCAL_TEST_DIR}

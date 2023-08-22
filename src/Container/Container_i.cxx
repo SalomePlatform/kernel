@@ -1063,7 +1063,8 @@ for k,v in env:
 )foo";
   Engines::PyScriptNode_var scriptNode = this->createPyScriptNode(NODE_NAME,SCRIPT);
   auto sz = env.length();
-  Engines::listofstring keys( sz ), vals( sz );
+  Engines::listofstring keys, vals;
+  keys.length( sz ); vals.length( sz );
   for( auto i = 0 ; i < sz ; ++i )
   {
     keys[i] = CORBA::string_dup( env[i].key );
