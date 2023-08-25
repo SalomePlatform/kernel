@@ -19,6 +19,8 @@
 
 #include "SALOME_KernelServices.hxx"
 
+#include <iostream>
+
 void RegisterCompoInternal(const std::string& compoName, const std::string& compoIOR)
 {
     CORBA::ORB_ptr orb = KERNEL::getORB();
@@ -41,4 +43,12 @@ void GenerateViolentMemoryFaultForTestPurpose()
 {
     double *a = nullptr;
     *a = 0;
+}
+
+/*!
+ * This method wrapped into Python is useful to have a break point in C++ when complex python script is invoked in the stack
+ */
+void EntryForDebuggerBreakPoint()
+{
+    std::cout << "b KernelServices.cxx:53" << std::endl;
 }

@@ -18,9 +18,12 @@
 //
 #ifndef __KERNELSERVICES_HXX__
 #define __KERNELSERVICES_HXX__
+
 #include <string>
 
 void RegisterCompoInternal(const std::string& compoName, const std::string& compoIOR);
 std::string RetrieveCompoInternal(const std::string& compoName);
 void GenerateViolentMemoryFaultForTestPurpose();
+void EntryForDebuggerBreakPoint();
+
 #endif

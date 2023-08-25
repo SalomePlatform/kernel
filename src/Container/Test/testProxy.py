@@ -98,7 +98,7 @@ j = a,b,c"""
             del ret3
             import gc
             gc.collect(0)
-            #self.assertTrue( not os.path.exists( fn ) ) # at destruction of ret3 the corresponding pckl file must be destructed
+            self.assertTrue( not os.path.exists( fn ) ) # at destruction of ret3 the corresponding pckl file must be destructed
             cont.Shutdown()
 
 if __name__ == '__main__':

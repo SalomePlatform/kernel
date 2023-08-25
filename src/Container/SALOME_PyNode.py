@@ -146,6 +146,7 @@ def IncrRefInFile(fname):
     cntb = f.read( GetSizeOfTCnt() )
   cnt = TypeCounter.from_buffer_copy( cntb ).value
   with open(fname,"rb+") as f:
+    #import KernelServices ; KernelServices.EntryForDebuggerBreakPoint()
     f.write( bytes( TypeCounter(cnt+1) ) )
 
 def DecrRefInFile(fname):
@@ -154,11 +155,9 @@ def DecrRefInFile(fname):
     cntb = f.read( GetSizeOfTCnt() )
   cnt = TypeCounter.from_buffer_copy( cntb ).value
   #
+  #import KernelServices ; KernelServices.EntryForDebuggerBreakPoint()
   if cnt == 1:
-    pass
-    #print("Remove {}".format(fname))
-    #print("Remove {}".format(str(GetObjectFromFile(fname)[0])))
-    #os.unlink( fname )
+    os.unlink( fname )
   else:
     with open(fname,"rb+") as f:
         f.write( bytes( TypeCounter(cnt-1) ) )
@@ -235,15 +234,6 @@ class BigObjectOnDiskBase:
   def __del__(self):
     if self._destroy:
       DecrRefInFile( self._filename )
-
-  def delDebug(self):
-    import os
-    if self._destroy:
-      if os.path.exists( self._filename ):
-        DecrRefInFile( self._filename )
-      else:
-        import KernelServices
-        KernelServices.GenerateViolentMemoryFaultForTestPurpose()
 
   def getFileName(self):
     return self._filename
