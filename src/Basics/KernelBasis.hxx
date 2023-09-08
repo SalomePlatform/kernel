@@ -30,3 +30,6 @@ void BASICS_EXPORT setGUIMode(bool guiMode);
 
 std::string BASICS_EXPORT getIOROfEmbeddedNS();
 void BASICS_EXPORT setIOROfEmbeddedNS(const std::string& ior);
+
+void BASICS_EXPORT WriteInStdout(const std::string& msg);
+void BASICS_EXPORT WriteInStderr(const std::string& msg);

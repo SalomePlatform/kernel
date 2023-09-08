@@ -45,12 +45,30 @@ void setGUIMode(bool guiMode)
   GUI_MODE = guiMode;
 }
 
-std::string BASICS_EXPORT getIOROfEmbeddedNS()
+std::string getIOROfEmbeddedNS()
 {
   return IOR_OF_EMBEDDED_NS;
 }
 
-void BASICS_EXPORT setIOROfEmbeddedNS(const std::string& ior)
+void setIOROfEmbeddedNS(const std::string& ior)
 {
   IOR_OF_EMBEDDED_NS = ior;
+}
+
+#include <iostream>
+
+/*!
+ * Callable from Python in case if sys.stdout is not connected to tty
+ */
+void WriteInStdout(const std::string& msg)
+{
+  std::cout << msg << std::endl << std::flush;
+}
+
+/*!
+ * Callable from Python in case if sys.stdout is not connected to tty
+ */
+void WriteInStderr(const std::string& msg)
+{
+  std::cerr << msg << std::endl << std::flush;
 }

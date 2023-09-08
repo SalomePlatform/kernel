@@ -29,4 +29,5 @@
 namespace SALOME
 {
   bool BASICS_EXPORT VerbosityActivated();
+  void BASICS_EXPORT SetVerbosityActivated(bool);
 }

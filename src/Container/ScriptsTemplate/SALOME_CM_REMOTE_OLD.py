@@ -2,11 +2,8 @@ import sys
 
 class ScriptRemoteParameters:
     def __init__(self, args):
-        self.debug = False
-        if args[0] == "-d":
-            self.debug = True
-            args = args[1:]
-
+        import KernelBasis
+        self.debug = KernelBasis.VerbosityActivated()
         self.protocol = args[0]
         self.user = self._read_arg(args[1], "NULL")
         self.host = self._read_arg(args[2], "NULL")
@@ -45,8 +42,10 @@ class ScriptRemoteParameters:
 
 # ----------------------------------------------
 def command(args):
+    import KernelBasis
     options = ScriptRemoteParameters(args)
-    if options.debug: print(options)
+    if options.debug:
+        KernelBasis.WriteInStdout( str(options) )
 
     # build command depending on protocol
     cmd = []
@@ -109,7 +108,7 @@ def command(args):
 
         if options.workdir:
             cmd.append("-d " + options.workdir)
-            cmd.append("--")
+        cmd.append("--")
 
     # elif ignore other appli_mode value
 
