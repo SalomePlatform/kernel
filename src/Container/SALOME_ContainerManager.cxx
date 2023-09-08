@@ -604,13 +604,22 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     MESSAGE("[GiveContainer] Try to launch a new container on " << resource_selected);
     // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
     if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL && params.isMPI )
+    {
       command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe, tmpFileName);
+      MESSAGE("[LaunchContainer] LIBBATCH_NODEFILE : \"" << command << "\"");
+    }
     // if a container is launched on localhost, command is "SALOME_Container" or "mpirun -np nbproc SALOME_MPIContainer"
     else if(hostname == Kernel_Utils::GetHostname())
+    {
       command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe, tmpFileName);
+      MESSAGE("[LaunchContainer] hostname local : \"" << command << "\"");
+    }
     // if a container is launched in remote mode, command is "ssh resource_selected SALOME_Container" or "ssh resource_selected mpirun -np nbproc SALOME_MPIContainer"
     else
+    {
       command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
+      MESSAGE("[LaunchContainer] remote : \"" << command << "\"");
+    }
 
     //redirect stdout and stderr in a file
 #ifdef WIN32
@@ -641,6 +650,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     command += " > " + logFilename + " 2>&1";
     MakeTheCommandToBeLaunchedASync(command);
     
+    MESSAGE("[LaunchContainer] SYSTEM COMMAND that will be launched : \"" << command << "\"");
     // launch container with a system call
     status=SystemThreadSafe(command.c_str());
   }//end of critical of section
@@ -789,12 +799,14 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
   std::string wdir = params.workingdir.in();
   if (!_isAppliSalomeDefined)
   {
+      MESSAGE("[BuildCommandToLaunchRemoteContainer] NO APPLI MODE : " << " Protocol :" << resInfo.Protocol << " hostname :" << resInfo.HostName << " username : " << resInfo.UserName << " appli : " << resInfo.AppliPath << " wdir : \"" << wdir << "\"");
       command = getCommandToRunRemoteProcessNoAppli(resInfo.Protocol, resInfo.HostName, 
                                                     resInfo.UserName, resInfo.AppliPath,
                                                     wdir);
   }
   else
   {
+    MESSAGE("[BuildCommandToLaunchRemoteContainer] WITH APPLI MODE : " << " Protocol :" << resInfo.Protocol << " hostname :" << resInfo.HostName << " username : " << resInfo.UserName << " appli : " << resInfo.AppliPath << " wdir : \"" << wdir << "\"");
     // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir
     //      SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
     //  or 

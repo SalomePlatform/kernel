@@ -27,6 +27,10 @@
 #include <string>
 #include <iostream>
 
+enum class VerbosityMode { undefined, nolog, withlog };
+
+static VerbosityMode isActivated = VerbosityMode::undefined;
+
 namespace SALOME
 {
 
@@ -43,7 +47,7 @@ namespace SALOME
 
   bool VerbosityActivated()
   {
-    auto isEnvVarSet = []() -> bool
+    auto isEnvVarSet = []() -> VerbosityMode
     {
       const char* envVar = std::getenv("SALOME_VERBOSE");
 
@@ -52,7 +56,7 @@ namespace SALOME
         try
         {
           const long long numValue = std::stoll(envVar);
-          return numValue > 0;
+          return numValue > 0?VerbosityMode::withlog:VerbosityMode::nolog;
         }
         catch(const std::exception& e)
         {
@@ -60,10 +64,16 @@ namespace SALOME
         }
       }
 
-      return false;
+      return VerbosityMode::nolog;
     };
 
-    static const bool isActivated = isEnvVarSet();
-    return isActivated;
+    if(isActivated == VerbosityMode::undefined)
+      isActivated = isEnvVarSet();
+    return isActivated == VerbosityMode::withlog;
+  }
+
+  void SetVerbosityActivated(bool flag)
+  {
+    isActivated = flag ? VerbosityMode::withlog:VerbosityMode::nolog;
   }
 }

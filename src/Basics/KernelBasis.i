@@ -22,6 +22,7 @@
 %{
 #include "KernelBasis.hxx"
 #include "HeatMarcel.hxx"
+#include "libSALOMELog.hxx"
 using namespace SALOME;
 %}
 
@@ -39,6 +40,15 @@ std::string getIOROfEmbeddedNS();
 void setIOROfEmbeddedNS(const std::string& ior);
 
 double GetTimeAdjustmentCst();
+
+bool VerbosityActivated();
+
+void SetVerbosityActivated(bool flag);
+
+void WriteInStdout(const std::string& msg);
+
+void WriteInStderr(const std::string& msg);
+
 
 %inline
 {

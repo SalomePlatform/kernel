@@ -1,10 +1,7 @@
 class ScriptLocalParameters:
     def __init__(self, args):
-        self.debug = False
-        if args[0] == "-d":
-            self.debug = True
-            args = args[1:]
-
+        import KernelBasis
+        self.debug = KernelBasis.VerbosityActivated()
         self.nb_proc = self._read_arg(args[0], "NULL")
         self.workdir = self._read_arg(args[1], "NULL")
         self.isTmpDir = True if args[2] == "1" else False
