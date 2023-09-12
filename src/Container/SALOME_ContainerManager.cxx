@@ -676,7 +676,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
         {
           SleepInSecond(1);
           count--;
-          MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected);
+          MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected << " with entry in NS = \"" << containerNameInNS << "\"" );
           CORBA::Object_var obj(_NS->Resolve(containerNameInNS.c_str()));
           ret=Engines::Container::_narrow(obj);
         }
