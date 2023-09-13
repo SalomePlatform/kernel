@@ -23,6 +23,8 @@
 #include "Launcher.hxx"
 #include "ResourcesManager.hxx"
 
+#include <sstream>
+
 struct ResourceDefinition_cpp
 {
 public:
@@ -44,6 +46,17 @@ public:
   bool can_run_containers;
   std::string working_directory;
 };
+
+std::shared_ptr<ResourcesManager_cpp> HandleToLocalInstance(const std::string& ptrInStringFrmt)
+{
+  std::istringstream iss(ptrInStringFrmt);
+  void *zePtr(nullptr);
+  iss >> zePtr;
+  std::shared_ptr<ResourcesManager_cpp> *effPtr = reinterpret_cast<std::shared_ptr<ResourcesManager_cpp> *>(zePtr);
+  std::shared_ptr<ResourcesManager_cpp> ret(*effPtr);
+  delete effPtr;
+  return ret;
+}
 %}
 
 %include "std_string.i"
@@ -159,6 +172,8 @@ class ResourcesManager_cpp
 public:
   ResourcesManager_cpp(const char *xmlFilePath);
   std::vector<std::string> GetFittingResources(const resourceParams& params);
+  void WriteInXmlFile(std::string xml_file);
+  void DeleteAllResourcesInCatalog();
 %extend
 {
   ResourceDefinition_cpp GetResourceDefinition(const std::string& name)
@@ -186,8 +201,55 @@ public:
 
     return swig_result;
   }
+
+  void DeleteResourceInCatalog(const std::string& name)
+  {
+    $self->DeleteResourceInCatalog(name.c_str());
+  }
+  
+  void AddResourceInCatalog (const ResourceDefinition_cpp& new_resource)
+  {
+    ParserResourcesType new_resource_cpp;
+    new_resource_cpp.Name = new_resource.name;
+    new_resource_cpp.HostName = new_resource.hostname;
+    new_resource_cpp.setResourceTypeStr( new_resource.type );
+    new_resource_cpp.setAccessProtocolTypeStr( new_resource.protocol );
+    new_resource_cpp.UserName = new_resource.username;
+    new_resource_cpp.AppliPath = new_resource.applipath;
+    new_resource_cpp.OS = new_resource.OS;
+    new_resource_cpp.DataForSort._memInMB = new_resource.mem_mb;
+    new_resource_cpp.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
+    new_resource_cpp.DataForSort._nbOfNodes = new_resource.nb_node;
+    new_resource_cpp.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
+    new_resource_cpp.setBatchTypeStr(new_resource.batch);
+    new_resource_cpp.setMpiImplTypeStr(new_resource.mpiImpl);
+    new_resource_cpp.setClusterInternalProtocolStr(new_resource.iprotocol);
+    new_resource_cpp.can_launch_batch_jobs = new_resource.can_launch_batch_jobs;
+    new_resource_cpp.can_run_containers = new_resource.can_run_containers;
+    new_resource_cpp.working_directory = new_resource.working_directory;
+    $self->AddResourceInCatalog(new_resource_cpp);
+  }
+  
+  void ParseXmlFiles()
+  {
+    $self->ParseXmlFiles();
+  }
+  
+  std::vector<std::string> GetListOfEntries() const
+  {
+    const MapOfParserResourcesType& allRes = $self->GetList();
+    std::vector<std::string> ret;
+    for(auto it : allRes)
+      ret.push_back(it.first);
+    return ret;
+  }
 }
 };
+
+%inline
+{
+  std::shared_ptr<ResourcesManager_cpp> HandleToLocalInstance(const std::string& ptrInStringFrmt);
+}
 
 %exception
 {
@@ -229,3 +291,83 @@ public:
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
   void SetResourcesManager(std::shared_ptr<ResourcesManager_cpp>& rm );
 };
+
+%pythoncode %{
+def CreateSSHContainerResource(hostname,applipath,nbOfNodes=1):
+  return CreateContainerResource(hostname,applipath,"ssh",nbOfNodes)
+
+def CreateSRUNContainerResource(hostname,applipath,nbOfNodes=1):
+  return CreateContainerResource(hostname,applipath,"srun",nbOfNodes)
+
+def CreateContainerResource(hostname,applipath,protocol,nbOfNodes=1):
+  import getpass
+  ret = ResourceDefinition_cpp()
+  ret.name = hostname.split(".")[0]
+  ret.hostname = ret.name
+  ret.protocol = protocol
+  ret.applipath = applipath
+  ret.nb_node = nbOfNodes
+  ret.nb_proc_per_node = 1
+  ret.can_run_containers = True
+  ret.can_launch_batch_jobs = False
+  ret.mpiImpl = "no mpi"
+  ret.iprotocol = protocol
+  ret.type = "single_machine"
+  ret.username = getpass.getuser()
+  return ret
+
+def ResourceDefinition_cpp_repr(self):
+  pat0 = "{} = {}"
+  pat1 = "{} = \"{}\""
+  data = [("name","name",pat0),
+  ("hostname","hostname",pat0),
+  ("type","type",pat0),
+  ("protocol","protocol",pat0),
+  ("userName","username",pat0),
+  ("appliPath","applipath",pat1),
+  ("mpi","mpiImpl",pat0),
+  ("nbOfNodes","nb_node",pat0),
+  ("nbOfProcPerNode","nb_proc_per_node",pat0),
+  ("canRunContainer","can_run_containers",pat0)
+  ]
+  ret = [c.format(a,getattr(self,b)) for a,b,c in data]
+  return "\n".join( ret )
+
+def ResourcesManager_cpp_GetList(self):
+  return {name:self.GetResourceDefinition(name) for name in self.GetListOfEntries()}
+
+def ResourcesManager_cpp___getitem__(self,name):
+  return self.GetResourceDefinition(name)
+
+def ResourcesManager_cpp___repr__(self):
+  return str( self.GetList() )
+
+def RetrieveRMCppSingleton():
+  import KernelLauncher
+  return HandleToLocalInstance( KernelLauncher.RetrieveInternalInstanceOfLocalCppResourcesManager() )
+
+def GetPlayGroundInsideASlurmJob():
+  import subprocess as sp
+  cont = sp.check_output(["srun","hostname"])
+  nodesMul = [elt for elt in cont.decode().split("\n") if elt != ""]
+  from collections import defaultdict
+  d = defaultdict(int)
+  for elt in nodesMul:
+      d[elt]+=1
+  return d
+
+def BuildCatalogFromScratch(protocol):
+  import os
+  d = GetPlayGroundInsideASlurmJob()
+  rmcpp = RetrieveRMCppSingleton()
+  rmcpp.DeleteAllResourcesInCatalog()
+  for k,v in d.items():
+      contRes = CreateContainerResource(hostname=k,applipath=os.environ["APPLI"],protocol=protocol,nbOfNodes=v)
+      rmcpp.AddResourceInCatalog(contRes)
+
+ResourceDefinition_cpp.repr = ResourceDefinition_cpp_repr
+ResourceDefinition_cpp.__repr__ = ResourceDefinition_cpp_repr
+ResourcesManager_cpp.GetList = ResourcesManager_cpp_GetList
+ResourcesManager_cpp.__getitem__ = ResourcesManager_cpp___getitem__
+ResourcesManager_cpp.__repr__ = ResourcesManager_cpp___repr__
+%}

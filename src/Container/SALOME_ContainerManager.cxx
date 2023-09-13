@@ -41,6 +41,8 @@
 #include <sstream>
 #include <string>
 #include <queue>
+#include <thread>
+#include <chrono>
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -66,8 +68,9 @@
 
 const int SALOME_ContainerManager::TIME_OUT_TO_LAUNCH_CONT=60;
 
-const char *SALOME_ContainerManager::_ContainerManagerNameInNS =
-  "/ContainerManager";
+const int SALOME_ContainerManager::DFT_DELTA_TIME_NS_LOOKUP_IN_MS=1000;
+
+const char *SALOME_ContainerManager::_ContainerManagerNameInNS = "/ContainerManager";
 
 omni_mutex SALOME_ContainerManager::_numInstanceMutex;
 
@@ -85,11 +88,12 @@ Utils_Mutex SALOME_ContainerManager::_systemMutex;
 //=============================================================================
 
 SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns)
-  : _nbprocUsed(1)
+  : _nbprocUsed(1),_delta_time_ns_lookup_in_ms(DFT_DELTA_TIME_NS_LOOKUP_IN_MS)
 {
   MESSAGE("constructor");
   _NS = ns;
   _resManager = new SALOME_ResourcesManager_Client(ns);
+  _time_out_in_second = GetTimeOutToLoaunchServer();
 
   PortableServer::POAManager_var pman = poa->the_POAManager();
   _orb = CORBA::ORB::_duplicate(orb) ;
@@ -201,6 +205,26 @@ void SALOME_ContainerManager::Shutdown()
     _NS->Destroy_Name(_ContainerManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
+}
+
+CORBA::Long SALOME_ContainerManager::GetTimeOutToLaunchServerInSecond()
+{
+  return this->_time_out_in_second;
+}
+
+void SALOME_ContainerManager::SetTimeOutToLaunchServerInSecond(CORBA::Long timeInSecond)
+{
+  this->_time_out_in_second = timeInSecond;
+}
+
+CORBA::Long SALOME_ContainerManager::GetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond()
+{
+  return this->_delta_time_ns_lookup_in_ms;
+}
+
+void SALOME_ContainerManager::SetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond(CORBA::Long timeInMS)
+{
+  this->_delta_time_ns_lookup_in_ms = timeInMS;
 }
 
 //=============================================================================
@@ -670,11 +694,13 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
   else
     {
       // Step 4: Wait for the container
-      int count(GetTimeOutToLoaunchServer());
-      INFOS("[GiveContainer] waiting " << count << " second steps container " << containerNameInNS);
+      double nbTurn = ( (double)this->_time_out_in_second ) * ( 1000.0 / ( (double) this->_delta_time_ns_lookup_in_ms) );
+      int count( (int)nbTurn );
+      INFOS("[GiveContainer] # attempts : " << count << " name in NS : \"" << containerNameInNS << "\"");
+      INFOS("[GiveContainer] # attempts : Time in second before time out : " << this->_time_out_in_second << " Delta time in ms between NS lookup : " << this->_delta_time_ns_lookup_in_ms);
       while (CORBA::is_nil(ret) && count)
         {
-          SleepInSecond(1);
+          std::this_thread::sleep_for(std::chrono::milliseconds(_delta_time_ns_lookup_in_ms));
           count--;
           MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected << " with entry in NS = \"" << containerNameInNS << "\"" );
           CORBA::Object_var obj(_NS->Resolve(containerNameInNS.c_str()));
@@ -1154,6 +1180,10 @@ void SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(std::string& comma
 #endif
 }
 
+/*!
+ * Return in second the time out to give chance to server to be launched and
+ * to register into NS
+ */
 int SALOME_ContainerManager::GetTimeOutToLoaunchServer()
 {
   int count(TIME_OUT_TO_LAUNCH_CONT);

@@ -80,6 +80,8 @@ public:
   
   void DeclareUsingSalomeSession();
 
+  SALOME_ResourcesManager *getResourcesManager() const { return _ResManager; }
+
   static const char *_LauncherNameInNS;
 
   static JobParameters_cpp

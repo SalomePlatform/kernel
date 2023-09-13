@@ -61,6 +61,14 @@ public:
 
   void DeclareUsingSalomeSession() { _isSSL = false; }
 
+  CORBA::Long GetTimeOutToLaunchServerInSecond() override;
+
+  void SetTimeOutToLaunchServerInSecond(CORBA::Long timeInSecond) override;
+
+  CORBA::Long GetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond() override;
+
+  void SetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond(CORBA::Long timeInMS) override;
+
   static const char *_ContainerManagerNameInNS;
 
 protected:
@@ -197,9 +205,12 @@ public:
   static void SleepInSecond(int ellapseTimeInSecond);
  private:
   static const int TIME_OUT_TO_LAUNCH_CONT;
+  static const int DFT_DELTA_TIME_NS_LOOKUP_IN_MS;
   static Utils_Mutex _getenvMutex;
   static Utils_Mutex _systemMutex;
 private:
   std::vector< std::pair<std::string, std::string> > _override_env;
+  int _time_out_in_second;
+  int _delta_time_ns_lookup_in_ms;
 };
 #endif

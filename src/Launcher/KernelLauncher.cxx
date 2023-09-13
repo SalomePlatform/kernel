@@ -28,6 +28,20 @@
 #include "SALOME_CPythonHelper.hxx"
 
 #include <cstring>
+#include <sstream>
+
+std::string RetrieveInternalInstanceOfLocalCppResourcesManager()
+{
+  SALOME_Launcher *launcher = KERNEL::getLauncherSA();
+  SALOME_ResourcesManager *rm(launcher->getResourcesManager());
+  if(rm)
+  {
+    std::shared_ptr<ResourcesManager_cpp> *ret1(new std::shared_ptr<ResourcesManager_cpp>(rm->GetImpl()));
+    std::ostringstream oss; oss << ret1;
+    return oss.str();
+  }
+  return std::string();
+}
 
 std::string GetContainerManagerInstance()
 {

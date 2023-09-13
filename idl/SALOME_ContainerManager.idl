@@ -89,6 +89,14 @@ interface ContainerManager
   //!  Shutdown all containers that have been launched by the container manager
   void ShutdownContainers();
 
+  long GetTimeOutToLaunchServerInSecond();
+
+  void SetTimeOutToLaunchServerInSecond(in long timeInSecond);
+
+  long GetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond();
+
+  void SetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond(in long timeInMS);
+
   void SetOverrideEnvForContainers(in KeyValDict env);
 
   KeyValDict GetOverrideEnvForContainers();
