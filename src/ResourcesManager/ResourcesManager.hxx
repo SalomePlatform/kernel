@@ -82,6 +82,8 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     std::string Find(const std::string& policy, const std::vector<std::string>& listOfResources) const;
 
     void AddResourceInCatalog (const ParserResourcesType & new_resource);
+    
+    void DeleteAllResourcesInCatalog();
 
     void DeleteResourceInCatalog(const char * name);
 

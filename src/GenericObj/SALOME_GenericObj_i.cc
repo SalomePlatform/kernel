@@ -73,8 +73,6 @@ namespace SALOME
   */
   GenericObj_i::GenericObj_i(PortableServer::POA_ptr thePOA): myRefCounter(1)
   {
-    MESSAGE("GenericObj_i::GenericObj_i() - this = " << this <<
-	    "; CORBA::is_nil(thePOA) = " << CORBA::is_nil(thePOA));
 
     if(CORBA::is_nil(thePOA)) {
 #ifndef WIN32
@@ -86,8 +84,6 @@ namespace SALOME
     else {
       myPOA = PortableServer::POA::_duplicate(thePOA);
     }
-
-    MESSAGE("GenericObj_i::GenericObj_i thePOA: " << thePOA << " myPOA: " << myPOA);
   }
 
   /*!
@@ -100,7 +96,6 @@ namespace SALOME
   */
   PortableServer::POA_ptr GenericObj_i::_default_POA()
   {
-    MESSAGE("GenericObj_i::_default_POA: " << myPOA);
     return PortableServer::POA::_duplicate(myPOA);
   }
 

@@ -355,6 +355,11 @@ ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resou
   _resourcesList[new_resource.Name] = new_resource;
 }
 
+void ResourcesManager_cpp::DeleteAllResourcesInCatalog()
+{
+  _resourcesList.clear();
+}
+
 //=============================================================================
 /*!
  *  Deletes a resource from the catalog
