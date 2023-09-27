@@ -53,32 +53,34 @@ int CommonDataScopeServerMain(int argc, char *argv[], CORBA::ORB_var orb, const 
   SALOMESDS::DataScopeKiller *killer(new SALOMESDS::DataScopeKiller(orb));
   SALOME::DataScopeKiller_var killerObj(killer->_this());
   //
-  SALOME_CPythonHelper cPyHelper;
-  cPyHelper.initializePython(argc,argv);
-  //
-  SALOMESDS::DataScopeServerBase *server(nullptr);
-  if(!isTransac)
-    server=new SALOMESDS::DataScopeServer(&cPyHelper,orb,killerObj,scopeName,nsGenrator(orb));
-  else
-    server=new SALOMESDS::DataScopeServerTransaction(&cPyHelper,orb,killerObj,scopeName,nsGenrator(orb));
-  //
-  CORBA::PolicyList policies;
-  policies.length(3);
-  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-  policies[1]=poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION);
-  policies[2]=poa->create_id_uniqueness_policy(PortableServer::UNIQUE_ID);
-  PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",mgr,policies));
-  threadPol->destroy();
-  server->registerToSalomePiDict();
-  //
-  server->setPOA(poa2);
-  obj=server->activate();
-  SALOME::DataScopeServerBase_var serverPtr(SALOME::DataScopeServerBase::_narrow(obj));
-  server->registerInNS(serverPtr);
-  //
-  orb->run();
-  delete killer;
+  {
+    SALOME_CPythonHelper cPyHelper;
+    cPyHelper.initializePython(argc,argv);
+    //
+    SALOMESDS::DataScopeServerBase *server(nullptr);
+    if(!isTransac)
+      server=new SALOMESDS::DataScopeServer(&cPyHelper,orb,killerObj,scopeName,nsGenrator(orb));
+    else
+      server=new SALOMESDS::DataScopeServerTransaction(&cPyHelper,orb,killerObj,scopeName,nsGenrator(orb));
+    //
+    CORBA::PolicyList policies;
+    policies.length(3);
+    PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+    policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+    policies[1]=poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION);
+    policies[2]=poa->create_id_uniqueness_policy(PortableServer::UNIQUE_ID);
+    PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",mgr,policies));
+    threadPol->destroy();
+    server->registerToSalomePiDict();
+    //
+    server->setPOA(poa2);
+    obj=server->activate();
+    SALOME::DataScopeServerBase_var serverPtr(SALOME::DataScopeServerBase::_narrow(obj));
+    server->registerInNS(serverPtr);
+    //
+    orb->run();
+    delete killer;
+  }
   Py_Finalize();
   return 0;
 }
