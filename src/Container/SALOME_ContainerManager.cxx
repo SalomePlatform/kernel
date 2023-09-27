@@ -324,6 +324,11 @@ Engines::KeyValDict *SALOME_ContainerManager::GetOverrideEnvForContainers()
   return ret.release();
 }
 
+void SALOME_ContainerManager::SetCodeOnContainerStartUp(const char *code)
+{
+  _code_to_exe_on_startup = code;
+}
+
 //=============================================================================
 //! Give a suitable Container given constraints
 /*! CORBA Method:
@@ -498,6 +503,8 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
           }
         }
         cont->override_environment_python( envCorba );
+        if( !_code_to_exe_on_startup.empty() )
+          cont->execute_python_code( _code_to_exe_on_startup.c_str() );
         return cont._retn();
       }
       else

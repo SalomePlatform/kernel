@@ -84,6 +84,8 @@ module Engines
 
     FieldsDict get_os_environment();
 
+    void execute_python_code( in string code ) raises(SALOME::SALOME_Exception);
+
     /*! \brief Loads a new component class (dynamic library).
 
       \param componentName like COMPONENT, (Python or C++ implementation)

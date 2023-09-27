@@ -77,6 +77,8 @@ public:
   void override_environment( const Engines::FieldsDict& env ) override;
 
   Engines::FieldsDict *get_os_environment() override;
+  
+  void execute_python_code(const char *code) override;
 
   virtual Engines::EngineComponent_ptr
   create_component_instance_env(const char *componentName,

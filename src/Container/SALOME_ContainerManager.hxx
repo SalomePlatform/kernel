@@ -56,6 +56,8 @@ public:
 
   Engines::KeyValDict *GetOverrideEnvForContainers() override;
 
+  void SetCodeOnContainerStartUp(const char *code) override;
+
   // C++ Methods
   void Shutdown();
 
@@ -212,5 +214,6 @@ private:
   std::vector< std::pair<std::string, std::string> > _override_env;
   int _time_out_in_second;
   int _delta_time_ns_lookup_in_ms;
+  std::string _code_to_exe_on_startup;
 };
 #endif
