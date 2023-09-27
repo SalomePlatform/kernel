@@ -32,6 +32,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <memory>
+#include <vector>
 #ifndef WIN32
 #include <sys/time.h>
 #include <dlfcn.h>
@@ -63,6 +64,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_Embedded_NamingService.hxx"
 #include "Basics_Utils.hxx"
 #include "PythonCppUtils.hxx"
+#include "Utils_CorbaException.hxx"
 
 #ifdef _XOPEN_SOURCE
 #undef _XOPEN_SOURCE
@@ -1088,6 +1090,16 @@ Engines::FieldsDict *Abstract_Engines_Container_i::get_os_environment()
     (*ret)[i].value <<= CORBA::string_dup( retCpp[i].second.c_str() );
   }
   return ret.release();
+}
+
+void Abstract_Engines_Container_i::execute_python_code(const char *code)
+{
+  AutoGIL gstate;
+  if( PyRun_SimpleString( code ) != 0 )
+  {
+    std::string error = parseException();
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+  }
 }
 
 //=============================================================================
@@ -2330,9 +2342,24 @@ Engines_Container_SSL_i *KERNEL::getContainerSA()
     CORBA::PolicyList policies;
     policies.length(0);
     //
-    char *argv[4] = {"Container","FactoryServer","toto",nullptr};
+    constexpr int ARGC = 4;
+    constexpr const char *ARGV[ARGC] = {"Container","FactoryServer","toto",nullptr};
+    std::unique_ptr<char*[]> argv( new char *[ARGC+1] );
+    std::vector< std::unique_ptr<char[]> > argvv(ARGC);
+    argv[ARGC] = nullptr;
+    for(int i = 0 ; i < ARGC ; ++i)
+    {
+      if(ARGV[i])
+      {
+        argvv[i].reset( new char[strlen(ARGV[i])+1] );
+        strcpy(argvv[i].get(),ARGV[i]);
+        argv[i] = argvv[i].get();
+      }
+      else
+        argv[i] = nullptr;
+    }
     SALOME_Fake_NamingService ns;
-    _container_singleton_ssl = new Engines_Container_SSL_i(orb,poa,"FactoryServer",2,argv,&ns,false);
+    _container_singleton_ssl = new Engines_Container_SSL_i(orb,poa,(char *)"FactoryServer",2,argv.get(),&ns,false);
     PortableServer::ObjectId * cont_id = _container_singleton_ssl->getCORBAId();
     //
     CORBA::Object_var zeRef = poa->id_to_reference(*cont_id);

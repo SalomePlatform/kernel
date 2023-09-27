@@ -365,6 +365,32 @@ def BuildCatalogFromScratch(protocol):
       contRes = CreateContainerResource(hostname=k,applipath=os.environ["APPLI"],protocol=protocol,nbOfNodes=v)
       rmcpp.AddResourceInCatalog(contRes)
 
+def GetRequestForGiveContainer(hostname, contName):
+  import Engines
+  import os
+  rp=Engines.ResourceParameters(name=hostname,
+                                hostname=hostname,
+                                can_launch_batch_jobs=False,
+                                can_run_containers=True,
+                                OS="Linux",
+                                componentList=[],
+                                nb_proc=1,
+                                mem_mb=1000,
+                                cpu_clock=1000,
+                                nb_node=1,
+                                nb_proc_per_node=1,
+                                policy="first",
+                                resList=[])
+
+  cp=Engines.ContainerParameters(container_name=contName,
+                                  mode="start",
+                                  workingdir=os.path.expanduser("~"),
+                                  nb_proc=1,
+                                  isMPI=False,
+                                  parallelLib="",
+                                  resource_params=rp)
+  return cp
+
 ResourceDefinition_cpp.repr = ResourceDefinition_cpp_repr
 ResourceDefinition_cpp.__repr__ = ResourceDefinition_cpp_repr
 ResourcesManager_cpp.GetList = ResourcesManager_cpp_GetList

@@ -100,6 +100,8 @@ interface ContainerManager
   void SetOverrideEnvForContainers(in KeyValDict env);
 
   KeyValDict GetOverrideEnvForContainers();
+
+  void SetCodeOnContainerStartUp(in string code);
 } ;
 
 };
