@@ -308,7 +308,7 @@ void SALOME_ContainerManager::SetOverrideEnvForContainers(const Engines::KeyValD
   this->_override_env.clear();
   auto sz = env.length();
   for(auto i = 0 ; i < sz ; ++i)
-    _override_env.emplace_back( std::pair<std::string, std::string>(env[i].key,env[i].val) );
+    _override_env.emplace_back(env[i].key.in(), env[i].val.in());
 }
 
 Engines::KeyValDict *SALOME_ContainerManager::GetOverrideEnvForContainers()
