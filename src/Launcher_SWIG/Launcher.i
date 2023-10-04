@@ -217,6 +217,7 @@ public:
     new_resource_cpp.UserName = new_resource.username;
     new_resource_cpp.AppliPath = new_resource.applipath;
     new_resource_cpp.OS = new_resource.OS;
+    new_resource_cpp.DataForSort._Name = new_resource.name;
     new_resource_cpp.DataForSort._memInMB = new_resource.mem_mb;
     new_resource_cpp.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
     new_resource_cpp.DataForSort._nbOfNodes = new_resource.nb_node;
