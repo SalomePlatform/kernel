@@ -24,6 +24,7 @@ import salome
 import Engines
 import pickle
 import tempfile
+import pylauncher
 
 class TestProxy(unittest.TestCase):
     def testProxy(self):
@@ -33,27 +34,7 @@ class TestProxy(unittest.TestCase):
         - Management of proxy creation to manage big obj exchange between process (here between Container and the current process)
         """
         hostname = "localhost"
-        rp=Engines.ResourceParameters(name=hostname,
-                                        hostname=hostname,
-                                        can_launch_batch_jobs=False,
-                                        can_run_containers=True,
-                                        OS="Linux",
-                                        componentList=[],
-                                        nb_proc=1,
-                                        mem_mb=1000,
-                                        cpu_clock=1000,
-                                        nb_node=1,
-                                        nb_proc_per_node=1,
-                                        policy="first",
-                                        resList=[])
-
-        cp=Engines.ContainerParameters(container_name="container_test",
-                                        mode="start",
-                                        workingdir=os.getcwd(),
-                                        nb_proc=1,
-                                        isMPI=False,
-                                        parallelLib="",
-                                        resource_params=rp)
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test")
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             val_for_jj = "3333"
@@ -100,6 +81,25 @@ j = a,b,c"""
             gc.collect(0)
             self.assertTrue( not os.path.exists( fn ) ) # at destruction of ret3 the corresponding pckl file must be destructed
             cont.Shutdown()
+
+    def testExecCodeAtInit(self):
+        """
+        [EDF28648] : allow initialisation script at startup
+        """
+        import os
+        with tempfile.NamedTemporaryFile() as tmpFileName:
+            tmpFileName.close()
+            salome.cm.SetCodeOnContainerStartUp("""
+with open("{}","w") as f:
+  f.write("coucou")
+""".format(tmpFileName.name) )# injection of python code expected to be executed at startup
+            cp = pylauncher.GetRequestForGiveContainer("localhost","gg")
+            cont = salome.cm.GiveContainer(cp) # code is expected to be executed in process abroad -> file is supposed to contain coucou
+            cont.Shutdown()
+            salome.cm.SetCodeOnContainerStartUp("") # no more startup code for other tests
+            with open(tmpFileName.name,"r") as f:
+                self.assertTrue(f.read()=="coucou")
+            os.unlink( tmpFileName.name ) # context manager do not clean file
 
 if __name__ == '__main__':
     salome.standalone()
