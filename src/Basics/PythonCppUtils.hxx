@@ -36,6 +36,7 @@ public:
   AutoPyRef(PyObject *pyobj=nullptr):_pyobj(pyobj) { }
   ~AutoPyRef() { release(); }
   AutoPyRef(const AutoPyRef& other):_pyobj(other._pyobj) { if(_pyobj) Py_XINCREF(_pyobj); }
+  AutoPyRef(AutoPyRef&& other) = default;
   AutoPyRef& operator=(const AutoPyRef& other) { if(_pyobj==other._pyobj) return *this; release(); _pyobj=other._pyobj; Py_XINCREF(_pyobj); return *this; }
   operator PyObject *() { return _pyobj; }
   void set(PyObject *pyobj) { if(pyobj==_pyobj) return ; release(); _pyobj=pyobj; }

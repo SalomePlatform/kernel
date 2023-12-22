@@ -107,6 +107,7 @@ public:
   void setClusterInternalProtocolStr(const std::string & internalProtocolTypeStr);
   void setCanLaunchBatchJobsStr(const std::string & canLaunchBatchJobsStr);
   void setCanRunContainersStr(const std::string & canRunContainersStr);
+  std::string dump(char sep) const;
 
   ResourceDataToSort DataForSort;
   std::string Name;

@@ -29,6 +29,10 @@ import pickle
 import Engines__POA
 import SALOME__POA
 import SALOME
+import logging
+import os
+import sys
+from SALOME_ContainerHelper import ScriptExecInfo
 
 MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
 
@@ -129,10 +133,32 @@ TypeCounter = c_int
 def GetSizeOfTCnt():
   return len( bytes(TypeCounter(0) ) )
 
-def GetObjectFromFile(fname):
+def GetSizeOfBufferedReader(f):
+  """
+  This method returns in bytes size of a file openned.
+
+  Args:
+  ----
+      f (io.IOBase): buffered reader returned by open
+      
+  Returns
+  -------
+      int: number of bytes
+  """
+  import io
+  pos = f.tell()
+  f.seek(0,io.SEEK_END)
+  pos2 = f.tell()
+  f.seek(pos,io.SEEK_SET)
+  return pos2-pos
+
+def GetObjectFromFile(fname, visitor = None):
   with open(fname,"rb") as f:
     cntb = f.read( GetSizeOfTCnt() )
     cnt = TypeCounter.from_buffer_copy( cntb ).value
+    if visitor:
+      visitor.setHDDMem( GetSizeOfBufferedReader(f) )
+      visitor.setFileName( fname )
     obj = pickle.load(f)
   return obj,cnt
 
@@ -241,8 +267,8 @@ class BigObjectOnDiskBase:
   def __dumpIntoFile(self, objSerialized):
     DumpInFile( objSerialized, self._filename )
 
-  def get(self):
-    obj, _ = GetObjectFromFile( self._filename )
+  def get(self, visitor = None):
+    obj, _ = GetObjectFromFile( self._filename, visitor )
     return obj
 
   def __float__(self):
@@ -269,8 +295,8 @@ class BigObjectOnDiskListElement(BigObjectOnDiskBase):
     self._pos = pos
     self._length = length
 
-  def get(self):
-    fullObj = BigObjectOnDiskBase.get(self)
+  def get(self, visitor = None):
+    fullObj = BigObjectOnDiskBase.get(self, visitor)
     return fullObj[ self._pos ]
     
   def __getitem__(self, i):
@@ -298,36 +324,69 @@ class BigObjectOnDiskTuple(BigObjectOnDiskSequence):
   def __init__(self, length, fileName, objSerialized):
     BigObjectOnDiskSequence.__init__(self, length, fileName, objSerialized)
 
-def SpoolPickleObject( obj ):
-  import pickle
-  pickleObjInit = pickle.dumps( obj , pickle.HIGHEST_PROTOCOL )
-  if not ActivateProxyMecanismOrNot( len(pickleObjInit) ):
-    return pickleObjInit
-  else:
-    if isinstance( obj, list):
-      proxyObj = BigObjectOnDiskList( len(obj), GetBigObjectFileName() , pickleObjInit )
-    elif isinstance( obj, tuple):
-      proxyObj = BigObjectOnDiskTuple( len(obj), GetBigObjectFileName() , pickleObjInit )
-    else:
-      proxyObj = BigObjectOnDisk( GetBigObjectFileName() , pickleObjInit )
-    pickleProxy = pickle.dumps( proxyObj , pickle.HIGHEST_PROTOCOL )
-    return pickleProxy
+def ProxyfyPickeled( obj, pickleObjInit = None, visitor = None ):
+  """
+  This method return a proxy instance of pickled form of object given in input.
 
-def UnProxyObjectSimple( obj ):
+  Args:
+  ----
+      obj (pickelable type) : object to be proxified
+      pickleObjInit (bytes) : Optionnal. Original pickeled form of object to be proxyfied if already computed. If not this method generate it
+
+  Returns
+  -------
+      BigObjectOnDiskBase: proxy instance
+  """
+  pickleObj = pickleObjInit
+  if pickleObj is None:
+    pickleObj = pickle.dumps( obj , pickle.HIGHEST_PROTOCOL )
+  fileName = GetBigObjectFileName()
+  if visitor:
+    visitor.setHDDMem( len(pickleObj) )
+    visitor.setFileName(fileName)
+  if isinstance( obj, list):
+    proxyObj = BigObjectOnDiskList( len(obj), fileName, pickleObj )
+  elif isinstance( obj, tuple):
+    proxyObj = BigObjectOnDiskTuple( len(obj), fileName , pickleObj )
+  else:
+    proxyObj = BigObjectOnDisk( fileName , pickleObj )
+  return proxyObj
+
+def SpoolPickleObject( obj, visitor = None ):
+  import pickle
+  with InOutputObjVisitorCM(visitor) as v:
+    pickleObjInit = pickle.dumps( obj , pickle.HIGHEST_PROTOCOL )
+    if not ActivateProxyMecanismOrNot( len(pickleObjInit) ):
+      return pickleObjInit
+    else:
+      proxyObj = ProxyfyPickeled( obj, pickleObjInit, v.visitor() )
+      pickleProxy = pickle.dumps( proxyObj , pickle.HIGHEST_PROTOCOL )
+      return pickleProxy
+
+from SALOME_ContainerHelper import InOutputObjVisitorCM, InOutputObjVisitor
+
+def UnProxyObjectSimple( obj, visitor = None ):
   """
   Method to be called in Remote mode. Alterate the obj _status attribute. 
   Because the slave process does not participate in the reference counting
+  
+  Args:
+  ----
+      visitor (InOutputObjVisitor): A visitor to keep track of amount of memory on chip and those on HDD
+
   """
-  if isinstance(obj,BigObjectOnDiskBase):
-    obj.doNotTouchFile()
-    return obj.get()
-  elif isinstance( obj, list):
-    retObj = []
-    for elt in obj:
-      retObj.append( UnProxyObjectSimple(elt) )
-    return retObj
-  else:
-    return obj
+  with InOutputObjVisitorCM(visitor) as v:
+    logging.debug( "UnProxyObjectSimple {}".format(type(obj)) )
+    if isinstance(obj,BigObjectOnDiskBase):
+      obj.doNotTouchFile()
+      return obj.get( v )
+    elif isinstance( obj, list):
+      retObj = []
+      for elt in obj:
+        retObj.append( UnProxyObjectSimple(elt,v.visitor()) )
+      return retObj
+    else:
+      return obj
 
 def UnProxyObjectSimpleLocal( obj ):
   """
@@ -342,7 +401,64 @@ def UnProxyObjectSimpleLocal( obj ):
     return retObj
   else:
     return obj
-    
+  
+class FileDeleter:
+  def __init__(self, fileName):
+    self._filename = fileName
+  @property
+  def filename(self):
+    return self._filename
+  def __del__(self):
+    import os
+    if os.path.exists( self._filename ):
+      os.unlink( self._filename )
+
+def LaunchMonitoring( intervalInMs ):
+  """
+  Launch a subprocess monitoring self process.
+  This monitoring subprocess is a python process lauching every intervalInMs ms evaluation of
+  CPU usage and RSS memory.
+  Communication between subprocess and self is done by file.
+  """
+  import KernelBasis
+  def BuildPythonFileForCPUPercent( intervalInMs ):
+    import os
+    import tempfile
+    with tempfile.NamedTemporaryFile(prefix="htop_",suffix=".py") as f:
+      tempPyFile = f.name
+    tempOutFile = "{}.txt".format( os.path.splitext( tempPyFile )[0] )
+    pid = os.getpid()
+    with open(tempPyFile,"w") as f:
+      f.write("""import psutil
+pid = {}
+process = psutil.Process( pid )
+import time
+with open("{}","a") as f:
+  while True:
+    f.write( "{{}}\\n".format( str( process.cpu_percent() ) ) )
+    f.write( "{{}}\\n".format( str( process.memory_info().rss  ) ) )
+    f.flush()
+    time.sleep( {} / 1000.0 )
+""".format(pid, tempOutFile, intervalInMs))
+    return FileDeleter(tempPyFile), FileDeleter(tempOutFile)
+  pyFileName, outFileName = BuildPythonFileForCPUPercent( intervalInMs )
+  KernelBasis.LaunchMonitoring(pyFileName.filename,outFileName.filename)
+  return pyFileName, outFileName
+
+def StopMonitoring( ):
+  """
+  Retrieve data of monitoring and kill monitoring subprocess.
+  
+  Returns
+  -------
+    list<float,str> : list of pairs. First param of pair is CPU usage. Second param of pair is rss memory usage
+  """
+  import KernelBasis
+  ret = KernelBasis.StopMonitoring()
+  cpu = ret[::2]
+  mem_rss = [ int(elt) for elt in ret[1::2]]
+  return [(a,b) for a,b in zip(cpu,mem_rss)]
+
 class SeqByteReceiver:
   # 2GB limit to trigger split into chunks
   CHUNK_SIZE = 2000000000
@@ -372,19 +488,34 @@ class SeqByteReceiver:
         iStart = iEnd; iEnd = min(iStart + EFF_CHUNK_SIZE,size)
       return data_for_split_case
 
+class LogOfCurrentExecutionSession:
+  def __init__(self, handleToCentralizedInst):
+    self._remote_handle = handleToCentralizedInst
+    self._current_instance = ScriptExecInfo()
+
+  def addInfoOnLevel2(self, key, value):
+    setattr(self._current_instance,key,value)
+
+  def finalizeAndPushToMaster(self):
+    self._remote_handle.assign( pickle.dumps( self._current_instance ) )
+
 class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   """The implementation of the PyScriptNode CORBA IDL that executes a script"""
-  def __init__(self, nodeName,code,poa,my_container):
+  def __init__(self, nodeName,code,poa,my_container,logscript):
     """Initialize the node : compilation in the local context"""
     Generic.__init__(self,poa)
     self.nodeName=nodeName
     self.code=code
+    self.my_container_py = my_container
     self.my_container=my_container._container
     linecache.cache[nodeName]=0,None,code.split('\n'),nodeName
     self.ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context[MY_CONTAINER_ENTRY_IN_GLBS] = self.my_container
-    
+    self._log_script = logscript
+    self._current_execution_session = None
+    sys.stdout.flush() ; sys.stderr.flush() # flush to correctly capture log per execution session
+      
   def __del__(self):
     # force removal of self.context. Don t know why it s not done by default
     self.removeAllVarsInContext()
@@ -428,6 +559,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" % (self.nodeName),0))
     
   def execute(self,outargsname,argsin):
@@ -446,47 +578,73 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
 
   def executeFirst(self,argsin):
     """ Same than first part of self.execute to reduce memory peak."""
-    import time
     try:
+      self.beginOfCurrentExecutionSession()
       data = None
+      self.addTimeInfoOnLevel2("startInputTime")
       if True: # to force call of SeqByteReceiver's destructor
         argsInPy = SeqByteReceiver( argsin )
         data = argsInPy.data()
+        self.addInfoOnLevel2("inputMem",len(data))
       _,kws=pickle.loads(data)
+      vis = InOutputObjVisitor()
       for elt in kws:
         # fetch real data if necessary
-        kws[elt] = UnProxyObjectSimple( kws[elt] )
+        kws[elt] = UnProxyObjectSimple( kws[elt],vis)
+      self.addInfoOnLevel2("inputHDDMem",vis)
       self.context.update(kws)
+      self.addTimeInfoOnLevel2("endInputTime")
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:First %s" % (self.nodeName),0))
 
   def executeSecond(self,outargsname):
     """ Same than second part of self.execute to reduce memory peak."""
+    import sys
     try:
+      self.addTimeInfoOnLevel2("startExecTime")
+      ##
+      self.addInfoOnLevel2("measureTimeResolution",self.my_container_py.monitoringtimeresms())
+      monitoringParams = LaunchMonitoring( self.my_container_py.monitoringtimeresms() )
       exec(self.ccode, self.context)
+      cpumeminfo = StopMonitoring( )
+      ##
+      self.addInfoOnLevel2("CPUMemDuringExec",cpumeminfo)
+      del monitoringParams
+      self.addTimeInfoOnLevel2("endExecTime")
+      self.addTimeInfoOnLevel2("startOutputTime")
       argsout=[]
       for arg in outargsname:
         if arg not in self.context:
           raise KeyError("There is no variable %s in context" % arg)
         argsout.append(self.context[arg])
       ret = [ ]
+      outputMem = 0
+      vis = InOutputObjVisitor()
       for arg in argsout:
         # the proxy mecanism is catched here
-        argPickle = SpoolPickleObject( arg )
+        argPickle = SpoolPickleObject( arg, vis )
         retArg = SenderByte_i( self.poa,argPickle )
         id_o = self.poa.activate_object(retArg)
         retObj = self.poa.id_to_reference(id_o)
         ret.append( retObj._narrow( SALOME.SenderByte ) )
+        outputMem += len(argPickle)
+      self.addInfoOnLevel2("outputMem",outputMem)
+      self.addInfoOnLevel2("outputHDDMem",vis)
+      self.addTimeInfoOnLevel2("endOutputTime")
+      self.endOfCurrentExecutionSession()
       return ret
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
 
   def listAllVarsInContext(self):
@@ -524,3 +682,17 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
     pass
+
+  def beginOfCurrentExecutionSession(self):
+    self._current_execution_session = LogOfCurrentExecutionSession( self._log_script.addExecutionSession() )
+  
+  def endOfCurrentExecutionSession(self):
+    self._current_execution_session.finalizeAndPushToMaster()
+    self._current_execution_session = None
+
+  def addInfoOnLevel2(self, key, value):
+    self._current_execution_session.addInfoOnLevel2(key, value)
+      
+  def addTimeInfoOnLevel2(self, key):
+    from datetime import datetime
+    self._current_execution_session.addInfoOnLevel2(key,datetime.now())

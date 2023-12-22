@@ -119,12 +119,7 @@ void* LocalTraceCollector::run(void* /*bid*/)
           if( SALOME::VerbosityActivated() )
           {
             std::cout << std::flush ;
-#ifndef WIN32
-            std::cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
-#else
-            std::cerr << "th. " << (void*)(&myTrace.threadId)
-                << " " << myTrace.trace;
-#endif
+            std::cerr << myTrace.trace;
             std::cerr << std::flush ;
           } 
         }

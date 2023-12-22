@@ -23,10 +23,31 @@
 #include "KernelBasis.hxx"
 #include "HeatMarcel.hxx"
 #include "libSALOMELog.hxx"
+#include "Monitoring.hxx"
 using namespace SALOME;
 %}
 
-%include "std_string.i"
+%include std_string.i
+%include std_set.i
+%include std_except.i
+%include std_vector.i
+
+%template(dvec) std::vector<double>;
+
+%exception {
+   try 
+   {
+      $action
+   } 
+   catch(std::exception& e) 
+   {
+      SWIG_exception(SWIG_SystemError, e.what() );
+   } 
+   catch(...) 
+   {
+     SWIG_exception(SWIG_UnknownError, "Unknown exception");
+   }
+}
 
 %rename (HeatMarcel) HeatMarcelSwig;
 
@@ -41,14 +62,28 @@ void setIOROfEmbeddedNS(const std::string& ior);
 
 double GetTimeAdjustmentCst();
 
+void LaunchMonitoring(const std::string& pyScriptToEvaluate, const std::string& outFileName);
+
+std::vector<double> StopMonitoring();
+
 bool VerbosityActivated();
 
 void SetVerbosityActivated(bool flag);
+
+bool IsDebugLevel();
+
+bool IsInfoLevel();
+
+bool IsWarningLevel();
+
+bool IsErrorLevel();
 
 void WriteInStdout(const std::string& msg);
 
 void WriteInStderr(const std::string& msg);
 
+%rename (SetVerbosityLevel) SetVerbosityLevelSwig;
+%rename (VerbosityLevel) VerbosityLevelSwig;
 
 %inline
 {
@@ -60,5 +95,15 @@ PyObject *HeatMarcelSwig(double timeAjustment, unsigned int nbThreads = 0)
   PyTuple_SetItem(ret,0,SWIG_From_double((double)piVal));
   PyTuple_SetItem(ret,1,SWIG_From_double(timeInS));
   return ret;
+}
+
+void SetVerbosityLevelSwig(const std::string& level)
+{
+  SetVerbosityLevelStr(level);
+}
+
+std::string VerbosityLevelSwig()
+{
+  return VerbosityLevelStr();
 }
 }

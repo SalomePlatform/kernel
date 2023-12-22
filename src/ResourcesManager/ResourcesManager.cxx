@@ -25,6 +25,7 @@
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <Basics_Utils.hxx>
 #include <Basics_DirUtils.hxx>
+#include "utilities.h"
 
 #include <fstream>
 #include <iostream>
@@ -118,18 +119,19 @@ ResourcesManager_cpp::ResourcesManager_cpp()
     std::ifstream ifile(user_file.c_str(), std::ifstream::in );
     if (ifile) {
       // The file exists, and is open for input
+      DEBUG_MESSAGE("USER_CATALOG_RESOURCES_FILE positioned -> add it into resourcefiles list");
       _path_resources.push_back(user_file);
     }
     else {
       default_catalog_resource = false;
-      RES_INFOS("Warning: USER_CATALOG_RESOURCES_FILE is set and file cannot be found.")
-      RES_INFOS("Warning: That's why we try to create a new one.")
+      WARNING_MESSAGE("Warning: USER_CATALOG_RESOURCES_FILE is set and file cannot be found.")
+      WARNING_MESSAGE("Warning: That's why we try to create a new one.")
       std::ofstream user_catalog_file;
       user_catalog_file.open(user_file.c_str());
       if (user_catalog_file.fail())
       {
-        RES_INFOS("Error: cannot write in the user catalog resources files");
-        RES_INFOS("Error: using default CatalogResources.xml file");
+        WARNING_MESSAGE("Error: cannot write in the user catalog resources files");
+        WARNING_MESSAGE("Error: using default CatalogResources.xml file");
         default_catalog_resource = true;
       }
       else
@@ -155,6 +157,7 @@ ResourcesManager_cpp::ResourcesManager_cpp()
       std::ifstream ifile(default_file.c_str(), std::ifstream::in );
       if (ifile) {
         // The file exists, and is open for input
+        DEBUG_MESSAGE("${APPLI}/CatalogResources.xml exists -> add it into resourcefiles list");
         _path_resources.push_back(default_file);
         default_catalog_resource=false;
       }
@@ -167,6 +170,7 @@ ResourcesManager_cpp::ResourcesManager_cpp()
       throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
     default_file = getenv("KERNEL_ROOT_DIR");
     default_file += "/share/salome/resources/kernel/CatalogResources.xml";
+    DEBUG_MESSAGE("${KERNEL_ROOT_DIR}/share/salome/resources/kernel/CatalogResources.xml -> add it into resourcefiles list");
     _path_resources.push_back(default_file);
   }
 
@@ -445,12 +449,13 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
     int result = stat((*_path_resources_it).c_str(), &statinfo);
     if (result < 0)
     {
-      RES_MESSAGE("Resource file " << *_path_resources_it << " does not exist");
+      WARNING_MESSAGE("Resource file " << *_path_resources_it << " does not exist -> no parsing");
       return _resourcesList;
     }
 
     if(_lasttime == 0 || statinfo.st_mtime > _lasttime)
     {
+      DEBUG_MESSAGE("Resource file " << *_path_resources_it << " has been detected to be present and newer than Resources in memory");
       to_parse = true;
       _lasttime = statinfo.st_mtime;
     }
@@ -458,6 +463,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
 
   if (to_parse)
   {
+    DEBUG_MESSAGE("After analyze of resoure files time meta data, a load of resources from scratch from files is necessary.");
     _resourcesList.clear();
     AddDefaultResourceInCatalog();
     // On parse tous les fichiers
@@ -465,15 +471,15 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
     {
       MapOfParserResourcesType _resourcesList_tmp;
       MapOfParserResourcesType _resourcesBatchList_tmp;
-      SALOME_ResourcesCatalog_Handler *handler( new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp) );
+      std::unique_ptr<SALOME_ResourcesCatalog_Handler> handler( new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp) );
       const char *aFilePath( (*_path_resources_it).c_str() );
       FILE* aFile = fopen(aFilePath, "r");
-
       if (aFile != NULL)
       {
         xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
         if (aDoc != NULL)
         {
+          DEBUG_MESSAGE("XML parsing of Resource file \"" << aFilePath << "\"");
           handler->ProcessXmlDocument(aDoc);
 
           // adding new resources to the file
@@ -482,39 +488,38 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
             MapOfParserResourcesType_it j = _resourcesList.find(i->first);
             if (i->second.HostName == DEFAULT_RESOURCE_NAME || i->second.HostName == Kernel_Utils::GetHostname())
             {
+              DEBUG_MESSAGE("Resource \"" << i->first << "\" in file \"" << aFilePath << "\" is detected as localhost");
               MapOfParserResourcesType_it it0(_resourcesList.find(DEFAULT_RESOURCE_NAME));
               if(it0!=_resourcesList.end())
                 {
+                  DEBUG_MESSAGE("Resource \"" << i->first << "\" in file \"" << aFilePath << "\" detected as localhost is already in memory -> update resource with content in file ( for attributes : nbOfNodes, nbOfProcPerNode, CPUFreqMHz and memInMB)");
                   ParserResourcesType& localhostElt((*it0).second);
                   localhostElt.DataForSort._nbOfNodes=(*i).second.DataForSort._nbOfNodes;
                   localhostElt.DataForSort._nbOfProcPerNode=(*i).second.DataForSort._nbOfProcPerNode;
                   localhostElt.DataForSort._CPUFreqMHz=(*i).second.DataForSort._CPUFreqMHz;
                   localhostElt.DataForSort._memInMB=(*i).second.DataForSort._memInMB;
                 }
-              RES_MESSAGE("Resource " << i->first << " is not added because it is the same "
-                          "machine as default local resource \"" << DEFAULT_RESOURCE_NAME << "\"");
+              DEBUG_MESSAGE("Resource \"" << i->first << "\" is not added because it is the same machine as default local resource \"" << DEFAULT_RESOURCE_NAME << "\"");
             }
             else if (j != _resourcesList.end())
             {
-              cerr << "ParseXmlFiles Warning, two resources with the same name were found, "
-                      "taking the first declaration : " << i->first << endl;
+              WARNING_MESSAGE("ParseXmlFiles Warning, two resources with the same name were found, taking the first declaration : " << i->first );
             }
             else
             {
+              DEBUG_MESSAGE("Resource \"" << i->first << "\" added");
               _resourcesList[i->first] = i->second;
             }
           }
         }
         else
-          std::cerr << "ResourcesManager_cpp: could not parse file " << aFilePath << std::endl;
+          ERROR_MESSAGE( "ResourcesManager_cpp: could not parse file " << aFilePath );
         // Free the document
         xmlFreeDoc(aDoc);
         fclose(aFile);
       }
       else
-        std::cerr << "ResourcesManager_cpp: file " << aFilePath << " is not readable." << std::endl;
-
-      delete handler;
+        ERROR_MESSAGE( "ResourcesManager_cpp: file " << aFilePath << " is not readable." );
     }
   }
   return _resourcesList;
@@ -666,4 +671,5 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
   resource.can_launch_batch_jobs = true;
   resource.can_run_containers = true;
   _resourcesList[resource.Name] = resource;
+  DEBUG_MESSAGE("Put Ressource \"" << resource.Name << "\" in dictionary of resources. This resource will be present even if resource files define it later.");
 }

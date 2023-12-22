@@ -71,6 +71,10 @@ public:
 
   void SetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond(CORBA::Long timeInMS) override;
 
+  CORBA::Long GetDeltaTimeBetweenCPUMemMeasureInMilliSecond() override;
+
+  void SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(CORBA::Long timeInMS) override;
+
   static const char *_ContainerManagerNameInNS;
 
 protected:
@@ -214,6 +218,7 @@ private:
   std::vector< std::pair<std::string, std::string> > _override_env;
   int _time_out_in_second;
   int _delta_time_ns_lookup_in_ms;
+  int _delta_time_measure_in_ms;
   std::string _code_to_exe_on_startup;
 };
 #endif

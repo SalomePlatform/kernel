@@ -24,6 +24,7 @@
 #include "SALOME_ResourcesManager.hxx"
 #include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_Container_i.hxx"
 #include "SALOME_ResourcesManager_Client.hxx"
 #include "SALOME_Embedded_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
@@ -88,9 +89,8 @@ Utils_Mutex SALOME_ContainerManager::_systemMutex;
 //=============================================================================
 
 SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns)
-  : _nbprocUsed(1),_delta_time_ns_lookup_in_ms(DFT_DELTA_TIME_NS_LOOKUP_IN_MS)
+  : _nbprocUsed(1),_delta_time_ns_lookup_in_ms(DFT_DELTA_TIME_NS_LOOKUP_IN_MS),_delta_time_measure_in_ms(Abstract_Engines_Container_i::DFT_TIME_INTERVAL_BTW_MEASURE)
 {
-  MESSAGE("constructor");
   _NS = ns;
   _resManager = new SALOME_ResourcesManager_Client(ns);
   _time_out_in_second = GetTimeOutToLoaunchServer();
@@ -157,8 +157,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   }
 #endif
 #endif
-
-  MESSAGE("constructor end");
 }
 
 //=============================================================================
@@ -225,6 +223,16 @@ CORBA::Long SALOME_ContainerManager::GetDeltaTimeBetweenNSLookupAtLaunchTimeInMi
 void SALOME_ContainerManager::SetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond(CORBA::Long timeInMS)
 {
   this->_delta_time_ns_lookup_in_ms = timeInMS;
+}
+
+CORBA::Long SALOME_ContainerManager::GetDeltaTimeBetweenCPUMemMeasureInMilliSecond()
+{
+  return this->_delta_time_measure_in_ms;
+}
+
+void SALOME_ContainerManager::SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(CORBA::Long timeInMS)
+{
+  this->_delta_time_measure_in_ms = timeInMS;
 }
 
 //=============================================================================
@@ -489,8 +497,10 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
       if (!CORBA::is_nil(cont))
       {
         INFOS("[GiveContainer] container " << containerNameInNS << " launched");
+        cont->monitoringtimeresms( this->_delta_time_measure_in_ms );
+        INFOS("[GiveContainer] container " << containerNameInNS << " first CORBA invocation OK");
         std::ostringstream envInfo;
-        std::for_each( _override_env.begin(), _override_env.end(), [&envInfo](const std::pair<std::string,std::string>& p) { envInfo << p.first << " = " << p.second << std::endl; } );
+        std::for_each( _override_env.begin(), _override_env.end(), [&envInfo](const std::pair<std::string,std::string>& p) { envInfo << p.first << " = " << p.second << " "; } );
         INFOS("[GiveContainer] container " << containerNameInNS << " override " << envInfo.str());
         Engines::FieldsDict envCorba;
         {
@@ -504,7 +514,12 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         }
         cont->override_environment_python( envCorba );
         if( !_code_to_exe_on_startup.empty() )
+        {
+          INFOS("[GiveContainer] container " << containerNameInNS << " python code executed " << _code_to_exe_on_startup);
           cont->execute_python_code( _code_to_exe_on_startup.c_str() );
+        }
+        INFOS("[GiveContainer] container " << containerNameInNS << " verbosity positionning Activation = " << SALOME::VerbosityActivated() << " Verbosity Level = " << SALOME::VerbosityLevelStr());
+        cont->setVerbosity( SALOME::VerbosityActivated(), SALOME::VerbosityLevelStr().c_str() );
         return cont._retn();
       }
       else
@@ -668,8 +683,10 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
         struct stat file_info;
         stat(val, &file_info);
         bool is_dir = S_ISDIR(file_info.st_mode);
-        if (is_dir)logFilename=val;
-        else std::cerr << "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl;
+        if (is_dir)
+          logFilename=val;
+        else
+          MESSAGE( "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl );
       }
     logFilename += "/";
 #endif
@@ -720,6 +737,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
       else
         {
           // Setting log file name
+          ret->locallogfilename( logFilename.c_str() );
           logFilename=":"+logFilename;
           logFilename="@"+Kernel_Utils::GetHostname()+logFilename;//threadsafe
           logFilename=user+logFilename;

@@ -156,18 +156,12 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
     }
     aCurNode = aCurNode->next;
   }
-
-#ifdef _DEBUG_
-  for (std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.begin();
-       iter != _resources_list.end();
-       iter++)
+  DEBUG_MESSAGE( "************ Resources in memory ************");
+  for (std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.begin(); iter != _resources_list.end(); iter++)
   {
-    MESSAGE( "************************************************" );
-    MESSAGE( "Resource " << (*iter).first << " found:" );
-    MESSAGE( (*iter).second );
-    MESSAGE( "************************************************" );
+    DEBUG_MESSAGE( "Resource \"" << (*iter).first << "\" -> " << (*iter).second.dump(' '));
   }
-#endif
+  DEBUG_MESSAGE( "************ Resources in memory ************");
 }
 
 bool
@@ -465,7 +459,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     }
     catch (const ResourcesException &)
     {
-      MESSAGE( "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
+      INFO_MESSAGE( "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
               resource.Name << "\", using default value \"" << resource.getResourceTypeStr() <<
               "\"" ) ;
     }
@@ -473,7 +467,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   }
   else
   {
-      MESSAGE( "Warning, no type found for resource \"" << resource.Name <<
+      INFO_MESSAGE( "Warning, no type found for resource \"" << resource.Name <<
             "\", using default value \"" << resource.getResourceTypeStr() << "\"");
   }
 

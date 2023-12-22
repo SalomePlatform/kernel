@@ -31,6 +31,7 @@
   std::string GetContainerManagerInstance();
   std::string GetResourcesManagerInstance();
   std::string GetExternalServerInstance();
+  std::string GetLogManagerInstance();
 }
 
 %pythoncode %{
@@ -51,4 +52,10 @@ def GetExternalServer():
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetExternalServerInstance())
+
+def myLogManager():
+  import Engines
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(GetLogManagerInstance())
 %}

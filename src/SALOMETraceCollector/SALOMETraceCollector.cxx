@@ -123,39 +123,25 @@ void* SALOMETraceCollector::run(void* /*bid*/)
         }
 
       myTraceBuffer->retrieve(myTrace);
-      //if (!CORBA::is_nil(_orb))
-      if (true)
-        {
-          if (myTrace.traceType == ABORT_MESS)
-            {
-              std::stringstream abortMessage("");
-#ifndef WIN32
-              abortMessage << "INTERRUPTION from thread "
-                           << myTrace.threadId << " : " << myTrace.trace;
-#else
-              abortMessage << "INTERRUPTION from thread "
-                           << (void*)&myTrace.threadId 
-                           << " : " << myTrace.trace;
-#endif
-              CORBA::String_var LogMsg =
-                CORBA::string_dup(abortMessage.str().c_str());
-              m_pInterfaceLogger->putMessage(LogMsg);
-              exit(1);
-            }
-          else
-            {
-              std::stringstream aMessage("");
-#ifndef WIN32
-              aMessage << "th. " << myTrace.threadId
-#else
-                aMessage << "th. " << (void*)&myTrace.threadId
-#endif
-                       << " " << myTrace.trace;
-              CORBA::String_var LogMsg =
-                CORBA::string_dup(aMessage.str().c_str());
-              m_pInterfaceLogger->putMessage(LogMsg);
-            }
-        }
+      {
+        if (myTrace.traceType == ABORT_MESS)
+          {
+            std::ostringstream abortMessage;
+            abortMessage << "INTERRUPTION from thread : " << myTrace.trace;
+            CORBA::String_var LogMsg =
+              CORBA::string_dup(abortMessage.str().c_str());
+            m_pInterfaceLogger->putMessage(LogMsg);
+            exit(1);
+          }
+        else
+          {
+            std::ostringstream aMessage;
+            aMessage << " " << myTrace.trace;
+            CORBA::String_var LogMsg =
+              CORBA::string_dup(aMessage.str().c_str());
+            m_pInterfaceLogger->putMessage(LogMsg);
+          }
+      }
     }
   pthread_exit(NULL);
   return NULL;

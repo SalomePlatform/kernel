@@ -26,6 +26,7 @@
 
 #include <string>
 #include <iostream>
+#include <stdexcept>
 
 enum class VerbosityMode { undefined, nolog, withlog };
 
@@ -33,6 +34,64 @@ static VerbosityMode isActivated = VerbosityMode::undefined;
 
 namespace SALOME
 {
+  static constexpr char ERROR_LEVEL_VALUE = 0;
+  static constexpr char ERROR_LEVEL_VALUE_STR[] = "ERROR";
+  static constexpr char WARNING_LEVEL_VALUE = 1;
+  static constexpr char WARNING_LEVEL_VALUE_STR[] = "WARNING";
+  static constexpr char INFO_LEVEL_VALUE = 2;
+  static constexpr char INFO_LEVEL_VALUE_STR[] = "INFO";
+  static constexpr char DEBUG_LEVEL_VALUE = 7;
+  static constexpr char DEBUG_LEVEL_VALUE_STR[] = "DEBUG";
+  static constexpr char UNDEFINED_LEVEL_VALUE=99;
+
+  enum class VerbosityLevelType { error_level=ERROR_LEVEL_VALUE, warning_level=WARNING_LEVEL_VALUE, info_level=INFO_LEVEL_VALUE, debug_level=DEBUG_LEVEL_VALUE, undefined_level=UNDEFINED_LEVEL_VALUE };
+  static VerbosityLevelType verbosityLevel = VerbosityLevelType::undefined_level;
+
+  static VerbosityLevelType FromIntToVerbosityLevel(char value)
+  {
+    switch(value)
+    {
+      case ERROR_LEVEL_VALUE:
+        return VerbosityLevelType::error_level;
+      case WARNING_LEVEL_VALUE:
+        return VerbosityLevelType::warning_level;
+      case INFO_LEVEL_VALUE:
+        return VerbosityLevelType::info_level;
+      case DEBUG_LEVEL_VALUE:
+        return VerbosityLevelType::debug_level;
+    }
+    throw std::range_error("FromIntToVerbosityLevel : Invalid value for verbosity level !");
+  }
+
+  static VerbosityLevelType FromStrToVerbosityLevel(const std::string& val)
+  {
+    if(val == ERROR_LEVEL_VALUE_STR)
+      return VerbosityLevelType::error_level;
+    if(val == WARNING_LEVEL_VALUE_STR)
+      return VerbosityLevelType::warning_level;
+    if(val == INFO_LEVEL_VALUE_STR)
+      return VerbosityLevelType::info_level;
+    if(val == DEBUG_LEVEL_VALUE_STR)
+      return VerbosityLevelType::debug_level;
+    throw std::range_error("FromStrToVerbosityLevel : Invalid str value for verbosity level !");
+  }
+
+  static std::string FromVerbosityLevelToStr(VerbosityLevelType level)
+  {
+    switch(level)
+    {
+      case VerbosityLevelType::error_level:
+        return std::string(ERROR_LEVEL_VALUE_STR);
+      case VerbosityLevelType::warning_level:
+        return std::string(WARNING_LEVEL_VALUE_STR);
+      case VerbosityLevelType::info_level:
+        return std::string(INFO_LEVEL_VALUE_STR);
+      case VerbosityLevelType::debug_level:
+        return std::string(DEBUG_LEVEL_VALUE_STR);
+      default:
+        throw std::range_error("FromVerbosityLevelToStr : not managed verbosity level !");
+    }
+  }
 
 // ============================================================================
 /*!
@@ -49,19 +108,12 @@ namespace SALOME
   {
     auto isEnvVarSet = []() -> VerbosityMode
     {
-      const char* envVar = std::getenv("SALOME_VERBOSE");
+      const char *envVar = std::getenv("SALOME_VERBOSE");
 
       if (envVar && (envVar[0] != '\0'))
       {
-        try
-        {
-          const long long numValue = std::stoll(envVar);
-          return numValue > 0?VerbosityMode::withlog:VerbosityMode::nolog;
-        }
-        catch(const std::exception& e)
-        {
-          std::cerr << e.what() << '\n';
-        }
+        const int numValue = std::stoi(envVar);
+        return numValue > 0?VerbosityMode::withlog:VerbosityMode::nolog;
       }
 
       return VerbosityMode::nolog;
@@ -75,5 +127,57 @@ namespace SALOME
   void SetVerbosityActivated(bool flag)
   {
     isActivated = flag ? VerbosityMode::withlog:VerbosityMode::nolog;
+  }
+
+  VerbosityLevelType VerbosityLevel()
+  {
+    auto isEnvVarSet = []() -> VerbosityLevelType
+    {
+      const char *envVar = std::getenv("SALOME_VERBOSE_LEVEL");
+      if (envVar && (envVar[0] != '\0'))
+      {
+        const int numValue = std::stoi(envVar);
+        return FromIntToVerbosityLevel( static_cast<char>(numValue) );
+      }
+      return VerbosityLevelType::info_level;
+    };
+    if(verbosityLevel == VerbosityLevelType::undefined_level)
+      verbosityLevel = isEnvVarSet();
+    return verbosityLevel;
+  }
+
+  void BASICS_EXPORT SetVerbosityLevel(VerbosityLevelType level)
+  {
+    verbosityLevel = level;
+  }
+
+  void SetVerbosityLevelStr(const std::string& level)
+  {
+    verbosityLevel = FromStrToVerbosityLevel(level);
+  }
+
+  std::string VerbosityLevelStr()
+  {
+    return FromVerbosityLevelToStr( VerbosityLevel() );
+  }
+
+  bool IsDebugLevel()
+  {
+    return VerbosityLevel() >= VerbosityLevelType::debug_level;
+  }
+
+  bool IsInfoLevel()
+  {
+    return VerbosityLevel() >= VerbosityLevelType::info_level;
+  }
+
+  bool IsWarningLevel()
+  {
+    return VerbosityLevel() >= VerbosityLevelType::warning_level;
+  }
+
+  bool IsErrorLevel()
+  {
+    return VerbosityLevel() >= VerbosityLevelType::error_level;
   }
 }

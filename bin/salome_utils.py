@@ -34,9 +34,16 @@ import shutil
 import socket
 import sys
 import tempfile
+import logging
 from contextlib import suppress
 
 import psutil
+
+## Setting formatter in setVerbose() was commented because adding of handler
+## breaks using of root logger in other modules and cause many double lines in logs.
+#FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
+#logging.basicConfig(format=FORMAT)
+logger = logging.getLogger()
 
 def _try_bool(arg):
     """
@@ -384,35 +391,116 @@ def uniteFiles(src_file, dest_file):
 
 # --
 
+class ColoredFormatter(logging.Formatter):
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(30,38)
+    COLORS = { 'WARNING': YELLOW, 'INFO': WHITE, 'DEBUG': BLUE, 'CRITICAL': YELLOW, 'ERROR': RED }
+    def __init__(self, *args, **kwargs):
+        logging.Formatter.__init__(self, *args, **kwargs)
+    def format(self, record):
+        RESET_SEQ = "\033[0m"
+        COLOR_SEQ = "\033[1;%dm"
+        import inspect
+        frame = inspect.currentframe()
+        for i in range(8):
+            frame = frame.f_back
+        record.levelname = COLOR_SEQ % ColoredFormatter.COLORS[record.levelname] + record.levelname + RESET_SEQ
+        record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
+        return logging.Formatter.format(self, record)
+
+class BackTraceFormatter(logging.Formatter):
+    def __init__(self, *args, **kwargs):
+        logging.Formatter.__init__(self, *args, **kwargs)
+    def format(self, record):
+        import inspect
+        frame = inspect.currentframe()
+        # go upward with ( a limit of 10 steps ) of the stack to catch the effective callsite. Not very steady....
+        # should be replaced by an analysis of frame.f_code
+        for i in range(10):
+            frame = frame.f_back
+            if inspect.getsourcefile(frame) != logging.__file__:
+                break
+        record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
+        return logging.Formatter.format(self, record)     
+    
+def positionVerbosityOfLogger( verboseLevel ):
+    from packaging import version
+    current_version = version.parse("{}.{}".format(sys.version_info.major,sys.version_info.minor))
+    version_ref = version.parse("3.5.0")
+    global logger
+    formatter = None
+    if current_version >= version_ref:
+        formatter = BackTraceFormatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
+    else:
+        formatter = logging.Formatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
+    formatter.default_time_format = '%H:%M:%S'
+    formatter.default_msec_format = "%s.%03d"
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+    logger.setLevel(verboseLevel)
+
+def positionVerbosityOfLoggerRegardingState():
+    positionVerbosityOfLogger( verboseLevel() )
+
 def verbose():
     """
-    Get current verbosity level.
+    Get current verbosity activation.
 
     Default verbosity level is specified via the environment variable SALOME_VERBOSE,
     e.g. in bash:
 
         $ export SALOME_VERBOSE=1
 
-    The function `setVerbose()` can be used to explicitly set verbosity level.
+    The function `setVerbose()` can be used to explicitly set verbosity activation.
 
     :return current verbosity level
     """
-    if not hasattr(verbose, 'verbosity_level'):
-        verbose.verbosity_level = 0 # default value
-        with suppress(TypeError, ValueError):
-            # from SALOME_VERBOSE environment variable
-            verbose.verbosity_level = int(os.getenv('SALOME_VERBOSE', '0'))
-    return verbose.verbosity_level
+    import KernelBasis
+    return KernelBasis.VerbosityActivated()
+
 # --
 
-def setVerbose(level):
+def setVerbose(status):
+    """
+    Change verbosity activation status.
+    The function `verbose()` can be used to get current verbosity level.
+    :param status : verbosity status
+    :type status: bool
+    """
+    import KernelBasis
+    return KernelBasis.SetVerbosityActivated( status )
+
+# --
+
+KernelLogLevelToLogging = {"INFO":logging.INFO, "DEBUG":logging.DEBUG, "WARNING":logging.WARNING, "ERROR":logging.ERROR}
+
+LoggingToKernelLogLevel = {v: k for k, v in KernelLogLevelToLogging.items()}
+
+def verboseLevel():
+    """
+    Get current verbosity level.
+
+    Default verbosity level is specified via the environment variable SALOME_VERBOSE,
+    e.g. in bash:
+
+        $ export SALOME_VERBOSE_LEVEL=7
+
+    The function `setVerboseLevel()` can be used to explicitly set verbosity level.
+
+    :return current verbosity level
+    """
+    import KernelBasis
+    return KernelLogLevelToLogging[ KernelBasis.VerbosityLevel() ]
+
+def setVerboseLevel(level):
     """
     Change verbosity level.
-    The function `verbose()` can be used to get current verbosity level.
+    The function `verboseLevel()` can be used to get current verbosity level.
     :param level : verbosity level
     """
-    with suppress(TypeError, ValueError):
-        verbose.verbosity_level = int(level)
+    import KernelBasis
+    KernelBasis.SetVerbosityLevel(LoggingToKernelLogLevel[ level ])
+
 # --
 
 def killPid(pid, sig=9):

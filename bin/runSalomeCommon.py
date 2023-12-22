@@ -34,62 +34,13 @@ import subprocess
 from salomeContextUtils import ScriptAndArgsObjectEncoder
 import platform
 import logging
+from salome_utils import positionVerbosityOfLogger
 
-## Setting formatter in setVerbose() was commented because adding of handler
-## breaks using of root logger in other modules and cause many double lines in logs.
-#FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
-#logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 
-class ColoredFormatter(logging.Formatter):
-    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(30,38)
-    COLORS = { 'WARNING': YELLOW, 'INFO': WHITE, 'DEBUG': BLUE, 'CRITICAL': YELLOW, 'ERROR': RED }
-    def __init__(self, *args, **kwargs):
-        logging.Formatter.__init__(self, *args, **kwargs)
-    def format(self, record):
-        RESET_SEQ = "\033[0m"
-        COLOR_SEQ = "\033[1;%dm"
-        import inspect
-        frame = inspect.currentframe()
-        for i in range(8):
-            frame = frame.f_back
-        record.levelname = COLOR_SEQ % ColoredFormatter.COLORS[record.levelname] + record.levelname + RESET_SEQ
-        record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
-        return logging.Formatter.format(self, record)
-
-class BackTraceFormatter(logging.Formatter):
-    def __init__(self, *args, **kwargs):
-        logging.Formatter.__init__(self, *args, **kwargs)
-    def format(self, record):
-        import inspect
-        frame = inspect.currentframe()
-        # go upward of the stack to catch the effective callsite. Not very steady....
-        # should be replaced by an analysis of frame.f_code
-        for i in range(8):
-            frame = frame.f_back
-        record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
-        return logging.Formatter.format(self, record)
-
 def setVerbose(verbose):
-    from packaging import version
-    current_version = version.parse("{}.{}".format(sys.version_info.major,sys.version_info.minor))
-    version_ref = version.parse("3.5.0")
-    global logger
-    formatter = None
-    if current_version >= version_ref:
-        formatter = BackTraceFormatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
-    else:
-        formatter = logging.Formatter('%(levelname)s : %(asctime)s : %(message)s ',style='%')
-    formatter.default_time_format = '%H:%M:%S'
-    formatter.default_msec_format = "%s.%03d"
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
-
     verbose_map = { "0": logging.WARNING, "1": logging.INFO, "2": logging.DEBUG}
-    if verbose in verbose_map:
-        logger.setLevel(verbose_map[verbose])
-
+    positionVerbosityOfLogger( verbose_map[verbose] )
 # -----------------------------------------------------------------------------
 #
 # Class definitions to launch CORBA Servers

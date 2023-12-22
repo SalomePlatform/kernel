@@ -31,6 +31,7 @@
 #include "SALOME_Exception.idl"
 #include "SALOME_PyNode.idl"
 #include "SALOME_Embedded_NamingService.idl"
+#include "SALOME_Comm.idl"
 
 /*! \file SALOME_Component.idl \brief interfaces for EngineComponent and Container
 */
@@ -178,6 +179,16 @@ module Engines
 
     //!  name of the %container log file (this has been set by the launcher)
     attribute string logfilename ;
+    
+    //!  name of the %container log file
+    attribute string locallogfilename ;
+
+    //! interval of time between two measures of CPU/time process container
+    attribute long monitoringtimeresms;
+    
+    void verbosity(out boolean activated, out string level);
+
+    void setVerbosity(in boolean activated, in string level);
 
     //!  Shutdown the Container process.
     void Shutdown();

@@ -45,6 +45,7 @@ SET(SCRIPTS
   SALOME_ComponentPy.py
   SALOME_PyNode.py
   SALOME_Container.py
+  SALOME_ContainerHelper.py
   SALOME_ContainerPy.py
 )
 

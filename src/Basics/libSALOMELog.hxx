@@ -26,8 +26,21 @@
 
 #include "SALOME_Basics.hxx"
 
+#include <string>
+
 namespace SALOME
 {
+  enum class VerbosityLevelType;
+
   bool BASICS_EXPORT VerbosityActivated();
   void BASICS_EXPORT SetVerbosityActivated(bool);
+
+  void BASICS_EXPORT SetVerbosityLevel(VerbosityLevelType level);
+  void BASICS_EXPORT SetVerbosityLevelStr(const std::string& level);
+  bool BASICS_EXPORT IsDebugLevel();
+  bool BASICS_EXPORT IsInfoLevel();
+  bool BASICS_EXPORT IsWarningLevel();
+  bool BASICS_EXPORT IsErrorLevel();
+  VerbosityLevelType BASICS_EXPORT VerbosityLevel();
+  std::string BASICS_EXPORT VerbosityLevelStr();
 }

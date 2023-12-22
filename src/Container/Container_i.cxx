@@ -110,6 +110,8 @@ extern "C" {void SigIntHandler( int ) ; }
 #define SLASH '/'
 #endif
 
+const int Abstract_Engines_Container_i::DFT_TIME_INTERVAL_BTW_MEASURE = 500;
+
 std::map<std::string, int> Abstract_Engines_Container_i::_cntInstances_map;
 std::map<std::string, void *> Abstract_Engines_Container_i::_library_map;
 std::map<std::string, void *> Abstract_Engines_Container_i::_toRemove_map;
@@ -162,27 +164,11 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb,
 
   std::string hostname = Kernel_Utils::GetHostname();
 #ifndef WIN32
-  MESSAGE(hostname << " " << getpid() << 
-    " Engines_Container_i starting argc " <<
-    _argc << " Thread " << pthread_self() ) ;
+  INFO_MESSAGE("Starting Container servant instance on Hostname :" << hostname << " with  PID : " << getpid() ) ;
 #else
   MESSAGE(hostname << " " << _getpid() << 
     " Engines_Container_i starting argc " << _argc<< " Thread " << pthread_self().p ) ;
 #endif
-
-  int i = 0 ;
-  while ( _argv[ i ] )
-  {
-    MESSAGE("           argv" << i << " " << _argv[ i ]) ;
-    i++ ;
-  }
-
-  if ( argc < 2 )
-  {
-    INFOS("SALOME_Container usage : SALOME_Container ServerName");
-    ASSERT(0) ;
-  }
-  SCRUTE(argv[1]);
   _isSupervContainer = false;
 
   _orb = CORBA::ORB::_duplicate(orb) ;
@@ -202,20 +188,15 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb,
     _remove_ref();
 
     _containerName =  SALOME_NamingService_Abstract::BuildContainerNameForNS(containerName, hostname.c_str());
-    SCRUTE(_containerName);
-    _NS->Register(pCont, _containerName.c_str());
-    MESSAGE("Engines_Container_i::Engines_Container_i : Container name " << _containerName);
 
     // Python: 
     // import SALOME_Container
     // pycont = SALOME_Container.SALOME_Container_i(containerIORStr)
 
     CORBA::String_var sior =  _orb->object_to_string(pCont);
-    std::string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
-    myCommand += _containerName + "','";
-    myCommand += sior;
-    myCommand += "')\n";
-    SCRUTE(myCommand);
+    std::ostringstream myCommand;
+    myCommand << "pyCont = SALOME_Container.SALOME_Container_i('" << _containerName << "','" << sior << "'," <<  DFT_TIME_INTERVAL_BTW_MEASURE << ")\n";
+    INFO_MESSAGE("Python command executed : " << myCommand.str());
 
     //[RNV]: Comment the PyEval_AcquireLock() and PyEval_ReleaseLock() because this 
     //approach leads to the deadlock of the main thread of the application on Windows platform
@@ -241,14 +222,17 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb,
       PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
       PyRun_SimpleString("import SALOME_Container\n");
-      PyRun_SimpleString((char*)myCommand.c_str());
+      PyRun_SimpleString((char*)myCommand.str().c_str());
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       _pyCont = PyDict_GetItemString(globals, "pyCont");
       //PyThreadState_Swap(NULL);
       //PyEval_ReleaseLock();
     }
-
+    {// register to NS after python initialization to be sure that client invoke after py constructor execution
+      _NS->Register(pCont, _containerName.c_str());
+      DEBUG_MESSAGE("Container registred in NS as : " << _containerName);
+    }
     fileTransfer_i* aFileTransfer = new fileTransfer_i();
     CORBA::Object_var obref=aFileTransfer->_this();
     _fileTransfer = Engines::fileTransfer::_narrow(obref);
@@ -305,7 +289,7 @@ char* Abstract_Engines_Container_i::workingdir()
 */
 //=============================================================================
 
-char* Abstract_Engines_Container_i::logfilename()
+char *Abstract_Engines_Container_i::logfilename()
 {
   return CORBA::string_dup(_logfilename.c_str()) ;
 }
@@ -314,6 +298,76 @@ char* Abstract_Engines_Container_i::logfilename()
 void Abstract_Engines_Container_i::logfilename(const char* name)
 {
   _logfilename=name;
+}
+
+char *Abstract_Engines_Container_i::locallogfilename()
+{
+  return CORBA::string_dup( _localfilename.c_str() );
+}
+
+void Abstract_Engines_Container_i::locallogfilename(const char *name)
+{
+  AutoGIL gstate;
+  _localfilename = name;
+  AutoPyRef result = PyObject_CallMethod(_pyCont,(char*)"setLogFileName","s",name,nullptr);
+  if (PyErr_Occurred())
+  {
+    std::string error("can not set logfilename");
+    PyErr_Print();
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+  }
+}
+
+CORBA::Long Abstract_Engines_Container_i::monitoringtimeresms()
+{
+  AutoGIL gstate;
+  AutoPyRef result = PyObject_CallMethod(_pyCont,(char*)"monitoringtimeresms",nullptr);
+  if (PyErr_Occurred())
+  {
+    std::string error("can not retrieve time interval between 2 measures");
+    PyErr_Print();
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+  }
+  CORBA::Long ret = PyLong_AsLong( result );
+  return ret;
+}
+
+void Abstract_Engines_Container_i::monitoringtimeresms(CORBA::Long intervalInMs)
+{
+  AutoGIL gstate;
+  AutoPyRef result = PyObject_CallMethod(_pyCont,(char*)"SetMonitoringtimeresms","i",intervalInMs,nullptr);
+  if (PyErr_Occurred())
+  {
+    std::string error("can not set time interval between 2 measures");
+    PyErr_Print();
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+  }
+}
+
+void Abstract_Engines_Container_i::verbosity(bool& activated, CORBA::String_out level)
+{
+  activated = SALOME::VerbosityActivated();
+  level = CORBA::string_dup( SALOME::VerbosityLevelStr().c_str() );
+}
+
+void Abstract_Engines_Container_i::setVerbosity(bool activated, const char *level)
+{
+  SALOME::SetVerbosityActivated( activated );
+  SALOME::SetVerbosityLevelStr( level );
+  {
+    AutoGIL gstate;
+    AutoPyRef res = PyObject_CallMethod(_pyCont,
+      (char*)"positionVerbosityOfLogger",NULL);
+    if(res==NULL)
+    {
+      //internal error
+      PyErr_Print();
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = "can not create a python node";
+      throw SALOME::SALOME_Exception(es);
+    }
+  }
 }
 
 //=============================================================================
@@ -364,11 +418,9 @@ CORBA::Long Abstract_Engines_Container_i::getNumberOfCPUCores()
 {
   AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
-  PyObject *result = PyObject_CallMethod(module,
+  AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getNumberOfCPUCores", NULL);
   int n = PyLong_AsLong(result);
-  Py_DECREF(result);
-
   return (CORBA::Long)n;
 }
 
@@ -526,7 +578,7 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
 {
   AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
-  PyObject *result = PyObject_CallMethod(module,
+  AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"loadOfCPUCores", "s",
                                          _load_script.c_str());
   if (PyErr_Occurred())
@@ -542,7 +594,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
   int n = this->getNumberOfCPUCores();
   if (!PyList_Check(result) || PyList_Size(result) != n) {
     // bad number of cores
-    Py_DECREF(result);
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
     es.text = "wrong number of cores";
@@ -557,7 +608,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
     if (foo < 0.0 || foo > 1.0)
     {
       // value not in [0, 1] range
-      Py_DECREF(result);
       SALOME::ExceptionStruct es;
       es.type = SALOME::INTERNAL_ERROR;
       es.text = "load not in [0, 1] range";
@@ -565,8 +615,6 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
     }
     loads[i] = foo;
   }
-
-  Py_DECREF(result);
 
   return loads._retn();
 }
@@ -607,10 +655,9 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemory()
 {
   AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
-  PyObject *result = PyObject_CallMethod(module,
+  AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemory", NULL);
   int n = PyLong_AsLong(result);
-  Py_DECREF(result);
 
   return (CORBA::Long)n;
 }
@@ -626,10 +673,9 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUse()
 {
   AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
-  PyObject *result = PyObject_CallMethod(module,
+  AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemoryInUse", NULL);
   int n = PyLong_AsLong(result);
-  Py_DECREF(result);
 
   return (CORBA::Long)n;
 }
@@ -645,10 +691,9 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUseByMe()
 {
   AutoGIL gstate;
   PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
-  PyObject *result = PyObject_CallMethod(module,
+  AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemoryInUseByMe", NULL);
   int n = PyLong_AsLong(result);
-  Py_DECREF(result);
 
   return (CORBA::Long)n;
 }
@@ -914,12 +959,11 @@ Abstract_Engines_Container_i::load_component_PythonImplementation(const char* co
 
   {
     AutoGIL gstate;
-    PyObject *result = PyObject_CallMethod(_pyCont,
+    AutoPyRef result = PyObject_CallMethod(_pyCont,
                                           (char*)"import_component",
                                           (char*)"s",componentName);
 
     reason=PyUnicode_AsUTF8(result);
-    Py_XDECREF(result);
     SCRUTE(reason);
   }
 
@@ -1331,7 +1375,7 @@ Abstract_Engines_Container_i::createPythonInstance(std::string CompName,
   std::string iors;
   {
     AutoGIL gstate;
-    PyObject *result = PyObject_CallMethod(_pyCont,
+    AutoPyRef result = PyObject_CallMethod(_pyCont,
                                           (char*)"create_component_instance",
                                           (char*)"ss",
                                           CompName.c_str(),
@@ -1341,7 +1385,6 @@ Abstract_Engines_Container_i::createPythonInstance(std::string CompName,
     PyArg_ParseTuple(result,"ss", &ior, &error);
     iors = ior;
     reason=error;
-    Py_DECREF(result);
   }
 
   if( iors!="" )
@@ -1372,7 +1415,7 @@ Abstract_Engines_Container_i::create_python_service_instance(const char * CompNa
   char * _ior = nullptr;
   {
     AutoGIL gstate;
-    PyObject *result = PyObject_CallMethod(_pyCont,
+    AutoPyRef result = PyObject_CallMethod(_pyCont,
                                           (char*)"create_component_instance",
                                           (char*)"ss",
                                           CompName,
@@ -1382,7 +1425,6 @@ Abstract_Engines_Container_i::create_python_service_instance(const char * CompNa
     PyArg_ParseTuple(result,"ss", &ior, &error);
     reason = CORBA::string_dup(error);
     _ior = CORBA::string_dup(ior);
-    Py_DECREF(result);
   }
   return _ior;
 }
@@ -2128,12 +2170,12 @@ Engines::PyScriptNode_ptr Abstract_Engines_Container_i::createPyScriptNode(const
   std::string astr;
   {
     AutoGIL gstate;
-    PyObject *res = PyObject_CallMethod(_pyCont,
+    AutoPyRef res = PyObject_CallMethod(_pyCont,
       (char*)"create_pyscriptnode",
       (char*)"ss",
       nodeName,
       code);
-    if(res==NULL)
+    if( res.isNull() )
     {
       //internal error
       PyErr_Print();
@@ -2145,7 +2187,6 @@ Engines::PyScriptNode_ptr Abstract_Engines_Container_i::createPyScriptNode(const
     ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
     PyObject* result=PyTuple_GetItem(res,1);
     astr = PyUnicode_AsUTF8(result);
-    Py_DECREF(res);
   }
 
   if(ierr==0)

@@ -208,7 +208,7 @@ public:
 SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA::ORB_ptr orb) : _orb(orb)
 {
   myPrivate = new Private;
-  MESSAGE("Catalog creation");
+  DEBUG_MESSAGE("Catalog creation");
   /* Init libxml */
   xmlInitParser();
 
@@ -291,11 +291,11 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
 
     // Verification of _general_path_list content
     if (!myPrivate->_verify_path_prefix(myPrivate->_general_path_list)) {
-      MESSAGE( "Error while parsing the general path list, "
+      WARNING_MESSAGE( "Error while parsing the general path list, "
                            "different paths are associated to the same computer," 
                            "the first one will be chosen");
     } else {
-      MESSAGE("General path list OK");
+      DEBUG_MESSAGE("General path list OK");
     }
 
     if (myPrivate->_personal_path != NULL) {
@@ -316,7 +316,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
         MESSAGE("Personal path list OK");
       }
     }else 
-      MESSAGE("No personal catalog indicated or error while "
+      INFO_MESSAGE("No personal catalog indicated or error while "
                           "opening the personal catalog");
   }
 }
@@ -845,8 +845,7 @@ SALOME_ModuleCatalogImpl::Private::_parse_xml_file(const char* file,
 						   ParserTypes& typeMap,
 						   TypeList& typeList)
 {
-  BEGIN_OF("_parse_xml_file");
-  SCRUTE(file);
+  DEBUG_MESSAGE("parsing of " << file);
 
   //Local path and module list for the file to parse
   ParserPathPrefixes  _pathList;

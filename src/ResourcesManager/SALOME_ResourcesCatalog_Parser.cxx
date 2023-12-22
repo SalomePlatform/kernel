@@ -195,38 +195,45 @@ AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & pro
     throw ResourcesException((string("Unknown protocol ") + protocolStr).c_str());
 }
 
-ostream & operator<<(ostream &os, const ParserResourcesType &prt)
+std::string ParserResourcesType::dump(char sep) const
 {
-  os << "Name: " << prt.Name << endl <<
-        "HostName: " << prt.HostName << endl <<
-        "Type: " << prt.getResourceTypeStr() << endl <<
-        "NbOfNodes: " << prt.DataForSort._nbOfNodes << endl <<
-        "NbOfProcPerNode: " << prt.DataForSort._nbOfProcPerNode << endl <<
-        "CPUFreqMHz: " << prt.DataForSort._CPUFreqMHz << endl <<
-        "MemInMB: " << prt.DataForSort._memInMB << endl <<
-        "Protocol: " << prt.getAccessProtocolTypeStr() << endl <<
-        "ClusterInternalProtocol: " << prt.getClusterInternalProtocolStr() << endl <<
-        "Batch: " << prt.getBatchTypeStr() << endl <<
-        "mpi: " << prt.getMpiImplTypeStr() << endl <<
-        "UserName: " << prt.UserName << endl <<
-        "AppliPath: " << prt.AppliPath << endl <<
-        "OS: " << prt.OS << endl <<
-        "batchQueue: " << prt.batchQueue << endl <<
-        "userCommands: " << prt.userCommands << endl <<
-        "use: " << prt.use << endl <<
-        "NbOfProc: " << prt.nbOfProc << endl <<
-        "Can Launch Batch Jobs: " << prt.can_launch_batch_jobs << endl <<
-        "Can Run Containers: " << prt.can_run_containers << endl <<
-        "Working Directory: " << prt.working_directory << endl;
+  std::ostringstream oss;
+  oss << "Name: " << this->Name << sep <<
+        "HostName: " << this->HostName << sep <<
+        "Type: " << this->getResourceTypeStr() << sep <<
+        "NbOfNodes: " << this->DataForSort._nbOfNodes << sep <<
+        "NbOfProcPerNode: " << this->DataForSort._nbOfProcPerNode << sep <<
+        "CPUFreqMHz: " << this->DataForSort._CPUFreqMHz << sep <<
+        "MemInMB: " << this->DataForSort._memInMB << sep <<
+        "Protocol: " << this->getAccessProtocolTypeStr() << sep <<
+        "ClusterInternalProtocol: " << this->getClusterInternalProtocolStr() << sep <<
+        "Batch: " << this->getBatchTypeStr() << sep <<
+        "mpi: " << this->getMpiImplTypeStr() << sep <<
+        "UserName: " << this->UserName << sep <<
+        "AppliPath: " << this->AppliPath << sep <<
+        "OS: " << this->OS << sep <<
+        "batchQueue: " << this->batchQueue << sep <<
+        "userCommands: " << this->userCommands << sep <<
+        "use: " << this->use << sep <<
+        "NbOfProc: " << this->nbOfProc << sep <<
+        "Can Launch Batch Jobs: " << this->can_launch_batch_jobs << sep <<
+        "Can Run Containers: " << this->can_run_containers << sep <<
+        "Working Directory: " << this->working_directory << sep;
 
-  for(unsigned int i=0 ; i<prt.ComponentsList.size() ; i++)
-    os << "Component " << i+1 << " called: " << prt.ComponentsList[i] << endl;
+  for(unsigned int i=0 ; i<this->ComponentsList.size() ; i++)
+    oss << "Component " << i+1 << " called: " << this->ComponentsList[i] << sep;
 
   list<ParserResourcesType>::const_iterator it;
-  for(it = prt.ClusterMembersList.begin() ; it != prt.ClusterMembersList.end() ; it++)
+  for(it = this->ClusterMembersList.cbegin() ; it != this->ClusterMembersList.cend() ; it++)
   {
-    os << "Cluster member called: " << (*it).HostName << endl;
+    oss << "Cluster member called: " << (*it).HostName << sep;
   }
+  return oss.str();
+}
+
+ostream & operator<<(ostream &os, const ParserResourcesType &prt)
+{
+  os << prt.dump('\n');
   return os;
 }
 

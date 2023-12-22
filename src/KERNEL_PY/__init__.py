@@ -161,7 +161,7 @@ if not flags:
 #    sys.setdlopenflags(flags)
 #    pass
 
-orb, lcc, naming_service, cm, sg, esm, dsm, modulcat, rm = None,None,None,None,None,None,None,None,None
+orb, lcc, naming_service, cm, sg, esm, dsm, logm, modulcat, rm = None,None,None,None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
 
 salome_initial=True
@@ -245,7 +245,7 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     A Fake NamingService is created storing reference of all servants in the current process.
     """
     salome_init_without_session_common(path,embedded)
-    global lcc,cm,dsm,esm,rm
+    global lcc,cm,dsm,esm,rm,logm
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
     type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
@@ -266,6 +266,12 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     # esm inherits from SALOME_CPythonHelper singleton already initialized by GetDSMInstance
     # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
     esm = KernelLauncher.GetExternalServer()
+    # idem for logm
+    logm = KernelLauncher.myLogManager()
+    type(logm).NaiveFetch = LogManagerNaiveFetch
+    type(logm).Fetch = LogManagerFetch
+    type(logm).DumpInFile = LogManagerDumpInFile
+    type(logm).LoadFromFile = LogManagerLoadFromFile
     #
     import KernelLogger
     naming_service.Register(KernelLogger.myLogger(),"/Logger")
@@ -282,7 +288,7 @@ def salome_init_without_session_attached(path=None, embedded=False):
     lcc is pointing to the FakeNamingService above.
     """
     salome_init_without_session_common(path,embedded)
-    global lcc,cm,dsm,esm,rm
+    global lcc,cm,dsm,esm,rm,logm
     import CORBA
     orb=CORBA.ORB_init([''])
     import Engines
@@ -306,6 +312,10 @@ def salome_init_without_session_attached(path=None, embedded=False):
     ESM_NAME_IN_NS = "/ExternalServers"
     esm = orb.string_to_object( nsAbroad.Resolve(ESM_NAME_IN_NS).decode() )
     naming_service.Register(esm,ESM_NAME_IN_NS)
+    #
+    LOGM_NAME_IN_NS = "/LogManager"
+    logm = orb.string_to_object( nsAbroad.Resolve(LOGM_NAME_IN_NS).decode() )
+    naming_service.Register(logm,LOGM_NAME_IN_NS)
 
 def salome_init_with_session(path=None, embedded=False):
     """
@@ -443,6 +453,30 @@ class SessionContextManager:
 def ContainerManagerSetOverrideEnvForContainersSimple(self,env):
     envEff = [ Engines.KeyValPairString(key=k,val=v) for k,v in env ]
     return self.SetOverrideEnvForContainers( envEff )
+
+def LogManagerNaiveFetch(self):
+    """
+    Fetch data from server with multiple CORBA invokations.
+    """
+    import SALOME_ContainerHelper
+    return [SALOME_ContainerHelper.ContainerLogInfoClt(elt) for elt in self.listOfContainerLogs()]
+
+def LogManagerFetch(self,clearMemory = False):
+    """
+    Fetch data from server in one shot mode.
+    """
+    from SALOME_ContainerHelper import unserializeLogManager
+    return unserializeLogManager( self.getAllStruct(clearMemory) )
+
+def LogManagerDumpInFile(self,fileName,clearMemory = False):
+    with open(fileName,"wb") as f:
+        f.write( self.getAllStruct( clearMemory ) )
+
+def LogManagerLoadFromFile(self,fileName):
+    from SALOME_ContainerHelper import unserializeLogManager
+    with open(fileName,"rb") as f:
+        data = f.read()
+    return unserializeLogManager( data )
 
 #to expose all objects to pydoc
 __all__=dir()

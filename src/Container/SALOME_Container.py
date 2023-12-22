@@ -41,10 +41,12 @@ import Engines, Engines__POA
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
 import SALOME_PyNode
+import logging
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
-from launchConfigureParser import verbose
+from salome_utils import verbose
+from KernelBasis import VerbosityActivated,getSSLMode
 
 #=============================================================================
 
@@ -58,8 +60,9 @@ class SALOME_Container_i:
 
     #-------------------------------------------------------------------------
 
-    def __init__(self ,containerName, containerIORStr):
-        MESSAGE( "SALOME_Container_i::__init__" )
+    def __init__(self ,containerName, containerIORStr, dftTimeIntervalInMs):
+        # Warning this part of code is called at the very first step of container launching
+        # so logging is not instanciate. So use verbose method to discrimine if a message should be printed or not
         try:
           argv = sys.argv
         except AttributeError :
@@ -70,18 +73,28 @@ class SALOME_Container_i:
         self._orb = CORBA.ORB_init(argv, CORBA.ORB_ID)
         self._poa = self._orb.resolve_initial_references("RootPOA")
         self._containerName = containerName
-        if verbose(): print("SALOME_Container.SALOME_Container_i : _containerName ",self._containerName)
+        self._logFileName = None
+        self._timeIntervalInMs = dftTimeIntervalInMs
+        self._logm = None
+        self._log = None
         self._container = self._orb.string_to_object(containerIORStr)
+
+    @property
+    def logm(self):
+        import salome
+        if self._logm is None:
+           salome.salome_init()
+           self._logm = salome.logm
+        return self._logm
 
     #-------------------------------------------------------------------------
 
     def import_component(self, componentName):
-        MESSAGE( "SALOME_Container_i::import_component" )
         ret=""
         try:
-            if verbose(): print("try import ",componentName)
+            logging.debug("try import ",componentName)
             importlib.import_module(componentName)
-            if verbose(): print("import ",componentName," successful")
+            logging.debug("import ",componentName," successful")
         except ImportError:
             #can't import python module componentName
             #try to find it in python path
@@ -95,20 +108,18 @@ class SALOME_Container_i:
             except ImportError as ee:
               ret="ImplementationNotFound"
             except Exception:
-              if verbose():print("error when calling find_module")
+              print("error when calling find_module")
               ret="ImplementationNotFound"
         except Exception:
             ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
             ret=ret+traceback.format_exc(10)
-            if verbose():
-              traceback.print_exc()
-              print("import ",componentName," not possible")
+            traceback.print_exc()
+            print("import ",componentName," not possible")
         return ret
 
     #-------------------------------------------------------------------------
 
     def create_component_instance(self, componentName, instanceName):
-        MESSAGE( "SALOME_Container_i::create_component_instance" )
         comp_iors=""
         ret=""
         try:
@@ -121,13 +132,11 @@ class SALOME_Container_i:
                            instanceName,
                            componentName)
 
-            MESSAGE( "SALOME_Container_i::create_component_instance : OK")
             comp_o = comp_i._this()
             comp_iors = self._orb.object_to_string(comp_o)
         except Exception:
             ret=traceback.format_exc(10)
             traceback.print_exc()
-            MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
         return comp_iors, ret
 
 
@@ -145,7 +154,10 @@ class SALOME_Container_i:
 
     def create_pyscriptnode(self,nodeName,code):
         try:
-          node=SALOME_PyNode.PyScriptNode_i(nodeName,code,self._poa,self)
+          logscript = None
+          if getSSLMode():
+            logscript = self._log.addScript(nodeName,code)
+          node=SALOME_PyNode.PyScriptNode_i(nodeName,code,self._poa,self, logscript)
           id_o = self._poa.activate_object(node)
           comp_o = self._poa.id_to_reference(id_o)
           comp_iors = self._orb.object_to_string(comp_o)
@@ -153,4 +165,20 @@ class SALOME_Container_i:
         except Exception:
           exc_typ,exc_val,exc_fr=sys.exc_info()
           l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+          print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
           return 1,"".join(l)
+        
+    def positionVerbosityOfLogger(self):
+        if VerbosityActivated():
+          import salome_utils
+          salome_utils.positionVerbosityOfLoggerRegardingState()
+    
+    def monitoringtimeresms(self):
+        return self._timeIntervalInMs
+    
+    def setLogFileName(self, logFileName):
+        if getSSLMode():
+          self._log = self.logm.declareContainer( self._containerName, logFileName )
+
+    def SetMonitoringtimeresms(self , value):
+        self._timeIntervalInMs = value

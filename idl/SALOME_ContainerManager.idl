@@ -96,6 +96,10 @@ interface ContainerManager
   long GetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond();
 
   void SetDeltaTimeBetweenNSLookupAtLaunchTimeInMilliSecond(in long timeInMS);
+  
+  long GetDeltaTimeBetweenCPUMemMeasureInMilliSecond();
+
+  void SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(in long timeInMS);
 
   void SetOverrideEnvForContainers(in KeyValDict env);
 

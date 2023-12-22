@@ -21,15 +21,5 @@ class ScriptLocalParameters:
         return value
 
     def __str__(self):
-        str = []
-        str.append("nb_proc: %s" % self.nb_proc)
-        str.append("workdir: %s" % self.workdir)
-        str.append("isTmpDir: %s" % self.isTmpDir)
-        str.append("name_server: %s" % self.name_server)
-        str.append("container: %s" % self.container)
-        str.append("container_name: %s" % self.container_name)
-        str.append("libbatch_nodefile: %s" % self.libbatch_nodefile)
-        str.append("machine_file: %s" % self.machine_file)
-        str.append("ompi_uri_file: %s" % self.ompi_uri_file)
-        str.append("--")
-        return "\n".join(str)
+        str = """nb_proc: {self.nb_proc} workdir: {self.workdir} isTmpDir: {self.isTmpDir} name_server: {self.name_server} container: {self.container} container_name: {self.container_name} libbatch_nodefile: {self.libbatch_nodefile} machine_file: {self.machine_file} ompi_uri_file: {self.ompi_uri_file}""".format(**locals())
+        return str

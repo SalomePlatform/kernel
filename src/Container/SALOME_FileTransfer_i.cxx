@@ -41,7 +41,6 @@
 
 fileTransfer_i::fileTransfer_i()
 {
-  MESSAGE("fileTransfer_i::fileTransfer_i");
   _fileKey=1;
 }
 
@@ -53,7 +52,6 @@ fileTransfer_i::fileTransfer_i()
 
 fileTransfer_i::~fileTransfer_i()
 {
-  MESSAGE("fileTransfer_i::~fileTransfer_i");
 }
 
 
@@ -69,7 +67,6 @@ fileTransfer_i::~fileTransfer_i()
 
 CORBA::Long fileTransfer_i::open(const char* fileName)
 {
-  MESSAGE(" fileTransfer_i::open " << fileName);
   int aKey = _fileKey++;
   _ctr=0;
   FILE* fp;
@@ -92,7 +89,6 @@ CORBA::Long fileTransfer_i::open(const char* fileName)
 
 void fileTransfer_i::close(CORBA::Long fileId)
 {
-  MESSAGE("fileTransfer_i::close");
   FILE* fp;
   if (! (fp = _fileAccess[fileId]) )
     {
@@ -119,7 +115,6 @@ void fileTransfer_i::close(CORBA::Long fileId)
 
 Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
 {
-  //MESSAGE("fileTransfer_i::getBlock");
   Engines::fileBlock* aBlock = new Engines::fileBlock;
 
   FILE* fp;
@@ -149,7 +144,6 @@ Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
  */
 CORBA::Long fileTransfer_i::openW(const char* fileName)
 {
-  MESSAGE(" fileTransfer_i::openW " << fileName);
   int aKey = _fileKey++;
   _ctr=0;
   FILE* fp;
@@ -171,7 +165,6 @@ CORBA::Long fileTransfer_i::openW(const char* fileName)
  */
 void fileTransfer_i::putBlock(CORBA::Long fileId, const Engines::fileBlock& block)
 {
-  MESSAGE("fileTransfer_i::putBlock");
   FILE* fp;
   if (! (fp = _fileAccess[fileId]) )
     {

@@ -46,8 +46,6 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
                                                                                _typeMap(typeMap),_typeList(typeList)
 
 {
-  BEGIN_OF("SALOME_ModuleCatalog_Handler");
-
   // XML Tags initialisation
   // Used in the function endElement
   test_path_prefix_name     = "path-prefix-name";
@@ -102,8 +100,6 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
 
   test_component_list = "component-list";
   test_component="component";
-
-  END_OF("SALOME_ModuleCatalog_Handler");
 }
 
 //----------------------------------------------------------------------
@@ -112,8 +108,6 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 {
-  BEGIN_OF("~SALOME_ModuleCatalog_Handler()");
-  END_OF("~SALOME_ModuleCatalog_Handler()");
 }
 
 
@@ -125,7 +119,6 @@ SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 
 void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-  MESSAGE("Begin parse document");
   // Empty the private elements
   _pathList.resize(0);
   _pathPrefix.listOfComputer.resize(0);
@@ -225,15 +218,14 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        MESSAGE("Registered basic type: " << aType.name << " " << aType.kind );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
                     else
-                      MESSAGE( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored." );
+                      INFO_MESSAGE( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored." );
                   }
                 else
-                  MESSAGE( "Warning: this type (" << aType.name << "," << aType.kind << ") has incorrect kind, it will be ignored." );
+                  INFO_MESSAGE( "Warning: this type (" << aType.name << "," << aType.kind << ") has incorrect kind, it will be ignored." );
               }
             else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"sequence" )) 
               {
@@ -255,16 +247,15 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        MESSAGE("Registered sequence type: " << aType.name << " " << aType.content );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
                     else
-                      MESSAGE( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored." );
+                      INFO_MESSAGE( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored." );
                   }
                 else
                   {
-                    MESSAGE( "Warning: this sequence type (" << aType.name << "," << aType.content << ") has unknown content type, it will be ignored." );
+                    INFO_MESSAGE( "Warning: this sequence type (" << aType.name << "," << aType.content << ") has unknown content type, it will be ignored." );
                   }
               }
             else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"objref" )) 
@@ -375,7 +366,6 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        MESSAGE("Registered struct type: " << aType.name << " " << aType.id );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }

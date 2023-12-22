@@ -115,8 +115,14 @@ public:
   CORBA::Long getTotalPhysicalMemoryInUseByMe();
   char *name();
   char *workingdir();
-  char *logfilename();
-  void logfilename(const char *name);
+  char *logfilename() override;
+  void logfilename(const char *name) override;
+  char *locallogfilename() override;
+  void locallogfilename(const char *name) override;
+  CORBA::Long monitoringtimeresms() override;
+  void monitoringtimeresms(CORBA::Long intervalInMs) override;
+  void verbosity(bool& activated, CORBA::String_out level) override;
+  void setVerbosity(bool activated, const char *level) override;
 
   virtual void Shutdown();
   char *getHostName();
@@ -162,7 +168,8 @@ public:
   void unregisterTemporaryFile(const std::string &fileName);
   void clearTemporaryFiles();
   PortableServer::ObjectId *getCORBAId() const { return _id; }
-
+public:
+  static const int DFT_TIME_INTERVAL_BTW_MEASURE;
 protected:
   static std::map<std::string, int> _cntInstances_map;
   static std::map<std::string, void *> _library_map;  // library names, loaded
@@ -175,6 +182,7 @@ protected:
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;
+  std::string _localfilename;
   std::string _load_script;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;

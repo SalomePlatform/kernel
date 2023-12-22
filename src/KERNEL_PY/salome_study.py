@@ -271,11 +271,9 @@ def FindFileInDataDir(filename):
     #--------------------------------------------------------------------------
 
 def openStudy(theStudyPath):
-    if verbose(): print("openStudy (begin)")
     global myStudy, myStudyName
     myStudy.Open(theStudyPath)
     myStudyName = myStudy._get_Name()
-    if verbose(): print("openStudy (end):", theStudyPath, myStudy._get_Name())
 
     #--------------------------------------------------------------------------
 
@@ -290,16 +288,13 @@ def salome_study_init_without_session(theStudyPath=None):
     global myStudy, myStudyName
     global orb, lcc, naming_service, cm
 
-    if verbose(): print("theStudyPath:", theStudyPath)
     if not myStudy:
         import CORBA
         orb = CORBA.ORB_init([''])
 
         # get Study reference
-        if verbose(): print("looking for study...")
         import KernelDS
         myStudy = KernelDS.myStudy()
-        if verbose(): print("Study found")
         pass
 
     import types
@@ -327,15 +322,12 @@ def salome_study_init(theStudyPath=None):
     global myStudy, myStudyName
     global orb, lcc, naming_service, cm
 
-    if verbose(): print("theStudyPath:", theStudyPath)
     if not myStudy:
         orb, lcc, naming_service, cm, _, _, _ = salome_kernel.salome_kernel_init()
 
         # get Study reference
-        if verbose(): print("looking for study...")
         obj = naming_service.Resolve('/Study')
         myStudy = obj._narrow(SALOMEDS.Study)
-        if verbose(): print("Study found")
         pass
 
     import types

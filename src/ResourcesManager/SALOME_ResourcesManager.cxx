@@ -96,7 +96,6 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
                                                  PortableServer::POA_var poa, 
                                                  SALOME_NamingService_Abstract *ns) : _rm(new ResourcesManager_cpp())
 {
-  MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
   _orb = CORBA::ORB::_duplicate(orb) ;
   //
@@ -113,8 +112,6 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
   Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
   if(_NS)
     _NS->Register(refContMan,_ResourcesManagerNameInNS);
-
-  MESSAGE("SALOME_ResourcesManager constructor end");
 }
 
 //=============================================================================

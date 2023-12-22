@@ -1,0 +1,64 @@
+// Copyright (C) 2024  CEA, EDF
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+#ifndef __SALOME_LOGMANAGER_IDL__
+#define __SALOME_LOGMANAGER_IDL__
+
+#include "SALOME_Exception.idl"
+#include "SALOME_Comm.idl"
+
+module Engines
+{
+  interface ContainerScriptExecPerfLog
+  {
+    void assign(in SALOME::vectorOfByte value);
+    SALOME::vectorOfByte getObj();
+  };
+
+  typedef sequence<ContainerScriptExecPerfLog> ListOfContainerScriptExecPerfLog;
+
+  interface ContainerScriptPerfLog
+  {
+    string getCode();
+    string getName();
+    ContainerScriptExecPerfLog addExecutionSession();
+    ListOfContainerScriptExecPerfLog listOfExecs();
+  };
+  
+  typedef sequence<ContainerScriptPerfLog> ListOfContainerScriptPerfLog;
+
+  interface ContainerPerfLog
+  {
+    string getLogFile();
+    string getContainerEntryInNS();
+    ContainerScriptPerfLog addScript(in string name, in string code);
+    ListOfContainerScriptPerfLog listOfScripts();
+  };
+
+  typedef sequence<ContainerPerfLog> ListOfContainerPerfLog;
+
+  interface LogManager
+  {
+    ContainerPerfLog declareContainer(in string contInNS, in string logfile);
+    ListOfContainerPerfLog listOfContainerLogs();
+    SALOME::vectorOfByte getAllStruct( in boolean clearMemory );
+  };
+};
+
+#endif

@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2023  CEA, EDF
+// Copyright (C) 2023  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -19,10 +19,16 @@
 
 #pragma once
 
-#include <string>
+#include "SALOME_Basics.hxx"
 
-std::string RetrieveInternalInstanceOfLocalCppResourcesManager();
-std::string GetContainerManagerInstance();
-std::string GetResourcesManagerInstance();
-std::string GetExternalServerInstance();
-std::string GetLogManagerInstance();
+#include <string>
+#include <vector>
+
+namespace SALOME
+{
+  void BASICS_EXPORT LaunchMonitoring(const std::string& pyScriptToEvaluate, const std::string& outFileName);
+
+  std::vector<double> BASICS_EXPORT ReadFloatsInFile(const std::string& fileName);
+
+  std::vector<double> BASICS_EXPORT StopMonitoring();
+}

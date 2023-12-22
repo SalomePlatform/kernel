@@ -35,6 +35,7 @@ SET(SALOMEBasics_SOURCES
   Basics_DirUtils.cxx
   KernelBasis.cxx
   HeatMarcel.cxx
+  Monitoring.cxx
 )
 
 ADD_LIBRARY(SALOMELog ${SALOMELog_SOURCES})

@@ -110,8 +110,12 @@
                                        << " at " << __TIME__ << MESS_END }}
                                                                                 
 
-#define MESSAGE(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << msg << MESS_END}}
-#define SCRUTE(var)  { if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}}
+#define MESSAGE(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN("Trace -") << msg << MESS_END}}
+#define SCRUTE(var)  { if (SALOME::VerbosityActivated()) {MESS_BEGIN("Trace -") << #var << "=" << var <<MESS_END}}
+#define ERROR_MESSAGE(msg) { if (SALOME::VerbosityActivated() && SALOME::IsErrorLevel()) {MESS_BEGIN("ERROR -") << msg << MESS_END}}
+#define WARNING_MESSAGE(msg) { if (SALOME::VerbosityActivated() && SALOME::IsWarningLevel()) {MESS_BEGIN("WARNING -") << msg << MESS_END}}
+#define INFO_MESSAGE(msg) { if (SALOME::VerbosityActivated() && SALOME::IsInfoLevel()) {MESS_BEGIN("INFO -") << msg << MESS_END}}
+#define DEBUG_MESSAGE(msg) { if (SALOME::VerbosityActivated() && SALOME::IsDebugLevel()) {MESS_BEGIN("DBG -") << msg << MESS_END}}
 
 #define REPERE ("------- ")
 #define BEGIN_OF(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Begin of: " << msg << MESS_END}}
