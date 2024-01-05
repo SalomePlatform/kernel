@@ -42,6 +42,7 @@
 #include <libxml/parser.h>
 
 #include <algorithm>
+#include <memory>
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
