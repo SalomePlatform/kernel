@@ -31,6 +31,8 @@
 #include <cstring>
 #include <sstream>
 
+static Engines::LogManager_var LogManagerInstanceSingleton;
+
 std::string RetrieveInternalInstanceOfLocalCppResourcesManager()
 {
   SALOME_Launcher *launcher = KERNEL::getLauncherSA();
@@ -87,25 +89,28 @@ std::string GetExternalServerInstance()
 std::string GetLogManagerInstance()
 {
   CORBA::ORB_ptr orb = KERNEL::getORB();
-  CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
-  PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+  if( CORBA::is_nil(LogManagerInstanceSingleton) )
+  {
+    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+    PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+    //
+    CORBA::PolicyList policies;
+    policies.length(1);
+    PortableServer::POAManager_var pman = root_poa->the_POAManager();
+    PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+    policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+    PortableServer::POA_var safePOA = root_poa->create_POA("SingleThreadPOAForLogManager",pman,policies);
+    threadPol->destroy();
+    //
+    SALOME_CPythonHelper *cPyh(SALOME_CPythonHelper::Singleton());
+    SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
+    SALOME_LogManager *esm(new SALOME_LogManager(orb,safePOA,ns));
+    esm->_remove_ref();
+    //
+    CORBA::Object_var esmPtr = safePOA->servant_to_reference(esm);
+    LogManagerInstanceSingleton = Engines::LogManager::_narrow(esmPtr);
+  }
   //
-  CORBA::PolicyList policies;
-  policies.length(1);
-  PortableServer::POAManager_var pman = root_poa->the_POAManager();
-  PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-  policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
-  PortableServer::POA_var safePOA = root_poa->create_POA("SingleThreadPOAForLogManager",pman,policies);
-  threadPol->destroy();
-  //
-  SALOME_CPythonHelper *cPyh(SALOME_CPythonHelper::Singleton());
-  SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
-  SALOME_LogManager *esm(new SALOME_LogManager(orb,safePOA,ns));
-  esm->_remove_ref();
-  //
-  CORBA::Object_var esmPtr = safePOA->servant_to_reference(esm);
-  Engines::LogManager_var esmCPtr = Engines::LogManager::_narrow(esmPtr);
-  //
-  CORBA::String_var ior = orb->object_to_string(esmCPtr);
+  CORBA::String_var ior = orb->object_to_string(LogManagerInstanceSingleton);
   return std::string(ior.in());
 }
