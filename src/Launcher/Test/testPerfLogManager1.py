@@ -67,6 +67,7 @@ class testPerfLogManager1(unittest.TestCase):
         PROXY_THRES = "1"
         with tempfile.TemporaryDirectory() as tmpdirname:
             val_for_big_obj = str( tmpdirname )
+            os.environ["SALOME_FILE_BIG_OBJ_DIR"] = val_for_big_obj
             # Override environement for all containers launched
             salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
             salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
