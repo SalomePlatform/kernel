@@ -146,7 +146,7 @@ namespace SALOME
     return verbosityLevel;
   }
 
-  void BASICS_EXPORT SetVerbosityLevel(VerbosityLevelType level)
+  void SetVerbosityLevel(VerbosityLevelType level)
   {
     verbosityLevel = level;
   }

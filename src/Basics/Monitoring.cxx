@@ -38,7 +38,8 @@
 
 #ifndef WIN32
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
+#include <cstring>
 #include <sys/types.h>
 #include <signal.h>
 #endif
@@ -60,7 +61,8 @@ static void LaunchMonitoringLinux(const std::string& pyScriptToEvaluate, const s
   else if( pid == 0)
   {
     execlp(PYTHON_EXEC,PYTHON_EXEC,pyScriptToEvaluate.c_str(),nullptr);
-    std::ostringstream oss; oss << "LaunchMonitoring : Error during exe : " << sys_errlist[errno];
+    char buff[1024];
+    std::ostringstream oss; oss << "LaunchMonitoring : Error during exe : " << strerror_r(errno, buff, sizeof(buff));
     throw std::runtime_error( oss.str() );
   }
   else
