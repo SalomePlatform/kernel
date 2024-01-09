@@ -413,7 +413,25 @@ class FileDeleter:
     if os.path.exists( self._filename ):
       os.unlink( self._filename )
 
-def LaunchMonitoring( intervalInMs ):
+class MonitoringInfo:
+  def __init__(self, pyFileName, outFileName, pid):
+    self._py_file_name = pyFileName
+    self._out_file_name = outFileName
+    self._pid = pid
+
+  @property
+  def pyFileName(self):
+    return self._py_file_name
+
+  @property
+  def pid(self):
+    return self._pid
+  
+  @property
+  def outFileName(self):
+    return self._out_file_name
+
+def LaunchTimeCPUMonitoring( intervalInMs ):
   """
   Launch a subprocess monitoring self process.
   This monitoring subprocess is a python process lauching every intervalInMs ms evaluation of
@@ -442,19 +460,34 @@ with open("{}","a") as f:
 """.format(pid, tempOutFile, intervalInMs))
     return FileDeleter(tempPyFile), FileDeleter(tempOutFile)
   pyFileName, outFileName = BuildPythonFileForCPUPercent( intervalInMs )
-  KernelBasis.LaunchMonitoring(pyFileName.filename,outFileName.filename)
-  return pyFileName, outFileName
+  pid = KernelBasis.LaunchMonitoring(pyFileName.filename)
+  return MonitoringInfo(pyFileName, outFileName, pid)
 
-def StopMonitoring( ):
+def StopMonitoring( monitoringInfo ):
   """
-  Retrieve data of monitoring and kill monitoring subprocess.
+  Kill monitoring subprocess.
+
+  Args:
+  ----
+      monitoringInfo (MonitoringInfo): info returned by LaunchMonitoring
+  """
+  import KernelBasis
+  KernelBasis.StopMonitoring(monitoringInfo.pid)
+
+def ReadCPUMemInfo( monitoringInfo ):
+  """
+  Retrieve data of monitoring.
+
+  Args:
+  ----
+      monitoringInfo (MonitoringInfo): info returned by LaunchMonitoring
   
   Returns
   -------
     list<float,str> : list of pairs. First param of pair is CPU usage. Second param of pair is rss memory usage
   """
   import KernelBasis
-  ret = KernelBasis.StopMonitoring()
+  ret = KernelBasis.ReadFloatsInFile( monitoringInfo.outFileName.filename )
   cpu = ret[::2]
   mem_rss = [ int(elt) for elt in ret[1::2]]
   return [(a,b) for a,b in zip(cpu,mem_rss)]
@@ -612,9 +645,10 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       self.addTimeInfoOnLevel2("startExecTime")
       ##
       self.addInfoOnLevel2("measureTimeResolution",self.my_container_py.monitoringtimeresms())
-      monitoringParams = LaunchMonitoring( self.my_container_py.monitoringtimeresms() )
+      monitoringParams = LaunchTimeCPUMonitoring( self.my_container_py.monitoringtimeresms() )
       exec(self.ccode, self.context)
-      cpumeminfo = StopMonitoring( )
+      StopMonitoring( monitoringParams )
+      cpumeminfo = ReadCPUMemInfo( monitoringParams )
       ##
       self.addInfoOnLevel2("CPUMemDuringExec",cpumeminfo)
       del monitoringParams

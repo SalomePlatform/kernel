@@ -62,9 +62,9 @@ void setIOROfEmbeddedNS(const std::string& ior);
 
 double GetTimeAdjustmentCst();
 
-void LaunchMonitoring(const std::string& pyScriptToEvaluate, const std::string& outFileName);
+long LaunchMonitoring(const std::string& pyScriptToEvaluate);
 
-std::vector<double> StopMonitoring();
+void StopMonitoring(long pid);
 
 bool VerbosityActivated();
 
@@ -97,6 +97,17 @@ PyObject *HeatMarcelSwig(double timeAjustment, unsigned int nbThreads = 0)
   return ret;
 }
 
+std::vector<double> ReadFloatsInFileSwig(const std::string& fileName)
+{
+  std::vector<double> ret;
+  try
+  {
+    ret = SALOME::ReadFloatsInFile( fileName );
+  }
+  catch(std::exception& e) { }
+  return ret;
+}
+
 void SetVerbosityLevelSwig(const std::string& level)
 {
   SetVerbosityLevelStr(level);
@@ -107,3 +118,9 @@ std::string VerbosityLevelSwig()
   return VerbosityLevelStr();
 }
 }
+
+%pythoncode %{
+def ReadFloatsInFile( fileName ):
+  ret = ReadFloatsInFileSwig( fileName )
+  return ret
+%}

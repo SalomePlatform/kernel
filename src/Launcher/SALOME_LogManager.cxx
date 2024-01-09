@@ -101,7 +101,8 @@ AutoPyRef SALOME_ContainerScriptExecPerfLog::end()
 {
   AutoGIL gstate;
   //https://docs.python.org/3/c-api/arg.html#c.Py_BuildValue
-  AutoPyRef result(PyObject_CallMethod(pyObj(),(char*)"end","y#",_data.data(),_data.size(),nullptr) ) ;
+  AutoPyRef dataPy(PyBytes_FromStringAndSize(_data.data(),_data.size()));
+  AutoPyRef result(PyObject_CallMethod(pyObj(),(char*)"end","O",dataPy.get(),nullptr) ) ;
   if (PyErr_Occurred())
   {
     std::string error("can not end");
@@ -238,6 +239,23 @@ char *SALOME_ContainerPerfLog::getContainerEntryInNS()
 
 /////
 
+std::string SALOME_SafeLoggerFileHolder::getLastVersionOfFileNameLogger()
+{
+  switch( _version_activated )
+  {
+  case SafeLoggerActiveVersionType::VersionA_Activated:
+    return _logger_file_a;
+  case SafeLoggerActiveVersionType::VersionB_Activated:
+    return _logger_file_b;
+  case SafeLoggerActiveVersionType::NoVersion_Activated:
+    return std::string();
+  default:
+    throw std::runtime_error("getLastVersionOfFileNameLogger : Situation not managed");
+  }
+}
+
+/////
+
 SALOME_LogManager::SALOME_LogManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa,SALOME_NamingService_Abstract *ns):_poa(poa)
 {
   _NS.reset(ns);
@@ -311,6 +329,34 @@ SALOME::vectorOfByte *SALOME_LogManager::getAllStruct(bool clearMemory)
 {
   std::vector<char> data = this->dumpCppInternalFrmt(clearMemory);
   return FromVectCharToCorba(data);
+}
+
+void SALOME_LogManager::putStructInFileAtomic(bool clearMemory, const char *fileName)
+{
+  std::vector<char> data = this->dumpCppInternalFrmt(clearMemory);
+  {
+    AutoGIL gstate;
+    AutoPyRef dataPy(PyBytes_FromStringAndSize(data.data(),data.size()));
+    AutoPyRef result = PyObject_CallMethod(_pyLogManager,(char*)"putStructInFileAtomic","Os",dataPy.get(),fileName,nullptr);
+  }
+}
+
+void SALOME_LogManager::setFileNamePairOfLogger(const char *loggerFileNameA, const char *loggerFileNameB)
+{
+  _safe_logger_file_holder.setFileNamePairOfLogger(loggerFileNameA,loggerFileNameB);
+}
+
+void SALOME_LogManager::getFileNamePairOfLogger(CORBA::String_out loggerFileNameA, CORBA::String_out loggerFileNameB)
+{
+  std::string loggerFileNameAS,loggerFileNameBS;
+  _safe_logger_file_holder.getFileNamePairOfLogger(loggerFileNameAS,loggerFileNameBS);
+  loggerFileNameA = CORBA::string_dup(loggerFileNameAS.c_str());
+  loggerFileNameB = CORBA::string_dup(loggerFileNameBS.c_str());
+}
+
+char *SALOME_LogManager::getLastVersionOfFileNameLogger()
+{
+  return CORBA::string_dup( _safe_logger_file_holder.getLastVersionOfFileNameLogger().c_str() );
 }
 
 ///////////////////////

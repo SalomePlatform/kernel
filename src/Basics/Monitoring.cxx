@@ -44,14 +44,10 @@
 #include <signal.h>
 #endif
 
-static std::string _out_filename;
 #ifndef WIN32
-static pid_t pid_of_subprocess = 0;
-#endif
-
-#ifndef WIN32
-static void LaunchMonitoringLinux(const std::string& pyScriptToEvaluate, const std::string& outFileName)
+static long LaunchMonitoringLinux(const std::string& pyScriptToEvaluate)
 {
+  pid_t pid_of_subprocess = 0;
   constexpr char PYTHON_EXEC[] = "python3";
   pid_t pid = fork();
   if (pid == -1)
@@ -69,14 +65,14 @@ static void LaunchMonitoringLinux(const std::string& pyScriptToEvaluate, const s
   {
     pid_of_subprocess = pid;
   }
+  return pid_of_subprocess;
 }
 #endif
 
-void SALOME::LaunchMonitoring(const std::string& pyScriptToEvaluate, const std::string& outFileName)
+long SALOME::LaunchMonitoring(const std::string& pyScriptToEvaluate)
 {
-  _out_filename = outFileName;
 #ifndef WIN32
-  LaunchMonitoringLinux(pyScriptToEvaluate,outFileName);
+  return LaunchMonitoringLinux(pyScriptToEvaluate);
 #else
   throw std::runtime_error("LaunchMonitoring not implemented for Windows !");
 #endif
@@ -88,7 +84,7 @@ std::vector<double> SALOME::ReadFloatsInFile(const std::string& fileName)
 
   if(!inputFile.is_open())
   {
-    std::ostringstream oss; oss << "Impossible to open file \"" << _out_filename<< "\" !";
+    std::ostringstream oss; oss << "Impossible to open file \"" << fileName << "\" !";
     throw std::runtime_error( oss.str() );
   }
   std::vector<double> ret;
@@ -114,25 +110,17 @@ std::vector<double> SALOME::ReadFloatsInFile(const std::string& fileName)
 }
 
 #ifndef WIN32
-static std::vector<double> StopMonitoringLinux()
+static void StopMonitoringLinux(long pid)
 {
+  pid_t pid_of_subprocess = (pid_t) pid;
   kill( pid_of_subprocess, SIGTERM );
-  std::vector<double> ret;
-  try
-  {
-    ret = SALOME::ReadFloatsInFile( _out_filename );
-  }
-  catch(std::exception& e) { }
-  pid_of_subprocess = 0;
-  _out_filename.clear();
-  return ret;
 }
 #endif
 
-std::vector<double> SALOME::StopMonitoring()
+void SALOME::StopMonitoring(long pid)
 {
 #ifndef WIN32
-  return StopMonitoringLinux();
+  return StopMonitoringLinux( pid );
 #else
   throw std::runtime_error("StopMonitoring not implemented for Windows !");
 #endif

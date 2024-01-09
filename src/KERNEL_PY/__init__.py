@@ -272,6 +272,8 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     type(logm).Fetch = LogManagerFetch
     type(logm).DumpInFile = LogManagerDumpInFile
     type(logm).LoadFromFile = LogManagerLoadFromFile
+    type(logm).LaunchMonitoringDumpFile = LogManagerLaunchMonitoringDumpFile
+    type(logm).GetLatestMonitoringDumpFile = LogManagerGetLatestMonitoringDumpFile
     #
     import KernelLogger
     naming_service.Register(KernelLogger.myLogger(),"/Logger")
@@ -477,6 +479,91 @@ def LogManagerLoadFromFile(self,fileName):
     with open(fileName,"rb") as f:
         data = f.read()
     return unserializeLogManager( data )
+
+class LogManagerLaunchMonitoringFileCtxMgr:
+    def __init__(self, intervalInMs, outFileName):
+        self._interval_in_ms = intervalInMs
+        self._out_filename = outFileName
+        self._monitoring_params = None
+    def __enter__(self):
+        import salome
+        self._monitoring_params = salome.logm.LaunchMonitoringDumpFile(self._interval_in_ms, self._out_filename)
+        return self._monitoring_params
+    def __exit__(self,exctype, exc, tb):
+        import SALOME_PyNode
+        import salome
+        SALOME_PyNode.StopMonitoring( self._monitoring_params )
+        salome.logm.GetLatestMonitoringDumpFile()
+        pass
+
+def LogManagerLaunchMonitoringDumpFile(self, intervalInMs, outFileName):
+    """
+    This method loops indefinitely every intervalInMs milliseconds to dump the singleton 
+    content of perf log stored in salome.logm.
+    This method runs in a dedicated subprocess that can be killed at any time.
+    So subprocess code must deal with.
+
+    See also LogManagerGetLatestMonitoringDumpFile
+    """
+    global orb,logm
+    ior = orb.object_to_string( logm )
+    import os
+    outFileName2 = os.path.abspath( os.path.expanduser(outFileName) )
+    import tempfile
+    import logging
+    import SALOME_PyNode
+    import KernelBasis
+    # outFileNameSave stores the content of outFileName during phase of dumping
+    with tempfile.NamedTemporaryFile(prefix=os.path.basename(outFileName2),dir=os.path.dirname(outFileName2)) as f:
+      outFileNameSave = f.name
+    with tempfile.NamedTemporaryFile(prefix="htopmain_",suffix=".py") as f:
+      tempPyFile = f.name
+    with open(tempPyFile,"w") as f:
+        f.write("""import Engines
+import os
+import shutil
+import CORBA
+import time
+orb=CORBA.ORB_init([''], CORBA.ORB_ID)
+logm = orb.string_to_object("{ior}")
+outFileName = "{outFileName}"
+outFileNameSave = "{outFileNameSave}"
+logm.setFileNamePairOfLogger(outFileName, outFileNameSave )
+import salome
+while(True):
+  if os.path.exists( outFileName ):
+    shutil.copy(outFileName,outFileNameSave)
+    logm.versionB_IsTheLatestValidVersion()
+  salome.LogManagerDumpInFile(logm,outFileName)
+  logm.versionA_IsTheLatestValidVersion()
+  time.sleep( {intervalInMs} / 1000.0 )
+""".format( **locals()))
+    logging.debug( "File for monitoring dump file : {}".format(tempPyFile) )
+    pyFileName = SALOME_PyNode.FileDeleter( tempPyFile )
+    pid = KernelBasis.LaunchMonitoring( tempPyFile )
+    return SALOME_PyNode.MonitoringInfo(pyFileName,None,pid)
+
+def LogManagerGetLatestMonitoringDumpFile(self):
+    import shutil
+    import logging
+    a,b = self.getFileNamePairOfLogger()
+    if a=="" or b=="":
+        return ""
+    if a == b:
+        return a
+    lastVersion = self.getLastVersionOfFileNameLogger()
+    if lastVersion == a:
+        logging.debug("LogManagerGetLatestMonitoringDumpFile SITUATION A")
+        if os.path.exists( b ):
+            os.remove( b )
+        return a
+    if lastVersion == b:
+        logging.debug("LogManagerGetLatestMonitoringDumpFile SITUATION B")
+        if os.path.exists( b ):
+            shutil.move( b, a)
+        return a
+    logging.warning("in LogManagerGetLatestMonitoringDumpFile an unexpected situation araises.")
+    return ""
 
 #to expose all objects to pydoc
 __all__=dir()

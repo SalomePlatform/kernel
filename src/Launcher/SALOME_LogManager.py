@@ -77,3 +77,7 @@ class SALOME_LogManagerHelper:
   def declareContainer(self, contInNS,logfile):
     inst = SALOME_ContainerPerfLog(contInNS,logfile)
     return inst
+  
+  def putStructInFileAtomic(self,s,fileName):
+    with open(fileName,"wb") as f:
+      f.write( s )

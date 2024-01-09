@@ -58,6 +58,13 @@ module Engines
     ContainerPerfLog declareContainer(in string contInNS, in string logfile);
     ListOfContainerPerfLog listOfContainerLogs();
     SALOME::vectorOfByte getAllStruct( in boolean clearMemory );
+    void putStructInFileAtomic(in boolean clearMemory, in string fileName);
+    /* Part of methods dedicated of management of performance log file in the most safety manner */
+    void setFileNamePairOfLogger(in string loggerFileNameA, in string loggerFileNameB);
+    void getFileNamePairOfLogger(out string loggerFileNameA, out string loggerFileNameB);
+    void versionA_IsTheLatestValidVersion();
+    void versionB_IsTheLatestValidVersion();
+    string getLastVersionOfFileNameLogger();
   };
 };
 

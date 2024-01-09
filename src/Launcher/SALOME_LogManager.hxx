@@ -129,6 +129,23 @@ private:
   std::vector< Engines::ContainerScriptPerfLog_var > _scripts;
 };
 
+enum class SafeLoggerActiveVersionType
+{ VersionA_Activated, VersionB_Activated, NoVersion_Activated };
+
+class SALOME_SafeLoggerFileHolder
+{
+public:
+  void setFileNamePairOfLogger(const std::string& loggerFileNameA, const std::string& loggerFileNameB) { _logger_file_a = loggerFileNameA; _logger_file_b = loggerFileNameB; }
+  void getFileNamePairOfLogger(std::string& loggerFileNameA, std::string& loggerFileNameB) { loggerFileNameA = _logger_file_a; loggerFileNameB = _logger_file_b; }
+  void versionA_IsTheLatestValidVersion() { _version_activated = SafeLoggerActiveVersionType::VersionA_Activated; }
+  void versionB_IsTheLatestValidVersion() { _version_activated = SafeLoggerActiveVersionType::VersionB_Activated; }
+  std::string getLastVersionOfFileNameLogger();
+private:
+  std::string _logger_file_a;
+  std::string _logger_file_b;
+  SafeLoggerActiveVersionType _version_activated = SafeLoggerActiveVersionType::NoVersion_Activated;
+};
+
 class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
 {
  public:
@@ -139,6 +156,14 @@ class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
   Engines::ContainerPerfLog_ptr declareContainer(const char *contInNS, const char *logfile) override;
   Engines::ListOfContainerPerfLog *listOfContainerLogs() override;
   SALOME::vectorOfByte *getAllStruct(bool clearMemory) override;
+  void putStructInFileAtomic(bool clearMemory, const char *fileName) override;
+ public:
+  void setFileNamePairOfLogger(const char *loggerFileNameA, const char *loggerFileNameB) override;
+  void getFileNamePairOfLogger(CORBA::String_out loggerFileNameA, CORBA::String_out loggerFileNameB) override;
+  void versionA_IsTheLatestValidVersion() override { _safe_logger_file_holder.versionA_IsTheLatestValidVersion(); }
+  void versionB_IsTheLatestValidVersion() override { _safe_logger_file_holder.versionB_IsTheLatestValidVersion(); }
+  char *getLastVersionOfFileNameLogger() override;
+ public:
   std::size_t getNumberOfContainers() const { return _containers.size(); }
  public:
   void accept(SALOME_VisitorContainerLog &visitor);
@@ -149,6 +174,7 @@ class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
   std::unique_ptr<SALOME_NamingService_Abstract> _NS;
   PortableServer::POA_var _poa;
   std::vector<Engines::ContainerPerfLog_var> _containers;
+  SALOME_SafeLoggerFileHolder _safe_logger_file_holder;
  public:
   static const char NAME_IN_NS[];
 };

@@ -26,9 +26,9 @@
 
 namespace SALOME
 {
-  void BASICS_EXPORT LaunchMonitoring(const std::string& pyScriptToEvaluate, const std::string& outFileName);
+  long BASICS_EXPORT LaunchMonitoring(const std::string& pyScriptToEvaluate);
 
   std::vector<double> BASICS_EXPORT ReadFloatsInFile(const std::string& fileName);
 
-  std::vector<double> BASICS_EXPORT StopMonitoring();
+  void BASICS_EXPORT StopMonitoring(long pid);
 }
