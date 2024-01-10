@@ -271,9 +271,9 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     type(logm).NaiveFetch = LogManagerNaiveFetch
     type(logm).Fetch = LogManagerFetch
     type(logm).DumpInFile = LogManagerDumpInFile
-    type(logm).LoadFromFile = LogManagerLoadFromFile
     type(logm).LaunchMonitoringDumpFile = LogManagerLaunchMonitoringDumpFile
     type(logm).GetLatestMonitoringDumpFile = LogManagerGetLatestMonitoringDumpFile
+    type(logm).DumpIORInFile = LogManagerDumpIORInFile
     #
     import KernelLogger
     naming_service.Register(KernelLogger.myLogger(),"/Logger")
@@ -474,11 +474,6 @@ def LogManagerDumpInFile(self,fileName,clearMemory = False):
     with open(fileName,"wb") as f:
         f.write( self.getAllStruct( clearMemory ) )
 
-def LogManagerLoadFromFile(self,fileName):
-    from SALOME_ContainerHelper import unserializeLogManager
-    with open(fileName,"rb") as f:
-        data = f.read()
-    return unserializeLogManager( data )
 
 class LogManagerLaunchMonitoringFileCtxMgr:
     def __init__(self, intervalInMs, outFileName):
@@ -541,7 +536,36 @@ while(True):
     logging.debug( "File for monitoring dump file : {}".format(tempPyFile) )
     pyFileName = SALOME_PyNode.FileDeleter( tempPyFile )
     pid = KernelBasis.LaunchMonitoring( tempPyFile )
-    return SALOME_PyNode.MonitoringInfo(pyFileName,None,pid)
+    return SALOME_PyNode.MonitoringInfo(pyFileName,intervalInMs,None,pid)
+
+def LogManagerDumpIORInFile(self, iorFileName):
+    global logm
+    with open(iorFileName,"w") as f:
+        f.write( orb.object_to_string( logm ) )
+
+def LogManagerLoadFromFile(fileName):
+    from SALOME_ContainerHelper import unserializeLogManager
+    with open(fileName,"rb") as f:
+        data = f.read()
+    return unserializeLogManager( data )
+
+def LogManagerLoadFromIORFile( iorFile ):
+    global orb
+    def LoadAndWrite(logm,tempFileName):
+        import SALOME_PyNode
+        logm.putStructInFileAtomic( False, tempFileName )
+        tempFileAuto = SALOME_PyNode.FileDeleter( tempFileName )
+        ret = LogManagerLoadFromFile( tempFileAuto.filename )
+        return ret
+    with open(iorFile,"r") as f:
+        ior = f.read()
+    import Engines
+    import tempfile
+    salome_init_without_session()
+    logm = orb.string_to_object( ior )
+    with tempfile.NamedTemporaryFile(dir=os.path.expanduser("~")) as f:
+        tempFileName = f.name
+    return LoadAndWrite( logm, tempFileName )
 
 def LogManagerGetLatestMonitoringDumpFile(self):
     import shutil

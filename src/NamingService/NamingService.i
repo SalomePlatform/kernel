@@ -137,6 +137,10 @@ def NamingService_RefOfNS(cls):
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(ret)
 NamingService.RefOfNS = classmethod(NamingService_RefOfNS)
+def NamingService_DumpIORInFile(cls,iorFileName):
+  with open( iorFileName, "w" ) as f:
+    f.write( cls.IOROfNS() )
+NamingService.DumpIORInFile = classmethod(NamingService_DumpIORInFile)
 def NamingService_KillContainersInFile(cls,logFileName):
   import Engines
   import CORBA

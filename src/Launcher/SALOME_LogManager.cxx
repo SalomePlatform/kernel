@@ -28,6 +28,8 @@
 #include <Basics_Utils.hxx>
 #endif
 
+#include "utilities.h"
+
 #include <sstream>
 #include <fstream>
 #include <algorithm>
@@ -56,6 +58,17 @@ static SALOME::vectorOfByte *FromVectCharToCorba(const std::vector<char>& data)
   for(auto i = 0 ; i < length ; ++i)
     ret[i] = data[i];
   return ret._retn();
+}
+
+SALOME_ContainerScriptPerfLog::~SALOME_ContainerScriptPerfLog()
+{
+  for(auto execSession : _sessions)
+  {
+    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(execSession);
+    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(execSession);
+    getPOA()->deactivate_object(oid);
+  }
+  _sessions.clear();
 }
 
 PortableServer::POA_var SALOME_ContainerScriptExecPerfLog::getPOA()
@@ -142,6 +155,7 @@ void SALOME_ContainerScriptPerfLog::accept(SALOME_VisitorContainerLog &visitor)
   visitor.leaveContainerScriptPerfLog( *this );
 }
 
+
 Engines::ContainerScriptExecPerfLog_ptr SALOME_ContainerScriptPerfLog::addExecutionSession()
 {
   SALOME_ContainerScriptExecPerfLog *execution = new SALOME_ContainerScriptExecPerfLog(this);
@@ -176,6 +190,17 @@ Engines::ListOfContainerScriptExecPerfLog *SALOME_ContainerScriptPerfLog::listOf
 }
 
 /////
+
+SALOME_ContainerPerfLog::~SALOME_ContainerPerfLog()
+{
+  for(auto script : _scripts)
+  {
+    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(script);
+    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(script);
+    getPOA()->deactivate_object(oid);
+  }
+  _scripts.clear();
+}
 
 PortableServer::POA_var SALOME_ContainerPerfLog::getPOA()
 {
@@ -273,6 +298,22 @@ SALOME_LogManager::SALOME_LogManager(CORBA::ORB_ptr orb, PortableServer::POA_var
     PyObject *globals = PyModule_GetDict(mainmod);
     _pyLogManager = PyDict_GetItemString(globals, "mylogmanager");
   }
+}
+
+SALOME_LogManager::~SALOME_LogManager()
+{
+  this->clear();
+}
+
+void SALOME_LogManager::clear()
+{
+  for(auto cont : _containers)
+  {
+    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(cont);
+    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(cont);
+    getPOA()->deactivate_object(oid);
+  }
+  _containers.clear();
 }
 
 Engines::ContainerPerfLog_ptr SALOME_LogManager::declareContainer(const char *contInNS, const char *logfile)

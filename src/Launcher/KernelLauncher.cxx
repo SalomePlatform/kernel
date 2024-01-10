@@ -32,6 +32,7 @@
 #include <sstream>
 
 static Engines::LogManager_var LogManagerInstanceSingleton;
+static SALOME::ExternalServerLauncher_var ExternalServerLauncherSingleton;
 
 std::string RetrieveInternalInstanceOfLocalCppResourcesManager()
 {
@@ -69,20 +70,23 @@ std::string GetResourcesManagerInstance()
 std::string GetExternalServerInstance()
 {
   CORBA::ORB_ptr orb = KERNEL::getORB();
-  CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
-  PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+  if( CORBA::is_nil(ExternalServerLauncherSingleton) )
+  {
+    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+    PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+    //
+    PortableServer::POA_var safePOA = root_poa->find_POA("SingleThreadPOA",true);
+    //
+    SALOME_CPythonHelper *cPyh(SALOME_CPythonHelper::Singleton());
+    SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
+    SALOME_ExternalServerLauncher *esm(new SALOME_ExternalServerLauncher(cPyh,orb,safePOA,ns));
+    esm->_remove_ref();
+    //
+    CORBA::Object_var esmPtr = safePOA->servant_to_reference(esm);
+    ExternalServerLauncherSingleton = SALOME::ExternalServerLauncher::_narrow(esmPtr);
+  }
   //
-  PortableServer::POA_var safePOA = root_poa->find_POA("SingleThreadPOA",true);
-  //
-  SALOME_CPythonHelper *cPyh(SALOME_CPythonHelper::Singleton());
-  SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
-  SALOME_ExternalServerLauncher *esm(new SALOME_ExternalServerLauncher(cPyh,orb,safePOA,ns));
-  esm->_remove_ref();
-  //
-  CORBA::Object_var esmPtr = safePOA->servant_to_reference(esm);
-  SALOME::ExternalServerLauncher_var esmCPtr = SALOME::ExternalServerLauncher::_narrow(esmPtr);
-  //
-  CORBA::String_var ior = orb->object_to_string(esmCPtr);
+  CORBA::String_var ior = orb->object_to_string(ExternalServerLauncherSingleton);
   return std::string(ior.in());
 }
 

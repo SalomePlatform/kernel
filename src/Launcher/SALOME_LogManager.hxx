@@ -79,6 +79,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ContainerScriptPerfLog : public POA_Engines::
 {
 public:
   SALOME_ContainerScriptPerfLog(SALOME_ContainerPerfLog *father, const std::string& name, const std::string& code):_father(father),_name(name),_code(code) { }
+  ~SALOME_ContainerScriptPerfLog();
   SALOME_ContainerPerfLog *father() const { return _father; }
   void setPyObj(PyObject *obj) { _pyScriptLog.set(obj); }
   PyObject *pyObj() { return _pyScriptLog.get(); }
@@ -106,6 +107,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ContainerPerfLog : public POA_Engines::Contai
 {
 public:
   SALOME_ContainerPerfLog(SALOME_LogManager *father, const std::string& nameInNS, const std::string& logFile):_father(father),_name_in_ns(nameInNS),_log_file(logFile) { }
+  ~SALOME_ContainerPerfLog();
   SALOME_LogManager *father() const { return _father; }
   void setPyObj(PyObject *obj) { _pyContLog.set(obj); }
   PyObject *pyObj() { return _pyContLog.get(); }
@@ -152,7 +154,8 @@ class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
   SALOME_LogManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns = nullptr);
   PortableServer::POA_var getPOA() { return _poa; }
   PyObject *pyHelper() const { return _pyLogManager; }
-  virtual ~SALOME_LogManager() = default;
+  ~SALOME_LogManager();
+  void clear() override;
   Engines::ContainerPerfLog_ptr declareContainer(const char *contInNS, const char *logfile) override;
   Engines::ListOfContainerPerfLog *listOfContainerLogs() override;
   SALOME::vectorOfByte *getAllStruct(bool clearMemory) override;

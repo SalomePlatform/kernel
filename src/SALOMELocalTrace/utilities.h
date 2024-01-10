@@ -51,7 +51,7 @@
  * thread waken up is not guaranteed (no fifo or priority rules in Linux Kernel)
  */
 
-#define MESS_INIT(deb) std::ostringstream os; os<<deb
+#define MESS_INIT(deb) std::ostringstream os; SALOME::AppendTimeClock(os); os << deb
 #define MESS_BEGIN(deb) MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
 #define MESS_END std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
 #define MESS_ABORT std::endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
@@ -63,8 +63,7 @@
 
 // --- Some macros are always defined (without _DEBUG_): for use with release version
 
-#define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
-#define BRIEF_INFOS(msg) {std::cout << msg << std::endl;}
+#define INFOS(msg) {MESS_BEGIN("Infos - ") << msg << MESS_END}
 #define PYSCRIPT(msg) {MESS_INIT("---PYSCRIPT--- ") << msg << MESS_END}
 #define INTERRUPTION(msg) {MESS_BEGIN("- INTERRUPTION: ")<< msg << MESS_ABORT}
 

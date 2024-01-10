@@ -29,6 +29,7 @@ import glob
 import pickle
 import tempfile
 import logging
+from datetime import datetime
 
 def flush():
     import sys
@@ -64,30 +65,38 @@ class testPerfLogManager1(unittest.TestCase):
         """
         hostname = "localhost"
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test")
+        salome.logm.clear()
         #PROXY_THRES = "-1"
         PROXY_THRES = "1"
-        with tempfile.TemporaryDirectory() as tmpdirnameMonitoring:
-            monitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeHtop.pckl" )
-            monitoringFileTwo = os.path.join( str( tmpdirnameMonitoring ), "zeHtopTwo.pckl" )
-            logging.debug("Monitoring file : {}".format(monitoringFile))
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                with salome.LogManagerLaunchMonitoringFileCtxMgr(250,monitoringFile) as monitoringParams:
-                    pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
-                    logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
-                    val_for_big_obj = str( tmpdirname )
-                    os.environ["SALOME_FILE_BIG_OBJ_DIR"] = val_for_big_obj
-                    # Override environement for all containers launched
-                    salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
-                    salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
-                    cont = salome.cm.GiveContainer(cp)
-                    logging.debug("{} {}".format(40*"*",cont.getPID()))
-                    script_st = """
+        with SALOME_PyNode.GenericPythonMonitoringLauncherCtxMgr( SALOME_PyNode.FileSystemMonitoring(1000,os.path.dirname( salome.__file__ )) ) as monitoringParamsForFileMaster:
+            with SALOME_PyNode.GenericPythonMonitoringLauncherCtxMgr( SALOME_PyNode.CPUMemoryMonitoring(1000) ) as monitoringParamsMaster:
+                with tempfile.TemporaryDirectory() as tmpdirnameMonitoring:
+                    monitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeHtop.pckl" )
+                    monitoringFileTwo = os.path.join( str( tmpdirnameMonitoring ), "zeHtopTwo.pckl" )
+                    iorLogm = os.path.join( str( tmpdirnameMonitoring ), "logm.ior" )
+                    with open(iorLogm,"w") as f:
+                        f.write( salome.orb.object_to_string(salome.logm) )
+                    logging.debug("Monitoring file : {}".format(monitoringFile))
+                    with tempfile.TemporaryDirectory() as tmpdirname:
+                        with salome.LogManagerLaunchMonitoringFileCtxMgr(250,monitoringFile) as monitoringParams:
+                            pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
+                            logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
+                            val_for_big_obj = str( tmpdirname )
+                            os.environ["SALOME_FILE_BIG_OBJ_DIR"] = val_for_big_obj
+                            # Override environement for all containers launched
+                            salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+                            salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
+                            cont = salome.cm.GiveContainer(cp)
+                            logging.debug("{} {}".format(40*"*",cont.getPID()))
+                            script_st = """
 import logging
 import sys
 import KernelBasis
+from datetime import datetime
 cst = KernelBasis.GetTimeAdjustmentCst()
 logging.debug("constant = {}".format(cst))
 nbcore = 3
+my_log_4_this_session.addFreestyleAndFlush( ("a",datetime.now()) ) # exemple of custom tracking
 print("coucou {} {}".format(len(zeinput0),len(zeinput1)))
 logging.debug("debug or not debug")
 ob = [ [ bytes(3000000) ] ]
@@ -98,90 +107,216 @@ pihm, ts = KernelBasis.HeatMarcel(1 * nbcore * cst,nbcore)
 print("Time ellapse spent : {} s".format(ts))
 sys.stderr.write("fake error message\\n")
 """
-                    poa = salome.orb.resolve_initial_references("RootPOA")
-                    zeinput0 = [ bytes(100000000) ]
-                    if SALOME_PyNode.GetBigObjectOnDiskThreshold() != -1:
-                        zeinput0 = SALOME_PyNode.ProxyfyPickeled( zeinput0 )
-                        zeinput0.unlinkOnDestructor()
-                    obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["zeinput0"],{"zeinput0": [zeinput0], "zeinput1": [ [zeinput0], [zeinput0] ] }) ))
-                    id_o = poa.activate_object(obj)
-                    refPtr = poa.id_to_reference(id_o)
-                    pyscript2 = cont.createPyScriptNode("testScript2",script_st)
-                    pyscript2.executeFirst(refPtr)
-                    ret2 = pyscript2.executeSecond(["ob","ob2"])# generate a DeprecationWarning: PY_SSIZE_T_CLEAN will be required for '#' formats on debian11 ?
-                    ret3, fileNamesProxyOut = unProxyfy( ret2 )
-                    logging.getLogger().debug("test logging 1")
-                    logging.debug("test logging 2")
-                    logging.debug( salome.orb.object_to_string( salome.logm ) )
-                    a = salome.logm.NaiveFetch()
-                    logging.debug(a)
-                    logging.debug(a[0][1][0])
-                    logging.debug( a[0][1][0].get()._input_hdd_mem._data[0]._data[0]._hdd_mem ) # important
-                    logging.debug( a[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
-                    fileNameProxyIn = a[0][1][0].get()._input_hdd_mem._data[0]._data[0]._file_name
-                    logging.debug( fileNameProxyIn )
-                    del zeinput0
-                    del ret3
-                    import gc ; gc.collect()
-                    if fileNameProxyIn is not None:
-                        if os.path.exists(fileNameProxyIn):
-                            raise RuntimeError("Oooops 2")
-                    for fileNameProxyOut in fileNamesProxyOut:
-                        if fileNameProxyOut is not None:
-                            if os.path.exists(fileNameProxyOut):
-                                raise RuntimeError("Oooops 3")
-                    # execution #2 inside last
-                    script_st2 = """
+                            poa = salome.orb.resolve_initial_references("RootPOA")
+                            zeinput0 = [ bytes(100000000) ]
+                            if SALOME_PyNode.GetBigObjectOnDiskThreshold() != -1:
+                                zeinput0 = SALOME_PyNode.ProxyfyPickeled( zeinput0 )
+                                zeinput0.unlinkOnDestructor()
+                            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["zeinput0"],{"zeinput0": [zeinput0], "zeinput1": [ [zeinput0], [zeinput0] ] }) ))
+                            id_o = poa.activate_object(obj)
+                            refPtr = poa.id_to_reference(id_o)
+                            pyscript2 = cont.createPyScriptNode("testScript2",script_st)
+                            pyscript2.executeFirst(refPtr)
+                            ret2 = pyscript2.executeSecond(["ob","ob2"])# generate a DeprecationWarning: PY_SSIZE_T_CLEAN will be required for '#' formats on debian11 ?
+                            ret3, fileNamesProxyOut = unProxyfy( ret2 )
+                            logging.getLogger().debug("test logging 1")
+                            logging.debug("test logging 2")
+                            logging.debug( salome.orb.object_to_string( salome.logm ) )
+                            a = salome.logm.NaiveFetch()
+                            logging.debug(a)
+                            fs = a[0][1][0].get().freestyle
+                            self.assertEqual(len(fs),1)
+                            self.assertEqual(fs[0][0],"a")
+                            self.assertTrue( isinstance( fs[0][1], datetime ) )
+                            logging.debug(a[0][1][0])
+                            logging.debug( a[0][1][0].get()._input_hdd_mem._data[0]._data[0]._hdd_mem ) # important
+                            logging.debug( a[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
+                            fileNameProxyIn = a[0][1][0].get()._input_hdd_mem._data[0]._data[0]._file_name
+                            logging.debug( fileNameProxyIn )
+                            del zeinput0
+                            del ret3
+                            import gc ; gc.collect()
+                            if fileNameProxyIn is not None:
+                                if os.path.exists(fileNameProxyIn):
+                                    raise RuntimeError("Oooops 2")
+                            for fileNameProxyOut in fileNamesProxyOut:
+                                if fileNameProxyOut is not None:
+                                    if os.path.exists(fileNameProxyOut):
+                                        raise RuntimeError("Oooops 3")
+                            # execution #2 inside last
+                            script_st2 = """
 import logging
 b = 7+a
 logging.debug("Execution 2")
 import time
 time.sleep(1)
 """
-                    obj2 = SALOME_PyNode.SenderByte_i(poa,pickle.dumps((["a"],{"a":3})))
-                    id2_o = poa.activate_object(obj2)
-                    refPtr2 = poa.id_to_reference(id2_o)
-                    pyscript2.assignNewCompiledCode(script_st2)
-                    pyscript2.executeFirst(refPtr2)
-                    ret2_0 = pyscript2.executeSecond(["b"])
-                    ret2_1, fileNamesProxyOut2 = unProxyfy( ret2_0 )
-                    logging.debug( fileNamesProxyOut2 )
-                    a = salome.logm.NaiveFetch()
-                    del ret2_1
+                            obj2 = SALOME_PyNode.SenderByte_i(poa,pickle.dumps((["a"],{"a":3})))
+                            id2_o = poa.activate_object(obj2)
+                            refPtr2 = poa.id_to_reference(id2_o)
+                            pyscript2.assignNewCompiledCode(script_st2)
+                            pyscript2.executeFirst(refPtr2)
+                            ret2_0 = pyscript2.executeSecond(["b"])
+                            ret2_1, fileNamesProxyOut2 = unProxyfy( ret2_0 )
+                            logging.debug( fileNamesProxyOut2 )
+                            a = salome.logm.NaiveFetch()
+                            del ret2_1
+                            import gc ; gc.collect()
+                            for fileNameProxyOut in fileNamesProxyOut2:
+                                if fileNameProxyOut is not None:
+                                    if os.path.exists(fileNameProxyOut):
+                                        raise RuntimeError("Oooops 3")
+                            #
+                            fname = os.path.join(str( tmpdirname ),"perf.log")
+                            salome.logm.DumpInFile( fname )
+                            logManagerInst0 = salome.LogManagerLoadFromFile( fname )
+                            logging.debug( logManagerInst0[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
+                            logManagerInst = salome.logm.Fetch(True)
+                            logManagerInst2 = salome.logm.Fetch(True)
+                            logging.debug( salome.LogManagerLoadFromIORFile( iorLogm )[0][1][0].get() )
+                            salome.logm.putStructInFileAtomic(False,monitoringFileTwo)
+                            logging.debug( salome.LogManagerLoadFromFile(monitoringFileTwo)[0][1][0].get() )
+                            logging.debug( logManagerInst[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
+                            self.assertTrue( logManagerInst2[0][1][0].get() is None )
+                            self.assertTrue( logManagerInst[0][1][1].get()._output_hdd_mem._data[0]._file_name == fileNamesProxyOut2[0] )
+                            logging.debug( logManagerInst[0][1][1].log() )
+                            # 2 files because a backup file is stored in case of unexpected kill during 
+                            self.assertEqual( len( glob.glob("{}*".format(monitoringFile) ) ) , 2 )
+                            # leaving MonitoringFile Manager -> backup file is killed
+                            pass
+                    #self.assertEqual(monitoringFileSafe, monitoringFile)
+                    self.assertEqual( len( glob.glob("{}*".format(monitoringFile) ) ) , 1 )
+                    logging.debug( salome.LogManagerLoadFromFile(monitoringFile)[0][1][0].get() )
+                    del monitoringParams
                     import gc ; gc.collect()
-                    for fileNameProxyOut in fileNamesProxyOut2:
-                        if fileNameProxyOut is not None:
-                            if os.path.exists(fileNameProxyOut):
-                                raise RuntimeError("Oooops 3")
-                    #
-                    fname = os.path.join(str( tmpdirname ),"perf.log")
-                    salome.logm.DumpInFile( fname )
-                    logManagerInst0 = salome.logm.LoadFromFile( fname )
-                    logging.debug( logManagerInst0[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
-                    logManagerInst = salome.logm.Fetch(True)
-                    logManagerInst2 = salome.logm.Fetch(True)
-                    salome.logm.putStructInFileAtomic(False,monitoringFileTwo)
-                    logging.debug( salome.logm.LoadFromFile(monitoringFileTwo)[0][1][0].get() )
-                    logging.debug( logManagerInst[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
-                    self.assertTrue( logManagerInst2[0][1][0].get() is None )
-                    self.assertTrue( logManagerInst[0][1][1].get()._output_hdd_mem._data[0]._file_name == fileNamesProxyOut2[0] )
-                    logging.debug( logManagerInst[0][1][1].log() )
-                    # 2 files because a backup file is stored in case of unexpected kill during 
-                    self.assertEqual( len( glob.glob("{}*".format(monitoringFile) ) ) , 2 )
-                    # leaving MonitoringFile Manager -> backup file is killed
-                    pass
-                #self.assertEqual(monitoringFileSafe, monitoringFile)
-                self.assertEqual( len( glob.glob("{}*".format(monitoringFile) ) ) , 1 )
-                logging.debug( salome.logm.LoadFromFile(monitoringFile)[0][1][0].get() )
-                del monitoringParams
-                import gc ; gc.collect()
-                self.assertFalse( os.path.exists(pyFileContainingCodeOfMonitoring) )
-                cont.Shutdown()
+                    self.assertFalse( os.path.exists(pyFileContainingCodeOfMonitoring) )
+                    cont.Shutdown()
+                fnToTest0 = monitoringParamsMaster.outFileName.filename
+                cpumeminfo = SALOME_PyNode.ReadCPUMemInfo( monitoringParamsMaster )
+                self.assertTrue( isinstance(monitoringParamsMaster.outFileName,SALOME_PyNode.FileDeleter) )
+                del monitoringParamsMaster
+                import gc
+                gc.collect()
+                self.assertTrue( os.path.exists( fnToTest0 ) )
+            dirInfo = SALOME_PyNode.ReadInodeSizeInfo( monitoringParamsForFileMaster )
+            self.assertTrue( isinstance(monitoringParamsForFileMaster.outFileName,SALOME_PyNode.FileDeleter) )
+            self.assertFalse( os.path.exists( fnToTest0 ) )
+        logging.debug( cpumeminfo )
+        logging.debug( dirInfo )
+        
+    def testPerfLogManager1(self):
+        """
+        [EDF29150] : Similar than testPerfLogManager1 but with out fileName precised for CPU/Mem monitoring and FS monitoring
+        """
+        hostname = "localhost"
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test_three")
+        salome.logm.clear()
+        #PROXY_THRES = "-1"
+        PROXY_THRES = "1"
+        with tempfile.TemporaryDirectory() as tmpdirnameMonitoring:
+            fsMonitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeFS.txt" )
+            cpuMemMonitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeCPUMem.txt" )
+            with SALOME_PyNode.GenericPythonMonitoringLauncherCtxMgr( SALOME_PyNode.FileSystemMonitoring(1000,os.path.dirname( salome.__file__ ),fsMonitoringFile) ) as monitoringParamsForFileMaster:
+                with SALOME_PyNode.GenericPythonMonitoringLauncherCtxMgr( SALOME_PyNode.CPUMemoryMonitoring(1000,cpuMemMonitoringFile) ) as monitoringParamsMaster:
+                    monitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeHtop.pckl" )
+                    monitoringFileTwo = os.path.join( str( tmpdirnameMonitoring ), "zeHtopTwo.pckl" )
+                    iorLogm = os.path.join( str( tmpdirnameMonitoring ), "logm.ior" )
+                    with open(iorLogm,"w") as f:
+                        f.write( salome.orb.object_to_string(salome.logm) )
+                    logging.debug("Monitoring file : {}".format(monitoringFile))
+                    with tempfile.TemporaryDirectory() as tmpdirname:
+                        with salome.LogManagerLaunchMonitoringFileCtxMgr(250,monitoringFile) as monitoringParams:
+                            pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
+                            logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
+                            val_for_big_obj = str( tmpdirname )
+                            os.environ["SALOME_FILE_BIG_OBJ_DIR"] = val_for_big_obj
+                            # Override environement for all containers launched
+                            salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+                            salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
+                            cont = salome.cm.GiveContainer(cp)
+                            logging.debug("{} {}".format(40*"*",cont.getPID()))
+                            script_st = """
+import logging
+import sys
+import KernelBasis
+from datetime import datetime
+cst = KernelBasis.GetTimeAdjustmentCst()
+logging.debug("constant = {}".format(cst))
+nbcore = 3
+my_log_4_this_session.addFreestyleAndFlush( ("a",datetime.now()) ) # exemple of custom tracking
+print("coucou {} {}".format(len(zeinput0),len(zeinput1)))
+logging.debug("debug or not debug")
+ob = [ [ bytes(3000000) ] ]
+pihm, ts = KernelBasis.HeatMarcel(1 * nbcore * cst,nbcore)
+print("Time ellapse spent : {} s".format(ts))
+ob2 = [ [ bytes(100000) ] ]
+pihm, ts = KernelBasis.HeatMarcel(1 * nbcore * cst,nbcore)
+print("Time ellapse spent : {} s".format(ts))
+sys.stderr.write("fake error message\\n")
+"""
+                            poa = salome.orb.resolve_initial_references("RootPOA")
+                            zeinput0 = [ bytes(100000000) ]
+                            if SALOME_PyNode.GetBigObjectOnDiskThreshold() != -1:
+                                zeinput0 = SALOME_PyNode.ProxyfyPickeled( zeinput0 )
+                                zeinput0.unlinkOnDestructor()
+                            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["zeinput0"],{"zeinput0": [zeinput0], "zeinput1": [ [zeinput0], [zeinput0] ] }) ))
+                            id_o = poa.activate_object(obj)
+                            refPtr = poa.id_to_reference(id_o)
+                            pyscript2 = cont.createPyScriptNode("testScript2",script_st)
+                            pyscript2.executeFirst(refPtr)
+                            ret2 = pyscript2.executeSecond(["ob","ob2"])# generate a DeprecationWarning: PY_SSIZE_T_CLEAN will be required for '#' formats on debian11 ?
+                            ret3, fileNamesProxyOut = unProxyfy( ret2 )
+                            logging.getLogger().debug("test logging 1")
+                            logging.debug("test logging 2")
+                            logging.debug( salome.orb.object_to_string( salome.logm ) )
+                            a = salome.logm.NaiveFetch()
+                            logging.debug(a)
+                            cont.Shutdown()
+                cpumeminfo = SALOME_PyNode.ReadCPUMemInfo( monitoringParamsMaster )
+                self.assertTrue( isinstance(monitoringParamsMaster.outFileName,SALOME_PyNode.FileHolder) )
+            dirInfo = SALOME_PyNode.ReadInodeSizeInfo( monitoringParamsForFileMaster )
+            self.assertTrue( isinstance(monitoringParamsForFileMaster.outFileName,SALOME_PyNode.FileHolder) )
+            self.assertTrue( os.path.exists( fsMonitoringFile ) )
+            self.assertTrue( os.path.exists( cpuMemMonitoringFile ) )
+        logging.debug( cpumeminfo )
+        logging.debug( dirInfo )
+        self.assertFalse( os.path.exists( fsMonitoringFile ) )
+        self.assertFalse( os.path.exists( cpuMemMonitoringFile ) )
+
+    def testEasyNamingService(self):
+        """
+        [EDF29150] : This test checks measure performance methods
+        """
+        hostname = "localhost"
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test_two")
+        salome.logm.clear()
+        PROXY_THRES = "1"
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            ior_ns_file = os.path.join(tmpdirname,"ns.ior")
+            val_for_big_obj = str( tmpdirname )
+            salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+            salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
+            salome.naming_service.DumpIORInFile( ior_ns_file )
+            cont = salome.cm.GiveContainer(cp)
+            script_st = """
+from SALOME_Embedded_NamingService_ClientPy import SALOME_Embedded_NamingService_ClientPy
+ior_ns_file = "{ior_ns_file}"
+ns = SALOME_Embedded_NamingService_ClientPy.BuildFromIORFile( ior_ns_file )
+ret = ns.repr()
+""".format(**locals())
+            cont = salome.cm.GiveContainer(cp)
+            pyscript2 = cont.createPyScriptNode("testScript3",script_st)
+            retCoarse = pickle.loads( pyscript2.execute( ["ret"], pickle.dumps( ([],{} ) ) ) )
+            ret = retCoarse[0]
+            self.assertTrue( isinstance(ret,list) and isinstance(ret[0],str) )
+            cont.Shutdown()
+        pass
 
 if __name__ == '__main__':
     from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
     salome.standalone()
     salome.salome_init()
+    setVerbose(True)
     setVerboseLevel(logging.DEBUG)
     positionVerbosityOfLoggerRegardingState()
     unittest.main()

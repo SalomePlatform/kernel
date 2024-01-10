@@ -28,7 +28,7 @@ class SALOME_Embedded_NamingService_ClientPy:
   #-------------------------------------------------------------------------
 
   def __init__(self, serv):
-    self._orb=CORBA.ORB_init([''], CORBA.ORB_ID)
+    self._orb = CORBA.ORB_init([''], CORBA.ORB_ID)
     self._obj = serv
   #-------------------------------------------------------------------------
 
@@ -41,3 +41,19 @@ class SALOME_Embedded_NamingService_ClientPy:
   def Resolve(self, Path):
       ret = self._obj.Resolve(Path)
       return self._orb.string_to_object(ret.decode())
+  
+  def keys(self):
+      return self._obj.keys()
+  
+  def repr(self):
+      return self.keys()
+  
+def SALOME_Embedded_NamingService_ClientPy_BuildFromIORFile(cls, iorNSFile):
+   import Engines
+   orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+   with open(iorNSFile,"r") as f:
+    ior = f.read()
+   serv = orb.string_to_object( ior )
+   return SALOME_Embedded_NamingService_ClientPy(serv)
+
+SALOME_Embedded_NamingService_ClientPy.BuildFromIORFile = classmethod(SALOME_Embedded_NamingService_ClientPy_BuildFromIORFile)

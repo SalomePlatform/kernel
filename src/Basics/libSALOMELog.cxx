@@ -28,6 +28,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <chrono>
+#include <iomanip>
+#include <ctime>
+
 enum class VerbosityMode { undefined, nolog, withlog };
 
 static VerbosityMode isActivated = VerbosityMode::undefined;
@@ -179,5 +183,17 @@ namespace SALOME
   bool IsErrorLevel()
   {
     return VerbosityLevel() >= VerbosityLevelType::error_level;
+  }
+
+  void AppendTimeClock(std::ostream& os)
+  {
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto timestamp = std::chrono::system_clock::to_time_t(now);
+    std::tm *local_time = std::localtime(&timestamp);
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    os  << std::setfill('0') << std::setw(2) << local_time->tm_hour << ":"
+        << std::setw(2) << local_time->tm_min << ":"
+        << std::setw(2) << local_time->tm_sec << "." << std::setw(3) << millis % 1000 << " - ";
   }
 }

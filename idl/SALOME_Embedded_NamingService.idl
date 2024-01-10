@@ -23,6 +23,7 @@
 module Engines
 {
   typedef sequence<octet> IORType;
+  typedef sequence<string> NSListOfStrings;
 
   interface EmbeddedNamingService
   {
@@ -31,6 +32,7 @@ module Engines
     void Destroy_Name(in string Path);
     IORType Resolve(in string Path);
     IORType ResolveFirst(in string Path);
+    NSListOfStrings keys();
   };
 };
 

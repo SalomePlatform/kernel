@@ -34,4 +34,5 @@ public:
   void Destroy_Name(const char *Path) override;
   Engines::IORType *Resolve(const char *Path) override;
   Engines::IORType *ResolveFirst(const char *Path) override;
+  Engines::NSListOfStrings *keys() override;
 };

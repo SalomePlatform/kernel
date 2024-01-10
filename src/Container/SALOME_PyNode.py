@@ -36,6 +36,8 @@ from SALOME_ContainerHelper import ScriptExecInfo
 
 MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
 
+MY_PERFORMANCE_LOG_ENTRY_IN_GLBS = "my_log_4_this_session"
+
 class Generic(SALOME__POA.GenericObj):
   """A Python implementation of the GenericObj CORBA IDL"""
   def __init__(self,poa):
@@ -127,11 +129,7 @@ SALOME_BIG_OBJ_ON_DISK_THRES_VAR = "SALOME_BIG_OBJ_ON_DISK_THRES"
 # default is 50 MB
 SALOME_BIG_OBJ_ON_DISK_THRES_DFT = 50000000
 
-from ctypes import c_int
-TypeCounter = c_int
-
-def GetSizeOfTCnt():
-  return len( bytes(TypeCounter(0) ) )
+DicoForProxyFile = { }
 
 def GetSizeOfBufferedReader(f):
   """
@@ -154,39 +152,35 @@ def GetSizeOfBufferedReader(f):
 
 def GetObjectFromFile(fname, visitor = None):
   with open(fname,"rb") as f:
-    cntb = f.read( GetSizeOfTCnt() )
-    cnt = TypeCounter.from_buffer_copy( cntb ).value
     if visitor:
       visitor.setHDDMem( GetSizeOfBufferedReader(f) )
       visitor.setFileName( fname )
     obj = pickle.load(f)
-  return obj,cnt
+  return obj
 
 def DumpInFile(obj,fname):
   with open(fname,"wb") as f:
-    f.write( bytes( TypeCounter(1) ) )
     f.write( obj )
 
 def IncrRefInFile(fname):
-  with open(fname,"rb") as f:
-    cntb = f.read( GetSizeOfTCnt() )
-  cnt = TypeCounter.from_buffer_copy( cntb ).value
-  with open(fname,"rb+") as f:
-    #import KernelServices ; KernelServices.EntryForDebuggerBreakPoint()
-    f.write( bytes( TypeCounter(cnt+1) ) )
+  if fname in DicoForProxyFile:
+    DicoForProxyFile[fname] += 1
+  else:
+    DicoForProxyFile[fname] = 2
+  pass
 
 def DecrRefInFile(fname):
-  import os
-  with open(fname,"rb") as f:
-    cntb = f.read( GetSizeOfTCnt() )
-  cnt = TypeCounter.from_buffer_copy( cntb ).value
-  #
-  #import KernelServices ; KernelServices.EntryForDebuggerBreakPoint()
-  if cnt == 1:
-    os.unlink( fname )
+  if fname not in DicoForProxyFile:
+    cnt = 1
   else:
-    with open(fname,"rb+") as f:
-        f.write( bytes( TypeCounter(cnt-1) ) )
+    cnt = DicoForProxyFile[fname]
+    DicoForProxyFile[fname] -= 1
+    if cnt == 1:
+      del DicoForProxyFile[fname]
+  if cnt == 1:
+    if os.path.exists(fname):
+      os.unlink( fname )
+  pass
 
 def GetBigObjectOnDiskThreshold():
   import os
@@ -268,7 +262,7 @@ class BigObjectOnDiskBase:
     DumpInFile( objSerialized, self._filename )
 
   def get(self, visitor = None):
-    obj, _ = GetObjectFromFile( self._filename, visitor )
+    obj = GetObjectFromFile( self._filename, visitor )
     return obj
 
   def __float__(self):
@@ -402,20 +396,25 @@ def UnProxyObjectSimpleLocal( obj ):
   else:
     return obj
   
-class FileDeleter:
+class FileHolder:
   def __init__(self, fileName):
     self._filename = fileName
   @property
   def filename(self):
     return self._filename
+  
+class FileDeleter(FileHolder):
+  def __init__(self, fileName):
+    super().__init__( fileName )
   def __del__(self):
     import os
     if os.path.exists( self._filename ):
       os.unlink( self._filename )
 
 class MonitoringInfo:
-  def __init__(self, pyFileName, outFileName, pid):
+  def __init__(self, pyFileName, intervalInMs, outFileName, pid):
     self._py_file_name = pyFileName
+    self._interval_in_ms = intervalInMs
     self._out_file_name = outFileName
     self._pid = pid
 
@@ -427,24 +426,93 @@ class MonitoringInfo:
   def pid(self):
     return self._pid
   
+  @pid.setter
+  def pid(self, value):
+    self._pid = value
+
   @property
   def outFileName(self):
     return self._out_file_name
+  
+  @property
+  def intervalInMs(self):
+    return self._interval_in_ms
+  
+def FileSystemMonitoring(intervalInMs, dirNameToInspect, outFileName = None):
+    """
+    This method loops indefinitely every intervalInMs milliseconds to scan 
+    number of inodes and size of content recursively included into the in input directory.
 
-def LaunchTimeCPUMonitoring( intervalInMs ):
+    Args:
+    ----
+
+    outFileName (str) : name of file inside the results will be written. If None a new file is generated
+
+    See also CPUMemoryMonitoring
+    """
+    global orb
+    import os
+    dirNameToInspect2 = os.path.abspath( os.path.expanduser(dirNameToInspect) )
+    import tempfile
+    import logging
+    import KernelBasis
+    # outFileNameSave stores the content of outFileName during phase of dumping
+    with tempfile.NamedTemporaryFile(prefix="fs_monitor_",suffix=".txt") as f:
+      outFileNameSave = f.name
+    with tempfile.NamedTemporaryFile(prefix="fs_monitor_",suffix=".py") as f:
+      tempPyFile = f.name
+    tempOutFile = outFileName
+    if tempOutFile is None:
+      tempOutFile = "{}.txt".format( os.path.splitext( tempPyFile )[0] )
+    with open(tempPyFile,"w") as f:
+        f.write("""
+import subprocess as sp
+import re
+import os
+import time
+import datetime
+with open("{tempOutFile}","a") as f:
+  f.write( "{{}}\\n".format( "{dirNameToInspect2}" ) )
+  f.write( "{{}}\\n".format( "{intervalInMs}" ) )
+  while(True):
+    nbinodes = sp.check_output("{{}} | wc -l".format( " ".join(["find","{dirNameToInspect2}"]),  ), shell = True).decode().strip()
+    szOfDirStr = re.split("[\s]+",sp.check_output(["du","-sh","{dirNameToInspect2}"]).decode())[0]
+    f.write( "{{}}\\n".format( str( datetime.datetime.now().timestamp() ) ) )
+    f.write( "{{}}\\n".format( str( nbinodes  ) ) )
+    f.write( "{{}}\\n".format( str( szOfDirStr ) ) )
+    f.flush()
+    time.sleep( {intervalInMs} / 1000.0 )
+""".format( **locals()))
+    logging.debug( "File for FS monitoring dump file : {}".format(tempPyFile) )
+    pyFileName = FileDeleter( tempPyFile )
+    if outFileName is None:
+      outFileName = FileDeleter( tempOutFile )
+    else:
+      outFileName = FileHolder(outFileName)
+    return MonitoringInfo(pyFileName, intervalInMs, outFileName, None)
+
+def CPUMemoryMonitoring( intervalInMs, outFileName = None ):
   """
   Launch a subprocess monitoring self process.
   This monitoring subprocess is a python process lauching every intervalInMs ms evaluation of
-  CPU usage and RSS memory.
+  CPU usage and RSS memory of the calling process.
   Communication between subprocess and self is done by file.
+
+  Args:
+  ----
+    outFileName (str) : name of file inside the results will be written. If None a new file is generated
+
+  See also FileSystemMonitoring
   """
   import KernelBasis
-  def BuildPythonFileForCPUPercent( intervalInMs ):
+  def BuildPythonFileForCPUPercent( intervalInMs, outFileName):
     import os
     import tempfile
-    with tempfile.NamedTemporaryFile(prefix="htop_",suffix=".py") as f:
+    with tempfile.NamedTemporaryFile(prefix="cpu_mem_monitor_",suffix=".py") as f:
       tempPyFile = f.name
-    tempOutFile = "{}.txt".format( os.path.splitext( tempPyFile )[0] )
+    tempOutFile = outFileName
+    if tempOutFile is None:
+      tempOutFile = "{}.txt".format( os.path.splitext( tempPyFile )[0] )
     pid = os.getpid()
     with open(tempPyFile,"w") as f:
       f.write("""import psutil
@@ -452,16 +520,37 @@ pid = {}
 process = psutil.Process( pid )
 import time
 with open("{}","a") as f:
+  f.write( "{{}}\\n".format( "{}" ) )
   while True:
     f.write( "{{}}\\n".format( str( process.cpu_percent() ) ) )
     f.write( "{{}}\\n".format( str( process.memory_info().rss  ) ) )
     f.flush()
     time.sleep( {} / 1000.0 )
-""".format(pid, tempOutFile, intervalInMs))
-    return FileDeleter(tempPyFile), FileDeleter(tempOutFile)
-  pyFileName, outFileName = BuildPythonFileForCPUPercent( intervalInMs )
-  pid = KernelBasis.LaunchMonitoring(pyFileName.filename)
-  return MonitoringInfo(pyFileName, outFileName, pid)
+""".format(pid, tempOutFile, intervalInMs, intervalInMs))
+    if outFileName is None:
+      autoOutFile = FileDeleter(tempOutFile)
+    else:
+      autoOutFile = FileHolder(tempOutFile)
+    return FileDeleter(tempPyFile),autoOutFile
+  pyFileName, outFileName = BuildPythonFileForCPUPercent( intervalInMs, outFileName )
+  return MonitoringInfo(pyFileName, intervalInMs, outFileName, None)
+
+class GenericPythonMonitoringLauncherCtxMgr:
+    def __init__(self, monitoringParams):
+        """
+        Args:
+        ----
+            monitoringParams (MonitoringInfo)
+        """
+        self._monitoring_params = monitoringParams
+    def __enter__(self):
+        import KernelBasis
+        pid = KernelBasis.LaunchMonitoring(self._monitoring_params.pyFileName.filename)
+        self._monitoring_params.pid = pid
+        return self._monitoring_params
+    
+    def __exit__(self,exctype, exc, tb):
+        StopMonitoring( self._monitoring_params )
 
 def StopMonitoring( monitoringInfo ):
   """
@@ -474,9 +563,48 @@ def StopMonitoring( monitoringInfo ):
   import KernelBasis
   KernelBasis.StopMonitoring(monitoringInfo.pid)
 
+class CPUMemInfo:
+  def __init__(self, intervalInMs, cpu, mem_rss):
+    """
+    Args:
+    ----
+    intervalInMs (int)
+    cpu (list<float>)  CPU usage
+    mem_rss (list<int>) rss memory usage
+    """
+    self._interval_in_ms = intervalInMs
+    self._data = [(a,b) for a,b in zip(cpu,mem_rss)]
+  def __str__(self):
+    st = """Interval in ms : {self.intervalInMs}
+Data : ${self.data}
+""".format( **locals() )
+    return st
+  @property
+  def intervalInMs(self):
+    return self._interval_in_ms
+  @property
+  def data(self):
+    """
+    list of triplets. First param of pair is cpu usage 
+                      Second param of pair is memory usage
+    """
+    return self._data
+
+def ReadCPUMemInfoInternal( fileName ):
+  intervalInMs = 0
+  cpu = [] ; mem_rss = []
+  if os.path.exists( fileName ):
+    with open(fileName, "r") as f:
+      coarseData = [ elt.strip() for elt in f.readlines() ]
+    intervalInMs = int( coarseData[0] )
+    coarseData = coarseData[1:]
+    cpu = [float(elt) for elt in coarseData[::2]]
+    mem_rss = [ int(elt) for elt in coarseData[1::2]]
+  return CPUMemInfo(intervalInMs,cpu,mem_rss)
+
 def ReadCPUMemInfo( monitoringInfo ):
   """
-  Retrieve data of monitoring.
+  Retrieve CPU/Mem data of monitoring.
 
   Args:
   ----
@@ -484,13 +612,67 @@ def ReadCPUMemInfo( monitoringInfo ):
   
   Returns
   -------
-    list<float,str> : list of pairs. First param of pair is CPU usage. Second param of pair is rss memory usage
+    CPUMemInfo instance
   """
-  import KernelBasis
-  ret = KernelBasis.ReadFloatsInFile( monitoringInfo.outFileName.filename )
-  cpu = ret[::2]
-  mem_rss = [ int(elt) for elt in ret[1::2]]
-  return [(a,b) for a,b in zip(cpu,mem_rss)]
+  return ReadCPUMemInfoInternal( monitoringInfo.outFileName.filename )
+
+class InodeSizeInfo:
+  def __init__(self, dirNameMonitored, intervalInMs, timeStamps, nbInodes, volumeOfDir):
+    """
+    Args:
+    ----
+    timeStamps (list<datetimestruct>)
+    nbInodes (list<int>)
+    volumeOfDir (list<str>)
+    """
+    self._dir_name_monitored = dirNameMonitored
+    self._interval_in_ms = intervalInMs
+    self._data = [(t,a,b) for t,a,b in zip(timeStamps,nbInodes,volumeOfDir)]
+  def __str__(self):
+    st = """Filename monitored : {self.dirNameMonitored}
+Interval in ms : ${self.intervalInMs}
+Data : ${self.data}
+""".format( **locals() )
+    return st
+  @property
+  def dirNameMonitored(self):
+    return self._dir_name_monitored
+  @property
+  def intervalInMs(self):
+    return self._interval_in_ms
+  @property
+  def data(self):
+    """
+    list of triplets. First param of triplet is datetimestruct
+                                      Second param of triplet is #inodes.
+                                      Thirst param of triplet is size.
+    """
+    return self._data
+
+def ReadInodeSizeInfoInternal( fileName ):
+  import datetime
+  import os
+  with open(fileName, "r") as f:
+    coarseData = [ elt.strip() for elt in f.readlines() ]
+  dirNameMonitored = coarseData[0] ; intervalInMs = int( coarseData[1] ) ; coarseData = coarseData[2:]
+  tss = [ datetime.datetime.fromtimestamp( float(elt) ) for elt in coarseData[::3] ]
+  nbInodes = [int(elt) for elt in coarseData[1::3]]
+  volumeOfDir = coarseData[2::3]
+  return InodeSizeInfo(dirNameMonitored,intervalInMs,tss,nbInodes,volumeOfDir)
+
+def ReadInodeSizeInfo( monitoringInfo ):
+  """
+  Retrieve nb of inodes and size of monitoring
+
+  Args:
+  ----
+      monitoringInfo (MonitoringInfo): info returned by LaunchMonitoring
+
+  Returns
+  -------
+    InodeSizeInfo
+  """
+  return ReadInodeSizeInfoInternal( monitoringInfo.outFileName.filename )
 
 class SeqByteReceiver:
   # 2GB limit to trigger split into chunks
@@ -525,6 +707,10 @@ class LogOfCurrentExecutionSession:
   def __init__(self, handleToCentralizedInst):
     self._remote_handle = handleToCentralizedInst
     self._current_instance = ScriptExecInfo()
+
+  def addFreestyleAndFlush(self, value):
+    self._current_instance.freestyle = value
+    self.finalizeAndPushToMaster()
 
   def addInfoOnLevel2(self, key, value):
     setattr(self._current_instance,key,value)
@@ -616,15 +802,17 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
 
   def executeFirst(self,argsin):
     """ Same than first part of self.execute to reduce memory peak."""
+    def ArgInMananger(self,argsin):
+      argsInPy = SeqByteReceiver( argsin )
+      data = argsInPy.data()
+      self.addInfoOnLevel2("inputMem",len(data))
+      _,kws=pickle.loads(data)
+      return kws
     try:
       self.beginOfCurrentExecutionSession()
-      data = None
       self.addTimeInfoOnLevel2("startInputTime")
-      if True: # to force call of SeqByteReceiver's destructor
-        argsInPy = SeqByteReceiver( argsin )
-        data = argsInPy.data()
-        self.addInfoOnLevel2("inputMem",len(data))
-      _,kws=pickle.loads(data)
+      # to force call of SeqByteReceiver's destructor
+      kws = ArgInMananger(self,argsin)
       vis = InOutputObjVisitor()
       for elt in kws:
         # fetch real data if necessary
@@ -645,10 +833,9 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       self.addTimeInfoOnLevel2("startExecTime")
       ##
       self.addInfoOnLevel2("measureTimeResolution",self.my_container_py.monitoringtimeresms())
-      monitoringParams = LaunchTimeCPUMonitoring( self.my_container_py.monitoringtimeresms() )
-      exec(self.ccode, self.context)
-      StopMonitoring( monitoringParams )
-      cpumeminfo = ReadCPUMemInfo( monitoringParams )
+      with GenericPythonMonitoringLauncherCtxMgr( CPUMemoryMonitoring( self.my_container_py.monitoringtimeresms() ) ) as monitoringParams:
+        exec(self.ccode, self.context)
+        cpumeminfo = ReadCPUMemInfo( monitoringParams )
       ##
       self.addInfoOnLevel2("CPUMemDuringExec",cpumeminfo)
       del monitoringParams
@@ -719,6 +906,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
 
   def beginOfCurrentExecutionSession(self):
     self._current_execution_session = LogOfCurrentExecutionSession( self._log_script.addExecutionSession() )
+    self.context[MY_PERFORMANCE_LOG_ENTRY_IN_GLBS] = self._current_execution_session
   
   def endOfCurrentExecutionSession(self):
     self._current_execution_session.finalizeAndPushToMaster()

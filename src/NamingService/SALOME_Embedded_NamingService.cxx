@@ -69,3 +69,15 @@ Engines::IORType *SALOME_Embedded_NamingService::ResolveFirst(const char *Path)
   CORBA::Object_var obj = ns.ResolveFirst(Path);
   return ObjectToIOR(obj);
 }
+
+Engines::NSListOfStrings *SALOME_Embedded_NamingService::keys()
+{
+  SALOME_Fake_NamingService ns;
+  std::vector<std::string> ks = ns.repr();
+  Engines::NSListOfStrings *ret = new Engines::NSListOfStrings;
+  std::size_t sz(ks.size());
+  ret->length( sz );
+  for(std::size_t i = 0 ; i < sz ; ++i)
+    (*ret)[i] = CORBA::string_dup( ks[i].c_str() );
+  return ret;
+}

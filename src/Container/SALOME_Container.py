@@ -70,6 +70,7 @@ class SALOME_Container_i:
           # shouldn't be needed after python 3.8
           # see https://bugs.python.org/issue32573
           argv = ['']
+        logging.debug("Instanciation of {} PID = {}".format(containerName,os.getpid()))
         self._orb = CORBA.ORB_init(argv, CORBA.ORB_ID)
         self._poa = self._orb.resolve_initial_references("RootPOA")
         self._containerName = containerName
@@ -81,6 +82,7 @@ class SALOME_Container_i:
 
     @property
     def logm(self):
+        logging.debug("Logm PID = {}".format(os.getpid()))
         import salome
         if self._logm is None:
            salome.salome_init()
@@ -153,6 +155,7 @@ class SALOME_Container_i:
           return 1,"".join(l)
 
     def create_pyscriptnode(self,nodeName,code):
+        logging.debug("create_pyscriptnode of {} PID = {}".format(nodeName,os.getpid()))
         try:
           logscript = None
           if getSSLMode():
@@ -169,6 +172,7 @@ class SALOME_Container_i:
           return 1,"".join(l)
         
     def positionVerbosityOfLogger(self):
+        logging.debug("positionVerbosityOfLogger PID = {}".format(os.getpid()))
         if VerbosityActivated():
           import salome_utils
           salome_utils.positionVerbosityOfLoggerRegardingState()
@@ -177,6 +181,7 @@ class SALOME_Container_i:
         return self._timeIntervalInMs
     
     def setLogFileName(self, logFileName):
+        logging.debug("setLogFileName {} PID = {}".format(logFileName,os.getpid()))
         if getSSLMode():
           self._log = self.logm.declareContainer( self._containerName, logFileName )
 

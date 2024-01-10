@@ -41,6 +41,7 @@ namespace SALOME
   bool BASICS_EXPORT IsInfoLevel();
   bool BASICS_EXPORT IsWarningLevel();
   bool BASICS_EXPORT IsErrorLevel();
+  void BASICS_EXPORT AppendTimeClock(std::ostream& os);
   VerbosityLevelType BASICS_EXPORT VerbosityLevel();
   std::string BASICS_EXPORT VerbosityLevelStr();
 }
