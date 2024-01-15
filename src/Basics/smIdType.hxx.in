@@ -25,7 +25,10 @@
 
 #cmakedefine SALOME_USE_64BIT_IDS
 
+#include "Basics_OCCTVersion.hxx"
+
 #include <cinttypes>
+#include <cstddef>
 #include <limits>
 
 #ifndef SALOME_USE_64BIT_IDS
@@ -36,6 +39,7 @@ typedef std::int64_t smIdType;
 
 struct smIdHasher
 {
+#if OCC_VERSION_LARGE < 0x07080000
   static int HashCode(const smIdType theValue,  const int theUpperBound)
   {
     return static_cast<int> ((theValue & std::numeric_limits<smIdType>::max()) % theUpperBound + 1);
@@ -45,6 +49,16 @@ struct smIdHasher
   {
     return id1 == id2;
   }
+#else
+  size_t operator()(const smIdType theValue) const
+  {
+    return static_cast<size_t> (theValue & std::numeric_limits<smIdType>::max());
+  }
+  bool operator()(const smIdType& theValue1, const smIdType& theValue2) const
+  {
+    return theValue1 == theValue2;
+  }
+#endif
 };
 
 template <class T> inline smIdType ToSmIdType(T val)
