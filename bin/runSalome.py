@@ -32,7 +32,6 @@ from salomeContextUtils import ScriptAndArgsObjectEncoder
 import runSalomeNoServer
 import runSalomeCommon
 import platform
-import runSalomeOnDemand
 from launchConfigureParser import verbosity_nam, on_demand_nam
 import logging
 logger = logging.getLogger()
@@ -183,6 +182,7 @@ def main(exeName=None):
 
     # Setup extension's env in salome on demand case
     if args[on_demand_nam]:
+        import runSalomeOnDemand
         runSalomeOnDemand.set_ext_env()
         # Reset up module_list and modules_root_dir, if we dont want to define SalomeAppConfig on salome.py.
         # We must remove the "else" on "if os.sys.platform == 'win32':" in launcheConfigureParser.py too.
