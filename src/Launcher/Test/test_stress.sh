@@ -1,5 +1,5 @@
 #! /bin/bash
-# Copyright (C) 2018-2023  CEA, EDF
+# Copyright (C) 2018-2024  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
