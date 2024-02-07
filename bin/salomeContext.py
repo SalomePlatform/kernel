@@ -288,6 +288,11 @@ class SalomeContext:
     command, options = self.__parseArguments(args)
     sys.argv = options
 
+    # append option from env var SALOME_OPTIONS if it's available
+    if os.getenv("SALOME_OPTIONS"):
+      option_from_env = os.getenv("SALOME_OPTIONS").split(' ')
+      sys.argv += option_from_env
+
     if command is None:
       if args and args[0] in ["-h","--help","help"]:
         usage()
