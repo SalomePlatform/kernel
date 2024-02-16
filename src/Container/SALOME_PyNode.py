@@ -475,8 +475,17 @@ with open("{tempOutFile}","a") as f:
   f.write( "{{}}\\n".format( "{dirNameToInspect2}" ) )
   f.write( "{{}}\\n".format( "{intervalInMs}" ) )
   while(True):
-    nbinodes = sp.check_output("{{}} | wc -l".format( " ".join(["find","{dirNameToInspect2}"]),  ), shell = True).decode().strip()
-    szOfDirStr = re.split("[\s]+",sp.check_output(["du","-sh","{dirNameToInspect2}"]).decode())[0]
+    nbinodes = -1
+    try:
+      nbinodes = sp.check_output("{{}} | wc -l".format( " ".join(["find","{dirNameToInspect2}"]),  ), shell = True).decode().strip()
+    except:
+      pass
+    szOfDirStr = "fail"
+    try:
+      st = sp.check_output(["du","-sh","{dirNameToInspect2}"]).decode()
+      szOfDirStr = re.split("[\s]+",st)[0]
+    except:
+      pass
     f.write( "{{}}\\n".format( str( datetime.datetime.now().timestamp() ) ) )
     f.write( "{{}}\\n".format( str( nbinodes  ) ) )
     f.write( "{{}}\\n".format( str( szOfDirStr ) ) )
@@ -594,12 +603,15 @@ def ReadCPUMemInfoInternal( fileName ):
   intervalInMs = 0
   cpu = [] ; mem_rss = []
   if os.path.exists( fileName ):
-    with open(fileName, "r") as f:
-      coarseData = [ elt.strip() for elt in f.readlines() ]
-    intervalInMs = int( coarseData[0] )
-    coarseData = coarseData[1:]
-    cpu = [float(elt) for elt in coarseData[::2]]
-    mem_rss = [ int(elt) for elt in coarseData[1::2]]
+    try:
+      with open(fileName, "r") as f:
+        coarseData = [ elt.strip() for elt in f.readlines() ]
+      intervalInMs = int( coarseData[0] )
+      coarseData = coarseData[1:]
+      cpu = [float(elt) for elt in coarseData[::2]]
+      mem_rss = [ int(elt) for elt in coarseData[1::2]]
+    except:
+      pass
   return CPUMemInfo(intervalInMs,cpu,mem_rss)
 
 def ReadCPUMemInfo( monitoringInfo ):
