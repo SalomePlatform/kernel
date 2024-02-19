@@ -180,6 +180,11 @@ class SALOME_Container_i:
     def monitoringtimeresms(self):
         return self._timeIntervalInMs
     
+    def shutdownPy(self):
+        if getSSLMode():
+           if self._log:
+              self._log.destroy()
+    
     def setLogFileName(self, logFileName):
         logging.debug("setLogFileName {} PID = {}".format(logFileName,os.getpid()))
         if getSSLMode():

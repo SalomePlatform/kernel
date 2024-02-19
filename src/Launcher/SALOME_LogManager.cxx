@@ -193,13 +193,7 @@ Engines::ListOfContainerScriptExecPerfLog *SALOME_ContainerScriptPerfLog::listOf
 
 SALOME_ContainerPerfLog::~SALOME_ContainerPerfLog()
 {
-  for(auto script : _scripts)
-  {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(script);
-    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(script);
-    getPOA()->deactivate_object(oid);
-  }
-  _scripts.clear();
+  this->destroyInternal();
 }
 
 PortableServer::POA_var SALOME_ContainerPerfLog::getPOA()
@@ -237,6 +231,23 @@ Engines::ListOfContainerScriptPerfLog *SALOME_ContainerPerfLog::listOfScripts()
   for(std::size_t i = 0 ; i < len ; ++i)
     ret[i] = this->_scripts[i];
   return ret._retn();
+}
+
+void SALOME_ContainerPerfLog::destroy()
+{
+  this->destroyInternal();
+}
+
+void SALOME_ContainerPerfLog::destroyInternal()
+{
+  _father->removeEntryBeforeDying( this );
+  for(auto script : _scripts)
+  {
+    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(script);
+    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(script);
+    getPOA()->deactivate_object(oid);
+  }
+  _scripts.clear();
 }
 
 void SALOME_ContainerPerfLog::accept(SALOME_VisitorContainerLog &visitor)
@@ -398,6 +409,20 @@ void SALOME_LogManager::getFileNamePairOfLogger(CORBA::String_out loggerFileName
 char *SALOME_LogManager::getLastVersionOfFileNameLogger()
 {
   return CORBA::string_dup( _safe_logger_file_holder.getLastVersionOfFileNameLogger().c_str() );
+}
+
+void SALOME_LogManager::removeEntryBeforeDying(SALOME_ContainerPerfLog *child)
+{
+  for(auto cont = _containers.begin() ; cont != _containers.end() ; ++cont )
+  {
+    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(*cont);
+    SALOME_ContainerPerfLog *servCand = dynamic_cast<SALOME_ContainerPerfLog *>(serv);
+    if( servCand==child )
+      {
+        _containers.erase( cont );
+        break;
+      }
+  }
 }
 
 ///////////////////////

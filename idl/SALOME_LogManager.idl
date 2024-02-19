@@ -49,6 +49,7 @@ module Engines
     string getContainerEntryInNS();
     ContainerScriptPerfLog addScript(in string name, in string code);
     ListOfContainerScriptPerfLog listOfScripts();
+    void destroy();
   };
 
   typedef sequence<ContainerPerfLog> ListOfContainerPerfLog;

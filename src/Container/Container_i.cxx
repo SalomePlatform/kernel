@@ -117,7 +117,7 @@ std::map<std::string, void *> Abstract_Engines_Container_i::_library_map;
 std::map<std::string, void *> Abstract_Engines_Container_i::_toRemove_map;
 omni_mutex Abstract_Engines_Container_i::_numInstanceMutex ;
 
-static PyObject* _pyCont;
+static PyObject *_pyCont = nullptr;
 
 int checkifexecutable(const std::string&);
 int findpathof(const std::string& path, std::string&, const std::string&);
@@ -747,6 +747,11 @@ void Abstract_Engines_Container_i::Shutdown()
   }
   //
   this->cleanAllPyScripts();
+  //
+  {
+    AutoGIL gstate;
+    AutoPyRef result = PyObject_CallMethod(_pyCont, (char*)"shutdownPy", (char*)"",nullptr);
+  }
   //
   if(_isServantAloneInProcess)
   {

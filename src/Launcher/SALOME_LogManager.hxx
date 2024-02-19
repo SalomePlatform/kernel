@@ -70,7 +70,7 @@ public:
   AutoPyRef end();
   void clear() { _data.clear(); }
 private:
-  AutoPyRef _pyExecutionLog;
+  AutoPyRefGilSafe _pyExecutionLog;
   SALOME_ContainerScriptPerfLog *_father = nullptr;
   std::vector<char> _data;
 };
@@ -96,7 +96,7 @@ public:
 public:
   void accept(SALOME_VisitorContainerLog &visitor);
 private:
-  AutoPyRef _pyScriptLog;
+  AutoPyRefGilSafe _pyScriptLog;
   SALOME_ContainerPerfLog *_father = nullptr;
   std::string _name;
   std::string _code;
@@ -116,6 +116,7 @@ public:
   char *getContainerEntryInNS() override;
   Engines::ContainerScriptPerfLog_ptr addScript(const char *name, const char *code) override;
   Engines::ListOfContainerScriptPerfLog *listOfScripts() override;
+  void destroy() override;
   const std::string& nameInNS() const { return _name_in_ns; }
   const std::string& logFile() const { return _log_file; }
   void setNameInNS(const std::string& name) { _name_in_ns = name; }
@@ -124,7 +125,9 @@ public:
 public:
   void accept(SALOME_VisitorContainerLog &visitor);
 private:
-  AutoPyRef _pyContLog;
+  void destroyInternal();
+private:
+  AutoPyRefGilSafe _pyContLog;
   SALOME_LogManager *_father = nullptr;
   std::string _name_in_ns;
   std::string _log_file;
@@ -166,6 +169,8 @@ class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
   void versionA_IsTheLatestValidVersion() override { _safe_logger_file_holder.versionA_IsTheLatestValidVersion(); }
   void versionB_IsTheLatestValidVersion() override { _safe_logger_file_holder.versionB_IsTheLatestValidVersion(); }
   char *getLastVersionOfFileNameLogger() override;
+ public:
+  void removeEntryBeforeDying(SALOME_ContainerPerfLog *child);
  public:
   std::size_t getNumberOfContainers() const { return _containers.size(); }
  public:
