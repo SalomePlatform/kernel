@@ -62,13 +62,7 @@ static SALOME::vectorOfByte *FromVectCharToCorba(const std::vector<char>& data)
 
 SALOME_ContainerScriptPerfLog::~SALOME_ContainerScriptPerfLog()
 {
-  for(auto execSession : _sessions)
-  {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(execSession);
-    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(execSession);
-    getPOA()->deactivate_object(oid);
-  }
-  _sessions.clear();
+  DEBUG_MESSAGE("Destruction of SALOME_ContainerScriptPerfLog instance");
 }
 
 PortableServer::POA_var SALOME_ContainerScriptExecPerfLog::getPOA()
@@ -145,12 +139,9 @@ char *SALOME_ContainerScriptPerfLog::getName()
 void SALOME_ContainerScriptPerfLog::accept(SALOME_VisitorContainerLog &visitor)
 {
   visitor.enterContainerScriptPerfLog( *this );
-  for(auto session : _sessions)
+  for(auto& session : _sessions)
   {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant( session );
-    serv->_remove_ref();
-    SALOME_ContainerScriptExecPerfLog *servC = dynamic_cast<SALOME_ContainerScriptExecPerfLog *>(serv);
-    visitor.visitContainerScriptExecPerfLog( *servC );
+    visitor.visitContainerScriptExecPerfLog( *session.getServ() );
   }
   visitor.leaveContainerScriptPerfLog( *this );
 }
@@ -160,10 +151,9 @@ Engines::ContainerScriptExecPerfLog_ptr SALOME_ContainerScriptPerfLog::addExecut
 {
   SALOME_ContainerScriptExecPerfLog *execution = new SALOME_ContainerScriptExecPerfLog(this);
   PortableServer::ObjectId_var id(getPOA()->activate_object(execution));
-  execution->_remove_ref();
   CORBA::Object_var executionPtr(getPOA()->id_to_reference(id));
   Engines::ContainerScriptExecPerfLog_var executionPtr2 = Engines::ContainerScriptExecPerfLog::_narrow(executionPtr);
-  _sessions.push_back( executionPtr2 );
+  _sessions.push_back( { executionPtr2,execution } );
   {
     AutoGIL gstate;
     AutoPyRef result = PyObject_CallMethod(pyObj(),(char*)"addExecution","",nullptr);
@@ -185,7 +175,7 @@ Engines::ListOfContainerScriptExecPerfLog *SALOME_ContainerScriptPerfLog::listOf
   auto sz = this->_sessions.size();
   ret->length(sz);
   for(auto i = 0 ; i < sz ; ++i)
-    ret[i] = this->_sessions[i];
+    ret[i] = this->_sessions[i].getVar();
   return ret._retn();
 }
 
@@ -193,7 +183,6 @@ Engines::ListOfContainerScriptExecPerfLog *SALOME_ContainerScriptPerfLog::listOf
 
 SALOME_ContainerPerfLog::~SALOME_ContainerPerfLog()
 {
-  this->destroyInternal();
 }
 
 PortableServer::POA_var SALOME_ContainerPerfLog::getPOA()
@@ -205,10 +194,9 @@ Engines::ContainerScriptPerfLog_ptr SALOME_ContainerPerfLog::addScript(const cha
 {
   SALOME_ContainerScriptPerfLog *script = new SALOME_ContainerScriptPerfLog(this,name,code);
   PortableServer::ObjectId_var id(getPOA()->activate_object(script));
-  script->_remove_ref();
   CORBA::Object_var scriptPtr(getPOA()->id_to_reference(id));
   Engines::ContainerScriptPerfLog_var scriptPtr2 = Engines::ContainerScriptPerfLog::_narrow(scriptPtr);
-  _scripts.push_back( scriptPtr2 );
+  _scripts.push_back( { scriptPtr2,script } );
   {
     AutoGIL gstate;
     PyObject *result = PyObject_CallMethod(pyObj(),(char*)"addScript","",nullptr);
@@ -229,7 +217,7 @@ Engines::ListOfContainerScriptPerfLog *SALOME_ContainerPerfLog::listOfScripts()
   std::size_t len( this->_scripts.size() );
   ret->length( len );
   for(std::size_t i = 0 ; i < len ; ++i)
-    ret[i] = this->_scripts[i];
+    ret[i] = this->_scripts[i].getVar();
   return ret._retn();
 }
 
@@ -241,11 +229,9 @@ void SALOME_ContainerPerfLog::destroy()
 void SALOME_ContainerPerfLog::destroyInternal()
 {
   _father->removeEntryBeforeDying( this );
-  for(auto script : _scripts)
+  for(auto& script : _scripts)
   {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(script);
-    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(script);
-    getPOA()->deactivate_object(oid);
+    script.desactivateObjectFromPOA( );
   }
   _scripts.clear();
 }
@@ -253,12 +239,9 @@ void SALOME_ContainerPerfLog::destroyInternal()
 void SALOME_ContainerPerfLog::accept(SALOME_VisitorContainerLog &visitor)
 {
   visitor.enterContainerPerfLog( *this );
-  for(auto script : _scripts)
+  for(auto& script : _scripts)
   {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant( script );
-    serv->_remove_ref();
-    SALOME_ContainerScriptPerfLog *servC = dynamic_cast<SALOME_ContainerScriptPerfLog *>(serv);
-    servC->accept(visitor);
+    script.getServ()->accept(visitor);
   }
   visitor.leaveContainerPerfLog( *this );
 }
@@ -313,16 +296,13 @@ SALOME_LogManager::SALOME_LogManager(CORBA::ORB_ptr orb, PortableServer::POA_var
 
 SALOME_LogManager::~SALOME_LogManager()
 {
-  this->clear();
 }
 
 void SALOME_LogManager::clear()
 {
-  for(auto cont : _containers)
+  for(auto& cont : _containers)
   {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(cont);
-    PortableServer::ObjectId_var oid = getPOA()->reference_to_id(cont);
-    getPOA()->deactivate_object(oid);
+    cont.desactivateObjectFromPOA( );
   }
   _containers.clear();
 }
@@ -332,9 +312,8 @@ Engines::ContainerPerfLog_ptr SALOME_LogManager::declareContainer(const char *co
   SALOME_ContainerPerfLog *cont = new SALOME_ContainerPerfLog(this,contInNS,logfile);
   PortableServer::ObjectId_var id(_poa->activate_object(cont));
   CORBA::Object_var contPtr(_poa->id_to_reference(id));
-  cont->_remove_ref();
   Engines::ContainerPerfLog_var contPtr2 = Engines::ContainerPerfLog::_narrow(contPtr);
-  _containers.push_back( contPtr2 );
+  _containers.push_back( { contPtr2, cont } );
   {
     AutoGIL gstate;
     PyObject *result = PyObject_CallMethod(_pyLogManager,(char*)"declareContainer","ss",contInNS,logfile,nullptr);
@@ -356,7 +335,7 @@ Engines::ListOfContainerPerfLog *SALOME_LogManager::listOfContainerLogs()
   ret->length( len );
   for(std::size_t i = 0 ; i < len ; ++i)
   {
-    ret[i] = this->_containers[i];
+    ret[i] = this->_containers[i].getVar();
   }
   return ret._retn();
 }
@@ -364,12 +343,9 @@ Engines::ListOfContainerPerfLog *SALOME_LogManager::listOfContainerLogs()
 void SALOME_LogManager::accept(SALOME_VisitorContainerLog &visitor)
 {
   visitor.enterLogManager( *this );
-  for(auto container : _containers)
+  for(auto& container : _containers)
   {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant( container );
-    serv->_remove_ref();
-    SALOME_ContainerPerfLog *servC = dynamic_cast<SALOME_ContainerPerfLog *>(serv);
-    servC->accept(visitor);
+    container.getServ()->accept(visitor);
   }
   visitor.leaveLogManager( *this );
 }
@@ -415,10 +391,9 @@ void SALOME_LogManager::removeEntryBeforeDying(SALOME_ContainerPerfLog *child)
 {
   for(auto cont = _containers.begin() ; cont != _containers.end() ; ++cont )
   {
-    PortableServer::ServantBase *serv = getPOA()->reference_to_servant(*cont);
-    SALOME_ContainerPerfLog *servCand = dynamic_cast<SALOME_ContainerPerfLog *>(serv);
-    if( servCand==child )
+    if( (*cont).getServ() == child )
       {
+        (*cont).desactivateObjectFromPOA();
         _containers.erase( cont );
         break;
       }

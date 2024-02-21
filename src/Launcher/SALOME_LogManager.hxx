@@ -39,6 +39,51 @@ class SALOME_ContainerPerfLog;
 class SALOME_ContainerScriptPerfLog;
 class SALOME_ContainerScriptExecPerfLog;
 
+namespace SALOME
+{
+  auto ServantDeleter = [](PortableServer::ServantBase *serv) { if(serv) serv->_remove_ref(); };
+  using AutoServantDeleter = std::unique_ptr<PortableServer::ServantBase, decltype(ServantDeleter)>;
+
+  /**
+   * Class in charge to manage life cycle of servant instance and its associated reference.
+   * It allows to deal cleanly with management of servant life even in case of ORB_destoy call
+   * at exit.
+   * 
+   * As orb_destroy automaticaly desactivates all objects activated by all POAs in this
+   * it's impossible to deal cleanly maangement of servant lifecyle using only _ptr or _var.
+   * 
+   */
+  template<class TVar, class TServ>
+  class RefAndServant
+  {
+  public:
+    RefAndServant(TVar var, TServ *serv):_var(var),_serv(serv,ServantDeleter) { }
+    RefAndServant(const RefAndServant& other):_var( other._var ),_serv(nullptr,ServantDeleter)
+    {
+      other.getServ()->_add_ref();
+      _serv.reset( other.getServ() );
+    }
+    ~RefAndServant() = default;
+    RefAndServant& operator=(const RefAndServant& other)
+    {
+      _var = other._var;
+      other.getServ()->_add_ref();
+      _serv.reset( other.getServ() );
+      return *this;
+    }
+    TVar getVar() const { return _var; }
+    TServ *getServ() const { return dynamic_cast<TServ *>( _serv.get() ); }
+    void desactivateObjectFromPOA( )
+    {
+      PortableServer::ObjectId_var oid = getServ()->getPOA()->reference_to_id(_var);
+      getServ()->getPOA()->deactivate_object(oid);
+    }
+  private:
+    TVar _var;
+    SALOME::AutoServantDeleter _serv;
+  };
+}
+
 class SALOMELAUNCHER_EXPORT SALOME_VisitorContainerLog
 {
 public:
@@ -50,6 +95,7 @@ public:
   virtual void leaveContainerScriptPerfLog(SALOME_ContainerScriptPerfLog& inst) = 0;
   virtual void visitContainerScriptExecPerfLog(SALOME_ContainerScriptExecPerfLog& inst) = 0;
 };
+
 
 class SALOMELAUNCHER_EXPORT SALOME_ContainerScriptExecPerfLog : public POA_Engines::ContainerScriptExecPerfLog
 {
@@ -74,6 +120,8 @@ private:
   SALOME_ContainerScriptPerfLog *_father = nullptr;
   std::vector<char> _data;
 };
+
+using ContainerScriptExecPerfLogPair = SALOME::RefAndServant< Engines::ContainerScriptExecPerfLog_var, SALOME_ContainerScriptExecPerfLog >;
 
 class SALOMELAUNCHER_EXPORT SALOME_ContainerScriptPerfLog : public POA_Engines::ContainerScriptPerfLog
 {
@@ -100,8 +148,10 @@ private:
   SALOME_ContainerPerfLog *_father = nullptr;
   std::string _name;
   std::string _code;
-  std::vector< Engines::ContainerScriptExecPerfLog_var > _sessions;
+  std::vector< ContainerScriptExecPerfLogPair > _sessions;
 };
+
+using ContainerScriptPerfLogPair = SALOME::RefAndServant< Engines::ContainerScriptPerfLog_var, SALOME_ContainerScriptPerfLog >;
 
 class SALOMELAUNCHER_EXPORT SALOME_ContainerPerfLog : public POA_Engines::ContainerPerfLog
 {
@@ -116,6 +166,7 @@ public:
   char *getContainerEntryInNS() override;
   Engines::ContainerScriptPerfLog_ptr addScript(const char *name, const char *code) override;
   Engines::ListOfContainerScriptPerfLog *listOfScripts() override;
+  /* Call that destroy this object AND unregister from POA all referecences of this*/
   void destroy() override;
   const std::string& nameInNS() const { return _name_in_ns; }
   const std::string& logFile() const { return _log_file; }
@@ -131,7 +182,7 @@ private:
   SALOME_LogManager *_father = nullptr;
   std::string _name_in_ns;
   std::string _log_file;
-  std::vector< Engines::ContainerScriptPerfLog_var > _scripts;
+  std::vector< ContainerScriptPerfLogPair > _scripts;
 };
 
 enum class SafeLoggerActiveVersionType
@@ -150,6 +201,8 @@ private:
   std::string _logger_file_b;
   SafeLoggerActiveVersionType _version_activated = SafeLoggerActiveVersionType::NoVersion_Activated;
 };
+
+using ContainerPerfLogPair = SALOME::RefAndServant< Engines::ContainerPerfLog_var, SALOME_ContainerPerfLog >;
 
 class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
 {
@@ -181,7 +234,7 @@ class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
   PyObject *_pyLogManager = nullptr;
   std::unique_ptr<SALOME_NamingService_Abstract> _NS;
   PortableServer::POA_var _poa;
-  std::vector<Engines::ContainerPerfLog_var> _containers;
+  std::vector< ContainerPerfLogPair > _containers;
   SALOME_SafeLoggerFileHolder _safe_logger_file_holder;
  public:
   static const char NAME_IN_NS[];

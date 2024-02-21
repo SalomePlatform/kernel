@@ -183,8 +183,9 @@ class SALOME_Container_i:
     def shutdownPy(self):
         if getSSLMode():
            if self._log:
-              self._log.destroy()
-    
+              #self._log.destroy()# TODO : choose to destroy perf report or not. For the moment we keep the report
+              pass
+           
     def setLogFileName(self, logFileName):
         logging.debug("setLogFileName {} PID = {}".format(logFileName,os.getpid()))
         if getSSLMode():
