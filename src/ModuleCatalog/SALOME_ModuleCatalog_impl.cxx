@@ -492,12 +492,9 @@ SALOME_ModuleCatalogImpl::GetComponentList()
         _find = true;
     }
     if(!_find){
-      MESSAGE("A new component " << myPrivate->_general_module_list[ind].name 
-                          << " has to be to added in the list");
       _list_components->length((CORBA::ULong)indice+1);
       // The component is not already defined => has to be taken
       _list_components[(CORBA::ULong)indice]=(myPrivate->_general_module_list[ind].name).c_str();
-      SCRUTE(_list_components[(CORBA::ULong)indice]) ;
       
       indice++;
     }else{
@@ -1055,8 +1052,7 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
   P_corba.Parametertype = CORBA::string_dup(P_parser.type.c_str());
 
   // duplicate parameter dependency
-  
-  SCRUTE(P_parser.dependency);
+
   P_corba.Parameterdependency = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;
   for (it_dep = DataStreamDepConvert.begin(); 
        it_dep != DataStreamDepConvert.end(); 
@@ -1065,8 +1061,6 @@ void SALOME_ModuleCatalogImpl::Private::duplicate
       P_corba.Parameterdependency = it_dep->second;
       break;
     }
-
-  SCRUTE(P_corba.Parameterdependency);
 }
 
 //----------------------------------------------------------------------
