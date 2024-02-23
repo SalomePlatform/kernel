@@ -124,7 +124,8 @@ public:
   void verbosity(bool& activated, CORBA::String_out level) override;
   void setVerbosity(bool activated, const char *level) override;
 
-  virtual void Shutdown();
+  void Shutdown() override;
+  void ShutdownNow() override;
   char *getHostName();
   CORBA::Long getPID();
   //! Kill current container
@@ -170,6 +171,8 @@ public:
   PortableServer::ObjectId *getCORBAId() const { return _id; }
 public:
   static const int DFT_TIME_INTERVAL_BTW_MEASURE;
+private:
+  void ShutdownCommonPart();
 protected:
   static std::map<std::string, int> _cntInstances_map;
   static std::map<std::string, void *> _library_map;  // library names, loaded

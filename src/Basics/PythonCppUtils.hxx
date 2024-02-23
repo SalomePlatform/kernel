@@ -34,7 +34,7 @@ class AutoPyRef
 {
 public:
   AutoPyRef(PyObject *pyobj=nullptr):_pyobj(pyobj) { }
-  virtual ~AutoPyRef() { release(); }
+  ~AutoPyRef() { release(); }
   AutoPyRef(const AutoPyRef& other):_pyobj(other._pyobj) { if(_pyobj) Py_XINCREF(_pyobj); }
   AutoPyRef(AutoPyRef&& other) = default;
   AutoPyRef& operator=(const AutoPyRef& other) { if(_pyobj==other._pyobj) return *this; release(); _pyobj=other._pyobj; Py_XINCREF(_pyobj); return *this; }
@@ -54,4 +54,13 @@ class AutoPyRefGilSafe : public AutoPyRef
 public:
   AutoPyRefGilSafe(PyObject *pyobj=nullptr):AutoPyRef(pyobj) { }
   ~AutoPyRefGilSafe() { AutoGIL agil; release(); }
+};
+
+class AutoPyYielder
+{
+private:
+  PyThreadState *_save = nullptr;
+public:
+  AutoPyYielder() { _save = PyEval_SaveThread(); }
+  ~AutoPyYielder() { PyEval_RestoreThread(_save); }
 };

@@ -39,6 +39,7 @@ void HandleServerSideSignals(CORBA::ORB_ptr theORB)
  //  CASCatch_SignalsHandler aSignalsHandler;
   try {
     theORB->run();
+    INFOS("ORB run finished...");
     // CCRT porting
     //  }catch(CORBA::SystemException&){
     //    Handle(Standard_Failure) aFail = Standard_Failure::Caught();

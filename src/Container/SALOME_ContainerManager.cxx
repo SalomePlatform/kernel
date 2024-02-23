@@ -241,9 +241,9 @@ void SALOME_ContainerManager::SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(CORB
  */
 //=============================================================================
 
-void SALOME_ContainerManager::ShutdownContainers()
+void SALOME_ContainerManager::ShutdownContainersGeneric(std::function<void(Engines::Container_ptr)> funcToBeCalledOnContainer)
 {
-  MESSAGE("ShutdownContainers");
+  MESSAGE("ShutdownContainersGeneric");
   if(!_NS)
     return ;
   SALOME::Session_var session = SALOME::Session::_nil();
@@ -289,11 +289,12 @@ void SALOME_ContainerManager::ShutdownContainers()
         Engines::Container_var cont=Engines::Container::_narrow(obj);
         if(!CORBA::is_nil(cont))
         {
-          MESSAGE("ShutdownContainers: " << (*iter));
-          cont->Shutdown();
+          MESSAGE("ShutdownContainersGeneric: " << (*iter));
+          funcToBeCalledOnContainer( cont );
+          MESSAGE("ShutdownContainersGeneric: after call of shutdown" << (*iter));
         }
         else
-          MESSAGE("ShutdownContainers: no container ref for " << (*iter));
+          MESSAGE("ShutdownContainersGeneric: no container ref for " << (*iter));
       }
       catch(CORBA::SystemException& e)
       {
@@ -309,6 +310,26 @@ void SALOME_ContainerManager::ShutdownContainers()
       }
     }
   }
+}
+
+void SALOME_ContainerManager::ShutdownContainers()
+{
+  this->ShutdownContainersGeneric( [](Engines::Container_ptr cont) { cont->Shutdown(); } );
+}
+
+void SALOME_ContainerManager::ShutdownContainersNow()
+{
+  this->ShutdownContainersGeneric( [](Engines::Container_ptr cont)
+  {
+    try
+    {
+      cont->ShutdownNow();
+    }
+    catch(...)
+    {
+    }
+  }
+    );
 }
 
 void SALOME_ContainerManager::SetOverrideEnvForContainers(const Engines::KeyValDict& env)

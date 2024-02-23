@@ -272,6 +272,7 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     type(logm).Fetch = LogManagerFetch
     type(logm).DumpInFile = LogManagerDumpInFile
     type(logm).LaunchMonitoringDumpFile = LogManagerLaunchMonitoringDumpFile
+    type(logm).FinalFetchBeforeDying = LogManagerFinalFetchBeforeDying
     type(logm).GetLatestMonitoringDumpFile = LogManagerGetLatestMonitoringDumpFile
     type(logm).DumpIORInFile = LogManagerDumpIORInFile
     #
@@ -283,6 +284,12 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
         with open(iorfakensfile,"w") as iorfakensf:
             iorfakensf.write(NamingService.IOROfNS())
     
+CM_NAME_IN_NS = "/ContainerManager"
+RM_NAME_IN_NS = "/ResourcesManager"
+DSM_NAME_IN_NS = "/DataServerManager"
+ESM_NAME_IN_NS = "/ExternalServers"
+LOGM_NAME_IN_NS = "/LogManager"
+
 def salome_init_without_session_attached(path=None, embedded=False):
     """
     Configuration SSL inside a python interpretor launched in the SALOME_Container_No_NS_Serv.
@@ -297,25 +304,20 @@ def salome_init_without_session_attached(path=None, embedded=False):
     import KernelBasis
     nsAbroad = orb.string_to_object( KernelBasis.getIOROfEmbeddedNS() )
     import SALOME
-    CM_NAME_IN_NS = "/ContainerManager"
     cm = orb.string_to_object( nsAbroad.Resolve(CM_NAME_IN_NS).decode() )
     type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
     naming_service.Register(cm,CM_NAME_IN_NS)
-    RM_NAME_IN_NS = "/ResourcesManager"
     rm = orb.string_to_object( nsAbroad.Resolve(RM_NAME_IN_NS).decode() )
     naming_service.Register(rm,RM_NAME_IN_NS)
     #
     from LifeCycleCORBA import LifeCycleCORBASSL
     lcc = LifeCycleCORBASSL()
-    DSM_NAME_IN_NS = "/DataServerManager"
     dsm = orb.string_to_object( nsAbroad.Resolve(DSM_NAME_IN_NS).decode() )
     naming_service.Register(dsm,DSM_NAME_IN_NS)
     #
-    ESM_NAME_IN_NS = "/ExternalServers"
     esm = orb.string_to_object( nsAbroad.Resolve(ESM_NAME_IN_NS).decode() )
     naming_service.Register(esm,ESM_NAME_IN_NS)
     #
-    LOGM_NAME_IN_NS = "/LogManager"
     logm = orb.string_to_object( nsAbroad.Resolve(LOGM_NAME_IN_NS).decode() )
     naming_service.Register(logm,LOGM_NAME_IN_NS)
 
@@ -567,6 +569,12 @@ def LogManagerLoadFromIORFile( iorFile ):
         tempFileName = f.name
     return LoadAndWrite( logm, tempFileName )
 
+def LogManagerFinalFetchBeforeDying(self):
+    import shutil
+    a,b = self.getFileNamePairOfLogger()
+    self.DumpInFile( b )
+    shutil.move( b, a)
+
 def LogManagerGetLatestMonitoringDumpFile(self):
     import shutil
     import logging
@@ -580,14 +588,16 @@ def LogManagerGetLatestMonitoringDumpFile(self):
         logging.debug("LogManagerGetLatestMonitoringDumpFile SITUATION A")
         if os.path.exists( b ):
             os.remove( b )
+        self.FinalFetchBeforeDying()
         return a
     if lastVersion == b:
         logging.debug("LogManagerGetLatestMonitoringDumpFile SITUATION B")
         if os.path.exists( b ):
             shutil.move( b, a)
+        self.FinalFetchBeforeDying()
         return a
     logging.warning("in LogManagerGetLatestMonitoringDumpFile an unexpected situation araises.")
     return ""
 
 #to expose all objects to pydoc
-__all__=dir()
+__all__ = dir()

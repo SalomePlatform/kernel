@@ -86,8 +86,11 @@ interface ContainerManager
   //! Currently: get, start, getorstart, findorstart, find
   Container GiveContainer(in ContainerParameters params) raises (SALOME::SALOME_Exception);
 
-  //!  Shutdown all containers that have been launched by the container manager
+  //!  Shutdown all containers that have been launched by the container manager. This termination is soft. It means that orb.shutdown is invoked meaning that completion of all CORBA
   void ShutdownContainers();
+  
+  //!  Stronger version than ShutdownContainers. This method does not wait for completion of last CORBA invokation on containers. It terminates them
+  void ShutdownContainersNow();
 
   long GetTimeOutToLaunchServerInSecond();
 

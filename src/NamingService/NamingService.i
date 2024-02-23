@@ -141,6 +141,15 @@ def NamingService_DumpIORInFile(cls,iorFileName):
   with open( iorFileName, "w" ) as f:
     f.write( cls.IOROfNS() )
 NamingService.DumpIORInFile = classmethod(NamingService_DumpIORInFile)
+def NamingService_LoadIORInFile(cls,iorFileName):
+  import Engines
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  with open( iorFileName ) as f:
+    ior = f.read()
+  ref = orb.string_to_object(ior)
+  return ref
+NamingService.LoadIORInFile = classmethod( NamingService_LoadIORInFile )
 def NamingService_KillContainersInFile(cls,logFileName):
   import Engines
   import CORBA

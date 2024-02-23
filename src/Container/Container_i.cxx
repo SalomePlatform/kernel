@@ -156,7 +156,7 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb,
 {
   _pid = (long)getpid();
 
-  if(ns)
+  if( isServantAloneInProcess )
     ActSigIntHandler() ;
 
   _argc = argc ;
@@ -709,6 +709,24 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUseByMe()
 //=============================================================================
 void Abstract_Engines_Container_i::Shutdown()
 {
+  ShutdownCommonPart();
+  if(_isServantAloneInProcess)
+  {
+    MESSAGE("Effective Shutdown of container Begins...");
+    try
+    {
+      if(!CORBA::is_nil(_orb))
+        _orb->shutdown(0);
+    }
+    catch(...)
+    {
+    }
+    MESSAGE("Effective Shutdown of container Ends...");  
+  }
+}
+
+void Abstract_Engines_Container_i::ShutdownCommonPart()
+{
   MESSAGE("Engines_Container_i::Shutdown()");
 
   // Clear registered temporary files
@@ -734,7 +752,7 @@ void Abstract_Engines_Container_i::Shutdown()
     }
   }
   _listInstances_map.clear();
-
+  MESSAGE("Engines_Container_i::Shutdown() -- step 2");
   // NS unregistering may throw in SSL mode if master process hosting SALOME_Embedded_NamingService servant has vanished
   // In this case it's skip it and still continue.
   try
@@ -745,19 +763,28 @@ void Abstract_Engines_Container_i::Shutdown()
   catch(...)
   {
   }
-  //
-  this->cleanAllPyScripts();
-  //
+  MESSAGE("Engines_Container_i::Shutdown() -- step 3");
+  try
+  {
+    this->cleanAllPyScripts();
+    //
+    {
+      AutoGIL gstate;
+      AutoPyRef result = PyObject_CallMethod(_pyCont, (char*)"shutdownPy", (char*)"",nullptr);
+    }
+  }
+  catch(...)
+  {
+  }
+  MESSAGE("Engines_Container_i::Shutdown() -- step 4");
+}
+
+void Abstract_Engines_Container_i::ShutdownNow()
+{
+  ShutdownCommonPart();if(_isServantAloneInProcess)
   {
     AutoGIL gstate;
-    AutoPyRef result = PyObject_CallMethod(_pyCont, (char*)"shutdownPy", (char*)"",nullptr);
-  }
-  //
-  if(_isServantAloneInProcess)
-  {
-    MESSAGE("Effective Shutdown of container Begins...");
-    if(!CORBA::is_nil(_orb))
-      _orb->shutdown(0);
+    AutoPyRef result = PyObject_CallMethod(_pyCont, (char*)"killMe", (char*)"",nullptr);
   }
 }
 

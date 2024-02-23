@@ -190,8 +190,11 @@ module Engines
 
     void setVerbosity(in boolean activated, in string level);
 
-    //!  Shutdown the Container process.
+    //!  Shutdown the Container process. Shutdown is not immediate. It waits for all remaining invokation completion.
     void Shutdown();
+
+    //!  Shutdown the Container process. Shutdown is immediate for this method.
+    void ShutdownNow();
 
     //!  Returns the hostname of the container
     string getHostName();

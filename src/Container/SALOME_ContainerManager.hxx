@@ -35,6 +35,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <functional>
 #include <set>
 
 class SALOME_NamingService_Abstract;
@@ -51,6 +52,8 @@ public:
   Engines::Container_ptr GiveContainer(const Engines::ContainerParameters& params) override;
 
   void ShutdownContainers() override;
+
+  void ShutdownContainersNow() override;
 
   void SetOverrideEnvForContainers(const Engines::KeyValDict& env) override;
 
@@ -76,6 +79,10 @@ public:
   void SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(CORBA::Long timeInMS) override;
 
   static const char *_ContainerManagerNameInNS;
+
+private:
+
+  void ShutdownContainersGeneric(std::function<void(Engines::Container_ptr)> funcToBeCalledOnContainer);
 
 protected:
   // C++ methods
