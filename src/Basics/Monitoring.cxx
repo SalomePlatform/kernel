@@ -113,7 +113,7 @@ std::vector<double> SALOME::ReadFloatsInFile(const std::string& fileName)
 static void StopMonitoringLinux(long pid)
 {
   pid_t pid_of_subprocess = (pid_t) pid;
-  kill( pid_of_subprocess, SIGTERM );
+  kill( pid_of_subprocess, SIGKILL );
 }
 #endif
 

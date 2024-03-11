@@ -188,7 +188,7 @@ class SALOME_Container_i:
            
     def killMe(self):
         import signal
-        os.kill( os.getpid() , signal.SIGTERM)
+        os.kill( os.getpid() , signal.SIGKILL)
            
     def setLogFileName(self, logFileName):
         logging.debug("setLogFileName {} PID = {}".format(logFileName,os.getpid()))
