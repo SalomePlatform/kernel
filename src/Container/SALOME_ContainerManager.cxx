@@ -971,18 +971,17 @@ std::string GetCommandFromTemplate(const std::string& theScriptName,
   // manage GIL
 
   PyObject* mod(PyImport_ImportModule(theScriptName.c_str()));
+  MESSAGE("Template name :"<< theScriptName.c_str());
+
   if (!mod)
   {
-    PyObject* sys = PyImport_ImportModule("sys");
-    PyObject* sys_path = PyObject_GetAttrString(sys, "path");
-    PyObject* folder_path = PyUnicode_FromString(getScriptTemplateFilePath().c_str());
+    AutoPyRef sys = PyImport_ImportModule("sys");
+    AutoPyRef sys_path = PyObject_GetAttrString(sys, "path");
+    AutoPyRef folder_path = PyUnicode_FromString(getScriptTemplateFilePath().c_str());
     PyList_Append(sys_path, folder_path);
 
     mod = PyImport_ImportModule(theScriptName.c_str());
 
-    Py_XDECREF(folder_path);
-    Py_XDECREF(sys_path);
-    Py_XDECREF(sys);
   }
 
   if (mod)
@@ -1026,6 +1025,10 @@ std::string GetCommandFromTemplate(const std::string& theScriptName,
       Py_XDECREF(meth);
       Py_XDECREF(mod);
     }
+  }
+  else
+  {
+    ERROR_MESSAGE("Can not import the template script \"" << theScriptName << "\" !");
   }
 
   MESSAGE("Command from template is ... " << command << std::endl);
@@ -1104,6 +1107,7 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
   std::string ompi_uri_file = GetenvThreadSafeAsString("OMPI_URI_FILE");
   script_parameters.push(ompi_uri_file.empty() ? "NULL" : ompi_uri_file);
 
+  MESSAGE("Retrieving command from template (python module) \"" << script_name << "\"" << std::endl);
   std::string command_from_template = GetCommandFromTemplate(script_name, script_parameters);
 
   std::ostringstream o;
