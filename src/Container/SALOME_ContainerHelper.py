@@ -34,7 +34,7 @@ class ScriptExecInfo:
     
     @classmethod
     def MemRepr(cls,memInByte):
-      m = memInByte
+      m = int( memInByte )
       UNITS=["B","kB","MB","GB"]
       remain = 0
       oss = ""
