@@ -47,6 +47,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include <vector>
 
 class SALOME_NamingService_Container_Abstract;
 
@@ -55,7 +56,8 @@ class CONTAINER_EXPORT Abstract_Engines_Container_i : public virtual POA_Engines
 {
 public:
   Abstract_Engines_Container_i();
-  Abstract_Engines_Container_i(CORBA::ORB_ptr orb,
+  Abstract_Engines_Container_i(const std::string& pyContainerClsName,
+                               CORBA::ORB_ptr orb,
                                PortableServer::POA_ptr poa,
                                char *containerName,
                                int argc, char *argv[],
@@ -64,6 +66,8 @@ public:
   virtual ~Abstract_Engines_Container_i();
 
   virtual bool isSSLMode() const = 0;
+
+ std::string getPyContainerClassName() const { return _py_container_name; }
 
   // --- CORBA methods
 
@@ -77,6 +81,10 @@ public:
   void override_environment( const Engines::FieldsDict& env ) override;
 
   Engines::FieldsDict *get_os_environment() override;
+
+  void addLogFileNameGroup(const Engines::vectorOfString& groupOfLogFileNames) override;
+    
+  Engines::vectorOfVectorOfString *getAllLogFileNameGroups() override;
   
   void execute_python_code(const char *code) override;
 
@@ -187,6 +195,7 @@ protected:
   std::string _logfilename;
   std::string _localfilename;
   std::string _load_script;
+  std::string _py_container_name;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId *_id;
@@ -199,12 +208,18 @@ protected:
   Utils_Mutex _mutexForDftPy;
   std::list<std::string> _tmp_files;
   Engines::fileTransfer_var _fileTransfer;
+  std::vector< std::vector<std::string> > _groups_of_log_files;
 
   int _argc;
   char **_argv;
   long _pid;
   bool _isServantAloneInProcess;
 };
+
+constexpr char PY_CONTAINER_CLS_NAME_IN_PROCESS[] = "SALOME_Container_i";
+constexpr char PY_CONTAINER_CLS_NAME_OUT_PROCESS_NO_REPLAY[] = "SALOME_Container_OutOfProcess_i";
+constexpr char PY_CONTAINER_CLS_NAME_OUT_PROCESS_WITH_REPLAY[] = "SALOME_Container_OutOfProcess_Replay_i";
+
 
 class CONTAINER_EXPORT Engines_Container_i : public Abstract_Engines_Container_i
 {
@@ -216,22 +231,58 @@ public:
                       int argc, char *argv[],
                       SALOME_NamingService_Container_Abstract *ns = nullptr,
                       bool isServantAloneInProcess = true) :
-                      Abstract_Engines_Container_i(orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+                      Abstract_Engines_Container_i(PY_CONTAINER_CLS_NAME_IN_PROCESS, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
   bool isSSLMode() const override { return false; }
 };
 
-class CONTAINER_EXPORT Engines_Container_SSL_i : public Abstract_Engines_Container_i
+class CONTAINER_EXPORT Abstract_Engines_Container_SSL_i : public Abstract_Engines_Container_i
 {
 public:
-  Engines_Container_SSL_i();
+  Abstract_Engines_Container_SSL_i(const std::string& pyContainerClsName,
+                          CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char *containerName,
+                          int argc, char *argv[],
+                          SALOME_NamingService_Container_Abstract *ns = nullptr,
+                          bool isServantAloneInProcess = true) :
+                          Abstract_Engines_Container_i(pyContainerClsName, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+    bool isSSLMode() const override { return true; }
+};
+
+class CONTAINER_EXPORT Engines_Container_SSL_i : public Abstract_Engines_Container_SSL_i
+{
+public:
   Engines_Container_SSL_i(CORBA::ORB_ptr orb,
                           PortableServer::POA_ptr poa,
                           char *containerName,
                           int argc, char *argv[],
                           SALOME_NamingService_Container_Abstract *ns = nullptr,
                           bool isServantAloneInProcess = true) :
-                          Abstract_Engines_Container_i(orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
-    bool isSSLMode() const override { return true; }
+                          Abstract_Engines_Container_SSL_i(PY_CONTAINER_CLS_NAME_IN_PROCESS, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+};
+
+class CONTAINER_EXPORT Engines_Container_SSL_OutOfProcess_i : public Abstract_Engines_Container_SSL_i
+{
+public:
+  Engines_Container_SSL_OutOfProcess_i(CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char *containerName,
+                          int argc, char *argv[],
+                          SALOME_NamingService_Container_Abstract *ns = nullptr,
+                          bool isServantAloneInProcess = true) :
+                          Abstract_Engines_Container_SSL_i(PY_CONTAINER_CLS_NAME_OUT_PROCESS_NO_REPLAY, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+};
+
+class CONTAINER_EXPORT Engines_Container_SSL_OutOfProcess_Replay_i : public Abstract_Engines_Container_SSL_i
+{
+public:
+  Engines_Container_SSL_OutOfProcess_Replay_i(CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char *containerName,
+                          int argc, char *argv[],
+                          SALOME_NamingService_Container_Abstract *ns = nullptr,
+                          bool isServantAloneInProcess = true) :
+                          Abstract_Engines_Container_SSL_i(PY_CONTAINER_CLS_NAME_OUT_PROCESS_WITH_REPLAY, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
 };
 
 /*!
@@ -239,7 +290,7 @@ public:
  */
 namespace KERNEL
 {
-  CONTAINER_EXPORT Engines_Container_SSL_i *getContainerSA();
+  CONTAINER_EXPORT Abstract_Engines_Container_SSL_i *getContainerSA();
   CONTAINER_EXPORT Engines::Container_var getContainerRefSA();
 } // namespace KERNEL
 

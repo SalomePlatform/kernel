@@ -1,0 +1,127 @@
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2024  CEA/DEN, EDF R&D
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+import unittest
+import os
+import salome
+import Engines
+import pylauncher
+import SALOME_PyNode
+import KernelBasis
+import SALOME
+
+import glob
+import pickle
+import tempfile
+import logging
+from datetime import datetime
+import subprocess as sp
+
+killMeCode = """
+import os
+import sys
+j = 7 * i
+sys.stdout.write(str(j)) ; sys.stdout.flush() # the aime of test in replay mode to be sure that case is runnable
+os.kill( os.getpid() , signal.SIGKILL)# the aim of test is here
+"""
+
+normalCode = """
+j = 8 * i
+my_log_4_this_session.addFreestyleAndFlush( ("a",777) ) # to check that hidden var is still accessible
+"""
+
+class testPerfLogManager1(unittest.TestCase):
+    def test0(self):
+        """
+        EDF29852 : Kill container with OutOfProcessNoReplay mode and see if container still responds.
+        """
+        salome.salome_init()
+        assert(isinstance(KernelBasis.GetAllPyExecutionModes(),tuple))
+        KernelBasis.SetPyExecutionMode("OutOfProcessNoReplay") # the aim of test is here
+        hostname = "localhost"
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
+        salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_BIG_OBJ_ON_DISK_THRES","1000")])
+        cont = salome.cm.GiveContainer(cp)
+        poa = salome.orb.resolve_initial_references("RootPOA")
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+        pyscript2 = cont.createPyScriptNode("testScript2",killMeCode)
+        pyscript2.executeFirst(refPtr)
+        self.assertRaises(SALOME.SALOME_Exception,pyscript2.executeSecond,["j"]) # an agressive SIGKILL has been received and container is still alive :) - it throws an exception :)
+        pyscript2.UnRegister()
+        pyscript3 = cont.createPyScriptNode("testScript3",normalCode)
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+        pyscript3.executeFirst(refPtr)
+        ret = pyscript3.executeSecond(["j"])
+        ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
+        self.assertEqual(ret,24) # container has received a SIGKILL but it kindly continue to respond :)
+        a = salome.logm.NaiveFetch()
+        self.assertEqual(a[0][2][0].get().freestyle,[('a',777)])
+        cont.Shutdown()
+
+    def test1(self):
+        """
+        EDF29852 : Same than test0 Kill container with OutOfProcessWithReplay mode and see if container still responds. But in addition we test if the python script is runnable !
+        """
+        salome.salome_init()
+        assert(isinstance(KernelBasis.GetAllPyExecutionModes(),tuple))
+        KernelBasis.SetPyExecutionMode("OutOfProcessWithReplay") # the aim of test is here
+        hostname = "localhost"
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
+        salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_BIG_OBJ_ON_DISK_THRES","1000")])
+        cont = salome.cm.GiveContainer(cp)
+        poa = salome.orb.resolve_initial_references("RootPOA")
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+        pyscript2 = cont.createPyScriptNode("testScript2",killMeCode)
+        pyscript2.executeFirst(refPtr)
+        self.assertRaises(SALOME.SALOME_Exception,pyscript2.executeSecond,["j"]) # an agressive SIGKILL has been received and container is still alive :) - it throws an exception :)
+        pyscript2.UnRegister()
+        pyscript3 = cont.createPyScriptNode("testScript3",normalCode)
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+        pyscript3.executeFirst(refPtr)
+        ret = pyscript3.executeSecond(["j"])
+        ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
+        self.assertEqual(ret,24) # container has received a SIGKILL but it kindly continue to respond :)
+        a = salome.logm.NaiveFetch()
+        self.assertEqual(a[0][2][0].get().freestyle,[('a',777)])
+        grpsOfLogToKill = cont.getAllLogFileNameGroups()
+        self.assertEqual(1,len(grpsOfLogToKill))
+        replayInput = grpsOfLogToKill[0]
+        # now try to replay the failing case
+        p = sp.Popen(["python3",os.path.basename(replayInput[0])],cwd = os.path.dirname(replayInput[0]),stdout=sp.PIPE,stderr=sp.PIPE)
+        out,err = p.communicate()
+        self.assertEqual(1,p.returncode) # very important ! The failing case must continue to fail :)
+        self.assertEqual("21".encode(),out) # very important to check that the reported case is standalone enough to be replayable poste mortem
+        # cleanup
+        dn = os.path.dirname(replayInput[0])
+        for elt in replayInput:
+            zeFile = os.path.join( dn, os.path.basename(elt) )
+            if os.path.exists( zeFile ):
+                os.unlink( zeFile )
+        cont.Shutdown()
+
+if __name__ == '__main__':
+    from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
+    salome.standalone()
+    salome.salome_init()
+    setVerbose(True)
+    setVerboseLevel(logging.DEBUG)
+    positionVerbosityOfLoggerRegardingState()
+    unittest.main()
+

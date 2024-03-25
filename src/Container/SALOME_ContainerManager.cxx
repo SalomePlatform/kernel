@@ -31,6 +31,7 @@
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
 #include "PythonCppUtils.hxx"
+#include "KernelBasis.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
@@ -558,9 +559,27 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
   return ret;
 }
 
+std::string SALOME_ContainerManager::GetCppBinaryOfKernelSSLContainer() const
+{
+  switch( SALOME::GetPyExecutionMode() )
+  {
+    case SALOME::PyExecutionMode::InProcess:
+      return "SALOME_Container_No_NS_Serv";
+    case SALOME::PyExecutionMode::OutOfProcessNoReplay:
+      return "SALOME_Container_No_NS_Serv_OutProcess";
+    case SALOME::PyExecutionMode::OutOfProcessWithReplay:
+      return "SALOME_Container_No_NS_Serv_OutProcess_Replay";
+    default:
+      {
+        ERROR_MESSAGE("Not manager py execution mode");
+        THROW_SALOME_EXCEPTION("GetCppBinaryOfKernelSSLContainer : Not manager py execution mode");
+      }
+  }
+}
+
 std::string SALOME_ContainerManager::GetCppBinaryOfKernelContainer() const
 {
-  std::string ret = this->_isSSL ? "SALOME_Container_No_NS_Serv" : "SALOME_Container";
+  std::string ret = this->_isSSL ?  GetCppBinaryOfKernelSSLContainer() : "SALOME_Container";
   return ret;
 }
 

@@ -160,6 +160,11 @@ namespace SALOME
     verbosityLevel = FromStrToVerbosityLevel(level);
   }
 
+  std::vector<std::string> GetAllVerbosityLevelPossibilitiesStr()
+  {
+    return {ERROR_LEVEL_VALUE_STR,WARNING_LEVEL_VALUE_STR,INFO_LEVEL_VALUE_STR,DEBUG_LEVEL_VALUE_STR};
+  }
+
   std::string VerbosityLevelStr()
   {
     return FromVerbosityLevelToStr( VerbosityLevel() );

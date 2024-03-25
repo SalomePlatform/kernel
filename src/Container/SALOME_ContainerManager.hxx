@@ -94,6 +94,8 @@ protected:
   FindContainer(const Engines::ContainerParameters& params,
                 const std::string& resource);
 
+  std::string GetCppBinaryOfKernelSSLContainer() const;
+
   std::string GetCppBinaryOfKernelContainer() const;
   
   std::string GetRunRemoteExecutableScript() const;

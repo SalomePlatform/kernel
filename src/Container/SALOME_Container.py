@@ -31,6 +31,7 @@
 # \brief python implementation of container interface for Kernel
 #
 
+import abc
 import os
 import sys
 import traceback
@@ -52,7 +53,7 @@ from KernelBasis import VerbosityActivated,getSSLMode
 
 #define an implementation of the container interface for embedding in Container implemented in C++
 
-class SALOME_Container_i:
+class SALOME_Container_Abstract_i(abc.ABC):
     _orb = None
     _poa = None
     _containerName = ""
@@ -60,7 +61,7 @@ class SALOME_Container_i:
 
     #-------------------------------------------------------------------------
 
-    def __init__(self ,containerName, containerIORStr, dftTimeIntervalInMs):
+    def __init__(self, containerName, containerIORStr, dftTimeIntervalInMs):
         # Warning this part of code is called at the very first step of container launching
         # so logging is not instanciate. So use verbose method to discrimine if a message should be printed or not
         try:
@@ -79,6 +80,10 @@ class SALOME_Container_i:
         self._logm = None
         self._log = None
         self._container = self._orb.string_to_object(containerIORStr)
+
+    @abc.abstractmethod
+    def getPyScriptCls(self):
+        raise RuntimeError("Must be overloaded")
 
     @property
     def logm(self):
@@ -160,7 +165,8 @@ class SALOME_Container_i:
           logscript = None
           if getSSLMode():
             logscript = self._log.addScript(nodeName,code)
-          node=SALOME_PyNode.PyScriptNode_i(nodeName,code,self._poa,self, logscript)
+          cls = self.getPyScriptCls()
+          node = cls(nodeName,code,self._poa,self, logscript)
           id_o = self._poa.activate_object(node)
           comp_o = self._poa.id_to_reference(id_o)
           comp_iors = self._orb.object_to_string(comp_o)
@@ -197,3 +203,24 @@ class SALOME_Container_i:
 
     def SetMonitoringtimeresms(self , value):
         self._timeIntervalInMs = value
+
+class SALOME_Container_i(SALOME_Container_Abstract_i):
+    def __init__(self, containerName, containerIORStr, dftTimeIntervalInMs):
+      super().__init__(containerName, containerIORStr, dftTimeIntervalInMs)
+
+    def getPyScriptCls(self):
+      return SALOME_PyNode.PyScriptNode_i
+
+class SALOME_Container_OutOfProcess_i(SALOME_Container_i):
+    def __init__(self, containerName, containerIORStr, dftTimeIntervalInMs):
+      super().__init__(containerName, containerIORStr, dftTimeIntervalInMs)
+      
+    def getPyScriptCls(self):
+      return SALOME_PyNode.PyScriptNode_OutOfProcess_i
+
+class SALOME_Container_OutOfProcess_Replay_i(SALOME_Container_i):
+    def __init__(self, containerName, containerIORStr, dftTimeIntervalInMs):
+      super().__init__(containerName, containerIORStr, dftTimeIntervalInMs)
+
+    def getPyScriptCls(self):
+      return SALOME_PyNode.PyScriptNode_OutOfProcess_Replay_i

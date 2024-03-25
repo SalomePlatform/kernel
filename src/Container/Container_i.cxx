@@ -145,14 +145,15 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i () :
 */
 //=============================================================================
 
-Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb, 
+Abstract_Engines_Container_i::Abstract_Engines_Container_i (const std::string& pyContainerClsName,
+                                                            CORBA::ORB_ptr orb, 
                                                             PortableServer::POA_ptr poa,
                                                             char *containerName ,
                                                             int argc , char* argv[],
                                                             SALOME_NamingService_Container_Abstract *ns,
                                                             bool isServantAloneInProcess
                                                             ) :
-  _NS(nullptr),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
+  _NS(nullptr),_py_container_name(pyContainerClsName),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 
@@ -195,7 +196,7 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (CORBA::ORB_ptr orb,
 
     CORBA::String_var sior =  _orb->object_to_string(pCont);
     std::ostringstream myCommand;
-    myCommand << "pyCont = SALOME_Container.SALOME_Container_i('" << _containerName << "','" << sior << "'," <<  DFT_TIME_INTERVAL_BTW_MEASURE << ")\n";
+    myCommand << "pyCont = SALOME_Container." << this->getPyContainerClassName() << "('" << _containerName << "','" << sior << "'," <<  DFT_TIME_INTERVAL_BTW_MEASURE << ")\n";
     INFO_MESSAGE("Python command executed : " << myCommand.str());
 
     //[RNV]: Comment the PyEval_AcquireLock() and PyEval_ReleaseLock() because this 
@@ -1164,6 +1165,46 @@ Engines::FieldsDict *Abstract_Engines_Container_i::get_os_environment()
   {
     (*ret)[i].key = CORBA::string_dup( retCpp[i].first.c_str() );
     (*ret)[i].value <<= CORBA::string_dup( retCpp[i].second.c_str() );
+  }
+  return ret.release();
+}
+
+Engines::vectorOfString_var FromVecStringCppToCORBA( const std::vector<std::string>& group)
+{
+  Engines::vectorOfString_var ret( new Engines::vectorOfString );
+  auto sz( group.size() );
+  ret->length( sz );
+  for(auto i = 0 ; i < sz ; ++i)
+  {
+    ret[i] = CORBA::string_dup( group[i].c_str() );
+  }
+  return ret;
+}
+
+std::vector<std::string> FromCORBAVecStringToCpp(const Engines::vectorOfString& groupOfLogFileNames)
+{
+  auto len = groupOfLogFileNames.length();
+  std::vector<std::string> ret( len );
+  for( auto i = 0 ; i < len ; ++i )
+  {
+    ret[i] = groupOfLogFileNames[i];
+  }
+  return ret;
+}
+
+void Abstract_Engines_Container_i::addLogFileNameGroup(const Engines::vectorOfString& groupOfLogFileNames)
+{
+  this->_groups_of_log_files.push_back( FromCORBAVecStringToCpp(groupOfLogFileNames) );
+}
+    
+Engines::vectorOfVectorOfString *Abstract_Engines_Container_i::getAllLogFileNameGroups()
+{
+  std::unique_ptr<Engines::vectorOfVectorOfString> ret( new Engines::vectorOfVectorOfString );
+  auto nbOfGrps = this->_groups_of_log_files.size();
+  ret->length( nbOfGrps );
+  for(auto i = 0 ; i < nbOfGrps ; ++i)
+  {
+    (*ret)[i] = FromVecStringCppToCORBA( _groups_of_log_files[i] );
   }
   return ret.release();
 }
@@ -2404,7 +2445,7 @@ static Engines_Container_SSL_i *_container_singleton_ssl = nullptr;
 
 static Engines::Container_var _container_ref_singleton_ssl;
 
-Engines_Container_SSL_i *KERNEL::getContainerSA()
+Abstract_Engines_Container_SSL_i *KERNEL::getContainerSA()
 {
   if(!_container_singleton_ssl)
   {

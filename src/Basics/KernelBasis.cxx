@@ -72,3 +72,92 @@ void WriteInStderr(const std::string& msg)
 {
   std::cerr << msg << std::endl << std::flush;
 }
+
+namespace SALOME
+{
+  static constexpr char IN_PROCESS_VALUE = 0;
+  static constexpr char IN_PROCESS_VALUE_STR[] = "InProcess";
+  static constexpr char OUT_OF_PROCESS_NO_REPLAY_VALUE = 1;
+  static constexpr char OUT_OF_PROCESS_NO_REPLAY_VALUE_STR[] = "OutOfProcessNoReplay";
+  static constexpr char OUT_OF_PROCESS_WITH_REPLAY_VALUE = 2;
+  static constexpr char OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR[] = "OutOfProcessWithReplay";
+
+  static PyExecutionMode FromIntToPyExecutionMode(char value)
+  {
+    switch(value)
+    {
+      case IN_PROCESS_VALUE:
+        return PyExecutionMode::InProcess;
+      case OUT_OF_PROCESS_NO_REPLAY_VALUE:
+        return PyExecutionMode::OutOfProcessNoReplay;
+      case OUT_OF_PROCESS_WITH_REPLAY_VALUE:
+        return PyExecutionMode::OutOfProcessWithReplay;
+    }
+    throw std::range_error("FromIntToPyExecutionMode : Invalid value for Py Execution Mode ! Must be in 0 (InProcess), 1 (OutOfProcessNoReplay) or 2 (OutOfProcessWithReplay) !");
+  }
+  
+  static PyExecutionMode FromStrToPyExecutionMode(const std::string& value)
+  {
+    if(value == IN_PROCESS_VALUE_STR)
+      return PyExecutionMode::InProcess;
+    if(value == OUT_OF_PROCESS_NO_REPLAY_VALUE_STR)
+      return PyExecutionMode::OutOfProcessNoReplay;
+    if(value == OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR)
+      return PyExecutionMode::OutOfProcessWithReplay;
+    throw std::range_error("FromStrToPyExecutionMode : Invalid str value for py execution mode !");
+  }
+
+  static std::string FromExecutionModeToStr(PyExecutionMode execMode)
+  {
+    switch(execMode)
+    {
+      case PyExecutionMode::InProcess:
+        return IN_PROCESS_VALUE_STR;
+      case PyExecutionMode::OutOfProcessNoReplay:
+        return OUT_OF_PROCESS_NO_REPLAY_VALUE_STR;
+      case PyExecutionMode::OutOfProcessWithReplay:
+        return OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR;
+      default:
+        throw std::range_error("FromExecutionModeToStr : Invalid str value for py execution mode !");
+    }
+  }
+}
+
+static SALOME::PyExecutionMode DefaultPyExecMode = SALOME::PyExecutionMode::NotSet;
+
+void SALOME::SetPyExecutionMode(PyExecutionMode mode)
+{
+  DefaultPyExecMode = mode;
+}
+
+void SALOME::SetPyExecutionModeStr(const std::string& mode)
+{
+  SALOME::SetPyExecutionMode( SALOME::FromStrToPyExecutionMode(mode) );
+}
+
+std::vector<std::string> SALOME::GetAllPyExecutionModes()
+{
+  return {IN_PROCESS_VALUE_STR,OUT_OF_PROCESS_NO_REPLAY_VALUE_STR,OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR};
+}
+
+std::string SALOME::GetPyExecutionModeStr()
+{
+  return SALOME::FromExecutionModeToStr( SALOME::GetPyExecutionMode() );
+}
+
+SALOME::PyExecutionMode SALOME::GetPyExecutionMode()
+{
+  auto isEnvVarSet = []() -> SALOME::PyExecutionMode
+  {
+    const char *envVar = std::getenv("SALOME_PY_EXECUTION_MODE");
+    if (envVar && (envVar[0] != '\0'))
+    {
+      const int numValue = std::stoi(envVar);
+      return SALOME::FromIntToPyExecutionMode( static_cast<char>(numValue) );
+    }
+    return SALOME::PyExecutionMode::InProcess;
+  };
+  if(DefaultPyExecMode == SALOME::PyExecutionMode::NotSet)
+    DefaultPyExecMode = isEnvVarSet();
+  return DefaultPyExecMode;
+}

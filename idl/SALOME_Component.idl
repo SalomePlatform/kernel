@@ -65,6 +65,7 @@ module Engines
   typedef sequence<KeyValuePair> FieldsDict;
   typedef sequence<double> vectorOfDouble;
   typedef sequence<string> vectorOfString;
+  typedef sequence<vectorOfString> vectorOfVectorOfString;
 
   interface EngineComponent ;
   interface fileRef ;
@@ -84,6 +85,10 @@ module Engines
     void override_environment_python( in FieldsDict env );
 
     FieldsDict get_os_environment();
+
+    void addLogFileNameGroup(in vectorOfString groupOfLogFileNames);
+    
+    vectorOfVectorOfString getAllLogFileNameGroups();
 
     void execute_python_code( in string code ) raises(SALOME::SALOME_Exception);
 

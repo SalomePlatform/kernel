@@ -430,11 +430,13 @@ def salome_shutdown_containers_with_session():
 
 def retrieve_containers_in_ns():
     return [elt for elt in naming_service.repr() if "/Containers/" == elt[:12]]
+
+def get_all_containers():
+    containersEntries = retrieve_containers_in_ns()
+    return [naming_service.Resolve(containerEntry) for containerEntry in containersEntries]
     
 def salome_shutdown_containers_without_session():
-    containersEntries = retrieve_containers_in_ns()
-    for containerEntry in containersEntries:
-        cont = naming_service.Resolve(containerEntry)
+    for cont in get_all_containers():
         try:
             cont.Shutdown()
         except:

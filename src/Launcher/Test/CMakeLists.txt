@@ -22,7 +22,7 @@
 IF(NOT WIN32)
 
   INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py ${CMAKE_CURRENT_SOURCE_DIR}/TestSSLAttached.py
-  ${CMAKE_CURRENT_SOURCE_DIR}/testPerfLogManager1.py DESTINATION ${KERNEL_TEST_DIR}/Launcher)
+  ${CMAKE_CURRENT_SOURCE_DIR}/testPerfLogManager1.py ${CMAKE_CURRENT_SOURCE_DIR}/testCrashProofContainer.py DESTINATION ${KERNEL_TEST_DIR}/Launcher)
 
   INSTALL(FILES CTestTestfileInstall.cmake
           DESTINATION ${KERNEL_TEST_DIR}/Launcher

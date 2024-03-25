@@ -19,4 +19,4 @@
 
 #include "SALOME_Container_No_NS_Serv_Generic.hxx"
 
-GENERIC_CONTAINER_EXECUTABLE( Engines_Container_SSL_i )
+GENERIC_CONTAINER_EXECUTABLE( Engines_Container_SSL_OutOfProcess_Replay_i )

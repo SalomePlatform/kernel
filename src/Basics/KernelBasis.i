@@ -33,6 +33,7 @@ using namespace SALOME;
 %include std_vector.i
 
 %template(dvec) std::vector<double>;
+%template(strvec) std::vector<std::string>;
 
 %exception {
    try 
@@ -84,6 +85,9 @@ void WriteInStderr(const std::string& msg);
 
 %rename (SetVerbosityLevel) SetVerbosityLevelSwig;
 %rename (VerbosityLevel) VerbosityLevelSwig;
+%rename (SetPyExecutionMode) SetPyExecutionModeStrSwig;
+%rename (GetPyExecutionMode) GetPyExecutionModeStrSwig;
+%rename (GetAllPyExecutionModes) GetAllPyExecutionModesSwig;
 
 %inline
 {
@@ -116,6 +120,21 @@ void SetVerbosityLevelSwig(const std::string& level)
 std::string VerbosityLevelSwig()
 {
   return VerbosityLevelStr();
+}
+
+void SetPyExecutionModeStrSwig(const std::string& mode)
+{
+  SetPyExecutionModeStr( mode );
+}
+
+std::string GetPyExecutionModeStrSwig()
+{
+  return GetPyExecutionModeStr();
+}
+
+std::vector<std::string> GetAllPyExecutionModesSwig()
+{
+  return GetAllPyExecutionModes();
 }
 }
 

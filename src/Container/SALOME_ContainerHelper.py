@@ -432,9 +432,14 @@ class ScriptInfoAbstract:
   
 class ScriptInfoClt(ScriptInfoAbstract):
   def __init__(self, scriptPtr):
+      def unPickledSafe( dataPickled ):
+        if len(dataPickled) > 0:
+          return pickle.loads(dataPickled)
+        else:
+           return None  
       self._node_name = scriptPtr.getName()
       self._code = scriptPtr.getCode()
-      self._exec = [pickle.loads(elt.getObj()) for elt in scriptPtr.listOfExecs()]
+      self._exec = [unPickledSafe(elt.getObj()) for elt in scriptPtr.listOfExecs()]
 
 class ScriptInfo(ScriptInfoAbstract):
   def __init__(self, nodeName, code, execs):

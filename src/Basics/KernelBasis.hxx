@@ -22,6 +22,7 @@
 #include "SALOME_Basics.hxx"
 
 #include <string>
+#include <vector>
 
 bool BASICS_EXPORT getSSLMode();
 void BASICS_EXPORT setSSLMode(bool sslMode);
@@ -33,3 +34,13 @@ void BASICS_EXPORT setIOROfEmbeddedNS(const std::string& ior);
 
 void BASICS_EXPORT WriteInStdout(const std::string& msg);
 void BASICS_EXPORT WriteInStderr(const std::string& msg);
+
+namespace SALOME
+{
+  enum class PyExecutionMode { NotSet, InProcess, OutOfProcessNoReplay, OutOfProcessWithReplay };
+  void BASICS_EXPORT SetPyExecutionMode(PyExecutionMode mode);
+  void BASICS_EXPORT SetPyExecutionModeStr(const std::string& mode);
+  std::vector<std::string> BASICS_EXPORT GetAllPyExecutionModes();
+  std::string BASICS_EXPORT GetPyExecutionModeStr();
+  PyExecutionMode BASICS_EXPORT GetPyExecutionMode();
+}

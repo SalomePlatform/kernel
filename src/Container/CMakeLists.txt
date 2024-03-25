@@ -113,11 +113,17 @@ TARGET_LINK_LIBRARIES(SALOME_Container SalomeContainerServer)
 ADD_EXECUTABLE(SALOME_Container_No_NS_Serv SALOME_Container_No_NS_Serv.cxx)
 TARGET_LINK_LIBRARIES(SALOME_Container_No_NS_Serv SalomeContainerServer)
 
+ADD_EXECUTABLE(SALOME_Container_No_NS_Serv_OutProcess SALOME_Container_No_NS_Serv_OutProcess.cxx)
+TARGET_LINK_LIBRARIES(SALOME_Container_No_NS_Serv_OutProcess SalomeContainerServer)
+
+ADD_EXECUTABLE(SALOME_Container_No_NS_Serv_OutProcess_Replay SALOME_Container_No_NS_Serv_OutProcess_Replay.cxx)
+TARGET_LINK_LIBRARIES(SALOME_Container_No_NS_Serv_OutProcess_Replay SalomeContainerServer)
+
 IF(SALOME_BUILD_TESTS)
   ADD_EXECUTABLE(TestSalome_file TestSalome_file.cxx)
   TARGET_LINK_LIBRARIES(TestSalome_file SALOMETraceCollectorTest ${SALOME_Container_LIBS})
 ENDIF()
-INSTALL(TARGETS SALOME_Container SALOME_Container_No_NS_Serv DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(TARGETS SALOME_Container SALOME_Container_No_NS_Serv SALOME_Container_No_NS_Serv_OutProcess SALOME_Container_No_NS_Serv_OutProcess_Replay DESTINATION ${SALOME_INSTALL_BINS})
 
 # Executable scripts to be installed
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})

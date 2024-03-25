@@ -27,6 +27,7 @@
 #include "SALOME_Basics.hxx"
 
 #include <string>
+#include <vector>
 
 namespace SALOME
 {
@@ -44,4 +45,5 @@ namespace SALOME
   void BASICS_EXPORT AppendTimeClock(std::ostream& os);
   VerbosityLevelType BASICS_EXPORT VerbosityLevel();
   std::string BASICS_EXPORT VerbosityLevelStr();
+  std::vector<std::string> BASICS_EXPORT GetAllVerbosityLevelPossibilitiesStr();
 }
