@@ -68,7 +68,7 @@ def command(args):
     elif options.protocol == "srun":
         # srun command
         cmd.append("srun")
-        cmd.append("-n 1 -N 1 -s --mem-per-cpu=0 --cpu-bind=none")
+        cmd.append("-n 1 -N 1 --overlap --mem-per-cpu=0 --cpu-bind=none")
         cmd.append("--nodelist=" + options.host)
 
     elif options.protocol == "pbsdsh":
