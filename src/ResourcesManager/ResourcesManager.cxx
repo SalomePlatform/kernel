@@ -330,6 +330,11 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params)
   return vec;
 }
 
+void ResourcesManager_cpp::AddResourceInCatalogNoQuestion (const ParserResourcesType & new_resource)
+{
+  _resourcesList[new_resource.Name] = new_resource;
+}
+
 //=============================================================================
 /*!
  *  add an entry in the resources catalog xml file.
@@ -357,7 +362,7 @@ ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resou
       throw ResourcesException(check);
   }
   // TODO - Add minimal check
-  _resourcesList[new_resource.Name] = new_resource;
+  this->AddResourceInCatalogNoQuestion( new_resource );
 }
 
 void ResourcesManager_cpp::DeleteAllResourcesInCatalog()

@@ -230,6 +230,30 @@ public:
     new_resource_cpp.working_directory = new_resource.working_directory;
     $self->AddResourceInCatalog(new_resource_cpp);
   }
+
+  void AddResourceInCatalogNoQuestion (const ResourceDefinition_cpp& new_resource)
+  {
+    ParserResourcesType new_resource_cpp;
+    new_resource_cpp.Name = new_resource.name;
+    new_resource_cpp.HostName = new_resource.hostname;
+    new_resource_cpp.setResourceTypeStr( new_resource.type );
+    new_resource_cpp.setAccessProtocolTypeStr( new_resource.protocol );
+    new_resource_cpp.UserName = new_resource.username;
+    new_resource_cpp.AppliPath = new_resource.applipath;
+    new_resource_cpp.OS = new_resource.OS;
+    new_resource_cpp.DataForSort._Name = new_resource.name;
+    new_resource_cpp.DataForSort._memInMB = new_resource.mem_mb;
+    new_resource_cpp.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
+    new_resource_cpp.DataForSort._nbOfNodes = new_resource.nb_node;
+    new_resource_cpp.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
+    new_resource_cpp.setBatchTypeStr(new_resource.batch);
+    new_resource_cpp.setMpiImplTypeStr(new_resource.mpiImpl);
+    new_resource_cpp.setClusterInternalProtocolStr(new_resource.iprotocol);
+    new_resource_cpp.can_launch_batch_jobs = new_resource.can_launch_batch_jobs;
+    new_resource_cpp.can_run_containers = new_resource.can_run_containers;
+    new_resource_cpp.working_directory = new_resource.working_directory;
+    $self->AddResourceInCatalogNoQuestion(new_resource_cpp);
+  }
   
   void ParseXmlFiles()
   {
