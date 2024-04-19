@@ -873,20 +873,37 @@ def ExecLocal( code, context, outargsname, containerRef, instanceOfLogOfCurrentS
   exec( code, context )
   return instanceOfLogOfCurrentSession._current_instance
 
-class LogOfCurrentExecutionSession:
-  def __init__(self, handleToCentralizedInst):
-    self._remote_handle = handleToCentralizedInst
+class LogOfCurrentExecutionSessionAbs(Generic,abc.ABC):
+  def __init__(self):
     self._current_instance = ScriptExecInfo()
+
+  def addInfoOnLevel2(self, key, value):
+    setattr(self._current_instance,key,value)
+
+  @abc.abstractmethod
+  def addFreestyleAndFlush(self, outargsname):
+    raise RuntimeError("Must be overloaded")
+
+class LogOfCurrentExecutionSession(LogOfCurrentExecutionSessionAbs):
+  def __init__(self, handleToCentralizedInst):
+    super().__init__()
+    self._remote_handle = handleToCentralizedInst
 
   def addFreestyleAndFlush(self, value):
     self._current_instance.freestyle = value
     self.finalizeAndPushToMaster()
 
-  def addInfoOnLevel2(self, key, value):
-    setattr(self._current_instance,key,value)
-
   def finalizeAndPushToMaster(self):
     self._remote_handle.assign( pickle.dumps( self._current_instance ) )
+
+class LogOfCurrentExecutionSessionStub(LogOfCurrentExecutionSessionAbs):
+  """
+  This class is to stub LogOfCurrentExecutionSession in context of replay where the server (handleToCentralizedInst) has vanished
+  """
+  def __init__(self, handleToCentralizedInst = None):
+    super().__init__()
+  def addFreestyleAndFlush(self):
+    pass
 
 class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
   """The implementation of the PyScriptNode CORBA IDL that executes a script"""
