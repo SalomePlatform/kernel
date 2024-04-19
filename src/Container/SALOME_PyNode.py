@@ -728,6 +728,7 @@ outputsKeys = {}
 exec( "{{}} = LogOfCurrentExecutionSession( orb.string_to_object( \\"{}\\" ) )".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) )
 with open(inputFileName,"rb") as f:
   context = pickle.load( f )
+context[MY_PERFORMANCE_LOG_ENTRY_IN_GLBS] = eval( MY_PERFORMANCE_LOG_ENTRY_IN_GLBS )
 with open(codeFileName,"r") as f:
   code = f.read()
 # go for execution
@@ -873,7 +874,7 @@ def ExecLocal( code, context, outargsname, containerRef, instanceOfLogOfCurrentS
   exec( code, context )
   return instanceOfLogOfCurrentSession._current_instance
 
-class LogOfCurrentExecutionSessionAbs(Generic,abc.ABC):
+class LogOfCurrentExecutionSessionAbs(abc.ABC):
   def __init__(self):
     self._current_instance = ScriptExecInfo()
 
@@ -881,7 +882,7 @@ class LogOfCurrentExecutionSessionAbs(Generic,abc.ABC):
     setattr(self._current_instance,key,value)
 
   @abc.abstractmethod
-  def addFreestyleAndFlush(self, outargsname):
+  def addFreestyleAndFlush(self, value):
     raise RuntimeError("Must be overloaded")
 
 class LogOfCurrentExecutionSession(LogOfCurrentExecutionSessionAbs):
@@ -902,7 +903,7 @@ class LogOfCurrentExecutionSessionStub(LogOfCurrentExecutionSessionAbs):
   """
   def __init__(self, handleToCentralizedInst = None):
     super().__init__()
-  def addFreestyleAndFlush(self):
+  def addFreestyleAndFlush(self, value):
     pass
 
 class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
