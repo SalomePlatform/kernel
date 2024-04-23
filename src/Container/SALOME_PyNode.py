@@ -528,12 +528,21 @@ def CPUMemoryMonitoring( intervalInMs, outFileName = None ):
       f.write("""import psutil
 pid = {}
 process = psutil.Process( pid )
+def getChargeOf( p ):
+  a,b = p.cpu_percent(), p.memory_info().rss
+  try:
+    for c in p.children():
+      a += c.cpu_percent(interval=0.01) ; b += c.memory_info().rss
+  except:
+    pass
+  return a,b
 import time
 with open("{}","a") as f:
   f.write( "{{}}\\n".format( "{}" ) )
   while True:
-    f.write( "{{}}\\n".format( str( process.cpu_percent() ) ) )
-    f.write( "{{}}\\n".format( str( process.memory_info().rss  ) ) )
+    cpu,mem_rss = getChargeOf( process )
+    f.write( "{{}}\\n".format( str( cpu ) ) )
+    f.write( "{{}}\\n".format( str( mem_rss  ) ) )
     f.flush()
     time.sleep( {} / 1000.0 )
 """.format(pid, tempOutFile, intervalInMs, intervalInMs))

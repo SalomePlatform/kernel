@@ -47,6 +47,12 @@ j = 8 * i
 my_log_4_this_session.addFreestyleAndFlush( ("a",777) ) # to check that hidden var is still accessible
 """
 
+heatCPUCode = """import KernelBasis
+nbcore = 3
+cst = KernelBasis.GetTimeAdjustmentCst()
+KernelBasis.HeatMarcel(5 * nbcore * cst,nbcore)
+j = 8*i"""
+
 class testPerfLogManager1(unittest.TestCase):
     def test0(self):
         """
@@ -114,6 +120,37 @@ class testPerfLogManager1(unittest.TestCase):
             zeFile = os.path.join( dn, os.path.basename(elt) )
             if os.path.exists( zeFile ):
                 os.unlink( zeFile )
+        cont.Shutdown()
+
+    def test2(self):
+        """
+        Aim of test is to check that CPU/mem retrieved in log is OK even in OutOfProcessNoReplay mode.
+        """
+        salome.salome_init()
+        salome.logm.clear()
+        assert(isinstance(KernelBasis.GetAllPyExecutionModes(),tuple))
+        KernelBasis.SetPyExecutionMode("OutOfProcessNoReplay") # the aim of test is here
+        hostname = "localhost"
+        PROXY_THRES = "-1"
+        #
+        salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+        salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_cpu_mem_out_process_test")
+        cont = salome.cm.GiveContainer(cp)
+        poa = salome.orb.resolve_initial_references("RootPOA")
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+        pyscript2 = cont.createPyScriptNode("testScript3",heatCPUCode)
+        pyscript2.executeFirst(refPtr)
+        ret = pyscript2.executeSecond(["j"])
+        ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
+        self.assertEqual(ret,24)
+        pyscript2.UnRegister()
+        a = salome.logm.NaiveFetch()
+        cpu_mem_to_test = a[0][1][0].get()._cpu_mem_during_exec.data # normally even in OutOfProcessNoReplay mode the CPU must report somehing greater than 100
+        self.assertGreater(len(cpu_mem_to_test),10) # 5 second of run 250 ms of interval between measures -> 20. In case of problem in HeatMarcel -> 10
+        logging.debug("CPU mem measured (even in OutOfProcessNoReplay) : {}".format(cpu_mem_to_test))
+        greater_than_100 = [a for a,b in cpu_mem_to_test if a > 100]
+        self.assertGreater(len(greater_than_100),1) # At minimum one measure must report CPU load > 100%
         cont.Shutdown()
 
 if __name__ == '__main__':
