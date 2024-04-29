@@ -432,7 +432,7 @@ class SalomeContext:
   def _runRemote(self, args=None):
     if args is None:
       args = []
-#   complete salome environment 
+#   complete salome environment
     sys.argv = ['runRemote']
     import setenv
     setenv.main(True)
