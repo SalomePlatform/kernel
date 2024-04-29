@@ -231,6 +231,24 @@ class SalomeContext:
       os.environ[name] = env + separator + value
     return
 
+  """Remove value from environment variable"""
+  def removeFromVariable(self, name, value, separator=os.pathsep):
+    if value == '':
+      return
+
+    value = os.path.expandvars(value) # expand environment variables
+    self.getLogger().debug("Remove from %s: %s", name, value)
+    env = os.getenv(name, None)
+    if env == value:
+      env = ''
+    else:
+      env = env.removeprefix(value + separator)
+      env = env.removesuffix(separator + value)
+      env = env.replace(separator + value + separator, ':')
+
+    os.environ[name] = env
+  #
+
   ###################################
   # This begins the private section #
   ###################################
