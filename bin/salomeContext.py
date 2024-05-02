@@ -242,8 +242,14 @@ class SalomeContext:
     if env == value:
       env = ''
     else:
-      env = env.removeprefix(value + separator)
-      env = env.removesuffix(separator + value)
+      # env = env.removeprefix(value + separator) (Python >= 3.9)
+      str = value + separator
+      if env.startswith(str):
+        env = env[len(str):]
+      # env = env.removesuffix(separator + value) (Python >= 3.9)
+      str = separator + value
+      if env.endswith(str):
+        env = env[:-len(str)]
       env = env.replace(separator + value + separator, ':')
 
     os.environ[name] = env
