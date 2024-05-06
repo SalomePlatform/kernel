@@ -123,6 +123,37 @@ namespace SALOME
   }
 }
 
+constexpr int SALOME_BIG_OBJ_ON_DISK_THRES_DFT = 50000000;
+
+static int SALOME_BIG_OBJ_ON_DISK_THRES = SALOME_BIG_OBJ_ON_DISK_THRES_DFT;
+
+int SALOME::GetBigObjOnDiskThreshold()
+{
+  return SALOME_BIG_OBJ_ON_DISK_THRES;
+}
+
+void SALOME::SetBigObjOnDiskThreshold(int newThresholdInByte)
+{
+  SALOME_BIG_OBJ_ON_DISK_THRES = newThresholdInByte;
+}
+
+static std::string SALOME_FILE_BIG_OBJ_DIR;
+
+std::string SALOME::GetBigObjOnDiskDirectory()
+{
+  return SALOME_FILE_BIG_OBJ_DIR;
+}
+
+void SALOME::SetBigObjOnDiskDirectory(const std::string& directory)
+{
+  SALOME_FILE_BIG_OBJ_DIR = directory;
+}
+
+bool SALOME::BigObjOnDiskDirectoryDefined()
+{
+  return ! SALOME_FILE_BIG_OBJ_DIR.empty();
+}
+
 static SALOME::PyExecutionMode DefaultPyExecMode = SALOME::PyExecutionMode::NotSet;
 
 void SALOME::SetPyExecutionMode(PyExecutionMode mode)

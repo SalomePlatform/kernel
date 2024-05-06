@@ -30,6 +30,7 @@ import Engines__POA
 import SALOME__POA
 import SALOME
 import logging
+import KernelBasis
 import abc
 import os
 import sys
@@ -123,13 +124,6 @@ class SenderByte_i(SALOME__POA.SenderByte,Generic):
   def sendPart(self,n1,n2):
     return self.bytesToSend[n1:n2]
 
-SALOME_FILE_BIG_OBJ_DIR = "SALOME_FILE_BIG_OBJ_DIR"
-    
-SALOME_BIG_OBJ_ON_DISK_THRES_VAR = "SALOME_BIG_OBJ_ON_DISK_THRES"
-
-# default is 50 MB
-SALOME_BIG_OBJ_ON_DISK_THRES_DFT = 50000000
-
 DicoForProxyFile = { }
 
 def GetSizeOfBufferedReader(f):
@@ -184,11 +178,7 @@ def DecrRefInFile(fname):
   pass
 
 def GetBigObjectOnDiskThreshold():
-  import os
-  if SALOME_BIG_OBJ_ON_DISK_THRES_VAR in os.environ:
-    return int( os.environ[SALOME_BIG_OBJ_ON_DISK_THRES_VAR] )
-  else:
-    return SALOME_BIG_OBJ_ON_DISK_THRES_DFT
+    return KernelBasis.GetBigObjOnDiskThreshold()
 
 def ActivateProxyMecanismOrNot( sizeInByte ):
   thres = GetBigObjectOnDiskThreshold()
@@ -199,9 +189,9 @@ def ActivateProxyMecanismOrNot( sizeInByte ):
 
 def GetBigObjectDirectory():
   import os
-  if SALOME_FILE_BIG_OBJ_DIR not in os.environ:
+  if not KernelBasis.BigObjOnDiskDirectoryDefined():
     raise RuntimeError("An object of size higher than limit detected and no directory specified to dump it in file !")
-  return os.path.expanduser( os.path.expandvars( os.environ[SALOME_FILE_BIG_OBJ_DIR] ) )
+  return os.path.expanduser( os.path.expandvars( KernelBasis.GetBigObjOnDiskDirectory() ) )
 
 def GetBigObjectFileName():
   """

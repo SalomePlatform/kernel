@@ -63,6 +63,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_Embedded_NamingService_Client.hxx"
 #include "SALOME_Embedded_NamingService.hxx"
 #include "Basics_Utils.hxx"
+#include "KernelBasis.hxx"
 #include "PythonCppUtils.hxx"
 #include "Utils_CorbaException.hxx"
 
@@ -1167,6 +1168,16 @@ Engines::FieldsDict *Abstract_Engines_Container_i::get_os_environment()
     (*ret)[i].value <<= CORBA::string_dup( retCpp[i].second.c_str() );
   }
   return ret.release();
+}
+
+void Abstract_Engines_Container_i::set_big_obj_on_disk_threshold(CORBA::Long thresholdInByte)
+{
+  SALOME::SetBigObjOnDiskThreshold(thresholdInByte);
+}
+
+void Abstract_Engines_Container_i::set_big_obj_on_disk_directory(const char *directory)
+{
+  SALOME::SetBigObjOnDiskDirectory(directory);
 }
 
 Engines::vectorOfString_var FromVecStringCppToCORBA( const std::vector<std::string>& group)

@@ -108,6 +108,10 @@ interface ContainerManager
 
   KeyValDict GetOverrideEnvForContainers();
 
+  void SetBigObjOnDiskThreshold(in long thresholdInByte);
+
+  void SetBigObjOnDiskDirectory(in string directory);
+
   void SetCodeOnContainerStartUp(in string code);
 } ;
 

@@ -236,6 +236,16 @@ void SALOME_ContainerManager::SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(CORB
   this->_delta_time_measure_in_ms = timeInMS;
 }
 
+void SALOME_ContainerManager::SetBigObjOnDiskThreshold(CORBA::Long thresholdInByte)
+{
+  SALOME::SetBigObjOnDiskThreshold(thresholdInByte);
+}
+
+void SALOME_ContainerManager::SetBigObjOnDiskDirectory(const char *directory)
+{
+  SALOME::SetBigObjOnDiskDirectory(directory);
+}
+
 //=============================================================================
 //! Loop on all the containers listed in naming service, ask shutdown on each
 /*! CORBA Method:
@@ -524,6 +534,8 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         std::ostringstream envInfo;
         std::for_each( _override_env.begin(), _override_env.end(), [&envInfo](const std::pair<std::string,std::string>& p) { envInfo << p.first << " = " << p.second << " "; } );
         INFOS("[GiveContainer] container " << containerNameInNS << " override " << envInfo.str());
+        cont->set_big_obj_on_disk_directory( SALOME::GetBigObjOnDiskDirectory().c_str() );
+        cont->set_big_obj_on_disk_threshold( SALOME::GetBigObjOnDiskThreshold() );
         Engines::FieldsDict envCorba;
         {
           auto sz = _override_env.size();

@@ -78,6 +78,10 @@ public:
 
   void SetDeltaTimeBetweenCPUMemMeasureInMilliSecond(CORBA::Long timeInMS) override;
 
+  void SetBigObjOnDiskThreshold(CORBA::Long thresholdInByte) override;
+
+  void SetBigObjOnDiskDirectory(const char *directory) override;
+
   static const char *_ContainerManagerNameInNS;
 
 private:

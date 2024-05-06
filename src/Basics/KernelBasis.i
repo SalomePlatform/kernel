@@ -51,6 +51,11 @@ using namespace SALOME;
 }
 
 %rename (HeatMarcel) HeatMarcelSwig;
+%rename (GetBigObjOnDiskThreshold) GetBigObjOnDiskThresholdSwig;
+%rename (SetBigObjOnDiskThreshold) SetBigObjOnDiskThresholdSwig;
+%rename (GetBigObjOnDiskDirectory) GetBigObjOnDiskDirectorySwig;
+%rename (SetBigObjOnDiskDirectory) SetBigObjOnDiskDirectorySwig;
+%rename (BigObjOnDiskDirectoryDefined) BigObjOnDiskDirectoryDefinedSwig;
 
 bool getSSLMode();
 void setSSLMode(bool sslMode);
@@ -110,6 +115,31 @@ std::vector<double> ReadFloatsInFileSwig(const std::string& fileName)
   }
   catch(std::exception& e) { }
   return ret;
+}
+
+int GetBigObjOnDiskThresholdSwig()
+{
+  return SALOME::GetBigObjOnDiskThreshold();
+}
+
+void SetBigObjOnDiskThresholdSwig(int newThreshold)
+{
+  return SALOME::SetBigObjOnDiskThreshold(newThreshold);
+}
+
+std::string GetBigObjOnDiskDirectorySwig()
+{
+  return SALOME::GetBigObjOnDiskDirectory();
+}
+
+void SetBigObjOnDiskDirectorySwig(const std::string& directory)
+{
+  return SALOME::SetBigObjOnDiskDirectory(directory);
+}
+
+bool BigObjOnDiskDirectoryDefinedSwig()
+{
+  return SALOME::BigObjOnDiskDirectoryDefined();
 }
 
 void SetVerbosityLevelSwig(const std::string& level)

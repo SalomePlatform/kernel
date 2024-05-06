@@ -86,6 +86,10 @@ module Engines
 
     FieldsDict get_os_environment();
 
+    void set_big_obj_on_disk_threshold(in long thresholdInByte);
+
+    void set_big_obj_on_disk_directory(in string directory);
+
     void addLogFileNameGroup(in vectorOfString groupOfLogFileNames);
     
     vectorOfVectorOfString getAllLogFileNameGroups();

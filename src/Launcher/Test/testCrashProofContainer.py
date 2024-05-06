@@ -63,7 +63,8 @@ class testPerfLogManager1(unittest.TestCase):
         KernelBasis.SetPyExecutionMode("OutOfProcessNoReplay") # the aim of test is here
         hostname = "localhost"
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
-        salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_BIG_OBJ_ON_DISK_THRES","1000")])
+        salome.cm.SetBigObjOnDiskThreshold(1000)
+        salome.cm.SetOverrideEnvForContainersSimple(env = [])
         cont = salome.cm.GiveContainer(cp)
         poa = salome.orb.resolve_initial_references("RootPOA")
         obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
@@ -90,7 +91,8 @@ class testPerfLogManager1(unittest.TestCase):
         KernelBasis.SetPyExecutionMode("OutOfProcessWithReplay") # the aim of test is here
         hostname = "localhost"
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
-        salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_BIG_OBJ_ON_DISK_THRES","1000")])
+        salome.cm.SetBigObjOnDiskThreshold(1000)
+        salome.cm.SetOverrideEnvForContainersSimple(env = [])
         cont = salome.cm.GiveContainer(cp)
         poa = salome.orb.resolve_initial_references("RootPOA")
         obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
@@ -131,9 +133,10 @@ class testPerfLogManager1(unittest.TestCase):
         assert(isinstance(KernelBasis.GetAllPyExecutionModes(),tuple))
         KernelBasis.SetPyExecutionMode("OutOfProcessNoReplay") # the aim of test is here
         hostname = "localhost"
-        PROXY_THRES = "-1"
+        PROXY_THRES = -1
         #
-        salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+        salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
+        salome.cm.SetOverrideEnvForContainersSimple(env = [])
         salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_cpu_mem_out_process_test")
         cont = salome.cm.GiveContainer(cp)

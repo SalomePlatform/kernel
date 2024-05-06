@@ -82,6 +82,10 @@ public:
 
   Engines::FieldsDict *get_os_environment() override;
 
+  void set_big_obj_on_disk_threshold(CORBA::Long thresholdInByte) override;
+
+  void set_big_obj_on_disk_directory(const char *directory) override;
+
   void addLogFileNameGroup(const Engines::vectorOfString& groupOfLogFileNames) override;
     
   Engines::vectorOfVectorOfString *getAllLogFileNameGroups() override;

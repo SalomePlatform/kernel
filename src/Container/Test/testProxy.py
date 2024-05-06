@@ -39,15 +39,18 @@ class TestProxy(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdirname:
             val_for_jj = "3333"
             val_for_big_obj = str( tmpdirname )
-            val_for_thres = "100" # force proxy file
+            val_for_thres = 100 # force proxy file
             # Override environement for all containers launched
-            salome.cm.SetOverrideEnvForContainersSimple(env = [("jj",val_for_jj),("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",val_for_thres)])
+            salome.cm.SetBigObjOnDiskDirectory(val_for_big_obj)
+            salome.cm.SetBigObjOnDiskThreshold(val_for_thres)
+            salome.cm.SetOverrideEnvForContainersSimple(env = [("jj",val_for_jj)])
             cont = salome.cm.GiveContainer(cp)
             ## Time to test it
             script_st = """import os
-a = os.environ["SALOME_FILE_BIG_OBJ_DIR"]
+import KernelBasis
+a = KernelBasis.GetBigObjOnDiskDirectory()
 b = os.environ["jj"]
-c = os.environ["SALOME_BIG_OBJ_ON_DISK_THRES"]
+c = KernelBasis.GetBigObjOnDiskThreshold()
 j = a,b,c"""
             pyscript = cont.createPyScriptNode("testScript",script_st)
             a,b,c = pickle.loads(pyscript.execute(["j"],pickle.dumps(([],{}))))[0]
@@ -55,7 +58,7 @@ j = a,b,c"""
             self.assertTrue( b == val_for_jj )
             self.assertTrue( c == val_for_thres )
             # check environment using POSIX API in the container process
-            for k,v in [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",val_for_thres),("jj",val_for_jj)]:
+            for k,v in [("jj",val_for_jj)]:
                 assert( {elt.key:elt.value.value() for elt in cont.get_os_environment()}[k] == v )
             #
             import SALOME_PyNode

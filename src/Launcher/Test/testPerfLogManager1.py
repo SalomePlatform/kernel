@@ -24,6 +24,7 @@ import salome
 import Engines
 import pylauncher
 import SALOME_PyNode
+import KernelBasis
 
 import glob
 import pickle
@@ -67,7 +68,7 @@ class testPerfLogManager1(unittest.TestCase):
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test")
         salome.logm.clear()
         #PROXY_THRES = "-1"
-        PROXY_THRES = "1"
+        PROXY_THRES = 1
         with SALOME_PyNode.GenericPythonMonitoringLauncherCtxMgr( SALOME_PyNode.FileSystemMonitoring(1000,os.path.dirname( salome.__file__ )) ) as monitoringParamsForFileMaster:
             with SALOME_PyNode.GenericPythonMonitoringLauncherCtxMgr( SALOME_PyNode.CPUMemoryMonitoring(1000) ) as monitoringParamsMaster:
                 with tempfile.TemporaryDirectory() as tmpdirnameMonitoring:
@@ -82,9 +83,11 @@ class testPerfLogManager1(unittest.TestCase):
                             pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
                             logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
                             val_for_big_obj = str( tmpdirname )
-                            os.environ["SALOME_FILE_BIG_OBJ_DIR"] = val_for_big_obj
+                            KernelBasis.SetBigObjOnDiskDirectory( val_for_big_obj )
                             # Override environement for all containers launched
-                            salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+                            salome.cm.SetBigObjOnDiskDirectory(val_for_big_obj)
+                            salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
+                            salome.cm.SetOverrideEnvForContainersSimple(env = [])
                             salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
                             cont = salome.cm.GiveContainer(cp)
                             logging.debug("{} {}".format(40*"*",cont.getPID()))
@@ -211,8 +214,8 @@ time.sleep(1)
         hostname = "localhost"
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test_three")
         salome.logm.clear()
-        #PROXY_THRES = "-1"
-        PROXY_THRES = "1"
+        #PROXY_THRES = -1
+        PROXY_THRES = 1
         with tempfile.TemporaryDirectory() as tmpdirnameMonitoring:
             fsMonitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeFS.txt" )
             cpuMemMonitoringFile = os.path.join( str( tmpdirnameMonitoring ), "zeCPUMem.txt" )
@@ -229,9 +232,11 @@ time.sleep(1)
                             pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
                             logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
                             val_for_big_obj = str( tmpdirname )
-                            os.environ["SALOME_FILE_BIG_OBJ_DIR"] = val_for_big_obj
+                            KernelBasis.SetBigObjOnDiskDirectory( val_for_big_obj )
+                            salome.cm.SetBigObjOnDiskDirectory(val_for_big_obj)
+                            salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
                             # Override environement for all containers launched
-                            salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+                            salome.cm.SetOverrideEnvForContainersSimple(env = [])
                             salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
                             cont = salome.cm.GiveContainer(cp)
                             logging.debug("{} {}".format(40*"*",cont.getPID()))
@@ -290,11 +295,13 @@ sys.stderr.write("fake error message\\n")
         hostname = "localhost"
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test_two")
         salome.logm.clear()
-        PROXY_THRES = "1"
+        PROXY_THRES = 1
         with tempfile.TemporaryDirectory() as tmpdirname:
             ior_ns_file = os.path.join(tmpdirname,"ns.ior")
             val_for_big_obj = str( tmpdirname )
-            salome.cm.SetOverrideEnvForContainersSimple(env = [("SALOME_FILE_BIG_OBJ_DIR",val_for_big_obj),("SALOME_BIG_OBJ_ON_DISK_THRES",PROXY_THRES)])
+            salome.cm.SetBigObjOnDiskDirectory(val_for_big_obj)
+            salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
+            salome.cm.SetOverrideEnvForContainersSimple(env = [])
             salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
             salome.naming_service.DumpIORInFile( ior_ns_file )
             cont = salome.cm.GiveContainer(cp)
