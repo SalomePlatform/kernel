@@ -113,6 +113,8 @@ interface ContainerManager
   void SetBigObjOnDiskDirectory(in string directory);
 
   void SetCodeOnContainerStartUp(in string code);
+
+  string GetCodeOnContainerStartUp();
 } ;
 
 };

@@ -20,8 +20,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __SALOME_CONTAINERMANAGER_HXX__
-#define __SALOME_CONTAINERMANAGER_HXX__
+#pragma once
 
 #include "SALOME_Container.hxx"
 
@@ -60,6 +59,8 @@ public:
   Engines::KeyValDict *GetOverrideEnvForContainers() override;
 
   void SetCodeOnContainerStartUp(const char *code) override;
+
+  char *GetCodeOnContainerStartUp() override;
 
   // C++ Methods
   void Shutdown();
@@ -234,4 +235,3 @@ private:
   int _delta_time_measure_in_ms;
   std::string _code_to_exe_on_startup;
 };
-#endif

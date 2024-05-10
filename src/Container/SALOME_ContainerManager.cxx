@@ -369,6 +369,11 @@ void SALOME_ContainerManager::SetCodeOnContainerStartUp(const char *code)
   _code_to_exe_on_startup = code;
 }
 
+char *SALOME_ContainerManager::GetCodeOnContainerStartUp()
+{
+  return CORBA::string_dup( _code_to_exe_on_startup.c_str() );
+}
+
 //=============================================================================
 //! Give a suitable Container given constraints
 /*! CORBA Method:
