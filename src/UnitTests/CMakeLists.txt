@@ -18,13 +18,13 @@
 #
 
 INCLUDE_DIRECTORIES(
-  ${CPPUNIT_INCLUDE_DIRS}
-  ${PTHREAD_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace/Test
+  ${CPPUNIT_INCLUDE_DIRS}
+  ${PTHREAD_INCLUDE_DIR}
+  ${PROJECT_BINARY_DIR}/salome_adm
 )
 
 # ===============================================================
