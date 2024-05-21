@@ -33,7 +33,8 @@ import platform
 
 from salomeContextUtils import SalomeContextException
 
-def usage():
+def usage(appended_cmd_doc = "", appended_opt_doc = ""):
+  add_in_help = {"appended_cmd_doc":appended_cmd_doc,"appended_opt_doc":appended_opt_doc}
   msg = '''\
 Usage: salome [command] [options] [--config=<file,folder,...>] [--with-env-modules=<env_module1,env_module2,...>]
 
@@ -58,7 +59,7 @@ Commands:
                     Port numbers must be separated by blank characters.
     killall         Terminate *all* SALOME running SWS instances for current user.
                     Do not start a new one.
-
+%(appended_cmd_doc)s
 If no command is given, default is start.
 
 Command options:
@@ -76,9 +77,10 @@ Command options:
 ================================================
     Initialize SALOME context with the provided additional environment modules.
     The list is comma-separated, without any blank characters.
+%(appended_opt_doc)s
 '''
 
-  print(msg)
+  print(msg%add_in_help)
 #
 
 """
