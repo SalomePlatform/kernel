@@ -549,7 +549,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         std::ostringstream envInfo;
         std::for_each( _override_env.begin(), _override_env.end(), [&envInfo](const std::pair<std::string,std::string>& p) { envInfo << p.first << " = " << p.second << " "; } );
         INFOS("[GiveContainer] container " << containerNameInNS << " override " << envInfo.str());
-        cont->set_big_obj_on_disk_directory( SALOME::GetBigObjOnDiskDirectory().c_str() );
+        cont->set_big_obj_on_disk_directory( SALOME::GetBigObjOnDiskDirectoryCoarse().c_str() );
         cont->set_big_obj_on_disk_threshold( SALOME::GetBigObjOnDiskThreshold() );
         cont->set_number_of_retry( SALOME::GetNumberOfRetry() );
         Engines::FieldsDict envCorba;

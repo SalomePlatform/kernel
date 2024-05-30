@@ -37,7 +37,16 @@ void BASICS_EXPORT WriteInStderr(const std::string& msg);
 
 namespace SALOME
 {
+  constexpr char SHARED_FILE_SYSTEM_PROTOCOL = 0;
+  constexpr char SSD_COPY_FILE_SYSTEM_PROTOCOL = 1;
+  const char SHARED_FILE_SYSTEM_PROTOCOL_STR[] = "SharedFileSystem";
+  const char SSD_COPY_FILE_SYSTEM_PROTOCOL_STR[] = "SSDCopyFileSystem";
+
   enum class PyExecutionMode { NotSet, InProcess, OutOfProcessNoReplay, OutOfProcessWithReplay, OutOfProcessNoReplayFT, OutOfProcessWithReplayFT };
+
+  enum class BigObjTransferProtocol : char
+  { SharedFileSystem = SHARED_FILE_SYSTEM_PROTOCOL, SSDCopyFileSystem = SSD_COPY_FILE_SYSTEM_PROTOCOL };
+
   void BASICS_EXPORT SetPyExecutionMode(PyExecutionMode mode);
   void BASICS_EXPORT SetPyExecutionModeStr(const std::string& mode);
   std::vector<std::string> BASICS_EXPORT GetAllPyExecutionModes();
@@ -45,7 +54,11 @@ namespace SALOME
   PyExecutionMode BASICS_EXPORT GetPyExecutionMode();
   int BASICS_EXPORT GetBigObjOnDiskThreshold();
   void BASICS_EXPORT SetBigObjOnDiskThreshold(int newThresholdInByte);
-  std::string BASICS_EXPORT GetBigObjOnDiskDirectory();
+  std::string BASICS_EXPORT BigObjOnDiskProtocolToStr(BigObjTransferProtocol protocol);
+  BigObjTransferProtocol BASICS_EXPORT BigObjOnDiskProtocolFromStr(const std::string& protocol);
+  BigObjTransferProtocol BASICS_EXPORT FromIntToBigObjOnDiskProtocol(char protocol);
+  BigObjTransferProtocol BASICS_EXPORT GetBigObjOnDiskProtocolAndDirectory(std::string& directory);
+  std::string BASICS_EXPORT GetBigObjOnDiskDirectoryCoarse();
   void BASICS_EXPORT SetBigObjOnDiskDirectory(const std::string& directory);
   bool BASICS_EXPORT BigObjOnDiskDirectoryDefined();
   void BASICS_EXPORT SetNumberOfRetry(int nbRetry);

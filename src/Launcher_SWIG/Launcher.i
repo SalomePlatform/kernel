@@ -382,14 +382,14 @@ def GetPlayGroundInsideASlurmJob():
       d[elt]+=1
   return d
 
-def BuildCatalogFromScratch(protocol):
+def BuildCatalogFromScratch(protocol,appliPath):
   import os
   d = GetPlayGroundInsideASlurmJob()
   rmcpp = RetrieveRMCppSingleton()
   rmcpp.DeleteAllResourcesInCatalog()
   for k,v in d.items():
-      contRes = CreateContainerResource(hostname=k,applipath=os.environ["APPLI"],protocol=protocol,nbOfNodes=v)
-      rmcpp.AddResourceInCatalog(contRes)
+      contRes = CreateContainerResource(hostname=k,applipath=appliPath,protocol=protocol,nbOfNodes=v)
+      rmcpp.AddResourceInCatalogNoQuestion(contRes)
 
 def GetRequestForGiveContainer(hostname, contName):
   import Engines

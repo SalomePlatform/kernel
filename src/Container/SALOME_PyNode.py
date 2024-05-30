@@ -125,6 +125,100 @@ class SenderByte_i(SALOME__POA.SenderByte,Generic):
 
   def sendPart(self,n1,n2):
     return self.bytesToSend[n1:n2]
+  
+def IsRemote(hostName):
+    import socket
+    return socket.gethostname() != hostName
+
+def RemoveFileSafe( fileName ):
+    if os.path.exists( fileName ):
+      os.unlink( fileName )
+
+def RetrieveRemoteFileLocallyInSameFileName( remoteHostName, fileName):
+    """ To customize"""
+    dn = os.path.dirname( fileName )
+    import subprocess as sp
+    p = sp.Popen(["scp","{}:{}".format(remoteHostName,fileName),dn])
+    p.communicate()
+
+def DestroyRemotely( remoteHostName, fileName):
+    import subprocess as sp
+    p = sp.Popen(["ssh","-qC","-oStrictHostKeyChecking=no","-oBatchMode=yes",remoteHostName,"rm {}".format( fileName )])
+    p.communicate()
+
+class CopyFileFromRemoteCtxMgr:
+  def __init__(self, hostName, fileName):
+    self._remoteHostName = hostName
+    self._fileName = fileName
+    self._isRemote = IsRemote( hostName )
+
+  def __enter__(self):
+    if not self._isRemote:
+      return
+    dn = os.path.dirname( self._fileName )
+    if not os.path.isdir( dn ):
+      os.mkdir( dn )
+    RetrieveRemoteFileLocallyInSameFileName(self._remoteHostName,self._fileName)
+    
+  def __exit__(self,exctype, exc, tb):
+    if not self._isRemote:
+      return
+    os.unlink( self._fileName )
+  
+class BigFileOnDiskBase(abc.ABC):
+  """
+  Base class in charge of managing 
+  Copy or share of file accross computation Nodes
+  """
+  def __init__(self, fileName):
+    self._file_name = fileName
+
+  def getFileName(self):
+    return self._file_name
+
+  @abc.abstractmethod
+  def get(self, visitor = None):
+    """
+    Method called client side of data.
+    """
+    raise RuntimeError("Not implemented !")
+  
+  @abc.abstractmethod
+  def unlink(self):
+    """
+    Method called client side of data.
+    """
+    raise RuntimeError("Not implemented !")
+
+
+class BigFileOnDiskShare(BigFileOnDiskBase):
+  def __init__(self, fileName):
+    super().__init__( fileName )
+
+  def get(self, visitor = None):
+    return GetObjectFromFile( self._file_name, visitor )
+  
+  def unlink(self):
+    RemoveFileSafe( self._file_name )
+
+class BigFileOnDiskSSDNoShare(BigFileOnDiskBase):
+  def __init__(self, fileName):
+    import socket
+    super().__init__( fileName )
+    # hostname hosting data
+    self._hostname = socket.gethostname()
+
+  def get(self, visitor = None):
+    with CopyFileFromRemoteCtxMgr(self._hostname, self._file_name):
+      return GetObjectFromFile( self._file_name, visitor )
+    
+  def unlink(self):
+    if IsRemote( self._hostname ):
+      DestroyRemotely(self._hostname,self._file_name)
+    else:
+      RemoveFileSafe( self._file_name )
+
+BigFileOnDiskClsFromProtocol = { 0 : BigFileOnDiskShare, 1 : BigFileOnDiskSSDNoShare }
 
 DicoForProxyFile = { }
 
@@ -160,6 +254,10 @@ def DumpInFile(obj,fname):
     f.write( obj )
 
 def IncrRefInFile(fname):
+  """
+  :param fname:
+  :type fname: str
+  """
   if fname in DicoForProxyFile:
     DicoForProxyFile[fname] += 1
   else:
@@ -167,16 +265,19 @@ def IncrRefInFile(fname):
   pass
 
 def DecrRefInFile(fname):
+  """
+  :param fname:
+  :type fname: BigFileOnDiskBase
+  """
   if fname not in DicoForProxyFile:
     cnt = 1
   else:
-    cnt = DicoForProxyFile[fname]
-    DicoForProxyFile[fname] -= 1
+    cnt = DicoForProxyFile[fname.getFileName()]
+    DicoForProxyFile[fname.getFileName()] -= 1
     if cnt == 1:
-      del DicoForProxyFile[fname]
+      del DicoForProxyFile[fname.getFileName()]
   if cnt == 1:
-    if os.path.exists(fname):
-      os.unlink( fname )
+    fname.unlink()
   pass
 
 def GetBigObjectOnDiskThreshold():
@@ -191,18 +292,20 @@ def ActivateProxyMecanismOrNot( sizeInByte ):
 
 def GetBigObjectDirectory():
   import os
-  if not KernelBasis.BigObjOnDiskDirectoryDefined():
+  protocol, directory = KernelBasis.GetBigObjOnDiskProtocolAndDirectory()
+  if not directory:
     raise RuntimeError("An object of size higher than limit detected and no directory specified to dump it in file !")
-  return os.path.expanduser( os.path.expandvars( KernelBasis.GetBigObjOnDiskDirectory() ) )
+  return protocol, os.path.expanduser( os.path.expandvars( directory ) )
 
 def GetBigObjectFileName():
   """
   Return a filename in the most secure manner (see tempfile documentation)
   """
   import tempfile
-  with tempfile.NamedTemporaryFile(dir=GetBigObjectDirectory(),prefix="mem_",suffix=".pckl") as f:
+  protocol, directory = GetBigObjectDirectory()
+  with tempfile.NamedTemporaryFile(dir = directory, prefix="mem_", suffix=".pckl") as f:
     ret = f.name
-  return ret
+  return BigFileOnDiskClsFromProtocol[protocol]( ret )
 
 class BigObjectOnDiskBase:
   def __init__(self, fileName, objSerialized):
@@ -252,11 +355,10 @@ class BigObjectOnDiskBase:
     return self._filename
   
   def __dumpIntoFile(self, objSerialized):
-    DumpInFile( objSerialized, self._filename )
+    DumpInFile( objSerialized, self._filename.getFileName() )
 
   def get(self, visitor = None):
-    obj = GetObjectFromFile( self._filename, visitor )
-    return obj
+    return self._filename.get(visitor)
 
   def __float__(self):
     return float( self.get() )
@@ -330,7 +432,7 @@ def ProxyfyPickeled( obj, pickleObjInit = None, visitor = None ):
   fileName = GetBigObjectFileName()
   if visitor:
     visitor.setHDDMem( len(pickleObj) )
-    visitor.setFileName(fileName)
+    visitor.setFileName( fileName.getFileName() )
   if isinstance( obj, list):
     proxyObj = BigObjectOnDiskList( len(obj), fileName, pickleObj )
   elif isinstance( obj, tuple):

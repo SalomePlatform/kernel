@@ -53,7 +53,9 @@ using namespace SALOME;
 %rename (HeatMarcel) HeatMarcelSwig;
 %rename (GetBigObjOnDiskThreshold) GetBigObjOnDiskThresholdSwig;
 %rename (SetBigObjOnDiskThreshold) SetBigObjOnDiskThresholdSwig;
-%rename (GetBigObjOnDiskDirectory) GetBigObjOnDiskDirectorySwig;
+%rename (GetBigObjOnDiskProtocolAndDirectory) GetBigObjOnDiskProtocolAndDirectorySwig;
+%rename (BigObjOnDiskProtocolFromStr) BigObjOnDiskProtocolFromStrSwig;
+%rename (BigObjOnDiskProtocolToStr) BigObjOnDiskProtocolToStrSwig;
 %rename (SetBigObjOnDiskDirectory) SetBigObjOnDiskDirectorySwig;
 %rename (BigObjOnDiskDirectoryDefined) BigObjOnDiskDirectoryDefinedSwig;
 %rename (SetNumberOfRetry) SetNumberOfRetrySwig;
@@ -129,11 +131,6 @@ void SetBigObjOnDiskThresholdSwig(int newThreshold)
   return SALOME::SetBigObjOnDiskThreshold(newThreshold);
 }
 
-std::string GetBigObjOnDiskDirectorySwig()
-{
-  return SALOME::GetBigObjOnDiskDirectory();
-}
-
 void SetBigObjOnDiskDirectorySwig(const std::string& directory)
 {
   return SALOME::SetBigObjOnDiskDirectory(directory);
@@ -152,6 +149,26 @@ void SetNumberOfRetrySwig(int nbRetry)
 int GetNumberOfRetrySwig()
 {
   return SALOME::GetNumberOfRetry( );
+}
+
+std::string BigObjOnDiskProtocolToStrSwig( int protocol )
+{
+  return SALOME::BigObjOnDiskProtocolToStr( SALOME::FromIntToBigObjOnDiskProtocol( protocol ) );
+}
+
+int BigObjOnDiskProtocolFromStrSwig(const std::string& protocol)
+{
+  return static_cast<char>( SALOME::BigObjOnDiskProtocolFromStr( protocol ) );
+}
+
+PyObject *GetBigObjOnDiskProtocolAndDirectorySwig()
+{
+  std::string directory;
+  SALOME::BigObjTransferProtocol ret0 = SALOME::GetBigObjOnDiskProtocolAndDirectory(directory);
+  PyObject *ret(PyTuple_New(2));
+  PyTuple_SetItem(ret,0,PyInt_FromLong(static_cast<char>( ret0 ) ));
+  PyTuple_SetItem(ret,1,PyUnicode_FromString(directory.c_str()));
+  return ret;
 }
 
 void SetVerbosityLevelSwig(const std::string& level)

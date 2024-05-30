@@ -48,7 +48,7 @@ class TestProxy(unittest.TestCase):
             ## Time to test it
             script_st = """import os
 import KernelBasis
-a = KernelBasis.GetBigObjOnDiskDirectory()
+_,a = KernelBasis.GetBigObjOnDiskProtocolAndDirectory()
 b = os.environ["jj"]
 c = KernelBasis.GetBigObjOnDiskThreshold()
 j = a,b,c"""
@@ -74,9 +74,9 @@ j = a,b,c"""
             ret2 = ret2[0]
             ret3 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret2).data() )
             self.assertTrue( isinstance( ret3, SALOME_PyNode.BigObjectOnDiskList ) )
-            self.assertTrue( val_for_big_obj == os.path.dirname( ret3.getFileName() ) )# very important part of test
+            self.assertTrue( val_for_big_obj == os.path.dirname( ret3.getFileName().getFileName() ) )# very important part of test
             self.assertTrue( ret3.get() == list(range(100)) )
-            fn = ret3.getFileName()
+            fn = ret3.getFileName().getFileName()
             self.assertTrue( os.path.exists( fn ) )
             ret3.unlinkOnDestructor()
             del ret3

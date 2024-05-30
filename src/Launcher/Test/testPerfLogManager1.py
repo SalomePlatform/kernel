@@ -83,7 +83,6 @@ class testPerfLogManager1(unittest.TestCase):
                             pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
                             logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
                             val_for_big_obj = str( tmpdirname )
-                            KernelBasis.SetBigObjOnDiskDirectory( val_for_big_obj )
                             # Override environement for all containers launched
                             salome.cm.SetBigObjOnDiskDirectory(val_for_big_obj)
                             salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
@@ -144,7 +143,7 @@ sys.stderr.write("fake error message\\n")
                                     raise RuntimeError("Oooops 2")
                             for fileNameProxyOut in fileNamesProxyOut:
                                 if fileNameProxyOut is not None:
-                                    if os.path.exists(fileNameProxyOut):
+                                    if os.path.exists(fileNameProxyOut.getFileName()):
                                         raise RuntimeError("Oooops 3")
                             # execution #2 inside last
                             script_st2 = """
@@ -167,7 +166,7 @@ time.sleep(1)
                             import gc ; gc.collect()
                             for fileNameProxyOut in fileNamesProxyOut2:
                                 if fileNameProxyOut is not None:
-                                    if os.path.exists(fileNameProxyOut):
+                                    if os.path.exists(fileNameProxyOut.getFileName()):
                                         raise RuntimeError("Oooops 3")
                             #
                             fname = os.path.join(str( tmpdirname ),"perf.log")
@@ -181,7 +180,7 @@ time.sleep(1)
                             logging.debug( salome.LogManagerLoadFromFile(monitoringFileTwo)[0][1][0].get() )
                             logging.debug( logManagerInst[0][1][0].get()._input_hdd_mem._data[1]._data[0]._data[0]._hdd_mem ) # important
                             self.assertTrue( logManagerInst2[0][1][0].get() is None )
-                            self.assertTrue( logManagerInst[0][1][1].get()._output_hdd_mem._data[0]._file_name == fileNamesProxyOut2[0] )
+                            self.assertTrue( logManagerInst[0][1][1].get()._output_hdd_mem._data[0]._file_name == fileNamesProxyOut2[0].getFileName() )
                             logging.debug( logManagerInst[0][1][1].log() )
                             # 2 files because a backup file is stored in case of unexpected kill during 
                             self.assertEqual( len( glob.glob("{}*".format(monitoringFile) ) ) , 2 )
@@ -232,7 +231,6 @@ time.sleep(1)
                             pyFileContainingCodeOfMonitoring = monitoringParams.pyFileName.filename
                             logging.debug("Python file containing code of monitoring : {}".format(pyFileContainingCodeOfMonitoring))
                             val_for_big_obj = str( tmpdirname )
-                            KernelBasis.SetBigObjOnDiskDirectory( val_for_big_obj )
                             salome.cm.SetBigObjOnDiskDirectory(val_for_big_obj)
                             salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
                             # Override environement for all containers launched
@@ -317,6 +315,61 @@ ret = ns.repr()
             ret = retCoarse[0]
             self.assertTrue( isinstance(ret,list) and isinstance(ret[0],str) )
             cont.Shutdown()
+
+
+    def testSSDCopyMethod(self):
+        """
+        [EDF30157] : This test focuses on protocol of data using SSD local disks
+        """
+        import gc
+        hostname = "localhost"
+        cp0 = pylauncher.GetRequestForGiveContainer(hostname,"container_test_ssd_0")
+        cp1 = pylauncher.GetRequestForGiveContainer(hostname,"container_test_ssd_1")
+        salome.logm.clear()
+        PROXY_THRES = 1
+        poa = salome.orb.resolve_initial_references("RootPOA")
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            val_for_big_obj = str( tmpdirname )
+            salome.cm.SetBigObjOnDiskDirectory( "@1@{}".format( val_for_big_obj) ) # <- key point is here tell KERNEL that directory is considered as local 
+            salome.cm.SetBigObjOnDiskThreshold(PROXY_THRES)
+            salome.cm.SetOverrideEnvForContainersSimple(env = [])
+            salome.cm.SetDeltaTimeBetweenCPUMemMeasureInMilliSecond( 250 )
+            cont0 = salome.cm.GiveContainer(cp0)
+            cont1 = salome.cm.GiveContainer(cp1)
+            #
+            script_st0 = """ret0 = bytes(zeLength)"""
+            #
+            pyscript0 = cont0.createPyScriptNode("testScript0",script_st0)
+            szOfArray = 3000000
+            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["zeLength"],{"zeLength": szOfArray }) ))
+            id_o = poa.activate_object(obj)
+            refPtr = poa.id_to_reference(id_o)
+            pyscript0.executeFirst(refPtr)
+            ret0 = pyscript0.executeSecond(["ret0"])
+            ret0_prxy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret0[0]).data() )
+            self.assertTrue( isinstance( ret0_prxy.getFileName(), SALOME_PyNode.BigFileOnDiskSSDNoShare) ) # <- Key point is here
+            self.assertTrue( isinstance( ret0_prxy.get(), bytes ) )
+            self.assertEqual( len(ret0_prxy.get()), szOfArray )
+            ret0_prxy.unlinkOnDestructor()
+            #
+            script_st1 = """ret1 = len(ret0)"""
+            pyscript1 = cont1.createPyScriptNode("testScript1",script_st1)
+            obj1 = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["ret0"],{"ret0": ret0_prxy }) ))
+            id_o1 = poa.activate_object(obj1)
+            refPtr1 = poa.id_to_reference(id_o1)
+            pyscript1.executeFirst(refPtr1)
+            ret1 = pyscript1.executeSecond(["ret1"])
+            ret1_prxy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret1[0]).data() )
+            ret1_prxy.unlinkOnDestructor()
+            self.assertEqual( ret1_prxy.get(), szOfArray )
+            #
+            del ret0_prxy
+            del ret1_prxy
+            #
+            cont0.Shutdown()
+            cont1.Shutdown()
+            gc.collect()
+            self.assertTrue( len( glob.glob( os.path.join(tmpdirname,"*") ) ) == 0 )
         pass
 
 if __name__ == '__main__':

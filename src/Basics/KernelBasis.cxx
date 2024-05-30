@@ -19,6 +19,9 @@
 
 #include "KernelBasis.hxx"
 
+#include <sstream>
+#include <stdexcept>
+
 static bool DEFAULT_SSL_MODE = true;
 static bool GUI_MODE = false;
 
@@ -153,13 +156,73 @@ void SALOME::SetBigObjOnDiskThreshold(int newThresholdInByte)
   SALOME_BIG_OBJ_ON_DISK_THRES = newThresholdInByte;
 }
 
+constexpr char SALOME_FILE_BIG_OBJ_DIR_SEP = '@';
+
 static std::string SALOME_FILE_BIG_OBJ_DIR;
 
 constexpr int DFT_SALOME_NB_RETRY = 1;
 
 static int SALOME_NB_RETRY = DFT_SALOME_NB_RETRY;
 
-std::string SALOME::GetBigObjOnDiskDirectory()
+SALOME::BigObjTransferProtocol SALOME::FromIntToBigObjOnDiskProtocol(char protocol)
+{
+  switch( protocol )
+  {
+    case SALOME::SHARED_FILE_SYSTEM_PROTOCOL:
+      return SALOME::BigObjTransferProtocol::SharedFileSystem;
+    case SALOME::SSD_COPY_FILE_SYSTEM_PROTOCOL:
+      return SALOME::BigObjTransferProtocol::SSDCopyFileSystem;
+    default:
+      throw std::runtime_error("FromIntToBigObjOnDiskProtocol unrecognized protocol ! should be in [0,1] !");
+  }
+}
+
+SALOME::BigObjTransferProtocol SALOME::BigObjOnDiskProtocolFromStr(const std::string& protocol)
+{
+  if( protocol == SALOME::SHARED_FILE_SYSTEM_PROTOCOL_STR )
+    return SALOME::BigObjTransferProtocol::SharedFileSystem;
+  if( protocol == SALOME::SSD_COPY_FILE_SYSTEM_PROTOCOL_STR )
+    return SALOME::BigObjTransferProtocol::SSDCopyFileSystem;
+  throw std::runtime_error("BigObjOnDiskProtocolFromStr unrecognized protocol !");
+}
+
+std::string SALOME::BigObjOnDiskProtocolToStr(BigObjTransferProtocol protocol)
+{
+  switch( protocol )
+  {
+    case SALOME::BigObjTransferProtocol::SharedFileSystem:
+      return SALOME::SHARED_FILE_SYSTEM_PROTOCOL_STR;
+    case SALOME::BigObjTransferProtocol::SSDCopyFileSystem:
+      return SALOME::SSD_COPY_FILE_SYSTEM_PROTOCOL_STR;
+    default:
+      throw std::runtime_error("BigObjOnDiskProtocolToStr unrecognized protocol ! should be in [0,1] !");
+  }
+}
+
+/*!
+ * This method returns the protocol of proxy transfert and the directory
+ */
+SALOME::BigObjTransferProtocol SALOME::GetBigObjOnDiskProtocolAndDirectory(std::string& directory)
+{
+  if(SALOME_FILE_BIG_OBJ_DIR.size() < 3)
+  {
+    directory = SALOME_FILE_BIG_OBJ_DIR;
+    return SALOME::BigObjTransferProtocol::SharedFileSystem;
+  }
+  std::string protocol = SALOME_FILE_BIG_OBJ_DIR.substr(0,3);
+  directory = SALOME_FILE_BIG_OBJ_DIR.substr(3);
+  if( protocol[0]!=SALOME_FILE_BIG_OBJ_DIR_SEP || protocol[2]!=SALOME_FILE_BIG_OBJ_DIR_SEP)
+  {
+    directory = SALOME_FILE_BIG_OBJ_DIR;
+    return SALOME::BigObjTransferProtocol::SharedFileSystem;
+  }
+  std::istringstream iss(protocol.substr(1,1)); iss.exceptions(std::istringstream::failbit | std::istringstream::badbit);
+  short iproxyprot = 0;
+  iss >> iproxyprot;
+  return FromIntToBigObjOnDiskProtocol( iproxyprot );
+}
+
+std::string SALOME::GetBigObjOnDiskDirectoryCoarse()
 {
   return SALOME_FILE_BIG_OBJ_DIR;
 }
