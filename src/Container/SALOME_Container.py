@@ -178,10 +178,9 @@ class SALOME_Container_Abstract_i(abc.ABC):
           return 1,"".join(l)
         
     def positionVerbosityOfLogger(self):
+        import salome_utils
+        salome_utils.positionVerbosityOfLoggerRegardingState()
         logging.debug("positionVerbosityOfLogger PID = {}".format(os.getpid()))
-        if VerbosityActivated():
-          import salome_utils
-          salome_utils.positionVerbosityOfLoggerRegardingState()
     
     def monitoringtimeresms(self):
         return self._timeIntervalInMs
