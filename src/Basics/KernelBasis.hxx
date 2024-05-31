@@ -37,7 +37,7 @@ void BASICS_EXPORT WriteInStderr(const std::string& msg);
 
 namespace SALOME
 {
-  enum class PyExecutionMode { NotSet, InProcess, OutOfProcessNoReplay, OutOfProcessWithReplay };
+  enum class PyExecutionMode { NotSet, InProcess, OutOfProcessNoReplay, OutOfProcessWithReplay, OutOfProcessNoReplayFT, OutOfProcessWithReplayFT };
   void BASICS_EXPORT SetPyExecutionMode(PyExecutionMode mode);
   void BASICS_EXPORT SetPyExecutionModeStr(const std::string& mode);
   std::vector<std::string> BASICS_EXPORT GetAllPyExecutionModes();
@@ -48,4 +48,6 @@ namespace SALOME
   std::string BASICS_EXPORT GetBigObjOnDiskDirectory();
   void BASICS_EXPORT SetBigObjOnDiskDirectory(const std::string& directory);
   bool BASICS_EXPORT BigObjOnDiskDirectoryDefined();
+  void BASICS_EXPORT SetNumberOfRetry(int nbRetry);
+  int BASICS_EXPORT GetNumberOfRetry();
 }

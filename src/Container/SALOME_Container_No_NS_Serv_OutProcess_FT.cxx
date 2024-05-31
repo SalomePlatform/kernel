@@ -21,5 +21,5 @@
 
 int main(int argc, char* argv[])
 {
-  return GenericContainerExecutable<Engines_Container_SSL_i>(argc,argv);
+  return GenericContainerExecutable<Engines_Container_SSL_OutOfProcess_FT_i>(argc,argv);
 }

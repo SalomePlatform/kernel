@@ -246,6 +246,16 @@ void SALOME_ContainerManager::SetBigObjOnDiskDirectory(const char *directory)
   SALOME::SetBigObjOnDiskDirectory(directory);
 }
 
+ void SALOME_ContainerManager::SetNumberOfRetry(CORBA::Long nbRetry)
+ {
+    SALOME::SetNumberOfRetry( nbRetry );
+ }
+
+CORBA::Long SALOME_ContainerManager::GetNumberOfRetry()
+{
+  return SALOME::GetNumberOfRetry();
+}
+
 //=============================================================================
 //! Loop on all the containers listed in naming service, ask shutdown on each
 /*! CORBA Method:
@@ -541,6 +551,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         INFOS("[GiveContainer] container " << containerNameInNS << " override " << envInfo.str());
         cont->set_big_obj_on_disk_directory( SALOME::GetBigObjOnDiskDirectory().c_str() );
         cont->set_big_obj_on_disk_threshold( SALOME::GetBigObjOnDiskThreshold() );
+        cont->set_number_of_retry( SALOME::GetNumberOfRetry() );
         Engines::FieldsDict envCorba;
         {
           auto sz = _override_env.size();
@@ -586,6 +597,10 @@ std::string SALOME_ContainerManager::GetCppBinaryOfKernelSSLContainer() const
       return "SALOME_Container_No_NS_Serv_OutProcess";
     case SALOME::PyExecutionMode::OutOfProcessWithReplay:
       return "SALOME_Container_No_NS_Serv_OutProcess_Replay";
+    case SALOME::PyExecutionMode::OutOfProcessNoReplayFT:
+      return "SALOME_Container_No_NS_Serv_OutProcess_FT";
+    case SALOME::PyExecutionMode::OutOfProcessWithReplayFT:
+      return "SALOME_Container_No_NS_Serv_OutProcess_Replay_FT";
     default:
       {
         ERROR_MESSAGE("Not manager py execution mode");

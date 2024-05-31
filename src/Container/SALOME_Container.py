@@ -223,3 +223,17 @@ class SALOME_Container_OutOfProcess_Replay_i(SALOME_Container_i):
 
     def getPyScriptCls(self):
       return SALOME_PyNode.PyScriptNode_OutOfProcess_Replay_i
+
+class SALOME_Container_OutOfProcess_FT_i(SALOME_Container_i):
+    def __init__(self, containerName, containerIORStr, dftTimeIntervalInMs):
+      super().__init__(containerName, containerIORStr, dftTimeIntervalInMs)
+      
+    def getPyScriptCls(self):
+      return SALOME_PyNode.PyScriptNode_OutOfProcess_FT_i
+
+class SALOME_Container_OutOfProcess_Replay_FT_i(SALOME_Container_i):
+    def __init__(self, containerName, containerIORStr, dftTimeIntervalInMs):
+      super().__init__(containerName, containerIORStr, dftTimeIntervalInMs)
+
+    def getPyScriptCls(self):
+      return SALOME_PyNode.PyScriptNode_OutOfProcess_Replay_FT_i

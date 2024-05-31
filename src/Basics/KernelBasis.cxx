@@ -81,6 +81,10 @@ namespace SALOME
   static constexpr char OUT_OF_PROCESS_NO_REPLAY_VALUE_STR[] = "OutOfProcessNoReplay";
   static constexpr char OUT_OF_PROCESS_WITH_REPLAY_VALUE = 2;
   static constexpr char OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR[] = "OutOfProcessWithReplay";
+  static constexpr char OUT_OF_PROCESS_NO_REPLAY_FT_VALUE = 3;
+  static constexpr char OUT_OF_PROCESS_NO_REPLAY_FT_VALUE_STR[] = "OutOfProcessNoReplayFT";
+  static constexpr char OUT_OF_PROCESS_WITH_REPLAY_FT_VALUE = 4;
+  static constexpr char OUT_OF_PROCESS_WITH_REPLAY_FT_VALUE_STR[] = "OutOfProcessWithReplayFT";
 
   static PyExecutionMode FromIntToPyExecutionMode(char value)
   {
@@ -92,6 +96,10 @@ namespace SALOME
         return PyExecutionMode::OutOfProcessNoReplay;
       case OUT_OF_PROCESS_WITH_REPLAY_VALUE:
         return PyExecutionMode::OutOfProcessWithReplay;
+      case OUT_OF_PROCESS_NO_REPLAY_FT_VALUE:
+        return PyExecutionMode::OutOfProcessNoReplayFT;
+      case OUT_OF_PROCESS_WITH_REPLAY_FT_VALUE:
+        return PyExecutionMode::OutOfProcessWithReplayFT;
     }
     throw std::range_error("FromIntToPyExecutionMode : Invalid value for Py Execution Mode ! Must be in 0 (InProcess), 1 (OutOfProcessNoReplay) or 2 (OutOfProcessWithReplay) !");
   }
@@ -104,6 +112,10 @@ namespace SALOME
       return PyExecutionMode::OutOfProcessNoReplay;
     if(value == OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR)
       return PyExecutionMode::OutOfProcessWithReplay;
+    if(value == OUT_OF_PROCESS_NO_REPLAY_FT_VALUE_STR)
+      return PyExecutionMode::OutOfProcessNoReplayFT;
+    if(value == OUT_OF_PROCESS_WITH_REPLAY_FT_VALUE_STR)
+      return PyExecutionMode::OutOfProcessWithReplayFT;
     throw std::range_error("FromStrToPyExecutionMode : Invalid str value for py execution mode !");
   }
 
@@ -117,6 +129,10 @@ namespace SALOME
         return OUT_OF_PROCESS_NO_REPLAY_VALUE_STR;
       case PyExecutionMode::OutOfProcessWithReplay:
         return OUT_OF_PROCESS_WITH_REPLAY_VALUE_STR;
+      case PyExecutionMode::OutOfProcessNoReplayFT:
+        return OUT_OF_PROCESS_NO_REPLAY_FT_VALUE_STR;
+      case PyExecutionMode::OutOfProcessWithReplayFT:
+        return OUT_OF_PROCESS_WITH_REPLAY_FT_VALUE_STR;
       default:
         throw std::range_error("FromExecutionModeToStr : Invalid str value for py execution mode !");
     }
@@ -139,6 +155,10 @@ void SALOME::SetBigObjOnDiskThreshold(int newThresholdInByte)
 
 static std::string SALOME_FILE_BIG_OBJ_DIR;
 
+constexpr int DFT_SALOME_NB_RETRY = 1;
+
+static int SALOME_NB_RETRY = DFT_SALOME_NB_RETRY;
+
 std::string SALOME::GetBigObjOnDiskDirectory()
 {
   return SALOME_FILE_BIG_OBJ_DIR;
@@ -152,6 +172,16 @@ void SALOME::SetBigObjOnDiskDirectory(const std::string& directory)
 bool SALOME::BigObjOnDiskDirectoryDefined()
 {
   return ! SALOME_FILE_BIG_OBJ_DIR.empty();
+}
+
+void SALOME::SetNumberOfRetry(int nbRetry)
+{
+  SALOME_NB_RETRY = nbRetry;
+}
+
+int SALOME::GetNumberOfRetry()
+{
+  return SALOME_NB_RETRY;
 }
 
 static SALOME::PyExecutionMode DefaultPyExecMode = SALOME::PyExecutionMode::NotSet;

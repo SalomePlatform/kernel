@@ -86,6 +86,8 @@ public:
 
   void set_big_obj_on_disk_directory(const char *directory) override;
 
+  void set_number_of_retry(CORBA::Long nbRetry) override;
+
   void addLogFileNameGroup(const Engines::vectorOfString& groupOfLogFileNames) override;
     
   Engines::vectorOfVectorOfString *getAllLogFileNameGroups() override;
@@ -223,7 +225,8 @@ protected:
 constexpr char PY_CONTAINER_CLS_NAME_IN_PROCESS[] = "SALOME_Container_i";
 constexpr char PY_CONTAINER_CLS_NAME_OUT_PROCESS_NO_REPLAY[] = "SALOME_Container_OutOfProcess_i";
 constexpr char PY_CONTAINER_CLS_NAME_OUT_PROCESS_WITH_REPLAY[] = "SALOME_Container_OutOfProcess_Replay_i";
-
+constexpr char PY_CONTAINER_CLS_NAME_OUT_PROCESS_NO_REPLAY_FT[] = "SALOME_Container_OutOfProcess_FT_i";
+constexpr char PY_CONTAINER_CLS_NAME_OUT_PROCESS_WITH_REPLAY_FT[] = "SALOME_Container_OutOfProcess_Replay_FT_i";
 
 class CONTAINER_EXPORT Engines_Container_i : public Abstract_Engines_Container_i
 {
@@ -287,6 +290,30 @@ public:
                           SALOME_NamingService_Container_Abstract *ns = nullptr,
                           bool isServantAloneInProcess = true) :
                           Abstract_Engines_Container_SSL_i(PY_CONTAINER_CLS_NAME_OUT_PROCESS_WITH_REPLAY, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+};
+
+class CONTAINER_EXPORT Engines_Container_SSL_OutOfProcess_FT_i : public Abstract_Engines_Container_SSL_i
+{
+public:
+  Engines_Container_SSL_OutOfProcess_FT_i(CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char *containerName,
+                          int argc, char *argv[],
+                          SALOME_NamingService_Container_Abstract *ns = nullptr,
+                          bool isServantAloneInProcess = true) :
+                          Abstract_Engines_Container_SSL_i(PY_CONTAINER_CLS_NAME_OUT_PROCESS_NO_REPLAY_FT, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
+};
+
+class CONTAINER_EXPORT Engines_Container_SSL_OutOfProcess_Replay_FT_i : public Abstract_Engines_Container_SSL_i
+{
+public:
+  Engines_Container_SSL_OutOfProcess_Replay_FT_i(CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char *containerName,
+                          int argc, char *argv[],
+                          SALOME_NamingService_Container_Abstract *ns = nullptr,
+                          bool isServantAloneInProcess = true) :
+                          Abstract_Engines_Container_SSL_i(PY_CONTAINER_CLS_NAME_OUT_PROCESS_WITH_REPLAY_FT, orb, poa, containerName, argc, argv, ns, isServantAloneInProcess) {}
 };
 
 /*!

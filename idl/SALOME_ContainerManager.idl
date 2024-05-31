@@ -112,6 +112,10 @@ interface ContainerManager
 
   void SetBigObjOnDiskDirectory(in string directory);
 
+  void SetNumberOfRetry(in long nbRetry);
+
+  long GetNumberOfRetry();
+
   void SetCodeOnContainerStartUp(in string code);
 
   string GetCodeOnContainerStartUp();

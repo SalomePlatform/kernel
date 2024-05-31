@@ -40,6 +40,8 @@ MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
 
 MY_PERFORMANCE_LOG_ENTRY_IN_GLBS = "my_log_4_this_session"
 
+MY_KEY_TO_DETECT_FINISH = "neib av tuot"
+
 class Generic(SALOME__POA.GenericObj):
   """A Python implementation of the GenericObj CORBA IDL"""
   def __init__(self,poa):
@@ -560,6 +562,9 @@ class GenericPythonMonitoringLauncherCtxMgr:
     
     def __exit__(self,exctype, exc, tb):
         StopMonitoring( self._monitoring_params )
+        del self._monitoring_params
+        import gc
+        gc.collect() # force destruction of objects even in raise context
 
 def StopMonitoring( monitoringInfo ):
   """
@@ -730,6 +735,9 @@ with open(inputFileName,"rb") as f:
 context[MY_PERFORMANCE_LOG_ENTRY_IN_GLBS] = eval( MY_PERFORMANCE_LOG_ENTRY_IN_GLBS )
 with open(codeFileName,"r") as f:
   code = f.read()
+#
+import gc
+gc.disable()
 # go for execution
 exec( code , context )
 # filter part of context to be exported to father process
@@ -792,7 +800,7 @@ Looks like a hard crash as returnCode {returnCode} != 0
 {banner}
 """
 
-def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, keepFilesToReplay ):
+def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, keepFilesToReplay, closeEyesOnErrorAtExit):
   """
   Equivalent of exec(code,context) but executed in a separate subprocess to avoid to make the current process crash.
   
@@ -805,6 +813,7 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
   containerRef (Engines.Container) : Container ref (retrieving the Files to created when keepFilesToReplay is set to False)
   instanceOfLogOfCurrentSession (LogOfCurrentExecutionSession) : instance of LogOfCurrentExecutionSession to build remotely the reference in order to log information
   keepFilesToReplay (bool) : if True when something goes wrong during execution all the files to replay post mortem case are kept. If False only error is reported but files to replay are destoyed.
+  closeEyesOnErrorAtExit (bool) : if True in case of crash of subprocess, if MY_KEY_TO_DETECT_FINISH is displayed at the end of stdout
 
   Return:
   -------
@@ -821,7 +830,21 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
   import subprocess as sp
   import CORBA
   #
+  def IsConsideredAsOKRun( returnCode, closeEyesOnErrorAtExit , stderr ):
+    def StdErrTreatment(closeEyesOnErrorAtExit , stderr):
+      if not closeEyesOnErrorAtExit:
+        return stderr
+      else:
+        return stderr[:-len(MY_KEY_TO_DETECT_FINISH)]
+    if returnCode == 0:
+      return True,StdErrTreatment(closeEyesOnErrorAtExit , stderr)
+    if not closeEyesOnErrorAtExit:
+      return False, stderr
+    return stderr[-len(MY_KEY_TO_DETECT_FINISH):] == MY_KEY_TO_DETECT_FINISH,stderr[:-len(MY_KEY_TO_DETECT_FINISH)]
+
+  #
   def InternalExecResistant( code, context, outargsname):
+    import KernelBasis
     orb = CORBA.ORB_init([''])
     iorScriptLog = orb.object_to_string( instanceOfLogOfCurrentSession._remote_handle )#ref ContainerScriptPerfLog_ptr
     ####
@@ -830,6 +853,11 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
       return os.path.splitext( os.path.basename(fname)[len(EXEC_CODE_FNAME_PXF):] )[0]
     with tempfile.NamedTemporaryFile(dir=os.getcwd(),prefix=EXEC_CODE_FNAME_PXF,suffix=".py", mode="w", delete = False) as codeFd:
       codeFd.write( code )
+      if closeEyesOnErrorAtExit:
+        codeFd.write( """
+import sys
+sys.stderr.write({!r})
+sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       codeFd.flush()
       codeFileName = os.path.basename( codeFd.name )
       contextFileName = "contextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) )
@@ -839,24 +867,32 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
       mainExecFileName = os.path.abspath( "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(mainExecFileName,"w") as f:
         f.write( FinalCode.format( codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
-      p = sp.Popen(["python3", mainExecFileName],stdout = sp.PIPE, stderr = sp.PIPE)
-      stdout, stderr = p.communicate()
-      returnCode = p.returncode
+      for iTry in range( KernelBasis.GetNumberOfRetry() ):
+        if iTry > 0:
+          print( "WARNING : Retry # {}. Following code has generated non zero return code ( {} ). Trying again ... \n{}".format( iTry, returnCode, code ) )
+        p = sp.Popen(["python3", mainExecFileName],stdout = sp.PIPE, stderr = sp.PIPE)
+        stdout, stderr = p.communicate()
+        returnCode = p.returncode
+        if returnCode == 0:
+          break
     return returnCode, stdout, stderr, PythonFunctionEvaluatorParams(mainExecFileName,codeFileName,contextFileName,resFileName)
   ret = instanceOfLogOfCurrentSession._current_instance
   returnCode, stdout, stderr, evParams = InternalExecResistant( code, context, outargsname )
   stdout = stdout.decode()
   stderr = stderr.decode()
   sys.stdout.write( stdout ) ; sys.stdout.flush()
+  isOK, stderr = IsConsideredAsOKRun( returnCode, closeEyesOnErrorAtExit , stderr )
   sys.stderr.write( stderr ) ; sys.stderr.flush()
-  if returnCode == 0:
+  if isOK:
     pcklData = instanceOfLogOfCurrentSession._remote_handle.getObj()
     if len(pcklData) > 0:
       ret = pickle.loads( pcklData )
     context.update( evParams.result )
     evParams.destroyOnOK()
+    if returnCode != 0:
+      print( "WARNING : Following code has generated non zero return code ( {} ) but considered as OK\n{}".format( returnCode, code ) )
     return ret
-  if returnCode != 0:
+  else:
     if keepFilesToReplay:
       evParams.destroyOnKO( containerRef )
     else:
@@ -864,10 +900,16 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
     raise RuntimeError(f"Subprocess launched {evParams.strDependingOnReturnCode(keepFilesToReplay,returnCode)}stdout :\n{stdout}\nstderr :\n{stderr}")
 
 def ExecCrashProofWithReplay( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession ):
-  return ExecCrashProofGeneric(code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, True)
+  return ExecCrashProofGeneric(code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, True, False)
 
 def ExecCrashProofWithoutReplay( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession ):
-  return ExecCrashProofGeneric(code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, False)
+  return ExecCrashProofGeneric(code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, False, False)
+
+def ExecCrashProofWithReplayFT( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession ):
+  return ExecCrashProofGeneric(code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, True, True)
+
+def ExecCrashProofWithoutReplayFT( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession ):
+  return ExecCrashProofGeneric(code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, False, True)
 
 def ExecLocal( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession ):
   exec( code, context )
@@ -894,7 +936,13 @@ class LogOfCurrentExecutionSession(LogOfCurrentExecutionSessionAbs):
     self.finalizeAndPushToMaster()
 
   def finalizeAndPushToMaster(self):
-    self._remote_handle.assign( pickle.dumps( self._current_instance ) )
+    """
+    Voluntary do nothing in case of problem to avoid to trouble execution
+    """
+    try:
+      self._remote_handle.assign( pickle.dumps( self._current_instance ) )
+    except:
+      pass
 
 class LogOfCurrentExecutionSessionStub(LogOfCurrentExecutionSessionAbs):
   """
@@ -1019,17 +1067,20 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
 
   def executeSecond(self,outargsname):
     """ Same than second part of self.execute to reduce memory peak."""
+    def executeSecondInternal(monitoringtimeresms):
+      with GenericPythonMonitoringLauncherCtxMgr( CPUMemoryMonitoring( monitoringtimeresms ) ) as monitoringParams:
+        currentInstance = self.executeNow( outargsname )
+        cpumeminfo = ReadCPUMemInfo( monitoringParams )
+      return cpumeminfo, currentInstance
+
     import sys
     try:
       self.addTimeInfoOnLevel2("startExecTime")
       ##
       self.addInfoOnLevel2("measureTimeResolution",self.my_container_py.monitoringtimeresms())
-      with GenericPythonMonitoringLauncherCtxMgr( CPUMemoryMonitoring( self.my_container_py.monitoringtimeresms() ) ) as monitoringParams:
-        self._current_execution_session._current_instance = self.executeNow( outargsname )
-        cpumeminfo = ReadCPUMemInfo( monitoringParams )
+      cpumeminfo, self._current_execution_session._current_instance = executeSecondInternal( self.my_container_py.monitoringtimeresms() )
       ##
       self.addInfoOnLevel2("CPUMemDuringExec",cpumeminfo)
-      del monitoringParams
       self.addTimeInfoOnLevel2("endExecTime")
       self.addTimeInfoOnLevel2("startOutputTime")
       argsout=[]
@@ -1130,3 +1181,17 @@ class PyScriptNode_OutOfProcess_Replay_i(PyScriptNode_Abstract_i):
 
   def executeNow(self, outargsname):
     return ExecCrashProofWithReplay(self.code,self.context,outargsname,self.my_container,self._current_execution_session)
+
+class PyScriptNode_OutOfProcess_FT_i(PyScriptNode_Abstract_i):
+  def __init__(self, nodeName, code, poa, my_container, logscript):
+    super().__init__(nodeName, code, poa, my_container, logscript)
+
+  def executeNow(self, outargsname):
+    return ExecCrashProofWithoutReplayFT(self.code,self.context,outargsname,self.my_container,self._current_execution_session)
+
+class PyScriptNode_OutOfProcess_Replay_FT_i(PyScriptNode_Abstract_i):
+  def __init__(self, nodeName, code, poa, my_container, logscript):
+    super().__init__(nodeName, code, poa, my_container, logscript)
+
+  def executeNow(self, outargsname):
+    return ExecCrashProofWithReplayFT(self.code,self.context,outargsname,self.my_container,self._current_execution_session)

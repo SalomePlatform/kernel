@@ -56,6 +56,8 @@ using namespace SALOME;
 %rename (GetBigObjOnDiskDirectory) GetBigObjOnDiskDirectorySwig;
 %rename (SetBigObjOnDiskDirectory) SetBigObjOnDiskDirectorySwig;
 %rename (BigObjOnDiskDirectoryDefined) BigObjOnDiskDirectoryDefinedSwig;
+%rename (SetNumberOfRetry) SetNumberOfRetrySwig;
+%rename (GetNumberOfRetry) GetNumberOfRetrySwig;
 
 bool getSSLMode();
 void setSSLMode(bool sslMode);
@@ -140,6 +142,16 @@ void SetBigObjOnDiskDirectorySwig(const std::string& directory)
 bool BigObjOnDiskDirectoryDefinedSwig()
 {
   return SALOME::BigObjOnDiskDirectoryDefined();
+}
+
+void SetNumberOfRetrySwig(int nbRetry)
+{
+  SALOME::SetNumberOfRetry( nbRetry );
+}
+
+int GetNumberOfRetrySwig()
+{
+  return SALOME::GetNumberOfRetry( );
 }
 
 void SetVerbosityLevelSwig(const std::string& level)

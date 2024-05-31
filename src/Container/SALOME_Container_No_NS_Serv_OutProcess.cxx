@@ -19,4 +19,7 @@
 
 #include "SALOME_Container_No_NS_Serv_Generic.hxx"
 
-GENERIC_CONTAINER_EXECUTABLE( Engines_Container_SSL_OutOfProcess_i )
+int main(int argc, char* argv[])
+{
+  return GenericContainerExecutable<Engines_Container_SSL_OutOfProcess_i>(argc,argv);
+}

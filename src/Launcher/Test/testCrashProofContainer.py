@@ -37,6 +37,7 @@ import subprocess as sp
 killMeCode = """
 import os
 import sys
+import signal
 j = 7 * i
 sys.stdout.write(str(j)) ; sys.stdout.flush() # the aime of test in replay mode to be sure that case is runnable
 os.kill( os.getpid() , signal.SIGKILL)# the aim of test is here
@@ -52,6 +53,19 @@ nbcore = 3
 cst = KernelBasis.GetTimeAdjustmentCst()
 KernelBasis.HeatMarcel(5 * nbcore * cst,nbcore)
 j = 8*i"""
+
+killMeAtTheEnd = """import atexit
+import KernelServices
+
+def ErrorAtexit():
+    KernelServices.GenerateViolentMemoryFaultForTestPurpose()
+
+atexit.register(ErrorAtexit)
+
+print("OKKKKKK")
+j = 9 * i
+print("OKKKKKK3333")
+"""
 
 class testPerfLogManager1(unittest.TestCase):
     def test0(self):
@@ -114,7 +128,7 @@ class testPerfLogManager1(unittest.TestCase):
         # now try to replay the failing case
         p = sp.Popen(["python3",os.path.basename(replayInput[0])],cwd = os.path.dirname(replayInput[0]),stdout=sp.PIPE,stderr=sp.PIPE)
         out,err = p.communicate()
-        self.assertEqual(1,p.returncode) # very important ! The failing case must continue to fail :)
+        self.assertNotEqual(p.returncode,0) # very important ! The failing case must continue to fail :)
         self.assertEqual("21".encode(),out) # very important to check that the reported case is standalone enough to be replayable poste mortem
         # cleanup
         dn = os.path.dirname(replayInput[0])
@@ -154,6 +168,31 @@ class testPerfLogManager1(unittest.TestCase):
         logging.debug("CPU mem measured (even in OutOfProcessNoReplay) : {}".format(cpu_mem_to_test))
         greater_than_100 = [a for a,b in cpu_mem_to_test if a > 100]
         self.assertGreater(len(greater_than_100),1) # At minimum one measure must report CPU load > 100%
+        cont.Shutdown()
+
+    def test3(self):
+        """
+        [EDF29150] : test that we can resist to a crash at exit
+        """
+        salome.salome_init()
+        KernelBasis.SetPyExecutionMode("OutOfProcessWithReplayFT")
+        hostname = "localhost"
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
+        salome.cm.SetNumberOfRetry( 3 )
+        salome.cm.SetBigObjOnDiskThreshold(1000)
+        salome.cm.SetOverrideEnvForContainersSimple(env = [])
+        cont = salome.cm.GiveContainer(cp)
+        poa = salome.orb.resolve_initial_references("RootPOA")
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+        pyscript = cont.createPyScriptNode("testScript4",killMeAtTheEnd)
+        pyscript.executeFirst(refPtr)
+        ret = pyscript.executeSecond(["j"])
+        ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
+        self.assertEqual(ret,27)
+        with open(cont.locallogfilename) as f:
+            logCont = f.read( )
+            self.assertTrue( "WARNING : Retry #" in logCont)
+            self.assertTrue( "WARNING : Following code has generated non zero return code" in logCont )# should report something into the container
         cont.Shutdown()
 
 if __name__ == '__main__':

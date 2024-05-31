@@ -1180,6 +1180,11 @@ void Abstract_Engines_Container_i::set_big_obj_on_disk_directory(const char *dir
   SALOME::SetBigObjOnDiskDirectory(directory);
 }
 
+void Abstract_Engines_Container_i::set_number_of_retry(CORBA::Long nbRetry)
+{
+  SALOME::SetNumberOfRetry( nbRetry );
+}
+
 Engines::vectorOfString_var FromVecStringCppToCORBA( const std::vector<std::string>& group)
 {
   Engines::vectorOfString_var ret( new Engines::vectorOfString );

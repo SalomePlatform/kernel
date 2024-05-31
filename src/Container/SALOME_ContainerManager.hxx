@@ -83,6 +83,10 @@ public:
 
   void SetBigObjOnDiskDirectory(const char *directory) override;
 
+  void SetNumberOfRetry(CORBA::Long nbRetry) override;
+
+  CORBA::Long GetNumberOfRetry() override;
+
   static const char *_ContainerManagerNameInNS;
 
 private:
