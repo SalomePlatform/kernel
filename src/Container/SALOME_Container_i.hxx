@@ -87,6 +87,10 @@ public:
   void set_big_obj_on_disk_directory(const char *directory) override;
 
   void set_number_of_retry(CORBA::Long nbRetry) override;
+  
+  void set_startup_code(const char *codeAtStartUp) override;
+
+  char *get_startup_code() override;
 
   void addLogFileNameGroup(const Engines::vectorOfString& groupOfLogFileNames) override;
     
@@ -202,6 +206,7 @@ protected:
   std::string _localfilename;
   std::string _load_script;
   std::string _py_container_name;
+  std::string _code_at_startup;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId *_id;

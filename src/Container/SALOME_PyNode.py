@@ -840,7 +840,10 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
       return True,StdErrTreatment(closeEyesOnErrorAtExit , stderr)
     if not closeEyesOnErrorAtExit:
       return False, stderr
-    return stderr[-len(MY_KEY_TO_DETECT_FINISH):] == MY_KEY_TO_DETECT_FINISH,stderr[:-len(MY_KEY_TO_DETECT_FINISH)]
+    if stderr[-len(MY_KEY_TO_DETECT_FINISH):] == MY_KEY_TO_DETECT_FINISH:
+      return True,stderr[:-len(MY_KEY_TO_DETECT_FINISH)]
+    else:
+      return False,stderr
 
   #
   def InternalExecResistant( code, context, outargsname):
@@ -852,6 +855,7 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
     def RetrieveUniquePartFromPfx( fname ):
       return os.path.splitext( os.path.basename(fname)[len(EXEC_CODE_FNAME_PXF):] )[0]
     with tempfile.NamedTemporaryFile(dir=os.getcwd(),prefix=EXEC_CODE_FNAME_PXF,suffix=".py", mode="w", delete = False) as codeFd:
+      codeFd.write( "{}\n".format( containerRef.get_startup_code() ) )
       codeFd.write( code )
       if closeEyesOnErrorAtExit:
         codeFd.write( """

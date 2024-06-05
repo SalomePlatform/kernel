@@ -92,6 +92,10 @@ module Engines
     
     void set_number_of_retry(in long nbRetry);
 
+    void set_startup_code(in string codeAtStartUp);
+
+    string get_startup_code();
+
     void addLogFileNameGroup(in vectorOfString groupOfLogFileNames);
     
     vectorOfVectorOfString getAllLogFileNameGroups();

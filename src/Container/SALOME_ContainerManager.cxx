@@ -566,6 +566,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         if( !_code_to_exe_on_startup.empty() )
         {
           INFOS("[GiveContainer] container " << containerNameInNS << " python code executed " << _code_to_exe_on_startup);
+          cont->set_startup_code( _code_to_exe_on_startup.c_str() );
           cont->execute_python_code( _code_to_exe_on_startup.c_str() );
         }
         INFOS("[GiveContainer] container " << containerNameInNS << " verbosity positionning Activation = " << SALOME::VerbosityActivated() << " Verbosity Level = " << SALOME::VerbosityLevelStr());

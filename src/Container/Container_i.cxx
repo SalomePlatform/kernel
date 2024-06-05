@@ -1185,6 +1185,16 @@ void Abstract_Engines_Container_i::set_number_of_retry(CORBA::Long nbRetry)
   SALOME::SetNumberOfRetry( nbRetry );
 }
 
+void Abstract_Engines_Container_i::set_startup_code(const char *codeAtStartUp)
+{
+  _code_at_startup = codeAtStartUp;
+}
+
+char *Abstract_Engines_Container_i::get_startup_code()
+{
+  return CORBA::string_dup( this->_code_at_startup.c_str() );
+}
+
 Engines::vectorOfString_var FromVecStringCppToCORBA( const std::vector<std::string>& group)
 {
   Engines::vectorOfString_var ret( new Engines::vectorOfString );

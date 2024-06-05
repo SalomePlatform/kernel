@@ -63,7 +63,7 @@ def ErrorAtexit():
 atexit.register(ErrorAtexit)
 
 print("OKKKKKK")
-j = 9 * i
+j = 9 * i * a
 print("OKKKKKK3333")
 """
 
@@ -179,6 +179,7 @@ class testPerfLogManager1(unittest.TestCase):
         hostname = "localhost"
         cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
         salome.cm.SetNumberOfRetry( 3 )
+        salome.cm.SetCodeOnContainerStartUp("""a = 2""")
         salome.cm.SetBigObjOnDiskThreshold(1000)
         salome.cm.SetOverrideEnvForContainersSimple(env = [])
         cont = salome.cm.GiveContainer(cp)
@@ -188,7 +189,7 @@ class testPerfLogManager1(unittest.TestCase):
         pyscript.executeFirst(refPtr)
         ret = pyscript.executeSecond(["j"])
         ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
-        self.assertEqual(ret,27)
+        self.assertEqual(ret,54)
         with open(cont.locallogfilename) as f:
             logCont = f.read( )
             self.assertTrue( "WARNING : Retry #" in logCont)
