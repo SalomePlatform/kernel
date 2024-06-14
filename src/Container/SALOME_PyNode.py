@@ -735,9 +735,6 @@ with open(inputFileName,"rb") as f:
 context[MY_PERFORMANCE_LOG_ENTRY_IN_GLBS] = eval( MY_PERFORMANCE_LOG_ENTRY_IN_GLBS )
 with open(codeFileName,"r") as f:
   code = f.read()
-#
-import gc
-gc.disable()
 # go for execution
 exec( code , context )
 # filter part of context to be exported to father process
