@@ -97,6 +97,7 @@ namespace Launcher
       const std::list<std::string> & get_in_files() const;
       const std::list<std::string> & get_out_files() const;
       std::string getMaximumDuration() const;
+      long getMaximumDurationInSecond() const { return this->_maximum_duration_in_second; }
       resourceParams getResourceRequiredParams() const;
       std::string getQueue() const;
       std::string getPartition() const;

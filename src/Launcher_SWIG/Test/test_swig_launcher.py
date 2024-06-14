@@ -674,6 +674,30 @@ f.close()
       self.verifyFile(os.path.join(mydir, "copie", "copie.txt"),
                       "to be copied")
       pass
+
+
+  def test_maximum_duration_management_0(self):
+    """
+    [EDF30356] : Check correct conversion of format DD-HH:MM into second before sending it to libbatch
+    """
+    def EndUserMaxDurationToSecond( endUserEntry ):
+        params = pylauncher.JobParameters_cpp()
+        params.maximum_duration = endUserEntry
+        launcher = pylauncher.Launcher_cpp()
+        params.job_type = "command_salome"
+        params.resource_required = pylauncher.resourceParams()
+        params.job_file = "test.py"
+        params.resource_required.nb_proc = 1
+        jobId = launcher.createJob( params )
+        return launcher.getMaximumDurationInSecond( jobId )
+    
+    self.assertEqual( EndUserMaxDurationToSecond( "15:10" ), 54600)
+    self.assertEqual( EndUserMaxDurationToSecond( "0-02:10" ), 7800)
+    self.assertEqual( EndUserMaxDurationToSecond( "0-00:59" ), 3540)
+    self.assertEqual( EndUserMaxDurationToSecond( "1-00:00" ), 86400)
+    self.assertEqual( EndUserMaxDurationToSecond( "2-00:00" ), 172800)
+    self.assertEqual( EndUserMaxDurationToSecond( "2-03:04" ), 183840)
+
     pass
   pass
 

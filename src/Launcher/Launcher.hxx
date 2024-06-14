@@ -85,6 +85,7 @@ public:
   void         clearJobWorkingDir(int job_id);
   bool         getJobDumpState(int job_id, std::string directory);
   bool         getJobWorkFile(int job_id, std::string work_file, std::string directory);
+  long         getMaximumDurationInSecond(int job_id);
   void         stopJob(int job_id);
   void         removeJob(int job_id);
   std::string  dumpJob(int job_id);

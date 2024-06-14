@@ -540,22 +540,32 @@ Launcher::Job::checkResourceRequiredParams(const resourceParams & resource_requi
 long
 Launcher::Job::convertMaximumDuration(const std::string & edt)
 {
-  long hh, mm, ret;
+  long dd(0), hh(0), mm(0);
 
   if( edt.size() == 0 )
     return -1;
 
-  std::string::size_type pos = edt.find(":");
-  std::string h = edt.substr(0,pos);
-  std::string m = edt.substr(pos+1,edt.size()-pos+1);
+  std::string remain( edt );
+
+  auto pos_day = edt.find('-');
+  if( pos_day != std::string::npos)
+  {
+    std::string d = edt.substr(0,pos_day);
+    if(pos_day == edt.size()-1)
+      return -1;
+    remain = edt.substr(pos_day+1);
+    std::istringstream issd(d);
+    issd >> dd;
+  }
+  std::string::size_type pos = remain.find(':');
+  std::string h = remain.substr(0,pos);
+  std::string m = remain.substr(pos+1,remain.size()-pos+1);
   std::istringstream issh(h);
   issh >> hh;
   std::istringstream issm(m);
   issm >> mm;
-  ret = hh*60 + mm;
-  ret = ret * 60;
-
-  return ret;
+  long ret = dd*60*24 + hh*60 + mm;
+  return 60*ret;
 }
 
 std::string

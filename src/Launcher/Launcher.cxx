@@ -392,6 +392,12 @@ Launcher_cpp::getJobWorkFile(int job_id,
   return rtn;
 }
 
+long Launcher_cpp::getMaximumDurationInSecond(int job_id)
+{
+  Launcher::Job *job = findJob(job_id);
+  return job->getMaximumDurationInSecond();
+}
+
 //=============================================================================
 /*!
  * Remove the job - into the Launcher and its batch manager
@@ -753,6 +759,13 @@ Launcher_cpp::getJobWorkFile(int job_id, std::string work_file, std::string dire
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job dump state!!!");
   throw LauncherException("Method Launcher_cpp::getJobWorkFile is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
+long Launcher_cpp::getMaximumDurationInSecond(int job_id)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job dump state!!!");
+  throw LauncherException("Method Launcher_cpp::getMaximumDurationInSecond is not available "
                           "(libBatch was not present at compilation time)");
 }
 
