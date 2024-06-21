@@ -953,7 +953,10 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
     EXEC_CODE_FNAME_PXF = "execsafe_"
     def RetrieveUniquePartFromPfx( fname ):
       return os.path.splitext( os.path.basename(fname)[len(EXEC_CODE_FNAME_PXF):] )[0]
-    with tempfile.NamedTemporaryFile(dir=os.getcwd(),prefix=EXEC_CODE_FNAME_PXF,suffix=".py", mode="w", delete = False) as codeFd:
+    dirForReplayFiles = KernelBasis.GetDirectoryForReplayFiles()
+    if not dirForReplayFiles:
+      raise RuntimeError("You are in context of exec resistant you have to position Directory hosting these files properly")
+    with tempfile.NamedTemporaryFile(dir=dirForReplayFiles,prefix=EXEC_CODE_FNAME_PXF,suffix=".py", mode="w", delete = False) as codeFd:
       codeFd.write( "{}\n".format( containerRef.get_startup_code() ) )
       codeFd.write( code )
       if closeEyesOnErrorAtExit:
@@ -963,17 +966,17 @@ sys.stderr.write({!r})
 sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       codeFd.flush()
       codeFileName = os.path.basename( codeFd.name )
-      contextFileName = "contextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) )
+      contextFileName = os.path.join( dirForReplayFiles, "contextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(contextFileName,"wb") as contextFd:
         pickle.dump( context, contextFd)
-      resFileName = "outcontextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) )
-      mainExecFileName = os.path.abspath( "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
+      resFileName = os.path.join( dirForReplayFiles, "outcontextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
+      mainExecFileName = os.path.join( dirForReplayFiles, "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(mainExecFileName,"w") as f:
         f.write( FinalCode.format( codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
       for iTry in range( KernelBasis.GetNumberOfRetry() ):
         if iTry > 0:
           print( "WARNING : Retry # {}. Following code has generated non zero return code ( {} ). Trying again ... \n{}".format( iTry, returnCode, code ) )
-        p = sp.Popen(["python3", mainExecFileName],stdout = sp.PIPE, stderr = sp.PIPE)
+        p = sp.Popen(["python3", mainExecFileName],cwd = dirForReplayFiles,stdout = sp.PIPE, stderr = sp.PIPE)
         stdout, stderr = p.communicate()
         returnCode = p.returncode
         if returnCode == 0:

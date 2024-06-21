@@ -112,6 +112,8 @@ interface ContainerManager
 
   void SetBigObjOnDiskDirectory(in string directory);
 
+  void SetDirectoryForReplayFiles(in string directory);
+
   void SetNumberOfRetry(in long nbRetry);
 
   long GetNumberOfRetry();

@@ -58,6 +58,8 @@ using namespace SALOME;
 %rename (BigObjOnDiskProtocolToStr) BigObjOnDiskProtocolToStrSwig;
 %rename (SetBigObjOnDiskDirectory) SetBigObjOnDiskDirectorySwig;
 %rename (BigObjOnDiskDirectoryDefined) BigObjOnDiskDirectoryDefinedSwig;
+%rename (GetDirectoryForReplayFiles) GetDirectoryForReplayFilesSwig;
+%rename (SetDirectoryForReplayFiles) SetDirectoryForReplayFilesSwig;
 %rename (SetNumberOfRetry) SetNumberOfRetrySwig;
 %rename (GetNumberOfRetry) GetNumberOfRetrySwig;
 
@@ -149,6 +151,16 @@ void SetNumberOfRetrySwig(int nbRetry)
 int GetNumberOfRetrySwig()
 {
   return SALOME::GetNumberOfRetry( );
+}
+
+std::string GetDirectoryForReplayFilesSwig()
+{
+  return SALOME::GetDirectoryForReplayFiles();
+}
+
+void SetDirectoryForReplayFilesSwig(const std::string& directory)
+{
+  SALOME::SetDirectoryForReplayFiles(directory);
 }
 
 std::string BigObjOnDiskProtocolToStrSwig( int protocol )

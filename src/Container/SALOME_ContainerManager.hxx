@@ -83,6 +83,8 @@ public:
 
   void SetBigObjOnDiskDirectory(const char *directory) override;
 
+  void SetDirectoryForReplayFiles(const char *directory) override;
+
   void SetNumberOfRetry(CORBA::Long nbRetry) override;
 
   CORBA::Long GetNumberOfRetry() override;

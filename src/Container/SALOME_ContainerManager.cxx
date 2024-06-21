@@ -246,6 +246,11 @@ void SALOME_ContainerManager::SetBigObjOnDiskDirectory(const char *directory)
   SALOME::SetBigObjOnDiskDirectory(directory);
 }
 
+void SALOME_ContainerManager::SetDirectoryForReplayFiles(const char *directory)
+{
+  SALOME::SetDirectoryForReplayFiles( directory );
+}
+
  void SALOME_ContainerManager::SetNumberOfRetry(CORBA::Long nbRetry)
  {
     SALOME::SetNumberOfRetry( nbRetry );
@@ -551,6 +556,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         INFOS("[GiveContainer] container " << containerNameInNS << " override " << envInfo.str());
         cont->set_big_obj_on_disk_directory( SALOME::GetBigObjOnDiskDirectoryCoarse().c_str() );
         cont->set_big_obj_on_disk_threshold( SALOME::GetBigObjOnDiskThreshold() );
+        cont->set_directory_for_replay_files( SALOME::GetDirectoryForReplayFiles().c_str() );
         cont->set_number_of_retry( SALOME::GetNumberOfRetry() );
         Engines::FieldsDict envCorba;
         {

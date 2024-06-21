@@ -87,6 +87,8 @@ public:
   void set_big_obj_on_disk_directory(const char *directory) override;
 
   void set_number_of_retry(CORBA::Long nbRetry) override;
+
+  void set_directory_for_replay_files(const char *directory) override;
   
   void set_startup_code(const char *codeAtStartUp) override;
 

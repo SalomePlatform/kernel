@@ -1185,6 +1185,11 @@ void Abstract_Engines_Container_i::set_number_of_retry(CORBA::Long nbRetry)
   SALOME::SetNumberOfRetry( nbRetry );
 }
 
+void Abstract_Engines_Container_i::set_directory_for_replay_files(const char *directory)
+{
+  SALOME::SetDirectoryForReplayFiles( directory );
+}
+
 void Abstract_Engines_Container_i::set_startup_code(const char *codeAtStartUp)
 {
   _code_at_startup = codeAtStartUp;

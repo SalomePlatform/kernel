@@ -146,6 +146,8 @@ constexpr int SALOME_BIG_OBJ_ON_DISK_THRES_DFT = 50000000;
 
 static int SALOME_BIG_OBJ_ON_DISK_THRES = SALOME_BIG_OBJ_ON_DISK_THRES_DFT;
 
+std::string SALOME_REPLAY_FILES_DIR;
+
 int SALOME::GetBigObjOnDiskThreshold()
 {
   return SALOME_BIG_OBJ_ON_DISK_THRES;
@@ -225,6 +227,16 @@ SALOME::BigObjTransferProtocol SALOME::GetBigObjOnDiskProtocolAndDirectory(std::
 std::string SALOME::GetBigObjOnDiskDirectoryCoarse()
 {
   return SALOME_FILE_BIG_OBJ_DIR;
+}
+
+std::string SALOME::GetDirectoryForReplayFiles()
+{
+  return SALOME_REPLAY_FILES_DIR;
+}
+
+void SALOME::SetDirectoryForReplayFiles(const std::string& directory)
+{
+  SALOME_REPLAY_FILES_DIR = directory;
 }
 
 void SALOME::SetBigObjOnDiskDirectory(const std::string& directory)

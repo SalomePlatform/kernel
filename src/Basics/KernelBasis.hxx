@@ -52,6 +52,8 @@ namespace SALOME
   std::vector<std::string> BASICS_EXPORT GetAllPyExecutionModes();
   std::string BASICS_EXPORT GetPyExecutionModeStr();
   PyExecutionMode BASICS_EXPORT GetPyExecutionMode();
+  std::string BASICS_EXPORT GetDirectoryForReplayFiles();
+  void BASICS_EXPORT SetDirectoryForReplayFiles(const std::string& directory);
   int BASICS_EXPORT GetBigObjOnDiskThreshold();
   void BASICS_EXPORT SetBigObjOnDiskThreshold(int newThresholdInByte);
   std::string BASICS_EXPORT BigObjOnDiskProtocolToStr(BigObjTransferProtocol protocol);
