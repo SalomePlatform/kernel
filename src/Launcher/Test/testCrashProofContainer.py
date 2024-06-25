@@ -68,6 +68,21 @@ j = 9 * i * a
 print("OKKKKKK3333")
 """
 
+killMeAtTheEnd2 = """import atexit
+import KernelServices
+import os
+
+def ErrorAtexit():
+    KernelServices.GenerateViolentMemoryFaultForTestPurpose()
+
+atexit.register(ErrorAtexit)
+
+print("OKKKKKK")
+j = 9 * i * a
+k = os.getcwd()
+print("OKKKKKK3333")
+"""
+
 class testPerfLogManager1(unittest.TestCase):
     def test0(self):
         """
@@ -203,6 +218,34 @@ class testPerfLogManager1(unittest.TestCase):
                 logCont = f.read( )
                 self.assertTrue( "WARNING : Retry #" in logCont)
                 self.assertTrue( "WARNING : Following code has generated non zero return code" in logCont )# should report something into the container
+            cont.Shutdown()
+
+    def test4(self):
+        """
+        EDF30399 : Check current directory
+        """
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( tmpdirname )
+            KernelBasis.SetForwardCurrentDirectoryStatus( True ) # key point
+            salome.salome_init()
+            assert(isinstance(KernelBasis.GetAllPyExecutionModes(),tuple))
+            KernelBasis.SetPyExecutionMode("OutOfProcessNoReplayFT") # the aim of test is here
+            hostname = "localhost"
+            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test_2")
+            salome.cm.SetCodeOnContainerStartUp("""a = 2""")
+            salome.cm.SetBigObjOnDiskThreshold(1000)
+            salome.cm.SetOverrideEnvForContainersSimple(env = [])
+            salome.cm.SetDirectoryForReplayFiles( str( tmpdirname ) )
+            cont = salome.cm.GiveContainer(cp)
+            poa = salome.orb.resolve_initial_references("RootPOA")
+            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+            pyscript = cont.createPyScriptNode("testScript4",killMeAtTheEnd2)
+            pyscript.executeFirst(refPtr)
+            ret = pyscript.executeSecond(["j","k"])
+            ret0 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
+            self.assertEqual(ret0,54)
+            ret2 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[1]).data() )
+            self.assertEqual( ret2, str(tmpdirname) )
             cont.Shutdown()
 
 if __name__ == '__main__':

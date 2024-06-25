@@ -826,10 +826,14 @@ FinalCode = """import pickle
 from SALOME_PyNode import LogOfCurrentExecutionSession,MY_PERFORMANCE_LOG_ENTRY_IN_GLBS
 import CORBA
 import Engines
+import os
+# WorkDir may be important to replay : "{}"
 orb = CORBA.ORB_init([''])
-codeFileName = "{}"
-inputFileName = "{}"
-outputFileName = "{}"
+caseDirectory = "{}"
+codeFileName = os.path.join( caseDirectory, "{}" )
+inputFileName = os.path.join( caseDirectory, "{}" )
+outputFileName = os.path.join( caseDirectory, "{}" )
+del os
 outputsKeys = {}
 exec( "{{}} = LogOfCurrentExecutionSession( orb.string_to_object( \\"{}\\" ) )".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) )
 with open(inputFileName,"rb") as f:
@@ -972,11 +976,11 @@ sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       resFileName = os.path.join( dirForReplayFiles, "outcontextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       mainExecFileName = os.path.join( dirForReplayFiles, "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(mainExecFileName,"w") as f:
-        f.write( FinalCode.format( codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
+        f.write( FinalCode.format( os.getcwd(), dirForReplayFiles, codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
       for iTry in range( KernelBasis.GetNumberOfRetry() ):
         if iTry > 0:
           print( "WARNING : Retry # {}. Following code has generated non zero return code ( {} ). Trying again ... \n{}".format( iTry, returnCode, code ) )
-        p = sp.Popen(["python3", mainExecFileName],cwd = dirForReplayFiles,stdout = sp.PIPE, stderr = sp.PIPE)
+        p = sp.Popen(["python3", mainExecFileName],cwd = os.getcwd(),stdout = sp.PIPE, stderr = sp.PIPE)
         stdout, stderr = p.communicate()
         returnCode = p.returncode
         if returnCode == 0:
