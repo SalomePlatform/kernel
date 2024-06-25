@@ -258,10 +258,11 @@ def IncrRefInFile(fname):
   :param fname:
   :type fname: str
   """
-  if fname in DicoForProxyFile:
-    DicoForProxyFile[fname] += 1
+  fnameEff = fname.getFileName()
+  if fnameEff in DicoForProxyFile:
+    DicoForProxyFile[fnameEff] += 1
   else:
-    DicoForProxyFile[fname] = 2
+    DicoForProxyFile[fnameEff] = 2
   pass
 
 def DecrRefInFile(fname):
@@ -269,7 +270,7 @@ def DecrRefInFile(fname):
   :param fname:
   :type fname: BigFileOnDiskBase
   """
-  if fname not in DicoForProxyFile:
+  if fname.getFileName() not in DicoForProxyFile:
     cnt = 1
   else:
     cnt = DicoForProxyFile[fname.getFileName()]
