@@ -181,6 +181,9 @@ class SALOME_Container_Abstract_i(abc.ABC):
         import salome_utils
         salome_utils.positionVerbosityOfLoggerRegardingState()
         logging.debug("positionVerbosityOfLogger PID = {}".format(os.getpid()))
+
+    def setCurrentDirectory(self, newCwd):
+        os.chdir( newCwd )
     
     def monitoringtimeresms(self):
         return self._timeIntervalInMs

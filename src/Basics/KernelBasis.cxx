@@ -19,6 +19,7 @@
 
 #include "KernelBasis.hxx"
 
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -166,6 +167,8 @@ constexpr int DFT_SALOME_NB_RETRY = 1;
 
 static int SALOME_NB_RETRY = DFT_SALOME_NB_RETRY;
 
+static bool SALOME_FW_CWD_STATUS = false;
+
 SALOME::BigObjTransferProtocol SALOME::FromIntToBigObjOnDiskProtocol(char protocol)
 {
   switch( protocol )
@@ -296,4 +299,36 @@ SALOME::PyExecutionMode SALOME::GetPyExecutionMode()
   if(DefaultPyExecMode == SALOME::PyExecutionMode::NotSet)
     DefaultPyExecMode = isEnvVarSet();
   return DefaultPyExecMode;
+}
+
+bool SALOME::GetForwardCurrentDirectoryStatus()
+{
+  return SALOME_FW_CWD_STATUS;
+}
+
+void SALOME::SetForwardCurrentDirectoryStatus(bool newStatus)
+{
+  SALOME_FW_CWD_STATUS = newStatus;
+}
+
+extern "C"
+{
+#ifndef WIN32
+# include <unistd.h>
+#else
+# include <windows.h>
+#endif
+}
+
+#ifdef WIN32
+#define getcwd _getcwd
+#endif
+
+auto CStyleDeleter = [](char *ptr) { if(ptr) free(ptr); };
+using AutoCDeleter = std::unique_ptr<char, decltype(CStyleDeleter)>;
+
+std::string SALOME::GetCurrentWorkingDirectory()
+{
+  AutoCDeleter cwdPtr( getcwd( nullptr,10000 ), CStyleDeleter );
+  return std::string( cwdPtr.get() );
 }

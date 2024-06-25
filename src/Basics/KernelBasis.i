@@ -62,6 +62,8 @@ using namespace SALOME;
 %rename (SetDirectoryForReplayFiles) SetDirectoryForReplayFilesSwig;
 %rename (SetNumberOfRetry) SetNumberOfRetrySwig;
 %rename (GetNumberOfRetry) GetNumberOfRetrySwig;
+%rename (GetForwardCurrentDirectoryStatus) GetForwardCurrentDirectoryStatusSwig;
+%rename (SetForwardCurrentDirectoryStatus) SetForwardCurrentDirectoryStatusSwig;
 
 bool getSSLMode();
 void setSSLMode(bool sslMode);
@@ -151,6 +153,16 @@ void SetNumberOfRetrySwig(int nbRetry)
 int GetNumberOfRetrySwig()
 {
   return SALOME::GetNumberOfRetry( );
+}
+
+bool GetForwardCurrentDirectoryStatusSwig()
+{
+  return SALOME::GetForwardCurrentDirectoryStatus();
+}
+
+void SetForwardCurrentDirectoryStatusSwig(bool newStatus)
+{
+  SALOME::SetForwardCurrentDirectoryStatus(newStatus);
 }
 
 std::string GetDirectoryForReplayFilesSwig()

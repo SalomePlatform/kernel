@@ -569,6 +569,8 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
           }
         }
         cont->override_environment_python( envCorba );
+        if( SALOME::GetForwardCurrentDirectoryStatus() )
+          cont->set_current_directory( SALOME::GetCurrentWorkingDirectory().c_str() );
         if( !_code_to_exe_on_startup.empty() )
         {
           INFOS("[GiveContainer] container " << containerNameInNS << " python code executed " << _code_to_exe_on_startup);

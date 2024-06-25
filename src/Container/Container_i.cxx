@@ -1185,6 +1185,18 @@ void Abstract_Engines_Container_i::set_number_of_retry(CORBA::Long nbRetry)
   SALOME::SetNumberOfRetry( nbRetry );
 }
 
+void Abstract_Engines_Container_i::set_current_directory(const char *cwd)
+{
+  AutoGIL gstate;
+  AutoPyRef result = PyObject_CallMethod(_pyCont,(char*)"setCurrentDirectory","s",cwd,nullptr);
+  if (PyErr_Occurred())
+  {
+    std::string error("can not set logfilename");
+    PyErr_Print();
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+  }
+}
+
 void Abstract_Engines_Container_i::set_directory_for_replay_files(const char *directory)
 {
   SALOME::SetDirectoryForReplayFiles( directory );

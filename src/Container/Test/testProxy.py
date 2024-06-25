@@ -25,6 +25,7 @@ import Engines
 import pickle
 import tempfile
 import pylauncher
+import KernelBasis
 
 class TestProxy(unittest.TestCase):
     def testProxy(self):
@@ -103,6 +104,65 @@ with open("{}","w") as f:
             with open(tmpFileName.name,"r") as f:
                 self.assertTrue(f.read()=="coucou")
             os.unlink( tmpFileName.name ) # context manager do not clean file
+
+    def testWorkingDirectoryForward(self):
+        """
+        [EDF30062] test of forward of current directory overriding entry in Catalog
+        """
+        KernelBasis.SetForwardCurrentDirectoryStatus( True ) # key point
+        hostname = "localhost"
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test")
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( str( tmpdirname ) )
+            cp = pylauncher.GetRequestForGiveContainer("localhost","gg")
+            cont = salome.cm.GiveContainer(cp)
+
+            pyscript2 = cont.createPyScriptNode("testScript","""import os
+ret = os.getcwd()
+""")
+            #
+            import SALOME_PyNode
+            poa = salome.orb.resolve_initial_references("RootPOA")
+            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
+            id_o = poa.activate_object(obj)
+            refPtr = poa.id_to_reference(id_o)
+            #
+            pyscript2.executeFirst(refPtr)
+            ret2 = pyscript2.executeSecond(["ret"])
+            #
+            ret2 = ret2[0]
+            ret3 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret2).data() )
+            self.assertEqual(ret3,str(tmpdirname)) # key point
+            #
+            cont.Shutdown()
+        ################
+        KernelBasis.SetForwardCurrentDirectoryStatus( False ) # key point
+        cp = pylauncher.GetRequestForGiveContainer(hostname,"container_test")
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( str( tmpdirname ) )
+            cp = pylauncher.GetRequestForGiveContainer("localhost","gg")
+            cont = salome.cm.GiveContainer(cp)
+
+            pyscript2 = cont.createPyScriptNode("testScript","""import os
+ret = os.getcwd()
+""")
+            #
+            import SALOME_PyNode
+            poa = salome.orb.resolve_initial_references("RootPOA")
+            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
+            id_o = poa.activate_object(obj)
+            refPtr = poa.id_to_reference(id_o)
+            #
+            pyscript2.executeFirst(refPtr)
+            ret2 = pyscript2.executeSecond(["ret"])
+            #
+            ret2 = ret2[0]
+            ret3 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret2).data() )
+            self.assertNotEqual(ret3,str(tmpdirname)) # key point
+            #
+            cont.Shutdown()
 
 if __name__ == '__main__':
     salome.standalone()
