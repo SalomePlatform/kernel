@@ -198,6 +198,8 @@ interface ResourcesManager
   void ListAllAvailableResources(out ResourceList machines, out IntegerList nbProcsOfMachines) raises (SALOME::SALOME_Exception);
 
   ResourceList ListAllResourcesInCatalog() raises (SALOME::SALOME_Exception);
+  
+  ResourceList ListAllResourceEntriesInCatalog() raises (SALOME::SALOME_Exception);
 };
 
 };

@@ -146,7 +146,7 @@ void SALOME_ResourcesManager::Shutdown()
  * Return list of resources available (regarding content of CatalogResources.xml) but select only those with canRunContainers attribute set to true.
  * And for each resource the number of proc available of it.
  * 
- * \sa SALOME_ResourcesManager::ListAllResourcesInCatalog
+ * \sa SALOME_ResourcesManager::ListAllResourcesInCatalog, SALOME_ResourcesManager::ListAllResourceEntriesInCatalog
  */
 void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines)
 {
@@ -176,7 +176,7 @@ void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_ou
 /*!
  * Return list of resources available (regarding content of CatalogResources.xml) whatever canRunContainers attribute value.
  * 
- * \sa SALOME_ResourcesManager::ListAllAvailableResources
+ * \sa SALOME_ResourcesManager::ListAllAvailableResources, SALOME_ResourcesManager::ListAllResourceEntriesInCatalog
  */
 Engines::ResourceList *SALOME_ResourcesManager::ListAllResourcesInCatalog()
 {
@@ -188,6 +188,23 @@ Engines::ResourceList *SALOME_ResourcesManager::ListAllResourcesInCatalog()
   for(auto it : zeList)
   {
     (*ret)[i++] = CORBA::string_dup( it.second.HostName.c_str() );
+  }
+  return ret;
+}
+
+/*!
+ * Return list of resources entries available. Useful to scan remotely the content of the playground
+ */
+Engines::ResourceList *SALOME_ResourcesManager::ListAllResourceEntriesInCatalog()
+{
+  const MapOfParserResourcesType& zeList(_rm->GetList());
+  auto sz = zeList.size();
+  Engines::ResourceList *ret(new Engines::ResourceList);
+  ret->length( sz );
+  CORBA::ULong i(0);
+  for(auto it : zeList)
+  {
+    (*ret)[i++] = CORBA::string_dup( it.first.c_str() );
   }
   return ret;
 }

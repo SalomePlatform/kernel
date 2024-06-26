@@ -76,6 +76,9 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     void ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines);
     
     Engines::ResourceList *ListAllResourcesInCatalog();
+
+    Engines::ResourceList *ListAllResourceEntriesInCatalog() override;
+
     // Cpp Methods
     void Shutdown();
     std::shared_ptr<ResourcesManager_cpp>& GetImpl() { return _rm; }
