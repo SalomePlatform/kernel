@@ -1007,7 +1007,7 @@ sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       resFileName = os.path.join( dirForReplayFiles, "outcontextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       mainExecFileName = os.path.join( dirForReplayFiles, "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(mainExecFileName,"w") as f:
-        f.write( FinalCode.format( os.getcwd(), dirForReplayFiles, codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
+        f.write( FinalCode.format( os.getcwd(), dirForReplayFiles, codeFileName, os.path.basename( contextFileName ), os.path.basename( resFileName ), outargsname, iorScriptLog ) )
       for iTry in range( KernelBasis.GetNumberOfRetry() ):
         if iTry > 0:
           print( "WARNING : Retry # {}. Following code has generated non zero return code ( {} ). Trying again ... \n{}".format( iTry, returnCode, code ) )

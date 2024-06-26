@@ -154,6 +154,7 @@ SET(SALOME_INSTALL_AMCONFIG_LOCAL "@SALOME_INSTALL_AMCONFIG_LOCAL@") # to be rem
 SET(KERNEL_CalciumC CalciumC)
 SET(KERNEL_DF DF)
 SET(KERNEL_Launcher Launcher)
+SET(KERNEL_LauncherWrapHelper LauncherWrapHelper)
 SET(KERNEL_LifeCycleCORBATest LifeCycleCORBATest)
 SET(KERNEL_NamingServiceTest NamingServiceTest)
 SET(KERNEL_OpUtil OpUtil)

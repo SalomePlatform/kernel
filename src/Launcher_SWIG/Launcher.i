@@ -22,30 +22,9 @@
 %{
 #include "Launcher.hxx"
 #include "ResourcesManager.hxx"
+#include "LauncherResourceDefinition.hxx"
 
 #include <sstream>
-
-struct ResourceDefinition_cpp
-{
-public:
-  std::string name;
-  std::string hostname;
-  std::string type;
-  std::string protocol;
-  std::string username;
-  std::string applipath;
-  std::string OS;
-  int  mem_mb;
-  int  cpu_clock;
-  int  nb_node;
-  int  nb_proc_per_node;
-  std::string batch;
-  std::string mpiImpl;
-  std::string iprotocol;
-  bool can_launch_batch_jobs;
-  bool can_run_containers;
-  std::string working_directory;
-};
 
 std::shared_ptr<ResourcesManager_cpp> HandleToLocalInstance(const std::string& ptrInStringFrmt)
 {
@@ -126,27 +105,7 @@ public:
 
 // see ResourceDefinition from SALOME_ResourcesManager.idl
 // no other c++ equivalent. Convertion from ParserResourcesType
-struct ResourceDefinition_cpp
-{
-public:
-  std::string name;
-  std::string hostname;
-  std::string type;
-  std::string protocol;
-  std::string username;
-  std::string applipath;
-  std::string OS;
-  int  mem_mb;
-  int  cpu_clock;
-  int  nb_node;
-  int  nb_proc_per_node;
-  std::string batch;
-  std::string mpiImpl;
-  std::string iprotocol;
-  bool can_launch_batch_jobs;
-  bool can_run_containers;
-  std::string working_directory;
-};
+%include <LauncherResourceDefinition.hxx>
 
 %exception
 {
@@ -180,25 +139,7 @@ public:
   {
     ResourceDefinition_cpp swig_result;
     ParserResourcesType cpp_result = $self->GetResourcesDescr(name);
-
-    swig_result.name = cpp_result.Name;
-    swig_result.hostname = cpp_result.HostName;
-    swig_result.type = cpp_result.getResourceTypeStr();
-    swig_result.protocol = cpp_result.getAccessProtocolTypeStr();
-    swig_result.username = cpp_result.UserName;
-    swig_result.applipath = cpp_result.AppliPath;
-    swig_result.OS = cpp_result.OS;
-    swig_result.mem_mb = cpp_result.DataForSort._memInMB;
-    swig_result.cpu_clock = cpp_result.DataForSort._CPUFreqMHz;
-    swig_result.nb_node = cpp_result.DataForSort._nbOfNodes;
-    swig_result.nb_proc_per_node = cpp_result.DataForSort._nbOfProcPerNode;
-    swig_result.batch = cpp_result.getBatchTypeStr();
-    swig_result.mpiImpl = cpp_result.getMpiImplTypeStr();
-    swig_result.iprotocol = cpp_result.getClusterInternalProtocolStr();
-    swig_result.can_launch_batch_jobs = cpp_result.can_launch_batch_jobs;
-    swig_result.can_run_containers = cpp_result.can_run_containers;
-    swig_result.working_directory = cpp_result.working_directory;
-
+    swig_result.fromPRT( cpp_result );
     return swig_result;
   }
 
@@ -209,49 +150,13 @@ public:
   
   void AddResourceInCatalog (const ResourceDefinition_cpp& new_resource)
   {
-    ParserResourcesType new_resource_cpp;
-    new_resource_cpp.Name = new_resource.name;
-    new_resource_cpp.HostName = new_resource.hostname;
-    new_resource_cpp.setResourceTypeStr( new_resource.type );
-    new_resource_cpp.setAccessProtocolTypeStr( new_resource.protocol );
-    new_resource_cpp.UserName = new_resource.username;
-    new_resource_cpp.AppliPath = new_resource.applipath;
-    new_resource_cpp.OS = new_resource.OS;
-    new_resource_cpp.DataForSort._Name = new_resource.name;
-    new_resource_cpp.DataForSort._memInMB = new_resource.mem_mb;
-    new_resource_cpp.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
-    new_resource_cpp.DataForSort._nbOfNodes = new_resource.nb_node;
-    new_resource_cpp.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
-    new_resource_cpp.setBatchTypeStr(new_resource.batch);
-    new_resource_cpp.setMpiImplTypeStr(new_resource.mpiImpl);
-    new_resource_cpp.setClusterInternalProtocolStr(new_resource.iprotocol);
-    new_resource_cpp.can_launch_batch_jobs = new_resource.can_launch_batch_jobs;
-    new_resource_cpp.can_run_containers = new_resource.can_run_containers;
-    new_resource_cpp.working_directory = new_resource.working_directory;
+    ParserResourcesType new_resource_cpp( new_resource.toPRT() );
     $self->AddResourceInCatalog(new_resource_cpp);
   }
 
   void AddResourceInCatalogNoQuestion (const ResourceDefinition_cpp& new_resource)
   {
-    ParserResourcesType new_resource_cpp;
-    new_resource_cpp.Name = new_resource.name;
-    new_resource_cpp.HostName = new_resource.hostname;
-    new_resource_cpp.setResourceTypeStr( new_resource.type );
-    new_resource_cpp.setAccessProtocolTypeStr( new_resource.protocol );
-    new_resource_cpp.UserName = new_resource.username;
-    new_resource_cpp.AppliPath = new_resource.applipath;
-    new_resource_cpp.OS = new_resource.OS;
-    new_resource_cpp.DataForSort._Name = new_resource.name;
-    new_resource_cpp.DataForSort._memInMB = new_resource.mem_mb;
-    new_resource_cpp.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
-    new_resource_cpp.DataForSort._nbOfNodes = new_resource.nb_node;
-    new_resource_cpp.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
-    new_resource_cpp.setBatchTypeStr(new_resource.batch);
-    new_resource_cpp.setMpiImplTypeStr(new_resource.mpiImpl);
-    new_resource_cpp.setClusterInternalProtocolStr(new_resource.iprotocol);
-    new_resource_cpp.can_launch_batch_jobs = new_resource.can_launch_batch_jobs;
-    new_resource_cpp.can_run_containers = new_resource.can_run_containers;
-    new_resource_cpp.working_directory = new_resource.working_directory;
+    ParserResourcesType new_resource_cpp( new_resource.toPRT() );
     $self->AddResourceInCatalogNoQuestion(new_resource_cpp);
   }
   
@@ -368,6 +273,11 @@ def ResourcesManager_cpp___getitem__(self,name):
 def ResourcesManager_cpp___repr__(self):
   return str( self.GetList() )
 
+ListOfAttrCommon = ['name', 'OS', 'applipath', 'batch', 'can_launch_batch_jobs', 'can_run_containers', 'componentList', 'cpu_clock', 'hostname', 'iprotocol', 'mem_mb', 'mpiImpl', 'nb_node', 'nb_proc_per_node', 'protocol', 'type', 'username', 'working_directory']
+
+def ResourceDefinition_cpp_isEqual(self,other):
+  return all( [getattr(self,k) == getattr(other,k) for k in ListOfAttrCommon] )
+
 def RetrieveRMCppSingleton():
   import KernelLauncher
   return HandleToLocalInstance( KernelLauncher.RetrieveInternalInstanceOfLocalCppResourcesManager() )
@@ -417,9 +327,26 @@ def GetRequestForGiveContainer(hostname, contName):
                                   resource_params=rp)
   return cp
 
+
+def FromEngineResourceDefinitionToCPP( corbaInstance ):
+  """
+  Convert Engine.ResourceDefinition to ResourceDefinition_cpp instance
+  """
+  ret = ResourceDefinition_cpp()
+  for k in ListOfAttrCommon:
+    setattr(ret,k,getattr(corbaInstance,k))
+  return ret
+
+def ToEngineResourceDefinitionFromCPP( cppInstance ):
+  import Engines
+  return Engines.ResourceDefinition(**{k:getattr(cppInstance,k) for k in ListOfAttrCommon})
+
 ResourceDefinition_cpp.repr = ResourceDefinition_cpp_repr
 ResourceDefinition_cpp.__repr__ = ResourceDefinition_cpp_repr
+ResourceDefinition_cpp.__eq__ = ResourceDefinition_cpp_isEqual
+
 ResourcesManager_cpp.GetList = ResourcesManager_cpp_GetList
 ResourcesManager_cpp.__getitem__ = ResourcesManager_cpp___getitem__
 ResourcesManager_cpp.__repr__ = ResourcesManager_cpp___repr__
 %}
+

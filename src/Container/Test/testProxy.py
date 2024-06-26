@@ -164,6 +164,57 @@ ret = os.getcwd()
             #
             cont.Shutdown()
 
+    def testAccessOfResourcesAcrossWorkers(self):
+        """
+        [EDF30157] To ease testing advanced configuration. This test checks that
+        """
+        ### start of catalog manipulation in memory
+        rmcpp = pylauncher.RetrieveRMCppSingleton()
+        res0 = pylauncher.CreateContainerResource("zFakeHost","/home/appli/fakeappli","ssh")
+        rmcpp.AddResourceInCatalogNoQuestion(res0)#<- key point is here
+        res1 = pylauncher.CreateContainerResource("zzFakeHost","/home/appli/zzfakeappli","ssh")
+        rmcpp.AddResourceInCatalogNoQuestion(res1)#<- key point is here
+        ### end of catalog manipulation in memory
+
+        ### start to check effectivity of manipulation locally
+        machines = salome.rm.ListAllResourceEntriesInCatalog()
+        localStructure = { machine : salome.rm.GetResourceDefinition( machine ) for machine in machines }
+        ### end of check effectivity of manipulation locally
+
+        cp = pylauncher.GetRequestForGiveContainer("localhost","gg")
+        cont = salome.cm.GiveContainer(cp)
+        pyscript = cont.createPyScriptNode("testScript","""
+import salome
+salome.salome_init()
+machines = salome.rm.ListAllResourceEntriesInCatalog()
+structure = { machine : salome.rm.GetResourceDefinition( machine ) for machine in machines }
+""") # retrieve the content remotely and then return it back to current process
+        import SALOME_PyNode
+        import pickle
+        poa = salome.orb.resolve_initial_references("RootPOA")
+        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
+        id_o = poa.activate_object(obj)
+        refPtr = poa.id_to_reference(id_o)
+        #
+        pyscript.executeFirst(refPtr)
+        ret = pyscript.executeSecond(["structure"])
+        ret = ret[0]
+        retPy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret).data() )
+
+        assert( len(localStructure) == len(retPy) )
+        for k in localStructure:
+            a = pylauncher.FromEngineResourceDefinitionToCPP( localStructure[k] )
+            self.assertTrue( isinstance(a,pylauncher.ResourceDefinition_cpp) )
+            b = pylauncher.FromEngineResourceDefinitionToCPP( retPy[k] )
+            self.assertTrue( isinstance(b,pylauncher.ResourceDefinition_cpp) )
+            self.assertTrue( a==b ) #<- key point is here
+            a1 = pylauncher.ToEngineResourceDefinitionFromCPP( a )
+            b1 = pylauncher.ToEngineResourceDefinitionFromCPP( b )
+            a2 = pylauncher.FromEngineResourceDefinitionToCPP( a1 )
+            b2 = pylauncher.FromEngineResourceDefinitionToCPP( b1 )
+            self.assertTrue( a2==b2 )
+        cont.Shutdown()
+
 if __name__ == '__main__':
     salome.standalone()
     salome.salome_init()
