@@ -317,6 +317,7 @@ extern "C"
 # include <unistd.h>
 #else
 # include <windows.h>
+# include <direct.h>
 #endif
 }
 
