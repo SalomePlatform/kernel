@@ -23,17 +23,19 @@
 #  Module : SALOME
 #  $Header$
 #
-import sys,traceback
-import linecache
-import pickle
-import Engines__POA
-import SALOME__POA
-import SALOME
-import logging
-import KernelBasis
 import abc
+import linecache
+import logging
 import os
+import pickle
 import sys
+import traceback
+from pathlib import Path
+
+import Engines__POA
+import KernelBasis
+import SALOME
+import SALOME__POA
 from SALOME_ContainerHelper import ScriptExecInfo
 
 MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
@@ -143,27 +145,27 @@ def RetrieveRemoteFileLocallyInSameFileName( remoteHostName, fileName):
 
 def DestroyRemotely( remoteHostName, fileName):
     import subprocess as sp
-    p = sp.Popen(["ssh","-qC","-oStrictHostKeyChecking=no","-oBatchMode=yes",remoteHostName,"rm {}".format( fileName )])
+    p = sp.Popen(["ssh","-qC","-oStrictHostKeyChecking=no","-oBatchMode=yes",remoteHostName, f"rm {fileName}"])
     p.communicate()
 
 class CopyFileFromRemoteCtxMgr:
   def __init__(self, hostName, fileName):
     self._remoteHostName = hostName
-    self._fileName = fileName
+    self._fileName = Path(fileName)
     self._isRemote = IsRemote( hostName )
 
   def __enter__(self):
     if not self._isRemote:
       return
-    dn = os.path.dirname( self._fileName )
-    if not os.path.isdir( dn ):
-      os.mkdir( dn )
-    RetrieveRemoteFileLocallyInSameFileName(self._remoteHostName,self._fileName)
+    dn = self._fileName.parent
+    logging.debug(f"[SALOME_PyNode] Creating directory {dn}")
+    dn.mkdir(parents=True, exist_ok=True)
+    RetrieveRemoteFileLocallyInSameFileName(self._remoteHostName,f"{self._fileName}")
     
-  def __exit__(self,exctype, exc, tb):
+  def __exit__(self, exctype, exc, tb):
     if not self._isRemote:
       return
-    os.unlink( self._fileName )
+    self._fileName.unlink()
   
 class BigFileOnDiskBase(abc.ABC):
   """
@@ -181,19 +183,17 @@ class BigFileOnDiskBase(abc.ABC):
     """
     Method called client side of data.
     """
-    raise RuntimeError("Not implemented !")
+    raise NotImplementedError
   
   @abc.abstractmethod
   def unlink(self):
     """
     Method called client side of data.
     """
-    raise RuntimeError("Not implemented !")
+    raise NotImplementedError
 
 
 class BigFileOnDiskShare(BigFileOnDiskBase):
-  def __init__(self, fileName):
-    super().__init__( fileName )
 
   def get(self, visitor = None):
     return GetObjectFromFile( self._file_name, visitor )
@@ -209,6 +209,7 @@ class BigFileOnDiskSSDNoShare(BigFileOnDiskBase):
     self._hostname = socket.gethostname()
 
   def get(self, visitor = None):
+    logging.debug(f"[SALOME_PyNode] Directory {Path(self._file_name).parent} should be created")
     with CopyFileFromRemoteCtxMgr(self._hostname, self._file_name):
       return GetObjectFromFile( self._file_name, visitor )
     
@@ -291,6 +292,35 @@ def ActivateProxyMecanismOrNot( sizeInByte ):
   else:
     return sizeInByte > thres
 
+class BigObjectDirHandler(abc.ABC):
+  def __init__(self, directory):
+    self._directory = Path(directory)
+  
+  @property
+  def directory(self):
+    return self._directory
+
+  def __enter__(self):
+    return self
+    
+  def __exit__(self, exctype, exc, tb):
+    return
+
+class BigObjectDirHandlerOnDiskShare(BigObjectDirHandler):
+  pass
+
+class BigObjectDirHandlerOnDiskSSDNoShare(BigObjectDirHandler):
+
+  def __enter__(self):
+    logging.debug(f"[SALOME_PyNode] Creating directory {self._directory}")
+    self._directory.mkdir(parents=True, exist_ok=True)
+    return self
+    
+  def __exit__(self, exctype, exc, tb):
+    pass
+
+BigObjectDirHandlerFromProtocol = { 0 : BigObjectDirHandlerOnDiskShare, 1 : BigObjectDirHandlerOnDiskSSDNoShare }
+
 def GetBigObjectDirectory():
   import os
   protocol, directory = KernelBasis.GetBigObjOnDiskProtocolAndDirectory()
@@ -304,9 +334,10 @@ def GetBigObjectFileName():
   """
   import tempfile
   protocol, directory = GetBigObjectDirectory()
-  with tempfile.NamedTemporaryFile(dir = directory, prefix="mem_", suffix=".pckl") as f:
-    ret = f.name
-  return BigFileOnDiskClsFromProtocol[protocol]( ret )
+  with BigObjectDirHandlerFromProtocol[protocol](directory) as handler:
+    with tempfile.NamedTemporaryFile(dir = handler.directory, prefix="mem_", suffix=".pckl") as f:
+      ret = f.name
+    return BigFileOnDiskClsFromProtocol[protocol]( ret )
 
 class BigObjectOnDiskBase:
   def __init__(self, fileName, objSerialized):
@@ -550,7 +581,6 @@ def FileSystemMonitoring(intervalInMs, dirNameToInspect, outFileName = None):
     import os
     dirNameToInspect2 = os.path.abspath( os.path.expanduser(dirNameToInspect) )
     import tempfile
-    import logging
     import KernelBasis
     # outFileNameSave stores the content of outFileName during phase of dumping
     with tempfile.NamedTemporaryFile(prefix="fs_monitor_",suffix=".txt") as f:
