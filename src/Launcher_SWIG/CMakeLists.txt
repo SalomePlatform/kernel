@@ -43,14 +43,23 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(LauncherWrapHelper LauncherResourceDefinition.cxx)
 TARGET_LINK_LIBRARIES(LauncherWrapHelper Launcher)
 INSTALL(TARGETS LauncherWrapHelper EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
-
+IF(WIN32)
+  ADD_LIBRARY(LauncherWrapHelper_static STATIC  LauncherResourceDefinition.cxx)
+  SET_TARGET_PROPERTIES(LauncherWrapHelper_static PROPERTIES OUTPUT_NAME LauncherWrapHelper)
+  TARGET_LINK_LIBRARIES(LauncherWrapHelper_static  Launcher)
+  INSTALL(TARGETS LauncherWrapHelper_static EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+ENDIF(WIN32)
 SWIG_ADD_LIBRARY(${Launcher_target_name} LANGUAGE python SOURCES Launcher.i)
 
 IF(${MACHINE} STREQUAL WINDOWS)
   SET_TARGET_PROPERTIES(_${Launcher_target_name} PROPERTIES DEBUG_OUTPUT_NAME _${Launcher_target_name}_d)
 ENDIF(${MACHINE} STREQUAL WINDOWS)
 
-SWIG_LINK_LIBRARIES(${Launcher_target_name} ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} LauncherWrapHelper)
+IF(WIN32)
+  SWIG_LINK_LIBRARIES(${Launcher_target_name} ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} LauncherWrapHelper_static)
+ELSE(WIN32)
+  SWIG_LINK_LIBRARIES(${Launcher_target_name} ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} LauncherWrapHelper)
+ENDIF(WIN32)
 
 SWIG_CHECK_GENERATION(${Launcher_target_name})
 

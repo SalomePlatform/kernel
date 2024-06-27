@@ -22,11 +22,8 @@
 #include "SALOME_Launcher_SWIG.hxx"
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
-#ifndef SWIG
-struct LAUNCHER_SWIG_EXPORT ResourceDefinition_cpp
-#else
-struct ResourceDefinition_cpp
-#endif
+
+typedef struct ResourceDefinition_cpp
 {
 public:
   std::string name;
@@ -49,4 +46,4 @@ public:
 public:
   void fromPRT(const ParserResourcesType& other);
   ParserResourcesType toPRT() const;
-};
+}ResourceDefinition_cpp ;
