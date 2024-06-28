@@ -27,12 +27,15 @@
 #include "SALOME_ExternalServerLauncher.hxx"
 #include "SALOME_LogManager.hxx"
 #include "SALOME_CPythonHelper.hxx"
+#include "SALOME_LockMasterImpl.hxx"
 
 #include <cstring>
 #include <sstream>
 
 static Engines::LogManager_var LogManagerInstanceSingleton;
 static SALOME::ExternalServerLauncher_var ExternalServerLauncherSingleton;
+static Engines::LockMaster_var LockMasterSingleton;
+static const char LockMasterEntryInNS[] = "/LockMaster";
 
 std::string RetrieveInternalInstanceOfLocalCppResourcesManager()
 {
@@ -116,5 +119,40 @@ std::string GetLogManagerInstance()
   }
   //
   CORBA::String_var ior = orb->object_to_string(LogManagerInstanceSingleton);
+  return std::string(ior.in());
+}
+
+std::string GetLockMasterEntryInNS()
+{
+  return std::string( LockMasterEntryInNS );
+}
+
+std::string GetLockMasterInstance()
+{
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  if( CORBA::is_nil(LockMasterSingleton) )
+  {
+    SALOME_Fake_NamingService ns;
+    SALOME::LockMasterImpl *serv = new SALOME::LockMasterImpl;
+    {
+      CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+      PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+      //
+      CORBA::PolicyList policies;
+      policies.length(1);
+      PortableServer::POAManager_var pman = root_poa->the_POAManager();
+      PortableServer::ThreadPolicy_var threadPol(root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+      policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
+      PortableServer::POA_var safePOA = root_poa->create_POA("SingleThreadPOAForLockMaster",pman,policies);
+      threadPol->destroy();
+      //
+      PortableServer::ObjectId_var id(safePOA->activate_object(serv));
+      CORBA::Object_var lmPtr(safePOA->id_to_reference(id));
+      LockMasterSingleton = Engines::LockMaster::_narrow( lmPtr );
+    }
+    serv->_remove_ref();
+    ns.Register(LockMasterSingleton,LockMasterEntryInNS);
+  }
+  CORBA::String_var ior = orb->object_to_string( LockMasterSingleton );
   return std::string(ior.in());
 }

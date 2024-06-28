@@ -161,7 +161,7 @@ if not flags:
 #    sys.setdlopenflags(flags)
 #    pass
 
-orb, lcc, naming_service, cm, sg, esm, dsm, logm, modulcat, rm = None,None,None,None,None,None,None,None,None,None
+orb, lcc, naming_service, cm, sg, esm, dsm, logm, modulcat, rm, lm = None,None,None,None,None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
 
 salome_initial=True
@@ -245,7 +245,7 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     A Fake NamingService is created storing reference of all servants in the current process.
     """
     salome_init_without_session_common(path,embedded)
-    global lcc,cm,dsm,esm,rm,logm
+    global lcc,cm,dsm,esm,rm,logm,lm
     import KernelLauncher
     cm = KernelLauncher.myContainerManager()
     type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
@@ -255,6 +255,7 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     # create a FactoryServer Container servant
     import KernelContainer
     KernelContainer.myContainer()
+    lm = KernelLauncher.myLockMaster()
     # activate poaManager to accept co-localized CORBA calls.
     from KernelSDS import GetDSMInstance
     import sys
@@ -297,11 +298,12 @@ def salome_init_without_session_attached(path=None, embedded=False):
     lcc is pointing to the FakeNamingService above.
     """
     salome_init_without_session_common(path,embedded)
-    global lcc,cm,dsm,esm,rm,logm
+    global lcc,cm,dsm,esm,rm,logm,lm
     import CORBA
     orb=CORBA.ORB_init([''])
     import Engines
     import KernelBasis
+    import KernelLauncher
     nsAbroad = orb.string_to_object( KernelBasis.getIOROfEmbeddedNS() )
     import SALOME
     cm = orb.string_to_object( nsAbroad.Resolve(CM_NAME_IN_NS).decode() )
@@ -320,6 +322,9 @@ def salome_init_without_session_attached(path=None, embedded=False):
     #
     logm = orb.string_to_object( nsAbroad.Resolve(LOGM_NAME_IN_NS).decode() )
     naming_service.Register(logm,LOGM_NAME_IN_NS)
+    #
+    lm = orb.string_to_object( nsAbroad.Resolve(KernelLauncher.GetLockMasterEntryInNS()).decode() )
+    naming_service.Register(lm,KernelLauncher.GetLockMasterEntryInNS())
 
 def salome_init_with_session(path=None, embedded=False):
     """
@@ -600,6 +605,48 @@ def LogManagerGetLatestMonitoringDumpFile(self):
         return a
     logging.warning("in LogManagerGetLatestMonitoringDumpFile an unexpected situation araises.")
     return ""
+
+class Barrier:
+  def __init__(self, nbClients):
+    import CORBA
+    orb=CORBA.ORB_init([''])
+    self._ior = orb.object_to_string( lm.buildRendezVous( nbClients ) )
+  def barrier(self):
+    import CORBA
+    import Engines
+    orb=CORBA.ORB_init([''])
+    rvPtr = orb.string_to_object( self._ior )
+    rvPtr.acquire()
+
+class LockGuardCM:
+  def __init__(self, key):
+    if lm is None:
+        raise RuntimeError("SALOME has not been initialized !")
+    self._lock = lm.getLockerFor( key )
+  def __enter__(self):
+    self._lock.acquire()
+  def __exit__(self,exctype, exc, tb):
+    self._lock.release()
+
+class ContainerLauncherCM:
+  def __init__(self, cp, aggressiveShutdown = False):
+    """
+    :param cp: Engines.ContainerParameters instance specifying the request where the container will be launched
+    :param aggressiveShutdown:
+    """
+    self._cp = cp
+    self.aggressiveShutdown = aggressiveShutdown
+  def __enter__(self):
+    self._cont = cm.GiveContainer(self._cp)
+    return self._cont
+  def __exit__(self,exctype, exc, tb):
+    if not self.aggressiveShutdown:
+      self._cont.Shutdown()
+    else:
+      try:# we are in aggressive situation the following call is not expected to return normally
+        self._cont.ShutdownNow()
+      except:
+        pass
 
 #to expose all objects to pydoc
 __all__ = dir()
