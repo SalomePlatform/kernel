@@ -32,6 +32,8 @@
   std::string GetResourcesManagerInstance();
   std::string GetExternalServerInstance();
   std::string GetLogManagerInstance();
+  std::string GetLockMasterEntryInNS();
+  std::string GetLockMasterInstance();
 }
 
 %pythoncode %{
@@ -58,4 +60,10 @@ def myLogManager():
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetLogManagerInstance())
+
+def myLockMaster():
+  import Engines
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(GetLockMasterInstance())
 %}

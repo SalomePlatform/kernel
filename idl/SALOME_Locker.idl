@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,14 +17,27 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#pragma once
+#ifndef __SALOME_LOCKER_IDL__
+#define __SALOME_LOCKER_IDL__
 
-#include <string>
+module Engines
+{
+  interface LockServant
+  {
+    void acquire();
+    void release();
+  };
 
-std::string RetrieveInternalInstanceOfLocalCppResourcesManager();
-std::string GetContainerManagerInstance();
-std::string GetResourcesManagerInstance();
-std::string GetExternalServerInstance();
-std::string GetLogManagerInstance();
-std::string GetLockMasterEntryInNS();
-std::string GetLockMasterInstance();
+  interface RendezVousServant
+  {
+    void acquire();
+  };
+
+  interface LockMaster
+  {
+    LockServant getLockerFor(in string key);
+    RendezVousServant buildRendezVous(in long nbClients);
+  };
+};
+
+#endif

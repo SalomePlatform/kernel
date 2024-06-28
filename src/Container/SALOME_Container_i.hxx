@@ -35,6 +35,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_PyNode)
+#include CORBA_SERVER_HEADER(SALOME_Locker)
 
 #include <iostream>
 #include <signal.h>

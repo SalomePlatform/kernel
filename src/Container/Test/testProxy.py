@@ -182,38 +182,108 @@ ret = os.getcwd()
         ### end of check effectivity of manipulation locally
 
         cp = pylauncher.GetRequestForGiveContainer("localhost","gg")
-        cont = salome.cm.GiveContainer(cp)
-        pyscript = cont.createPyScriptNode("testScript","""
+        with salome.ContainerLauncherCM(cp) as cont:
+            pyscript = cont.createPyScriptNode("testScript","""
 import salome
 salome.salome_init()
 machines = salome.rm.ListAllResourceEntriesInCatalog()
 structure = { machine : salome.rm.GetResourceDefinition( machine ) for machine in machines }
 """) # retrieve the content remotely and then return it back to current process
-        import SALOME_PyNode
-        import pickle
-        poa = salome.orb.resolve_initial_references("RootPOA")
-        obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
-        id_o = poa.activate_object(obj)
-        refPtr = poa.id_to_reference(id_o)
-        #
-        pyscript.executeFirst(refPtr)
-        ret = pyscript.executeSecond(["structure"])
-        ret = ret[0]
-        retPy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret).data() )
+            import SALOME_PyNode
+            import pickle
+            poa = salome.orb.resolve_initial_references("RootPOA")
+            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
+            id_o = poa.activate_object(obj)
+            refPtr = poa.id_to_reference(id_o)
+            #
+            pyscript.executeFirst(refPtr)
+            ret = pyscript.executeSecond(["structure"])
+            ret = ret[0]
+            retPy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret).data() )
 
-        assert( len(localStructure) == len(retPy) )
-        for k in localStructure:
-            a = pylauncher.FromEngineResourceDefinitionToCPP( localStructure[k] )
-            self.assertTrue( isinstance(a,pylauncher.ResourceDefinition_cpp) )
-            b = pylauncher.FromEngineResourceDefinitionToCPP( retPy[k] )
-            self.assertTrue( isinstance(b,pylauncher.ResourceDefinition_cpp) )
-            self.assertTrue( a==b ) #<- key point is here
-            a1 = pylauncher.ToEngineResourceDefinitionFromCPP( a )
-            b1 = pylauncher.ToEngineResourceDefinitionFromCPP( b )
-            a2 = pylauncher.FromEngineResourceDefinitionToCPP( a1 )
-            b2 = pylauncher.FromEngineResourceDefinitionToCPP( b1 )
-            self.assertTrue( a2==b2 )
-        cont.Shutdown()
+            self.assertTrue( len(localStructure) == len(retPy) )
+            self.assertTrue( "zFakeHost" in [elt for elt in localStructure])
+            self.assertTrue( localStructure["zFakeHost"].applipath == "/home/appli/fakeappli")
+            self.assertTrue( "zzFakeHost" in [elt for elt in localStructure])
+            self.assertTrue( localStructure["zzFakeHost"].applipath == "/home/appli/zzfakeappli")
+            for k in localStructure:
+                a = pylauncher.FromEngineResourceDefinitionToCPP( localStructure[k] )
+                self.assertTrue( isinstance(a,pylauncher.ResourceDefinition_cpp) )
+                b = pylauncher.FromEngineResourceDefinitionToCPP( retPy[k] )
+                self.assertTrue( isinstance(b,pylauncher.ResourceDefinition_cpp) )
+                self.assertTrue( a==b ) #<- key point is here
+                a1 = pylauncher.ToEngineResourceDefinitionFromCPP( a )
+                b1 = pylauncher.ToEngineResourceDefinitionFromCPP( b )
+                a2 = pylauncher.FromEngineResourceDefinitionToCPP( a1 )
+                b2 = pylauncher.FromEngineResourceDefinitionToCPP( b1 )
+                self.assertTrue( a2==b2 )
+
+    def testMultiProcessCriticalSection0(self):
+        """
+        [EDF30382] : Synchro mecanism to ease test of extreme situations
+        """
+        from datetime import datetime
+        from threading import Thread
+        import contextlib
+        import SALOME_PyNode
+        import time
+
+        def func(pyscript,b):
+            poa = salome.orb.resolve_initial_references("RootPOA")
+            obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["b"],{"b":b} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+            pyscript.executeFirst(refPtr)
+            ret = pyscript.executeSecond([])
+            retPy = [ pickle.loads( SALOME_PyNode.SeqByteReceiver( elt ).data() ) for elt in ret]
+            return retPy
+
+        salome.salome_init()
+        rmcpp = pylauncher.RetrieveRMCppSingleton()
+        hostname = "localhost"
+        cps = [ pylauncher.GetRequestForGiveContainer(hostname,contName) for contName in ["container_test_lock","container_test_lock_2"]]
+        with contextlib.ExitStack() as stack:
+            conts = [stack.enter_context(salome.ContainerLauncherCM(cp)) for cp in cps] # Context Manager to automatically cleanup launched containers
+            b = salome.Barrier(3)
+            pyscript = conts[0].createPyScriptNode("testScript","""
+from datetime import datetime
+import salome
+import time
+time.sleep( 2.0 )
+b.barrier()
+print("go barrier")
+print("after barrier T0 : {}".format(datetime.now()))
+with salome.LockGuardCM("SSD"):
+    print("Start CS T0 : {}".format(datetime.now()))
+    time.sleep(5)
+    print("End CS T0 : {}".format(datetime.now()))
+""")
+            pyscript2 = conts[1].createPyScriptNode("testScript","""
+from datetime import datetime
+import salome
+import time
+time.sleep( 4.0 )
+b.barrier()
+print("go barrier")
+print("after barrier T1 : {}".format(datetime.now()))
+with salome.LockGuardCM("SSD"):
+    print("Start CS T1 : {}".format(datetime.now()))
+    time.sleep(5)
+    print("End CS T1 : {}".format(datetime.now()))
+""")
+            ts = [Thread( target=func, args=(ps,b) ) for ps in [pyscript,pyscript2]]
+            [t.start() for t in ts]
+            st0 = datetime.now()
+            time.sleep( 1.0 )
+            b.barrier() # wait everybody
+            print("go barrier")
+            print("after barrier Master : {}".format(datetime.now()))
+            with salome.LockGuardCM("SSD"):
+                print("In critical section")
+            [t.join() for t in ts]
+            zedelt = datetime.now() - st0
+            assert( zedelt.total_seconds() > 14.0 ) # expected max(1,2,4)+5+5 = 14s
+            pass
+    pass
+
 
 if __name__ == '__main__':
     salome.standalone()

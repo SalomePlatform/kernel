@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2024  CEA, EDF
+// Copyright (C) 2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,36 @@
 
 #pragma once
 
-#include <string>
+#include "SALOME_Container.hxx"
 
-std::string RetrieveInternalInstanceOfLocalCppResourcesManager();
-std::string GetContainerManagerInstance();
-std::string GetResourcesManagerInstance();
-std::string GetExternalServerInstance();
-std::string GetLogManagerInstance();
-std::string GetLockMasterEntryInNS();
-std::string GetLockMasterInstance();
+#include <SALOMEconfig.h>
+
+#include CORBA_SERVER_HEADER(SALOME_Locker)
+
+#include <mutex>
+#include <future>
+#include <vector>
+
+namespace SALOME
+{
+  class CONTAINER_EXPORT LockServantImpl : public virtual POA_Engines::LockServant
+  {
+  public:
+    LockServantImpl() = default;
+    void acquire() override;
+    void release() override;
+  private:
+    std::mutex _mutex;
+  };
+  
+  class CONTAINER_EXPORT RendezVousServantImpl : public virtual POA_Engines::RendezVousServant
+  {
+  public:
+    RendezVousServantImpl(unsigned int nbOfClientsToWait);
+    void acquire() override;
+  private:
+    std::vector< std::promise<void> > _promise;
+    std::mutex _mutex;
+    unsigned int _nb_clients;
+  };
+}

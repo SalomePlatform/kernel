@@ -89,6 +89,8 @@ SET(SalomeContainer_SOURCES
   SALOME_ContainerManager.cxx
   Salome_file_i.cxx
   SALOME_CPythonHelper.cxx
+  SALOME_LockMasterImpl.cxx
+  SALOME_LockServantImpl.cxx
 )
 
 ADD_LIBRARY(SalomeContainer ${SalomeContainer_SOURCES})
