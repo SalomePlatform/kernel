@@ -42,6 +42,8 @@
 #include <cstring>
 #include <sys/types.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #endif
 
 #ifndef WIN32
@@ -113,7 +115,9 @@ std::vector<double> SALOME::ReadFloatsInFile(const std::string& fileName)
 static void StopMonitoringLinux(long pid)
 {
   pid_t pid_of_subprocess = (pid_t) pid;
-  kill( pid_of_subprocess, SIGKILL );
+  kill( pid_of_subprocess, SIGTERM );
+  int wstatus;
+  waitpid( pid_of_subprocess, &wstatus , WUNTRACED);
 }
 #endif
 
