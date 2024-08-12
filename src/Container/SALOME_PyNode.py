@@ -912,7 +912,7 @@ class PythonFunctionEvaluatorParams:
   @property
   def cleanOperations(self):
     import os
-    return "To clean files : ( cd {} && rm {} )".format( os.path.dirname(self._main_filename)," ".join( [os.path.basename(self._main_filename),self._code_filename,self._in_context_filename] ) )
+    return "To clean files : ( cd {} && rm {} )".format( os.path.dirname(self._main_filename)," ".join( [os.path.basename(self._main_filename),os.path.basename(self._code_filename),os.path.basename(self._in_context_filename)] ) )
 
   def strDependingOnReturnCode(self, keepFilesToReplay, returnCode):
     if returnCode == -1:
@@ -1000,7 +1000,8 @@ import sys
 sys.stderr.write({!r})
 sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       codeFd.flush()
-      codeFileName = os.path.basename( codeFd.name )
+      codeFileNameFull =  codeFd.name
+      codeFileName = os.path.basename( codeFileNameFull )
       contextFileName = os.path.join( dirForReplayFiles, "contextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(contextFileName,"wb") as contextFd:
         pickle.dump( context, contextFd)
@@ -1016,7 +1017,7 @@ sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
         returnCode = p.returncode
         if returnCode == 0:
           break
-    return returnCode, stdout, stderr, PythonFunctionEvaluatorParams(mainExecFileName,codeFileName,contextFileName,resFileName)
+    return returnCode, stdout, stderr, PythonFunctionEvaluatorParams(mainExecFileName,codeFileNameFull,contextFileName,resFileName)
   ret = instanceOfLogOfCurrentSession._current_instance
   returnCode, stdout, stderr, evParams = InternalExecResistant( code, context, outargsname )
   stdout = stdout.decode()
