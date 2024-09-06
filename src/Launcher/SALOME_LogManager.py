@@ -39,6 +39,22 @@ class SALOME_ContainerScriptExecPerfLog:
     setattr(obj,"tracePosStop",self._stop_pos)
     setattr(obj,"tracePosStart",self._start_pos)
     return pickle.dumps(obj)
+  
+  def flushAndAppendFreestyle(self,alreadyOnSiteBytes,instanceRemoteBytes):
+    """
+    :param alreadyOnSiteBytes: pickle of instance of ScriptExecInfo of previous value (if any) [bytes]
+    :param instanceRemoteBytes: pickle of current instance of ScriptExecInfo (if any) [bytes]
+    """
+    alreadyOnSite = None
+    if len( alreadyOnSiteBytes ) > 0:
+      alreadyOnSite = pickle.loads(alreadyOnSiteBytes)
+    instanceRemote = pickle.loads(instanceRemoteBytes)
+    self._stop_pos = os.path.getsize( self.father.father.logfilename )
+    setattr(instanceRemote,"tracePosStop",self._stop_pos)
+    setattr(instanceRemote,"tracePosStart",self._start_pos)
+    if alreadyOnSite:
+      instanceRemote.preappendFreestyle( alreadyOnSite._freestyle_log )
+    return pickle.dumps(instanceRemote)
 
   def start(self):
     self._start_pos = os.path.getsize( self.father.father.logfilename )

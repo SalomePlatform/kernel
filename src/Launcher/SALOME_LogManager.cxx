@@ -82,6 +82,29 @@ void SALOME_ContainerScriptExecPerfLog::assign(const SALOME::vectorOfByte& value
   _data = FromPyToCpp(s);
 }
 
+void SALOME_ContainerScriptExecPerfLog::assignAndAppendFreestyle(const SALOME::vectorOfByte& value)
+{
+  auto sz = value.length();
+  std::vector<char> data( sz );
+  for(auto i = 0 ; i < sz ; ++i)
+    data[i] = value[i];
+  //
+  {
+    AutoGIL gstate;
+    //https://docs.python.org/3/c-api/arg.html#c.Py_BuildValue
+    AutoPyRef dataPyFromRemote(PyBytes_FromStringAndSize(data.data(),data.size()));
+    AutoPyRef dataPyAlreadyOnSite(PyBytes_FromStringAndSize(_data.data(),_data.size()));
+    AutoPyRef result(PyObject_CallMethod(pyObj(),(char*)"flushAndAppendFreestyle","OO",dataPyAlreadyOnSite.get(),dataPyFromRemote.get(),nullptr) ) ;
+    if (PyErr_Occurred())
+    {
+      std::string error("can not assignAndAppendFreestyle");
+      PyErr_Print();
+      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    }
+    _data = FromPyToCpp(result);
+  }
+}
+
 SALOME::vectorOfByte *SALOME_ContainerScriptExecPerfLog::getObj()
 {
   return FromVectCharToCorba(this->_data);

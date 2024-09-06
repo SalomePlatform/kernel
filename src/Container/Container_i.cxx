@@ -1185,6 +1185,11 @@ void Abstract_Engines_Container_i::set_number_of_retry(CORBA::Long nbRetry)
   SALOME::SetNumberOfRetry( nbRetry );
 }
 
+void Abstract_Engines_Container_i::set_timeout_before_retrying(CORBA::Long timeInSecond)
+{
+  SALOME::SetExecutionTimeOut( timeInSecond );
+}
+
 void Abstract_Engines_Container_i::set_current_directory(const char *cwd)
 {
   AutoGIL gstate;

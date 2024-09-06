@@ -558,6 +558,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
         cont->set_big_obj_on_disk_threshold( SALOME::GetBigObjOnDiskThreshold() );
         cont->set_directory_for_replay_files( SALOME::GetDirectoryForReplayFiles().c_str() );
         cont->set_number_of_retry( SALOME::GetNumberOfRetry() );
+        cont->set_timeout_before_retrying( SALOME::GetExecutionTimeOut() );
         Engines::FieldsDict envCorba;
         {
           auto sz = _override_env.size();

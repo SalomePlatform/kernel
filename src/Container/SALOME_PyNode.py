@@ -855,9 +855,11 @@ class SeqByteReceiver:
   
 FinalCode = """import pickle
 from SALOME_PyNode import LogOfCurrentExecutionSession,MY_PERFORMANCE_LOG_ENTRY_IN_GLBS
+from KernelBasis import VerbosityActivated
 import CORBA
 import Engines
 import os
+from datetime import datetime
 # WorkDir may be important to replay : "{}"
 orb = CORBA.ORB_init([''])
 caseDirectory = "{}"
@@ -867,18 +869,30 @@ outputFileName = os.path.join( caseDirectory, "{}" )
 del os
 outputsKeys = {}
 exec( "{{}} = LogOfCurrentExecutionSession( orb.string_to_object( \\"{}\\" ) )".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) )
+if VerbosityActivated():
+  eval( "{{}}".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) ).addFreestyleAndFlush( ("b4loadctx",datetime.now()) )
 with open(inputFileName,"rb") as f:
   context = pickle.load( f )
+if VerbosityActivated():
+  eval( "{{}}".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) ).addFreestyleAndFlush( ("afterloadctx",datetime.now()) )
 context[MY_PERFORMANCE_LOG_ENTRY_IN_GLBS] = eval( MY_PERFORMANCE_LOG_ENTRY_IN_GLBS )
 with open(codeFileName,"r") as f:
   code = f.read()
 # go for execution
+if VerbosityActivated():
+  eval( "{{}}".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) ).addFreestyleAndFlush( ("bforeexec",datetime.now()) )
 exec( code , context )
+if VerbosityActivated():
+  eval( "{{}}".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) ).addFreestyleAndFlush( ("afterexec",datetime.now()) )
 # filter part of context to be exported to father process
 context = dict( [(k,v) for k,v in context.items() if k in outputsKeys] )
+if VerbosityActivated():
+  eval( "{{}}".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) ).addFreestyleAndFlush( ("strtdumpout",datetime.now()) )
 #
 with open(outputFileName,"wb") as f:
   pickle.dump( context, f )
+if VerbosityActivated():
+  eval( "{{}}".format(MY_PERFORMANCE_LOG_ENTRY_IN_GLBS) ).addFreestyleAndFlush( ("afterdump",datetime.now()) )
 """
 
 class PythonFunctionEvaluatorParams:
@@ -963,6 +977,7 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
   import pickle
   import subprocess as sp
   import CORBA
+  import logging
   #
   def IsConsideredAsOKRun( returnCode, closeEyesOnErrorAtExit , stderr ):
     def StdErrTreatment(closeEyesOnErrorAtExit , stderr):
@@ -1009,13 +1024,26 @@ sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       mainExecFileName = os.path.join( dirForReplayFiles, "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(mainExecFileName,"w") as f:
         f.write( FinalCode.format( os.getcwd(), dirForReplayFiles, codeFileName, os.path.basename( contextFileName ), os.path.basename( resFileName ), outargsname, iorScriptLog ) )
-      for iTry in range( KernelBasis.GetNumberOfRetry() ):
+      timeOut = KernelBasis.GetExecutionTimeOut()
+      nbRetry = KernelBasis.GetNumberOfRetry()
+      logging.debug( "Nb retry = {}   Timout in seconds = {}".format( nbRetry, timeOut ) )
+      for iTry in range( nbRetry ):
         if iTry > 0:
           print( "WARNING : Retry # {}. Following code has generated non zero return code ( {} ). Trying again ... \n{}".format( iTry, returnCode, code ) )
         p = sp.Popen(["python3", mainExecFileName],cwd = os.getcwd(),stdout = sp.PIPE, stderr = sp.PIPE)
-        stdout, stderr = p.communicate()
-        returnCode = p.returncode
+        try:
+          args = {}
+          if timeOut > 0:
+            args["timeout"] = timeOut
+          stdout, stderr = p.communicate( **args )
+        except sp.TimeoutExpired as e:
+          print( "WARNING : during retry #{} timeout set to {} s has failed !".format( iTry, timeOut ) )
+          returnCode = 10000000000 + timeOut
+        else:
+          returnCode = p.returncode
         if returnCode == 0:
+          if iTry >= 1:
+            logging.warning( "At Retry #{} it's successful :)".format(iTry) )
           break
     return returnCode, stdout, stderr, PythonFunctionEvaluatorParams(mainExecFileName,codeFileNameFull,contextFileName,resFileName)
   ret = instanceOfLogOfCurrentSession._current_instance
@@ -1075,7 +1103,7 @@ class LogOfCurrentExecutionSession(LogOfCurrentExecutionSessionAbs):
 
   def addFreestyleAndFlush(self, value):
     self._current_instance.freestyle = value
-    self.finalizeAndPushToMaster()
+    self.finalizeAndPushToMasterAppendFreestyle()
 
   def finalizeAndPushToMaster(self):
     """
@@ -1083,6 +1111,15 @@ class LogOfCurrentExecutionSession(LogOfCurrentExecutionSessionAbs):
     """
     try:
       self._remote_handle.assign( pickle.dumps( self._current_instance ) )
+    except:
+      pass
+    
+  def finalizeAndPushToMasterAppendFreestyle(self):
+    """
+    Voluntary do nothing in case of problem to avoid to trouble execution
+    """
+    try:
+      self._remote_handle.assignAndAppendFreestyle( pickle.dumps( self._current_instance ) )
     except:
       pass
 

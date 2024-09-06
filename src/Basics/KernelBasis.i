@@ -62,6 +62,8 @@ using namespace SALOME;
 %rename (SetDirectoryForReplayFiles) SetDirectoryForReplayFilesSwig;
 %rename (SetNumberOfRetry) SetNumberOfRetrySwig;
 %rename (GetNumberOfRetry) GetNumberOfRetrySwig;
+%rename (SetExecutionTimeOut) SetExecutionTimeOutSwig;
+%rename (GetExecutionTimeOut) GetExecutionTimeOutSwig;
 %rename (GetForwardCurrentDirectoryStatus) GetForwardCurrentDirectoryStatusSwig;
 %rename (SetForwardCurrentDirectoryStatus) SetForwardCurrentDirectoryStatusSwig;
 
@@ -153,6 +155,16 @@ void SetNumberOfRetrySwig(int nbRetry)
 int GetNumberOfRetrySwig()
 {
   return SALOME::GetNumberOfRetry( );
+}
+
+void SetExecutionTimeOutSwig(int timeOutInSecond)
+{
+  SALOME::SetExecutionTimeOut( timeOutInSecond );
+}
+
+int GetExecutionTimeOutSwig()
+{
+  return SALOME::GetExecutionTimeOut();
 }
 
 bool GetForwardCurrentDirectoryStatusSwig()

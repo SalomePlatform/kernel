@@ -88,6 +88,8 @@ public:
   void set_big_obj_on_disk_directory(const char *directory) override;
 
   void set_number_of_retry(CORBA::Long nbRetry) override;
+  
+  void set_timeout_before_retrying(CORBA::Long timeInSecond) override;
 
   void set_current_directory(const char *cwd) override;
 

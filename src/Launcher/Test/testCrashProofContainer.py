@@ -34,6 +34,7 @@ import tempfile
 import logging
 from datetime import datetime
 import subprocess as sp
+from pathlib import Path
 
 killMeCode = """
 import os
@@ -83,6 +84,15 @@ k = os.getcwd()
 print("OKKKKKK3333")
 """
 
+FunnyCase = """import os
+import time
+if not os.path.exists( {!r} ):
+    time.sleep( 20 ) # first exec
+else:
+    time.sleep( 2 )  # second exec after retry
+j = 44
+"""
+
 class testPerfLogManager1(unittest.TestCase):
     def test0(self):
         """
@@ -111,7 +121,8 @@ class testPerfLogManager1(unittest.TestCase):
             ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
             self.assertEqual(ret,24) # container has received a SIGKILL but it kindly continue to respond :)
             a = salome.logm.NaiveFetch()
-            self.assertEqual(a[0][2][0].get().freestyle,[('a',777)])
+            dicToTest = {k:v for k,v in a[0][2][0].get().freestyle}
+            self.assertEqual(dicToTest['a'],777)
             cont.Shutdown()
 
     def test1(self):
@@ -141,7 +152,10 @@ class testPerfLogManager1(unittest.TestCase):
             ret = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
             self.assertEqual(ret,24) # container has received a SIGKILL but it kindly continue to respond :)
             a = salome.logm.NaiveFetch()
-            self.assertEqual(a[0][2][0].get().freestyle,[('a',777)])
+            dicToTest = {k:v for k,v in a[0][2][0].get().freestyle}
+            self.assertEqual(dicToTest['a'],777)
+            # EDF30875 : check in verbose mode of presence of entries to debug
+            self.assertEqual( set(dicToTest), {'strtdumpout', 'b4loadctx', 'afterloadctx', 'afterdump', 'bforeexec', 'a', 'afterexec'} )
             grpsOfLogToKill = cont.getAllLogFileNameGroups()
             self.assertEqual(1,len(grpsOfLogToKill))
             replayInput = grpsOfLogToKill[0]
@@ -247,6 +261,45 @@ class testPerfLogManager1(unittest.TestCase):
             ret2 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[1]).data() )
             self.assertEqual( ret2, str(tmpdirname) )
             cont.Shutdown()
+
+    def test5(self):
+        """
+        EDF30875 : Verbose mode set to ON 
+        """
+        from threading import Thread
+        def func( fname ):
+            import time
+            time.sleep( 5 )
+            with open( fname, "w" ) as f:
+                f.write( "go" )
+        # file used to pilot the behaviour of process
+        fname = "touch.txt"
+        KernelBasis.SetNumberOfRetry(2)
+        KernelBasis.SetExecutionTimeOut(10) # <= Key Point is here
+        KernelBasis.SetPyExecutionMode("OutOfProcessNoReplayFT") # Fail tolerant
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( tmpdirname )
+            fnameFull = Path(tmpdirname) / fname
+            hostname = "localhost"
+            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
+            salome.cm.SetDirectoryForReplayFiles( str( tmpdirname ) )
+            with salome.ContainerLauncherCM(cp,True) as cont:
+                poa = salome.orb.resolve_initial_references("RootPOA")
+                obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+                pyscript = cont.createPyScriptNode("testScript5",FunnyCase.format( fnameFull.as_posix() ))
+                t = Thread(target = func,args=[fnameFull.as_posix()])
+                t.start()
+                pyscript.executeFirst(refPtr)
+                ret = pyscript.executeSecond(["j"])
+                t.join()
+                ret0 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
+                self.assertEqual(ret0,44)
+                a = salome.logm.NaiveFetch()
+                #res = a[0][1][0]
+                #b = SALOME_ContainerHelper.ScriptExecInfoDeco(res,a[0][1]) print( a[0].log) 
+                # print( res.get().freestyle )
+                #print( [elt[0] for elt in res.get().freestyle] )
+                #self.assertEqual( [elt[0] for elt in res.get().freestyle], ['b4loadctx', 'afterloadctx', 'bforeexec', 'b4loadctx', 'afterloadctx', 'bforeexec', 'afterexec', 'strtdumpout', 'afterdump'] )
 
 if __name__ == '__main__':
     from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose

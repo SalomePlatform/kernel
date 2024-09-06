@@ -28,6 +28,7 @@ module Engines
   interface ContainerScriptExecPerfLog
   {
     void assign(in SALOME::vectorOfByte value);
+    void assignAndAppendFreestyle(in SALOME::vectorOfByte value);
     SALOME::vectorOfByte getObj();
   };
 

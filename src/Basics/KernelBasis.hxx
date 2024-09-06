@@ -65,6 +65,8 @@ namespace SALOME
   bool BASICS_EXPORT BigObjOnDiskDirectoryDefined();
   void BASICS_EXPORT SetNumberOfRetry(int nbRetry);
   int BASICS_EXPORT GetNumberOfRetry();
+  void BASICS_EXPORT SetExecutionTimeOut(int timeOutInSecond);
+  int BASICS_EXPORT GetExecutionTimeOut();
   bool BASICS_EXPORT GetForwardCurrentDirectoryStatus();
   void BASICS_EXPORT SetForwardCurrentDirectoryStatus(bool newStatus);
   std::string BASICS_EXPORT GetCurrentWorkingDirectory();

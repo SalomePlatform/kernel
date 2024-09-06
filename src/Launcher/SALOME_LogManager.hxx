@@ -106,6 +106,7 @@ public:
   PyObject *pyObj() { return _pyExecutionLog.get(); }
   PortableServer::POA_var getPOA();
   void assign(const SALOME::vectorOfByte& value) override;
+  void assignAndAppendFreestyle(const SALOME::vectorOfByte& value) override;
   SALOME::vectorOfByte *getObj() override;
   const std::vector<char>& data() const { return _data; }
   void setData(std::vector<char>&& data) { _data = std::move(data); }

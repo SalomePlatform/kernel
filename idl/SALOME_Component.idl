@@ -93,6 +93,8 @@ module Engines
     void set_directory_for_replay_files(in string directory);
     
     void set_number_of_retry(in long nbRetry);
+    
+    void set_timeout_before_retrying(in long timeInSecond);
 
     void set_current_directory(in string cwd);
 

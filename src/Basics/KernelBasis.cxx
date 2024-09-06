@@ -167,6 +167,10 @@ constexpr int DFT_SALOME_NB_RETRY = 1;
 
 static int SALOME_NB_RETRY = DFT_SALOME_NB_RETRY;
 
+constexpr int DFT_SALOME_PY_EXEC_TIMEOUT = -1;
+
+static int SALOME_PY_EXEC_TIMEOUT = DFT_SALOME_PY_EXEC_TIMEOUT;
+
 static bool SALOME_FW_CWD_STATUS = false;
 
 SALOME::BigObjTransferProtocol SALOME::FromIntToBigObjOnDiskProtocol(char protocol)
@@ -260,6 +264,16 @@ void SALOME::SetNumberOfRetry(int nbRetry)
 int SALOME::GetNumberOfRetry()
 {
   return SALOME_NB_RETRY;
+}
+
+void SALOME::SetExecutionTimeOut(int timeOutInSecond)
+{
+  SALOME_PY_EXEC_TIMEOUT = timeOutInSecond;
+}
+
+int SALOME::GetExecutionTimeOut()
+{
+  return SALOME_PY_EXEC_TIMEOUT;
 }
 
 static SALOME::PyExecutionMode DefaultPyExecMode = SALOME::PyExecutionMode::NotSet;
