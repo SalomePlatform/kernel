@@ -111,6 +111,12 @@ module Engines
     void removeAllVarsInContext() raises (SALOME::SALOME_Exception);
   } ;
 
+  interface ContextExchanger
+  {
+    SALOME::SenderByte getInputContext() raises (SALOME::SALOME_Exception);
+    void pushOutputContext( in SALOME::SenderByte ctx ) raises (SALOME::SALOME_Exception);
+  };
+
 };
 
 #endif

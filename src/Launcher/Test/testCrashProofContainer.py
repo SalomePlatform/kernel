@@ -26,6 +26,7 @@ import pylauncher
 import SALOME_PyNode
 import KernelBasis
 import SALOME
+from SALOME_PyNode import UnProxyObjectSimple,DecrRefInFile
 
 import tempfile
 import glob
@@ -91,6 +92,15 @@ if not os.path.exists( {!r} ):
 else:
     time.sleep( 2 )  # second exec after retry
 j = 44
+"""
+
+FunnyCase_test6 = """
+import numpy as np
+import time
+nb = i.shape[0]
+del i
+#time.sleep(10)
+j = np.zeros(shape=(2*nb,),dtype=np.float64) 
 """
 
 class testPerfLogManager1(unittest.TestCase):
@@ -277,6 +287,7 @@ class testPerfLogManager1(unittest.TestCase):
         KernelBasis.SetNumberOfRetry(2)
         KernelBasis.SetExecutionTimeOut(10) # <= Key Point is here
         KernelBasis.SetPyExecutionMode("OutOfProcessNoReplayFT") # Fail tolerant
+        salome.cm.SetBigObjOnDiskThreshold(1000)
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.chdir( tmpdirname )
             fnameFull = Path(tmpdirname) / fname # this file name will be used to voluntary prevent the first execution to return within 10 seconds. But for 2nd evaluation the execution will return within 10 secs.
@@ -301,6 +312,42 @@ class testPerfLogManager1(unittest.TestCase):
                 self.assertEqual( [elt[0] for elt in logInfoForCont[1][0].get().freestyle] , ['b4loadctx', 'afterloadctx', 'bforeexec', 'b4loadctx', 'afterloadctx', 'bforeexec', 'afterexec', 'strtdumpout', 'afterdump'] ) # <- aim of test is here. First 3 entries ('b4loadctx', 'afterloadctx', 'bforeexec') prove that first attempt fails to return within 10 sececonds as requested by KernelBasis.SetExecutionTimeOut(10)
                 pass
             pass
+        KernelBasis.SetExecutionTimeOut(-1)
+
+    def test6(self):
+        """
+        EDF30875 : test focusing on memory management in the context of OutOfProcessNoReplay using TCP/mem
+        """
+        import time
+        import numpy as np
+        import gc
+        szOfData = 125000000# 125 ktuples ~ 1GB
+        KernelBasis.SetPyExecutionMode("OutOfProcessNoReplay") # No replay -> corba channel
+        salome.cm.SetBigObjOnDiskThreshold(1)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( tmpdirname )
+            hostname = "localhost"
+            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test_6")
+            salome.cm.SetDirectoryForReplayFiles( str( tmpdirname ) )
+            KernelBasis.SetBigObjOnDiskDirectory( str( tmpdirname ) )
+            with salome.ContainerLauncherCM(cp,True) as cont:
+                poa = salome.orb.resolve_initial_references("RootPOA")
+                arr = np.zeros(shape=(szOfData,),dtype=np.float64) # 125 ktuples ~ 1GB
+                obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": arr} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+                del obj
+                gc.collect()
+                pyscript = cont.createPyScriptNode("testScript6",FunnyCase_test6)
+                pyscript.executeFirst(refPtr)
+                ret = pyscript.executeSecond(["j"])
+                pxy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() ) # receiving twice size of input -> 2 GB
+                ret0 = UnProxyObjectSimple( pxy ) # it's a proxy -> un proxyfy it
+                DecrRefInFile( pxy.getFileName() )
+                logging.debug(f"start to sleep...{os.getpid()}")
+                self.assertEqual( ret0.shape[0], 2*szOfData )
+                del ret0
+                gc.collect()
+                #time.sleep(10)
+
 
 if __name__ == '__main__':
     from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
