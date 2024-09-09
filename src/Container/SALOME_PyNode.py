@@ -858,11 +858,15 @@ class SeqByteReceiver:
 FinalCode = """import pickle
 from SALOME_PyNode import LogOfCurrentExecutionSession,MY_PERFORMANCE_LOG_ENTRY_IN_GLBS
 from SALOME_PyNode import ExchangeModeServerSideFactory
-from KernelBasis import VerbosityActivated
+from KernelBasis import VerbosityActivated,SetVerbosityLevel,SetVerbosityActivated
+from salome_utils import positionVerbosityOfLoggerRegardingState
 import CORBA
 import Engines
 import os
 from datetime import datetime
+SetVerbosityActivated( {} )
+SetVerbosityLevel( "{}" )
+positionVerbosityOfLoggerRegardingState()
 # WorkDir may be important to replay : "{}"
 orb = CORBA.ORB_init([''])
 caseDirectory = "{}"
@@ -1171,7 +1175,8 @@ sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       resFileName = exCtx.setOutputContextEntryPoint( dirForReplayFiles, "outcontextsafe_{}.pckl".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       mainExecFileName = os.path.join( dirForReplayFiles, "mainexecsafe_{}.py".format( RetrieveUniquePartFromPfx( codeFileName  ) ) )
       with open(mainExecFileName,"w") as f:
-        f.write( FinalCode.format( os.getcwd(), dirForReplayFiles, exchangeMode, codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
+        f.write( FinalCode.format( KernelBasis.VerbosityActivated() ,KernelBasis.VerbosityLevel(),
+                                  os.getcwd(), dirForReplayFiles, exchangeMode, codeFileName, contextFileName, resFileName, outargsname, iorScriptLog ) )
       timeOut = KernelBasis.GetExecutionTimeOut()
       nbRetry = KernelBasis.GetNumberOfRetry()
       logging.debug( "Nb retry = {}   Timout in seconds = {}".format( nbRetry, timeOut ) )
