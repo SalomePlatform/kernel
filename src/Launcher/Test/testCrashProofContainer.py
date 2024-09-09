@@ -84,10 +84,10 @@ k = os.getcwd()
 print("OKKKKKK3333")
 """
 
-FunnyCase = """import os
+FunnyCase_test5 = """import os
 import time
 if not os.path.exists( {!r} ):
-    time.sleep( 20 ) # first exec
+    time.sleep( 20 ) # first exec spend voluntary more than 10 seconds to test retry
 else:
     time.sleep( 2 )  # second exec after retry
 j = 44
@@ -269,7 +269,7 @@ class testPerfLogManager1(unittest.TestCase):
         from threading import Thread
         def func( fname ):
             import time
-            time.sleep( 5 )
+            time.sleep( 5 ) # this sleep here is to let time to 
             with open( fname, "w" ) as f:
                 f.write( "go" )
         # file used to pilot the behaviour of process
@@ -279,14 +279,14 @@ class testPerfLogManager1(unittest.TestCase):
         KernelBasis.SetPyExecutionMode("OutOfProcessNoReplayFT") # Fail tolerant
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.chdir( tmpdirname )
-            fnameFull = Path(tmpdirname) / fname
+            fnameFull = Path(tmpdirname) / fname # this file name will be used to voluntary prevent the first execution to return within 10 seconds. But for 2nd evaluation the execution will return within 10 secs.
             hostname = "localhost"
-            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test")
+            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test_5")
             salome.cm.SetDirectoryForReplayFiles( str( tmpdirname ) )
             with salome.ContainerLauncherCM(cp,True) as cont:
                 poa = salome.orb.resolve_initial_references("RootPOA")
                 obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
-                pyscript = cont.createPyScriptNode("testScript5",FunnyCase.format( fnameFull.as_posix() ))
+                pyscript = cont.createPyScriptNode("testScript5",FunnyCase_test5.format( fnameFull.as_posix() ))
                 t = Thread(target = func,args=[fnameFull.as_posix()])
                 t.start()
                 pyscript.executeFirst(refPtr)
@@ -295,11 +295,12 @@ class testPerfLogManager1(unittest.TestCase):
                 ret0 = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() )
                 self.assertEqual(ret0,44)
                 a = salome.logm.NaiveFetch()
-                #res = a[0][1][0]
-                #b = SALOME_ContainerHelper.ScriptExecInfoDeco(res,a[0][1]) print( a[0].log) 
-                # print( res.get().freestyle )
-                #print( [elt[0] for elt in res.get().freestyle] )
-                #self.assertEqual( [elt[0] for elt in res.get().freestyle], ['b4loadctx', 'afterloadctx', 'bforeexec', 'b4loadctx', 'afterloadctx', 'bforeexec', 'afterexec', 'strtdumpout', 'afterdump'] )
+                logInfoForCont = [elt for elt in a if "container_crash_test_5" in elt.ns_entry]
+                self.assertEqual( len(logInfoForCont), 1 )
+                logInfoForCont = logInfoForCont[0]
+                self.assertEqual( [elt[0] for elt in logInfoForCont[1][0].get().freestyle] , ['b4loadctx', 'afterloadctx', 'bforeexec', 'b4loadctx', 'afterloadctx', 'bforeexec', 'afterexec', 'strtdumpout', 'afterdump'] ) # <- aim of test is here. First 3 entries ('b4loadctx', 'afterloadctx', 'bforeexec') prove that first attempt fails to return within 10 sececonds as requested by KernelBasis.SetExecutionTimeOut(10)
+                pass
+            pass
 
 if __name__ == '__main__':
     from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
