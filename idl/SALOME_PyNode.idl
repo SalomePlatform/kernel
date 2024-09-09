@@ -114,7 +114,8 @@ module Engines
   interface ContextExchanger
   {
     SALOME::SenderByte getInputContext() raises (SALOME::SALOME_Exception);
-    void pushOutputContext( in SALOME::SenderByte ctx ) raises (SALOME::SALOME_Exception);
+    void pushOutputContext( in pickledArgs ctx ) raises (SALOME::SALOME_Exception);
+    void finishPushContext() raises (SALOME::SALOME_Exception);
   };
 
 };

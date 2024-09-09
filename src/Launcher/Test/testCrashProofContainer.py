@@ -103,6 +103,12 @@ del i
 j = np.zeros(shape=(2*nb,),dtype=np.float64) 
 """
 
+FunnyCase_test7 = """
+import numpy as np
+nb = i.shape[0]
+j = np.zeros(shape=(2*nb,),dtype=np.float64) 
+"""
+
 class testPerfLogManager1(unittest.TestCase):
     def test0(self):
         """
@@ -309,6 +315,7 @@ class testPerfLogManager1(unittest.TestCase):
                 logInfoForCont = [elt for elt in a if "container_crash_test_5" in elt.ns_entry]
                 self.assertEqual( len(logInfoForCont), 1 )
                 logInfoForCont = logInfoForCont[0]
+                self.assertTrue( logInfoForCont[1][0].startExecTime is not None )
                 self.assertEqual( [elt[0] for elt in logInfoForCont[1][0].get().freestyle] , ['b4loadctx', 'afterloadctx', 'bforeexec', 'b4loadctx', 'afterloadctx', 'bforeexec', 'afterexec', 'strtdumpout', 'afterdump'] ) # <- aim of test is here. First 3 entries ('b4loadctx', 'afterloadctx', 'bforeexec') prove that first attempt fails to return within 10 sececonds as requested by KernelBasis.SetExecutionTimeOut(10)
                 pass
             pass
@@ -347,6 +354,62 @@ class testPerfLogManager1(unittest.TestCase):
                 del ret0
                 gc.collect()
                 #time.sleep(10)
+
+    def test7(self):
+        """
+        [EDF30875] : Garanty that DirectoryForReplay is clean after execution.
+        """
+        import numpy as np
+        import gc
+        szOfData = 12000
+        KernelBasis.SetPyExecutionMode("OutOfProcessWithReplayFT")
+        salome.cm.SetBigObjOnDiskThreshold( 1 ) # enable proxy
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( tmpdirname )
+            hostname = "localhost"
+            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test_7")
+            salome.cm.SetDirectoryForReplayFiles( str( tmpdirname ) )
+            KernelBasis.SetBigObjOnDiskDirectory( str( tmpdirname ) )
+            with salome.ContainerLauncherCM(cp,True) as cont:
+                poa = salome.orb.resolve_initial_references("RootPOA")
+                arr = np.zeros(shape=(szOfData,),dtype=np.float64)
+                obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": arr} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+                gc.collect()
+                pyscript = cont.createPyScriptNode("testScript",FunnyCase_test7)
+                pyscript.executeFirst(refPtr)
+                ret = pyscript.executeSecond(["j"])
+                pxy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() ) # receiving twice size of input -> 2 GB
+                ret0 = UnProxyObjectSimple( pxy ) # it's a proxy -> un proxyfy it
+                DecrRefInFile( pxy.getFileName() )
+                self.assertEqual( len( os.listdir( str( tmpdirname ) ) ) , 0 ) # very important it must be clean
+
+    def test8(self):
+        """
+        [EDF30875] : same than test7 but with OutOfProcessWithReplay.
+        """
+        import numpy as np
+        import gc
+        szOfData = 12000
+        KernelBasis.SetPyExecutionMode("OutOfProcessWithReplay")
+        salome.cm.SetBigObjOnDiskThreshold( 1 ) # enable proxy
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( tmpdirname )
+            hostname = "localhost"
+            cp = pylauncher.GetRequestForGiveContainer(hostname,"container_crash_test_8")
+            salome.cm.SetDirectoryForReplayFiles( str( tmpdirname ) )
+            KernelBasis.SetBigObjOnDiskDirectory( str( tmpdirname ) )
+            with salome.ContainerLauncherCM(cp,True) as cont:
+                poa = salome.orb.resolve_initial_references("RootPOA")
+                arr = np.zeros(shape=(szOfData,),dtype=np.float64)
+                obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": arr} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
+                gc.collect()
+                pyscript = cont.createPyScriptNode("testScript",FunnyCase_test7)
+                pyscript.executeFirst(refPtr)
+                ret = pyscript.executeSecond(["j"])
+                pxy = pickle.loads( SALOME_PyNode.SeqByteReceiver(ret[0]).data() ) # receiving twice size of input -> 2 GB
+                ret0 = UnProxyObjectSimple( pxy ) # it's a proxy -> un proxyfy it
+                DecrRefInFile( pxy.getFileName() )
+                self.assertEqual( len( os.listdir( str( tmpdirname ) ) ) , 0 ) # very important it must be clean
 
 
 if __name__ == '__main__':

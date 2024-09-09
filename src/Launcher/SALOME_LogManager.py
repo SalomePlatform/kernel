@@ -45,16 +45,20 @@ class SALOME_ContainerScriptExecPerfLog:
     :param alreadyOnSiteBytes: pickle of instance of ScriptExecInfo of previous value (if any) [bytes]
     :param instanceRemoteBytes: pickle of current instance of ScriptExecInfo (if any) [bytes]
     """
+    instanceRemote = pickle.loads(instanceRemoteBytes)
     alreadyOnSite = None
     if len( alreadyOnSiteBytes ) > 0:
       alreadyOnSite = pickle.loads(alreadyOnSiteBytes)
-    instanceRemote = pickle.loads(instanceRemoteBytes)
     self._stop_pos = os.path.getsize( self.father.father.logfilename )
-    setattr(instanceRemote,"tracePosStop",self._stop_pos)
-    setattr(instanceRemote,"tracePosStart",self._start_pos)
     if alreadyOnSite:
-      instanceRemote.preappendFreestyle( alreadyOnSite._freestyle_log )
-    return pickle.dumps(instanceRemote)
+      setattr(alreadyOnSite,"tracePosStop",self._stop_pos)
+      setattr(alreadyOnSite,"tracePosStart",self._start_pos)
+      alreadyOnSite.appendFreestyle( instanceRemote._freestyle_log )
+      return pickle.dumps(alreadyOnSite)
+    else:
+      setattr(instanceRemote,"tracePosStop",self._stop_pos)
+      setattr(instanceRemote,"tracePosStart",self._start_pos)
+      return pickle.dumps(instanceRemote)
 
   def start(self):
     self._start_pos = os.path.getsize( self.father.father.logfilename )

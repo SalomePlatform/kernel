@@ -81,6 +81,9 @@ class ScriptExecInfo:
     def preappendFreestyle(self, value):
        self._freestyle_log = value + self._freestyle_log
 
+    def appendFreestyle(self, value):
+       self._freestyle_log += value
+
     @property
     def measureTimeResolution(self):
       return self._measure_time_resolution_ms

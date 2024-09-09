@@ -106,6 +106,11 @@ void WriteInStderr(const std::string& msg);
 
 %inline
 {
+void IncrementRefCounter( PyObject * obj )
+{
+  Py_XINCREF( obj );
+}
+
 PyObject *HeatMarcelSwig(double timeAjustment, unsigned int nbThreads = 0)
 {
   double timeInS = 0.0;
