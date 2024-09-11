@@ -17,8 +17,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import configparser
 import os
+import sys
+import configparser
+if sys.version_info[:2] >= (3,12):
+  from configparser import ConfigParser as SafeConfigParser
+else:
+  from configparser import SafeConfigParser
 import logging
 import re
 from io import StringIO
@@ -46,9 +51,9 @@ def _expandSystemVariables(key, val):
 #
 
 # :TRICKY: So ugly solution...
-class MultiOptSafeConfigParser(configparser.SafeConfigParser):
+class MultiOptSafeConfigParser(SafeConfigParser):
   def __init__(self):
-    configparser.SafeConfigParser.__init__(self)
+    SafeConfigParser.__init__(self)
 
   # copied from python 2.6.8 Lib.ConfigParser.py
   # modified (see code comments) to handle duplicate keys
