@@ -1042,7 +1042,7 @@ def ExchangeModeServerSideFactory( exchangeMode ):
   elif exchangeMode == "TCP":
     return ExchangeContextUsingTCP()
   else:
-    raise RuntimeError( "ExchangeModeServerSideFactory : {} not in [File,TCP]" )
+    raise RuntimeError( f"ExchangeModeServerSideFactory : {exchangeMode} not in [File,TCP]" )
 
 class ExchangeContextCltAbs(abc.ABC):
   def __init__(self):
@@ -1120,7 +1120,7 @@ def ExchangeModeCltSideFactory( exchangeMode, keepFilesToReplay ):
   elif exchangeMode == "TCP":
     return ExchangeContextUsingTCPClt()
   else:
-    raise RuntimeError( "ExchangeModeCltSideFactory : {} not in [File,TCP]" )
+    raise RuntimeError( f"ExchangeModeCltSideFactory : {exchangeMode} not in [File,TCP]" )
 
 def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfLogOfCurrentSession, keepFilesToReplay, closeEyesOnErrorAtExit):
   """
