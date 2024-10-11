@@ -71,7 +71,7 @@ module Engines
     */
     pickledArgs execute(in string functionName, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
 
-  } ;
+  };
 
   interface PyScriptNode : PyNodeBase
   {
@@ -118,6 +118,15 @@ module Engines
     void finishPushContext() raises (SALOME::SALOME_Exception);
   };
 
+  interface GlobalsHolder
+  {
+  /*!
+  Simply a key / val holder.
+  */
+    void setAttr(in string ctx, in pickledArgs glbsAttachedToCtx) raises (SALOME::SALOME_Exception);
+    pickledArgs getAttr(in string ctx) raises (SALOME::SALOME_Exception);
+    void execute(in listofstring args, out long returncode, out pickledArgs stdout, out pickledArgs stderr) raises (SALOME::SALOME_Exception);
+  };
 };
 
 #endif

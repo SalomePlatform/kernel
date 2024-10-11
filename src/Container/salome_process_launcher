@@ -1,0 +1,58 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (C) 2024  CEA, EDF
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+import signal
+import salome
+import sys
+import os
+
+salome.salome_init()
+
+proc = None
+
+def handler(signum, frame):
+  os.kill( proc.pid, signal.SIGKILL )
+
+from pathlib import Path
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-rdv","--rendz-vous",dest = "rdv", type=Path, help="Mandatory filename used as a rendez-vous file",required=True)
+parser.add_argument('rest', nargs=argparse.REMAINDER, help="Process to be launched. Attachable using salome_process_attach")
+args = parser.parse_args()
+if args.rest[0] != "--":
+    raise RuntimeError("You have to preappend -- before commande to be launched")
+args.rest = args.rest[1:]
+salome.naming_service.DumpIORInFile( args.rdv )
+
+signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGTERM, handler)
+import subprocess as sp
+proc = sp.Popen(args.rest ,cwd = os.getcwd())
+from SALOME_GlobalsImpl import SALOME_GlobalsImpl
+glbs = SALOME_GlobalsImpl()
+import pickle
+glbs.setAttr("CTX0",pickle.dumps({"pid":proc.pid}))
+poa = salome.orb.resolve_initial_references("RootPOA")
+id_o = poa.activate_object(glbs)
+refPtr = poa.id_to_reference(id_o)
+salome.naming_service.Register(refPtr,"PID_TO_TRACK")
+proc.communicate()
+sys.exit( proc.returncode )
