@@ -22,7 +22,10 @@ import os
 import sys
 import logging
 import configparser
-
+if sys.version_info[:2] >= (3,12):
+  from configparser import ConfigParser as SafeConfigParser
+else:
+  from configparser import SafeConfigParser
 from parseConfigFile import parseConfigFile
 
 import tempfile
@@ -542,7 +545,7 @@ class SalomeContext:
   #
 
   def _showSoftwareVersions(self, softwares=None):
-    config = configparser.SafeConfigParser()
+    config = SafeConfigParser()
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
     filename = os.path.join(absoluteAppliPath, "sha1_collections.txt")
     versions = {}
