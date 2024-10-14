@@ -125,7 +125,7 @@ module Engines
   */
     void setAttr(in string ctx, in pickledArgs glbsAttachedToCtx) raises (SALOME::SALOME_Exception);
     pickledArgs getAttr(in string ctx) raises (SALOME::SALOME_Exception);
-    void execute(in listofstring args, out long returncode, out pickledArgs stdout, out pickledArgs stderr) raises (SALOME::SALOME_Exception);
+    void execute(in listofstring args, out long returnCode, out pickledArgs standardOutput, out pickledArgs standardError) raises (SALOME::SALOME_Exception);
   };
 };
 
