@@ -170,9 +170,9 @@ void F_FUNC(cplin,CPLIN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
 
-#if   !SIZEOF_INT
-#error "The macro SIZEOF_INT must be defined."
-#elif SIZEOF_INT == 4
+#if   !SIZEOF_INT && !OMNI_SIZEOF_INT
+#error "The macro SIZEOF_INT or OMNI_SIZEOF_INT must be defined."
+#elif (SIZEOF_INT && SIZEOF_INT == 4) || (OMNI_SIZEOF_INT && OMNI_SIZEOF_INT == 4)
   *err=cp_lin_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
 #else
   fprintf(stderr,"End of CPLIN: %s : Can't use fortran INTEGER*4 because int C is not 32bits long on this machine.\n",
@@ -185,9 +185,9 @@ void F_FUNC(cpllg,CPLLG)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
             cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-#if   !SIZEOF_LONG
-#error "The macro SIZEOF_LONG must be defined."
-#elif SIZEOF_LONG == 8
+#if   !SIZEOF_LONG && !OMNI_SIZEOF_LONG
+#error "The macro SIZEOF_LONG or OMNI_SIZEOF_LONG must be defined."
+#elif (SIZEOF_LONG && SIZEOF_LONG == 8) || (OMNI_SIZEOF_LONG && OMNI_SIZEOF_LONG == 8)
   *err=cp_llg_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
 #else
   fprintf(stderr,"End of CPLLG: %s : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
@@ -200,9 +200,9 @@ void F_FUNC(cplln,CPLLN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
                                     cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom))
 {
  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-#if   !SIZEOF_LONG
-#error "The macro SIZEOF_LONG must be defined."
-#elif SIZEOF_LONG == 8
+#if   !SIZEOF_LONG && !OMNI_SIZEOF_LONG
+#error "The macro SIZEOF_LONG or OMNI_SIZEOF_LONG must be defined."
+#elif (SIZEOF_LONG && SIZEOF_LONG == 8) || (OMNI_SIZEOF_LONG && OMNI_SIZEOF_LONG == 8)
   *err=cp_lln_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
 #else
   fprintf(stderr,"End of CPLLN: %s : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
@@ -384,9 +384,9 @@ void F_FUNC(cpein,CPEIN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   float tti=0.;
   if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-#if   !SIZEOF_INT
-#error "The macro SIZEOF_INT must be defined."
-#elif SIZEOF_INT == 4
+#if   !SIZEOF_INT && !OMNI_SIZEOF_INT
+#error "The macro SIZEOF_INT or OMNI_SIZEOF_INT must be defined."
+#elif (SIZEOF_INT && SIZEOF_INT == 4) || (OMNI_SIZEOF_INT && OMNI_SIZEOF_INT == 4)
   *err=cp_ein_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
 #else
   fprintf(stderr,"CPEIN: %s %f %d : Can't use fortran INTEGER*4 because int C is not 32bits long on this machine.\n",
@@ -400,9 +400,9 @@ void F_FUNC(cpelg,CPELG)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   float tti=0.;
   if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-#if   !SIZEOF_LONG
-#error "The macro SIZEOF_LONG must be defined."
-#elif SIZEOF_LONG == 8
+#if   !SIZEOF_LONG && !OMNI_SIZEOF_LONG
+#error "The macro SIZEOF_LONG or OMNI_SIZEOF_LONG must be defined."
+#elif (SIZEOF_LONG && SIZEOF_LONG == 8) || (OMNI_SIZEOF_LONG && OMNI_SIZEOF_LONG == 8)
   *err=cp_elg_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
 #else
   fprintf(stderr,"CPELG: %s %f %d : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
@@ -416,9 +416,9 @@ void F_FUNC(cpeln,CPELN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   float tti=0.;
   if(*dep == CP_TEMPS)tti=*ti;
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
-#if   !SIZEOF_LONG
-#error "The macro SIZEOF_LONG must be defined."
-#elif SIZEOF_LONG == 8
+#if   !SIZEOF_LONG && !OMNI_SIZEOF_LONG
+#error "The macro SIZEOF_LONG or OMNI_SIZEOF_LONG must be defined."
+#elif (SIZEOF_LONG && SIZEOF_LONG == 8) || (OMNI_SIZEOF_LONG && OMNI_SIZEOF_LONG == 8)
   *err=cp_eln_fort_((void *)*compo,*dep,tti,*iter,cnom,*n,tab);
 #else
   fprintf(stderr,"CPELN: %s %f %d : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
