@@ -16,14 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __KERNELSERVICES_HXX__
-#define __KERNELSERVICES_HXX__
+
+#pragma once
 
 #include <string>
 
 void RegisterCompoInternal(const std::string& compoName, const std::string& compoIOR);
 std::string RetrieveCompoInternal(const std::string& compoName);
 void GenerateViolentMemoryFaultForTestPurpose();
+void GenerateDeadLockForTestPurpose();
 void EntryForDebuggerBreakPoint();
-
-#endif

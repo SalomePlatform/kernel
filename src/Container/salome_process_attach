@@ -23,22 +23,40 @@
 # -x script.gdb
 # -nx to skip .gdbinit
 
-def GetRendezVous():
-  import sys
-  if len( sys.argv ) != 3:
-      raise RuntimeError("salome_process_attach have to take a rendez-vous file and gdb script")
-  return sys.argv[1],sys.argv[2]
+from pathlib import Path
 
-import salome
-salome.salome_init()
-rdv,gdbfile = GetRendezVous()
-remoteNS = salome.naming_service.LoadIORInFile(rdv)
-remoteGlbs = salome.orb.string_to_object( remoteNS.Resolve("PID_TO_TRACK").decode() )
-import pickle
-pidToTrack = pickle.loads( remoteGlbs.getAttr("CTX0") )["pid"]
-returncode, stdout, stderr = remoteGlbs.execute(["gdb","-batch","-x",gdbfile,"attach",str(pidToTrack)])
-st = f"""returnCode = {returncode}
-stdout = {stdout.decode()}
-stderr = {stderr.decode()}
-"""
-print(st)
+def main():
+  DFT_PID_VALUE = -1
+
+  import argparse
+  from pathlib import Path
+  import salome
+  salome.salome_init()
+  parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description = "To be used in association of a process launched nested inside a salome_process_launcher session.")
+  parser.add_argument("rendez_vous_file", type=Path, help="Rendez vous file specified in corresponding salome_process_launcher.")
+  parser.add_argument("gdb_cmds_file", type=Path, help="GDB commands to be executed remotely.")
+  parser.add_argument("--pid", dest="pid_to_track", type=int, default=DFT_PID_VALUE, help="PID of process, the debugger will be attached on ( typically a son or a little son process of process whose PID is registred inside salome_process_launcher process)")
+  args = parser.parse_args()
+  rdv, gdbfile = args.rendez_vous_file, args.gdb_cmds_file
+  if not rdv.exists():
+    raise RuntimeError(f"Rendez-vous file {rdv} does not exist !")
+  gdbfile = gdbfile.absolute()
+  if not gdbfile.exists():
+    raise RuntimeError(f"GDB commands file {gdbfile} does not exist !")
+  gdbfile = gdbfile.absolute()
+  remoteNS = salome.naming_service.LoadIORInFile(f"{rdv}")
+  remoteGlbs = salome.orb.string_to_object( remoteNS.Resolve("PID_TO_TRACK").decode() )
+  import pickle
+  pidToTrack = pickle.loads( remoteGlbs.getAttr("CTX0") )["pid"]
+  if args.pid_to_track != DFT_PID_VALUE:
+    pidToTrack = args.pid_to_track
+  print(f"PID tracked : {pidToTrack}")
+  returncode, stdout, stderr = remoteGlbs.execute(["gdb","-batch","-x",f"{gdbfile}","attach",str(pidToTrack)])
+  st = f"""returnCode = {returncode}
+  stdout = {stdout.decode()}
+  stderr = {stderr.decode()}
+  """
+  print(st)
+
+if __name__ == "__main__":
+  main()
