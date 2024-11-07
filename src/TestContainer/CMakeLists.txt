@@ -41,16 +41,7 @@ SET(SalomeTestComponentEngine_SOURCES
 )
 
 SET(COMMON_LIBS
-  ArgvKeeper
-  SalomeContainer
-  Registry
-  SalomeNotification
-  SalomeResourcesManager
-  SalomeNS
-  SALOMELocalTrace
   SALOMEBasics
-  SalomeGenericObj
-  SalomeIDLKernel
 )
 
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
@@ -61,10 +52,10 @@ TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
 INSTALL(TARGETS SalomeTestComponentEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(TestLogger TestLogger.cxx)
-TARGET_LINK_LIBRARIES(TestLogger SalomeTestComponentEngine SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(TestLogger SALOMELocalTrace ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 ADD_EXECUTABLE(TestContainer TestContainer.cxx)
-TARGET_LINK_LIBRARIES(TestContainer SalomeTestComponentEngine SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(TestContainer SalomeContainer ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 INSTALL(TARGETS TestLogger TestContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
 
