@@ -23,7 +23,69 @@
 # -x script.gdb
 # -nx to skip .gdbinit
 
-from pathlib import Path
+def defaultGDBExecutionStrRepresentation(returncode, stdout, stderr):
+  return f"""returnCode = {returncode}
+stdout = {stdout.decode()}
+stderr = {stderr.decode()}
+"""
+
+def dealWithBacktraceAllThreads(remoteGlbs, pid, outFileStoringBt):
+  idiotPattern = "@@@@"
+
+  # voluntarary do not decrement len by one just to be sure to not forget one thread
+  gdbFileForNbThreads = f"""i threads
+python print("{idiotPattern}"+str( len(gdb.execute("i threads", to_string=True).splitlines())) )
+"""
+
+  gdbFileForBtOfThread = """thread {}
+bt
+"""
+
+  def RetrieveNbThreadsFromOutput( output ):
+    import re
+    pat = re.compile( "^{}([\d]+)$".format(idiotPattern) )
+    f = [elt for elt in output.split("\n") if pat.match(elt)]
+    if len(f) != 1:
+      raise RuntimeError(f"Fail to detect nb Threads in process with PID = {pid}")
+    nbThreads = int( pat.match(f[0]).group(1) )
+    return nbThreads
+
+  def RetrieveTraceOfThread(remoteGlbs, pid, threadIdInGdbNumberingFrmt, outFileStoringBt):
+    print(f"storing bt of thread {threadIdInGdbNumberingFrmt} into file {outFileStoringBt}")
+    with tempfile.NamedTemporaryFile(prefix=f"thread_{threadIdInGdbNumberingFrmt}_",suffix=".gdb",mode="w") as f:
+      f.write( gdbFileForBtOfThread.format(threadIdInGdbNumberingFrmt) )
+      f.flush()
+      returncode, stdout, stderr = remoteGlbs.execute(["gdb","-batch","-x",f"{f.name}","attach",str(pid)])
+    with open(outFileStoringBt,"a") as f:
+      f.write( "{}\n{}\n{}\n".format(100*"#",f"Backtrace of thread #{threadIdInGdbNumberingFrmt}",100*"#") )
+      f.write( defaultGDBExecutionStrRepresentation(returncode, stdout, stderr) )
+
+  import tempfile
+  with open(outFileStoringBt,"w") as f:
+    f.write( "{}\n{}\n{}\n".format(100*"#",f"Detection of number of threads in process PID = {pid}",100*"#") )
+  with tempfile.NamedTemporaryFile(prefix="nb_threads_",suffix=".gdb",mode="w") as f:
+    f.write( gdbFileForNbThreads )
+    f.flush()
+    returncode, stdout, stderr = remoteGlbs.execute(["gdb","-batch","-x",f"{f.name}","attach",str(pid)])
+  with open(outFileStoringBt,"a") as f:
+    f.write( defaultGDBExecutionStrRepresentation(returncode, stdout, stderr) )
+  nbThreads = RetrieveNbThreadsFromOutput( stdout.decode() )
+  print(f"Nb threads detected in process with PID {pid} : {nbThreads}")
+  with open(outFileStoringBt,"a") as f:
+    f.write( "{}\n{}\n{}\n".format(100*"#",f"Number of threads detected = {nbThreads}",100*"#") )
+  for threadId in range(1,nbThreads+1):
+    RetrieveTraceOfThread(remoteGlbs, pid, threadId, outFileStoringBt)
+  pass
+
+def dealStandard(remoteGlbs, pid, gdbfile):
+  gdbfile = gdbfile.absolute()
+  if not gdbfile.exists():
+    raise RuntimeError(f"GDB commands file {gdbfile} does not exist !")
+  print(f"PID tracked : {pid}")
+  print(f"GDB file : {gdbfile}")
+  returncode, stdout, stderr = remoteGlbs.execute(["gdb","-batch","-x",f"{gdbfile}","attach",str(pid)])
+  st = defaultGDBExecutionStrRepresentation(returncode, stdout, stderr)
+  print(st)
 
 def main():
   DFT_PID_VALUE = -1
@@ -34,29 +96,27 @@ def main():
   salome.salome_init()
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description = "To be used in association of a process launched nested inside a salome_process_launcher session.")
   parser.add_argument("rendez_vous_file", type=Path, help="Rendez vous file specified in corresponding salome_process_launcher.")
-  parser.add_argument("gdb_cmds_file", type=Path, help="GDB commands to be executed remotely.")
+  parser.add_argument("-gcf","--gdb-cmds-file", dest="gdb_cmds_file", type=Path, default=None, help="GDB commands to be executed remotely.")
   parser.add_argument("--pid", dest="pid_to_track", type=int, default=DFT_PID_VALUE, help="PID of process, the debugger will be attached on ( typically a son or a little son process of process whose PID is registred inside salome_process_launcher process)")
+  parser.add_argument("-abt","--backtrace-all-threads", dest ="backtrace_all_threads", default=None, help = "Specify backtrace log file to be written that will contain backtrace of all threads of target process. If activated gdb_cmds_file is ignored.", type=Path) # action='store_true'
   args = parser.parse_args()
   rdv, gdbfile = args.rendez_vous_file, args.gdb_cmds_file
   if not rdv.exists():
     raise RuntimeError(f"Rendez-vous file {rdv} does not exist !")
-  gdbfile = gdbfile.absolute()
-  if not gdbfile.exists():
-    raise RuntimeError(f"GDB commands file {gdbfile} does not exist !")
-  gdbfile = gdbfile.absolute()
+  if args.backtrace_all_threads and args.gdb_cmds_file:
+    parser.error("Argument gdb_cmds_file is not required when --backtrace-all-threads is set.")
+  if not args.backtrace_all_threads and not args.gdb_cmds_file:
+    parser.error("Argument -gcf is required when -abt is not set.")
   remoteNS = salome.naming_service.LoadIORInFile(f"{rdv}")
   remoteGlbs = salome.orb.string_to_object( remoteNS.Resolve("PID_TO_TRACK").decode() )
   import pickle
   pidToTrack = pickle.loads( remoteGlbs.getAttr("CTX0") )["pid"]
   if args.pid_to_track != DFT_PID_VALUE:
     pidToTrack = args.pid_to_track
-  print(f"PID tracked : {pidToTrack}")
-  returncode, stdout, stderr = remoteGlbs.execute(["gdb","-batch","-x",f"{gdbfile}","attach",str(pidToTrack)])
-  st = f"""returnCode = {returncode}
-  stdout = {stdout.decode()}
-  stderr = {stderr.decode()}
-  """
-  print(st)
+  if args.backtrace_all_threads:
+    dealWithBacktraceAllThreads(remoteGlbs,pidToTrack,args.backtrace_all_threads)
+  else:
+    dealStandard(remoteGlbs,pidToTrack,gdbfile)
 
 if __name__ == "__main__":
   main()
