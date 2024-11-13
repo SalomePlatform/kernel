@@ -44,6 +44,20 @@ SET(COMMON_LIBS
   SALOMEBasics
 )
 
+IF(WIN32)
+  LIST (APPEND COMMON_LIBS
+     ArgvKeeper
+     SalomeContainer
+     Registry
+     SalomeNotification
+     SalomeResourcesManager
+     SalomeNS
+     SALOMELocalTrace
+     SalomeGenericObj
+     SalomeIDLKernel
+     SalomeTestComponentEngine
+  )
+ENDIF(WIN32)
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})
