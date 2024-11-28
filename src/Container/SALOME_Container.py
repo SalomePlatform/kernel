@@ -71,7 +71,8 @@ class SALOME_Container_Abstract_i(abc.ABC):
           # shouldn't be needed after python 3.8
           # see https://bugs.python.org/issue32573
           argv = ['']
-        logging.debug("Instanciation of {} PID = {}".format(containerName,os.getpid()))
+        if VerbosityActivated():
+          logging.debug("Instanciation of {} PID = {}".format(containerName,os.getpid()))
         self._orb = CORBA.ORB_init(argv, CORBA.ORB_ID)
         self._poa = self._orb.resolve_initial_references("RootPOA")
         self._containerName = containerName
