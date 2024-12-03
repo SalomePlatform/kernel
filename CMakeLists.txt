@@ -120,6 +120,17 @@ IF(SALOME_BUILD_DOC)
   SALOME_LOG_OPTIONAL_PACKAGE(Sphinx SALOME_BUILD_DOC)
 ENDIF()
 
+# Find SalomeBootstrap
+# ===========
+SET(SALOMEBOOTSTRAP_ROOT_DIR $ENV{SALOMEBOOTSTRAP_ROOT_DIR} CACHE PATH "Path to the Salome Bootstrap")
+IF(EXISTS ${SALOMEBOOTSTRAP_ROOT_DIR})
+  FIND_PACKAGE(SalomeBootstrap REQUIRED)
+  ADD_DEFINITIONS(${SALOMEBOOTSTRAP_DEFINITIONS})
+  INCLUDE_DIRECTORIES(${SALOMEBOOTSTRAP_INCLUDE_DIRS})
+ELSE(EXISTS ${SALOMEBOOTSTRAP_ROOT_DIR})
+  MESSAGE(FATAL_ERROR "We absolutely need a Salome Bootstrap, please define SALOMEBOOTSTRAP_ROOT_DIR")
+ENDIF(EXISTS ${SALOMEBOOTSTRAP_ROOT_DIR})
+
 # Detection summary:
 SALOME_PACKAGE_REPORT_AND_CHECK()
 
@@ -213,7 +224,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
 SET(_${PROJECT_NAME}_exposed_targets
-  SALOMELog SALOMEBasics ArgvKeeper SALOMELocalTrace SalomeHDFPersist OpUtil)
+  ArgvKeeper SalomeHDFPersist OpUtil)
 
 # CORBA specific targets:
 IF(NOT SALOME_LIGHT_ONLY)
@@ -242,7 +253,7 @@ ENDIF()
 
 # Test targets:
 IF(SALOME_BUILD_TESTS)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets SALOMELocalTraceTest UnitTests)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets UnitTests)
   IF(NOT SALOME_LIGHT_ONLY)
     LIST(APPEND _${PROJECT_NAME}_exposed_targets
       SALOMETraceCollectorTest UtilsTest NamingServiceTest SalomeTestComponentEngine

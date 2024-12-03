@@ -26,8 +26,6 @@ INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
@@ -61,6 +59,7 @@ SET(COMMON_LIBS
   OpUtil
   SALOMELocalTrace
   SALOMEBasics
+  KERNELBasics
   SalomeHDFPersist
   SalomeGenericObj
   SalomeIDLKernel
@@ -95,12 +94,14 @@ SET(SalomeContainer_SOURCES
 )
 
 ADD_LIBRARY(SalomeContainer ${SalomeContainer_SOURCES})
+ADD_DEPENDENCIES(SalomeContainer SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(SalomeContainer ${COMMON_LIBS} ${PTHREAD_LIBRARIES})
 INSTALL(TARGETS SalomeContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 SET(SALOME_Container_LIBS
   SalomeContainer
   SALOMEBasics
+  KERNELBasics
   ${COMMON_LIBS}
   ${HDF5_LIBRARIES}
   ${MPI_LIBRARIES}
