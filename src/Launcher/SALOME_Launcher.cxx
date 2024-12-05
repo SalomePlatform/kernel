@@ -633,6 +633,7 @@ SALOME_Launcher::JobParameters_CORBA2CPP(
 
   result.queue = job_parameters.queue.in();
   result.partition = job_parameters.partition.in();
+  result.verbose_py_log_level = job_parameters.verbose_py_log_level.in();
   result.exclusive = job_parameters.exclusive;
   result.mem_per_cpu = job_parameters.mem_per_cpu;
   result.wckey = job_parameters.wckey.in();
@@ -682,6 +683,7 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
 
   result->queue = CORBA::string_dup(job_parameters.queue.c_str());
   result->partition = CORBA::string_dup(job_parameters.partition.c_str());
+  result->verbose_py_log_level = CORBA::string_dup(job_parameters.verbose_py_log_level.c_str());
   result->exclusive = job_parameters.exclusive;
   result->mem_per_cpu = job_parameters.mem_per_cpu;
   result->wckey = CORBA::string_dup(job_parameters.wckey.c_str());

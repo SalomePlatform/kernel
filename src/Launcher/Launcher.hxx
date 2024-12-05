@@ -59,6 +59,7 @@ struct LAUNCHER_EXPORT JobParameters_cpp
   resourceParams resource_required;
   std::string queue;
   std::string partition;
+  std::string verbose_py_log_level;
   bool exclusive;
   unsigned int mem_per_cpu;
   std::string wckey;

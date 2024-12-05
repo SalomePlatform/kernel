@@ -84,6 +84,7 @@ namespace Launcher
       void setWCKey(const std::string & wckey);
       void setExtraParams(const std::string & extra_params);
       void setReference(const std::string & reference);
+      void setVerbosePyLogLevel(const std::string& verbosePyLogLevel);
       // For COORM
       void setLauncherFile(const std::string & launcher_file);
       void setLauncherArgs(const std::string & launcher_args);
@@ -109,6 +110,7 @@ namespace Launcher
       std::string getWCKey() const;
       std::string getExtraParams() const;
       std::string getReference() const;
+      std::string getVerbosePyLogLevel() const;
 
       // For COORM
       std::string getLauncherFile() const;
@@ -169,6 +171,7 @@ namespace Launcher
       std::string _wckey;
       std::string _extra_params;
       std::string _reference; //! Reference of the job for the batch manager
+      std::string _verbose_py_log_level; //! same semantics than driver --verbose_level
 
       // Parameters for COORM
       std::string _launcher_file;

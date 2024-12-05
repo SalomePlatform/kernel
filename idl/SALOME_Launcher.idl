@@ -147,6 +147,11 @@ struct JobParameters
   */
   string partition;
 
+  /*!
+   * steer verbose level of log level of python executed inside SALOME_Containers
+   */
+  string verbose_py_log_level;
+
   //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
   boolean exclusive;
 

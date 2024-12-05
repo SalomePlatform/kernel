@@ -50,6 +50,8 @@ Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_s
       launch_script_stream << _resource_definition.AppliPath << " shell -- driver " << _job_file_name_complete;
   else
       launch_script_stream << _resource_definition.AppliPath << "/salome shell -- driver " << _job_file_name_complete;
+  if ( !_verbose_py_log_level.empty() )
+    launch_script_stream << " --verbose" << " --verbose-level=" << _verbose_py_log_level;
   if (_dumpState > 0)
     launch_script_stream << " --dump=" << _dumpState;
   if(! _yacsDriverOptions.empty())

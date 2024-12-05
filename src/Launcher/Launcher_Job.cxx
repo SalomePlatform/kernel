@@ -374,6 +374,11 @@ Launcher::Job::setReference(const std::string & reference)
   _reference = reference;
 }
 
+void Launcher::Job::setVerbosePyLogLevel(const std::string &verbosePyLogLevel)
+{
+  _verbose_py_log_level = verbosePyLogLevel;
+}
+
 std::string
 Launcher::Job::getWorkDirectory() const
 {
@@ -474,6 +479,11 @@ std::string
 Launcher::Job::getReference() const
 {
   return _reference;
+}
+
+std::string Launcher::Job::getVerbosePyLogLevel() const
+{
+  return _verbose_py_log_level;
 }
 
 void

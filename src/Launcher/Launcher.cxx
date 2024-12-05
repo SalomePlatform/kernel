@@ -156,6 +156,7 @@ Launcher_cpp::createJob(const JobParameters_cpp& job_parameters)
   new_job->setMaximumDuration(job_parameters.maximum_duration);
   new_job->setQueue(job_parameters.queue);
   new_job->setPartition(job_parameters.partition);
+  new_job->setVerbosePyLogLevel(job_parameters.verbose_py_log_level);
   new_job->setExclusive(job_parameters.exclusive);
   new_job->setMemPerCpu(job_parameters.mem_per_cpu);
   new_job->setWCKey(job_parameters.wckey);
