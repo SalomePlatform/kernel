@@ -19,6 +19,8 @@
 
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
+  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
@@ -44,7 +46,6 @@ SET(COMMON_LIBS
   OpUtil
   SALOMELocalTrace
   SALOMEBasics
-  KERNELBasics
   SalomeContainer
   SalomeMPIContainer
   SalomeGenericObj

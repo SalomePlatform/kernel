@@ -30,7 +30,6 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/NamingService
   ${PROJECT_SOURCE_DIR}/src/Utils
   ${PROJECT_BINARY_DIR}/idl
-  ${SALOMEBOOTSTRAP_INCLUDE_DIRS}
 )
 
 SET(SalomeDSCContainer_SOURCES
@@ -55,7 +54,6 @@ SET(SALOME_ConnectionManagerServer_LIBS
   SalomeIDLKernel
   SalomeNS
   SALOMELocalTrace
-  SALOMEException
   SalomeContainer 
   ${OMNIORB_LIBRARIES}
 )

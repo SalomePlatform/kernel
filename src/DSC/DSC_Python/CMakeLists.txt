@@ -39,6 +39,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
   ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Basic
   ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
   ${PROJECT_SOURCE_DIR}/src/Basics
   ${PROJECT_SOURCE_DIR}/src/Utils
   ${PROJECT_SOURCE_DIR}/src/Container

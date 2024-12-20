@@ -20,6 +20,8 @@
 SET(SUBDIR_BASE
   ArgvKeeper
   AppQuickStart
+  Basics
+  SALOMELocalTrace
   HDFPersist
   KERNEL_PY
   Utils
@@ -57,6 +59,11 @@ SET(SUBDIR_CORBA
 SET(SUBDIR_MPI MPIContainer TestMPIContainer)
 SET(SUBDIR_PARALLEL ParallelContainer)
 
+# CppUnit directories:
+SET(SUBDIR_CPPUNIT_BASE
+  Basics/Test
+  SALOMELocalTrace/Test
+)
 SET(SUBDIR_CPPUNIT_CORBA
   Logger/Test
   SALOMETraceCollector/Test

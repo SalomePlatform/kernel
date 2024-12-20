@@ -26,6 +26,7 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/ArgvKeeper
   ${PROJECT_SOURCE_DIR}/src/Container
   ${PROJECT_SOURCE_DIR}/src/Notification
+  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
   ${PROJECT_SOURCE_DIR}/src/Basics
   ${PROJECT_SOURCE_DIR}/src/NamingService
   ${PROJECT_SOURCE_DIR}/src/Registry
@@ -43,7 +44,6 @@ SET(COMMON_LIBS
   SalomeNS
   SALOMELocalTrace
   SALOMEBasics
-  KERNELBasics
   SalomeHDFPersist
   SalomeParallelIDLKernel
   SalomeIDLKernel

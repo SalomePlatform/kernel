@@ -19,6 +19,7 @@
 
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
@@ -41,8 +42,6 @@ SET(SalomeTestComponentEngine_SOURCES
 
 SET(COMMON_LIBS
   SALOMEBasics
-  KERNELBasics
-  SalomeIDLKernel
 )
 
 IF(WIN32)
@@ -62,7 +61,6 @@ ENDIF(WIN32)
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})
-ADD_DEPENDENCIES(SalomeTestComponentEngine SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
 
 INSTALL(TARGETS SalomeTestComponentEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})

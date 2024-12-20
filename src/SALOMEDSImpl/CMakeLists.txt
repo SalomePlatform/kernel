@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(
   ${HDF5_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
   ${CMAKE_CURRENT_SOURCE_DIR}/../DF
@@ -33,7 +34,6 @@ ADD_DEFINITIONS(${BOOST_DEFINITIONS})
 # This local variable defines the list of dependent libraries common to all target in this package.  
 SET(COMMON_LIBS
   SALOMEBasics
-  KERNELBasics
   SalomeHDFPersist
   DF
   ${HDF5_C_LIBRARIES}
