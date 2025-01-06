@@ -30,8 +30,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   )
 
 # SWIG module name differs from file name - avoid unnecessary rebuild: 

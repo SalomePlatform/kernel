@@ -23,15 +23,11 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../../NamingService
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/../../LifeCycleCORBA
   ${PROJECT_BINARY_DIR}/idl
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Utils/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics/Test
 )
 
 # This local variable defines the list of dependent libraries common to all target in this package.
@@ -59,6 +55,7 @@ SET(TestNamingService_LIBS
   UtilsTest
   OpUtil
   SALOMEBasics
+  KERNELBasics
   SalomeIDLKernel
   ${COMMON_LIBS}
 )

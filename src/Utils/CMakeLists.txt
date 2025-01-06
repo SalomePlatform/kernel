@@ -22,8 +22,6 @@ IF(NOT SALOME_LIGHT_ONLY)
   INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
     ${PROJECT_BINARY_DIR}/idl
     ${OMNIORB_INCLUDE_DIR}
     ${PTHREAD_INCLUDE_DIR}
@@ -41,7 +39,6 @@ IF(NOT SALOME_LIGHT_ONLY)
     Utils_Timer.cxx
     duplicate.cxx
     Utils_CommException.cxx
-    Utils_SALOME_Exception.cxx
     Utils_Identity.cxx
     Utils_ORB_INIT.cxx
     Utils_DESTRUCTEUR_GENERIQUE.cxx
@@ -56,8 +53,6 @@ ELSE()
   INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
     ${PTHREAD_INCLUDE_DIR}
     ${PROJECT_BINARY_DIR}/salome_adm
   )
@@ -67,11 +62,10 @@ ELSE()
     ${PTHREAD_LIBRARIES}
   )
   SET(OpUtil_SOURCES
-    Utils_SALOME_Exception.cxx
     duplicate.cxx
     OpUtil.cxx
   )  
-  SET(COMMON_HEADERS_HXX Utils_SALOME_Exception.hxx OpUtil.hxx)
+  SET(COMMON_HEADERS_HXX OpUtil.hxx)
   
 ENDIF()
 

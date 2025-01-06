@@ -22,10 +22,6 @@ INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../NamingService
@@ -43,6 +39,7 @@ INCLUDE_DIRECTORIES(
 SET(COMMON_LIBS
   ${CPPUNIT_LIBRARIES}
   SALOMEBasics
+  KERNELBasics
   SalomeResourcesManager
   SalomeContainer
   SalomeNS

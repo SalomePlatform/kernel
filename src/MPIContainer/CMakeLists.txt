@@ -24,7 +24,6 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
   ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
@@ -45,6 +44,7 @@ SET(COMMON_LIBS
   OpUtil
   SALOMELocalTrace
   SALOMEBasics
+  KERNELBasics
   SalomeContainer
   SalomeGenericObj
   SalomeIDLKernel

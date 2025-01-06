@@ -22,10 +22,8 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/Basics/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/..
   ${PROJECT_SOURCE_DIR}/src/NamingService
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
   ${PROJECT_SOURCE_DIR}/src/Basics
   ${PROJECT_SOURCE_DIR}/src/Utils
   ${PROJECT_SOURCE_DIR}/src/LifeCycleCORBA
@@ -42,6 +40,7 @@ SET(SalomeKernelHelpersTest_LIBS
   SalomeNS
   SALOMELocalTrace
   SALOMEBasics
+  KERNELBasics
   OpUtil
   SalomeLifeCycleCORBA
   SalomeContainer
