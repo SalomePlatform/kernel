@@ -32,6 +32,7 @@ IF(NOT SALOME_LIGHT_ONLY)
     ArgvKeeper
     SALOMELocalTrace 
     SalomeIDLKernel 
+    SALOMEException
     ${OMNIORB_LIBRARIES} 
     ${PTHREAD_LIBRARIES}
   )
@@ -59,6 +60,7 @@ ELSE()
   SET(COMMON_LIBS
     ArgvKeeper
     SALOMELocalTrace
+    SALOMEException
     ${PTHREAD_LIBRARIES}
   )
   SET(OpUtil_SOURCES
