@@ -22,11 +22,11 @@ INCLUDE_DIRECTORIES(
   ${MPI_CXX_INCLUDE_PATH}
   ${PYTHON_INCLUDE_DIRS}
   ${PACO_INCLUDE_DIRS}
+  ${SALOMEBOOTSTRAP_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${PROJECT_SOURCE_DIR}/src/ArgvKeeper
   ${PROJECT_SOURCE_DIR}/src/Container
   ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/Basics
   ${PROJECT_SOURCE_DIR}/src/NamingService
   ${PROJECT_SOURCE_DIR}/src/Registry
   ${PROJECT_SOURCE_DIR}/src/Utils
@@ -41,9 +41,9 @@ SET(COMMON_LIBS
   ArgvKeeper
   SalomeContainer
   SalomeNS
-  SALOMELocalTrace
-  SALOMEBasics
-  KERNELBasics
+  ${SALOMEBOOTSTRAP_SALOMELocalTrace}
+  ${SALOMEBOOTSTRAP_SALOMEBasics}
+  ${SALOMEBOOTSTRAP_KERNELBasics}
   SalomeHDFPersist
   SalomeParallelIDLKernel
   SalomeIDLKernel

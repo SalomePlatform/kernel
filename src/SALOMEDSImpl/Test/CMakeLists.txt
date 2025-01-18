@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
+  ${SALOMEBOOTSTRAP_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/../../NamingService
@@ -38,8 +39,8 @@ INCLUDE_DIRECTORIES(
 # This local variable defines the list of dependent libraries common to all target in this package.
 SET(COMMON_LIBS
   ${CPPUNIT_LIBRARIES}
-  SALOMEBasics
-  KERNELBasics
+  ${SALOMEBOOTSTRAP_SALOMEBasics}
+  ${SALOMEBOOTSTRAP_KERNELBasics}
   SalomeResourcesManager
   SalomeContainer
   SalomeNS
@@ -47,8 +48,8 @@ SET(COMMON_LIBS
   SalomeNotification
   UtilsTest
   OpUtil
-  SALOMELocalTraceTest
-  SALOMELocalTrace
+  ${SALOMEBOOTSTRAP_SALOMELocalTrace}
+  ${SALOMEBOOTSTRAP_SALOMELocalTrace}
   SALOMETraceCollectorTest
   DF
   SalomeDSImpl

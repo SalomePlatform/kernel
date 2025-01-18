@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${CPPUNIT_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
+  ${SALOMEBOOTSTRAP_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector
   ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector/Test
@@ -35,8 +36,8 @@ INCLUDE_DIRECTORIES(
 
 SET(COMMON_LIBS
   ${CPPUNIT_LIBRARIES}
-  SALOMEBasics
-  KERNELBasics
+  ${SALOMEBOOTSTRAP_SALOMEBasics}
+  ${SALOMEBOOTSTRAP_KERNELBasics}
   SalomeResourcesManager
   SalomeContainer
   SalomeNS
@@ -44,8 +45,8 @@ SET(COMMON_LIBS
   SalomeNotification
   UtilsTest
   OpUtil
-  SALOMELocalTraceTest
-  SALOMELocalTrace
+  ${SALOMEBOOTSTRAP_SALOMELocalTrace}
+  ${SALOMEBOOTSTRAP_SALOMELocalTrace}
   SALOMETraceCollectorTest
   SalomeIDLKernel
   SalomeLifeCycleCORBA

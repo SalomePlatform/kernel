@@ -25,8 +25,6 @@ INCLUDE_DIRECTORIES(
   ${PROJECT_SOURCE_DIR}/src/Container
   ${PROJECT_SOURCE_DIR}/src/GenericObj
   ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
   ${PROJECT_SOURCE_DIR}/src/NamingService
   ${PROJECT_SOURCE_DIR}/src/Utils
   ${PROJECT_BINARY_DIR}/idl
@@ -54,8 +52,8 @@ SET(SALOME_ConnectionManagerServer_LIBS
   ArgvKeeper
   SalomeIDLKernel
   SalomeNS
-  SALOMELocalTrace
-  SALOMEException
+  ${SALOMEBOOTSTRAP_SALOMELocalTrace}
+  ${SALOMEBOOTSTRAP_SALOMEException}
   SalomeContainer 
   ${OMNIORB_LIBRARIES}
 )

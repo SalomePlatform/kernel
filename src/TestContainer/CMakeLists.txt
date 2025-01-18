@@ -19,7 +19,7 @@
 
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
+  ${SALOMEBOOTSTRAP_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
@@ -40,8 +40,8 @@ SET(SalomeTestComponentEngine_SOURCES
 )
 
 SET(COMMON_LIBS
-  SALOMEBasics
-  KERNELBasics
+  ${SALOMEBOOTSTRAP_SALOMEBasics}
+  ${SALOMEBOOTSTRAP_KERNELBasics}
   SalomeIDLKernel
 )
 
@@ -53,7 +53,7 @@ IF(WIN32)
      SalomeNotification
      SalomeResourcesManager
      SalomeNS
-     SALOMELocalTrace
+     ${SALOMEBOOTSTRAP_SALOMELocalTrace}
      SalomeGenericObj
      SalomeIDLKernel
      SalomeTestComponentEngine
@@ -68,7 +68,7 @@ TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
 INSTALL(TARGETS SalomeTestComponentEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(TestLogger TestLogger.cxx)
-TARGET_LINK_LIBRARIES(TestLogger SALOMELocalTrace ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(TestLogger ${SALOMEBOOTSTRAP_SALOMELocalTrace} ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 ADD_EXECUTABLE(TestContainer TestContainer.cxx)
 TARGET_LINK_LIBRARIES(TestContainer SalomeContainer ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
