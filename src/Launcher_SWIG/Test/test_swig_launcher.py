@@ -380,7 +380,7 @@ f.close()
       """
       # Load the schema state from the dump file and verify the state of a node
       import SALOMERuntime
-      SALOMERuntime.RuntimeSALOME_setRuntime(1)
+      SALOMERuntime.RuntimeSALOME.setRuntime(1)
       import loader
       schema = loader.YACSLoader().load(job_script_file)
       stateParser = loader.stateParser()

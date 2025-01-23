@@ -59,7 +59,7 @@ class TestCompo(unittest.TestCase):
 #    mc = salome.naming_service.Resolve('/Kernel/ModulCatalog')
 #    ior = salome.orb.object_to_string(mc)
 #    import SALOMERuntime
-#    SALOMERuntime.RuntimeSALOME_setRuntime()
+#    SALOMERuntime.RuntimeSALOME.setRuntime()
 #    salome_runtime = SALOMERuntime.getSALOMERuntime()
 #    session_catalog = salome_runtime.loadCatalog("session", ior)
 #    salome_runtime.addCatalog(session_catalog)
@@ -370,7 +370,7 @@ f.close()
 
       # Load the schema state from the dump file and verify the state of a node
       import SALOMERuntime
-      SALOMERuntime.RuntimeSALOME_setRuntime(1)
+      SALOMERuntime.RuntimeSALOME.setRuntime(1)
       import loader
       schema = loader.YACSLoader().load(job_script_file)
       stateParser = loader.stateParser()
