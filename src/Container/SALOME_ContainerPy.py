@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2024  CEA, EDF, OPEN CASCADE
+# Copyright (C) 2007-2025  CEA, EDF, OPEN CASCADE
 #
 # Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 # CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
