@@ -24,6 +24,7 @@
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
 //
+#include "CalciumMacroCInterface.h"
 #include "calcium.h"
 #include "calciumf.h"
 #include "CalciumFortranInt.h"
@@ -42,6 +43,9 @@ InfoType ecp_fint_ (void * component, char* nomVar, float t);
 InfoType ecp_fini_ (void * component, char* nomVar, int i);
 InfoType ecp_efft_ (void * component, char* nomVar, float t);
 InfoType ecp_effi_ (void * component, char* nomVar, int i);
+//Following have been added for declaration
+InfoType ecp_fin_ (void * component, int code);
+InfoType ecp_cd_ (void * component, char* instanceName);
 
 /************************************/
 /* INTERFACES DE LECTURE EN 0 COPIE */
@@ -53,6 +57,23 @@ InfoType ecp_effi_ (void * component, char* nomVar, int i);
 /* L'utilisateur devra appeler ecp_..._free pour désallouer le buffer interne */
 /* Attention en cas de lectures multiples : le buffer retourné est le même */
 /* Attention si les niveaux sont actifs le buffer peut être supprimé automatiquement par calcium. */
+
+CALCIUM_C2CPP_INTERFACE_C_(intc,int,int,float,)
+CALCIUM_C2CPP_INTERFACE_C_(long,long,long,float,)
+
+CALCIUM_C2CPP_INTERFACE_C_(integer,integer,cal_int,float,)
+CALCIUM_C2CPP_INTERFACE_C_(int2integer,integer,int,float,)
+CALCIUM_C2CPP_INTERFACE_C_(long2integer,integer, long,float,)
+
+CALCIUM_C2CPP_INTERFACE_C_(float,float,float,float, )
+CALCIUM_C2CPP_INTERFACE_C_(double,double,double,double,)
+
+CALCIUM_C2CPP_INTERFACE_C_(float2double,double,float,float, )
+
+/*  Fonctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);*/
+CALCIUM_C2CPP_INTERFACE_C_(bool,bool,int,float,)
+CALCIUM_C2CPP_INTERFACE_C_(cplx,cplx,float,float,)
+CALCIUM_C2CPP_INTERFACE_C_(str,str,char*,float,)
 
 #define CALCIUM_EXT_LECT_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual) \
   InfoType ecp_##_name (void * component, int mode,                     \
