@@ -92,7 +92,7 @@ typedef PyArrayObject ArrayObject;
 /* Macros to extract array attributes.
  */
 #define is_array(a)            ((a) && PyArray_Check((PyArrayObject *)a))
-#define array_type(a)          (int)(PyArray_TYPE(a))
+#define array_type(a)          (int)(PyArray_TYPE((PyArrayObject *)a))
 #define array_dimensions(a)    (((PyArrayObject *)a)->nd)
 #define array_size(a,i)        (((PyArrayObject *)a)->dimensions[i])
 #define array_is_contiguous(a) (PyArray_ISCONTIGUOUS(a))
@@ -192,19 +192,21 @@ int type_match(int actual_type, int desired_type) {
  */
 PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
   PyArrayObject* ary = NULL;
-  if (is_array(input) && (typecode == PyArray_NOTYPE ||
+  if (is_array(input)) {
+	if (typecode == NPY_NOTYPE ||
         PyArray_EquivTypenums(array_type(input),
-            typecode))) {
+            typecode)) {
         ary = (PyArrayObject*) input;
-    }
-    else if is_array(input) {
+		}
+    else {
       const char* desired_type = typecode_string(typecode);
       const char* actual_type = typecode_string(array_type(input));
       PyErr_Format(PyExc_TypeError,
        "Array of type '%s' required.  Array of type '%s' given",
        desired_type, actual_type);
       ary = NULL;
-    }
+		}
+	}
     else {
       const char * desired_type = typecode_string(typecode);
       const char * actual_type = pytype_string(input);
@@ -226,9 +228,17 @@ PyArrayObject* obj_to_array_allow_conversion(PyObject* input, int typecode,
 {
   PyArrayObject* ary = NULL;
   PyObject* py_obj;
-  if (is_array(input) && (typecode == PyArray_NOTYPE || type_match(array_type(input),typecode))) {
+  if (is_array(input)) {
+	if (typecode == NPY_NOTYPE || type_match(array_type(input),typecode)) {
     ary = (PyArrayObject*) input;
     *is_new_object = 0;
+	}
+	else {
+    py_obj = PyArray_FromObject(input, typecode, 0, 0);
+    /* If NULL, PyArray_FromObject will have set python error value.*/
+    ary = (PyArrayObject*) py_obj;
+    *is_new_object = 1;
+	}
   }
   else {
     py_obj = PyArray_FromObject(input, typecode, 0, 0);
@@ -464,10 +474,10 @@ struct stringArray
 }
 %enddef
 
-TYPEMAP_IN3(int,     PyArray_INT)
-TYPEMAP_IN3(long,    PyArray_LONG)
-TYPEMAP_IN3(float,   PyArray_FLOAT )
-TYPEMAP_IN3(double,  PyArray_DOUBLE)
+TYPEMAP_IN3(int,     NPY_INT)
+TYPEMAP_IN3(long,    NPY_LONG)
+TYPEMAP_IN3(float,   NPY_FLOAT )
+TYPEMAP_IN3(double,  NPY_DOUBLE)
 
 #undef TYPEMAP_IN3
 
@@ -483,7 +493,7 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
   {
 %#ifdef WITH_NUMPY
     int size[1] = {-1};
-    array = obj_to_array_contiguous_allow_conversion($input, PyArray_CFLOAT, &is_new_object);
+    array = obj_to_array_contiguous_allow_conversion($input, NPY_CFLOAT, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (float*) array->data;
 %#else
@@ -509,7 +519,7 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
   {
 %#ifdef WITH_NUMPY
     int size[1] = {-1};
-    array = obj_to_array_contiguous_allow_conversion($input, PyArray_STRING, &is_new_object);
+    array = obj_to_array_contiguous_allow_conversion($input, NPY_STRING, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (char**) malloc(array_size(array,0)*sizeof(char*));
     $2 = array->strides[0];
@@ -567,10 +577,10 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 }
 %enddef
 
-TYPEMAP_INPLACE3(int,     PyArray_INT)
-TYPEMAP_INPLACE3(long,    PyArray_LONG)
-TYPEMAP_INPLACE3(float,   PyArray_FLOAT )
-TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
+TYPEMAP_INPLACE3(int,     NPY_INT)
+TYPEMAP_INPLACE3(long,    NPY_LONG)
+TYPEMAP_INPLACE3(float,   NPY_FLOAT )
+TYPEMAP_INPLACE3(double,  NPY_DOUBLE)
 
 #undef TYPEMAP_INPLACE3
 
@@ -585,7 +595,7 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
   if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
   {
 %#ifdef WITH_NUMPY
-    temp = obj_to_array_no_conversion($input,PyArray_CFLOAT);
+    temp = obj_to_array_no_conversion($input,NPY_CFLOAT);
     if (!temp  || !require_contiguous(temp)) SWIG_fail;
     $1 = (float*) temp->data;
 %#else
@@ -603,7 +613,7 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
   if ((SWIG_ConvertPtr($input, (void **) &sarray, $descriptor(stringArray *) ,0)) == -1)
   {
 %#ifdef WITH_NUMPY
-    temp = obj_to_array_no_conversion($input,PyArray_STRING);
+    temp = obj_to_array_no_conversion($input,NPY_STRING);
     if (!temp  || !require_contiguous(temp)) SWIG_fail;
     $1 = (char**) malloc(array_size(temp,0)*sizeof(char*));
     $2 = temp->strides[0];
@@ -702,7 +712,7 @@ CORBAPTR(PortableServer::POA)
    catch(Engines::DSC::PortNotDefined& _e) {
       Py_BLOCK_THREADS
       PyObject* excc = PyObject_GetAttrString(dsc, "PortNotDefined");
-      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyObject* exci = PyObject_CallNoArgs(excc);
       PyErr_SetObject(excc, exci);
       Py_XDECREF(excc);
       Py_XDECREF(exci);
@@ -711,7 +721,7 @@ CORBAPTR(PortableServer::POA)
    catch(Engines::DSC::PortNotConnected& _e) {
       Py_BLOCK_THREADS
       PyObject* excc = PyObject_GetAttrString(dsc, "PortNotConnected");
-      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyObject* exci = PyObject_CallNoArgs(excc);
       PyErr_SetObject(excc, exci);
       Py_XDECREF(excc);
       Py_XDECREF(exci);
@@ -720,7 +730,7 @@ CORBAPTR(PortableServer::POA)
    catch(Engines::DSC::BadPortType& _e) {
       Py_BLOCK_THREADS
       PyObject* excc = PyObject_GetAttrString(dsc, "BadPortType");
-      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyObject* exci = PyObject_CallNoArgs(excc);
       PyErr_SetObject(excc, exci);
       Py_XDECREF(excc);
       Py_XDECREF(exci);
