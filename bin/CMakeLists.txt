@@ -33,7 +33,6 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION RENAME VERSION_KERNEL DESTINAT
 
 # These files are executable scripts
 SET(SCRIPTS
-  appli_clean.sh
   runIDLparser
   addToKillList.py
   appli_gen.py
@@ -62,7 +61,6 @@ SET(SCRIPTS
   server.py
   setenv.py
   showNS.py
-  virtual_salome.py
   waitContainers.py
   waitNS.py
   pythonpath_reduction.py

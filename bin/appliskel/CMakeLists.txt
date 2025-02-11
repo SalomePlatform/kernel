@@ -26,19 +26,9 @@ ADD_SUBDIRECTORY(tests)
 
 # These files are executable scripts
 SET(SCRIPTS
-  envd
-  runRemote.sh
-  runRemoteSSL.sh
   .bashrc
-  getAppliPath.py
-  update_catalogs.py
-  kill_remote_containers.py
-  .salome_run # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
-  salome # this is the Python wrapper (without .py extension to avoid conflicts when importing salome python package)
-  salome_mesa # this is the Python wrapper using MESA (work around display issue)
-  salome_common.py
-  salome_starter.py
   .salome-completion.sh
+  appli_launcher
 )
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)

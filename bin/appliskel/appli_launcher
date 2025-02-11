@@ -1,0 +1,290 @@
+#! /usr/bin/env python3
+"""This file is the main launcher for a SALOME application."""
+
+import importlib
+import importlib.util
+import json
+import logging
+import os
+import subprocess
+import sys
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+from pathlib import Path
+from typing import List
+
+appli_path = Path(__file__)
+appli_name = appli_path.name
+appli_path_dir = appli_path.resolve().parent
+config_appli_file = appli_path_dir / "config_appli.json"
+if not config_appli_file.is_file():
+    print(f"Fichier de configuration {config_appli_file} manquant.")
+    sys.exit(1)
+
+_config: dict = json.loads(config_appli_file.read_text())
+config_appli: dict = _config.get("application")
+
+
+def __get_absolute_appli_path() -> Path:
+    absolute_appli_path : Path= appli_path_dir / config_appli.get("absolute_appli_dir", "SALOME")
+    if not absolute_appli_path.is_dir():
+        print(f"The directory 'absolute_appli_dir' {absolute_appli_path} does not exists.")
+        sys.exit(1)
+    return absolute_appli_path
+
+
+# Preliminary work to initialize path to SALOME Python modules
+def __initialize() -> None:
+    sys.path[:0] = [f"{__get_absolute_appli_path() / 'bin/salome'}"]
+
+    # define folder to store omniorb config (initially in virtual application folder)
+    try:
+        from salomeContextUtils import setOmniOrbUserPath  # type: ignore
+
+        setOmniOrbUserPath()
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+
+def __update_args(args: List[str]) -> List[str]:
+    """Take into account the SALOME_APPLI_OPTIONS env variable and the presence of the env_modules.json file."""
+    salome_appli_options = os.environ.get("SALOME_APPLI_OPTIONS")
+    if salome_appli_options:
+        command = ""
+        options = []
+        if args:
+            command = args[0]
+            options = args[1:] if len(args) > 1 else []
+        args = []
+        if command:
+            args.append(command)
+        args = args + salome_appli_options.split() + options
+    return args
+
+
+# End of preliminary work
+
+
+# salome doc only works for virtual applications. Therefore we overwrite it with this function
+def _showDoc(modules: List[str]) -> None:
+    if "-h" in modules:
+        print(f"""Usage: {appli_name} doc MODULE1 MODULE2
+
+Display documentation for given modules, if existing.""")
+        return 0
+    for module in modules:
+        if not module.strip():
+            continue
+        env_root_dir = f"{module}_ROOT_DIR"
+        modulePath = os.getenv(env_root_dir)
+        if modulePath is None:
+            print(f"{env_root_dir} not found!")
+            continue
+        baseDir = Path(modulePath) / "share" / "doc" / "salome"
+        for subdir in ("gui", "tui", "dev"):
+            docfile: Path = baseDir / subdir / module.upper() / "index.html"
+            print(f"Search {module} doc in {docfile}")
+            if docfile.is_file():
+                subprocess.check_call(["xdg-open", f"{docfile}"])
+                break
+        else:
+            print("Online documentation is not accessible for module:", module)
+
+
+def _load_extra_env(extradir: Path, context) -> None:
+    """Load all files extradir/*.py and call the module's init routine."""
+    if extradir.is_dir():
+        sys.path.insert(0, f"{extradir}")
+        for filename in sorted(
+            filter(
+                lambda x: Path(extradir, x).is_file(),
+                os.listdir(extradir),
+            )
+        ):
+            f = Path(filename)
+            if f.suffix == ".py":
+                module_name = f.stem
+                _specs = importlib.util.find_spec(module_name)
+                _module = importlib.util.module_from_spec(_specs)
+                _specs.loader.exec_module(_module)
+                _module.init(context)
+
+
+def update_context(context, args: list[str], with_venv=True):
+    from salomeContext import SalomeContextException  # type: ignore
+
+    # [APPLI variables]
+    context.setVariable("APPLI", f"{appli_path}", overwrite=True)
+    context.setVariable(
+        "ABSOLUTE_APPLI_PATH", f"{__get_absolute_appli_path()}", overwrite=True
+    )
+    context.appendVariable(
+        "SalomeAppConfig",
+        r"${ABSOLUTE_APPLI_PATH}/share/salome/resources/salome",
+        separator=":",
+    )
+
+    # [Python]
+    python_version = config_appli.get("python")
+    if not python_version:
+        raise SalomeContextException(
+            f"Python version is missing in {config_appli_file}"
+        )
+    context.setVariable("PYTHON_VERSION", python_version, overwrite=True)
+    python_lib_dir = f"lib/python{python_version}/site-packages"
+    context.setVariable("PYTHON_LIBDIR", f"{python_lib_dir}", overwrite=True)
+
+    # [MODULES]
+    modules: dict = config_appli.get("modules", {})
+    has_kernel = False
+    for module_name, module_path in modules.items():
+        if not has_kernel and module_name == "KERNEL":
+            has_kernel = True
+        context.setVariable(
+            f"{module_name}_ROOT_DIR",
+            f"{module_path}",
+            overwrite=True,
+        )
+        context.addToLdLibraryPath(f"{module_path}/lib/salome")
+        context.addToPath(f"{module_path}/bin/salome")
+        context.addToPythonPath(f"{module_path}/bin/salome")
+        context.addToPythonPath(f"{module_path}/lib/salome")
+        context.addToPythonPath(f"{module_path}/${{PYTHON_LIBDIR}}/salome")
+        context.addToTestsPath(f"{module_path}/bin/salome/test")
+    if not config_appli.get("parent_application") and not has_kernel:
+        raise SalomeContextException("SALOME KERNEL component is missing.")
+
+    # [VENV]
+    venv_directory = config_appli.get("venv_directory")
+    if venv_directory and with_venv:
+        context.setVariable("VENV_ROOT", f"{venv_directory}", overwrite=True)
+        context.addToPath(f"{venv_directory}/bin")
+        context.addToLdLibraryPath(f"{venv_directory}/lib")
+        context.addToPythonPath(f"{venv_directory}/${{PYTHON_LIBDIR}}")
+
+    # Environment modules
+    env_modules = config_appli.get("env_modules", [])
+    env_modules_file = __get_absolute_appli_path() / "env_modules.json"
+    if env_modules_file.is_file():
+        print(f"{env_modules_file} was found")
+        env_modules += json.loads(open(env_modules_file).read()).get("env_modules", [])
+    env_modules_option = "--with-env-modules="
+    env_modules_l = [x for x in args if x.startswith(env_modules_option)]
+    if env_modules_l:
+        env_modules += env_modules_l[-1][len(env_modules_option) :].split(",")
+        args = [x for x in args if not x.startswith(env_modules_option)]
+    if env_modules:
+        env_modules_str = ",".join(env_modules)
+        env_modules_option += f"{env_modules_str}"
+        # print(f"Ajout de l'option {env_modules_option}")
+        args.append(env_modules_option)
+
+    # [hook to integrate in launcher additionnal user modules]
+
+    # Load all files extra.env.d/*.py and call the module's init routine]
+
+    extradirs = [__get_absolute_appli_path() / "extra.env.d"]
+    extra_env_dir_option = "--extra-env-dir="
+    extra_env_dir_l = [x for x in args if x.startswith(extra_env_dir_option)]
+    if extra_env_dir_l:
+        extradirs += map(
+            Path, extra_env_dir_l[-1][len(extra_env_dir_option) :].split(",")
+        )
+        args = [x for x in args if not x.startswith(extra_env_dir_option)]
+
+    for extradir in extradirs:
+        _load_extra_env(extradir=extradir, context=context)
+
+    # [extra tests]
+    extra_tests: list = config_appli.get("extra_tests", [])
+    if extra_tests:
+        for test_path in extra_tests:
+            context.addToTestsPath(test_path)
+
+    return context, args
+
+
+def main(args: List[str]) -> None:
+    # Identify application path then locate configuration files
+    __initialize()
+    args = __update_args(args=args)
+    from salomeContextUtils import getConfigFileNames # type: ignore
+
+    configFileNames, args, unexisting = getConfigFileNames(
+        args,
+        checkExistence=True,
+        default_cfg_directory=f"{__get_absolute_appli_path() / 'env.d'}",
+    )
+    if len(unexisting) > 0:
+        print(
+            "ERROR: unexisting configuration/environment file(s): "
+            + ", ".join(unexisting)
+        )
+        sys.exit(1)
+
+    if "--help" in args:
+        from salomeContext import usage  # type: ignore
+
+        usage()
+        sys.exit(0)
+
+    # Create a SalomeContext which parses configFileNames to initialize environment
+    from salomeContext import SalomeContext, SalomeContextException  # type: ignore
+
+    try:
+        # configFileNames = __get_absolute_appli_path().joinpath("env.d").glob("*.cfg")
+        context = SalomeContext(
+            # configFileNames=[f"{config_file}" for config_file in configFileNames],
+            configFileNames=configFileNames,
+            name=Path(__file__).name,
+        )
+
+        # Logger level error
+        context.getLogger().setLevel(logging.ERROR)
+        context.getLogger().debug(f"args: {args}")
+
+        # If a parent appli is declared, the "update_context" function of
+        # this appli script is called.
+        parent_application = config_appli.get("parent_application")
+        if parent_application:
+            parent_salome_appli_path = Path(parent_application)
+            parent_salome_appli_name = parent_salome_appli_path.stem
+            _specs = spec_from_loader(
+                parent_salome_appli_name,
+                SourceFileLoader(parent_salome_appli_name, f"{parent_application}"),
+            )
+            _module = module_from_spec(_specs)
+            _specs.loader.exec_module(_module)
+            parent_configFileNames, args, unexisting = getConfigFileNames(
+                args,
+                checkExistence=True,
+                default_cfg_directory=f"{_module.__get_absolute_appli_path() / 'env.d'}",
+            )
+            if parent_configFileNames:
+                context.configFileNames = parent_configFileNames + context.configFileNames
+            context, args = _module.update_context(context, args, with_venv=False)
+
+        # Update context of current appli
+        context, args = update_context(context, args)
+
+        # [manage salome doc command]
+        if len(args) > 1 and args[0] == "doc":
+            doc_args = [arg for arg in args[1:] if not arg.startswith("--")]
+            _showDoc(doc_args)
+            return
+
+        context.getLogger().debug(f"args: {args}")
+
+        # Start SALOME, parsing command line arguments
+        _, _, status = context.runSalome(args)
+        sys.exit(status)
+
+    except SalomeContextException as e:
+        logging.getLogger(appli_path.name).error(e)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    main(args)
