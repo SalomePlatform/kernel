@@ -26,9 +26,6 @@ ADD_SUBDIRECTORY(tests)
 
 # These files are executable scripts
 SET(SCRIPTS
-  envd
-  runRemote.sh
-  runRemoteSSL.sh
   .bashrc
   getAppliPath.py
   update_catalogs.py
@@ -37,6 +34,7 @@ SET(SCRIPTS
   salome # this is the Python wrapper (without .py extension to avoid conflicts when importing salome python package)
   salome_mesa # this is the Python wrapper using MESA (work around display issue)
   .salome-completion.sh
+  appli_launcher
 )
 
 SET(PACKAGES

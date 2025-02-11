@@ -30,19 +30,26 @@ from salome.kernel.parseConfigFile import parseConfigFile
 
 import tempfile
 import pickle
-import subprocess
-import sys
 import platform
+import subprocess
+from typing import Any
 
 from salome.kernel.salomeContext_impl import SalomeContext, SalomeContextException, usage
 
 if __name__ == "__main__":
-  if len(sys.argv) == 3:
-    context = pickle.loads(sys.argv[1].encode('latin1'))
-    args = pickle.loads(sys.argv[2].encode('latin1'))
+    import argparse
+    parser = argparse.ArgumentParser(usage=usage(do_print=False))
+    parser.add_argument(
+        "context",
+        # type=bytes,
+        help="The pickled context class object")
+    parser.add_argument(
+        "args",
+        # type=bytes,
+        help="The pickled args")
+    args = parser.parse_args()
 
-    status = context._startSalome(args)
+    context : SalomeContext = pickle.loads(args.context.encode("latin1"))
+    cargs: str= pickle.loads(args.args.encode("latin1"))
+    status = context._startSalome(cargs)
     sys.exit(status)
-  else:
-    usage()
-#

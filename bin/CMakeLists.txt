@@ -64,7 +64,6 @@ SET(SCRIPTS
   searchFreePort.py
   setenv.py
   showNS.py
-  virtual_salome.py
   waitContainers.py
   waitNS.py
   pythonpath_reduction.py

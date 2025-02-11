@@ -17,13 +17,12 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os
-import sys
 import glob
-import subprocess
+import json
+import os
 import re
 import socket
-import json
+import sys
 
 """
 Define a specific exception class to manage exceptions related to SalomeContext
@@ -41,14 +40,18 @@ def __listDirectory(path):
   return allFiles
 #
 
-def __getConfigFileNamesDefault():
-  absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
-  if not absoluteAppliPath:
-    return []
+def __getConfigFileNamesDefault(default_cfg_directory=""):
+  if not default_cfg_directory or not os.path.exists(default_cfg_directory):
+    absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
+    if not absoluteAppliPath:
+      print("No ABSOLUTE_APPLI_PATH detected.")
+      return []
 
-  envdDir = absoluteAppliPath + '/env.d'
-  if not os.path.isdir(envdDir):
-    return []
+    envdDir = absoluteAppliPath + '/env.d'
+    if not os.path.isdir(envdDir):
+      return []
+  else:
+    envdDir = default_cfg_directory
 
   return __listDirectory(envdDir)
 #
@@ -79,11 +82,11 @@ def __getEnvironmentFileNames(args, optionPrefix, checkExistence):
   return configFileNames, args, unexisting
 #
 
-def getConfigFileNames(args, checkExistence=False):
+def getConfigFileNames(args, checkExistence=False, default_cfg_directory=""):
   configOptionPrefix = "--config="
   configArgs = [ str(x) for x in args if str(x).startswith(configOptionPrefix) ]
   if len(configArgs) == 0:
-    configFileNames, unexist = __getConfigFileNamesDefault(), []
+    configFileNames, unexist = __getConfigFileNamesDefault(default_cfg_directory=default_cfg_directory), []
   else:
     # get configuration filenames
     configFileNames, args, unexist = __getEnvironmentFileNames(args, configOptionPrefix, checkExistence)
