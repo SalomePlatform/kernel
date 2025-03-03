@@ -70,6 +70,7 @@ public:
   virtual _PTR(SComponentIterator) NewComponentIterator() = 0;
   virtual _PTR(StudyBuilder) NewBuilder() = 0;
   virtual std::string Name() = 0;
+  virtual void  Name(const std::string& aName) = 0;
   virtual bool IsSaved() = 0;
   virtual void  IsSaved(bool save) = 0;
   virtual bool IsModified() = 0;
