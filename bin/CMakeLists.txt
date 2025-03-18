@@ -46,7 +46,6 @@ SET(SCRIPTS
   parseConfigFile.py
   PortManager.py
   runSalomeCommon.py
-  runSalome.py
   runSalomeOld.py
   runSalomeOnDemand.py
   runSalomeNoServer.py
