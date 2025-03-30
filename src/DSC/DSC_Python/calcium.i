@@ -87,6 +87,34 @@ PyObject* dsc ;
 #endif
 #include <numpy/arrayobject.h>
 
+#ifndef PyArray_NOTYPE
+#define PyArray_NOTYPE NPY_NOTYPE
+#endif
+
+#ifndef PyArray_INT
+#define PyArray_INT NPY_INT
+#endif
+
+#ifndef PyArray_DOUBLE
+#define PyArray_DOUBLE NPY_DOUBLE
+#endif
+
+#ifndef PyArray_FLOAT
+#define PyArray_FLOAT NPY_FLOAT
+#endif
+
+#ifndef PyArray_CFLOAT
+#define PyArray_CFLOAT NPY_CFLOAT
+#endif
+
+#ifndef PyArray_STRING
+#define PyArray_STRING NPY_STRING
+#endif
+
+#ifndef PyArray_LONG
+#define PyArray_LONG NPY_LONG
+#endif
+
 typedef PyArrayObject ArrayObject;
 
 /* Macros to extract array attributes.
@@ -192,27 +220,29 @@ int type_match(int actual_type, int desired_type) {
  */
 PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
   PyArrayObject* ary = NULL;
-  if (is_array(input) && (typecode == PyArray_NOTYPE ||
-        PyArray_EquivTypenums(array_type(input),
-            typecode))) {
-        ary = (PyArrayObject*) input;
+  if (is_array(input)) {
+    ary = (PyArrayObject*) input;
+
+    if (typecode == PyArray_NOTYPE || PyArray_EquivTypenums(array_type(ary), typecode)){
+      ; // Do nothing. It's okay
     }
-    else if is_array(input) {
+    else {
       const char* desired_type = typecode_string(typecode);
-      const char* actual_type = typecode_string(array_type(input));
+      const char* actual_type = typecode_string(array_type(ary));
       PyErr_Format(PyExc_TypeError,
        "Array of type '%s' required.  Array of type '%s' given",
        desired_type, actual_type);
       ary = NULL;
     }
-    else {
+  }
+  else {
       const char * desired_type = typecode_string(typecode);
       const char * actual_type = pytype_string(input);
       PyErr_Format(PyExc_TypeError,
        "Array of type '%s' required.  A %s was given",
        desired_type, actual_type);
       ary = NULL;
-    }
+  }
   return ary;
 }
 
@@ -226,9 +256,19 @@ PyArrayObject* obj_to_array_allow_conversion(PyObject* input, int typecode,
 {
   PyArrayObject* ary = NULL;
   PyObject* py_obj;
-  if (is_array(input) && (typecode == PyArray_NOTYPE || type_match(array_type(input),typecode))) {
+
+  if (is_array(input)){
     ary = (PyArrayObject*) input;
-    *is_new_object = 0;
+
+    if (typecode == PyArray_NOTYPE || type_match(array_type(ary), typecode)){
+      *is_new_object = 0;
+    }
+    else {
+      py_obj = PyArray_FromObject(input, typecode, 0, 0);
+      /* If NULL, PyArray_FromObject will have set python error value.*/
+      ary = (PyArrayObject*) py_obj;
+      *is_new_object = 1;
+    }
   }
   else {
     py_obj = PyArray_FromObject(input, typecode, 0, 0);
@@ -702,7 +742,7 @@ CORBAPTR(PortableServer::POA)
    catch(Engines::DSC::PortNotDefined& _e) {
       Py_BLOCK_THREADS
       PyObject* excc = PyObject_GetAttrString(dsc, "PortNotDefined");
-      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyObject* exci = PyObject_Call(excc, (PyObject *)NULL, NULL);
       PyErr_SetObject(excc, exci);
       Py_XDECREF(excc);
       Py_XDECREF(exci);
@@ -711,7 +751,7 @@ CORBAPTR(PortableServer::POA)
    catch(Engines::DSC::PortNotConnected& _e) {
       Py_BLOCK_THREADS
       PyObject* excc = PyObject_GetAttrString(dsc, "PortNotConnected");
-      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyObject* exci = PyObject_Call(excc, (PyObject *)NULL, NULL);
       PyErr_SetObject(excc, exci);
       Py_XDECREF(excc);
       Py_XDECREF(exci);
@@ -720,7 +760,7 @@ CORBAPTR(PortableServer::POA)
    catch(Engines::DSC::BadPortType& _e) {
       Py_BLOCK_THREADS
       PyObject* excc = PyObject_GetAttrString(dsc, "BadPortType");
-      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyObject* exci = PyObject_Call(excc, (PyObject *)NULL, NULL);
       PyErr_SetObject(excc, exci);
       Py_XDECREF(excc);
       Py_XDECREF(exci);
