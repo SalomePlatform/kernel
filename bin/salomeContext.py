@@ -28,7 +28,6 @@ else:
   from configparser import SafeConfigParser
 from parseConfigFile import parseConfigFile
 
-import tempfile
 import pickle
 import subprocess
 import sys

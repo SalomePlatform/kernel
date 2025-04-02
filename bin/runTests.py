@@ -17,10 +17,15 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import argparse
 import os
-import sys
 import select
 import subprocess
+import sys
+from pathlib import Path
+
+from salomeContextUtils import SalomeContextException  #@UnresolvedImport
+
 
 def __configureTests(args=None, exe=None):
   if args is None:
@@ -64,27 +69,43 @@ For complete description of available options, pleaser refer to ctest documentat
   if not args:
     return []
 
-  if args[0] in ["-h", "--help"]:
-    print(usage + epilog)
-    sys.exit(0)
+  parser = argparse.ArgumentParser(usage=usage + epilog,
+                                   epilog="Others options are passed to ctest")
+  parser.add_argument(
+      "--run-dir",
+      action="store",
+      type=Path,
+      help="directory where ctest will be run (write access is required)",
+  )
+  return parser.parse_known_args(args)
 
-  return args
-#
 
 # tests must be in ${ABSOLUTE_APPLI_PATH}/${__testSubDir}/
 __testSubDir = "bin/salome/test"
 
 def runTests(args, exe=None):
-  args = __configureTests(args, exe)
-
   appliPath = os.getenv("ABSOLUTE_APPLI_PATH")
   if not appliPath:
-      raise SalomeContextException("Unable to find application path. Please check that the variable ABSOLUTE_APPLI_PATH is set.")
+    raise SalomeContextException("Unable to find application path. Please check that the variable ABSOLUTE_APPLI_PATH is set.")
 
   testPath = os.path.join(appliPath, __testSubDir)
+  cfg, args = __configureTests(args, exe)
+  if cfg.run_dir:
+    ceabin = Path(appliPath).parent
+    prefix = ceabin.parent.parent.parent
+    cfg.run_dir.mkdir(parents=True, exist_ok=True)
+    for path in Path(testPath).glob('CTest*'):
+       if not path.is_file():
+          continue
+       with open(path) as fobj:
+          content = fobj.read()
+       content = content.replace("../../../../../../..", str(prefix))
+       content = content.replace("../../../..", str(ceabin))
+       with open(cfg.run_dir / path.name, "w") as fobj:
+          fobj.write(content)
+    testPath = cfg.run_dir
 
   command = ["ctest"] + args
   p = subprocess.Popen(command, cwd=testPath)
   p.communicate()
   return p.returncode
-#
