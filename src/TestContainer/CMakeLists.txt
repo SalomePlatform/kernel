@@ -56,7 +56,6 @@ IF(WIN32)
      ${SALOMEBOOTSTRAP_SALOMELocalTrace}
      SalomeGenericObj
      SalomeIDLKernel
-     SalomeTestComponentEngine
   )
 ENDIF(WIN32)
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
