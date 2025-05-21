@@ -22,6 +22,8 @@ ADD_SUBDIRECTORY(appliskel)
 SALOME_CONFIGURE_FILE(VERSION.in VERSION INSTALL ${SALOME_INSTALL_BINS})
 SALOME_CONFIGURE_FILE(salomeContextUtils.py.in salomeContextUtils.py)
 
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION RENAME VERSION_KERNEL DESTINATION ${SALOME_INSTALL_BINS})
+
 # ===============================================================
 # Files to be installed
 # ===============================================================

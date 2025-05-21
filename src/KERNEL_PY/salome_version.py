@@ -37,6 +37,16 @@ __ALL__ = [
 
 _salome_versions = {}
 
+def getVersionFile( mod ):
+    import os
+    from pathlib import Path
+    root_dir = os.getenv( "%s_ROOT_DIR" % mod )
+    attempts = [ Path( root_dir ) / "bin" / "salome" / f"VERSION_{mod}", Path( root_dir ) / "bin" / "salome" / "VERSION", Path( root_dir ) / "bin" / "salome" / "VERSION", Path( root_dir ) / "bin" / "VERSION" ]
+    for attempt in attempts:
+        if attempt.exists():
+            return str(attempt)
+    raise RuntimeError( f"No files found in {attempts}" )
+
 def getVersion( mod = "KERNEL", full = False ):
     """
     Get SALOME module version number
@@ -55,10 +65,7 @@ def getVersion( mod = "KERNEL", full = False ):
         root_dir = os.getenv( "%s_ROOT_DIR" % mod )
         if root_dir:
             try:
-                filename = root_dir + "/bin/salome/VERSION"
-                if not os.path.exists( filename ):
-                    filename = root_dir + "/bin/VERSION"
-                f = open( filename )
+                f = open( getVersionFile( mod ) )
                 data = f.readlines()
                 f.close()
                 for l in data:
