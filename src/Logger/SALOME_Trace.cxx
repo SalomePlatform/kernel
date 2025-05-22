@@ -31,10 +31,7 @@
 //#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-
-#ifdef WIN32
-#include <omnithread/pthread_nt.h>
-#endif
+#include <time.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
