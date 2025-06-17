@@ -109,6 +109,20 @@ nb = i.shape[0]
 j = np.zeros(shape=(2*nb,),dtype=np.float64) 
 """
 
+FunnyCase_test8 = """
+import sys
+import time
+# 100 kB
+nb = 100000
+time.sleep(3.)
+print( nb * '1' )
+sys.stderr.write( "{}\\n".format( nb * '3' ) )
+time.sleep(3.)
+print( nb * '2' )
+sys.stderr.write( "{}\\n".format( nb * '4' ) )
+j = i *4
+"""
+
 class testPerfLogManager1(unittest.TestCase):
     def test0(self):
         """
@@ -411,6 +425,63 @@ class testPerfLogManager1(unittest.TestCase):
                 DecrRefInFile( pxy.getFileName() )
                 self.assertEqual( len( os.listdir( str( tmpdirname ) ) ) , 0 ) # very important it must be clean
 
+    def test9(self):
+        """
+        [EDF32670] : test that log file of container in incrementally fed
+        """
+        log_snapshots = []
+        def loggerSpy(pathOfLogLogs : Path, event):
+            import time
+            stopByMainThread = False
+            for _ in range(20):  # on observe 20 fois
+                if not event.is_set():
+                    time.sleep(1.1)
+                    with pathOfLogLogs.open() as f:
+                        log_snapshots.append(len( f.read() ))
+                else:
+                    stopByMainThread = True
+            if not stopByMainThread:
+                raise RuntimeError("Unexpected error")
+        #
+        import threading
+        import gc
+        KernelBasis.SetPyExecutionMode("OutOfProcessWithReplayFT") # very important : OutOfProcess. Aim of the test
+        KernelBasis.SetNumberOfRetry(2)
+        KernelBasis.SetExecutionTimeOut(10)
+        salome.cm.SetBigObjOnDiskThreshold(1)  # enable proxy
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            os.chdir( tmpdirname )
+            hostname = "localhost"
+            cp = pylauncher.GetRequestForGiveContainer(hostname, "container_crash_test_9")
+            salome.cm.SetDirectoryForReplayFiles(str(tmpdirname))
+            KernelBasis.SetBigObjOnDiskDirectory(str(tmpdirname))
+            with salome.ContainerLauncherCM(cp, True) as cont:
+                poa = salome.orb.resolve_initial_references("RootPOA")
+                arr = 7
+                obj = SALOME_PyNode.SenderByte_i(poa, pickle.dumps((["i"], {"i": arr})))
+                id_o = poa.activate_object(obj)
+                refPtr = poa.id_to_reference(id_o)
+                gc.collect()
+                pyscript = cont.createPyScriptNode("testScript", FunnyCase_test8)
+                pathOfLogLogs = Path(pyscript.getContainer().locallogfilename)
+                pyscript.executeFirst(refPtr)
+                #
+                stop_event = threading.Event()
+                thread = threading.Thread(target=loggerSpy, args=(pathOfLogLogs,stop_event))
+                thread.start()
+                ret = pyscript.executeSecond( ["j"] )
+                stop_event.set()
+                thread.join()
+
+                pxy = pickle.loads(SALOME_PyNode.SeqByteReceiver(ret[0]).data())  # receiving twice size of input -> 2 GB
+                ret0 = UnProxyObjectSimple(pxy)  # it's a proxy -> un proxyfy it
+                self.assertEqual(ret0, 28)
+                DecrRefInFile(pxy.getFileName())
+
+                # Check that log file has grown during execution
+                unique_snapshots = set(log_snapshots)
+                logging.debug(" : {}".format(unique_snapshots))
+                self.assertTrue(len(unique_snapshots) > 2, "File has not been written progressively" ) # <- key point of test is here
 
 if __name__ == '__main__':
     from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose

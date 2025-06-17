@@ -24,6 +24,7 @@
 #  $Header$
 #
 import abc
+import asyncio
 import linecache
 import logging
 import os
@@ -31,6 +32,7 @@ import pickle
 import sys
 import traceback
 from pathlib import Path
+from typing import TextIO
 
 import Engines__POA
 import KernelBasis
@@ -45,6 +47,7 @@ MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
 MY_PERFORMANCE_LOG_ENTRY_IN_GLBS = "my_log_4_this_session"
 
 MY_KEY_TO_DETECT_FINISH = "neib av tuot"
+
 
 class Generic(SALOME__POA.GenericObj):
   """A Python implementation of the GenericObj CORBA IDL"""
@@ -1149,7 +1152,6 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
   """
   import tempfile
   import pickle
-  import subprocess as sp
   import logging
   #
   def IsConsideredAsOKRun( returnCode, closeEyesOnErrorAtExit , stderr ):
@@ -1163,12 +1165,67 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
     if not closeEyesOnErrorAtExit:
       return False, stderr
     if stderr[-len(MY_KEY_TO_DETECT_FINISH):] == MY_KEY_TO_DETECT_FINISH:
+      logging.debug("[IsConsideredAsOKRun] returnCode is {}, closeEyesOnErrorAtExit is {} and {!r} was detected at the end of the error message"
+                    .format(returnCode, closeEyesOnErrorAtExit, MY_KEY_TO_DETECT_FINISH))
       return True,stderr[:-len(MY_KEY_TO_DETECT_FINISH)]
     else:
+      logging.debug("[IsConsideredAsOKRun] returnCode is {}, closeEyesOnErrorAtExit is {} and {!r} was NOT detected at the end of the error message"
+                    .format(returnCode, closeEyesOnErrorAtExit, MY_KEY_TO_DETECT_FINISH))
       return False,stderr
+
+  zestdout = []
+  zestderr = []
+
+  async def read_stream_and_display(stream, display: TextIO, listOfLines : list, timeout=None):
+      
+      """[EDF32670] Read from stream line by line until EOF, display, and capture the lines."""
+      output = []
+      try:
+        # protect against exception in case of broken pipe due to timeout
+        while True:
+          if stream.at_eof():
+              break
+          line: bytes = await stream.readline()
+          tmp = line.decode()
+          listOfLines.append( tmp )
+          display.write( tmp )  # assume it doesn't block
+          display.flush()
+      except:
+        pass
+      return b"".join(output)
+
+  async def read_and_display(*cmd, timeout=None):
+      """Capture cmd's stdout, stderr while displaying them as they arrive
+      (line by line).
+
+      """
+      global zestdout, zestderr
+      # start process
+      process = await asyncio.create_subprocess_exec(
+        *cmd,
+        limit = 1024 * 1024 * 1,  # 1 MB
+        cwd = os.getcwd(),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        )
+      # read child's stdout/stderr concurrently (capture and display)
+      try:
+          await asyncio.gather(
+              asyncio.wait_for(read_stream_and_display(process.stdout, sys.stdout, zestdout), timeout=timeout),
+              asyncio.wait_for(read_stream_and_display(process.stderr, sys.stderr, zestderr), timeout=timeout),
+          )
+      except asyncio.TimeoutError:
+          process.kill()
+          await process.wait()
+          raise
+
+      # wait for the process to exit
+      await process.communicate()
+      return process.returncode
 
   #
   def InternalExecResistant( exchangeMode, keepFilesToReplay, code, context, outargsname):
+    global zestdout, zestderr
     import KernelBasis
     import salome
     salome.salome_init()
@@ -1183,10 +1240,10 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
       raise RuntimeError("You are in context of exec resistant you have to position Directory hosting these files properly")
     with tempfile.NamedTemporaryFile(dir=dirForReplayFiles,prefix=EXEC_CODE_FNAME_PXF,suffix=".py", mode="w", delete = False) as codeFd:
       codeFd.write( "{}\n".format( containerRef.get_startup_code() ) )
+      codeFd.write( "import sys; sys.stdout.reconfigure(line_buffering=True)\n") # To allow the unbuffer of stdout and stderr in subprocess
       codeFd.write( code )
       if closeEyesOnErrorAtExit:
         codeFd.write( """
-import sys
 sys.stderr.write({!r})
 sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       codeFd.flush()
@@ -1202,36 +1259,44 @@ sys.stderr.flush()""".format( MY_KEY_TO_DETECT_FINISH ) )
       timeOut = KernelBasis.GetExecutionTimeOut()
       nbRetry = KernelBasis.GetNumberOfRetry()
       logging.debug( "Nb retry = {}   Timout in seconds = {}".format( nbRetry, timeOut ) )
+      returnCode = -1
+      zestdout = []
+      zestderr = []
+
       for iTry in range( nbRetry ):
         if iTry > 0:
-          print( "WARNING : Retry # {}. Following code has generated non zero return code ( {} ). Trying again ... \n{}".format( iTry, returnCode, code ) )
+          print( f"WARNING : Retry # {iTry}. Following code has generated non zero return code ( {returnCode} ). Trying again ... \n{code}")
         logging.debug( "try # {} / {} --- ".format( iTry, nbRetry ) )
-        p = sp.Popen(["python3", mainExecFileName],cwd = os.getcwd(),stdout = sp.PIPE, stderr = sp.PIPE)
         try:
-          args = {}
+          cmd = [sys.executable, mainExecFileName]
           if timeOut > 0:
-            args["timeout"] = timeOut
-          stdout, stderr = p.communicate( **args )
-        except sp.TimeoutExpired as e:
-          print( "WARNING : during retry #{} timeout set to {} s has failed !".format( iTry, timeOut ) )
+            async_args = {
+              "main": asyncio.wait_for(read_and_display(*cmd), timeout=timeOut),
+            }
+          else:
+            async_args = {
+              "main": read_and_display(*cmd),
+            }
+          returnCode = asyncio.run(**async_args)
+
+        except asyncio.exceptions.TimeoutError as e:
+          print( f"WARNING : during retry #{iTry} timeout set to {timeOut} s has failed !")
           returnCode = 10000000000 + timeOut
-        else:
-          returnCode = p.returncode
+
         if returnCode == 0:
           if iTry >= 1:
             logging.warning( "At Retry #{} it's successful :)".format(iTry) )
           break
+    stdout = "".join( zestdout ) ; zestdout = []
+    stderr = "".join( zestderr ) ; zestderr = []
     return returnCode, stdout, stderr, PythonFunctionEvaluatorParams(mainExecFileName,codeFileNameFull,contextFileName,exCtx)
+  
   ret = instanceOfLogOfCurrentSession._current_instance
   exchangeMode = "File"
   if not keepFilesToReplay:
     exchangeMode = "TCP"
   returnCode, stdout, stderr, evParams = InternalExecResistant( exchangeMode, keepFilesToReplay, code, context, outargsname )
-  stdout = stdout.decode()
-  stderr = stderr.decode()
-  sys.stdout.write( stdout ) ; sys.stdout.flush()
   isOK, stderr = IsConsideredAsOKRun( returnCode, closeEyesOnErrorAtExit , stderr )
-  sys.stderr.write( stderr ) ; sys.stderr.flush()
   if isOK:
     pcklData = instanceOfLogOfCurrentSession._remote_handle.getObj()
     if len(pcklData) > 0:
