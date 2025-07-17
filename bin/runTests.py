@@ -34,8 +34,8 @@ def __configureTests(args=None, exe=None):
       usage = "Usage: %s [options]"%exe
   else:
       usage = "Usage: %prog [options]"
-  epilog  = """\n
-Run tests of SALOME components provided with application.\n
+  epilog  = """
+Run tests of SALOME components provided with application.
 Principal options are:
     -h,--help
         Show this help message and exit.
@@ -64,18 +64,19 @@ Principal options are:
     -LE <regex>, --label-exclude <regex>
         Exclude tests with labels matching regular expression.
 
-For complete description of available options, pleaser refer to ctest documentation.\n
+For complete description of available options, pleaser refer to ctest documentation.
 """
   if not args:
-    return []
+    return argparse.Namespace(run_dir=None), []
 
   parser = argparse.ArgumentParser(usage=usage + epilog,
                                    epilog="Others options are passed to ctest")
   parser.add_argument(
       "--run-dir",
-      action="store",
-      type=Path,
-      help="directory where ctest will be run (write access is required)",
+      nargs='?',
+      const="run_in_default",
+      default=None,
+      help="directory where ctest will be run (write access is required). If used without a path, runs in the default directory.",
   )
   return parser.parse_known_args(args)
 
@@ -90,20 +91,24 @@ def runTests(args, exe=None):
 
   testPath = os.path.join(appliPath, __testSubDir)
   cfg, args = __configureTests(args, exe)
-  if cfg.run_dir:
+  
+  run_dir_arg = cfg.run_dir
+
+  if run_dir_arg and run_dir_arg != "run_in_default":
+    run_dir = Path(run_dir_arg)
     ceabin = Path(appliPath).parent
     prefix = ceabin.parent.parent.parent
-    cfg.run_dir.mkdir(parents=True, exist_ok=True)
+    run_dir.mkdir(parents=True, exist_ok=True)
     for path in Path(testPath).glob('CTest*'):
        if not path.is_file():
           continue
        with open(path) as fobj:
           content = fobj.read()
        content = content.replace("../../../../../../..", str(prefix))
-       content = content.replace("../../../..", str(ceabin))
-       with open(cfg.run_dir / path.name, "w") as fobj:
+       content = content.replace("../../..", str(ceabin))
+       with open(run_dir / path.name, "w") as fobj:
           fobj.write(content)
-    testPath = cfg.run_dir
+    testPath = run_dir
 
   command = ["ctest"] + args
   p = subprocess.Popen(command, cwd=testPath)
