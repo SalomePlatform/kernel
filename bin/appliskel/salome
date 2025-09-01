@@ -18,8 +18,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import salome_common
+from pathlib import Path
 import sys
 
+import salome_common
+
+
 if __name__ == "__main__":
-    salome_common.main(sys.argv[1:])
+    appli_path = Path(__file__).parent
+    args = [f"{appli_path}"] + sys.argv[1:]
+    salome_common.main(args)

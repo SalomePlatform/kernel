@@ -28,7 +28,7 @@
 import sys
 import CosNaming
 from omniORB import CORBA
-import SALOME_Logger
+from . import SALOME_Logger
 import time
 import os
 
@@ -70,7 +70,7 @@ def ReturnLoggerOld():
       return m_pInterfaceLogger
       
 def ReturnLoggerSSL():
-      import KernelLogger
+      from . import KernelLogger
       m_pInterfaceLogger = None
       try:
             m_pInterfaceLogger = KernelLogger.myLogger()
@@ -82,7 +82,7 @@ class SALOME_Trace :
     def __init__(self):
         self.m_pInterfaceLogger = None
         if trace=="logger":
-            import KernelBasis
+            from . import KernelBasis
             if KernelBasis.getSSLMode():
                   self.m_pInterfaceLogger = ReturnLoggerSSL()
             else:

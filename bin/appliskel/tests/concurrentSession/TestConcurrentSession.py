@@ -53,8 +53,8 @@ def session(args=None):
   if args is None:
     args = []
   try:
-    import setenv
-    setenv.main(True)
+    from salome.kernel import setenv_impl
+    setenv_impl.main(True)
     import runSession
     params, args = runSession.configureSession(args, exe="salome shell")
     return runSession.runSession(params, args)
@@ -69,8 +69,8 @@ def appli(args=None):
     args = []
   try:
     sys.argv = ['runSalome', '-t']
-    import setenv
-    setenv.main(True, exeName="salome start")
+    from salome.kernel import setenv_impl
+    setenv_impl.main(True, exeName="salome start")
     import runSalome
     runSalome.runSalome()
   except SystemExit as e:

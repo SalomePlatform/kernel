@@ -1,6 +1,6 @@
 class ScriptLocalParameters:
     def __init__(self, args):
-        import KernelBasis
+        from salome.kernel import KernelBasis
         self.debug = KernelBasis.VerbosityActivated()
         self.nb_proc = self._read_arg(args[0], "NULL")
         self.workdir = self._read_arg(args[1], "NULL")

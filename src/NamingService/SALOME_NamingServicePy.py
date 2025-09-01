@@ -37,7 +37,7 @@ import CosNaming
 import string
 from string import *
 
-from SALOME_utilities import *
+from .SALOME_utilities import *
 #=============================================================================
 
 class SALOME_NamingServicePy_i:

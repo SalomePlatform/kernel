@@ -19,7 +19,7 @@
 #
 
 import unittest
-import ArgvKeeper
+from salome.kernel import ArgvKeeper
 
 from time import sleep
 

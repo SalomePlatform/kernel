@@ -57,12 +57,15 @@ ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeLifeCycleCORBA SALOME_LifeCycleCORBA.cxx SALOME_FileTransferCORBA.cxx)
 TARGET_LINK_LIBRARIES(SalomeLifeCycleCORBA ${COMMON_LIBS})
+set_target_properties(SalomeLifeCycleCORBA PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS SalomeLifeCycleCORBA EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(Test_LifeCycleCORBA Test_LifeCycleCORBA.cxx)
+set_target_properties(Test_LifeCycleCORBA PROPERTIES INSTALL_RPATH "$ORIGIN/../../lib/salome")
 TARGET_LINK_LIBRARIES(Test_LifeCycleCORBA SalomeLifeCycleCORBA Registry SalomeNotification SalomeContainer ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 ADD_EXECUTABLE(TestContainerManager TestContainerManager.cxx)
+set_target_properties(TestContainerManager PROPERTIES INSTALL_RPATH "$ORIGIN/../../lib/salome")
 TARGET_LINK_LIBRARIES(TestContainerManager SalomeLifeCycleCORBA Registry SalomeNotification SalomeContainer ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 INSTALL(TARGETS Test_LifeCycleCORBA TestContainerManager DESTINATION ${SALOME_INSTALL_BINS})

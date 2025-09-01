@@ -28,7 +28,12 @@ SET(SCRIPTS
   extension_query.py
   extension_remover.py
   extension_unpacker.py
+
+SET(PACKAGES
   extension_utilities.py
+)
 )
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/SalomeOnDemandTK)
+
+INSTALL(FILES ${PACKAGES} DESTINATION ${SALOME_KERNEL_INSTALL_PYTHON})

@@ -24,7 +24,7 @@
 ## @package SALOME_DriverPy
 #  \brief python implementation of SALOMEDS::Driver interface
 #
-import SALOMEDS__POA
+from . import SALOMEDS__POA
 
 ## Python implementation of generic SALOMEDS::Driver.
 #

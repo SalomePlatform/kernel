@@ -28,7 +28,7 @@
  The module must be imported before any other import of SALOME CORBA module
 """
 import omniORB
-import SALOME
+from . import SALOME
 
 def mydel(self):
     self.UnRegister()

@@ -29,15 +29,15 @@
 import sys, os,signal,string,subprocess
 import subprocess
 import runSalomeOld
-import setenv
+from salome.kernel import setenv_impl
 import orbmodule
 import TestKiller
 import addToKillList
 
 # get SALOME environment :
 
-args, modules_list, modules_root_dir = setenv.get_config()
-setenv.set_env(args, modules_list, modules_root_dir)
+args, modules_list, modules_root_dir = setenv_impl.get_config()
+setenv_impl.set_env(args, modules_list, modules_root_dir)
 
 # set environment for trace in logger
 # (with file, servers may be killed before the write to the file...)
@@ -87,7 +87,7 @@ unittest.TextTestRunner(verbosity=2).run(LifeCycleCORBA_SWIGTest.suite())
 
 # kill containers created by the Container Manager
 
-import Engines
+from salome.kernel import Engines
 launcher = clt.waitNS("/SalomeLauncher",Engines.SalomeLauncher)
 launcher.Shutdown()
 

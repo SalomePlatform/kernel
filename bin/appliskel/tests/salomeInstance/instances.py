@@ -47,8 +47,8 @@ class TestLauncher(unittest.TestCase):
   #
 
   def __connectToInstance(self, port):
-    import setenv
-    setenv.main(True)
+    from salome.kernel import setenv_impl
+    setenv_impl.main(True)
     import runConsole
     return runConsole.connect(["-p", port, "-c", "exit()"]) # auto-logout
   #

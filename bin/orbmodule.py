@@ -27,9 +27,9 @@
 
 import sys,os,time
 import string
-from nameserver import NamingServer
+from salome.kernel.nameserver import NamingServer
 from omniORB import CORBA
-from launchConfigureParser import verbose
+from salome.kernel.launchConfigureParser import verbose
 
 # Import the stubs for the Naming service
 import CosNaming

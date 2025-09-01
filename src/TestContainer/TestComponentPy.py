@@ -32,7 +32,7 @@ import sys
 import string
 from omniORB import CORBA
 import CosNaming
-import Engines
+from salome.kernel import Engines
 from Utils_Identity import getShortHostName
 
 

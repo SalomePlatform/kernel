@@ -37,9 +37,9 @@ This module defines a class which provides logging facility in Salome:
 import sys, os
 import logging
 
-from salome.kernel.deprecation import deprecated
-from salome.kernel import termcolor
-import salome.kernel.logconfig
+from salome.kernel.salome.kernel.deprecation import deprecated
+from salome.kernel.salome.kernel import termcolor
+import salome.kernel.salome.kernel.logconfig
 
 ## This class formats and displays log messages in Salome environment. It
 #  inherits \b logging.Logger class defined in \b logging module from Python 
@@ -106,7 +106,7 @@ class Logger(logging.Logger):
     
     Basic usage::
     
-        from salome.kernel.logger import Logger
+        from salome.kernel.salome.kernel.logger import Logger
         log = Logger("Test")
         log.debug("Debug message")
         log.info("Information message")
@@ -116,7 +116,7 @@ class Logger(logging.Logger):
 
     """
 
-    def __init__(self, keyword = "KEY", level = salome.kernel.logconfig.loggingLevel,
+    def __init__(self, keyword = "KEY", level = salome.kernel.salome.kernel.logconfig.loggingLevel,
                  color = None, sourceFileName=None):
 
         if sourceFileName is not None:
@@ -234,7 +234,7 @@ class ExtLogger(Logger):
     @deprecated("Class ExtLogger is deprecated since version 5.1.5. See "
                 "documentation for replacement.")
     def __init__(self, keyword = "KEY",
-                 level = salome.kernel.logconfig.loggingLevel,
+                 level = salome.kernel.salome.kernel.logconfig.loggingLevel,
                  color = None, sourceFileName=None):
         Logger.__init__(self, keyword, level, color, sourceFileName)
 

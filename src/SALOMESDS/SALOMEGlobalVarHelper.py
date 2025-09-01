@@ -20,7 +20,7 @@
 # Author : Anthony Geay
 
 # dict,list,tuple,int,float,str
-import SALOME
+from salome.kernel import SALOME
 import pickle
 
 class List:

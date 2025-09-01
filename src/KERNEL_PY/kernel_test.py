@@ -26,11 +26,11 @@ import unittest
 class TestKernel(unittest.TestCase):
 
     def setUp(self):
-        import salome
+        from salome.kernel import salome
         salome.salome_init()
 
     def processGuiEvents(self):
-        import salome
+        from salome.kernel import salome
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser();
             import SalomePyQt
@@ -41,11 +41,11 @@ class TestKernel(unittest.TestCase):
         print()
         print('Testing Kernel module: check module catalogue')
 
-        import salome
+        from salome.kernel import salome
 
         # ---- get module catalogue
         print('... Get module catalogue')
-        import SALOME_ModuleCatalog
+        from . import SALOME_ModuleCatalog
         obj = salome.naming_service.Resolve('/Kernel/ModulCatalog')
         self.assertIsNotNone(obj)
         catalog = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
@@ -66,7 +66,7 @@ class TestKernel(unittest.TestCase):
         print()
         print('Testing Kernel module: check data server')
         
-        import salome
+        from salome.kernel import salome
 
         print('... Initialize study builder')
         builder = salome.myStudy.NewBuilder()

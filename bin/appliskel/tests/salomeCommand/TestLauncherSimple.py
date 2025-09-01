@@ -36,8 +36,8 @@ class TestLauncher(unittest.TestCase):
 
   def testHello(self):
     try:
-      import setenv
-      setenv.main(True)
+      from salome.kernel import setenv_impl
+      setenv_impl.main(True)
       import runSession
       args = ["hello.py"]
       params, args = runSession.configureSession(args, exe="salome shell")

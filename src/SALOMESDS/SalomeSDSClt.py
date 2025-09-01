@@ -19,9 +19,9 @@
 #
 # Author : Anthony Geay
 
-import SALOME
+from . import SALOME
 import pickle
-import SALOMEWrappedStdType
+from . import SALOMEWrappedStdType
 
 class InvokatorStyle:
     def __init__(self,varPtr):
@@ -531,21 +531,21 @@ def GetHandlerFromRef(objCorba,isTempVar=False):
     
     
 def CreateRdOnlyGlobalVar(value,varName,scopeName):
-    import salome
+    from salome.kernel import salome
     salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdOnlyVar(varName,pickle.dumps(value,pickle.HIGHEST_PROTOCOL)),False)
     
 def CreateRdExtGlobalVar(value,varName,scopeName):
-    import salome
+    from salome.kernel import salome
     salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdExtVar(varName,pickle.dumps(value,pickle.HIGHEST_PROTOCOL)),False)
 
 def GetHandlerFromName(varName,scopeName):
-    import salome
+    from salome.kernel import salome
     salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s=dsm.retriveDataScope(scopeName)

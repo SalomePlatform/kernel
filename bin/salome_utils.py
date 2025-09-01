@@ -420,8 +420,8 @@ class BackTraceFormatter(logging.Formatter):
             if inspect.getsourcefile(frame) != logging.__file__:
                 break
         record.msg = "{} ( callsite is {} of file \"{}\" at line {} )".format(record.msg, frame.f_code.co_name,inspect.getsourcefile(frame),inspect.getlineno(frame) )
-        return logging.Formatter.format(self, record)     
-    
+        return logging.Formatter.format(self, record)
+
 def positionVerbosityOfLogger( verboseLevel ):
     from packaging import version
     current_version = version.parse("{}.{}".format(sys.version_info.major,sys.version_info.minor))
@@ -455,8 +455,8 @@ def verbose():
 
     :return current verbosity level
     """
-    import KernelBasis
-    return KernelBasis.VerbosityActivated()
+    from .KernelBasis import VerbosityActivated
+    return VerbosityActivated()
 
 # --
 
@@ -467,8 +467,8 @@ def setVerbose(status):
     :param status : verbosity status
     :type status: bool
     """
-    import KernelBasis
-    return KernelBasis.SetVerbosityActivated( status )
+    from .KernelBasis import SetVerbosityActivated
+    return SetVerbosityActivated( status )
 
 # --
 
@@ -489,8 +489,8 @@ def verboseLevel():
 
     :return current verbosity level
     """
-    import KernelBasis
-    return KernelLogLevelToLogging[ KernelBasis.VerbosityLevel() ]
+    from .KernelBasis import VerbosityLevel
+    return KernelLogLevelToLogging[ VerbosityLevel() ]
 
 def setVerboseLevel(level):
     """
@@ -498,8 +498,8 @@ def setVerboseLevel(level):
     The function `verboseLevel()` can be used to get current verbosity level.
     :param level : verbosity level
     """
-    import KernelBasis
-    KernelBasis.SetVerbosityLevel(LoggingToKernelLogLevel[ level ])
+    from .KernelBasis import SetVerbosityLevel
+    SetVerbosityLevel(LoggingToKernelLogLevel[ level ])
 
 # --
 

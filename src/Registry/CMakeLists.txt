@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2025  CEA, EDF, OPEN CASCADE
+# Copyright (C) 2012-2024  CEA, EDF, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,8 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../ArgvKeeper
+  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
+  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
   ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
   ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
   ${PROJECT_BINARY_DIR}/idl
@@ -31,6 +33,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(Registry RegistryConnexion.cxx RegistryService.cxx)
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 TARGET_LINK_LIBRARIES(Registry SalomeNS OpUtil ${SALOMEBOOTSTRAP_SALOMELocalTrace} ${SALOMEBOOTSTRAP_SALOMEBasics} ${SALOMEBOOTSTRAP_KERNELBasics} ${SALOMEBOOTSTRAP_SALOMEException} SalomeIDLKernel ${PLATFORM_LIBS} ${CMAKE_DL_LIBS})
+set_target_properties(Registry PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS Registry EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 SET(SALOME_Registry_Server_LIBS
@@ -48,6 +51,7 @@ SET(SALOME_Registry_Server_LIBS
 
 ADD_EXECUTABLE(SALOME_Registry_Server SALOME_Registry_Server.cxx)
 TARGET_LINK_LIBRARIES(SALOME_Registry_Server ${SALOME_Registry_Server_LIBS})
+set_target_properties(SALOME_Registry_Server PROPERTIES INSTALL_RPATH "$ORIGIN/../../lib/salome")
 INSTALL(TARGETS SALOME_Registry_Server EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

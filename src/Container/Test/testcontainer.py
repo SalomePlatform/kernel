@@ -20,9 +20,9 @@
 
 import unittest
 from os import getcwd
-from Engines import ContainerParameters, ResourceParameters
-import SALOME
-import salome
+from salome.kernel.Engines import ContainerParameters, ResourceParameters
+from salome.kernel import SALOME
+from salome.kernel import salome
 
 from time import sleep
 

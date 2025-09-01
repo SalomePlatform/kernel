@@ -36,15 +36,18 @@ import sys
 import time
 import string
 import signal
-from omniORB import CORBA, PortableServer, any
-import Engines, Engines__POA
-import Registry
-from Utils_Identity import *
-from SALOME_NamingServicePy import *
-from SALOME_Embedded_NamingService_ClientPy import SALOME_Embedded_NamingService_ClientPy
-from libNOTIFICATION import *
+from omniORB import CORBA, any
+from . import Engines
+from . import Engines__POA
+#Engines__POA = sys.modules["salome.kernel.Engines__POA"]
 
-from SALOME_utilities import *
+from . import Registry
+from .Utils_Identity import *
+from .SALOME_NamingServicePy import *
+from salome.kernel.SALOME_Embedded_NamingService_ClientPy import SALOME_Embedded_NamingService_ClientPy
+from .libNOTIFICATION import *
+
+from .SALOME_utilities import *
 
 from _thread import *
 

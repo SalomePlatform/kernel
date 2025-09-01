@@ -80,7 +80,7 @@ class SALOME_Exception
 
 %pythoncode %{
 def GetDSMInstance(argv):
-  import SALOME
+  from . import SALOME
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetDSMInstanceInternal(argv))

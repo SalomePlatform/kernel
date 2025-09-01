@@ -23,9 +23,9 @@
 
 import os, sys, re, socket
 #import commands
-from server import Server
-from salome_utils import getHostName, makeDir
-from launchConfigureParser import verbose
+from salome.kernel.server import Server
+from salome.kernel.salome_utils import getHostName, makeDir
+from salome.kernel.launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ class NamingServer(Server):
     #LOGDIR = "/tmp/logs/" + USER
 
     def initNSArgs(self):
-        from salome_utils import getLogDir
+        from salome.kernel.salome_utils import getLogDir
         upath = getLogDir()
         makeDir(upath)
 
@@ -100,14 +100,17 @@ class NamingServer(Server):
 
 
     def initArgs(self):
+        ld_path = "LD_LIBRARY_PATH"
         Server.initArgs(self)
         if sys.platform == "win32":
-          env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
+          env_ld_library_path = ['env', f'{ld_path}=' + os.getenv("PATH")]
         elif sys.platform == "darwin":
           env_ld_library_path = ['env', 'DYLD_LIBRARY_PATH=' + os.getenv("DYLD_LIBRARY_PATH"), 'DYLD_FALLBACK_LIBRARY_PATH=' + os.getenv("DYLD_FALLBACK_LIBRARY_PATH")]
         else:
-          env_ld_library_path = ['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
-        self.CMD = ['xterm', '-e']+ env_ld_library_path + ['python']
+          env_ld_library_path = []
+          if ld_path in os.environ:
+            env_ld_library_path += [ 'env', f'{ld_path}=' + os.getenv( ld_path ) ]
+        self.CMD = ['xterm', '-e'] + env_ld_library_path + ['python3']
         self.initNSArgs()
 
 # In LifeCycleCORBA, FactoryServer is started with rsh on the requested

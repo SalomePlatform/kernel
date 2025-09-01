@@ -56,10 +56,12 @@ SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/KernelHelpers)
 
 ADD_LIBRARY(SalomeKernelHelpersTest KernelHelpersUnitTests.cxx)
 TARGET_LINK_LIBRARIES(SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
+set_target_properties(SalomeKernelHelpersTest PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../../../lib/salome")
 INSTALL(TARGETS SalomeKernelHelpersTest DESTINATION ${KERNEL_TEST_LIB})
 
 ADD_EXECUTABLE(TestKernelHelpers TestKernelHelpers.cxx)
 TARGET_LINK_LIBRARIES(TestKernelHelpers SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
+set_target_properties(TestKernelHelpers PROPERTIES INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../../../../../lib/salome")
 #ADD_TEST(TestKernelHelpers TestKernelHelpers)
 INSTALL(TARGETS TestKernelHelpers DESTINATION ${LOCAL_TEST_DIR})
 

@@ -26,7 +26,7 @@
 """
 import sys,os,shutil,glob,socket
 import argparse
-from salome_utils import getUserName
+from salome.kernel.salome_utils import getUserName
 
 import getAppliPath
 appli_local=os.path.realpath(os.path.dirname(__file__))

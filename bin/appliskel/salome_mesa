@@ -27,8 +27,11 @@
 # discussion of the issue, EDF Redmine issue #22374.
 #
 
-import salome_common
+from pathlib import Path
 import sys
+
+import salome_common
+
 
 if __name__ == "__main__":
     import os
@@ -36,4 +39,6 @@ if __name__ == "__main__":
         os.environ["XLIB_SKIP_ARGB_VISUALS"]="1"
     os.environ["MESA_GL_VERSION_OVERRIDE"]="4.5"
     os.environ["SALOME_USE_MESA"]="1"
-    salome_common.main(sys.argv[1:])
+    appli_path = Path(__file__).parent
+    args = [f"{appli_path}"] + sys.argv[1:]
+    salome_common.main(args)

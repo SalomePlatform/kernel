@@ -25,10 +25,10 @@
 #  File   : SALOME_utilities.py
 #  Module : SALOME
 #
-import SALOME_Trace
+from . import SALOME_Trace
 GLogger = SALOME_Trace.SALOME_Trace()
 
-from launchConfigureParser import verbose
+from .launchConfigureParser import verbose
 
 def MYTRACE ():
     if verbose():

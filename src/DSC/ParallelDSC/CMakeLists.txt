@@ -47,6 +47,7 @@ SET(SalomeParallelDSCContainer_SOURCES
 
 ADD_LIBRARY(SalomeParallelDSCContainer ${SalomeParallelDSCContainer_SOURCES})
 ADD_DEPENDENCIES(SalomeParallelDSCContainer SalomeParallelIDLKernel)
+set_target_properties(SalomeParallelDSCContainer PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS SalomeParallelDSCContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

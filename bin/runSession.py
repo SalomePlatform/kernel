@@ -24,12 +24,13 @@
 import os
 import sys
 from optparse import OptionParser
-from NSparam import getNSparams
+from .NSparam_impl import getNSparams
 import socket
 import subprocess
 import re
-from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs, getShortAndExtraArgs
-from salome_utils import getUserName, getShortHostName
+from pathlib import Path
+from .salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs, getShortAndExtraArgs
+from salome.kernel.salome_utils import getUserName, getShortHostName
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -238,7 +239,8 @@ def __runLocalSession(command):
     if sys.platform == "win32":
       cmd = ["cmd", "/K", "set PROMPT=[SALOME] $P$G"]
     else:
-      cmd = ["/bin/bash",  "--rcfile", absoluteAppliPath + "/.bashrc" ]
+      bashrc = Path( absoluteAppliPath ) / "bin" / "salome" / "appli" / ".bashrc"
+      cmd = ["/bin/bash",  "--rcfile", bashrc.as_posix() ]
     proc = subprocess.Popen(cmd, shell=False, close_fds=True)
     proc.communicate()
     return proc.returncode

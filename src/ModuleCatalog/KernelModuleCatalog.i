@@ -32,7 +32,7 @@
 
 %pythoncode %{
 def myModuleCatalog(listOfCatalogs):
-  import SALOMEDS
+  from . import SALOMEDS
   import CORBA
   orb=CORBA.ORB_init([''])
   param = "::".join(["\"{}\"".format(elt) for elt in listOfCatalogs])

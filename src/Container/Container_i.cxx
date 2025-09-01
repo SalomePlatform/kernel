@@ -223,7 +223,7 @@ Abstract_Engines_Container_i::Abstract_Engines_Container_i (const std::string& p
       PyRun_SimpleString("import sys\n");
       PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
-      PyRun_SimpleString("import SALOME_Container\n");
+      PyRun_SimpleString("from salome.kernel import SALOME_Container\n");
       PyRun_SimpleString((char*)myCommand.str().c_str());
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
@@ -419,7 +419,7 @@ void Abstract_Engines_Container_i::ping()
 CORBA::Long Abstract_Engines_Container_i::getNumberOfCPUCores()
 {
   AutoGIL gstate;
-  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome.kernel.salome_psutil");
   AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getNumberOfCPUCores", NULL);
   int n = PyLong_AsLong(result);
@@ -579,7 +579,7 @@ namespace {
 Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
 {
   AutoGIL gstate;
-  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome.kernel.salome_psutil");
   AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"loadOfCPUCores", "s",
                                          _load_script.c_str());
@@ -656,7 +656,7 @@ void Abstract_Engines_Container_i::resetScriptForCPULoad()
 CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemory()
 {
   AutoGIL gstate;
-  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome.kernel.salome_psutil");
   AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemory", NULL);
   int n = PyLong_AsLong(result);
@@ -674,7 +674,7 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemory()
 CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUse()
 {
   AutoGIL gstate;
-  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome.kernel.salome_psutil");
   AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemoryInUse", NULL);
   int n = PyLong_AsLong(result);
@@ -692,7 +692,7 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUse()
 CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUseByMe()
 {
   AutoGIL gstate;
-  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome_psutil");
+  PyObject *module = PyImport_ImportModuleNoBlock((char*)"salome.kernel.salome_psutil");
   AutoPyRef result = PyObject_CallMethod(module,
                                          (char*)"getTotalPhysicalMemoryInUseByMe", NULL);
   int n = PyLong_AsLong(result);

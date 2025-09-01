@@ -1,0 +1,56 @@
+[build-system]
+requires = [
+  "scikit-build-core",
+  "omniorb>=4.2.2",
+  "libbatch>=2.5.1; platform_system!= 'Windows'",
+  "salome_conf",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "salome_kernel"
+description = "SALOME KERNEL module implements general services of SALOME platform."
+readme = {file = "README", content-type = "text/markdown"}
+requires-python = ">= 3.7"
+license = {file = "COPYING"}
+dependencies = [
+  "omniorb>=4.2.2",
+  "libbatch>=2.5.1; platform_system!= 'Windows'",
+  "psutil",
+  "numpy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+scipy = ["scipy"]
+
+[tool.scikit-build.cmake.define]
+# SALOME_CMAKE_DEBUG = "ON"
+RELOCATABLE = "ON"
+SALOME_BUILD_TESTS = "ON"
+SALOME_USE_64BIT_IDS = "ON"
+SALOME_BUILD_DOC = "OFF"
+
+OMNIORBPY_ROOT_DIR = {env="VIRTUAL_ENV", default="EMPTY"}
+LIBBATCH_ROOT_DIR = {env="VIRTUAL_ENV", default="EMPTY"}
+CONFIGURATION_ROOT_DIR = {env="VIRTUAL_ENV", default="EMPTY"}
+
+# Activate Libbatch on Linux
+[[tool.scikit-build.overrides]]
+if.platform-system = "linux"
+inherit.cmake.define = "append"
+cmake.define.SALOME_USE_LIBBATCH = "ON"
+
+[tool.scikit-build]
+cmake.version = ">=3.15"
+cmake.build-type = "Release"
+cmake.source-dir = "."
+experimental = true
+wheel.install-dir = "/data"
+build-dir = "build/{wheel_tag}_{build_type}"
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.setuptools_scm"
+
+[tool.setuptools_scm]
+# write_to = "src/KERNEL_PY/_version.py"

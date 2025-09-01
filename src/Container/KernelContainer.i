@@ -31,8 +31,14 @@
 }
 
 %pythoncode %{
+def getDftLocOfScripts():
+  from pathlib import Path
+  p = Path( __file__ )
+  ret = p.parent.parent.parent.parent.parent.parent / "share" / "salome" / "resources" / "kernel" / "ScriptsTemplate"
+  return ret.as_posix()
+
 def myContainer():
-  import Engines
+  from . import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetContainerInstance())

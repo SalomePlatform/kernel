@@ -309,7 +309,7 @@ SALOME_LogManager::SALOME_LogManager(CORBA::ORB_ptr orb, PortableServer::POA_var
     AutoGIL gstate;
     std::ostringstream myCommand;
     myCommand << "mylogmanager = SALOME_LogManager.SALOME_LogManagerHelper()";
-    PyRun_SimpleString("import SALOME_LogManager");
+    PyRun_SimpleString("from salome.kernel import SALOME_LogManager");
     PyRun_SimpleString((char*)myCommand.str().c_str());
     PyObject *mainmod = PyImport_AddModule("__main__");
     PyObject *globals = PyModule_GetDict(mainmod);

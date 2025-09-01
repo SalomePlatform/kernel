@@ -22,7 +22,7 @@
 #
 
 import os, sys, string
-from salome_utils import getHostName
+from salome.kernel.salome_utils import getHostName
 process_id = {}
 import logging
 
@@ -67,8 +67,10 @@ class Server:
                                    + os.getenv("DYLD_FALLBACK_LIBRARY_PATH")]
               myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
           elif sys.platform != "win32":
-              env_ld_library_path=['env', 'LD_LIBRARY_PATH='
-                                   + os.getenv("LD_LIBRARY_PATH")]
+              ldPath = "LD_LIBRARY_PATH"
+              env_ld_library_path = []
+              if ldPath in os.environ:
+                env_ld_library_path=['env', f'{ldPath}=' + os.getenv(ldPath)]
               myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
         for sapcfg in ["SalomeAppSLConfig","SalomeAppConfig"]:

@@ -2,7 +2,7 @@ import sys
 
 class ScriptRemoteParameters:
     def __init__(self, args):
-        import KernelBasis
+        from salome.kernel import KernelBasis
         self.debug = KernelBasis.VerbosityActivated()
         self.protocol = args[0]
         self.user = self._read_arg(args[1], "NULL")
@@ -42,7 +42,7 @@ class ScriptRemoteParameters:
 
 # ----------------------------------------------
 def command(args):
-    import KernelBasis
+    from salome.kernel import KernelBasis
     options = ScriptRemoteParameters(args)
     if options.debug:
         KernelBasis.WriteInStdout( str(options) )

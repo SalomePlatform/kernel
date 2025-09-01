@@ -40,13 +40,16 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-SET(SCRIPTS
+SET(PACKAGES
   SALOME_ComponentPy.py
   SALOME_PyNode.py
   SALOME_Container.py
   SALOME_ContainerHelper.py
-  SALOME_ContainerPy.py
   SALOME_GlobalsImpl.py
+)
+
+SET(SCRIPTS
+  SALOME_ContainerPy.py
 )
 
 ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${OMNIORB_DEFINITIONS})
@@ -97,6 +100,7 @@ SET(SalomeContainer_SOURCES
 ADD_LIBRARY(SalomeContainer ${SalomeContainer_SOURCES})
 ADD_DEPENDENCIES(SalomeContainer SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(SalomeContainer ${COMMON_LIBS} ${PTHREAD_LIBRARIES})
+set_target_properties(SalomeContainer PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS SalomeContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 SET(SALOME_Container_LIBS
@@ -110,6 +114,7 @@ SET(SALOME_Container_LIBS
 
 ADD_LIBRARY(SalomeContainerServer SALOME_Container_SignalsHandler.cxx)
 TARGET_LINK_LIBRARIES(SalomeContainerServer ${SALOME_Container_LIBS})
+set_target_properties(SalomeContainerServer PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS SalomeContainerServer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(SALOME_Container SALOME_Container.cxx)
@@ -129,6 +134,11 @@ TARGET_LINK_LIBRARIES(SALOME_Container_No_NS_Serv_OutProcess_FT SalomeContainerS
 
 ADD_EXECUTABLE(SALOME_Container_No_NS_Serv_OutProcess_Replay_FT SALOME_Container_No_NS_Serv_OutProcess_Replay_FT.cxx)
 TARGET_LINK_LIBRARIES(SALOME_Container_No_NS_Serv_OutProcess_Replay_FT SalomeContainerServer)
+
+set(LOCAL_BINARIES SALOME_Container SALOME_Container_No_NS_Serv SALOME_Container_No_NS_Serv_OutProcess SALOME_Container_No_NS_Serv_OutProcess_Replay SALOME_Container_No_NS_Serv_OutProcess_Replay SALOME_Container_No_NS_Serv_OutProcess_Replay_FT SALOME_Container_No_NS_Serv_OutProcess_FT)
+foreach(cur_binary ${LOCAL_BINARIES})
+  set_target_properties(${cur_binary} PROPERTIES INSTALL_RPATH "$ORIGIN/../../lib/salome")
+endforeach()
 
 IF(SALOME_BUILD_TESTS)
   ADD_EXECUTABLE(TestSalome_file TestSalome_file.cxx)
@@ -160,9 +170,14 @@ IF(${MACHINE} STREQUAL WINDOWS)
   SET_TARGET_PROPERTIES(_KernelContainer PROPERTIES DEBUG_OUTPUT_NAME _KernelContainer_d)
 ENDIF(${MACHINE} STREQUAL WINDOWS)
 SWIG_LINK_LIBRARIES(KernelContainer ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} SalomeContainer SalomeKernelHelpers)
-install(TARGETS _KernelContainer DESTINATION ${SALOME_INSTALL_LIBS})
+set_target_properties(_KernelContainer PROPERTIES INSTALL_RPATH "$ORIGIN/../../../../salome")
+install(TARGETS _KernelContainer DESTINATION ${SALOME_KERNEL_INSTALL_PYTHON})
 install(FILES ${KernelContainer_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
-SALOME_INSTALL_SCRIPTS("${_swig_SCRIPTS}"  ${SALOME_INSTALL_BINS} EXTRA_DPYS "${SWIG_MODULE_KernelContainer_REAL_NAME}")
+# /!\ Order of next 2 lines is important
+# because SALOME_INSTALL_SCRIPTS macro will compute the pyc/pyo files
+# and ${_swig_SCRIPTS} file needs ${PACKAGES}
+SALOME_INSTALL_SCRIPTS("${PACKAGES}" ${SALOME_KERNEL_INSTALL_PYTHON} DEF_PERMS)
+SALOME_INSTALL_SCRIPTS("${_swig_SCRIPTS}" ${SALOME_KERNEL_INSTALL_PYTHON} DEF_PERMS EXTRA_DPYS ${SWIG_MODULE_KernelContainer_REAL_NAME})
 
 INSTALL(DIRECTORY ScriptsTemplate DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
 INSTALL(FILES salome_process_launcher salome_process_attach PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${SALOME_INSTALL_BINS} )

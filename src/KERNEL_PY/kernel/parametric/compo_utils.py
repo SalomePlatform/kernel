@@ -35,7 +35,7 @@ Python script or function, use module
 :mod:`salome.kernel.parametric.pyscript_utils` instead. 
 """
 
-import SALOME_TYPES
+from . import SALOME_TYPES
 
 ## This function returns a dictionary containing the input values to be used
 #  in the computation code.

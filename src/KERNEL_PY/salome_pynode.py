@@ -29,8 +29,8 @@
 """
 import omniORB
 import pickle
-import SALOME
-import Engines
+from . import SALOME
+from . import Engines
 
 class SmartPyNode(Engines._objref_PyNode):
   def __init__(self):

@@ -1,0 +1,7 @@
+ninja>=1.5
+scikit-build-core
+setuptools_scm
+build
+omniorb
+salome_conf
+libbatch; platform_system!= 'Windows'

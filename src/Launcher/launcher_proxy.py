@@ -21,7 +21,7 @@
 """ Easier access to SalomeLauncher"""
 
 import os
-import salome
+from salome.kernel import salome
 import time
 
 JOB_FILE_NAME = "jobDump.xml"

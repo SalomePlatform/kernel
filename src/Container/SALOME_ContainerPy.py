@@ -33,8 +33,8 @@ import sys
 import importlib
 
 from omniORB import CORBA, PortableServer
-import SALOMEDS
-import Engines, Engines__POA
+from salome.kernel import SALOMEDS
+from salome.kernel import Engines, Engines__POA
 import salome_psutil
 from SALOME_NamingServicePy import *
 from SALOME_Embedded_NamingService import SALOME_Embedded_NamingService

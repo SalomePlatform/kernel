@@ -49,7 +49,7 @@ class SALOME_Embedded_NamingService_ClientPy:
       return self.keys()
   
 def SALOME_Embedded_NamingService_ClientPy_BuildFromIORFile(cls, iorNSFile):
-   import Engines
+   from . import Engines
    orb = CORBA.ORB_init([''], CORBA.ORB_ID)
    with open(iorNSFile,"r") as f:
     ior = f.read()

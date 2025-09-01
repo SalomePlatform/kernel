@@ -29,11 +29,11 @@ def main(modules=None):
     suite = unittest.TestSuite()
     loader = unittest.defaultTestLoader
 
-    import salome
+    from salome.kernel import salome
     salome.salome_init()
 
     if not modules:
-        from salome.kernel.services import getComponentList
+        from salome.kernel.salome.kernel.services import getComponentList
         modules = getComponentList()
         if salome.hasDesktop():
             import SalomePyQt

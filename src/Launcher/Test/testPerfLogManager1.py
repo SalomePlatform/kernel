@@ -20,11 +20,11 @@
 
 import unittest
 import os
-import salome
-import Engines
-import pylauncher
-import SALOME_PyNode
-import KernelBasis
+from salome.kernel import salome
+from salome.kernel import Engines
+from salome.kernel import pylauncher
+from salome.kernel import SALOME_PyNode
+from salome.kernel import KernelBasis
 
 import glob
 import pickle
@@ -93,7 +93,7 @@ class testPerfLogManager1(unittest.TestCase):
                             script_st = """
 import logging
 import sys
-import KernelBasis
+from salome.kernel import KernelBasis
 from datetime import datetime
 cst = KernelBasis.GetTimeAdjustmentCst()
 logging.debug("constant = {}".format(cst))
@@ -241,7 +241,7 @@ time.sleep(1)
                             script_st = """
 import logging
 import sys
-import KernelBasis
+from salome.kernel import KernelBasis
 from datetime import datetime
 cst = KernelBasis.GetTimeAdjustmentCst()
 logging.debug("constant = {}".format(cst))
@@ -304,7 +304,7 @@ sys.stderr.write("fake error message\\n")
             salome.naming_service.DumpIORInFile( ior_ns_file )
             cont = salome.cm.GiveContainer(cp)
             script_st = """
-from SALOME_Embedded_NamingService_ClientPy import SALOME_Embedded_NamingService_ClientPy
+from salome.kernel.SALOME_Embedded_NamingService_ClientPy import SALOME_Embedded_NamingService_ClientPy
 ior_ns_file = "{ior_ns_file}"
 ns = SALOME_Embedded_NamingService_ClientPy.BuildFromIORFile( ior_ns_file )
 ret = ns.repr()
@@ -373,7 +373,7 @@ ret = ns.repr()
         pass
 
 if __name__ == '__main__':
-    from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
+    from salome.kernel.salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
     salome.standalone()
     salome.salome_init()
     setVerbose(True)

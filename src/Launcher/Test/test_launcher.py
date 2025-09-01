@@ -48,6 +48,7 @@ class TestCompo(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
     # Prepare the test directory
+    from salome.kernel import LifeCycleCORBA
     temp = tempfile.NamedTemporaryFile()
     cls.test_dir = os.path.join(temp.name, "test_dir")
     name = os.path.basename(temp.name)
@@ -65,7 +66,7 @@ class TestCompo(unittest.TestCase):
 #    salome_runtime.addCatalog(session_catalog)
 
     # Get the list of possible ressources
-    ressource_param = salome.ResourceParameters()
+    ressource_param = LifeCycleCORBA.ResourceParameters()
     ressource_param.can_launch_batch_jobs = True
     rm = salome.lcc.getResourcesManager()
     cls.ressources = rm.GetFittingResources(ressource_param)
@@ -80,9 +81,10 @@ class TestCompo(unittest.TestCase):
       self.fail("IO exception:" + str(ex));
 
   def create_JobParameters(self):
-    job_params = salome.JobParameters()
+    from salome.kernel import LifeCycleCORBA
+    job_params = LifeCycleCORBA.JobParameters()
     job_params.wckey="P11N0:SALOME" #needed by edf clusters
-    job_params.resource_required = salome.ResourceParameters()
+    job_params.resource_required = LifeCycleCORBA.ResourceParameters()
     job_params.resource_required.nb_proc = 1
     return job_params
 
@@ -103,7 +105,7 @@ class TestCompo(unittest.TestCase):
 # -*- coding: utf-8 -*-
 
 # verify import salome
-import salome
+from salome.kernel import salome
 salome.standalone()
 salome.salome_init()
 
@@ -327,7 +329,7 @@ f.close()
     job_params.out_files = ["result.txt"]
 
     # define the interval between two YACS schema dumps (3 seconds)
-    import Engines
+    from salome.kernel import Engines
     job_params.specific_parameters = [Engines.Parameter("EnableDumpYACS", "3")]
 
     launcher = salome.naming_service.Resolve('/SalomeLauncher')
@@ -369,9 +371,9 @@ f.close()
       self.assertTrue(os.path.isfile(dump_file_path))
 
       # Load the schema state from the dump file and verify the state of a node
-      import SALOMERuntime
+      from salome.yacs import SALOMERuntime
       SALOMERuntime.RuntimeSALOME.setRuntime(1)
-      import loader
+      from salome.yacs import loader
       schema = loader.YACSLoader().load(job_script_file)
       stateParser = loader.stateParser()
       sl = loader.stateLoader(stateParser, schema)
@@ -436,7 +438,7 @@ f.close()
     job_params.out_files = ["result.txt"]
 
     # define the interval between two YACS schema dumps (3 seconds)
-    import Engines
+    from salome.kernel import Engines
     job_params.specific_parameters = [Engines.Parameter("YACSDriverOptions",
                "-imynode.i=5 -imynode.d=3.7 -imynode.b=False -imynode.s=lili")]
     expected_result="i=5,d=3.7,b=False,s=lili"
@@ -568,7 +570,7 @@ f.close()
 
 import os,sys
 # verify import salome
-import salome
+from salome.kernel import salome
 
 text_result = os.getenv("ENV_TEST_VAR","")
 
@@ -666,7 +668,7 @@ f.close()
 
 if __name__ == '__main__':
     # create study
-    import salome
+    from salome.kernel import salome
     salome.standalone()
     salome.salome_init()
     unittest.main()

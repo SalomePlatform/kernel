@@ -29,12 +29,12 @@
 import sys
 import unittest
 from omniORB import CORBA
-import Utils_Identity
-import Engines
+from salome.kernel import Utils_Identity
+from salome.kernel import Engines
 
 class LifeCycleCORBA_SWIGTest(unittest.TestCase):
     def setUp(self):
-        import LifeCycleCORBA
+        from salome.kernel import LifeCycleCORBA
         self.lcc = LifeCycleCORBA.LifeCycleCORBA()
         pass
 
@@ -80,6 +80,18 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         load an engine, check that the CORBA object is not null.
         check narrow
         """
+        from salome.kernel import KernelBasis
+        from salome.kernel import salome
+        from pathlib import Path
+        import os
+        KernelBasis.setSSLMode( False )
+        salome.salome_init_with_session()
+        # to find SALOME_TestComponentPy.py to load py component from lib/python3.9/site-packages/salome/kernel/salome/__init__.py to bin/salome/test/kernel/LifeCycleCORBA_SWIG
+        dirToAdd = ( Path( salome.__file__ ).parent.parent.parent.parent.parent.parent.parent / "bin" / "salome" / "test" / "kernel" / "LifeCycleCORBA_SWIG").as_posix()
+        newEnvCode = """import sys
+sys.path.append({!r})
+""".format( dirToAdd )
+        salome.cm.SetCodeOnContainerStartUp( newEnvCode )
         containerName = "swMyContainer"
         cp1=self.lcc.FindOrLoad_Component(containerName,"SALOME_TestComponentPy")
         self.assertNotEqual(cp1,None)
@@ -93,6 +105,18 @@ class LifeCycleCORBA_SWIGTest(unittest.TestCase):
         Call 2 times FindOrLoad_Component with the same parameters,
         check if we get the same engine,
         """
+        from salome.kernel import KernelBasis
+        from salome.kernel import salome
+        from pathlib import Path
+        import os
+        KernelBasis.setSSLMode( False )
+        salome.salome_init_with_session()
+        # to find SALOME_TestComponentPy.py to load py component from lib/python3.9/site-packages/salome/kernel/salome/__init__.py to bin/salome/test/kernel/LifeCycleCORBA_SWIG
+        dirToAdd = ( Path( salome.__file__ ).parent.parent.parent.parent.parent.parent.parent / "bin" / "salome" / "test" / "kernel" / "LifeCycleCORBA_SWIG").as_posix()
+        newEnvCode = """import sys
+sys.path.append({!r})
+""".format( dirToAdd )
+        salome.cm.SetCodeOnContainerStartUp( newEnvCode )
         containerName = "swMyContainer"
         cp1=self.lcc.FindOrLoad_Component(containerName,"SALOME_TestComponentPy")
         self.assertNotEqual(cp1,None)

@@ -289,7 +289,7 @@ std::string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, 
 
   std::string dump("");
 
-  dump += "import iparameters\n";
+  dump += "from salome.kernel import iparameters\n";
   dump += "ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters(\""+anID+"\", 1), True)\n\n";
   
   
@@ -340,7 +340,7 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
   ip = SALOMEDSImpl_IParameters(ap);
 
 
-  dump += shift +"import iparameters\n";
+  dump += shift +"from salome.kernel import iparameters\n";
   dump += shift + "ipar = iparameters.IParameters(salome.myStudy.GetModuleParameters(\""+anID+"\", \""+moduleName+"\", 1))\n\n";
   
   std::vector<std::string> v = ip.getProperties();

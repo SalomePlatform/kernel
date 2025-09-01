@@ -100,7 +100,14 @@ ROOT_PYTHONPACKAGE_NAME="salome"
 # be the pieces to be aggregated as a single virtual python package.
 #
 import os, sys
-from salome_utils import verbose
+from salome.kernel.salome_utils import verbose
+from salome.kernel import version_and_config
+
+__version__ = version_and_config.version
+
+__config_datetime__ = version_and_config.config_datetime
+
+del version_and_config
 
 MATCH_ENDING_PATTERN="site-packages" + os.path.sep + "salome"
 
@@ -119,47 +126,9 @@ extend_path(ROOT_PYTHONPACKAGE_NAME)
 # ==========================================================================
 #
 
-from salome_kernel import *
-from salome_study import *
-from salome_iapp import *
-import salome_study
-
-#
-# The next block is workaround for the problem of shared symbols loading for the extension modules (e.g. SWIG-generated)
-# that causes RTTI unavailable in some cases. To solve this problem, sys.setdlopenflags() function is used.
-# Depending on the Python version and platform, the dlopen flags can be defined in the dl, DLFUN or ctypes module.
-# 
-import sys
-flags = None
-if not flags:
-    try:
-        # dl module can be unavailable
-        import dl
-        flags = dl.RTLD_NOW | dl.RTLD_GLOBAL
-    except Exception:
-        pass
-    pass
-if not flags:
-    try:
-        # DLFCN module can be unavailable
-        import DLFCN
-        flags = DLFCN.RTLD_NOW | DLFCN.RTLD_GLOBAL
-    except Exception:
-        pass
-    pass
-if not flags:
-    try:
-        # ctypes module can be unavailable
-        import ctypes
-        flags = ctypes.RTLD_GLOBAL
-    except Exception:
-        pass
-    pass
-
-# Disable -> bug with scipy, seems very dangerous to do that
-#if flags:
-#    sys.setdlopenflags(flags)
-#    pass
+from salome.kernel.salome_kernel_utils import *
+from salome.kernel.salome_study import *
+from salome.kernel.salome_iapp import *
 
 orb, lcc, naming_service, cm, sg, esm, dsm, logm, modulcat, rm, lm = None,None,None,None,None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
@@ -170,7 +139,7 @@ def standalone():
     pass
 
 def withServers():
-    import KernelBasis
+    from .. import KernelBasis
     KernelBasis.setSSLMode(False)
 
 def salome_init(path=None, embedded=False, iorfakensfile=None, forced=False):
@@ -188,7 +157,7 @@ def salome_init(path=None, embedded=False, iorfakensfile=None, forced=False):
         if lcc is not None:# multi-initialization protection mecanism is based on lcc global var
             return
     PATH_TO_STUDY_FILE_TO_INITIATE = "PATH_TO_STUDY_FILE_TO_INITIATE"
-    import KernelBasis
+    from .. import KernelBasis
     if KernelBasis.getSSLMode():
         if KernelBasis.getIOROfEmbeddedNS() == "":
             import os
@@ -202,7 +171,7 @@ def salome_init(path=None, embedded=False, iorfakensfile=None, forced=False):
         salome_init_with_session(path, embedded)
 
 def salome_init_without_session_common(path=None, embedded=False):
-    from ORBConfigFile import writeORBConfigFileSSL
+    from ..ORBConfigFile_impl import writeORBConfigFileSSL
     OMNIORB_USER_PATH = "OMNIORB_USER_PATH"
     def RemoveOmniorbConfigFile():
         import os
@@ -217,15 +186,15 @@ def salome_init_without_session_common(path=None, embedded=False):
         atexit.register(RemoveOmniorbConfigFile)
 
     global lcc,naming_service,myStudy,myStudyName,orb,modulcat,sg
-    import KernelBasis
+    from .. import KernelBasis
     KernelBasis.setSSLMode(True)
-    import KernelDS
+    from .. import KernelDS
     myStudy = KernelDS.myStudy()
     import CORBA
     orb=CORBA.ORB_init([''])
-    import KernelModuleCatalog
-    import SALOME_ModuleCatalog
-    from salome_kernel import list_of_catalogs_regarding_environement
+    from .. import KernelModuleCatalog
+    from .. import SALOME_ModuleCatalog
+    from ..salome_kernel_utils import list_of_catalogs_regarding_environement
     modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
     #
     poa = orb.resolve_initial_references("RootPOA")
@@ -235,7 +204,7 @@ def salome_init_without_session_common(path=None, embedded=False):
     sg = salome_iapp_init(embedded)
     salome_study_init_without_session(path)
     #
-    from NamingService import NamingService
+    from ..NamingService import NamingService
     naming_service = NamingService()
     myStudyName = myStudy.Name
 
@@ -246,18 +215,19 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     """
     salome_init_without_session_common(path,embedded)
     global lcc,cm,dsm,esm,rm,logm,lm
-    import KernelLauncher
+    from .. import KernelLauncher
     cm = KernelLauncher.myContainerManager()
     type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
     rm = KernelLauncher.myResourcesManager()
-    from LifeCycleCORBA import LifeCycleCORBASSL
+    type(rm).GetResourceDefinition2 = ResourcesManagerGetResourceDefinition
+    from ..LifeCycleCORBA import LifeCycleCORBASSL
     lcc = LifeCycleCORBASSL()
     # create a FactoryServer Container servant
-    import KernelContainer
+    from .. import KernelContainer
     KernelContainer.myContainer()
     lm = KernelLauncher.myLockMaster()
     # activate poaManager to accept co-localized CORBA calls.
-    from KernelSDS import GetDSMInstance
+    from ..KernelSDS import GetDSMInstance
     import sys
     if hasattr(sys, 'argv'):
       argv = sys.argv
@@ -277,10 +247,10 @@ def salome_init_without_session(path=None, embedded=False, iorfakensfile=None):
     type(logm).GetLatestMonitoringDumpFile = LogManagerGetLatestMonitoringDumpFile
     type(logm).DumpIORInFile = LogManagerDumpIORInFile
     #
-    import KernelLogger
+    from .. import KernelLogger
     naming_service.Register(KernelLogger.myLogger(),"/Logger")
     #
-    from NamingService import NamingService
+    from ..NamingService import NamingService
     if iorfakensfile is not None:
         with open(iorfakensfile,"w") as iorfakensf:
             iorfakensf.write(NamingService.IOROfNS())
@@ -301,18 +271,19 @@ def salome_init_without_session_attached(path=None, embedded=False):
     global lcc,cm,dsm,esm,rm,logm,lm
     import CORBA
     orb=CORBA.ORB_init([''])
-    import Engines
-    import KernelBasis
-    import KernelLauncher
+    from .. import Engines
+    from .. import KernelBasis
+    from .. import KernelLauncher
     nsAbroad = orb.string_to_object( KernelBasis.getIOROfEmbeddedNS() )
-    import SALOME
+    from .. import SALOME
     cm = orb.string_to_object( nsAbroad.Resolve(CM_NAME_IN_NS).decode() )
     type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
     naming_service.Register(cm,CM_NAME_IN_NS)
     rm = orb.string_to_object( nsAbroad.Resolve(RM_NAME_IN_NS).decode() )
+    type(rm).GetResourceDefinition2 = ResourcesManagerGetResourceDefinition
     naming_service.Register(rm,RM_NAME_IN_NS)
     #
-    from LifeCycleCORBA import LifeCycleCORBASSL
+    from ..LifeCycleCORBA import LifeCycleCORBASSL
     lcc = LifeCycleCORBASSL()
     dsm = orb.string_to_object( nsAbroad.Resolve(DSM_NAME_IN_NS).decode() )
     naming_service.Register(dsm,DSM_NAME_IN_NS)
@@ -345,13 +316,14 @@ def salome_init_with_session(path=None, embedded=False):
     global orb, lcc, naming_service, cm, esm, dsm, modulcat
     global sg
     global myStudy, myStudyName
-    import KernelBasis
+    from salome.kernel import KernelBasis
     KernelBasis.setSSLMode(False)
     try:
         if salome_initial:
             salome_initial=False
             sg = salome_iapp_init(embedded)
             orb, lcc, naming_service, cm, esm, dsm, modulcat = salome_kernel_init()
+            type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
             myStudy, myStudyName = salome_study_init(path)
             pass
         pass
@@ -382,11 +354,11 @@ def salome_close():
     salome_study_close()
     myStudy, myStudyName = None, None
     lcc = None # to salome_init to rebuild all in case of salome_init after salome_close
-    import KernelBasis
+    from .. import KernelBasis
     if KernelBasis.getSSLMode() and not KernelBasis.getGUIMode():
-        import KernelDS
+        from .. import KernelDS
         KernelDS.KillGlobalSessionInstance()
-        import KernelSDS
+        from .. import KernelSDS
         KernelSDS.KillCPythonHelper()
     pass
 
@@ -407,7 +379,7 @@ def salome_walk_on_containers(ns,root):
         cont,obj = it.next_one()
         if cont:
             if obj.binding_name[0].kind == "object":
-                import Engines
+                from .. import Engines
                 corbaObj = ns.resolve(obj.binding_name)
                 if isinstance(corbaObj,Engines._objref_Container):
                     yield corbaObj,(root,obj.binding_name[0].id)
@@ -448,7 +420,7 @@ def salome_shutdown_containers_without_session():
             pass
 
 def salome_shutdown_containers():
-    import KernelBasis
+    from .. import KernelBasis
     if KernelBasis.getSSLMode():
         salome_shutdown_containers_without_session()
     else:
@@ -461,7 +433,16 @@ class SessionContextManager:
     def __exit__(self, type, value, traceback):
         salome_close()
 
+def ResourcesManagerGetResourceDefinition(self, machine):
+    """
+    Implementation pickle ready
+    """
+    ret = self.GetResourceDefinition( machine )
+    ret.__class__.__module__ = "salome.kernel.Engines"
+    return ret
+
 def ContainerManagerSetOverrideEnvForContainersSimple(self,env):
+    from .. import Engines
     envEff = [ Engines.KeyValPairString(key=k,val=v) for k,v in env ]
     return self.SetOverrideEnvForContainers( envEff )
 
@@ -469,14 +450,14 @@ def LogManagerNaiveFetch(self):
     """
     Fetch data from server with multiple CORBA invokations.
     """
-    import SALOME_ContainerHelper
+    from .. import SALOME_ContainerHelper
     return [SALOME_ContainerHelper.ContainerLogInfoClt(elt) for elt in self.listOfContainerLogs()]
 
 def LogManagerFetch(self,clearMemory = False):
     """
     Fetch data from server in one shot mode.
     """
-    from SALOME_ContainerHelper import unserializeLogManager
+    from ..SALOME_ContainerHelper import unserializeLogManager
     return unserializeLogManager( self.getAllStruct(clearMemory) )
 
 def LogManagerDumpInFile(self,fileName,clearMemory = False):
@@ -490,12 +471,12 @@ class LogManagerLaunchMonitoringFileCtxMgr:
         self._out_filename = outFileName
         self._monitoring_params = None
     def __enter__(self):
-        import salome
+        from .. import salome
         self._monitoring_params = salome.logm.LaunchMonitoringDumpFile(self._interval_in_ms, self._out_filename)
         return self._monitoring_params
     def __exit__(self,exctype, exc, tb):
-        import SALOME_PyNode
-        import salome
+        from .. import SALOME_PyNode
+        from .. import salome
         SALOME_PyNode.StopMonitoring( self._monitoring_params )
         salome.logm.GetLatestMonitoringDumpFile()
         pass
@@ -515,15 +496,15 @@ def LogManagerLaunchMonitoringDumpFile(self, intervalInMs, outFileName):
     outFileName2 = os.path.abspath( os.path.expanduser(outFileName) )
     import tempfile
     import logging
-    import SALOME_PyNode
-    import KernelBasis
+    from .. import SALOME_PyNode
+    from .. import KernelBasis
     # outFileNameSave stores the content of outFileName during phase of dumping
     with tempfile.NamedTemporaryFile(prefix=os.path.basename(outFileName2),dir=os.path.dirname(outFileName2)) as f:
       outFileNameSave = f.name
     with tempfile.NamedTemporaryFile(prefix="htopmain_",suffix=".py") as f:
       tempPyFile = f.name
     with open(tempPyFile,"w") as f:
-        f.write("""import Engines
+        f.write("""from salome.kernel import Engines
 import os
 import shutil
 import CORBA
@@ -533,7 +514,7 @@ logm = orb.string_to_object("{ior}")
 outFileName = "{outFileName}"
 outFileNameSave = "{outFileNameSave}"
 logm.setFileNamePairOfLogger(outFileName, outFileNameSave )
-import salome
+from salome.kernel import salome
 while(True):
   if os.path.exists( outFileName ):
     shutil.copy(outFileName,outFileNameSave)
@@ -553,7 +534,7 @@ def LogManagerDumpIORInFile(self, iorFileName):
         f.write( orb.object_to_string( logm ) )
 
 def LogManagerLoadFromFile(fileName):
-    from SALOME_ContainerHelper import unserializeLogManager
+    from salome.kernel.SALOME_ContainerHelper import unserializeLogManager
     with open(fileName,"rb") as f:
         data = f.read()
     return unserializeLogManager( data )
@@ -561,14 +542,14 @@ def LogManagerLoadFromFile(fileName):
 def LogManagerLoadFromIORFile( iorFile ):
     global orb
     def LoadAndWrite(logm,tempFileName):
-        import SALOME_PyNode
+        from salome.kernel import SALOME_PyNode
         logm.putStructInFileAtomic( False, tempFileName )
         tempFileAuto = SALOME_PyNode.FileDeleter( tempFileName )
         ret = LogManagerLoadFromFile( tempFileAuto.filename )
         return ret
     with open(iorFile,"r") as f:
         ior = f.read()
-    import Engines
+    from salome.kernel import Engines
     import tempfile
     salome_init_without_session()
     logm = orb.string_to_object( ior )
@@ -613,7 +594,7 @@ class Barrier:
     self._ior = orb.object_to_string( lm.buildRendezVous( nbClients ) )
   def barrier(self):
     import CORBA
-    import Engines
+    from .. import Engines
     orb=CORBA.ORB_init([''])
     rvPtr = orb.string_to_object( self._ior )
     rvPtr.acquire()

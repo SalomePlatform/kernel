@@ -26,10 +26,10 @@
 #  Module : SALOME
 #  $Header$
 #
-import salome_kernel
-import SALOMEDS
-import salome_iapp
-from launchConfigureParser import verbose
+from . import salome_kernel_utils
+from . import SALOMEDS
+from . import salome_iapp
+from .launchConfigureParser import verbose
 
 myStudy = None
 myStudyName = None
@@ -293,7 +293,7 @@ def salome_study_init_without_session(theStudyPath=None):
         orb = CORBA.ORB_init([''])
 
         # get Study reference
-        import KernelDS
+        from . import KernelDS
         myStudy = KernelDS.myStudy()
         pass
 
@@ -323,7 +323,7 @@ def salome_study_init(theStudyPath=None):
     global orb, lcc, naming_service, cm
 
     if not myStudy:
-        orb, lcc, naming_service, cm, _, _, _ = salome_kernel.salome_kernel_init()
+        orb, lcc, naming_service, cm, _, _, _ = salome_kernel_utils.salome_kernel_init()
 
         # get Study reference
         obj = naming_service.Resolve('/Study')

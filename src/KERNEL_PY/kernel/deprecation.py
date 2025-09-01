@@ -53,7 +53,7 @@ import warnings
 import inspect
 import os
 
-from salome.kernel import termcolor
+from salome.kernel.salome.kernel import termcolor
 
 msg_seedoc = "See documentation for possible replacements."
 

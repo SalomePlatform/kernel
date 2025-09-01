@@ -23,6 +23,7 @@
 #include "LifeCycleCORBATest.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
+#include "SALOME_NamingService_Abstract.hxx"
 #include "OpUtil.hxx"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
@@ -199,11 +200,20 @@ void
 LifeCycleCORBATest::testFindOrLoad_Component_PythonInCppContainer()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
-
+  CORBA::Object_ptr contMngr = _LCC.namingService()->Resolve("/ContainerManager");
+  Engines::ContainerManager_var contMngr2 = Engines::ContainerManager::_narrow( contMngr );
+  std::string code = R"delimiter(
+import sys
+from pathlib import Path
+from salome.kernel import salome
+dirToAdd = ( Path( salome.__file__ ).parent.parent.parent.parent.parent.parent.parent / "bin" / "salome" / "test" / "kernel" / "LifeCycleCORBA_SWIG").as_posix()
+sys.path.append( dirToAdd )
+)delimiter";
+  contMngr2->SetCodeOnContainerStartUp( code.c_str() );
   // --- get a local container,
   //     load an engine, check that the CORBA object is not null
 
-  std::string containerName = "myContainer";
+  std::string containerName = "myContainer2";
 
   Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
@@ -228,11 +238,19 @@ void
 LifeCycleCORBATest::testFindOrLoad_Component_PythonSameInstance()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
-
+  CORBA::Object_ptr contMngr = _LCC.namingService()->Resolve("/ContainerManager");
+  Engines::ContainerManager_var contMngr2 = Engines::ContainerManager::_narrow( contMngr );
+  std::string code = R"delimiter(
+import sys
+from pathlib import Path
+from salome.kernel import salome
+dirToAdd = ( Path( salome.__file__ ).parent.parent.parent.parent.parent.parent.parent / "bin" / "salome" / "test" / "kernel" / "LifeCycleCORBA_SWIG").as_posix()
+sys.path.append( dirToAdd )
+)delimiter";
   // --- get a local container (with a name based on local hostname),
   //     load an engine, check that the CORBA object is not null
 
-  std::string containerName = "myContainer";
+  std::string containerName = "myContainer2";
 
   Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");

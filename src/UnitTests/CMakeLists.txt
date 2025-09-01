@@ -92,6 +92,7 @@ ENDIF()
 
 ADD_EXECUTABLE(UnitTests UnitTests.cxx)
 TARGET_LINK_LIBRARIES(UnitTests ${COMMON_LIBS})
+set_target_properties(UnitTests PROPERTIES INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../../../../../lib/salome")
 INSTALL(TARGETS UnitTests DESTINATION ${LOCAL_TEST_DIR})
 
 INSTALL(FILES CTestTestfileInstall.cmake

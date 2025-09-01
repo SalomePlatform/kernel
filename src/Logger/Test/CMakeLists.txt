@@ -17,5 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(TestKiller.py ${SALOME_INSTALL_SCRIPT_PYTHON})
+SALOME_INSTALL_SCRIPTS(TestKiller.py ${SALOME_KERNEL_INSTALL_PYTHON})

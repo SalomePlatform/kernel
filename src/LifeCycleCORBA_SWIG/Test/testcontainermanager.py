@@ -20,9 +20,9 @@
 
 import os
 import unittest
-import salome
-import Engines
-import LifeCycleCORBA
+from salome.kernel import salome
+from salome.kernel import Engines
+from salome.kernel import LifeCycleCORBA
 salome.salome_init()
 cm= salome.lcc.getContainerManager()
 rm= salome.lcc.getResourcesManager()

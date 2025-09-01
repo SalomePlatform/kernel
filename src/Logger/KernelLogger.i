@@ -32,7 +32,7 @@
 
 %pythoncode %{
 def myLogger():
-  import SALOME_Logger
+  from . import SALOME_Logger
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetLoggerInstance())

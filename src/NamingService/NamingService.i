@@ -132,7 +132,7 @@ def NamingService_SetLogContainersFile(cls,logFileName = None):
 NamingService.SetLogContainersFile = classmethod(NamingService_SetLogContainersFile)
 def NamingService_RefOfNS(cls):
   ret = cls.IOROfNS()
-  import Engines
+  from salome.kernel import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(ret)
@@ -142,7 +142,7 @@ def NamingService_DumpIORInFile(cls,iorFileName):
     f.write( cls.IOROfNS() )
 NamingService.DumpIORInFile = classmethod(NamingService_DumpIORInFile)
 def NamingService_LoadIORInFile(cls,iorFileName):
-  import Engines
+  from salome.kernel import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   with open( iorFileName ) as f:
@@ -151,7 +151,7 @@ def NamingService_LoadIORInFile(cls,iorFileName):
   return ref
 NamingService.LoadIORInFile = classmethod( NamingService_LoadIORInFile )
 def NamingService_KillContainersInFile(cls,logFileName):
-  import Engines
+  from salome.kernel import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   with open(logFileName) as f:

@@ -20,8 +20,8 @@
 # Author : Anthony Geay
 
 import SalomeSDSClt
-import SALOME
-import salome
+from salome.kernel import SALOME
+from salome.kernel import salome
 import unittest
 import pickle
 import gc

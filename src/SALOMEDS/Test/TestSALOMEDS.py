@@ -26,12 +26,12 @@ import subprocess
 import runSalomeOld
 import orbmodule
 import TestKiller
-import setenv
+from salome.kernel import setenv_impl
 
 # get SALOME environment :
 
-args, modules_list, modules_root_dir = setenv.get_config()
-setenv.set_env(args, modules_list, modules_root_dir)
+args, modules_list, modules_root_dir = setenv_impl.get_config()
+setenv_impl.set_env(args, modules_list, modules_root_dir)
 
 # launch CORBA naming server
 

@@ -1,0 +1,192 @@
+#! /usr/bin/env python3
+#  -*- coding: utf-8 -*-
+# Copyright (C) 2025  CEA, EDF
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+import os
+import sys
+import subprocess
+import os.path
+import logging
+from pathlib import Path
+import glob
+import re
+
+# Add the pwdPath to able to run the launcher after unpacking a package
+# Used only in case of a salomeTools package
+out_dir_Path = Path( os.path.realpath(__file__) ).parent.absolute()
+main_site_packages_tmp = out_dir_Path.parent.parent.parent / "lib"
+pythonDirInLibCandidate = [ os.path.basename(elt) for elt in glob.glob( f"{main_site_packages_tmp}/python*" ) ]
+if len(pythonDirInLibCandidate) != 1:
+  raise RuntimeError( f"Fail to locate python* in {main_site_packages_tmp}" )
+pythonDir = pythonDirInLibCandidate[0]
+pat = re.compile("^python([\d])\.([\d]+)$")
+if not pat.match(pythonDir):
+  raise RuntimeError( f"Fail to locate pythonX.Y in {main_site_packages_tmp}" )
+main_site_packages = main_site_packages_tmp / pythonDir / "site-packages"
+# Preliminary work to initialize path to SALOME Python modules
+def __initialize():
+
+  # relative to __file__ supposed to be located on bin/salome/appli/salome (see CdC §2.1)
+  sys.path[:0] = [
+    f"{main_site_packages}",
+    f"{out_dir_Path}" # parent directory of the current directory
+]
+
+  # define folder to store omniorb config (initially in virtual application folder)
+  try:
+    from salome.kernel.salomeContextUtils import setOmniOrbUserPath
+    setOmniOrbUserPath()
+  except Exception as e:
+    print(e)
+    sys.exit(1)
+# End of preliminary work
+
+# salome doc only works for virtual applications. Therefore we overwrite it with this function
+def _showDoc(modules):
+    for module in modules:
+      modulePath = os.getenv(module+"_ROOT_DIR")
+      if modulePath != None:
+        baseDir = os.path.join(modulePath, "share", "doc", "salome")
+        docfile = os.path.join(baseDir, "gui", module.upper(), "index.html")
+        if not os.path.isfile(docfile):
+          docfile = os.path.join(baseDir, "tui", module.upper(), "index.html")
+        if not os.path.isfile(docfile):
+          docfile = os.path.join(baseDir, "dev", module.upper(), "index.html")
+        if os.path.isfile(docfile):
+          out, err = subprocess.Popen(["xdg-open", docfile]).communicate()
+        else:
+          print("Online documentation is not accessible for module:", module)
+      else:
+        print(module+"_ROOT_DIR not found!")
+
+def main(args):
+  # Identify application path then locate configuration files
+  __initialize()
+
+  if args == ['--help']:
+    from salomeContext import usage
+    usage()
+    sys.exit(0)
+
+  #from salomeContextUtils import getConfigFileNames
+  #configFileNames, args, unexisting = getConfigFileNames( args, checkExistence=True )
+  #if len(unexisting) > 0:
+  #  print("ERROR: unexisting configuration file(s): " + ', '.join(unexisting))
+  #  sys.exit(1)
+
+  # Create a SalomeContext which parses configFileNames to initialize environment
+  try:
+    from salome.kernel.salomeContext_impl import SalomeContext, SalomeContextException
+    if 'appendVariable' not in dir(SalomeContext):
+      # check whether the appendVariable method is implemented
+      def appendVariable(self, name, value, separator=os.pathsep):
+        if value == '':
+          return
+        value = os.path.expandvars(value) # expand environment variables
+        env = os.getenv(name, None)
+        if env is None:
+          os.environ[name] = value
+        else:
+          os.environ[name] = env + separator + value
+        return
+      SalomeContext.appendVariable = appendVariable
+
+    context = SalomeContext(None)
+    # Here set specific variables, if needed
+    # context.addToPath('mypath')
+    # context.addToLdLibraryPath('myldlibrarypath')
+    # context.addToPythonPath('mypythonpath')
+    # context.setVariable('myvarname', 'value')
+
+    # Logger level error
+    context.getLogger().setLevel( logging.INFO )
+
+    # change this variable to not reset the PATHS"
+    reinitialise_paths=True
+
+    context.setVariable(r"PRODUCT_ROOT_DIR", f"{out_dir_Path}" + r"", overwrite=True)
+
+    # Set the absolute path to the KERNEL root directory
+    appli_path = "{}".format( out_dir_Path.parent.parent.parent )
+    context.getLogger().info( f'appli_path: {appli_path}' )
+    context.setVariable(r"ABSOLUTE_APPLI_PATH", appli_path, overwrite=True)
+    context.setVariable(r"KERNEL_ROOT_DIR", appli_path, overwrite=True)
+
+    # PRODUCT environment
+    context.setVariable(r"SALOME_trace", r"local", overwrite=True)
+    context.setVariable(r"SALOME_MODULES", r"SHAPER,SHAPERSTUDY,GEOM,SMESH,PARAVIS,YACS,JOBMANAGER", overwrite=True)
+    context.setVariable(r"PYTHONIOENCODING", r"UTF_8", overwrite=True)
+    context.setVariable(r"SALOME_MODULES_ORDER", r"SHAPER:SHAPERSTUDY:GEOM:SMESH", overwrite=True)
+    context.setVariable(r"ROOT_SALOME_INSTALL", r"$PRODUCT_ROOT_DIR", overwrite=True)
+    context.setVariable(r"SALOME_ON_DEMAND", r"HIDE", overwrite=True)
+
+
+    #[all products]
+
+    #[Python]
+    context.setVariable(r"PYTHON_ROOT_DIR", r"/usr", overwrite=True)
+    context.setVariable(r"PYTHON_INCLUDE", r"/usr/include/python3.9", overwrite=True)
+    context.setVariable(r"PYTHON_VERSION", r"3.9", overwrite=True)
+    context.setVariable(r"PYTHONBIN", r"/usr/bin/python3", overwrite=True)
+    context.setVariable(r"PYTHON_LIBDIR", r"lib/python${PYTHON_VERSION}/site-packages", overwrite=True)
+
+    #[setuptools]
+    context.setVariable(r"SETUPTOOLS_ROOT_DIR", r"/usr", overwrite=True)
+    context.setVariable(r"SETUPTOOLDIR", r"/usr", overwrite=True)
+
+    #[hook to integrate in launcher additionnal user modules]
+    
+    # Load all files extra.env.d/*.py and call the module's init routine]
+
+    extradir = "{}".format( out_dir_Path / "extra.env.d" )
+
+    if os.path.exists(extradir):
+        import importlib
+        import importlib.util
+        sys.path.insert(0, os.path.join(os.getcwd(), extradir))
+        for filename in sorted(
+            filter(lambda x: os.path.isfile(os.path.join(extradir, x)),
+                   os.listdir(extradir))):
+
+            if filename.endswith(".py"):
+                f = os.path.join(extradir, filename)
+                module_name = os.path.splitext(os.path.basename(f))[0]
+                _specs = importlib.util.find_spec(module_name)
+                _module = importlib.util.module_from_spec(_specs)
+                _specs.loader.exec_module(_module)
+                _module.init(context, out_dir_Path)
+    #[manage salome doc command]
+    if len(args) >1 and args[0]=='doc':
+        _showDoc(args[1:])
+        return
+
+    # Start SALOME, parsing command line arguments
+    out, err, status = context.runSalome(args)
+    sys.exit(status)
+
+  except SalomeContextException as e:
+    logging.getLogger("salome").error(e)
+    sys.exit(1)
+ 
+
+if __name__ == "__main__":
+  args = sys.argv[1:]
+  main(args)
+#

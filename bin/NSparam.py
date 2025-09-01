@@ -22,34 +22,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import sys,os
+import sys
 
-def getNSparams(info=""):
-    """
-    check environment for omniORB configuration file.
-    parse the file to find the line defining naming service  host and port,
-    set environment variables NSPORT and NSHOST,
-    get host and port,
-    if   info==host print host
-    elif info==port print host
-    else    print 2 strings on stdout on one line: host port
-    """
-    from salome_utils import getORBcfgInfo
-    _, my_host, my_port = getORBcfgInfo()
-    if info=='host':
-        os.environ['NSHOST'] = my_host
-        return my_host
-        pass
-    elif info=='port':
-        os.environ['NSPORT'] = my_port
-        return my_port
-        pass
-    else:
-        return my_host, my_port
-    pass
-#
-
-# ------------------------------------------------------------------------
+from NSparam_impl import getNSparams
 
 if __name__ == "__main__":
     if len(sys.argv) >1:

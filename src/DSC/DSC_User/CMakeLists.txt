@@ -45,6 +45,7 @@ SET(SalomeDSCSuperv_SOURCES
 
 ADD_LIBRARY(SalomeDSCSuperv ${SalomeDSCSuperv_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeDSCSuperv SalomeDSCContainer ${PLATFORM_LIBS})
+set_target_properties(SalomeDSCSuperv PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS SalomeDSCSuperv EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(test_DSC_Exception test_DSC_Exception.cxx)

@@ -21,7 +21,8 @@
 
 # classic use case of a job
 import os
-import salome
+from salome.kernel import salome
+from salome.kernel import LifeCycleCORBA
 import tempfile
 import time
 import sys
@@ -30,8 +31,8 @@ if __name__ == '__main__':
   salome.standalone()
   salome.salome_init()
   launcher = salome.naming_service.Resolve('/SalomeLauncher')
-  job_params = salome.JobParameters()
-  job_params.resource_required = salome.ResourceParameters()
+  job_params = LifeCycleCORBA.JobParameters()
+  job_params.resource_required = LifeCycleCORBA.ResourceParameters()
   job_params.resource_required.name = "localhost"
   job_params.resource_required.nb_proc = 1 # slurm: --ntasks
 

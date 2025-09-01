@@ -18,16 +18,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+from salome.kernel import salome
+from salome.kernel import Engines
+from salome.kernel import SALOME_PyNode
+from salome.kernel import pylauncher
+from salome.kernel import KernelBasis
+from salome.kernel import SALOME
+from salome.kernel.SALOME_PyNode import UnProxyObjectSimple,DecrRefInFile
+
 import unittest
 import os
-import salome
-import Engines
-import pylauncher
-import SALOME_PyNode
-import KernelBasis
-import SALOME
-from SALOME_PyNode import UnProxyObjectSimple,DecrRefInFile
-
 import tempfile
 import glob
 import pickle
@@ -51,14 +51,14 @@ j = 8 * i
 my_log_4_this_session.addFreestyleAndFlush( ("a",777) ) # to check that hidden var is still accessible
 """
 
-heatCPUCode = """import KernelBasis
+heatCPUCode = """from salome.kernel import KernelBasis
 nbcore = 3
 cst = KernelBasis.GetTimeAdjustmentCst()
 KernelBasis.HeatMarcel(5 * nbcore * cst,nbcore)
 j = 8*i"""
 
 killMeAtTheEnd = """import atexit
-import KernelServices
+from salome.kernel import KernelServices
 
 def ErrorAtexit():
     KernelServices.GenerateViolentMemoryFaultForTestPurpose()
@@ -71,7 +71,7 @@ print("OKKKKKK3333")
 """
 
 killMeAtTheEnd2 = """import atexit
-import KernelServices
+from salome.kernel import KernelServices
 import os
 
 def ErrorAtexit():
@@ -484,7 +484,7 @@ class testPerfLogManager1(unittest.TestCase):
                 self.assertTrue(len(unique_snapshots) > 2, "File has not been written progressively" ) # <- key point of test is here
 
 if __name__ == '__main__':
-    from salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
+    from salome.kernel.salome_utils import positionVerbosityOfLoggerRegardingState,setVerboseLevel,setVerbose
     salome.standalone()
     salome.salome_init()
     setVerbose(True)

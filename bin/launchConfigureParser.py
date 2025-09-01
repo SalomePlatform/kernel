@@ -28,7 +28,7 @@ import re
 import sys
 import xml.sax
 
-from salome_utils import verbose, getPortNumber, getHomeDir
+from salome.kernel.salome_utils import verbose, getPortNumber, getHomeDir
 
 
 # names of tags in XML configuration file
@@ -904,12 +904,12 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
 
     # Process --print-port option
     if cmd_opts.print_port:
-        from searchFreePort import searchFreePort
+        from .searchFreePort import searchFreePort
         searchFreePort({})
         print("port:%s"%(os.environ['NSPORT']))
 
         try:
-            import PortManager
+            from . import PortManager
             PortManager.releasePort(os.environ['NSPORT'])
         except ImportError:
             pass
@@ -1062,7 +1062,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
             args["study_hdf"] = arg
 
     # Python scripts
-    from salomeContextUtils import getScriptsAndArgs, ScriptAndArgs
+    from .salomeContextUtils import getScriptsAndArgs, ScriptAndArgs
     args[script_nam] = getScriptsAndArgs(cmd_opts.arguments)
     if args[gui_nam] and args["session_gui"]:
         new_args = []
@@ -1174,10 +1174,12 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
     # now modify SalomeAppConfig environment variable
     # to take into account the SALOME modules
     if not args[on_demand_nam]:
-        if os.sys.platform == 'win32':
-            dirs = re.split('[;]', os.environ[config_var] )
-        else:
-            dirs = re.split('[;|:]', os.environ[config_var] )
+        if os.getenv(config_var):
+            if os.sys.platform == 'win32':
+                dirs = re.split('[;]', os.environ[config_var] )
+            else:
+                dirs = re.split('[;|:]', os.environ[config_var] )
+
         for module in args[modules_nam]:
             if module not in ["KERNEL", "GUI", ""] and os.getenv("{0}_ROOT_DIR".format(module)):
                 d1 = os.path.join(os.getenv("{0}_ROOT_DIR".format(module)),"share","salome","resources",module.lower())

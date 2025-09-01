@@ -24,7 +24,7 @@
 #from TestLifeCycleCORBA import *
 #
 import os
-import Engines
+from salome.kernel import Engines
 import LifeCycleCORBA
 
 import Utils_Identity

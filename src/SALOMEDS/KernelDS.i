@@ -34,13 +34,13 @@
 
 %pythoncode %{
 def myStudy():
-  import SALOMEDS
+  from . import SALOMEDS
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetSessionInstance())
 
 def myNewStudy():
-  import SALOMEDS
+  from . import SALOMEDS
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetNewSessionInstance())

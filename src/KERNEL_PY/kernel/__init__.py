@@ -18,7 +18,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-## \defgroup salome_kernel salome.kernel
+## \defgroup salome_kernel_utils salome.kernel
 #  \{ 
 #  \details Package containing the KERNEL python utilities
 #  \defgroup deprecation
@@ -34,9 +34,13 @@
 #  \defgroup pyunittester
 #  \}
 
+from salome.kernel import version_and_config
+
 __all__ = [ "deprecation", "logger", "termcolor", "logconfig" ]
-__version__ = "@SALOMEKERNEL_GIT_SHA1@"
-__config_datetime__ = "@SALOMEKERNEL_CONFIG_TIME@"
+__version__ = version_and_config.version
+__config_datetime__ = version_and_config.config_datetime
+
+del version_and_config
 
 # WARN: This file SHOULD NOT import salome stuff so that modules of the
 # package could be used outside of a SALOME session context when

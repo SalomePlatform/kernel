@@ -23,7 +23,7 @@
 import os
 from optparse import OptionParser
 import subprocess
-from salome_utils import getUserName
+from salome.kernel.salome_utils import getUserName
 from salomeContextUtils import getShortAndExtraArgs
 
 # Use to display newlines (\n) in epilog

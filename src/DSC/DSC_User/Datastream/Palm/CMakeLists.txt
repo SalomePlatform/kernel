@@ -37,7 +37,7 @@ ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomePalm palm_port_factory.cxx)
 TARGET_LINK_LIBRARIES(SalomePalm SalomeDSCSuperv ${OMNIORB_LIBRARIES})
-
+set_target_properties(SalomePalm PROPERTIES INSTALL_RPATH "$ORIGIN")
 INSTALL(TARGETS SalomePalm EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(test_DataIdContainer_Palm test_DataIdContainer.cxx)

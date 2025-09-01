@@ -24,7 +24,7 @@
 #  \}
 
 import sys
-from salome.kernel import termcolor
+from salome.kernel.salome.kernel import termcolor
 def printfile(filename):
     stream = open(filename,'r')
     lines = stream.readlines()

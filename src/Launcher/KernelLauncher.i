@@ -38,31 +38,31 @@
 
 %pythoncode %{
 def myContainerManager():
-  import Engines
+  from . import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetContainerManagerInstance())
 
 def myResourcesManager():
-  import Engines
+  from . import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetResourcesManagerInstance())
 
 def GetExternalServer():
-  import SALOME
+  from . import SALOME
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetExternalServerInstance())
 
 def myLogManager():
-  import Engines
+  from . import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetLogManagerInstance())
 
 def myLockMaster():
-  import Engines
+  from . import Engines
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetLockMasterInstance())

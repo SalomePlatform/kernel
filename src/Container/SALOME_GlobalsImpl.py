@@ -18,7 +18,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import Engines__POA
+from . import Engines__POA
 
 class SALOME_GlobalsImpl(Engines__POA.GlobalsHolder):
   def __init__(self):

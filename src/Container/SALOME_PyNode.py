@@ -34,13 +34,13 @@ import traceback
 from pathlib import Path
 from typing import TextIO
 
-import Engines__POA
-import KernelBasis
-import SALOME
-import SALOME__POA
-import Engines
-import Engines__POA
-from SALOME_ContainerHelper import ScriptExecInfo
+from . import Engines__POA
+from . import KernelBasis
+from . import SALOME
+from . import SALOME__POA
+from . import Engines
+from . import Engines__POA
+from .SALOME_ContainerHelper import ScriptExecInfo
 
 MY_CONTAINER_ENTRY_IN_GLBS = "my_container"
 
@@ -489,7 +489,7 @@ def SpoolPickleObject( obj, visitor = None ):
       pickleProxy = pickle.dumps( proxyObj , pickle.HIGHEST_PROTOCOL )
       return pickleProxy
 
-from SALOME_ContainerHelper import InOutputObjVisitorCM, InOutputObjVisitor
+from .SALOME_ContainerHelper import InOutputObjVisitorCM, InOutputObjVisitor
 
 def UnProxyObjectSimple( obj, visitor = None ):
   """
@@ -586,7 +586,7 @@ def FileSystemMonitoring(intervalInMs, dirNameToInspect, outFileName = None):
     import os
     dirNameToInspect2 = os.path.abspath( os.path.expanduser(dirNameToInspect) )
     import tempfile
-    import KernelBasis
+    from . import KernelBasis
     # outFileNameSave stores the content of outFileName during phase of dumping
     with tempfile.NamedTemporaryFile(prefix="fs_monitor_",suffix=".txt") as f:
       outFileNameSave = f.name
@@ -644,7 +644,7 @@ def CPUMemoryMonitoring( intervalInMs, outFileName = None ):
 
   See also FileSystemMonitoring
   """
-  import KernelBasis
+  from . import KernelBasis
   def BuildPythonFileForCPUPercent( intervalInMs, outFileName):
     import os
     import tempfile
@@ -693,7 +693,7 @@ class GenericPythonMonitoringLauncherCtxMgr:
         """
         self._monitoring_params = monitoringParams
     def __enter__(self):
-        import KernelBasis
+        from . import KernelBasis
         pid = KernelBasis.LaunchMonitoring(self._monitoring_params.pyFileName.filename)
         self._monitoring_params.pid = pid
         return self._monitoring_params
@@ -712,7 +712,7 @@ def StopMonitoring( monitoringInfo ):
   ----
       monitoringInfo (MonitoringInfo): info returned by LaunchMonitoring
   """
-  import KernelBasis
+  from . import KernelBasis
   KernelBasis.StopMonitoring(monitoringInfo.pid)
 
 class CPUMemInfo:
@@ -859,12 +859,12 @@ class SeqByteReceiver:
       return data_for_split_case
   
 FinalCode = """import pickle
-from SALOME_PyNode import LogOfCurrentExecutionSession,MY_PERFORMANCE_LOG_ENTRY_IN_GLBS
-from SALOME_PyNode import ExchangeModeServerSideFactory
-from KernelBasis import VerbosityActivated,SetVerbosityLevel,SetVerbosityActivated
-from salome_utils import positionVerbosityOfLoggerRegardingState
-import Engines
-import salome
+from salome.kernel.SALOME_PyNode import LogOfCurrentExecutionSession,MY_PERFORMANCE_LOG_ENTRY_IN_GLBS
+from salome.kernel.SALOME_PyNode import ExchangeModeServerSideFactory
+from salome.kernel.KernelBasis import VerbosityActivated,SetVerbosityLevel,SetVerbosityActivated
+from salome.kernel.salome_utils import positionVerbosityOfLoggerRegardingState
+from salome.kernel import Engines
+from salome.kernel import salome
 import os
 import sys
 salome.salome_init()
@@ -991,7 +991,7 @@ class ContextExchanger_i(Engines__POA.ContextExchanger):
   In TCP mode, servant hosted SALOME_Container side.
   """
   def __init__(self, inCtx):
-    import salome
+    from . import salome
     self._poa = salome.orb.resolve_initial_references("RootPOA")
     self._in_ctx = inCtx
     self._out_ctx = bytes(0)
@@ -1020,7 +1020,7 @@ class ContextExchanger_i(Engines__POA.ContextExchanger):
 
 class ExchangeContextUsingTCP( ExchangeContextBridgeAbs ):
   def buildContextPointEntry(self, caseDir, contextEntry):
-    import salome
+    from . import salome
     salome.salome_init()
     self._orb = salome.orb
     self._data_exchange_channel = self._orb.string_to_object( contextEntry )
@@ -1097,7 +1097,7 @@ class ExchangeContextUsingFileClt(ExchangeContextCltAbs):
 class ExchangeContextUsingTCPClt(ExchangeContextCltAbs):
 
   def hostInputContext(self, dirForReplayFiles, contextFileBaseName, context):
-    import salome
+    from . import salome
     self._servant = ContextExchanger_i(context)
     poa = self._servant.getPOA()
     self._id_o = poa.activate_object(self._servant) ; refPtr = poa.id_to_reference(self._id_o)
@@ -1226,8 +1226,8 @@ def ExecCrashProofGeneric( code, context, outargsname, containerRef, instanceOfL
   #
   def InternalExecResistant( exchangeMode, keepFilesToReplay, code, context, outargsname):
     global zestdout, zestderr
-    import KernelBasis
-    import salome
+    from . import KernelBasis
+    from . import salome
     salome.salome_init()
     orb = salome.orb
     iorScriptLog = orb.object_to_string( instanceOfLogOfCurrentSession._remote_handle )#ref ContainerScriptPerfLog_ptr

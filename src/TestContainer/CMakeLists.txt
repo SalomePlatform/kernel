@@ -63,14 +63,17 @@ ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})
 ADD_DEPENDENCIES(SalomeTestComponentEngine SalomeIDLKernel)
 TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
+set_target_properties(SalomeTestComponentEngine PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 INSTALL(TARGETS SalomeTestComponentEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(TestLogger TestLogger.cxx)
 TARGET_LINK_LIBRARIES(TestLogger ${SALOMEBOOTSTRAP_SALOMELocalTrace} ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+set_target_properties(TestLogger PROPERTIES INSTALL_RPATH "$ORIGIN/../../lib/salome")
 
 ADD_EXECUTABLE(TestContainer TestContainer.cxx)
 TARGET_LINK_LIBRARIES(TestContainer SalomeContainer ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+set_target_properties(TestContainer PROPERTIES INSTALL_RPATH "$ORIGIN/../../lib/salome")
 
 INSTALL(TARGETS TestLogger TestContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
 
@@ -81,3 +84,8 @@ SET(SCRIPTS
   TestLogger.py
 )
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
+
+SET(PACKAGES
+  SALOME_TestComponentPy.py # used by LifeCycleCORBA_SWIGTest.py in LifeCycleCORBA_SWIG
+)
+INSTALL(FILES ${PACKAGES} DESTINATION ${KERNEL_TEST_DIR}/LifeCycleCORBA_SWIG)

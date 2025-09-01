@@ -27,6 +27,7 @@ SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/ArgvKeeper)
 ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS})
 
 ADD_EXECUTABLE(TestArgvKeeper ArgvKeeperTest.cxx TestArgvKeeper.cxx)
+set_target_properties(TestArgvKeeper PROPERTIES INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../../../../../lib/salome")
 TARGET_LINK_LIBRARIES(TestArgvKeeper ArgvKeeper ${CPPUNIT_LIBRARIES})
 
 INSTALL(TARGETS TestArgvKeeper DESTINATION ${LOCAL_TEST_DIR})

@@ -280,7 +280,7 @@ def ResourceDefinition_cpp_isEqual(self,other):
   return all( [getattr(self,k) == getattr(other,k) for k in ListOfAttrCommon] )
 
 def RetrieveRMCppSingleton():
-  import KernelLauncher
+  from salome.kernel import KernelLauncher
   return HandleToLocalInstance( KernelLauncher.RetrieveInternalInstanceOfLocalCppResourcesManager() )
 
 def GetPlayGroundInsideASlurmJob():
@@ -303,7 +303,7 @@ def BuildCatalogFromScratch(protocol,appliPath):
       rmcpp.AddResourceInCatalogNoQuestion(contRes)
 
 def GetRequestForGiveContainer(hostname, contName):
-  import Engines
+  from salome.kernel import Engines
   import os
   rp=Engines.ResourceParameters(name=hostname,
                                 hostname=hostname,
@@ -339,7 +339,7 @@ def FromEngineResourceDefinitionToCPP( corbaInstance ):
   return ret
 
 def ToEngineResourceDefinitionFromCPP( cppInstance ):
-  import Engines
+  from salome.kernel import Engines
   return Engines.ResourceDefinition(**{k:getattr(cppInstance,k) for k in ListOfAttrCommon})
 
 ResourceDefinition_cpp.repr = ResourceDefinition_cpp_repr

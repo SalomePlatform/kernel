@@ -63,7 +63,7 @@ even necessary for less usual codes that don't have an associated constant
 Example::
 
     import sys
-    from salome.kernel import termcolor
+    from salome.kernel.salome.kernel import termcolor
     if termcolor.canDisplayColor(sys.stdout):
         print(termcolor.makeColoredMessage("Hello world!", termcolor.BLUE))
     else:

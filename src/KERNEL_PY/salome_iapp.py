@@ -28,7 +28,7 @@
 ## @package salome_iapp
 # Module salome gives access to Salome GUI resources (if GUI has been launched).
 #
-import salome_ComponentGUI
+from . import salome_ComponentGUI
 
     #--------------------------------------------------------------------------
 
@@ -193,7 +193,7 @@ def salome_iapp_close():
 
 def register_module_in_study(name, syncCall=True):
     try:
-        import salome
+        from salome.kernel import salome
         salome.salome_init()
         session_server = salome.naming_service.Resolve("/Kernel/Session")
         if session_server:

@@ -25,20 +25,22 @@
 #  Create a %SALOME application (virtual Salome installation)
 #
 
+import argparse
 import json
 import os
+from pathlib import Path
 import sys
 import shutil
 import virtual_salome
 import xml.sax
-import optparse
 import subprocess
+import venv
 
 usage = """%(prog)s [options]
 Typical use is:
-  python %(prog)s
+  %(prog)s
 Typical use with options is:
-  python %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
+  %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
 """
 
 # --- names of tags in XML configuration file
@@ -188,6 +190,26 @@ class params:
 
 # -----------------------------------------------------------------------------
 
+
+def update_shebang(source_path, target_path, home_dir):
+    # Chemin vers l'interpréteur Python de l'application
+    python_executable = Path(home_dir, "bin") / Path(sys.executable).name
+
+    # Lire le contenu du fichier source
+    source_file = Path(source_path)
+    lines = source_file.read_text().splitlines()
+
+    # Vérifier et mettre à jour le shebang
+    if lines[0].startswith('#!'):
+        lines[0] = f'#!{python_executable}'
+    else:
+        lines.insert(0, f'#!{python_executable}')
+
+    # Écrire le contenu mis à jour dans le fichier cible
+    target_file = Path(target_path)
+    target_file.write_text('\n'.join(lines) + '\n')
+
+
 def makedirs(namedir):
   if os.path.exists(namedir):
     dirbak = namedir+".bak"
@@ -200,6 +222,12 @@ def makedirs(namedir):
 def install(prefix, config_file, verbose=0):
     home_dir = os.path.abspath(os.path.expanduser(prefix))
     filename = os.path.abspath(os.path.expanduser(config_file))
+
+    venv.create(
+        env_dir=home_dir,
+        with_pip=True,
+    )
+
     _config = {}
     try:
         parser = xml_parser(filename)
@@ -228,15 +256,26 @@ def install(prefix, config_file, verbose=0):
     except Exception:
       pass
 
-    for module in _config.get("modules", []):
+    # Add KERNEL if not in config
+    # We use KERNEL that provides appli_gen script
+    modules = _config.get("modules", [])
+    if "KERNEL" not in modules:
+        # We suppose that appli_gen is installed in KERNEL_ROOT_DIR/bin/salome
+        kernel_path = Path(__file__).resolve().parents[2].as_posix()
+        _config["KERNEL"] = kernel_path
+        modules.insert(0, "KERNEL")
+    kernel_module_path = None
+
+    for module in modules:
         if module in _config:
-            print("--- add module ", module, _config[module])
+            module_path = _config[module]
+            print("--- add module ", module, module_path)
             options = params()
             options.verbose = verbose
             options.clear = 0
             options.prefix = home_dir
             options.module_name = module
-            options.module_path = _config[module]
+            options.module_path = module_path
             virtual_salome.link_module(options)
             # To fix GEOM_TestXAO issue https://codev-tuleap.cea.fr/plugins/tracker/?aid=16599
             if module == "GEOM":
@@ -246,6 +285,8 @@ def install(prefix, config_file, verbose=0):
                 xao_link=os.path.join(module_dir,'bin','salome', 'test', "xao")
                 print("link %s --> %s"%(os.path.join(test_dir, "xao"), xao_link))
                 virtual_salome.symlink(xao_link, os.path.join(test_dir, "xao"))
+            if module == "KERNEL":
+                kernel_module_path = module_path
             pass
         pass
 
@@ -278,12 +319,8 @@ def install(prefix, config_file, verbose=0):
     appliskel_dir = os.path.join(prefix, 'bin', 'salome', 'appliskel')
 
     for fn in ('envd',
-               'getAppliPath.py',
-               'kill_remote_containers.py',
                'runRemote.sh',
                'runRemoteSSL.sh',
-               '.salome_run',
-               'update_catalogs.py',
                '.bashrc',
                ):
         virtual_salome.symlink( os.path.join( appliskel_dir, fn ), os.path.join( home_dir, fn) )
@@ -311,17 +348,17 @@ def install(prefix, config_file, verbose=0):
             fd.write('module load %s\n' % (' '.join(env_modules)))
 
     # Copy salome / salome_mesa scripts:
-
-    for scripts in ('salome', 'salome_mesa', 'salome_common.py'):
-        salome_script = open(os.path.join(appliskel_dir, scripts)).read()
+    for scripts in ('getAppliPath.py',
+                    'kill_remote_containers.py',
+                    '.salome_run',
+                    'update_catalogs.py',
+                    'salome',
+                    'salome_mesa',
+                    ):
+        salome_script = os.path.join(appliskel_dir, scripts)
         salome_file = os.path.join(home_dir, scripts)
-        try:
-            os.remove(salome_file)
-        except Exception:
-            pass
-        with open(salome_file, 'w') as fd:
-            fd.write(salome_script.replace('MODULES = []', 'MODULES = {}'.format(env_modules)))
-            os.chmod(salome_file, 0o755)
+        update_shebang(salome_script, salome_file, home_dir)
+        os.chmod(salome_file, 0o755)
 
     # Add .salome-completion.sh file
     shutil.copyfile(os.path.join(appliskel_dir, ".salome-completion.sh"),
@@ -390,13 +427,10 @@ def install(prefix, config_file, verbose=0):
         if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
             command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
             f.write(command)
-        # Note: below, PYTHONPATH should not be extended to bin/salome! Python modules must be installed in lib/pythonX.Y, to be fixed (e.g. Kernel SALOME_Container.py)
-        command ="""export PATH=${HOME}/${APPLI}/bin/salome:$PATH
-export PYTHONPATH=${HOME}/${APPLI}/lib/python%s/site-packages/salome:$PYTHONPATH
-export PYTHONPATH=${HOME}/${APPLI}/lib/salome:$PYTHONPATH
-export PYTHONPATH=${HOME}/${APPLI}/bin/salome:$PYTHONPATH
+        command ="""\
+export PATH=${HOME}/${APPLI}/bin/salome:$PATH
 export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
-""" %versionPython
+"""
         f.write(command)
         # Create environment variable for the salome test
         for module in _config.get("modules", []):
@@ -545,18 +579,19 @@ MMGT_REENTRANT=1
     os.chmod(users_dir, 0o777)
 
 def main():
-    parser = optparse.OptionParser(usage=usage)
+    parser = argparse.ArgumentParser(usage=usage)
 
-    parser.add_option('--prefix', dest="prefix", default='.',
-                      help="Installation directory (default .)")
+    parser.add_argument('--prefix', default='.', metavar="<install directory>",
+                      help="Installation directory (default %(default)s)")
 
-    parser.add_option('--config', dest="config", default='config_appli.xml',
-                      help="XML configuration file (default config_appli.xml)")
+    parser.add_argument('--config', default='config_appli.xml',
+                      metavar="<configuration file>",
+                      help="XML configuration file (default %(default)s)")
 
-    parser.add_option('-v', '--verbose', action='count', dest='verbose',
+    parser.add_argument('-v', '--verbose', action='count',
                       default=0, help="Increase verbosity")
 
-    options, args = parser.parse_args()
+    options = parser.parse_args()
     if not os.path.exists(options.config):
         print("ERROR: config file %s does not exist. It is mandatory." % options.config)
         sys.exit(1)

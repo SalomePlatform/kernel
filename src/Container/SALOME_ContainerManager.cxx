@@ -1006,9 +1006,14 @@ std::string getScriptTemplateFilePath()
     {
       return scriptTemplateFilePath;
     }
-    else {
-      return SALOME_ContainerManager::GetenvThreadSafeAsString("KERNEL_ROOT_DIR") +
-             "/share/salome/resources/kernel/ScriptsTemplate";
+    else
+    {
+      AutoGIL agil;
+      AutoPyRef kc = PyImport_ImportModule("salome.kernel.KernelContainer");
+      AutoPyRef locOfScriptsPy = PyObject_GetAttrString(kc,"getDftLocOfScripts");
+      AutoPyRef resPy = PyObject_CallFunction(locOfScriptsPy,"");
+      std::string ret( PyUnicode_AsUTF8( resPy ) );
+      return ret;
     }
   };
 

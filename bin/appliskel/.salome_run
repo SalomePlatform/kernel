@@ -19,15 +19,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os
+from pathlib import Path
 import sys
+
 
 def main(args):
     # Identify application path then locate configuration files
-    currentPath = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
-    launcherFile = os.path.basename(__file__)
+    currentPath = Path(__file__).parent.resolve()
+    launcherFile = Path(__file__).name
     from salome_starter import initialize
-    initialize(currentPath, launcherFile)
+    initialize(f"{currentPath}", launcherFile)
     
     if len(args) == 1 and args[0] in ['--help', 'help', '-h', '--h']:
         from salomeContext import usage

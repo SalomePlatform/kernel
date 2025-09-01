@@ -35,7 +35,7 @@ def mkdir_p(path):
     else:
       raise
 
-import pylauncher
+from salome.kernel import pylauncher
 def createLauncher():
   launcher = pylauncher.Launcher_cpp()
   launcher.SetResourcesManager(createResourcesManager())
@@ -112,7 +112,7 @@ class TestCompo(unittest.TestCase):
 # -*- coding: utf-8 -*-
 
 # verify import salome
-import salome
+from salome.kernel import salome
 salome.salome_init()
 
 f = open('result.txt', 'w')
@@ -379,9 +379,9 @@ f.close()
 
       """
       # Load the schema state from the dump file and verify the state of a node
-      import SALOMERuntime
+      from salome.yacs import SALOMERuntime
       SALOMERuntime.RuntimeSALOME.setRuntime(1)
-      import loader
+      from salome.yacs import loader
       schema = loader.YACSLoader().load(job_script_file)
       stateParser = loader.stateParser()
       sl = loader.stateLoader(stateParser, schema)
@@ -581,7 +581,7 @@ f.close()
 
 import os,sys
 # verify import salome
-import salome
+from salome.kernel import salome
 
 text_result = os.getenv("ENV_TEST_VAR","")
 

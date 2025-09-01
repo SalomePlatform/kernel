@@ -34,7 +34,7 @@ Salome study.
 """
 
 from xml.dom.minidom import getDOMImplementation, parse
-from salome.kernel.studyedit import getStudyEditor
+from salome.kernel.salome.kernel.studyedit import getStudyEditor
 
 DEFAULT_NAME = "Variables"
 INPUT_VAR_NAMES = "ExchangeVariables.InputVarNames"

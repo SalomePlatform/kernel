@@ -31,8 +31,8 @@ This module provides a new class :class:`StudyEditor` to complement
 
 import re
 
-from salome.kernel import termcolor
-from salome.kernel.logger import Logger
+from salome.kernel.salome.kernel import termcolor
+from salome.kernel.salome.kernel.logger import Logger
 
 
 logger = Logger("salome.kernel.studyedit", color=termcolor.PURPLE)
@@ -88,7 +88,7 @@ class StudyEditor:
     @property
     def study(self):
         """Attribute that provides access to the study."""
-        import salome
+        from salome.kernel import salome
         salome.salome_init()
         if salome.myStudy is None:
             raise Exception("Study doesn't exist")
@@ -97,7 +97,7 @@ class StudyEditor:
     @property
     def builder(self):
         """Attribute that provides access to the study builder."""
-        import salome
+        from salome.kernel import salome
         salome.salome_init()
         if salome.myStudy is None:
             raise Exception("Study doesn't exist")
@@ -106,7 +106,7 @@ class StudyEditor:
     @property
     def lcc(self):
         """Attribute that providess access to the SALOME life cycle CORBA service."""
-        import salome
+        from salome.kernel import salome
         salome.salome_init()
         return salome.lcc
 

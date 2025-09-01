@@ -33,7 +33,7 @@
 
 import os
 import sys
-import setenv
+from salome.kernel import setenv_impl
 
 kernel_root=os.getenv("KERNEL_ROOT_DIR")
 kernel_root = os.path.realpath(kernel_root)
@@ -47,7 +47,7 @@ if argv[0] == "-exec":
   del argv[0]
   sys.argv = []
 
-setenv.main(True);
+setenv_impl.main(True);
 
 if sys.platform == "win32":
     if len(argv) >= 2:

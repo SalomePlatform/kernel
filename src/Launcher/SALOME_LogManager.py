@@ -21,7 +21,7 @@
 import os
 import sys
 import pickle
-from SALOME_ContainerHelper import ScriptExecInfo
+from .SALOME_ContainerHelper import ScriptExecInfo
 
 class SALOME_ContainerScriptExecPerfLog:
   def __init__(self, father):

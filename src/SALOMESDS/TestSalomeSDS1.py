@@ -19,8 +19,8 @@
 #
 # Author : Anthony Geay
 
-import salome
-import SALOME
+from salome.kernel import salome
+from salome.kernel import SALOME
 import pickle
 import gc
 import SalomeSDSClt

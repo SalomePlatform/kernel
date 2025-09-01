@@ -74,7 +74,7 @@ def __release_lock(lock):
 def _getConfigurationFilename():
   omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
 
-  from salome_utils import generateFileName
+  from salome.kernel.salome_utils import generateFileName
   portmanager_config = generateFileName(omniorbUserPath,
                                         prefix="salome",
                                         suffix="PortManager",

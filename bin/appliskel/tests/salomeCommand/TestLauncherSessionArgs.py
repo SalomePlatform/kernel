@@ -69,8 +69,8 @@ class TestSessionArgs(unittest.TestCase):
       args = []
     args = [x.replace("LOGFILE",self.logFile.name) for x in args]
     try:
-      import setenv
-      setenv.main(True)
+      from salome.kernel import setenv_impl
+      setenv_impl.main(True)
       import runSession
       params, args = runSession.configureSession(args, exe="salome shell")
       return runSession.runSession(params, args)

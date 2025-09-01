@@ -26,7 +26,7 @@ import sys
 
 def __setup_config(nsport, args, save_config):
   #
-  from salome_utils import generateFileName, getHostName
+  from salome.kernel.salome_utils import generateFileName, getHostName
   hostname = getHostName()
   #
   omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
@@ -34,7 +34,7 @@ def __setup_config(nsport, args, save_config):
   if omniorbUserPath is not None:
     kwargs["with_username"]=True
   #
-  from ORBConfigFile import writeORBConfigFile
+  from salome.kernel.ORBConfigFile_impl import writeORBConfigFile
   omniorb_config, giopsize = writeORBConfigFile(omniorbUserPath, hostname, nsport, kwargs)
   args['port'] = os.environ['NSPORT']
   #
@@ -64,7 +64,7 @@ def __setup_config(nsport, args, save_config):
 #
 
 def searchFreePort_withPortManager(queue, args={}, save_config=1, use_port=None):
-  from PortManager import getPort
+  from salome.kernel.PortManager import getPort
   port = getPort(use_port)
 
   if use_port:
@@ -111,7 +111,7 @@ def searchFreePort(args={}, save_config=1, use_port=None):
   Returns first found free port number.
   """
   try:
-    import PortManager # mandatory
+    import salome.kernel.PortManager # mandatory
     from multiprocessing import Process, Queue
     queue = Queue()
     p = Process(target = searchFreePort_withPortManager, args=(queue, args, save_config, use_port,))

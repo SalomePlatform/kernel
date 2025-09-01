@@ -1839,7 +1839,7 @@ std::string SALOMEDSImpl_Study::_GetStudyVariablesScript()
 //============================================================================
 std::string SALOMEDSImpl_Study::_GetNoteBookAccess()
 {
-  std::string notebook = "import salome_notebook\n";
+  std::string notebook = "from salome.kernel import salome_notebook\n";
   notebook += _GetNoteBookAccessor() + " = salome_notebook.NoteBook()" ;
   return notebook;
 }
@@ -2165,7 +2165,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 
   // global imports
   sfp << "import sys" << std::endl;
-  sfp << "import " << aBatchModeScript << std::endl << std::endl;
+  sfp << "from salome.kernel import " << aBatchModeScript << std::endl << std::endl;
 
   // initialization function
   sfp << aBatchModeScript << ".salome_init()" << std::endl;

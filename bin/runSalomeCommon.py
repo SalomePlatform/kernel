@@ -27,14 +27,14 @@
 #
 
 import sys, os, string, glob, time, pickle, re
-import setenv
-from server import process_id, Server
+from salome.kernel import setenv_impl
+from salome.kernel.server import process_id, Server
 import json
 import subprocess
-from salomeContextUtils import ScriptAndArgsObjectEncoder
+from salome.kernel.salomeContextUtils import ScriptAndArgsObjectEncoder
 import platform
 import logging
-from salome_utils import positionVerbosityOfLogger
+from salome.kernel.salome_utils import positionVerbosityOfLogger
 
 logger = logging.getLogger()
 
@@ -79,13 +79,13 @@ def get_cata_path(list_modules,modules_root_dir):
         if module in modules_root_dir:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
-            cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources",module.lower(), module_cata)
+            cata_file=os.path.join(module_root_dir, "share",setenv_impl.salome_subdir, "resources",module.lower(), module_cata)
 
             if os.path.exists(cata_file):
                 cata_path.append(cata_file)
                 modules_cata[module]=cata_file
             else:
-                cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources", module_cata)
+                cata_file=os.path.join(module_root_dir, "share",setenv_impl.salome_subdir, "resources", module_cata)
                 if os.path.exists(cata_file):
                     cata_path.append(cata_file)
                     modules_cata[module]=cata_file
@@ -206,7 +206,7 @@ class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        from salome_utils import generateFileName, getLogDir
+        from salome.kernel.salome_utils import generateFileName, getLogDir
         logfile = generateFileName( getLogDir(),
                                     prefix="logger",
                                     extension="log",
@@ -324,7 +324,7 @@ class CommonSessionServer(Server):
     @abc.abstractmethod
     def getSessionServerExe(self):
         pass
-    
+
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
         list_modules.reverse()
@@ -373,9 +373,9 @@ class CommonSessionServer(Server):
 class SessionServer(CommonSessionServer):
     def __init__(self,args,modules_list,modules_root_dir):
         super().__init__(args,modules_list,modules_root_dir)
-        import KernelBasis
+        from . import KernelBasis
         KernelBasis.setSSLMode(False)
-    
+
     def getSessionServerExe(self):
         return "SALOME_Session_Server"
 # ---

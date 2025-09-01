@@ -28,7 +28,7 @@ import xml.sax
 
 from xml.sax.handler import *
 from omniidl import idlast, idltype, idlvisitor, idlutil, output
-from salome_utils import getUserName
+from salome.kernel.salome_utils import getUserName
 
 # parameters not found in IDL file, user's specified in optional parameters
 common_data={"AUTHOR"     : "",

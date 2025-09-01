@@ -21,11 +21,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import salome
+from salome.kernel import salome
 import string
-import SALOME
-import SALOMEDS
-import SALOME_Session_idl
+from . import SALOME
+from . import SALOMEDS
+from . import SALOME_Session_idl
 
 PT_INTEGER = 0
 PT_REAL = 1

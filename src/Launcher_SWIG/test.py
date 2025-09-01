@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import pylauncher
+from salome.kernel import pylauncher
 jp = pylauncher.JobParameters_cpp()
 jp.job_name = "toto"
 jp.job_type = "command"

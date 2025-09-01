@@ -20,12 +20,12 @@
 
 import unittest
 import os
-import salome
-import Engines
+from salome.kernel import salome
+from salome.kernel import Engines
 import pickle
 import tempfile
-import pylauncher
-import KernelBasis
+from salome.kernel import pylauncher
+from salome.kernel import KernelBasis
 
 class TestProxy(unittest.TestCase):
     def testProxy(self):
@@ -48,7 +48,7 @@ class TestProxy(unittest.TestCase):
             cont = salome.cm.GiveContainer(cp)
             ## Time to test it
             script_st = """import os
-import KernelBasis
+from salome.kernel import KernelBasis
 _,a = KernelBasis.GetBigObjOnDiskProtocolAndDirectory()
 b = os.environ["jj"]
 c = KernelBasis.GetBigObjOnDiskThreshold()
@@ -62,7 +62,7 @@ j = a,b,c"""
             for k,v in [("jj",val_for_jj)]:
                 assert( {elt.key:elt.value.value() for elt in cont.get_os_environment()}[k] == v )
             #
-            import SALOME_PyNode
+            from salome.kernel import SALOME_PyNode
             poa = salome.orb.resolve_initial_references("RootPOA")
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
             id_o = poa.activate_object(obj)
@@ -122,7 +122,7 @@ with open("{}","w") as f:
 ret = os.getcwd()
 """)
             #
-            import SALOME_PyNode
+            from salome.kernel import SALOME_PyNode
             poa = salome.orb.resolve_initial_references("RootPOA")
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
             id_o = poa.activate_object(obj)
@@ -149,7 +149,7 @@ ret = os.getcwd()
 ret = os.getcwd()
 """)
             #
-            import SALOME_PyNode
+            from salome.kernel import SALOME_PyNode
             poa = salome.orb.resolve_initial_references("RootPOA")
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
             id_o = poa.activate_object(obj)
@@ -178,18 +178,18 @@ ret = os.getcwd()
 
         ### start to check effectivity of manipulation locally
         machines = salome.rm.ListAllResourceEntriesInCatalog()
-        localStructure = { machine : salome.rm.GetResourceDefinition( machine ) for machine in machines }
+        localStructure = { machine : salome.rm.GetResourceDefinition2( machine ) for machine in machines }
         ### end of check effectivity of manipulation locally
 
         cp = pylauncher.GetRequestForGiveContainer("localhost","gg")
         with salome.ContainerLauncherCM(cp) as cont:
             pyscript = cont.createPyScriptNode("testScript","""
-import salome
+from salome.kernel import salome
 salome.salome_init()
 machines = salome.rm.ListAllResourceEntriesInCatalog()
-structure = { machine : salome.rm.GetResourceDefinition( machine ) for machine in machines }
+structure = { machine : salome.rm.GetResourceDefinition2( machine ) for machine in machines }
 """) # retrieve the content remotely and then return it back to current process
-            import SALOME_PyNode
+            from salome.kernel import SALOME_PyNode
             import pickle
             poa = salome.orb.resolve_initial_references("RootPOA")
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( ([],{}) ))
@@ -225,7 +225,7 @@ structure = { machine : salome.rm.GetResourceDefinition( machine ) for machine i
         from datetime import datetime
         from threading import Thread
         import contextlib
-        import SALOME_PyNode
+        from salome.kernel import SALOME_PyNode
         import time
 
         def func(pyscript,b):
@@ -245,7 +245,7 @@ structure = { machine : salome.rm.GetResourceDefinition( machine ) for machine i
             b = salome.Barrier(3)
             pyscript = conts[0].createPyScriptNode("testScript","""
 from datetime import datetime
-import salome
+from salome.kernel import salome
 import time
 time.sleep( 2.0 )
 b.barrier()
@@ -258,7 +258,7 @@ with salome.LockGuardCM("SSD"):
 """)
             pyscript2 = conts[1].createPyScriptNode("testScript","""
 from datetime import datetime
-import salome
+from salome.kernel import salome
 import time
 time.sleep( 4.0 )
 b.barrier()

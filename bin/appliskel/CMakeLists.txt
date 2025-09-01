@@ -36,9 +36,14 @@ SET(SCRIPTS
   .salome_run # this is the Python launcher (without .py extension to avoid conflicts when importing salome python package)
   salome # this is the Python wrapper (without .py extension to avoid conflicts when importing salome python package)
   salome_mesa # this is the Python wrapper using MESA (work around display issue)
-  salome_common.py
-  salome_starter.py
   .salome-completion.sh
 )
 
+SET(PACKAGES
+  getAppliPath_impl.py
+  salome_common.py
+  salome_starter.py
+)
+
+SALOME_INSTALL_SCRIPTS("${PACKAGES}" ${SALOME_KERNEL_INSTALL_PYTHON} DEF_PERMS)
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)

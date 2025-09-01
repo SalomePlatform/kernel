@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(appliskel)
+ADD_SUBDIRECTORY(appli)
 
 SALOME_CONFIGURE_FILE(VERSION.in VERSION INSTALL ${SALOME_INSTALL_BINS})
 SALOME_CONFIGURE_FILE(salomeContextUtils.py.in salomeContextUtils.py)
@@ -33,6 +33,7 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION RENAME VERSION_KERNEL DESTINAT
 
 # These files are executable scripts
 SET(SCRIPTS
+  addToKillList.py
   appli_clean.sh
   runIDLparser
   addToKillList.py
@@ -45,9 +46,11 @@ SET(SCRIPTS
   NSparam.py
   orbmodule.py
   ORBConfigFile.py
-  parseConfigFile.py
-  PortManager.py
-  runSalomeCommon.py
+  pythonpath_reduction.py
+  runConsole.py
+  runIDLparser
+  runRemote.py
+  runSalomeNoServer.py
   runSalomeOld.py
   runSalomeOnDemand.py
   runSalomeNoServer.py
@@ -67,5 +70,32 @@ SET(SCRIPTS
   waitNS.py
   pythonpath_reduction.py
   )
+  
+  SET(PACKAGES
+  ${CMAKE_CURRENT_BINARY_DIR}/salomeContextUtils.py
+  addToKillList_impl.py
+  killSalome_impl.py
+  killSalomeWithPort_impl.py
+  launchConfigureParser.py
+  nameserver.py
+  NSparam_impl.py
+  ORBConfigFile_impl.py
+  orbmodule.py
+  parseConfigFile.py
+  PortManager.py
+  runConsole_impl.py
+  runSalomeCommon.py
+  runSalomeOld_impl.py
+  runSalomeOnDemand_impl.py
+  runSalomeNoServer_impl.py
+  runSession.py
+  runTests.py
+  salome_utils.py
+  salomeContext_impl.py
+  searchFreePort.py
+  server.py
+  setenv_impl.py
+)
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})
+SALOME_INSTALL_SCRIPTS("${PACKAGES}" ${SALOME_KERNEL_INSTALL_PYTHON} DEF_PERMS)

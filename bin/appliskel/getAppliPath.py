@@ -22,18 +22,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os
-#
-
-
-def get_appli_path(filePath=None):
-    if filePath is None:
-        filePath = os.path.realpath(os.path.dirname(__file__))
-
-    homePath = os.path.realpath(os.path.expanduser("~"))
-    applipath = os.path.relpath(filePath, homePath)
-    return applipath
-#
+from getAppliPath_impl import get_appli_path
 
 
 if __name__ == "__main__":

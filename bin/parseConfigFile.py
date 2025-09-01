@@ -29,7 +29,7 @@ import re
 from io import StringIO
 import subprocess
 import collections
-from salomeContextUtils import SalomeContextException #@UnresolvedImport
+from .salomeContextUtils import SalomeContextException #@UnresolvedImport
 
 logging.basicConfig()
 logConfigParser = logging.getLogger(__name__)

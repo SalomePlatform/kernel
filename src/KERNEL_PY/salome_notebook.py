@@ -27,7 +27,7 @@
 Module salome_notebook gives access to Salome Notebook.
 """
 
-import salome
+from salome.kernel import salome
 
 class PseudoStudyForNoteBook:
 

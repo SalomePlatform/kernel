@@ -24,15 +24,15 @@
 
 import sys, os,signal,string,subprocess
 import subprocess
-import runSalomeOld
-import orbmodule
-import TestKiller
-import setenv
+from salome.kernel import runSalomeOld_impl
+from salome.kernel import orbmodule
+from salome.kernel import TestKiller
+from salome.kernel import setenv_impl
 
 # get SALOME environment :
 
-args, modules_list, modules_root_dir = setenv.get_config()
-setenv.set_env(args, modules_list, modules_root_dir)
+args, modules_list, modules_root_dir = setenv_impl.get_config()
+setenv_impl.set_env(args, modules_list, modules_root_dir)
 
 # launch CORBA naming server
 
@@ -40,7 +40,7 @@ clt=orbmodule.client()
 
 # launch CORBA logger server
 
-myServer=runSalomeOld.LoggerServer(args)
+myServer=runSalomeOld_impl.LoggerServer(args)
 myServer.run()
 clt.waitLogger("Logger")
 
@@ -53,5 +53,5 @@ ret = subprocess.call(command)
 
 # kill Test process
 
-TestKiller.killProcess(runSalomeOld.process_id)
+TestKiller.killProcess(runSalomeOld_impl.process_id)
 exit(ret)

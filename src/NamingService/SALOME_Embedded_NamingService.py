@@ -19,9 +19,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import Engines__POA
+from . import Engines__POA
 
-import NamingService
+from . import NamingService
 
 class SALOME_Embedded_NamingService(Engines__POA.EmbeddedNamingService):
 

@@ -21,18 +21,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#  File   : salome_kernel.py
+#  File   : salome_kernel_utils.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 #
-from omniORB import CORBA
-from LifeCycleCORBA import *
-from SALOME_NamingServicePy import *
-from SALOME_utilities import *
-import Engines
-import SALOME
-import SALOME_ModuleCatalog
+
+#from SALOME_utilities import *
 
 orb = None
 lcc = None
@@ -59,6 +54,12 @@ def list_of_catalogs_regarding_environement():
     return list_catalogs
 
 def salome_kernel_init():
+    from salome.kernel import Engines
+    from salome.kernel import SALOME
+    from salome.kernel import SALOME_ModuleCatalog
+    from omniORB import CORBA
+    from salome.kernel.SALOME_NamingServicePy import SALOME_NamingServicePy_i
+    from salome.kernel.LifeCycleCORBA import LifeCycleCORBA
     global orb, lcc, naming_service, cm, esm, dsm, modulcat
     
     if not orb:

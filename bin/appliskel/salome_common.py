@@ -29,10 +29,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def main(args):
+def main(args: list):
     ''' Load modules then launch salome
     '''
-    appliPath = Path(__file__).parent.resolve()
+    appliPath = Path(args.pop(0))
     modules_file = appliPath / "env_modules.json"
     if modules_file.is_file():
         env_modules = json.loads(open(modules_file).read()).get('env_modules', [])

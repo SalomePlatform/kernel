@@ -16,9 +16,9 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-import SALOME
+from salome.kernel import SALOME
 import pickle
-import salome
+from salome.kernel import salome
 import sys
 
 scopeName="Scope1"
@@ -31,11 +31,11 @@ def str2Obj(strr):
     return pickle.loads(strr)
 
 def waitKey(IORNS):
-    import Engines
+    from salome.kernel import Engines
     import CORBA
     orb = CORBA.ORB_init([''])
     ns = orb.string_to_object(IORNS)
-    import SALOME
+    from salome.kernel import SALOME
     dsm = orb.string_to_object(ns.Resolve("/DataServerManager").decode())
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     assert(not isCreated)
