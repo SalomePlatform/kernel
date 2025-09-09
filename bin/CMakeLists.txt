@@ -69,6 +69,7 @@ SET(SCRIPTS
   waitContainers.py
   waitNS.py
   pythonpath_reduction.py
+  kernel_test.py
   )
   
   SET(PACKAGES

@@ -45,7 +45,7 @@ class TestKernel(unittest.TestCase):
 
         # ---- get module catalogue
         print('... Get module catalogue')
-        from . import SALOME_ModuleCatalog
+        from salome.kernel import SALOME_ModuleCatalog
         obj = salome.naming_service.Resolve('/Kernel/ModulCatalog')
         self.assertIsNotNone(obj)
         catalog = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
