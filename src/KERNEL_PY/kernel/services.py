@@ -54,7 +54,7 @@ if not is_called_by_sphinx() and salome.lcc is None:
 # following instructions:
 #
 #   from omniORB import CORBA
-#   from LifeCycleCORBA import LifeCycleCORBA
+#   from salome.kernel.LifeCycleCORBA import LifeCycleCORBA
 #   orb = CORBA.ORB_init( [''], CORBA.ORB_ID )
 #   lcc = LifeCycleCORBA( orb )
 # 
