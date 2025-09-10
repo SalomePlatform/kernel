@@ -22,7 +22,7 @@
 #
 
 import batchmode_salome
-import SALOME_ModuleCatalog
+from salome.kernel import SALOME_ModuleCatalog
 
 print()
 print("======================================================================")
