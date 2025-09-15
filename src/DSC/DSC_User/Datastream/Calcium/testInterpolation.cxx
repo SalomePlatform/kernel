@@ -56,12 +56,12 @@ int main() {
 
   //TEST1
   std::generate(vect1.begin(),vect1.end(),myRand);
-  std::cout << "Vecteur1 généré aléatoirement :" << std::endl;
+  std::cout << "Vecteur1 genere aleatoirement :" << std::endl;
   std::copy(vect1.begin(),vect1.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
 
   std::generate(vect2.begin(),vect2.end(),myRand);
-  std::cout << "Vecteur2 généré aléatoirement :" << std::endl;
+  std::cout << "Vecteur2 genere aleatoirement :" << std::endl;
   std::copy(vect2.begin(),vect2.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
 
@@ -83,7 +83,7 @@ int main() {
 
   std::transform(InIt1,InIt1+dataSize3,InIt2,OutIt1, ( _1 - _2 ) * coeff + _2 );
 
-  std::cout << "Vecteur3 calculé :" << std::endl;
+  std::cout << "Vecteur3 calcule :" << std::endl;
   std::copy(vect3.begin(),vect3.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
   
@@ -110,7 +110,7 @@ int main() {
     OutIt2[i]=(InIt1[i] - InIt2[i]) * coeff + InIt2[i];
   }
 
-   std::cout << "Vecteur4 calculé :" << std::endl;
+   std::cout << "Vecteur4 calcule :" << std::endl;
    std::copy(vect4.begin(),vect4.end(),std::ostream_iterator<Type>(std::cout," "));
    std::cout<< std::endl;
 

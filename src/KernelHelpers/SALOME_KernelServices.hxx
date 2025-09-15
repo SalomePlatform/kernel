@@ -43,7 +43,7 @@ namespace KERNEL {
   KERNELHELPERS_EXPORT SALOME_NamingService_Abstract *getNamingService();
   KERNELHELPERS_EXPORT void assignNamingServiceSL();
   KERNELHELPERS_EXPORT SALOME_LifeCycleCORBA *       getLifeCycleCORBA();
-  KERNELHELPERS_EXPORT SALOME::Session_ptr           getSalomeSession();
+  KERNELHELPERS_EXPORT SALOME_CMOD::Session_ptr           getSalomeSession();
   KERNELHELPERS_EXPORT SALOMEDS::Study_ptr           getStudyServant();
   KERNELHELPERS_EXPORT Engines::SalomeLauncher_ptr   getSalomeLauncher();
   KERNELHELPERS_EXPORT Engines::ResourcesManager_ptr getResourcesManager();
@@ -84,7 +84,7 @@ namespace KERNEL {
 
   // ---------------------------------------------
   // To create a standard SALOME exception embedding a simple text
-  KERNELHELPERS_EXPORT SALOME::SALOME_Exception createSalomeException(const char * text);
+  KERNELHELPERS_EXPORT SALOME_CMOD::SALOME_Exception createSalomeException(const char * text);
 }
 
 

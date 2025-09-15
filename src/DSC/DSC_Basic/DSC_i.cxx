@@ -21,7 +21,7 @@
 //
 
 //  File   : DSC_i.cxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #include "DSC_i.hxx"

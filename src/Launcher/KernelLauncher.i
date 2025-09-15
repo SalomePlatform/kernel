@@ -50,7 +50,7 @@ def myResourcesManager():
   return orb.string_to_object(GetResourcesManagerInstance())
 
 def GetExternalServer():
-  from . import SALOME
+  from . import SALOME_CMOD
   import CORBA
   orb=CORBA.ORB_init([''])
   return orb.string_to_object(GetExternalServerInstance())

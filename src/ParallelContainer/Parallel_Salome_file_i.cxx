@@ -21,7 +21,7 @@
 //
 
 //  File   : Parallel_Salome_file_i.cxx
-//  Author : André RIBES, EDF
+//  Author : Andre RIBES, EDF
 //  Module : SALOME
 //  $Header: 
 //
@@ -51,28 +51,28 @@ Parallel_Salome_file_i::~Parallel_Salome_file_i() {}
 void 
 Parallel_Salome_file_i::load(const char* hdf5_file) {
   MESSAGE("Parallel_Salome_file_i::load : NOT YET IMPLEMENTED");
-  SALOME::ExceptionStruct es;
-  es.type = SALOME::INTERNAL_ERROR;
+  SALOME_CMOD::ExceptionStruct es;
+  es.type = SALOME_CMOD::INTERNAL_ERROR;
   es.text = "Parallel_Salome_file_i::load : NOT YET IMPLEMENTED";
-  throw SALOME::SALOME_Exception(es);
+  throw SALOME_CMOD::SALOME_Exception(es);
 }
 
 void 
 Parallel_Salome_file_i::save(const char* hdf5_file) {
   MESSAGE("Parallel_Salome_file_i::save : NOT YET IMPLEMENTED");
-  SALOME::ExceptionStruct es;
-  es.type = SALOME::INTERNAL_ERROR;
+  SALOME_CMOD::ExceptionStruct es;
+  es.type = SALOME_CMOD::INTERNAL_ERROR;
   es.text = "Parallel_Salome_file_i::save : NOT YET IMPLEMENTED";
-  throw SALOME::SALOME_Exception(es);
+  throw SALOME_CMOD::SALOME_Exception(es);
 }
 
 void 
 Parallel_Salome_file_i::save_all(const char* hdf5_file) {
   MESSAGE("Parallel_Salome_file_i::save_all : NOT YET IMPLEMENTED");
-  SALOME::ExceptionStruct es;
-  es.type = SALOME::INTERNAL_ERROR;
+  SALOME_CMOD::ExceptionStruct es;
+  es.type = SALOME_CMOD::INTERNAL_ERROR;
   es.text = "Parallel_Salome_file_i::save_all : NOT YET IMPLEMENTED";
-  throw SALOME::SALOME_Exception(es);
+  throw SALOME_CMOD::SALOME_Exception(es);
 }
 
 void 
@@ -134,18 +134,18 @@ Parallel_Salome_file_i::recvFiles() {
     try {
      parallel_file->recvFiles_node(i);
     }
-    catch (SALOME::SALOME_Exception & ex) {
+    catch (SALOME_CMOD::SALOME_Exception & ex) {
       files_not_ok = files_not_ok + std::string(ex.details.text.in());
     }
   }
 
   if (files_not_ok != "")
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "files not ready : " + files_not_ok;
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   else
   {
@@ -196,11 +196,11 @@ Parallel_Salome_file_i::recvFiles_node() {
   }
   if (files_not_ok != "")
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = files_not_ok;
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -294,10 +294,10 @@ Parallel_Salome_file_i::setFileNode(const char* file_name, CORBA::Long node) {
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "file is not managed";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   // Update file infos into this node (node 0)
@@ -349,19 +349,19 @@ Parallel_Salome_file_i::getFileNode(const char* file_name) {
     }
     else
     {
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = "Error : there is more than one file that is managed";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
   }
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "file is not managed";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   return _fileManaged[fname].node;

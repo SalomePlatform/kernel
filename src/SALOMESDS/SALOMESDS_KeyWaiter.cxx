@@ -26,7 +26,7 @@
 
 using namespace SALOMESDS;
 
-KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):_var(var),_ze_key(0),_ze_value(0)
+KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME_CMOD::ByteVec& keyVal):_var(var),_ze_key(0),_ze_value(0)
 {
   if(sem_init(&_sem,0,0)!=0)// put value to 0 to lock by default
     throw Exception("KeyWaiter constructor : Error on initialization of semaphore !");
@@ -88,7 +88,7 @@ void KeyWaiter::waitFor()
 /*!
  * this method is supposed to be performed in alone.
  */
-SALOME::ByteVec *KeyWaiter::waitForMonoThr()
+SALOME_CMOD::ByteVec *KeyWaiter::waitForMonoThr()
 {
   if(!_ze_value)
     throw Exception("KeyWaiter::waitForMonoThr : no value ! invalid call of this method !");
@@ -97,7 +97,7 @@ SALOME::ByteVec *KeyWaiter::waitForMonoThr()
   return PickelizedPyObjServer::FromCppToByteSeq(st);
 }
 
-SALOME::ByteVec *KeyWaiter::waitForAndKill()
+SALOME_CMOD::ByteVec *KeyWaiter::waitForAndKill()
 {
   if(!_ze_value)
     throw Exception("KeyWaiter::waitForAndKill : no value ! invalid call of this method !");

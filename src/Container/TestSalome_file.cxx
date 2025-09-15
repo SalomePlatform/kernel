@@ -121,7 +121,7 @@ int main (int argc, char * argv[])
   {
     file.recvFiles();
   }
-  catch (SALOME::SALOME_Exception & e)
+  catch (SALOME_CMOD::SALOME_Exception & e)
   {
     std::cerr << "Exception : " << e.details.text << std::endl;
   }

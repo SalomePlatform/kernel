@@ -36,16 +36,16 @@ namespace SALOMESDS
   /*!
    * State during the producer/consumer phase. Activated by TransactionMultiKeyAddSession transaction returned by dss.addMultiKeyValueSession.
    */
-  class PickelizedPyObjRdExtInitServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME::PickelizedPyObjRdExtInitServer
+  class PickelizedPyObjRdExtInitServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME_CMOD::PickelizedPyObjRdExtInitServer
   {
   public:
-    PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value);
     PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdExtInitServer();
     virtual PickelizedPyObjRdExtServer *buildStdInstanceFrom(const std::string& varName);
   public:
     std::string getAccessStr() const;
-    SALOME::ByteVec *fetchSerializedContent();
+    SALOME_CMOD::ByteVec *fetchSerializedContent();
   public:
     void incrNbClients() const { _nb_of_clients++; }
     bool decrNbClients() const { _nb_of_clients--; return _nb_of_clients<=0; }

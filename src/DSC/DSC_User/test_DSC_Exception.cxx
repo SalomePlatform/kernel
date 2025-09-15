@@ -66,93 +66,93 @@ int main() {
     a.lanceException1_1();
   }
   catch (  const A::Exp1  & ex ) {
-    std::cout << "Exception 1 bien reçue" << std::endl;
+    std::cout << "Exception 1 bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const DSC_Exception & dscE ) {
-    std::cout << "Exception DSC  reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception DSC  recue mais aurait dc recevoir Exception 1" << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception 1" << std::endl;
   }
 
   try {
     a.lanceException1_2();
   }
-  // Essai par valeur (ne pas faire çà !)
+  // Essai par valeur (ne pas faire cc !)
   catch (  A::Exp1&  ex ) {
-    std::cout << "Exception 1 bien reçue" << std::endl;
+    std::cout << "Exception 1 bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const DSC_Exception & dscE ) {
-    std::cout << "Exception DSC  reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception DSC  recue mais aurait dc recevoir Exception 1" << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception 1" << std::endl;
   }
 
   try {
     a.lanceException1_3();
   }
   catch ( const A::Exp1 & ex ) {
-    std::cout << "Exception 1 bien reçue" << std::endl;
+    std::cout << "Exception 1 bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const DSC_Exception & dscE ) {
-    std::cout << "Exception DSC  reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception DSC  recue mais aurait dc recevoir Exception 1" << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception 1" << std::endl;
   }
 
   try {
     a.lanceException1_4();
   }
   catch ( const A::Exp1 & ex ) {
-    std::cout << "Exception 1 bien reçue" << std::endl;
+    std::cout << "Exception 1 bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const DSC_Exception & dscE ) {
-    std::cout << "Exception DSC  reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception DSC  recue mais aurait dc recevoir Exception 1" << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception 1" << std::endl;
   }
 
   try {
     a.lanceException1_5();
   }
   catch ( const A::Exp1 & ex ) {
-    std::cout << "Exception 1 bien reçue" << std::endl;
+    std::cout << "Exception 1 bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const DSC_Exception & dscE ) {
-    std::cout << "Exception DSC  reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception DSC  recue mais aurait dc recevoir Exception 1" << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception 1" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception 1" << std::endl;
   }
 
   try {
     a.lanceException1_6();
   }
   catch ( SALOME_Exception& ex ) {
-    std::cout << "Exception SALOME bien reçue" << std::endl;
+    std::cout << "Exception SALOME bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception SALOME" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception SALOME" << std::endl;
   }
 
   try {
     a.lanceException1_6();
   }
   catch ( const SALOME_Exception & ex ) {
-    std::cout << "Exception SALOME bien reçue" << std::endl;
+    std::cout << "Exception SALOME bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception SALOME" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception SALOME" << std::endl;
   }
 
   try {
     a.lanceException1_7();
   } catch ( const DSC_Exception & ex ) {
-    std::cout << "Exception DSC bien reçue" << std::endl;
+    std::cout << "Exception DSC bien recue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const SALOME_Exception & ex ) {
-    std::cout << "Exception SALOME reçue mais aurais dû recevoir une exception DSC" << std::endl;
+    std::cout << "Exception SALOME recue mais aurais dc recevoir une exception DSC" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( ...) {
-    std::cout << "Exception ... reçue mais aurait dû recevoir Exception DSC" << std::endl;
+    std::cout << "Exception ... recue mais aurait dc recevoir Exception DSC" << std::endl;
   }
 
 }

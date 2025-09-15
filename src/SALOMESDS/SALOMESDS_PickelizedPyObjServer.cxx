@@ -27,7 +27,7 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value):BasicDataServer(father,varName),_self(0)
 {
   setSerializedContentInternal(value);
 }
@@ -46,7 +46,7 @@ PickelizedPyObjServer::~PickelizedPyObjServer()
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
+SALOME_CMOD::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
 {
   Py_XINCREF(_self);//because pickelize consume _self
   return FromCppToByteSeq(pickelize(_self));
@@ -82,7 +82,7 @@ void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject * /
   throw Exception(oss.str());
 }
 
-void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
+void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME_CMOD::ByteVec& bsToBeConv, std::string& ret)
 {
   std::size_t sz(bsToBeConv.length());
   ret.resize(sz,' ');
@@ -91,7 +91,7 @@ void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, 
     buf[i]=bsToBeConv[(CORBA::ULong)i]; //!< TODO: size_t to CORBA::ULong
 }
 
-void PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv, SALOME::ByteVec& ret)
+void PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv, SALOME_CMOD::ByteVec& ret)
 {
   const char *buf(strToBeConv.c_str());
   std::size_t sz(strToBeConv.size());
@@ -100,9 +100,9 @@ void PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv, SAL
     ret[(CORBA::ULong)i]=buf[i]; //!< TODO: size_t to CORBA::ULong
 }
 
-SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv)
+SALOME_CMOD::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv)
 {
-  SALOME::ByteVec *ret(new SALOME::ByteVec);
+  SALOME_CMOD::ByteVec *ret(new SALOME_CMOD::ByteVec);
   FromCppToByteSeq(strToBeConv,*ret);
   return ret;
 }
@@ -202,7 +202,7 @@ void PickelizedPyObjServer::setNewPyObj(PyObject *obj)
   _self=obj;
 }
 
-void PickelizedPyObjServer::setSerializedContentInternal(const SALOME::ByteVec& newValue)
+void PickelizedPyObjServer::setSerializedContentInternal(const SALOME_CMOD::ByteVec& newValue)
 {
   std::string data;
   FromByteSeqToCpp(newValue,data);
@@ -255,7 +255,7 @@ void PickelizedPyObjServer::checkKeyPresence(PyObject *key, bool presence)
   Py_XDECREF(retPy);
 }
 
-PickelizedPyObjServerModifiable::PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+PickelizedPyObjServerModifiable::PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value):PickelizedPyObjServer(father,varName,value)
 {
 }
 

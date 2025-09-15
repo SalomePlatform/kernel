@@ -20,7 +20,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOME_ParallelContainer_i.hxx
-//  Author : Andr� RIBES, EDF
+//  Author : Andre RIBES, EDF
 
 #ifndef _SALOME_PARALLEL_CONTAINER_I_HXX_
 #define _SALOME_PARALLEL_CONTAINER_I_HXX_
@@ -161,8 +161,8 @@ protected:
   _fileRef_map_t _fileRef_map;
   _Salome_file_map_t _Salome_file_map;
 
-  // Cette map contient les references vers les diff�rentes
-  // instances d'objets parall�les.
+  // Cette map contient les references vers les differentes
+  // instances d'objets paralleles.
   std::map<std::string, PortableServer::ObjectId *> _par_obj_inst_map;
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr, char *, int,

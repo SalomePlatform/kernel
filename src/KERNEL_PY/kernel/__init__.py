@@ -45,7 +45,7 @@ del version_and_config
 # WARN: This file SHOULD NOT import salome stuff so that modules of the
 # package could be used outside of a SALOME session context when
 # possible. For example logger.py, datamodeler.py, enumerate.py,
-# diclookup.py, ... does not need a SALOME running application.
+# diclookup.py, ... does not need a SALOME_CMOD.running application.
 
 #
 # ==============================================================================

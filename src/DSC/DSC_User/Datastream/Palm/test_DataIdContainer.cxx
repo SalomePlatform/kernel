@@ -42,7 +42,7 @@ public:
   typedef PalmCouplingPolicy::DataIdContainer DataIdContainer;  
   typedef PalmCouplingPolicy::DataId          DataId;
     
-  DataId          dataId(time,tag);   //potentiellement avec un troisième paramètre
+  DataId          dataId(time,tag);   //potentiellement avec un troisieme parametre
   //std::vector<CORBA::Long> a(1,time);std::vector<CORBA::Long> b(1,tag);
   //DataIdContainer dataIds(a,b);   
 
@@ -51,7 +51,7 @@ public:
   filtre_conversion * f_time = get_filtre_convert_TIME();
   filtre_conversion * f_tag =  get_filtre_convert_TAG(); 
 
-  // On accepte les temps de 1 à 100 sans conversion
+  // On accepte les temps de 1 e 100 sans conversion
   filtre_elementaire * f_time_el = new filtre_elementaire(1, 100);
   f_time->config_elementaire(*f_time_el);
 
@@ -83,7 +83,7 @@ public:
   typedef PalmCouplingPolicy::DataIdContainer DataIdContainer;  
   typedef PalmCouplingPolicy::DataId          DataId;
     
-  DataId          dataId(time,tag);   //potentiellement avec un troisième paramètre
+  DataId          dataId(time,tag);   //potentiellement avec un troisieme parametre
   //std::vector<CORBA::Long> a(1,time);std::vector<CORBA::Long> b(1,tag);
   //DataIdContainer dataIds(a,b);   
 

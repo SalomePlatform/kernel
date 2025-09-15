@@ -33,7 +33,7 @@
 #include <sstream>
 
 static Engines::LogManager_var LogManagerInstanceSingleton;
-static SALOME::ExternalServerLauncher_var ExternalServerLauncherSingleton;
+static SALOME_CMOD::ExternalServerLauncher_var ExternalServerLauncherSingleton;
 static Engines::LockMaster_var LockMasterSingleton;
 static const char LockMasterEntryInNS[] = "/LockMaster";
 
@@ -86,7 +86,7 @@ std::string GetExternalServerInstance()
     esm->_remove_ref();
     //
     CORBA::Object_var esmPtr = safePOA->servant_to_reference(esm);
-    ExternalServerLauncherSingleton = SALOME::ExternalServerLauncher::_narrow(esmPtr);
+    ExternalServerLauncherSingleton = SALOME_CMOD::ExternalServerLauncher::_narrow(esmPtr);
   }
   //
   CORBA::String_var ior = orb->object_to_string(ExternalServerLauncherSingleton);

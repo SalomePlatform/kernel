@@ -22,7 +22,7 @@
 
 //  SALOME ParallelContainerProxyMpi : Launching the proxy of a MPI PaCO++ object
 //  File   : SALOME_ParallelContainerProxyMpi.cxx
-//  Author : Andr� Ribes, EDF
+//  Author : Andre Ribes, EDF
 //  Module : SALOME PARALLEL
 //
 #include <iostream>

@@ -21,7 +21,7 @@
 #ifndef __SALOME_COMMONTYPES_IDL__
 #define __SALOME_COMMONTYPES_IDL__
 
-module SALOME
+module SALOME_CMOD
 {
   typedef sequence<string> StringVec;
   typedef sequence<long> LongVec;

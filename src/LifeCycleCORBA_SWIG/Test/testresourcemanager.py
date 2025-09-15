@@ -21,7 +21,7 @@
 import unittest
 from salome.kernel import salome
 from salome.kernel import LifeCycleCORBA
-from salome.kernel import SALOME
+from salome.kernel import SALOME_CMOD
 salome.salome_init()
 cm= salome.lcc.getContainerManager()
 rm= salome.lcc.getResourcesManager()
@@ -57,7 +57,7 @@ Test with CatalogResources.xml:
   def test1(self):
     """OS required"""
     params=LifeCycleCORBA.ResourceParameters(OS="Linux")
-    self.assertRaises(SALOME.SALOME_Exception,rm.GetFittingResources,params)
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,rm.GetFittingResources,params)
 
   def test2(self):
     """component add required.

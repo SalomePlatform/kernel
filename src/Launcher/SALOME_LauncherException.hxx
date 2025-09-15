@@ -29,7 +29,7 @@
 
 #include <string>
 
-class SALOMELAUNCHER_EXPORT SALOME_LauncherException : public SALOME::SALOME_Exception
+class SALOMELAUNCHER_EXPORT SALOME_LauncherException : public SALOME_CMOD::SALOME_Exception
 {
  public:
   SALOME_LauncherException(const std::string& reason);

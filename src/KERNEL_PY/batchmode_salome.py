@@ -26,7 +26,7 @@
 
 from omniORB import CORBA
 from .LifeCycleCORBA import *
-from . import SALOME
+from . import SALOME_CMOD
 from . import SALOMEDS
 from .SALOME_NamingServicePy import *
 

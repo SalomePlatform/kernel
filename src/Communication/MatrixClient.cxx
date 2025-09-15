@@ -23,7 +23,7 @@
 #include "MatrixClient.hxx"
 #include "ReceiverFactory.hxx"
 
-double *MatrixClient::getValue(SALOME::Matrix_ptr distMat, int& columnSize, int& rowSize)
+double *MatrixClient::getValue(SALOME_CMOD::Matrix_ptr distMat, int& columnSize, int& rowSize)
 {
   long totalSize;
   double *ret=ReceiverFactory::getValue(distMat->getData(),totalSize);

@@ -49,7 +49,7 @@
 /*!
   This method performs the transfert of double array with the remote SenderDouble given. If it fails with this SenderDouble it tries with an another protocol (CORBA by default).
  */
-double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)
+double *ReceiverFactory::getValue(SALOME_CMOD::SenderDouble_ptr sender,long &size)
 {
   double *ret;
   try{
@@ -57,7 +57,7 @@ double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)
   }
   catch(MultiCommException&)
     {
-      SALOME::SenderDouble_ptr newSender=sender->buildOtherWithProtocol(SALOME::CORBA_);
+      SALOME_CMOD::SenderDouble_ptr newSender=sender->buildOtherWithProtocol(SALOME_CMOD::CORBA_);
       MESSAGE("PROTOCOL CHANGED TO CORBA");
       sender->release();
       ret=getValueOneShot(newSender,size);
@@ -69,7 +69,7 @@ double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)
 /*!
   This method performs the transfert of int array with the remote SenderInt given. If it fails with this SenderInt it tries with an another protocol (CORBA by default).
  */
-int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)
+int *ReceiverFactory::getValue(SALOME_CMOD::SenderInt_ptr sender,long &size)
 {
   int *ret;
   try{
@@ -77,7 +77,7 @@ int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)
   }
   catch(MultiCommException&)
     {
-      SALOME::SenderInt_ptr newSender=sender->buildOtherWithProtocol(SALOME::CORBA_);
+      SALOME_CMOD::SenderInt_ptr newSender=sender->buildOtherWithProtocol(SALOME_CMOD::CORBA_);
       MESSAGE("PROTOCOL CHANGED TO CORBA");
       sender->release();
       ret=getValueOneShot(newSender,size);
@@ -89,35 +89,35 @@ int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)
 /*!
   This method performs the transfert with the remote SenderDouble given. If it fails an exception is thrown.
  */
-double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &size)
+double *ReceiverFactory::getValueOneShot(SALOME_CMOD::SenderDouble_ptr sender,long &size)
 {
-  SALOME::CorbaDoubleNCSender_ptr cncD_ptr;
-  SALOME::CorbaDoubleCSender_ptr cwcD_ptr;
+  SALOME_CMOD::CorbaDoubleNCSender_ptr cncD_ptr;
+  SALOME_CMOD::CorbaDoubleCSender_ptr cwcD_ptr;
 #ifdef HAVE_MPI2
-  SALOME::MPISenderDouble_ptr mpi_ptr=SALOME::MPISenderDouble::_narrow(sender);
+  SALOME_CMOD::MPISenderDouble_ptr mpi_ptr=SALOME_CMOD::MPISenderDouble::_narrow(sender);
 #endif
 #ifdef HAVE_SOCKET
-  SALOME::SocketSenderDouble_ptr sock_ptr=SALOME::SocketSenderDouble::_narrow(sender);
+  SALOME_CMOD::SocketSenderDouble_ptr sock_ptr=SALOME_CMOD::SocketSenderDouble::_narrow(sender);
 #endif
-  cncD_ptr=SALOME::CorbaDoubleNCSender::_narrow(sender);
-  cwcD_ptr=SALOME::CorbaDoubleCSender::_narrow(sender);
+  cncD_ptr=SALOME_CMOD::CorbaDoubleNCSender::_narrow(sender);
+  cwcD_ptr=SALOME_CMOD::CorbaDoubleCSender::_narrow(sender);
   if(!CORBA::is_nil(cncD_ptr))
     {
       CORBA::release(sender);
-      CorbaDNoCopyReceiver<double,CORBA::Double,SALOME::vectorOfDouble_var,SALOME::CorbaDoubleNCSender_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(cncD_ptr);
+      CorbaDNoCopyReceiver<double,CORBA::Double,SALOME_CMOD::vectorOfDouble_var,SALOME_CMOD::CorbaDoubleNCSender_ptr,SALOME_CMOD::SenderDouble_ptr,SALOME_SenderDouble_i> rec(cncD_ptr);
       return rec.getValue(size);
     }
   else if(!CORBA::is_nil(cwcD_ptr))
     {
       CORBA::release(sender);
-      CorbaDWithCopyReceiver<double,CORBA::Double,SALOME::vectorOfDouble_var,SALOME::CorbaDoubleCSender_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(cwcD_ptr);
+      CorbaDWithCopyReceiver<double,CORBA::Double,SALOME_CMOD::vectorOfDouble_var,SALOME_CMOD::CorbaDoubleCSender_ptr,SALOME_CMOD::SenderDouble_ptr,SALOME_SenderDouble_i> rec(cwcD_ptr);
       return rec.getValue(size);
     }
 #ifdef HAVE_MPI2
   else if(!CORBA::is_nil(mpi_ptr))
     {
       CORBA::release(sender);
-      MPIReceiver<double,SALOME::MPISenderDouble_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(mpi_ptr);
+      MPIReceiver<double,SALOME_CMOD::MPISenderDouble_ptr,SALOME_CMOD::SenderDouble_ptr,SALOME_SenderDouble_i> rec(mpi_ptr);
       return rec.getValue(size);
     }
 #endif
@@ -125,7 +125,7 @@ double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &s
   else if(!CORBA::is_nil(sock_ptr))
     {
       CORBA::release(sender);
-      SocketReceiver<double,xdr_double,SALOME::SocketSenderDouble_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(sock_ptr);
+      SocketReceiver<double,xdr_double,SALOME_CMOD::SocketSenderDouble_ptr,SALOME_CMOD::SenderDouble_ptr,SALOME_SenderDouble_i> rec(sock_ptr);
       return rec.getValue(size);
     }
 #endif
@@ -139,35 +139,35 @@ double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &s
 /*!
   This method performs the transfert with the remote SenderInt given. If it fails an exception is thrown.
  */
-int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)
+int *ReceiverFactory::getValueOneShot(SALOME_CMOD::SenderInt_ptr sender,long &size)
 {
-  SALOME::CorbaLongNCSender_ptr cncL_ptr;
-  SALOME::CorbaLongCSender_ptr cwcL_ptr;
+  SALOME_CMOD::CorbaLongNCSender_ptr cncL_ptr;
+  SALOME_CMOD::CorbaLongCSender_ptr cwcL_ptr;
 #ifdef HAVE_MPI2
-  SALOME::MPISenderInt_ptr mpi_ptr=SALOME::MPISenderInt::_narrow(sender);
+  SALOME_CMOD::MPISenderInt_ptr mpi_ptr=SALOME_CMOD::MPISenderInt::_narrow(sender);
 #endif
 #ifdef HAVE_SOCKET
-  SALOME::SocketSenderInt_ptr sock_ptr=SALOME::SocketSenderInt::_narrow(sender);
+  SALOME_CMOD::SocketSenderInt_ptr sock_ptr=SALOME_CMOD::SocketSenderInt::_narrow(sender);
 #endif
-  cncL_ptr=SALOME::CorbaLongNCSender::_narrow(sender);
-  cwcL_ptr=SALOME::CorbaLongCSender::_narrow(sender);
+  cncL_ptr=SALOME_CMOD::CorbaLongNCSender::_narrow(sender);
+  cwcL_ptr=SALOME_CMOD::CorbaLongCSender::_narrow(sender);
   if(!CORBA::is_nil(cncL_ptr))
     {
       CORBA::release(sender);
-      CorbaINoCopyReceiver<int,CORBA::Long,SALOME::vectorOfLong_var,SALOME::CorbaLongNCSender_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(cncL_ptr);
+      CorbaINoCopyReceiver<int,CORBA::Long,SALOME_CMOD::vectorOfLong_var,SALOME_CMOD::CorbaLongNCSender_ptr,SALOME_CMOD::SenderInt_ptr,SALOME_SenderInt_i> rec(cncL_ptr);
       return rec.getValue(size);
     }
   else if(!CORBA::is_nil(cwcL_ptr))
     {
       CORBA::release(sender);
-      CorbaIWithCopyReceiver<int,CORBA::Long,SALOME::vectorOfLong_var,SALOME::CorbaLongCSender_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(cwcL_ptr);
+      CorbaIWithCopyReceiver<int,CORBA::Long,SALOME_CMOD::vectorOfLong_var,SALOME_CMOD::CorbaLongCSender_ptr,SALOME_CMOD::SenderInt_ptr,SALOME_SenderInt_i> rec(cwcL_ptr);
       return rec.getValue(size);
     }
 #ifdef HAVE_MPI2
   else if(!CORBA::is_nil(mpi_ptr))
     {
       CORBA::release(sender);
-      MPIReceiver<int,SALOME::MPISenderInt_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(mpi_ptr);
+      MPIReceiver<int,SALOME_CMOD::MPISenderInt_ptr,SALOME_CMOD::SenderInt_ptr,SALOME_SenderInt_i> rec(mpi_ptr);
       return rec.getValue(size);
     }
 #endif
@@ -175,7 +175,7 @@ int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)
   else if(!CORBA::is_nil(sock_ptr))
     {
       CORBA::release(sender);
-      SocketReceiver<int,xdr_int,SALOME::SocketSenderInt_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(sock_ptr);
+      SocketReceiver<int,xdr_int,SALOME_CMOD::SocketSenderInt_ptr,SALOME_CMOD::SenderInt_ptr,SALOME_SenderInt_i> rec(sock_ptr);
       return rec.getValue(size);
     }
 #endif
@@ -186,7 +186,7 @@ int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)
     }
 }
 
-SeqByteReceiver::SeqByteReceiver(SALOME::SenderByte_ptr sender):_obj(SALOME::SenderByte::_duplicate(sender))
+SeqByteReceiver::SeqByteReceiver(SALOME_CMOD::SenderByte_ptr sender):_obj(SALOME_CMOD::SenderByte::_duplicate(sender))
 {
 }
 
@@ -219,7 +219,7 @@ void SeqByteReceiver::fetchByChunks(unsigned long size)
   unsigned long iEnd = EFF_CHUNK_SIZE;
   while( iStart!=iEnd && iEnd <= size )
   {
-    std::unique_ptr<SALOME::vectorOfByte> part( _obj->sendPart(iStart,iEnd) );
+    std::unique_ptr<SALOME_CMOD::vectorOfByte> part( _obj->sendPart(iStart,iEnd) );
     const unsigned char *partC = part->get_buffer();
     std::copy(partC,partC+(iEnd-iStart),destination+iStart);
     iStart = iEnd; iEnd = std::min(iStart + EFF_CHUNK_SIZE,size);

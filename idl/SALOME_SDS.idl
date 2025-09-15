@@ -26,7 +26,7 @@
 #include "SALOME_Exception.idl"
 #include "SALOME_CommonTypes.idl"
 
-module SALOME
+module SALOME_CMOD
 {
   typedef sequence<ByteVec> SeqOfByteVec;
   
@@ -42,7 +42,7 @@ module SALOME
 
   interface PickelizedPyObjServer : BasicDataServer
   {
-    ByteVec fetchSerializedContent() raises (SALOME::SALOME_Exception);
+    ByteVec fetchSerializedContent() raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface PickelizedPyObjRdOnlyServer : PickelizedPyObjServer
@@ -55,7 +55,7 @@ module SALOME
 
   interface PickelizedPyObjRdExtServer : PickelizedPyObjRdExtBaseServer
   {
-    PickelizedPyObjRdExtServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdExtServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface PickelizedPyObjRdExtInitServer : PickelizedPyObjRdExtBaseServer
@@ -64,8 +64,8 @@ module SALOME
 
   interface PickelizedPyObjRdWrServer : PickelizedPyObjServer
   {
-    void setSerializedContent(in ByteVec newValue) raises (SALOME::SALOME_Exception);
-    PickelizedPyObjRdWrServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+    void setSerializedContent(in ByteVec newValue) raises (SALOME_CMOD::SALOME_Exception);
+    PickelizedPyObjRdWrServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface DataServerManager;
@@ -84,8 +84,8 @@ module SALOME
   interface RequestSwitcher : RequestSwitcherBase
   {
     StringVec listVars();
-    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
-    void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME::SALOME_Exception);
+    ByteVec fetchSerializedContent(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface DataScopeServerTransaction;
@@ -93,7 +93,7 @@ module SALOME
   interface RequestSwitcherDSM : RequestSwitcherBase
   {
     StringVec listScopes();
-    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
+    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface DataScopeServerBase
@@ -101,20 +101,20 @@ module SALOME
     void ping();
     string getScopeName();
     StringVec listVars();
-    boolean existVar(in string varName) raises (SALOME::SALOME_Exception);
-    void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
-    boolean shutdownIfNotHostedByDSM(out DataScopeKiller killer) raises (SALOME::SALOME_Exception);
-    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
-    SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME::SALOME_Exception);
-    ByteVec getValueOfVarWithTypeDict(in string varName, in ByteVec constKey) raises (SALOME::SALOME_Exception);
-    void takeANap(in double napDurationInSec) raises (SALOME::SALOME_Exception);
+    boolean existVar(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    void deleteVar(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    boolean shutdownIfNotHostedByDSM(out DataScopeKiller killer) raises (SALOME_CMOD::SALOME_Exception);
+    ByteVec fetchSerializedContent(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    SeqOfByteVec getAllKeysOfVarWithTypeDict(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    ByteVec getValueOfVarWithTypeDict(in string varName, in ByteVec constKey) raises (SALOME_CMOD::SALOME_Exception);
+    void takeANap(in double napDurationInSec) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface DataScopeServer : DataScopeServerBase
   {
-    BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
-    PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    BasicDataServer retrieveVar(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface Transaction
@@ -123,61 +123,61 @@ module SALOME
 
   interface TransactionRdWrAccess : Transaction
   {
-    PickelizedPyObjRdWrServer getVar() raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdWrServer getVar() raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface TransactionMultiKeyAddSession : Transaction
   {
-    void addKeyValueInVarErrorIfAlreadyExistingNow(in SALOME::ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    void addKeyValueInVarErrorIfAlreadyExistingNow(in SALOME_CMOD::ByteVec keyValue, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   typedef sequence<Transaction> ListOfTransaction;
 
   interface KeyWaiter
   {
-    void waitFor() raises (SALOME::SALOME_Exception);
+    void waitFor() raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface DataScopeServerTransaction : DataScopeServerBase
   {
-    string getAccessOfVar(in string varName) raises (SALOME::SALOME_Exception);
-    void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME::SALOME_Exception);
-    Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    Transaction createRdExtVarFreeStyleTransac(in string varName, in ByteVec constValue, in string compareFuncContent) raises (SALOME::SALOME_Exception);
-    Transaction createRdExtInitVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    Transaction addKeyValueInVarHard(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    Transaction addKeyValueInVarErrorIfAlreadyExisting(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    TransactionMultiKeyAddSession addMultiKeyValueSession(in string varName) raises (SALOME::SALOME_Exception);
-    Transaction removeKeyInVarErrorIfNotAlreadyExisting(in string varName, in ByteVec keyValue) raises (SALOME::SALOME_Exception);
-    TransactionRdWrAccess createWorkingVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    Transaction killVarTransac(in string varName) raises (SALOME::SALOME_Exception);
-    KeyWaiter waitForKeyInVar(in string varName, in ByteVec keyVal) raises (SALOME::SALOME_Exception);
-    KeyWaiter waitForKeyInVarAndKillIt(in string varName, in ByteVec keyVal, out Transaction transac) raises (SALOME::SALOME_Exception);
-    void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
-    ByteVec waitForMonoThrRev(in KeyWaiter kw) raises (SALOME::SALOME_Exception);
-    ByteVec waitForAndKill(in KeyWaiter kw) raises (SALOME::SALOME_Exception);
+    string getAccessOfVar(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    void fetchAndGetAccessOfVar(in string varName, out string access, out ByteVec data) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction createRdExtVarFreeStyleTransac(in string varName, in ByteVec constValue, in string compareFuncContent) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction createRdExtInitVarTransac(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction addKeyValueInVarHard(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction addKeyValueInVarErrorIfAlreadyExisting(in string varName, in ByteVec keyValue, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    TransactionMultiKeyAddSession addMultiKeyValueSession(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction removeKeyInVarErrorIfNotAlreadyExisting(in string varName, in ByteVec keyValue) raises (SALOME_CMOD::SALOME_Exception);
+    TransactionRdWrAccess createWorkingVarTransac(in string varName, in ByteVec constValue) raises (SALOME_CMOD::SALOME_Exception);
+    Transaction killVarTransac(in string varName) raises (SALOME_CMOD::SALOME_Exception);
+    KeyWaiter waitForKeyInVar(in string varName, in ByteVec keyVal) raises (SALOME_CMOD::SALOME_Exception);
+    KeyWaiter waitForKeyInVarAndKillIt(in string varName, in ByteVec keyVal, out Transaction transac) raises (SALOME_CMOD::SALOME_Exception);
+    void atomicApply(in ListOfTransaction transactions) raises (SALOME_CMOD::SALOME_Exception);
+    ByteVec waitForMonoThrRev(in KeyWaiter kw) raises (SALOME_CMOD::SALOME_Exception);
+    ByteVec waitForAndKill(in KeyWaiter kw) raises (SALOME_CMOD::SALOME_Exception);
     RequestSwitcher getRequestSwitcher();
   };
 
   interface DataServerManager
   {
     StringVec listScopes();
-    StringVec listAliveAndKickingScopes() raises (SALOME::SALOME_Exception);
-    DataScopeServer getDefaultScope() raises (SALOME::SALOME_Exception);
-    boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
+    StringVec listAliveAndKickingScopes() raises (SALOME_CMOD::SALOME_Exception);
+    DataScopeServer getDefaultScope() raises (SALOME_CMOD::SALOME_Exception);
+    boolean isAliveAndKicking(in string scopeName) raises (SALOME_CMOD::SALOME_Exception);
     //
-    DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
+    DataScopeServer createDataScope(in string scopeName) raises (SALOME_CMOD::SALOME_Exception);
+    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated) raises (SALOME_CMOD::SALOME_Exception);
     //
-    DataScopeServerTransaction createDataScopeTransaction(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME::SALOME_Exception);
+    DataScopeServerTransaction createDataScopeTransaction(in string scopeName) raises (SALOME_CMOD::SALOME_Exception);
+    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated) raises (SALOME_CMOD::SALOME_Exception);
     //
-    DataScopeServerBase retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServerBase retriveDataScope(in string scopeName) raises (SALOME_CMOD::SALOME_Exception);
+    void removeDataScope(in string scopeName) raises (SALOME_CMOD::SALOME_Exception);
     void cleanScopesInNS();
-    void shutdownScopes() raises (SALOME::SALOME_Exception);
+    void shutdownScopes() raises (SALOME_CMOD::SALOME_Exception);
     RequestSwitcherDSM getRequestSwitcher();
   };
 };

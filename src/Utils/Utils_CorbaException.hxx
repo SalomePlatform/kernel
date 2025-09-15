@@ -39,12 +39,12 @@
  */
 # define THROW_SALOME_CORBA_EXCEPTION(chain, typex) \
               {\
-                SALOME::ExceptionStruct ExDescription; \
+                SALOME_CMOD::ExceptionStruct ExDescription; \
                 ExDescription.text = CORBA::string_dup(chain); \
                 ExDescription.type = typex; \
                 ExDescription.sourceFile = CORBA::string_dup(__FILE__); \
                 ExDescription.lineNumber = __LINE__; \
-                throw SALOME::SALOME_Exception(ExDescription); \
+                throw SALOME_CMOD::SALOME_Exception(ExDescription); \
               }
 
 #include <ostream>

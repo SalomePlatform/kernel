@@ -90,7 +90,7 @@ SALOME_SenderDouble_i::~SALOME_SenderDouble_i()
 
 /*! Return a new sender of the same array but with an another protocol and delegates to the returned sender the ownership of array.
  */
-SALOME::SenderDouble_ptr SALOME_SenderDouble_i::buildOtherWithProtocol(SALOME::TypeOfCommunication type)
+SALOME_CMOD::SenderDouble_ptr SALOME_SenderDouble_i::buildOtherWithProtocol(SALOME_CMOD::TypeOfCommunication type)
 {
   return SenderFactory::buildSender(type,this);
 }
@@ -98,7 +98,7 @@ SALOME::SenderDouble_ptr SALOME_SenderDouble_i::buildOtherWithProtocol(SALOME::T
 /*! Method to establish if the CORBA object referred by pCorba is colocalized.\n
   If it is, the pointer to the servant that incarnates the CORBA object is returned.
 */
-SALOME_SenderDouble_i *SALOME_SenderDouble_i::find(SALOME::SenderDouble_ptr pCorba){
+SALOME_SenderDouble_i *SALOME_SenderDouble_i::find(SALOME_CMOD::SenderDouble_ptr pCorba){
   PortableServer::ServantBase *ret;
   try {
     ret=PortableServer::POA::_the_root_poa()->reference_to_servant(pCorba);
@@ -124,7 +124,7 @@ SALOME_SenderInt_i::~SALOME_SenderInt_i()
 
 /*! Return a new sender of the same array but with an another protocol.
  */
-SALOME::SenderInt_ptr SALOME_SenderInt_i::buildOtherWithProtocol(SALOME::TypeOfCommunication type)
+SALOME_CMOD::SenderInt_ptr SALOME_SenderInt_i::buildOtherWithProtocol(SALOME_CMOD::TypeOfCommunication type)
 {
   return SenderFactory::buildSender(type,this);
 }
@@ -132,7 +132,7 @@ SALOME::SenderInt_ptr SALOME_SenderInt_i::buildOtherWithProtocol(SALOME::TypeOfC
 /*! Method to establish if the CORBA object referred by pCorba is colocalized.\n
   If it is, the pointer to the servant that incarnates the CORBA object is returned.
 */
-SALOME_SenderInt_i *SALOME_SenderInt_i::find(SALOME::SenderInt_ptr pCorba){
+SALOME_SenderInt_i *SALOME_SenderInt_i::find(SALOME_CMOD::SenderInt_ptr pCorba){
   PortableServer::ServantBase *ret;
   try {
     ret=PortableServer::POA::_the_root_poa()->reference_to_servant(pCorba);
@@ -155,13 +155,13 @@ CORBA::ULong SALOME_CorbaDoubleNCSender_i::getSize(){
   return ret;
 }
 
-SALOME::vectorOfDouble* SALOME_CorbaDoubleNCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
-  SALOME::vectorOfDouble_var c1 = new SALOME::vectorOfDouble(length,length,(CORBA::Double *)((double *)_tabToSend+(long)offset),0);
+SALOME_CMOD::vectorOfDouble* SALOME_CorbaDoubleNCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
+  SALOME_CMOD::vectorOfDouble_var c1 = new SALOME_CMOD::vectorOfDouble(length,length,(CORBA::Double *)((double *)_tabToSend+(long)offset),0);
   return c1._retn();
 }
 
-SALOME::vectorOfDouble* SALOME_CorbaDoubleNCSender_i::send(){
-  SALOME::vectorOfDouble_var c1 = new SALOME::vectorOfDouble(_lgrTabToSend,_lgrTabToSend,(CORBA::Double *)_tabToSend,0);
+SALOME_CMOD::vectorOfDouble* SALOME_CorbaDoubleNCSender_i::send(){
+  SALOME_CMOD::vectorOfDouble_var c1 = new SALOME_CMOD::vectorOfDouble(_lgrTabToSend,_lgrTabToSend,(CORBA::Double *)_tabToSend,0);
   return c1._retn();
 }
 
@@ -176,8 +176,8 @@ CORBA::ULong SALOME_CorbaDoubleCSender_i::getSize(){
   return ret;
 }
 
-SALOME::vectorOfDouble* SALOME_CorbaDoubleCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
-  SALOME::vectorOfDouble_var c1 = new SALOME::vectorOfDouble;
+SALOME_CMOD::vectorOfDouble* SALOME_CorbaDoubleCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
+  SALOME_CMOD::vectorOfDouble_var c1 = new SALOME_CMOD::vectorOfDouble;
   c1->length(length);
   for (unsigned long i=0; i<length; i++)
     c1[i] = ((double *)_tabToSend)[i+offset];
@@ -197,13 +197,13 @@ CORBA::ULong SALOME_CorbaLongNCSender_i::getSize(){
   return ret;
 }
 
-SALOME::vectorOfLong* SALOME_CorbaLongNCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
-  SALOME::vectorOfLong_var c1 = new SALOME::vectorOfLong(length,length,(CORBA::Long *)((long *)_tabToSend+(long)offset),0);
+SALOME_CMOD::vectorOfLong* SALOME_CorbaLongNCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
+  SALOME_CMOD::vectorOfLong_var c1 = new SALOME_CMOD::vectorOfLong(length,length,(CORBA::Long *)((long *)_tabToSend+(long)offset),0);
   return c1._retn();
 }
 
-SALOME::vectorOfLong* SALOME_CorbaLongNCSender_i::send(){
-  SALOME::vectorOfLong_var c1 = new SALOME::vectorOfLong(_lgrTabToSend,_lgrTabToSend,(CORBA::Long *)_tabToSend,0);
+SALOME_CMOD::vectorOfLong* SALOME_CorbaLongNCSender_i::send(){
+  SALOME_CMOD::vectorOfLong_var c1 = new SALOME_CMOD::vectorOfLong(_lgrTabToSend,_lgrTabToSend,(CORBA::Long *)_tabToSend,0);
   return c1._retn();
 }
 
@@ -218,8 +218,8 @@ CORBA::ULong SALOME_CorbaLongCSender_i::getSize(){
   return ret;
 }
 
-SALOME::vectorOfLong* SALOME_CorbaLongCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
-  SALOME::vectorOfLong_var c1 = new SALOME::vectorOfLong;
+SALOME_CMOD::vectorOfLong* SALOME_CorbaLongCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
+  SALOME_CMOD::vectorOfLong_var c1 = new SALOME_CMOD::vectorOfLong;
   c1->length(length);
   for (unsigned long i=0; i<length; i++)
     c1[i] = ((long *)_tabToSend)[i+offset];
@@ -240,12 +240,12 @@ SALOME_MPISender_i::~SALOME_MPISender_i(){
   delete [] _portName;
 }
 
-SALOME::MPISender::param* SALOME_MPISender_i::getParam()
+SALOME_CMOD::MPISender::param* SALOME_MPISender_i::getParam()
 {
   char stag[12];
   int i=0;
 
-  SALOME::MPISender::param_var p = new SALOME::MPISender::param;
+  SALOME_CMOD::MPISender::param_var p = new SALOME_CMOD::MPISender::param;
   MPI_Comm_rank(MPI_COMM_WORLD,&_cproc);
   p->myproc = _cproc;
   p->tag1 = _tag1;
@@ -299,23 +299,23 @@ void* SALOME_MPISender_i::myThread(void *args)
   int *tag1=(int *)argsTab[4];
   int *tag2=(int *)argsTab[5];
   MPI_Comm *com=(MPI_Comm *)argsTab[6];
-  SALOME::TypeOfDataTransmitted *type=(SALOME::TypeOfDataTransmitted *)argsTab[7];
+  SALOME_CMOD::TypeOfDataTransmitted *type=(SALOME_CMOD::TypeOfDataTransmitted *)argsTab[7];
 
   MPI_Comm_accept((char *)argsTab[0],MPI_INFO_NULL,0,MPI_COMM_SELF,com);
   MPI_Send(lgrTabToSend,1,MPI_LONG,*cproc,*tag1,*com);
   switch(*type)
     { 
-    case SALOME::DOUBLE_:
+    case SALOME_CMOD::DOUBLE_:
       MPI_Send(argsTab[2],*lgrTabToSend,MPI_DOUBLE,*cproc,*tag2,*com);
       break;
-    case SALOME::INT_:
+    case SALOME_CMOD::INT_:
       MPI_Send(argsTab[2],*lgrTabToSend,MPI_INT,*cproc,*tag2,*com);
     }
   omni_thread::exit();
   return args;
 }
 
-void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
+void SALOME_MPISender_i::close(const SALOME_CMOD::MPISender::param& p)
 {
   std::string service(p.service);
   void *r;
@@ -385,10 +385,10 @@ std::string SALOME_SocketSender_i::inetAddress()
    return std::string(t);
 }
 
-SALOME::SocketSender::param * SALOME_SocketSender_i::getParam()
+SALOME_CMOD::SocketSender::param * SALOME_SocketSender_i::getParam()
 {
 
-  SALOME::SocketSender::param_var p = new SALOME::SocketSender::param;
+  SALOME_CMOD::SocketSender::param_var p = new SALOME_CMOD::SocketSender::param;
 
   p->lstart = 0;
   p->lend = _lgrTabToSend - 1;
@@ -422,13 +422,13 @@ void* SALOME_SocketSender_i::myThread(void *args)
   long *lgrTabToSend=(long *)argsTab[2];
   void *tabToSend=argsTab[3];
   bool *errorFlag=(bool*)argsTab[4];
-  SALOME::TypeOfDataTransmitted *type=(SALOME::TypeOfDataTransmitted *)argsTab[5];
+  SALOME_CMOD::TypeOfDataTransmitted *type=(SALOME_CMOD::TypeOfDataTransmitted *)argsTab[5];
   
   XDR xp; /* pointeur sur le decodeur XDR */
   
   switch(*type)
     { 
-    case SALOME::DOUBLE_:
+    case SALOME_CMOD::DOUBLE_:
       xdrmem_create(&xp,(char*)tabToSend,(*lgrTabToSend)*sizeof(double),XDR_ENCODE );
       xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(double), (xdrproc_t)xdr_double );
 
@@ -454,7 +454,7 @@ void* SALOME_SocketSender_i::myThread(void *args)
       xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(double), (xdrproc_t)xdr_double );
       xdr_destroy( &xp );
       break;
-    case SALOME::INT_:
+    case SALOME_CMOD::INT_:
       xdrmem_create(&xp,(char*)tabToSend,(*lgrTabToSend)*sizeof(int),XDR_ENCODE );
       xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(int), (xdrproc_t)xdr_int );
 
@@ -487,14 +487,14 @@ void SALOME_SocketSender_i::initCom()
 {
   struct sockaddr_in serv_addr;
   socklen_t n;
-  SALOME::ExceptionStruct es;
+  SALOME_CMOD::ExceptionStruct es;
 
   /* Ouverture de la socket */
   _serverSockfd = socket(AF_INET , SOCK_STREAM , 0);
   if(_serverSockfd < 0) {
-    es.type = SALOME::COMM;
+    es.type = SALOME_CMOD::COMM;
     es.text = "error Socket exception";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   /* Socket structure initialisation*/
   bzero((char*)&serv_addr,sizeof(serv_addr));
@@ -506,23 +506,23 @@ void SALOME_SocketSender_i::initCom()
   if( ::bind(_serverSockfd, (struct sockaddr *) & serv_addr, 
            sizeof(struct sockaddr)) < 0 ) {
     closeCom();
-    es.type = SALOME::COMM;
+    es.type = SALOME_CMOD::COMM;
     es.text = "error bind Socket exception";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   /* Listening to the allocated port */
   if( listen(_serverSockfd, 10) < 0 ) {
     closeCom();
-    es.type = SALOME::COMM;
+    es.type = SALOME_CMOD::COMM;
     es.text = "error listen Socket exception";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   /* Retrieving port number*/
   if( getsockname(_serverSockfd, (struct sockaddr *) & serv_addr, &n) < 0 ){
     closeCom();
-    es.type = SALOME::COMM;
+    es.type = SALOME_CMOD::COMM;
     es.text = "error getName Socket exception";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   _port = htons(serv_addr.sin_port);
   SCRUTE(_port);
@@ -532,16 +532,16 @@ void SALOME_SocketSender_i::acceptCom()
 {
   socklen_t sin_size;
   struct sockaddr_in client_addr;
-  SALOME::ExceptionStruct es;
+  SALOME_CMOD::ExceptionStruct es;
 
   sin_size = sizeof(struct sockaddr_in);
   
   _clientSockfd = accept(_serverSockfd, (struct sockaddr *)&client_addr, &sin_size);
   if( _clientSockfd < 0 ){
     closeCom();
-    es.type = SALOME::COMM;
+    es.type = SALOME_CMOD::COMM;
     es.text = "error accept Socket exception";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -564,10 +564,10 @@ void SALOME_SocketSender_i::endOfCom()
   _newThr->join(&r);
   if(_errorFlag)
     {
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::COMM;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::COMM;
       es.text = "error write Socket exception";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
   delete [] _argsForThr;
 }

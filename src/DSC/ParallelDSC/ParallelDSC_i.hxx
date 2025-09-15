@@ -18,7 +18,7 @@
 //
 
 //  File   : ParallelDSC_i.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _PARALLEL_DSC_COMPONENT_I_HXX_

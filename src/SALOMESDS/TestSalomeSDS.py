@@ -20,7 +20,7 @@
 # Author : Anthony Geay
 
 import SalomeSDSClt
-from salome.kernel import SALOME
+from salome.kernel import SALOME_CMOD
 from salome.kernel import salome
 import unittest
 import pickle
@@ -101,7 +101,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(a.local_copy(),[])
     a.append(5)
     self.assertEqual(a.local_copy(),[5])
-    self.assertRaises(SALOME.SALOME_Exception,a.__delitem__,0)
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,a.__delitem__,0)
     a.append(["rt"])
     self.assertEqual(a.local_copy(),[5,["rt"]])
     a[1].append(8)
@@ -130,8 +130,8 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
     a.__setitem__("ef",["a","bb"])
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77],"ef":["a","bb"]})
-    self.assertRaises(SALOME.SALOME_Exception,a.__setitem__,"ef",["a","bb"])
-    self.assertRaises(SALOME.SALOME_Exception,a.__setitem__,"ef",["a","bb","ccc"])
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,a.__setitem__,"ef",["a","bb"])
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,a.__setitem__,"ef",["a","bb","ccc"])
     a["ef"].append("ccc")
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77],"ef":["a","bb","ccc"]})
     a["gh"]=a
@@ -204,7 +204,7 @@ class SalomeSDSTest(unittest.TestCase):
     #
     self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
     #
-    self.assertRaises(SALOME.SALOME_Exception,dss.addKeyValueInVarErrorIfAlreadyExisting,varName,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,dss.addKeyValueInVarErrorIfAlreadyExisting,varName,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
     t1=dss.addKeyValueInVarErrorIfAlreadyExisting(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
     dss.atomicApply([t1])
     #
@@ -279,7 +279,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(dss.getAccessOfVar(varName),"RdExt")
     t1=dss.addMultiKeyValueSession(varName)
     self.assertEqual(dss.getAccessOfVar(varName),"RdExtInit")
-    self.assertRaises(SALOME.SALOME_Exception,t1.addKeyValueInVarErrorIfAlreadyExistingNow,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,t1.addKeyValueInVarErrorIfAlreadyExistingNow,obj2Str("ab"),obj2Str([7,8,9,10]))#raises because ab is already a key !
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
     t1.addKeyValueInVarErrorIfAlreadyExistingNow(obj2Str("cd"),obj2Str([7,8,9,10]))
@@ -404,7 +404,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t3])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
     t4=dss.createRdExtVarFreeStyleTransac(varName,obj2Str(value),funcContent)
-    self.assertRaises(SALOME.SALOME_Exception,dss.atomicApply,[t4]) # d is in dict pointed by var. Func returns false -> rejected
+    self.assertRaises(SALOME_CMOD.SALOME_Exception,dss.atomicApply,[t4]) # d is in dict pointed by var. Func returns false -> rejected
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
     dsm.removeDataScope(scopeName)
     pass

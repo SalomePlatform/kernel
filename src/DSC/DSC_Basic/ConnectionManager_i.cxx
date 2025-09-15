@@ -21,7 +21,7 @@
 //
 
 //  File   : ConnectionManager_i.cxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #include "ConnectionManager_i.hxx"

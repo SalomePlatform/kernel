@@ -190,7 +190,7 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
     bool isDone = _local_impl->LoadWith(aSCO_impl, drv);
     delete drv;
     if(!isDone && _local_impl->IsError()) 
-      THROW_SALOME_CORBA_EXCEPTION(_local_impl->GetErrorCode().c_str(),SALOME::BAD_PARAM);
+      THROW_SALOME_CORBA_EXCEPTION(_local_impl->GetErrorCode().c_str(),SALOME_CMOD::BAD_PARAM);
   }
   else {
     _corba_impl->LoadWith(SALOMEDS::SComponent::_narrow(aSCO->GetCORBAImpl()), aDriver);

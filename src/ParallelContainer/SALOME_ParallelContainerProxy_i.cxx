@@ -405,7 +405,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
         node->create_paco_component_node_instance(componentName, _containerName.c_str());
         MESSAGE("Call create_paco_component_node_instance done on node : " << i);
       }
-      catch (SALOME::SALOME_Exception & ex)
+      catch (SALOME_CMOD::SALOME_Exception & ex)
       {
         INFOS("SALOME_EXCEPTION : " << ex.details.text);
         return Engines::EngineComponent::_nil();

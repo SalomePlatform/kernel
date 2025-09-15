@@ -27,9 +27,9 @@ module Engines
 {
   interface ContainerScriptExecPerfLog
   {
-    void assign(in SALOME::vectorOfByte value);
-    void assignAndAppendFreestyle(in SALOME::vectorOfByte value);
-    SALOME::vectorOfByte getObj();
+    void assign(in SALOME_CMOD::vectorOfByte value);
+    void assignAndAppendFreestyle(in SALOME_CMOD::vectorOfByte value);
+    SALOME_CMOD::vectorOfByte getObj();
   };
 
   typedef sequence<ContainerScriptExecPerfLog> ListOfContainerScriptExecPerfLog;
@@ -60,7 +60,7 @@ module Engines
     ContainerPerfLog declareContainer(in string contInNS, in string logfile);
     void clear();
     ListOfContainerPerfLog listOfContainerLogs();
-    SALOME::vectorOfByte getAllStruct( in boolean clearMemory );
+    SALOME_CMOD::vectorOfByte getAllStruct( in boolean clearMemory );
     void putStructInFileAtomic(in boolean clearMemory, in string fileName);
     /* Part of methods dedicated of management of performance log file in the most safety manner */
     void setFileNamePairOfLogger(in string loggerFileNameA, in string loggerFileNameB);

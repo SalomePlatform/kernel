@@ -45,7 +45,7 @@ public:
     typedef CalciumCouplingPolicy::DataIdContainer DataIdContainer;  
     typedef CalciumCouplingPolicy::DataId          DataId;
     
-    DataId          dataId(time,tag);   //potentiellement avec un troisième paramètre
+    DataId          dataId(time,tag);   //potentiellement avec un troisieme parametre
     try {
       DataIdContainer dataIds(dataId,*this);   
 
@@ -70,15 +70,15 @@ public:
   int ret;
   TEST2() {
 
-    //  Doit filtrer le mode de dépendance temporel car le mode est 
-    //  défini itératif
+    //  Doit filtrer le mode de dependance temporel car le mode est 
+    //  defini iteratif
     ret=0;
 
     CORBA::Long time=1,tag=1;
     typedef CalciumCouplingPolicy::DataIdContainer DataIdContainer;  
     typedef CalciumCouplingPolicy::DataId          DataId;
     
-    DataId          dataId(time,tag);   //potentiellement avec un troisième paramètre
+    DataId          dataId(time,tag);   //potentiellement avec un troisieme parametre
     setDependencyType(ITERATION_DEPENDENCY);
     DataIdContainer dataIds(dataId,*this);   
 
@@ -101,15 +101,15 @@ public:
 
   TEST3() {
 
-    //  Doit filtrer le mode de dépendance temporel car le mode est 
-    //  défini itératif
+    //  Doit filtrer le mode de dependance temporel car le mode est 
+    //  defini iteratif
     ret=0;
 
     CORBA::Long time=1,tag=1;
     typedef CalciumCouplingPolicy::DataIdContainer DataIdContainer;  
     typedef CalciumCouplingPolicy::DataId          DataId;
     
-    DataId          dataId(time,tag);   //potentiellement avec un troisième paramètre
+    DataId          dataId(time,tag);   //potentiellement avec un troisieme parametre
     setDependencyType(TIME_DEPENDENCY);
     DataIdContainer dataIds(dataId,*this);   
 

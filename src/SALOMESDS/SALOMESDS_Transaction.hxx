@@ -38,7 +38,7 @@ namespace SALOMESDS
   class PickelizedPyObjRdWrServer;
   class PickelizedPyObjRdExtServer;
 
-  class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction, public POAHolder
+  class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME_CMOD::Transaction, public POAHolder
   {
   public:
     Transaction(DataScopeServerTransaction *dsct, const std::string& varName):_dsct(dsct),_var_name(varName) { if(!_dsct) throw Exception("Transaction constructor error !"); }
@@ -52,8 +52,8 @@ namespace SALOMESDS
     virtual void notify() = 0;
     virtual ~Transaction();
   public:
-    static void FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret);
-    static void FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret);
+    static void FromByteSeqToVB(const SALOME_CMOD::ByteVec& bsToBeConv, std::vector<unsigned char>& ret);
+    static void FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME_CMOD::ByteVec& ret);
   protected:
     DataScopeServerTransaction *_dsct;
     std::string _var_name;
@@ -62,7 +62,7 @@ namespace SALOMESDS
   class TransactionVarCreate : public Transaction
   {
   public:
-    TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue);
+    TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue);
     void prepareRollBackInCaseOfFailure() override;
     void rollBack() override;
     void notify() override;
@@ -73,21 +73,21 @@ namespace SALOMESDS
   class TransactionRdOnlyVarCreate : public TransactionVarCreate
   {
   public:
-    TransactionRdOnlyVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    TransactionRdOnlyVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
     void perform();
   };
 
   class TransactionRdExtVarCreate : public TransactionVarCreate
   {
   public:
-    TransactionRdExtVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    TransactionRdExtVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
     void perform() override;
   };
 
   class TransactionRdExtVarFreeStyleCreate : public TransactionRdExtVarCreate
   {
   public:
-    TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent);
+    TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue, const char *compareFuncContent);
     void prepareRollBackInCaseOfFailure() override;
     void rollBack() override;
     void perform() override;
@@ -100,14 +100,14 @@ namespace SALOMESDS
   class TransactionRdExtInitVarCreate : public TransactionVarCreate
   {
   public:
-    TransactionRdExtInitVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    TransactionRdExtInitVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
     void perform() override;
   };
 
   class TransactionRdWrVarCreate : public TransactionVarCreate
   {
   public:
-    TransactionRdWrVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    TransactionRdWrVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
     void perform() override;
   };
 
@@ -138,7 +138,7 @@ namespace SALOMESDS
   class TransactionAddKeyValue : public TransactionDictModify
   {
   public:
-    TransactionAddKeyValue(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    TransactionAddKeyValue(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value);
     void prepareRollBackInCaseOfFailure() override;
     void notify() override;
     ~TransactionAddKeyValue();
@@ -150,21 +150,21 @@ namespace SALOMESDS
   class TransactionAddKeyValueHard : public TransactionAddKeyValue
   {
   public:
-    TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value);
     void perform() override;
   };
 
   class TransactionAddKeyValueErrorIfAlreadyExisting : public TransactionAddKeyValue
   {
   public:
-    TransactionAddKeyValueErrorIfAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    TransactionAddKeyValueErrorIfAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value);
     void perform() override;
   };
 
   class TransactionRemoveKeyInVarErrorIfNotAlreadyExisting : public TransactionDictModify
   {
   public:
-    TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key);
+    TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key);
     void perform() override;
     void notify() override;
     ~TransactionRemoveKeyInVarErrorIfNotAlreadyExisting();
@@ -172,12 +172,12 @@ namespace SALOMESDS
     PyObject *_key;
   };
 
-  class TransactionMorphRdWrIntoRdOnly : public Transaction, public virtual POA_SALOME::TransactionRdWrAccess
+  class TransactionMorphRdWrIntoRdOnly : public Transaction, public virtual POA_SALOME_CMOD::TransactionRdWrAccess
   {
   public:
     TransactionMorphRdWrIntoRdOnly(DataScopeServerTransaction *dsct, const std::string& varName);
   public:
-    SALOME::PickelizedPyObjRdWrServer_ptr getVar();
+    SALOME_CMOD::PickelizedPyObjRdWrServer_ptr getVar();
   public:
     void prepareRollBackInCaseOfFailure();
     void perform() override;
@@ -188,12 +188,12 @@ namespace SALOMESDS
   /*!
    * This transaction switch from RdExt to RdExtInit in constructor and when perform called RdExtInit to RdExt.
    */
-  class TransactionMultiKeyAddSession : public Transaction, public virtual POA_SALOME::TransactionMultiKeyAddSession
+  class TransactionMultiKeyAddSession : public Transaction, public virtual POA_SALOME_CMOD::TransactionMultiKeyAddSession
   {
   public:
     TransactionMultiKeyAddSession(DataScopeServerTransaction *dsct, const std::string& varName);
   public://remotely callable
-    void addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    void addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value);
   public:
     void prepareRollBackInCaseOfFailure() override;
     void perform() override;

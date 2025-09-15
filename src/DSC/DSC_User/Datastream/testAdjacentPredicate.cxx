@@ -67,14 +67,14 @@ int main() {
 
   //TEST1
   std::generate(vect.begin(),vect.end(),myRand);
-  std::cout << "Vecteur généré aléatoirement :" << std::endl;
+  std::cout << "Vecteur genere aleatoirement :" << std::endl;
   copy(vect.begin(),vect.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
 
   int valueToFind = myRand();
 
   std::sort(vect.begin(),vect.end(),std::less< Type > ());
-  std::cout << "Vecteur trié par ordre croissant :" << std::endl;
+  std::cout << "Vecteur trie par ordre croissant :" << std::endl;
   copy(vect.begin(),vect.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
 
@@ -82,9 +82,9 @@ int main() {
   AdjacentPredicate<Type> ap(valueToFind);
   it = std::adjacent_find(vect.begin(),vect.end(),ap);
   if ( it == vect.end() )
-    std::cout << "Je n'est pas trouvé d'intervalle pour encadrer " << valueToFind << std::endl;
+    std::cout << "Je n'est pas trouve d'intervalle pour encadrer " << valueToFind << std::endl;
   else
-    std::cout << "La valeur à trouver : " << valueToFind <<" est entre * it :" << *it << " et valeur de *(it+1) :" << *(it+1) << std::endl;
+    std::cout << "La valeur e trouver : " << valueToFind <<" est entre * it :" << *it << " et valeur de *(it+1) :" << *(it+1) << std::endl;
   std::cout<< std::endl;
   
   //TEST2
@@ -93,7 +93,7 @@ int main() {
   MapIntDouble::const_iterator itM1,itM2;
   for(it=vect.begin(); it!=vect.end(); ++it) myMap[*it] = myRand();
   
-  std::cout << "Clés de la Map :" << std::endl;
+  std::cout << "Cles de la Map :" << std::endl;
   for(itM1=myMap.begin();itM1!=myMap.end();++itM1)
     //std::cout << &((*itM1).first) 
     std::cout << (*itM1).first << " ";
@@ -104,9 +104,9 @@ int main() {
   itM1 = std::adjacent_find(myMap.begin(),myMap.end(),apMap);
   itM2=itM1;itM2++;
   if ( itM1 == myMap.end() )
-    std::cout << "Map : Je n'est pas trouvé d'intervalle pour encadrer " << valueToFind << std::endl;
+    std::cout << "Map : Je n'est pas trouve d'intervalle pour encadrer " << valueToFind << std::endl;
   else {
-    std::cout << "Map : La valeur à trouver : " << valueToFind <<" est entre (*itM1).first :" << (*itM1).first << " et valeur de *(itM1+1).first :" << (*(itM2)).first << std::endl;
+    std::cout << "Map : La valeur e trouver : " << valueToFind <<" est entre (*itM1).first :" << (*itM1).first << " et valeur de *(itM1+1).first :" << (*(itM2)).first << std::endl;
   }
   std::cout<< std::endl;
 
@@ -117,7 +117,7 @@ int main() {
   //  for(it=vect.begin(); it!=vect.end(); ++it) myMapP[std::make_pair<int,double>(*it,myRand())] = myRand();
   myMapP[std::make_pair<int,double>(*(vect.begin()),myRand())] = myRand();
   
-  std::cout << "Clés de la MapP :" << std::endl;
+  std::cout << "Cles de la MapP :" << std::endl;
   for(itMP1=myMapP.begin();itMP1!=myMapP.end();++itMP1)
     std::cout << (*itMP1).first  << " " ;
   std::cout<< std::endl;
@@ -129,9 +129,9 @@ int main() {
   itMP1 = std::adjacent_find(myMapP.begin(),myMapP.end(),apMapP);
   itMP2=itMP1;itMP2++;
   if ( itMP1 == myMapP.end() )
-    std::cout << "MapP : Je n'est pas trouvé d'intervalle pour encadrer " << valuePToFind << std::endl;
+    std::cout << "MapP : Je n'est pas trouve d'intervalle pour encadrer " << valuePToFind << std::endl;
   else {
-    std::cout << "MapP : La valeur à trouver : " << valuePToFind <<" est entre (*itMP1).first :" << (*itMP1).first << " et valeur de *(itMP1+1).first :" << (*(itMP2)).first << std::endl;
+    std::cout << "MapP : La valeur e trouver : " << valuePToFind <<" est entre (*itMP1).first :" << (*itMP1).first << " et valeur de *(itMP1+1).first :" << (*(itMP2)).first << std::endl;
   }
 
   std::cout << processTimeInterval<double>(valuePToFind,itMP1);

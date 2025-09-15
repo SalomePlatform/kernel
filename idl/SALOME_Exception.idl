@@ -42,7 +42,7 @@ Module %SALOME contains all base interfaces of %SALOME Kernel
 
 */ 
 
-module SALOME
+module SALOME_CMOD
 {
 //!  This enumeration contains the elements indicating the type of the exception which can be raised during %SALOME session.
   enum ExceptionType

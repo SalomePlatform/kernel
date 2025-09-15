@@ -32,11 +32,11 @@ namespace SALOMESDS
 {
   class DataScopeServerBase;
   
-  class BasicDataServer : public RefCountServ, public virtual POA_SALOME::BasicDataServer
+  class BasicDataServer : public RefCountServ, public virtual POA_SALOME_CMOD::BasicDataServer
   {
   public:
     BasicDataServer(DataScopeServerBase *father, const std::string& varName);
-    SALOME::DataScopeServer_ptr getMyDataScopeServer();
+    SALOME_CMOD::DataScopeServer_ptr getMyDataScopeServer();
     char *getVarName();
     char *getScopeName();
   public:

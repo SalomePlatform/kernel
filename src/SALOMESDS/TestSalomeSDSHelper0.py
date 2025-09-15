@@ -16,7 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-from salome.kernel import SALOME
+from salome.kernel import SALOME_CMOD
 import pickle
 from salome.kernel import salome
 import sys
@@ -35,7 +35,7 @@ def waitKey(IORNS):
     import CORBA
     orb = CORBA.ORB_init([''])
     ns = orb.string_to_object(IORNS)
-    from salome.kernel import SALOME
+    from salome.kernel import SALOME_CMOD
     dsm = orb.string_to_object(ns.Resolve("/DataServerManager").decode())
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     assert(not isCreated)

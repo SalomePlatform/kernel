@@ -24,7 +24,7 @@
 
 #include <cstring>
 
-static SALOME::DataServerManager_var _dsm_singleton;
+static SALOME_CMOD::DataServerManager_var _dsm_singleton;
 
 std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
 {
@@ -51,7 +51,7 @@ std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
     SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(cPyh,orb,root_poa,ns));
     dsm->_remove_ref();
     CORBA::Object_var objRef = ns->Resolve(SALOMESDS::DataServerManager::NAME_IN_NS);
-    _dsm_singleton = SALOME::DataServerManager::_narrow(objRef);
+    _dsm_singleton = SALOME_CMOD::DataServerManager::_narrow(objRef);
   }
   CORBA::String_var ior = orb->object_to_string(_dsm_singleton);
   return std::string(ior.in());

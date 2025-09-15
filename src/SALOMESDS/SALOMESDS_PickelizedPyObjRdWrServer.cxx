@@ -33,7 +33,7 @@ PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father
 {
 }
 
-PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
+PickelizedPyObjRdWrServer::PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
 {
 }
 
@@ -49,12 +49,12 @@ PickelizedPyObjRdWrServer::~PickelizedPyObjRdWrServer()
 /*!
  * Called remotely -> to protect against throw
  */
-void PickelizedPyObjRdWrServer::setSerializedContent(const SALOME::ByteVec& newValue)
+void PickelizedPyObjRdWrServer::setSerializedContent(const SALOME_CMOD::ByteVec& newValue)
 {
   setSerializedContentInternal(newValue);
 }
 
-SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
+SALOME_CMOD::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMethodOn(const char *method, const SALOME_CMOD::ByteVec& args)
 {
   if(!_self)
     throw Exception("PickelizedPyObjRdWrServer::invokePythonMethodOn : self is NULL !");
@@ -105,7 +105,7 @@ SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMet
   PortableServer::POA_var poa(_father->getPOA());
   PortableServer::ObjectId_var id(poa->activate_object(ret));
   CORBA::Object_var obj(poa->id_to_reference(id));
-  return SALOME::PickelizedPyObjRdWrServer::_narrow(obj);
+  return SALOME_CMOD::PickelizedPyObjRdWrServer::_narrow(obj);
 }
 
 void PickelizedPyObjRdWrServer::addKeyValueHard(PyObject *key, PyObject *value)

@@ -21,7 +21,7 @@
 //
 
 //  File   : Palm_Ports.idl
-//  Author : André RIBES, EDF
+//  Author : Andre RIBES, EDF
 //
 #ifndef _PALM_PORTS_IDL_
 #define _PALM_PORTS_IDL_

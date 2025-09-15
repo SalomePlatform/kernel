@@ -36,11 +36,11 @@
 class COMMUNICATION_EXPORT ReceiverFactory
 {
 public:
-  static double *getValue(SALOME::SenderDouble_ptr sender,long &size);
-  static int *getValue(SALOME::SenderInt_ptr sender,long &size);
+  static double *getValue(SALOME_CMOD::SenderDouble_ptr sender,long &size);
+  static int *getValue(SALOME_CMOD::SenderInt_ptr sender,long &size);
 private:
-  static double *getValueOneShot(SALOME::SenderDouble_ptr sender,long &size);
-  static int *getValueOneShot(SALOME::SenderInt_ptr sender,long &size);
+  static double *getValueOneShot(SALOME_CMOD::SenderDouble_ptr sender,long &size);
+  static int *getValueOneShot(SALOME_CMOD::SenderInt_ptr sender,long &size);
 };
 
 #include <memory>
@@ -48,7 +48,7 @@ private:
 class COMMUNICATION_EXPORT SeqByteReceiver
 {
 public:
-  SeqByteReceiver(SALOME::SenderByte_ptr sender);
+  SeqByteReceiver(SALOME_CMOD::SenderByte_ptr sender);
   char *data(unsigned long& size);
   ~SeqByteReceiver();
 private:
@@ -57,8 +57,8 @@ private:
 private:
   static constexpr unsigned long CHUNK_SIZE = 2000000000;
   std::unique_ptr<char[]> _data_for_split_case;
-  std::unique_ptr<SALOME::vectorOfByte> _data_one_shot;
-  SALOME::SenderByte_var _obj;
+  std::unique_ptr<SALOME_CMOD::vectorOfByte> _data_one_shot;
+  SALOME_CMOD::SenderByte_var _obj;
 };
 
 #endif

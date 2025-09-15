@@ -24,7 +24,7 @@
 #include "SALOME_Exception.idl"
 #include "SALOME_CommonTypes.idl"
 
-module SALOME
+module SALOME_CMOD
 {
   typedef sequence<string> CmdList;
 
@@ -40,14 +40,14 @@ module SALOME
   
   interface ExternalServerLauncher
   {
-    ExternalServerHandler launchServer( in string server_name, in string working_dir, in CmdList command_list ) raises(SALOME::SALOME_Exception);
+    ExternalServerHandler launchServer( in string server_name, in string working_dir, in CmdList command_list ) raises(SALOME_CMOD::SALOME_Exception);
     void cleanServersInNS();
     StringVec listServersInNS();
-    ExternalServerHandler retrieveServerRefGivenNSEntry( in string ns_entry ) raises(SALOME::SALOME_Exception);
-    void registerToKill(in string server_name, in long PID) raises (SALOME::SALOME_Exception);
-    void shutdownServers() raises (SALOME::SALOME_Exception);
+    ExternalServerHandler retrieveServerRefGivenNSEntry( in string ns_entry ) raises(SALOME_CMOD::SALOME_Exception);
+    void registerToKill(in string server_name, in long PID) raises (SALOME_CMOD::SALOME_Exception);
+    void shutdownServers() raises (SALOME_CMOD::SALOME_Exception);
     string gethostname();
-    ByteVec fetchContentOfFileAndRm(in string file_name) raises (SALOME::SALOME_Exception);
+    ByteVec fetchContentOfFileAndRm(in string file_name) raises (SALOME_CMOD::SALOME_Exception);
   };
 };
 

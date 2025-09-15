@@ -30,7 +30,7 @@ using namespace SALOMESDS;
 
 const char PickelizedPyObjRdExtServer::ACCESS_REPR[]="RdExt";
 
-PickelizedPyObjRdExtServer::PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
+PickelizedPyObjRdExtServer::PickelizedPyObjRdExtServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value)
 {
 }
 
@@ -46,7 +46,7 @@ PickelizedPyObjRdExtServer::~PickelizedPyObjRdExtServer()
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
+SALOME_CMOD::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonMethodOn(const char *method, const SALOME_CMOD::ByteVec& args)
 {
   if(!_self)
     throw Exception("PickelizedPyObjRdExtServer::invokePythonMethodOn : self is NULL !");
@@ -73,7 +73,7 @@ SALOME::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonM
   PortableServer::POA_var poa(_father->getPOA());
   PortableServer::ObjectId_var id(poa->activate_object(ret));
   CORBA::Object_var obj(poa->id_to_reference(id));
-  return SALOME::PickelizedPyObjRdExtServer::_narrow(obj);
+  return SALOME_CMOD::PickelizedPyObjRdExtServer::_narrow(obj);
 }
 
 PickelizedPyObjRdExtInitServer *PickelizedPyObjRdExtServer::buildInitInstanceFrom(const std::string& varName)

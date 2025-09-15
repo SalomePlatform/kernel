@@ -21,7 +21,7 @@
 //
 
 //  File   : Parallel_Salome_file_i.hxx
-//  Author : André RIBES, EDF
+//  Author : Andre RIBES, EDF
 //  Module : SALOME
 //  $Header: 
 //

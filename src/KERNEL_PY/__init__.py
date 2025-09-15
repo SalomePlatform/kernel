@@ -275,7 +275,7 @@ def salome_init_without_session_attached(path=None, embedded=False):
     from .. import KernelBasis
     from .. import KernelLauncher
     nsAbroad = orb.string_to_object( KernelBasis.getIOROfEmbeddedNS() )
-    from .. import SALOME
+    from .. import SALOME_CMOD
     cm = orb.string_to_object( nsAbroad.Resolve(CM_NAME_IN_NS).decode() )
     type(cm).SetOverrideEnvForContainersSimple = ContainerManagerSetOverrideEnvForContainersSimple
     naming_service.Register(cm,CM_NAME_IN_NS)

@@ -180,7 +180,7 @@ T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   
   CORBA::Any a; 
   MPI_Comm_rank(MPI_COMM_WORLD, &myproc);
-  SALOME::MPISender::param_var p =_mySender->getParam();
+  SALOME_CMOD::MPISender::param_var p =_mySender->getParam();
   _mySender->send();
   sproc = p->myproc;
   MPI_ERROR_HANDLER(MPI_ERRORS_RETURN);
@@ -269,7 +269,7 @@ T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &siz
   try{
     initCom();
 
-    SALOME::SocketSender::param_var p = _mySender->getParam();
+    SALOME_CMOD::SocketSender::param_var p = _mySender->getParam();
 
     size = p->lend - p->lstart + 1;
     v = new T[size];
@@ -284,10 +284,10 @@ T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &siz
       if( m < 0 ){
         closeCom();
         delete [] v;
-        SALOME::ExceptionStruct es;
-        es.type = SALOME::COMM;
+        SALOME_CMOD::ExceptionStruct es;
+        es.type = SALOME_CMOD::COMM;
         es.text = "error read Socket exception";
-        throw SALOME::SALOME_Exception(es);
+        throw SALOME_CMOD::SALOME_Exception(es);
       }
       n += m;
     }
@@ -297,8 +297,8 @@ T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &siz
     _mySender->endOfCom();
     closeCom();
   }
-  catch(SALOME::SALOME_Exception &ex){
-    if( ex.details.type == SALOME::COMM )
+  catch(SALOME_CMOD::SALOME_Exception &ex){
+    if( ex.details.type == SALOME_CMOD::COMM )
       {
         _senderDestruc=false;
 		std::cout << ex.details.text << std::endl;
@@ -321,14 +321,14 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::initCom()
     _clientSockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (_clientSockfd < 0) {
       closeCom();
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::COMM;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::COMM;
       es.text = "error Socket exception";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
   }
-  catch(SALOME::SALOME_Exception &ex){
-    if( ex.details.type == SALOME::COMM )
+  catch(SALOME_CMOD::SALOME_Exception &ex){
+    if( ex.details.type == SALOME_CMOD::COMM )
       {
         _senderDestruc=false;
 		std::cout << ex.details.text << std::endl;
@@ -345,17 +345,17 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::connectCom(const cha
 {
   struct sockaddr_in serv_addr;
   struct hostent * server;
-  SALOME::ExceptionStruct es;
+  SALOME_CMOD::ExceptionStruct es;
 
   try{
     /* reception of the host structure on the remote process */
     server = gethostbyname(dest_address);
     if( server == NULL ) {
       closeCom();
-      es.type = SALOME::COMM;
+      es.type = SALOME_CMOD::COMM;
       es.text = "error unknown host Socket exception";
       _senderDestruc=false;
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
 
     /* Initialisation of the socket structure */
@@ -369,17 +369,17 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::connectCom(const cha
     
     if( connect(_clientSockfd, (struct sockaddr *) & serv_addr, sizeof(struct sockaddr)) < 0 ){
       closeCom();
-      es.type = SALOME::COMM;
+      es.type = SALOME_CMOD::COMM;
       es.text = "error connect Socket exception";
       _senderDestruc=false;
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
 
     _mySender->acceptCom();
 
   }
-  catch(SALOME::SALOME_Exception &ex){
-    if( ex.details.type == SALOME::COMM )
+  catch(SALOME_CMOD::SALOME_Exception &ex){
+    if( ex.details.type == SALOME_CMOD::COMM )
       {
         _senderDestruc=false;
         std::cout << ex.details.text << std::endl;

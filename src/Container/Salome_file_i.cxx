@@ -186,19 +186,19 @@ Salome_file_i::load(const char* hdf5_file) {
         buffer = new char[size];
       
         if ( (fd = ::open(file_name.c_str(),O_RDWR|O_CREAT,00666)) <0) { 
-          SALOME::ExceptionStruct es;
-          es.type = SALOME::INTERNAL_ERROR;
+          SALOME_CMOD::ExceptionStruct es;
+          es.type = SALOME_CMOD::INTERNAL_ERROR;
           std::string text = "open failed";
           es.text = CORBA::string_dup(text.c_str());
-          throw SALOME::SALOME_Exception(es);
+          throw SALOME_CMOD::SALOME_Exception(es);
         }
         hdf_dataset->ReadFromDisk(buffer);
         if ( write(fd,buffer,(unsigned int)size) <0) {
-          SALOME::ExceptionStruct es;
-          es.type = SALOME::INTERNAL_ERROR;
+          SALOME_CMOD::ExceptionStruct es;
+          es.type = SALOME_CMOD::INTERNAL_ERROR;
           std::string text = "write failed";
           es.text = CORBA::string_dup(text.c_str());
-          throw SALOME::SALOME_Exception(es);
+          throw SALOME_CMOD::SALOME_Exception(es);
         }
         // Close the target file
         ::close(fd);
@@ -238,11 +238,11 @@ Salome_file_i::load(const char* hdf5_file) {
   }
   catch (HDFexception)
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "!!!! HDFexception";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -345,11 +345,11 @@ Salome_file_i::save(const char* hdf5_file) {
   }
   catch (HDFexception)
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "!!!! HDFexception";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -365,11 +365,11 @@ Salome_file_i::save_all(const char* hdf5_file) {
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
   // Test Salome_file status
   if (_state.files_ok == false) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "File Not Ok !";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   // For each file we create two groups
@@ -476,11 +476,11 @@ Salome_file_i::save_all(const char* hdf5_file) {
   }
   catch (HDFexception)
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "!!!! HDFexception";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -516,11 +516,11 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
   _t_fileManaged::iterator it = _fileManaged.find(file_name);
   if (it != _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "file already added";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   // Test if the file is ok
@@ -578,11 +578,11 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
   _t_fileManaged::iterator it = _fileManaged.find(file_name);
   if (it != _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "file already added";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   // Adding file with its information
@@ -635,11 +635,11 @@ Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file)
   }
   else
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "already connected to a default Salome_file";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   // We can connect this Salome_file if there is only one file managed
   // by the Salome_file
@@ -653,11 +653,11 @@ Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file)
   //}
   //else 
   //{
-  //  SALOME::ExceptionStruct es;
-  //  es.type = SALOME::INTERNAL_ERROR;
+  //  SALOME_CMOD::ExceptionStruct es;
+  //  es.type = SALOME_CMOD::INTERNAL_ERROR;
   //  std::string text = "cannot connect";
    // es.text = CORBA::string_dup(text.c_str());
-   // throw SALOME::SALOME_Exception(es);
+   // throw SALOME_CMOD::SALOME_Exception(es);
   //}
 }
 
@@ -675,11 +675,11 @@ Salome_file_i::connectDistributedFile(const char * file_name,
   _t_fileManaged::iterator it = _fileManaged.find(file_name);
   if (it == _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "file is not added";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   else 
   {
@@ -703,11 +703,11 @@ Salome_file_i::setDistributedSourceFile(const char* file_name,
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "file is not added";
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   else 
   {
@@ -754,11 +754,11 @@ Salome_file_i::recvFiles() {
 
   if (files_not_ok != "")
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     std::string text = "files not ready : " + files_not_ok;
     es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   else
   {
@@ -936,10 +936,10 @@ Salome_file_i::getFileInfos(const char* file_name) {
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end()) 
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "file is not managed";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   Engines::file * infos = new Engines::file(_fileManaged[fname]);

@@ -40,10 +40,10 @@ BasicDataServer::BasicDataServer(DataScopeServerBase *father, const std::string&
   threadPol->destroy();*/
 }
 
-SALOME::DataScopeServer_ptr BasicDataServer::getMyDataScopeServer()
+SALOME_CMOD::DataScopeServer_ptr BasicDataServer::getMyDataScopeServer()
 {
   CORBA::Object_var obj(_father->getPOA()->servant_to_reference(_father));
-  return SALOME::DataScopeServer::_narrow(obj);
+  return SALOME_CMOD::DataScopeServer::_narrow(obj);
 }
 
 /*!

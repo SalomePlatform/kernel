@@ -23,7 +23,7 @@
 
 from salome.kernel import salome
 import string
-from . import SALOME
+from . import SALOME_CMOD
 from . import SALOMEDS
 from . import SALOME_Session_idl
 
@@ -46,7 +46,7 @@ def getSession():
     global vp_session
     if vp_session is None:
         vp_session = salome.naming_service.Resolve("/Kernel/Session")
-        vp_session = vp_session._narrow(SALOME.Session)
+        vp_session = vp_session._narrow(SALOME_CMOD.Session)
         pass
     return vp_session 
 

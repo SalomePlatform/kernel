@@ -22,7 +22,7 @@
 
 //  SALOME ParallelContainerNodeMpi : Launch mpi PaCO++ object nodes
 //  File   : SALOME_ParallelContainerNodeMpi.cxx
-//  Author : Andr� Ribes, EDF
+//  Author : Andre Ribes, EDF
 //  Module : SALOME PARALLEL
 //
 #include <iostream>
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-    // On r�cup�re le proxy 
+    // On recupere le proxy 
     std::string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
                                                        proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());

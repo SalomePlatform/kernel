@@ -21,7 +21,7 @@
 //
 
 //  File   : Superv_Component_i.hxx
-//  Author : André RIBES (EDF), Eric Fayolle (EDF)
+//  Author : Andre RIBES (EDF), Eric Fayolle (EDF)
 //  Module : KERNEL
 //
 #ifndef _SUPERV_COMPONENT_I_HXX_
@@ -131,7 +131,7 @@ public:
   virtual uses_port * create_uses_data_port(const std::string& port_fab_type);
 
   /*!
-   * Adds a port to the component. With this method only Salomé's provided DSC ports
+   * Adds a port to the component. With this method only Salome's provided DSC ports
    * can be added.
    *
    * \param port_fab_type type of the port.
@@ -143,7 +143,7 @@ public:
                         const char * port_name);
 
   /*!
-   * Adds a port to the component. With this method only Salomé's provided DSC ports
+   * Adds a port to the component. With this method only Salome's provided DSC ports
    * can be added.
    *
    * \param port_fab_type type of the port.

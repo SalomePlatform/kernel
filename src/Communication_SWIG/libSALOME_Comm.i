@@ -33,7 +33,7 @@
   #include "OpUtil.hxx"
 %}
 
-%typemap(in) SALOME::SenderDouble_ptr
+%typemap(in) SALOME_CMOD::SenderDouble_ptr
 {
   PyObject* pdict = PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -52,15 +52,15 @@
     return NULL;
   char * s = PyString_AsString(PyObject_Str(iorSupport));
  
-  // Ask omniORB to convert IOR string to SALOME::SenderDouble_ptr
+  // Ask omniORB to convert IOR string to SALOME_CMOD::SenderDouble_ptr
 
   CORBA::ORB_var ORB = KERNEL::GetRefToORB();
   CORBA::Object_var O =  ORB->string_to_object(s);
-  SALOME::SenderDouble_ptr t = SALOME::SenderDouble::_narrow(O);
+  SALOME_CMOD::SenderDouble_ptr t = SALOME_CMOD::SenderDouble::_narrow(O);
   $1 = t;
 }
 
-%typemap(in) SALOME::SenderInt_ptr
+%typemap(in) SALOME_CMOD::SenderInt_ptr
 {
   PyObject* pdict = PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -79,15 +79,15 @@
     return NULL;
   char * s = PyString_AsString(PyObject_Str(iorSupport));
  
-  // Ask omniORB to convert IOR string to SALOME::SenderInt_ptr
+  // Ask omniORB to convert IOR string to SALOME_CMOD::SenderInt_ptr
 
   CORBA::ORB_var ORB = KERNEL::GetRefToORB();
   CORBA::Object_var O =  ORB->string_to_object(s);
-  SALOME::SenderInt_ptr t = SALOME::SenderInt::_narrow(O);
+  SALOME_CMOD::SenderInt_ptr t = SALOME_CMOD::SenderInt::_narrow(O);
   $1 = t;
 }
 
-%typemap(out) SALOME::SenderDouble_ptr
+%typemap(out) SALOME_CMOD::SenderDouble_ptr
 {  
    PyObject* pdict = PyDict_New();
    PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -102,7 +102,7 @@
    $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);
 }
 
-%typemap(out) SALOME::SenderInt_ptr
+%typemap(out) SALOME_CMOD::SenderInt_ptr
 {  
    PyObject* pdict = PyDict_New();
    PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -117,10 +117,10 @@
    $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);
 }
 
-PyObject * getValueForSenderDouble(SALOME::SenderDouble_ptr senderDouble);
+PyObject * getValueForSenderDouble(SALOME_CMOD::SenderDouble_ptr senderDouble);
 
 %{
-PyObject * getValueForSenderDouble(SALOME::SenderDouble_ptr senderDouble)
+PyObject * getValueForSenderDouble(SALOME_CMOD::SenderDouble_ptr senderDouble)
 {
   PyObject *py_list;
   long size;
@@ -144,10 +144,10 @@ PyObject * getValueForSenderDouble(SALOME::SenderDouble_ptr senderDouble)
 %}
 
 
-PyObject * getValueForSenderInt(SALOME::SenderInt_ptr senderInt);
+PyObject * getValueForSenderInt(SALOME_CMOD::SenderInt_ptr senderInt);
 
 %{
-PyObject * getValueForSenderInt(SALOME::SenderInt_ptr senderInt)
+PyObject * getValueForSenderInt(SALOME_CMOD::SenderInt_ptr senderInt)
 {
   PyObject *py_list;
   long size;
@@ -170,9 +170,9 @@ PyObject * getValueForSenderInt(SALOME::SenderInt_ptr senderInt)
 }
 %}
 
-PyObject * getValueForMatrix(SALOME::Matrix_ptr matrix);
+PyObject * getValueForMatrix(SALOME_CMOD::Matrix_ptr matrix);
 %{
-PyObject * getValueForMatrix(SALOME::Matrix_ptr matrix)
+PyObject * getValueForMatrix(SALOME_CMOD::Matrix_ptr matrix)
 {
   PyObject *py_list;
   int column,row;
@@ -200,9 +200,9 @@ PyObject * getValueForMatrix(SALOME::Matrix_ptr matrix)
 }
 %}
 
-SALOME::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist);
+SALOME_CMOD::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist);
 %{
-SALOME::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist)
+SALOME_CMOD::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist)
 {
   if (PyList_Check(pylist)) 
   {
@@ -218,14 +218,14 @@ SALOME::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist)
   else
   { 
     PyErr_SetString(PyExc_TypeError,"not a list");
-    return SALOME::SenderDouble::_nil();
+    return SALOME_CMOD::SenderDouble::_nil();
   }
 }
 %}
 
-SALOME::SenderInt_ptr buildSenderIntFromList(PyObject *pylist);
+SALOME_CMOD::SenderInt_ptr buildSenderIntFromList(PyObject *pylist);
 %{
-SALOME::SenderInt_ptr buildSenderIntFromList(PyObject *pylist)
+SALOME_CMOD::SenderInt_ptr buildSenderIntFromList(PyObject *pylist)
 {
   if (PyList_Check(pylist)) 
   {
@@ -241,7 +241,7 @@ SALOME::SenderInt_ptr buildSenderIntFromList(PyObject *pylist)
   else
   { 
     PyErr_SetString(PyExc_TypeError,"not a list");
-    return SALOME::SenderInt::_nil();
+    return SALOME_CMOD::SenderInt::_nil();
   }
 }
 %}

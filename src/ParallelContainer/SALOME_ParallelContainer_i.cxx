@@ -667,7 +667,7 @@ Engines_Parallel_Container_i::createSalome_file(const char* origFileName)
       aSalome_file->setLocalFile(origFileName);
       aSalome_file->recvFiles();
     }
-    catch (const SALOME::SALOME_Exception& e)
+    catch (const SALOME_CMOD::SALOME_Exception& e)
     {
       return Engines::Salome_file::_nil();
     }
@@ -925,10 +925,10 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   {
     INFOS("Proxy reference from NamingService is nil !");
     INFOS("Proxy name was : " << component_registerName);
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "Proxy reference from NamingService is nil !";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   proxy_ior = _orb->object_to_string(obj_proxy);
 
@@ -942,10 +942,10 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     INFOS("dlerror() result is : " << dlerror());
 #endif
     std::string ex_text = "Can't resolve symbol : " + factory_name;
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = CORBA::string_dup(ex_text.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   try
@@ -966,10 +966,10 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     if (CORBA::is_nil(work_node))
     {
       INFOS("work_node reference from factory is nil !");
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = "work_node reference from factory is nil !";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
     work_node->deploy();
     _NS->Register(work_node, component_registerName.c_str());
@@ -979,10 +979,10 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   catch (...)
   {
     INFOS("Container_i::create_paco_component_node_instance exception caught");
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "Container_i::create_paco_component_node_instance exception caught";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 

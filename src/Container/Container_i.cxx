@@ -316,7 +316,7 @@ void Abstract_Engines_Container_i::locallogfilename(const char *name)
   {
     std::string error("can not set logfilename");
     PyErr_Print();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 }
 
@@ -328,7 +328,7 @@ CORBA::Long Abstract_Engines_Container_i::monitoringtimeresms()
   {
     std::string error("can not retrieve time interval between 2 measures");
     PyErr_Print();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
   CORBA::Long ret = PyLong_AsLong( result );
   return ret;
@@ -342,7 +342,7 @@ void Abstract_Engines_Container_i::monitoringtimeresms(CORBA::Long intervalInMs)
   {
     std::string error("can not set time interval between 2 measures");
     PyErr_Print();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 }
 
@@ -364,10 +364,10 @@ void Abstract_Engines_Container_i::setVerbosity(bool activated, const char *leve
     {
       //internal error
       PyErr_Print();
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = "can not create a python node";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
   }
 }
@@ -587,19 +587,19 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
   {
     std::string error = parseException();
     PyErr_Print();
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = CORBA::string_dup(error.c_str());
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   int n = this->getNumberOfCPUCores();
   if (!PyList_Check(result) || PyList_Size(result) != n) {
     // bad number of cores
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "wrong number of cores";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   Engines::vectorOfDouble_var loads = new Engines::vectorOfDouble;
@@ -610,10 +610,10 @@ Engines::vectorOfDouble* Abstract_Engines_Container_i::loadOfCPUCores()
     if (foo < 0.0 || foo > 1.0)
     {
       // value not in [0, 1] range
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = "load not in [0, 1] range";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
     loads[i] = foo;
   }
@@ -1198,7 +1198,7 @@ void Abstract_Engines_Container_i::set_current_directory(const char *cwd)
   {
     std::string error("can not set logfilename");
     PyErr_Print();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 }
 
@@ -1263,7 +1263,7 @@ void Abstract_Engines_Container_i::execute_python_code(const char *code)
   if( PyRun_SimpleString( code ) != 0 )
   {
     std::string error = parseException();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 }
 
@@ -2130,7 +2130,7 @@ Abstract_Engines_Container_i::createSalome_file(const char* origFileName)
       aSalome_file->setLocalFile(origFileName);
       aSalome_file->recvFiles();
     }
-    catch (const SALOME::SALOME_Exception& /*e*/) //!< TODO: unused variable
+    catch (const SALOME_CMOD::SALOME_Exception& /*e*/) //!< TODO: unused variable
     {
       return Engines::Salome_file::_nil();
     }
@@ -2216,10 +2216,10 @@ Engines::PyNode_ptr Abstract_Engines_Container_i::createPyNode(const char* nodeN
     {
       //internal error
       PyErr_Print();
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = "can not create a python node";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
     ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
     PyObject* result=PyTuple_GetItem(res,1);
@@ -2249,10 +2249,10 @@ Engines::PyNode_ptr Abstract_Engines_Container_i::createPyNode(const char* nodeN
   }
   else
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = astr.c_str();
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -2300,10 +2300,10 @@ Engines::PyScriptNode_ptr Abstract_Engines_Container_i::createPyScriptNode(const
     {
       //internal error
       PyErr_Print();
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = "can not create a python node";
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
     ierr=PyLong_AsLong(PyTuple_GetItem(res,0));
     PyObject* result=PyTuple_GetItem(res,1);
@@ -2331,10 +2331,10 @@ Engines::PyScriptNode_ptr Abstract_Engines_Container_i::createPyScriptNode(const
   }
   else
   {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = astr.c_str();
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 }
 
@@ -2344,10 +2344,10 @@ void Abstract_Engines_Container_i::removePyScriptNode(const char *nodeName)
   if(it==_dftPyScriptNode.end())
     {
       std::ostringstream oss; oss << "Engines_Container_i::removePyScriptNode : node \"" << nodeName << "\" is not map !";
-      SALOME::ExceptionStruct es;
-      es.type = SALOME::INTERNAL_ERROR;
+      SALOME_CMOD::ExceptionStruct es;
+      es.type = SALOME_CMOD::INTERNAL_ERROR;
       es.text = oss.str().c_str();
-      throw SALOME::SALOME_Exception(es);
+      throw SALOME_CMOD::SALOME_Exception(es);
     }
   (*it).second->UnRegister();
   _dftPyScriptNode.erase(it);

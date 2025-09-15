@@ -21,7 +21,7 @@
 import unittest
 from os import getcwd
 from salome.kernel.Engines import ContainerParameters, ResourceParameters
-from salome.kernel import SALOME
+from salome.kernel import SALOME_CMOD
 from salome.kernel import salome
 
 from time import sleep

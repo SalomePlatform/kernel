@@ -30,10 +30,10 @@
 
 namespace SALOMESDS
 {
-  class PickelizedPyObjRdOnlyServer : public PickelizedPyObjServer, public virtual POA_SALOME::PickelizedPyObjRdOnlyServer
+  class PickelizedPyObjRdOnlyServer : public PickelizedPyObjServer, public virtual POA_SALOME_CMOD::PickelizedPyObjRdOnlyServer
   {
   public:
-    PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value);
     PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdOnlyServer();
   public:

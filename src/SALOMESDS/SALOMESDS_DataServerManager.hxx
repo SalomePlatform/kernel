@@ -39,12 +39,12 @@ namespace SALOMESDS
 {
   class DataServerManager;
   
-  class RequestSwitcherDSM : public RequestSwitcherBase, public virtual POA_SALOME::RequestSwitcherDSM
+  class RequestSwitcherDSM : public RequestSwitcherBase, public virtual POA_SALOME_CMOD::RequestSwitcherDSM
   {
   public:
     RequestSwitcherDSM(CORBA::ORB_ptr orb, DataServerManager *dsm):RequestSwitcherBase(orb),_dsm(dsm) { }
-    SALOME::StringVec *listScopes();
-    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
+    SALOME_CMOD::StringVec *listScopes();
+    SALOME_CMOD::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
     void holdRequests()override;
     void activeRequests()override;
   private:
@@ -53,46 +53,46 @@ namespace SALOMESDS
   
   class DataScopeServer;
     
-  class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME::DataServerManager
+  class SALOMESDS_EXPORT DataServerManager : public virtual POA_SALOME_CMOD::DataServerManager
   {
   public:
     DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa, SALOME_NamingService_Abstract *ns = nullptr);
     ~DataServerManager();
-    SALOME::StringVec *listScopes();
-    SALOME::StringVec *listAliveAndKickingScopes();
-    SALOME::DataScopeServer_ptr getDefaultScope();
+    SALOME_CMOD::StringVec *listScopes();
+    SALOME_CMOD::StringVec *listAliveAndKickingScopes();
+    SALOME_CMOD::DataScopeServer_ptr getDefaultScope();
     CORBA::Boolean isAliveAndKicking(const char *scopeName);
-    SALOME::DataScopeServerBase_ptr retriveDataScope(const char *scopeName);
+    SALOME_CMOD::DataScopeServerBase_ptr retriveDataScope(const char *scopeName);
     //
-    SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
-    SALOME::DataScopeServer_ptr giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated);
+    SALOME_CMOD::DataScopeServer_ptr createDataScope(const char *scopeName);
+    SALOME_CMOD::DataScopeServer_ptr giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated);
     //
-    SALOME::DataScopeServerTransaction_ptr createDataScopeTransaction(const char *scopeName);
-    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
+    SALOME_CMOD::DataScopeServerTransaction_ptr createDataScopeTransaction(const char *scopeName);
+    SALOME_CMOD::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated);
     //
     void removeDataScope(const char *scopeName);
     void cleanScopesInNS();
     void shutdownScopes();
-    SALOME::RequestSwitcherDSM_ptr getRequestSwitcher();
+    SALOME_CMOD::RequestSwitcherDSM_ptr getRequestSwitcher();
     void holdRequests();
     void activeRequests();
 
   public:
     CORBA::ORB_var getORB() { return _orb; }
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
-    static CORBA::Boolean IsAliveAndKicking(SALOME::DataScopeServerBase_ptr scopePtr);
-    static SALOME::DataScopeServerBase_var GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract *ns);
-    SALOME::StringVec *listScopes_unsafe();
-    SALOME::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled_unsafe(
+    static CORBA::Boolean IsAliveAndKicking(SALOME_CMOD::DataScopeServerBase_ptr scopePtr);
+    static SALOME_CMOD::DataScopeServerBase_var GetScopePtrGivenName(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract *ns);
+    SALOME_CMOD::StringVec *listScopes_unsafe();
+    SALOME_CMOD::DataScopeServerTransaction_ptr giveADataScopeTransactionCalled_unsafe(
                               const char *scopeName, CORBA::Boolean& isCreated);
   public:
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];
   private:
     std::vector<std::string> listOfScopesCpp();
-    SALOME::DataScopeServerBase_var getScopePtrGivenName(const std::string& scopeName);
+    SALOME_CMOD::DataScopeServerBase_var getScopePtrGivenName(const std::string& scopeName);
     CORBA::Boolean isAliveAndKicking_unsafe(const char *scopeName);
-    SALOME::DataScopeServerBase_ptr retriveDataScope_unsafe(const char *scopeName);
+    SALOME_CMOD::DataScopeServerBase_ptr retriveDataScope_unsafe(const char *scopeName);
   private:
     //! naming service object is owned
     SALOME_NamingService_Abstract *_ns = nullptr;

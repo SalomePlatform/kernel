@@ -30,7 +30,7 @@
 
 namespace SALOMESDS
 {
-  class SALOMESDS_EXPORT Exception : public SALOME::SALOME_Exception
+  class SALOMESDS_EXPORT Exception : public SALOME_CMOD::SALOME_Exception
   {
   public:
     Exception(const std::string& reason);

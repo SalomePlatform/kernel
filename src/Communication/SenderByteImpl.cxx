@@ -24,9 +24,9 @@ CORBA::ULongLong SenderByteImpl::getSize()
   return _size;
 }
 
-SALOME::vectorOfByte *SenderByteImpl::sendPart(CORBA::ULongLong n1, CORBA::ULongLong n2)
+SALOME_CMOD::vectorOfByte *SenderByteImpl::sendPart(CORBA::ULongLong n1, CORBA::ULongLong n2)
 {
-  SALOME::vectorOfByte *ret = new SALOME::vectorOfByte;
+  SALOME_CMOD::vectorOfByte *ret = new SALOME_CMOD::vectorOfByte;
   CORBA::ULongLong retSize(n2-n1);
   ret->length(retSize);
   for(CORBA::ULongLong i = 0 ; i < retSize ; ++i)

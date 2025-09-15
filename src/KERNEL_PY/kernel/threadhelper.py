@@ -46,15 +46,15 @@ class Runner(threading.Thread):
 
     def setFunction(self,functionToRun):
         """
-        Positionne la fonction � ex�cuter. La fonction peut �tre la
-        m�thode d'un objet pass�e sous la forme 'monobjet.mamethode'.
+        Positionne la fonction e executer. La fonction peut etre la
+        methode d'un objet passee sous la forme 'monobjet.mamethode'.
         """
         self.clear()
         self._function = functionToRun
 
     def setArguments(self,*argv):
         """
-        Positionne les arguments � passer � la fonction
+        Positionne les arguments e passer e la fonction
         """
         self.clear()
         self._argv = argv
@@ -62,7 +62,7 @@ class Runner(threading.Thread):
     def getReturn(self):
         """
         Retourne le resultat de la fonction. En cas d'erreur, on
-        r�cup�rera l'exception lev�e au moyen de la m�thode
+        recuperera l'exception levee au moyen de la methode
         getException().
         """
         return self._return
@@ -72,9 +72,9 @@ class Runner(threading.Thread):
 
     def setObserver(self, observerToNotify):
         """
-        Permet de sp�cifier un observateur � notifier en fin
-        d'ex�cution. L'observateur est suppos� �tre un objet qui
-        impl�mente une m�thode processNotification()
+        Permet de specifier un observateur e notifier en fin
+        d'execution. L'observateur est suppose etre un objet qui
+        implemente une methode processNotification()
         """
         try:
             observerToNotify.processNotification
@@ -85,8 +85,8 @@ class Runner(threading.Thread):
 
     def run(self):
         """
-        Ex�cution de la fonction. Impl�mentation de la m�thode run
-        d�clench�e par l'appel � Thread.start().
+        Execution de la fonction. Implementation de la methode run
+        declenchee par l'appel e Thread.start().
         """
         print("##################### threadhelper.run")
         if self._function is None: return
@@ -103,18 +103,18 @@ class Runner(threading.Thread):
 
     def notifyObserver(self):
         if self._observer is None:
-            # Aucune notification pr�vue
+            # Aucune notification prevue
             return
         try:
             self._observer.processNotification()
         except AttributeError as att:
             if str(att) == "processNotification":
-                print("L'observateur n'impl�mente pas la m�thode processNotification()")
+                print("L'observateur n'implemente pas la methode processNotification()")
             else:
-                print("La fonction processNotification() a lev� une exception:")
+                print("La fonction processNotification() a leve une exception:")
                 print(att)
         except Exception as e:
-            print("La fonction processNotification() a lev� une exception:")
+            print("La fonction processNotification() a leve une exception:")
             print(e)
 
     def callback(self):
@@ -123,13 +123,13 @@ class Runner(threading.Thread):
 
     def isEnded(self):
         """
-        Retourne true si la fonction s'est termin�e naturellement
+        Retourne true si la fonction s'est terminee naturellement
         (correctement ou en erreur). Utile pour les client qui
-        pratique le pooling (interrogation r�p�t�e � intervalle
-        r�gulier.
+        pratique le pooling (interrogation repetee e intervalle
+        regulier.
         """
         return self._stopevent.isSet()
-        # _GBO_ On n'utilise pas isAlive() pour pouvoir ma�triser
+        # _GBO_ On n'utilise pas isAlive() pour pouvoir maetriser
         # l'indicateur de stop (exemple de la fonction kill)
         # return not self.isAlive()
 
@@ -141,29 +141,29 @@ class Runner(threading.Thread):
 
     def wait(self,timeout=None):
         """
-        Met fin au thread apr�s timeout seconde s'il est encore en
-        ex�cution.
-        Si le compte-�-rebours est atteind sans que la fonction
-        functionToRun soit termin�e, alors le runner est laiss� dans
-        l'�tat 'not Ended', c'est-�-dire que isEnded retourne
-        false. On peut ainsi distinguer l'arr�t normal de l'arr�t �
+        Met fin au thread apres timeout seconde s'il est encore en
+        execution.
+        Si le compte-e-rebours est atteind sans que la fonction
+        functionToRun soit terminee, alors le runner est laisse dans
+        l'etat 'not Ended', c'est-e-dire que isEnded retourne
+        false. On peut ainsi distinguer l'arret normal de l'arret e
         l'issue du timeout.
         """
         threading.Thread.join(self, timeout)
 
 
-    def kill(self,message="Arr�t demand�"):
+    def kill(self,message="Arret demande"):
         """
-        Cette m�thode doit �tre appeler pour interrombre le
-        thread. Cet appel d�clare le thread comme en erreur (exception
-        mise � disposition par la m�thode getException().
+        Cette methode doit etre appeler pour interrombre le
+        thread. Cet appel declare le thread comme en erreur (exception
+        mise e disposition par la methode getException().
         """
-        # On cr�e un exception indiquant la demande d'interruption
+        # On cree un exception indiquant la demande d'interruption
         self._exception = Exception(message)
         self._stopevent.set()
         # _GBO_ ATTENTION
-        # Un thread python ne peut pas en r�alit� �tre int�rrompu.
-        # La fonction reste donc en ex�cution m�me si on a rejoint le
+        # Un thread python ne peut pas en realite etre interrompu.
+        # La fonction reste donc en execution meme si on a rejoint le
         # thread appelant.
 
     def clear(self):
@@ -177,9 +177,9 @@ STOP=0
 
 class PeriodicTimer( threading.Thread ):
     """
-    Cette classe permet d'amorcer un compte-�-rebours p�riodique pour
-    op�rer un m�canisme de pooling. On d�finit la fonction appell�e
-    p�riodiquement et la fonction terminale.
+    Cette classe permet d'amorcer un compte-e-rebours periodique pour
+    operer un mecanisme de pooling. On definit la fonction appellee
+    periodiquement et la fonction terminale.
     """
     def __init__( self,  loopdelay, initdelay=0,
                   periodic_action=None,
@@ -200,8 +200,8 @@ class PeriodicTimer( threading.Thread ):
     def defaultPeriodicAction():
         """
         Les fonctions 'periodicAction' retournent CONTINU ou STOP
-        apr�s avoir ex�cut� l'action de fin de boucle. Si STOP est
-        retourn�, le cycle est interrompu. 
+        apres avoir execute l'action de fin de boucle. Si STOP est
+        retourne, le cycle est interrompu. 
         """
         return CONTINU
 
@@ -232,7 +232,7 @@ class PeriodicTimer( threading.Thread ):
 import os
 testfilename="/tmp/threadhelperTestFile"
 def testIfContinue():
-    print("On examine la pr�sence du fichier ", testfilename)
+    print("On examine la presence du fichier ", testfilename)
     if os.path.exists(testfilename):
         return STOP
     else:
@@ -251,7 +251,7 @@ def function_ok(nbsteps=5):
     """
     Fonction qui se termine correctement
     """
-    print("D�but")
+    print("Debut")
     cnt=0
     while ( cnt < nbsteps ):
         print("Etape ", cnt)
@@ -262,24 +262,24 @@ def function_ok(nbsteps=5):
 
 def function_with_exception():
     """
-    Fonction qui aboutie � une lev�e d'exception
+    Fonction qui aboutie e une levee d'exception
     """
-    print("D�but")
+    print("Debut")
     cnt=0
     while ( cnt < 5 ):
         print("Etape ", cnt)
         time.sleep(1)
         cnt+=1
     
-    raise Exception("erreur d'ex�cution de la fonction")
+    raise Exception("erreur d'execution de la fonction")
     print("Fin")
 
 def infinite_function():
     """
-    fonction de dur�e infinie (tant qu'il y a du courant �l�ctrique) pour
+    fonction de duree infinie (tant qu'il y a du courant electrique) pour
     le test du timeout.
     """
-    print("D�but")
+    print("Debut")
     cnt=0
     while ( 1 ):
         print("Etape ", cnt)
@@ -292,7 +292,7 @@ def infinite_function():
 
 def runWithRunner(functionToRun):
     """
-    Ex�cute la fonction avec le runner. On illustre ici la modalit�
+    Execute la fonction avec le runner. On illustre ici la modalite
     d'utilisation du Runner.
     """
     print("###########")
@@ -304,37 +304,37 @@ def runWithRunner(functionToRun):
         time.sleep(0.2)
     e = runner.getException()
     if e is not None:
-        print("La fonction s'est termin�e en erreur")
+        print("La fonction s'est terminee en erreur")
         print(e)
         # On peut en fait la relancer
         # raise e
     else:
-        print("La fonction s'est termin�e correctement")
+        print("La fonction s'est terminee correctement")
 
 
 def runWithTimeout(functionToRun, timeout=10):
     """
-    Ex�cute la fonction avec le runner. On illustre ici la modalit�
+    Execute la fonction avec le runner. On illustre ici la modalite
     d'utilisation du Runner.
     """
     print("runWithTimeout : DEBUT")
     runner = Runner(functionToRun)
     runner.start()
 
-    # On se fixe un temps au del� duquel on consid�re que la fonction
+    # On se fixe un temps au dele duquel on considere que la fonction
     # est en erreur => on tue le thread (timeout)
     runner.wait(timeout)
-    print("Apr�s runner.timeout(timeout)")
+    print("Apres runner.timeout(timeout)")
     if not runner.isEnded():    
         runner.kill()
     e = runner.getException()
     if e is not None:
-        print("La fonction s'est termin�e en erreur")
+        print("La fonction s'est terminee en erreur")
         print(e)
         # On peut en fait la relancer
         # raise e
     else:
-        print("La fonction s'est termin�e correctement")
+        print("La fonction s'est terminee correctement")
 
     print("runWithTimeout : FIN")
     import sys

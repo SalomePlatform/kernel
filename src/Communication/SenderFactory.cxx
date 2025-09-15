@@ -37,10 +37,10 @@
 #define SALOME_CorbaLongSender SALOME_CorbaLongCSender_i
 #endif
 
-SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab) {
+SALOME_CMOD::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab) {
   switch(multiCommunicator.getProtocol())
     {
-    case SALOME::CORBA_:
+    case SALOME_CMOD::CORBA_:
       {
         SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
         return retc->_this();
@@ -61,7 +61,7 @@ SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommun
 #endif
     default:
       {
-        multiCommunicator.setProtocol(SALOME::CORBA_);
+        multiCommunicator.setProtocol(SALOME_CMOD::CORBA_);
         MESSAGE("PROTOCOL CHANGED TO CORBA");
         SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
         return retc->_this();
@@ -70,10 +70,10 @@ SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommun
     }
 }
 
-SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab) {
+SALOME_CMOD::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab) {
   switch(multiCommunicator.getProtocol())
     {
-    case SALOME::CORBA_:
+    case SALOME_CMOD::CORBA_:
       {
         SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
         return retc->_this();
@@ -94,7 +94,7 @@ SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunica
 #endif
     default:
       {
-        multiCommunicator.setProtocol(SALOME::CORBA_);
+        multiCommunicator.setProtocol(SALOME_CMOD::CORBA_);
         SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
         return retc->_this();
       }
@@ -102,7 +102,7 @@ SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunica
     }
   }
 
-SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderDouble_i *src)
+SALOME_CMOD::SenderDouble_ptr SenderFactory::buildSender(SALOME_CMOD::TypeOfCommunication NewType,SALOME_SenderDouble_i *src)
 {
   SALOMEMultiComm mc(NewType);
   long n;
@@ -112,7 +112,7 @@ SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOME::TypeOfCommunication 
   return buildSender(mc,data,n,own);
 }
 
-SALOME::SenderInt_ptr SenderFactory::buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderInt_i *src)
+SALOME_CMOD::SenderInt_ptr SenderFactory::buildSender(SALOME_CMOD::TypeOfCommunication NewType,SALOME_SenderInt_i *src)
 {
   SALOMEMultiComm mc(NewType);
   long n;

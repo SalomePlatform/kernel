@@ -22,7 +22,7 @@
 
 //  SALOME ParallelContainerNodeDummy : launcher of a PaCO++ object
 //  File   : SALOME_ParallelContainerNodeDummy.cxx
-//  Author : Andr� Ribes, EDF
+//  Author : Andre Ribes, EDF
 //  Module : SALOME PARALLEL
 //
 #include <iostream>

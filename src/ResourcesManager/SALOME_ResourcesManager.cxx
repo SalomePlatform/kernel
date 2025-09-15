@@ -243,7 +243,7 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& 
   catch(const ResourcesException &ex)
   {
     INFOS("Caught exception in GetFittingResources C++:  " << ex.msg);
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }  
 
   return ret._retn();
@@ -282,7 +282,7 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     resDef = resourceDefinition_CPPtoCORBA(resource);
   } catch (const exception & ex) {
     INFOS("Caught exception in GetResourceDefinition: " << ex.what());
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME_CMOD::BAD_PARAM);
   }
 
   return resDef._retn();
@@ -307,12 +307,12 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   catch (const SALOME_Exception & e)
   {
     INFOS("Error in AddResourceInCatalog: " << e);
-    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME_CMOD::BAD_PARAM);
   }
   catch (const ResourcesException & e)
   {
     INFOS("Error in AddResourceInCatalog: " << e.msg);
-    THROW_SALOME_CORBA_EXCEPTION(e.msg.c_str(), SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(e.msg.c_str(), SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -328,7 +328,7 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
   catch (const SALOME_Exception & e)
   {
     INFOS("Error in DeleteResourceInCatalog: " << e);
-    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME_CMOD::BAD_PARAM);
   }
 
   if (write)

@@ -37,7 +37,7 @@ SALOME_Matrix_i::~SALOME_Matrix_i()
     delete [] _tabToSend;
 }
 
-SALOME::SenderDouble_ptr SALOME_Matrix_i::getData()
+SALOME_CMOD::SenderDouble_ptr SALOME_Matrix_i::getData()
 {
   return SenderFactory::buildSender(_type,_tabToSend,_nbOfRow*_nbOfColumn,false);
 }

@@ -30,7 +30,7 @@ using namespace SALOMESDS;
 
 const char PickelizedPyObjRdExtInitServer::ACCESS_REPR[]="RdExtInit";
 
-PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value),_nb_of_clients(0)
+PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value):PickelizedPyObjServerModifiable(father,varName,value),_nb_of_clients(0)
 {
   _self_deep_copy=DeepCopyPyObj(_self);
 }
@@ -57,7 +57,7 @@ std::string PickelizedPyObjRdExtInitServer::getAccessStr() const
   return std::string(ACCESS_REPR);
 }
 
-SALOME::ByteVec *PickelizedPyObjRdExtInitServer::fetchSerializedContent()
+SALOME_CMOD::ByteVec *PickelizedPyObjRdExtInitServer::fetchSerializedContent()
 {
   Py_XINCREF(_self_deep_copy);//because pickelize consume _self_deep_copy
   return FromCppToByteSeq(pickelize(_self_deep_copy));

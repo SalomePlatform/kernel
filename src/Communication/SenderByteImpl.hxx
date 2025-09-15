@@ -27,7 +27,7 @@
 
 #include <cstddef>
 
-class COMMUNICATION_EXPORT SenderByteImpl : public virtual POA_SALOME::SenderByte,
+class COMMUNICATION_EXPORT SenderByteImpl : public virtual POA_SALOME_CMOD::SenderByte,
                                             public virtual PortableServer::ServantBase,
                                             public virtual SALOME::GenericObj_i
 {
@@ -35,7 +35,7 @@ public:
   //! SenderByteImpl instance does not have ownership of data
   SenderByteImpl(char *data, std::size_t size):_data(data),_size(size) { }
   CORBA::ULongLong getSize() override;
-  SALOME::vectorOfByte *sendPart(CORBA::ULongLong n1, CORBA::ULongLong n2) override;
+  SALOME_CMOD::vectorOfByte *sendPart(CORBA::ULongLong n1, CORBA::ULongLong n2) override;
 private:
   char *_data = nullptr;
   std::size_t _size = 0;

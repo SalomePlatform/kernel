@@ -39,7 +39,7 @@
   Generic servant class for senders that factorizes all the common methods and attributes necessary to senders.
   All servant classes for senders have to inheritate from it.
  */
-class COMMUNICATION_EXPORT SALOME_Sender_i : public virtual POA_SALOME::Sender
+class COMMUNICATION_EXPORT SALOME_Sender_i : public virtual POA_SALOME_CMOD::Sender
 {
 protected:
   /*! Pointer to the generic array to transmit*/
@@ -63,83 +63,83 @@ public:
   virtual ~SALOME_Sender_i() {}
 };
 
-class COMMUNICATION_EXPORT SALOME_SenderDouble_i : public virtual POA_SALOME::SenderDouble,
+class COMMUNICATION_EXPORT SALOME_SenderDouble_i : public virtual POA_SALOME_CMOD::SenderDouble,
                               public virtual SALOME_Sender_i
 {
 public:
   SALOME_SenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
-  SALOME::TypeOfDataTransmitted getTypeOfDataTransmitted() { return SALOME::DOUBLE_; }
-  SALOME::SenderDouble_ptr buildOtherWithProtocol(SALOME::TypeOfCommunication type);
+  SALOME_CMOD::TypeOfDataTransmitted getTypeOfDataTransmitted() { return SALOME_CMOD::DOUBLE_; }
+  SALOME_CMOD::SenderDouble_ptr buildOtherWithProtocol(SALOME_CMOD::TypeOfCommunication type);
   virtual ~SALOME_SenderDouble_i();
-  static SALOME_SenderDouble_i *find(SALOME::SenderDouble_ptr pCorba);
+  static SALOME_SenderDouble_i *find(SALOME_CMOD::SenderDouble_ptr pCorba);
 };
 
-class COMMUNICATION_EXPORT SALOME_SenderInt_i : public virtual POA_SALOME::SenderInt,
+class COMMUNICATION_EXPORT SALOME_SenderInt_i : public virtual POA_SALOME_CMOD::SenderInt,
                            public virtual SALOME_Sender_i
 {
 public:
   SALOME_SenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
-  SALOME::TypeOfDataTransmitted getTypeOfDataTransmitted() { return SALOME::INT_; }
-  SALOME::SenderInt_ptr buildOtherWithProtocol(SALOME::TypeOfCommunication type);
+  SALOME_CMOD::TypeOfDataTransmitted getTypeOfDataTransmitted() { return SALOME_CMOD::INT_; }
+  SALOME_CMOD::SenderInt_ptr buildOtherWithProtocol(SALOME_CMOD::TypeOfCommunication type);
   virtual ~SALOME_SenderInt_i();
-  static SALOME_SenderInt_i *find(SALOME::SenderInt_ptr pCorba);
+  static SALOME_SenderInt_i *find(SALOME_CMOD::SenderInt_ptr pCorba);
 };
 
 /*! Servant class for CORBA sender for double* when no copy of array _tabToSend is required, that is to say double and CORBA::Double are binary equal.
  */
-class COMMUNICATION_EXPORT SALOME_CorbaDoubleNCSender_i : public POA_SALOME::CorbaDoubleNCSender,
+class COMMUNICATION_EXPORT SALOME_CorbaDoubleNCSender_i : public POA_SALOME_CMOD::CorbaDoubleNCSender,
                                      public SALOME_SenderDouble_i
 {
 public:
   SALOME_CorbaDoubleNCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
   ~SALOME_CorbaDoubleNCSender_i();
   CORBA::ULong getSize();
-  SALOME::vectorOfDouble* sendPart(CORBA::ULong offset, CORBA::ULong length);
-  SALOME::vectorOfDouble* send();
+  SALOME_CMOD::vectorOfDouble* sendPart(CORBA::ULong offset, CORBA::ULong length);
+  SALOME_CMOD::vectorOfDouble* send();
 };
 
 /*! Servant class for CORBA sender for double* when copy of array _tabToSend is required, that is to say double and CORBA::Double are NOT binary equal.
  */
-class COMMUNICATION_EXPORT SALOME_CorbaDoubleCSender_i : public POA_SALOME::CorbaDoubleCSender,
+class COMMUNICATION_EXPORT SALOME_CorbaDoubleCSender_i : public POA_SALOME_CMOD::CorbaDoubleCSender,
                                     public SALOME_SenderDouble_i
 {
 public:
   SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
   ~SALOME_CorbaDoubleCSender_i();
   CORBA::ULong getSize();
-  SALOME::vectorOfDouble* sendPart(CORBA::ULong offset, CORBA::ULong length);
+  SALOME_CMOD::vectorOfDouble* sendPart(CORBA::ULong offset, CORBA::ULong length);
 };
 
 /*! Servant class for CORBA sender for int* when no copy of array _tabToSend is required, that is to say int and CORBA::Long are binary equal.
  */
-class COMMUNICATION_EXPORT SALOME_CorbaLongNCSender_i : public POA_SALOME::CorbaLongNCSender,
+class COMMUNICATION_EXPORT SALOME_CorbaLongNCSender_i : public POA_SALOME_CMOD::CorbaLongNCSender,
                                    public SALOME_SenderInt_i
 {
 public:
   SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
   ~SALOME_CorbaLongNCSender_i();
   CORBA::ULong getSize();
-  SALOME::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
-  SALOME::vectorOfLong* send();
+  SALOME_CMOD::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
+  SALOME_CMOD::vectorOfLong* send();
 };
 
 /*! Servant class for CORBA sender for int* when copy of array _tabToSend is required, that is to say int and CORBA::Long are NOT binary equal.
  */
-class COMMUNICATION_EXPORT SALOME_CorbaLongCSender_i : public POA_SALOME::CorbaLongCSender,
+class COMMUNICATION_EXPORT SALOME_CorbaLongCSender_i : public POA_SALOME_CMOD::CorbaLongCSender,
                                   public SALOME_SenderInt_i
 {
 public:
   SALOME_CorbaLongCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
   ~SALOME_CorbaLongCSender_i();
   CORBA::ULong getSize();
-  SALOME::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
+  SALOME_CMOD::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
 };
 
 #ifdef HAVE_MPI2
 
 /*! Servant class of sender using MPI2.
  */
-class COMMUNICATION_EXPORT SALOME_MPISender_i : public virtual POA_SALOME::MPISender,
+class COMMUNICATION_EXPORT SALOME_MPISender_i : public virtual POA_SALOME_CMOD::MPISender,
                            public virtual SALOME_Sender_i
 {
 private:
@@ -159,18 +159,18 @@ private:
   /*! Pointer to thread created on asynchronous invocation*/
   omni_thread *_newThr;
   /*! Type the component of the array*/
-  SALOME::TypeOfDataTransmitted _type;
+  SALOME_CMOD::TypeOfDataTransmitted _type;
 public:
   SALOME_MPISender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend=false);
   ~SALOME_MPISender_i();
-  SALOME::MPISender::param* getParam();
+  SALOME_CMOD::MPISender::param* getParam();
   void send();
-  void close(const SALOME::MPISender::param& p);
+  void close(const SALOME_CMOD::MPISender::param& p);
 private:
   static void* myThread(void *args);
 };
 
-class COMMUNICATION_EXPORT SALOME_MPISenderDouble_i : public POA_SALOME::MPISenderDouble,
+class COMMUNICATION_EXPORT SALOME_MPISenderDouble_i : public POA_SALOME_CMOD::MPISenderDouble,
                                  public SALOME_SenderDouble_i,
                                  public SALOME_MPISender_i
 {
@@ -178,7 +178,7 @@ public:
   SALOME_MPISenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
 };
 
-class COMMUNICATION_EXPORT SALOME_MPISenderInt_i : public POA_SALOME::MPISenderInt,
+class COMMUNICATION_EXPORT SALOME_MPISenderInt_i : public POA_SALOME_CMOD::MPISenderInt,
                               public SALOME_SenderInt_i,
                               public SALOME_MPISender_i
 {
@@ -192,7 +192,7 @@ public:
 
 /*! Servant class of sender using Sockets.
  */
-class COMMUNICATION_EXPORT SALOME_SocketSender_i : public virtual POA_SALOME::SocketSender,
+class COMMUNICATION_EXPORT SALOME_SocketSender_i : public virtual POA_SALOME_CMOD::SocketSender,
                               public virtual SALOME_Sender_i
 {
 private:
@@ -204,11 +204,11 @@ private:
   omni_thread *_newThr;
   bool _errorFlag;
   /*! Type the component of the array*/
-  SALOME::TypeOfDataTransmitted _type;
+  SALOME_CMOD::TypeOfDataTransmitted _type;
 public:
   SALOME_SocketSender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend=false);
   ~SALOME_SocketSender_i();
-  SALOME::SocketSender::param* getParam();
+  SALOME_CMOD::SocketSender::param* getParam();
   void send();
   void initCom();
   void acceptCom();
@@ -219,7 +219,7 @@ private:
   std::string inetAddress();
 };
 
-class COMMUNICATION_EXPORT SALOME_SocketSenderDouble_i : public POA_SALOME::SocketSenderDouble,
+class COMMUNICATION_EXPORT SALOME_SocketSenderDouble_i : public POA_SALOME_CMOD::SocketSenderDouble,
                                     public SALOME_SenderDouble_i,
                                     public SALOME_SocketSender_i
 {
@@ -227,7 +227,7 @@ public:
   SALOME_SocketSenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
 };
 
-class COMMUNICATION_EXPORT SALOME_SocketSenderInt_i : public POA_SALOME::SocketSenderInt,
+class COMMUNICATION_EXPORT SALOME_SocketSenderInt_i : public POA_SALOME_CMOD::SocketSenderInt,
                                  public SALOME_SenderInt_i,
                                  public SALOME_SocketSender_i
 {

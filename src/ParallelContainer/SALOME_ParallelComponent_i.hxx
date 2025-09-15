@@ -22,7 +22,7 @@
 
 //  SALOME_ParallelComponent : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelComponent_i.hxx
-//  Author : Andr� RIBES, EDF
+//  Author : Andre RIBES, EDF
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //
 #ifndef _SALOME_PARALLEL_COMPONENT_I_HXX_

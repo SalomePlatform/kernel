@@ -23,7 +23,7 @@ from salome.kernel import Engines
 from salome.kernel import SALOME_PyNode
 from salome.kernel import pylauncher
 from salome.kernel import KernelBasis
-from salome.kernel import SALOME
+from salome.kernel import SALOME_CMOD
 from salome.kernel.SALOME_PyNode import UnProxyObjectSimple,DecrRefInFile
 
 import unittest
@@ -142,7 +142,7 @@ class testPerfLogManager1(unittest.TestCase):
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
             pyscript2 = cont.createPyScriptNode("testScript2",killMeCode)
             pyscript2.executeFirst(refPtr)
-            self.assertRaises(SALOME.SALOME_Exception,pyscript2.executeSecond,["j"]) # an agressive SIGKILL has been received and container is still alive :) - it throws an exception :)
+            self.assertRaises(SALOME_CMOD.SALOME_Exception,pyscript2.executeSecond,["j"]) # an agressive SIGKILL has been received and container is still alive :) - it throws an exception :)
             pyscript2.UnRegister()
             pyscript3 = cont.createPyScriptNode("testScript3",normalCode)
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
@@ -173,7 +173,7 @@ class testPerfLogManager1(unittest.TestCase):
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)
             pyscript2 = cont.createPyScriptNode("testScript2",killMeCode)
             pyscript2.executeFirst(refPtr)
-            self.assertRaises(SALOME.SALOME_Exception,pyscript2.executeSecond,["j"]) # an agressive SIGKILL has been received and container is still alive :) - it throws an exception :)
+            self.assertRaises(SALOME_CMOD.SALOME_Exception,pyscript2.executeSecond,["j"]) # an agressive SIGKILL has been received and container is still alive :) - it throws an exception :)
             pyscript2.UnRegister()
             pyscript3 = cont.createPyScriptNode("testScript3",normalCode)
             obj = SALOME_PyNode.SenderByte_i(poa,pickle.dumps( (["i"],{"i": 3} ) )) ; id_o = poa.activate_object(obj) ; refPtr = poa.id_to_reference(id_o)

@@ -37,10 +37,10 @@ namespace SALOMESDS
 {
   class DataScopeServerTransaction;
   
-  class SALOMESDS_EXPORT KeyWaiter : public virtual POA_SALOME::KeyWaiter, public POAHolder
+  class SALOMESDS_EXPORT KeyWaiter : public virtual POA_SALOME_CMOD::KeyWaiter, public POAHolder
   {
   public:
-    KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal);
+    KeyWaiter(PickelizedPyObjServer *var, const SALOME_CMOD::ByteVec& keyVal);
     PyObject *getKeyPyObj() const { return _ze_key; }
     virtual ~KeyWaiter();
     PortableServer::POA_var getPOA() const;
@@ -48,8 +48,8 @@ namespace SALOMESDS
     void valueJustCome(PyObject *val);
     void go();
     std::string getVarName() const { return _var->getVarNameCpp(); }
-    SALOME::ByteVec *waitForMonoThr();
-    SALOME::ByteVec *waitForAndKill();
+    SALOME_CMOD::ByteVec *waitForMonoThr();
+    SALOME_CMOD::ByteVec *waitForAndKill();
   private:
     DataScopeServerTransaction *getDSS() const { return static_cast<DataScopeServerTransaction *>(_var->getFather()); }//thanks to dynamic_cast in constructor
   private:

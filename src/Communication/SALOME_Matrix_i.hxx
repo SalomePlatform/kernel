@@ -28,7 +28,7 @@
 #include CORBA_SERVER_HEADER(SALOME_Comm)
 #include "SALOMEMultiComm.hxx"
 
-class SALOME_Matrix_i : public virtual POA_SALOME::Matrix
+class SALOME_Matrix_i : public virtual POA_SALOME_CMOD::Matrix
 {
 private:
   const double *_tabToSend;
@@ -40,7 +40,7 @@ protected:
   ~SALOME_Matrix_i();
 public:
   SALOME_Matrix_i(const SALOMEMultiComm& multiCommunicator,const double *tabToSend,int nbOfRow,int nbOfColumn,bool ownTabToSend=false);
-  SALOME::SenderDouble_ptr getData();
+  SALOME_CMOD::SenderDouble_ptr getData();
   CORBA::Long getSizeOfColumn();
   void release();
 };

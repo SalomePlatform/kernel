@@ -50,9 +50,9 @@ static std::vector<char> FromPyToCpp(PyObject *obj)
   return ret;
 }
 
-static SALOME::vectorOfByte *FromVectCharToCorba(const std::vector<char>& data)
+static SALOME_CMOD::vectorOfByte *FromVectCharToCorba(const std::vector<char>& data)
 {
-  SALOME::vectorOfByte_var ret = new SALOME::vectorOfByte;
+  SALOME_CMOD::vectorOfByte_var ret = new SALOME_CMOD::vectorOfByte;
   auto length = data.size();
   ret->length(length);
   for(auto i = 0 ; i < length ; ++i)
@@ -70,7 +70,7 @@ PortableServer::POA_var SALOME_ContainerScriptExecPerfLog::getPOA()
   return father()->getPOA();
 }
 
-void SALOME_ContainerScriptExecPerfLog::assign(const SALOME::vectorOfByte& value)
+void SALOME_ContainerScriptExecPerfLog::assign(const SALOME_CMOD::vectorOfByte& value)
 {
   auto sz = value.length();
   _data.resize( sz );
@@ -82,7 +82,7 @@ void SALOME_ContainerScriptExecPerfLog::assign(const SALOME::vectorOfByte& value
   _data = FromPyToCpp(s);
 }
 
-void SALOME_ContainerScriptExecPerfLog::assignAndAppendFreestyle(const SALOME::vectorOfByte& value)
+void SALOME_ContainerScriptExecPerfLog::assignAndAppendFreestyle(const SALOME_CMOD::vectorOfByte& value)
 {
   auto sz = value.length();
   std::vector<char> data( sz );
@@ -99,13 +99,13 @@ void SALOME_ContainerScriptExecPerfLog::assignAndAppendFreestyle(const SALOME::v
     {
       std::string error("can not assignAndAppendFreestyle");
       PyErr_Print();
-      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     _data = FromPyToCpp(result);
   }
 }
 
-SALOME::vectorOfByte *SALOME_ContainerScriptExecPerfLog::getObj()
+SALOME_CMOD::vectorOfByte *SALOME_ContainerScriptExecPerfLog::getObj()
 {
   return FromVectCharToCorba(this->_data);
 }
@@ -123,7 +123,7 @@ void SALOME_ContainerScriptExecPerfLog::start()
   {
     std::string error("can not start");
     PyErr_Print();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 }
 
@@ -137,7 +137,7 @@ AutoPyRef SALOME_ContainerScriptExecPerfLog::end()
   {
     std::string error("can not end");
     PyErr_Print();
-    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
   return result;
 }
@@ -184,7 +184,7 @@ Engines::ContainerScriptExecPerfLog_ptr SALOME_ContainerScriptPerfLog::addExecut
     {
       std::string error("can not addExecution");
       PyErr_Print();
-      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     execution->setPyObj( result.retn() );//ownership of result is transfered to execution
   }
@@ -227,7 +227,7 @@ Engines::ContainerScriptPerfLog_ptr SALOME_ContainerPerfLog::addScript(const cha
     {
       std::string error("can not addScript");
       PyErr_Print();
-      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     script->setPyObj( result );
   }
@@ -344,7 +344,7 @@ Engines::ContainerPerfLog_ptr SALOME_LogManager::declareContainer(const char *co
     {
       std::string error("can not declareContainer");
       PyErr_Print();
-      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME::INTERNAL_ERROR);
+      THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     cont->setPyObj( result );
   }
@@ -376,7 +376,7 @@ void SALOME_LogManager::accept(SALOME_VisitorContainerLog &visitor)
 /*!
   \param [in] unloadMemory - specify if big part of struct data (SALOME_ContainerScriptExecPerfLog) is cleared after retrieving data
  */
-SALOME::vectorOfByte *SALOME_LogManager::getAllStruct(bool clearMemory)
+SALOME_CMOD::vectorOfByte *SALOME_LogManager::getAllStruct(bool clearMemory)
 {
   std::vector<char> data = this->dumpCppInternalFrmt(clearMemory);
   return FromVectCharToCorba(data);

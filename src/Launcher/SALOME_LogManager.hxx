@@ -105,9 +105,9 @@ public:
   void setPyObj(PyObject *obj) { _pyExecutionLog.set(obj); }
   PyObject *pyObj() { return _pyExecutionLog.get(); }
   PortableServer::POA_var getPOA();
-  void assign(const SALOME::vectorOfByte& value) override;
-  void assignAndAppendFreestyle(const SALOME::vectorOfByte& value) override;
-  SALOME::vectorOfByte *getObj() override;
+  void assign(const SALOME_CMOD::vectorOfByte& value) override;
+  void assignAndAppendFreestyle(const SALOME_CMOD::vectorOfByte& value) override;
+  SALOME_CMOD::vectorOfByte *getObj() override;
   const std::vector<char>& data() const { return _data; }
   void setData(std::vector<char>&& data) { _data = std::move(data); }
 public:
@@ -215,7 +215,7 @@ class SALOMELAUNCHER_EXPORT SALOME_LogManager : public POA_Engines::LogManager
   void clear() override;
   Engines::ContainerPerfLog_ptr declareContainer(const char *contInNS, const char *logfile) override;
   Engines::ListOfContainerPerfLog *listOfContainerLogs() override;
-  SALOME::vectorOfByte *getAllStruct(bool clearMemory) override;
+  SALOME_CMOD::vectorOfByte *getAllStruct(bool clearMemory) override;
   void putStructInFileAtomic(bool clearMemory, const char *fileName) override;
  public:
   void setFileNamePairOfLogger(const char *loggerFileNameA, const char *loggerFileNameB) override;

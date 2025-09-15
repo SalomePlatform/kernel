@@ -32,8 +32,8 @@ SALOME_LauncherException::SALOME_LauncherException(const char *reason)
 
 void SALOME_LauncherException::assign(const char *reason)
 {
-  SALOME::ExceptionStruct es;
-  es.type=SALOME::INTERNAL_ERROR;
+  SALOME_CMOD::ExceptionStruct es;
+  es.type=SALOME_CMOD::INTERNAL_ERROR;
   es.text=CORBA::string_dup(reason);
   es.lineNumber=0;
   (*this).details=es;

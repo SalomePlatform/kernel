@@ -22,7 +22,7 @@
 
 //  SALOME ParallelContainerProxyDummy : Proxy of a PaCO++ object using Dummy
 //  File   : SALOME_ParallelContainerProxyDummy.cxx
-//  Author : Andr� Ribes, EDF
+//  Author : Andre Ribes, EDF
 //  Module : SALOME PARALLEL
 //
 #include <iostream>

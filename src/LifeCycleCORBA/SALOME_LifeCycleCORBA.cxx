@@ -152,7 +152,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
     {
       listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
     }
-  catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
+  catch( const SALOME_CMOD::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
       return Engines::EngineComponent::_nil();
     }
@@ -192,7 +192,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
     {
       listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
     }
-  catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
+  catch( const SALOME_CMOD::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
       return Engines::EngineComponent::_nil();
     }
@@ -234,7 +234,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
     {
       listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
     }
-  catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
+  catch( const SALOME_CMOD::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
       return Engines::EngineComponent::_nil();
     }
@@ -427,12 +427,12 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
   // get each Container from NamingService => shutdown it
   // (the order is inverse to the order of servers initialization)
 
-  SALOME::Session_var session = SALOME::Session::_nil();
+  SALOME_CMOD::Session_var session = SALOME_CMOD::Session::_nil();
   CORBA::Long pid = 0;
   CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
   if (!CORBA::is_nil(objS))
   {
-    session = SALOME::Session::_narrow(objS);
+    session = SALOME_CMOD::Session::_narrow(objS);
     if (!CORBA::is_nil(session))
     {
       pid = session->getPID();
@@ -505,7 +505,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
   try
     {
       CORBA::Object_var objDSM(_NS->Resolve(SALOMESDS::DataServerManager::NAME_IN_NS));
-      SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(objDSM));
+      SALOME_CMOD::DataServerManager_var dsm(SALOME_CMOD::DataServerManager::_narrow(objDSM));
       if ( !CORBA::is_nil(dsm) )
         dsm->shutdownScopes();
     }
@@ -517,7 +517,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
   try
     {
       CORBA::Object_var objDSM(_NS->Resolve(SALOME_ExternalServerLauncher::NAME_IN_NS));
-      SALOME::ExternalServerLauncher_var dsm(SALOME::ExternalServerLauncher::_narrow(objDSM));
+      SALOME_CMOD::ExternalServerLauncher_var dsm(SALOME_CMOD::ExternalServerLauncher::_narrow(objDSM));
       if ( !CORBA::is_nil(dsm) )
         dsm->shutdownServers();
     }

@@ -21,7 +21,7 @@
 //
 
 //  File   : data_short_port_uses.cxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #include "data_short_port_uses.hxx"

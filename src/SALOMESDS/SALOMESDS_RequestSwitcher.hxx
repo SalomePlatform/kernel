@@ -32,7 +32,7 @@ namespace SALOMESDS
    * Servant activated by a specific POA (single thread) having itself its specific POA_manager.
    * This class is able to hold/active the default POA_manager shared by other POA than this.
    */
-  class SALOMESDS_EXPORT RequestSwitcherBase : public virtual POA_SALOME::RequestSwitcherBase, public POAHolder
+  class SALOMESDS_EXPORT RequestSwitcherBase : public virtual POA_SALOME_CMOD::RequestSwitcherBase, public POAHolder
   {
   public:
     RequestSwitcherBase(CORBA::ORB_ptr orb);

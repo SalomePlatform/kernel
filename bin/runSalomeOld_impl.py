@@ -85,11 +85,11 @@ def kill_salome(args):
 def startGUI(clt):
     """Salome Session Graphic User Interface activation"""
     from . import Engines
-    from . import SALOME
+    from . import SALOME_CMOD
     from . import SALOMEDS
     from . import SALOME_ModuleCatalog
     from . import SALOME_Session_idl
-    session=clt.waitNS("/Kernel/Session",SALOME.Session)
+    session=clt.waitNS("/Kernel/Session",SALOME_CMOD.Session)
     session.GetInterface()
 
 # -----------------------------------------------------------------------------
@@ -138,11 +138,11 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     if args['wake_up_session']:
         from . import Engines
-        from . import SALOME
+        from . import SALOME_CMOD
         from . import SALOMEDS
         from . import SALOME_ModuleCatalog
         from . import SALOME_Session_idl
-        session = clt.waitNS("/Kernel/Session",SALOME.Session)
+        session = clt.waitNS("/Kernel/Session",SALOME_CMOD.Session)
         status = session.GetStatSession()
         if status.activeGUI:
             from salome.kernel.salome_utils import getPortNumber
@@ -280,14 +280,14 @@ def startSalome(args, modules_list, modules_root_dir):
     if args["gui"] and not args['launcher_only']:
 ##----------------
         from . import Engines
-        from . import SALOME
+        from . import SALOME_CMOD
         from . import SALOMEDS
         from . import SALOME_ModuleCatalog
         from . import SALOME_Session_idl
         if sys.platform == "win32":
-          session=clt.waitNS("/Kernel/Session",SALOME.Session)
+          session=clt.waitNS("/Kernel/Session",SALOME_CMOD.Session)
         else:
-          session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
+          session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME_CMOD.Session)
         args["session_object"] = session
     end_time = os.times()
     if verbose(): print()

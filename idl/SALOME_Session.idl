@@ -29,7 +29,7 @@
 /*! \file SALOME_Session.idl \brief file that contains interface of the session
  */
 
-module SALOME
+module SALOME_CMOD
 {
 /*! \brief State of the session
 

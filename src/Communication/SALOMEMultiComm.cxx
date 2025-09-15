@@ -22,20 +22,20 @@
 
 #include "SALOMEMultiComm.hxx"
 
-SALOMEMultiComm::SALOMEMultiComm():_type(SALOME::CORBA_)
+SALOMEMultiComm::SALOMEMultiComm():_type(SALOME_CMOD::CORBA_)
 {
 }
 
-SALOMEMultiComm::SALOMEMultiComm(SALOME::TypeOfCommunication type):_type(type)
+SALOMEMultiComm::SALOMEMultiComm(SALOME_CMOD::TypeOfCommunication type):_type(type)
 {
 }
 
-void SALOMEMultiComm::setProtocol(SALOME::TypeOfCommunication type)
+void SALOMEMultiComm::setProtocol(SALOME_CMOD::TypeOfCommunication type)
 {
   _type=type;
 }
 
-SALOME::TypeOfCommunication SALOMEMultiComm::getProtocol() const
+SALOME_CMOD::TypeOfCommunication SALOMEMultiComm::getProtocol() const
 {
   return _type;
 }

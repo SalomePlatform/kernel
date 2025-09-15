@@ -211,7 +211,7 @@ interface SalomeLauncher
   /*! Its state becomes "CREATED".
       \return job id
   */
-  long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+  long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME_CMOD::SALOME_Exception);
 
   //! Launch an already created job (job's state should be "CREATED").
   /*! Launching the job consists of:
@@ -220,20 +220,20 @@ interface SalomeLauncher
       - launch the pre processing command if one is defined
       - submit the job to the batch manager
   */
-  void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   launchJob    (in long job_id)                           raises (SALOME_CMOD::SALOME_Exception);
 
   //! Get the execution state of the job.
   /*! \return "CREATED", "IN_PROCESS", "QUEUED", "RUNNING", "PAUSED",
              "FINISHED", "ERROR" or "FAILED"
       \see LIBBATCH/src/core/Constants.hxx
   */
-  string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+  string getJobState  (in long job_id)                           raises (SALOME_CMOD::SALOME_Exception);
 
   //! Get names or ids of hosts assigned to the job
-  string getAssignedHostnames  (in long job_id)                  raises (SALOME::SALOME_Exception);
+  string getAssignedHostnames  (in long job_id)                  raises (SALOME_CMOD::SALOME_Exception);
 
   //! Copy all the in_files of the job to the work_directory.
-  void exportInputFiles(in long job_id) raises (SALOME::SALOME_Exception);
+  void exportInputFiles(in long job_id) raises (SALOME_CMOD::SALOME_Exception);
 
   //! Copy the result files from the work directory of the job
   //! to a local directory.
@@ -248,7 +248,7 @@ interface SalomeLauncher
      \see JobParameters
      \see createJob
   */
-  void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+  void   getJobResults(in long job_id, in string directory)      raises (SALOME_CMOD::SALOME_Exception);
 
   //! Try to copy the files named "dumpState*.xml" from the working directory.
   /*! The file "dumpState_name.xml" can be produced by the execution of a YACS
@@ -264,13 +264,13 @@ interface SalomeLauncher
      \return 1 if the copy succeeds.
      \see JobParameters::specific_parameters
   */
-  boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME::SALOME_Exception);
+  boolean getJobDumpState(in long job_id, in string directory)   raises (SALOME_CMOD::SALOME_Exception);
 
   //! Remove the working directory on the remote file system.
   /*!
      \param job_id    Job id returned by createJob().
   */
-  void clearJobWorkingDir(in long job_id) raises (SALOME::SALOME_Exception);
+  void clearJobWorkingDir(in long job_id) raises (SALOME_CMOD::SALOME_Exception);
 
   //! Retrieve one single file from the working directory.
   /*! Use this method if you don't want to copy all the results of the job,
@@ -286,24 +286,24 @@ interface SalomeLauncher
                       JobParameters::result_directory.
      \return 1 if the copy succeeds.
   */
-  boolean getJobWorkFile(in long job_id, in string work_file, in string directory)   raises (SALOME::SALOME_Exception);
+  boolean getJobWorkFile(in long job_id, in string work_file, in string directory)   raises (SALOME_CMOD::SALOME_Exception);
 
   //! Kill the job and set its state to "FAILED"
-  void   stopJob      (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   stopJob      (in long job_id)                           raises (SALOME_CMOD::SALOME_Exception);
   //! Kill the job and remove it from the jobs list
-  void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   removeJob    (in long job_id)                           raises (SALOME_CMOD::SALOME_Exception);
 
   //! Get the job's serialization string
-  string dumpJob(in long job_id) raises (SALOME::SALOME_Exception);
+  string dumpJob(in long job_id) raises (SALOME_CMOD::SALOME_Exception);
   //! Create a job from its serialization string
   /*! \param dumpedJob Serialization string returned by dumpJob.
       \return          Job id
   */
-  long restoreJob(in string dumpedJob) raises (SALOME::SALOME_Exception);
+  long restoreJob(in string dumpedJob) raises (SALOME_CMOD::SALOME_Exception);
 
   // Useful methods
-  long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
-  boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
+  long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME_CMOD::SALOME_Exception);
+  boolean testBatch        (in ResourceParameters params)                raises (SALOME_CMOD::SALOME_Exception);
 
   // SALOME kernel service methods
   //! Shutdow SalomeLauncher server.
@@ -316,13 +316,13 @@ interface SalomeLauncher
   void addObserver(in Engines::SalomeLauncherObserver observer);
   void removeObserver(in Engines::SalomeLauncherObserver observer);
   Engines::JobsList getJobsList();
-  Engines::JobParameters getJobParameters(in long job_id) raises (SALOME::SALOME_Exception);
+  Engines::JobParameters getJobParameters(in long job_id) raises (SALOME_CMOD::SALOME_Exception);
 
   // Save and load methods
   //! Add to the current jobs list the jobs previously saved in an xml file.
-  void loadJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+  void loadJobs(in string jobs_file) raises (SALOME_CMOD::SALOME_Exception);
   //! Save the current list of jobs in an xml file.
-  void saveJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+  void saveJobs(in string jobs_file) raises (SALOME_CMOD::SALOME_Exception);
 };
 
 };

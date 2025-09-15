@@ -183,7 +183,7 @@ module SALOMEDS
 <em>See \ref example19 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
-    void  LoadWith (in SComponent sco, in Driver Engine) raises (SALOME::SALOME_Exception);
+    void  LoadWith (in SComponent sco, in Driver Engine) raises (SALOME_CMOD::SALOME_Exception);
 /*!
    Loads a %SObject.
 
@@ -572,7 +572,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     Reads and activates the structure of the study %Objects.
     \param aStudyUrl The path to the study
 */
-    boolean Open (in URLPath aStudyUrl) raises (SALOME::SALOME_Exception);
+    boolean Open (in URLPath aStudyUrl) raises (SALOME_CMOD::SALOME_Exception);
 
 /*! \brief Check if study can be opened
 
@@ -869,7 +869,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
   //==========================================================================
 
-  interface SObject : SALOME::GenericObj
+  interface SObject : SALOME_CMOD::GenericObj
   {
 /*! Name of the %SObject
 */
@@ -985,7 +985,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
    %Generic attribute is a base interface for all attributes which can be assigned to the SObjects created in the study.
 */
   //==========================================================================
-  interface GenericAttribute : SALOME::GenericObj
+  interface GenericAttribute : SALOME_CMOD::GenericObj
   {
 /*! \brief Exception locking all changes
 
@@ -1051,7 +1051,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
   The search is started from the first %SComponent in the list.
 */
   //==========================================================================
-  interface SComponentIterator : SALOME::GenericObj
+  interface SComponentIterator : SALOME_CMOD::GenericObj
   {
 /*!
 \brief Activates the %SComponentIterator.
@@ -1082,7 +1082,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     levels.
 */
   //==========================================================================
-  interface ChildIterator : SALOME::GenericObj
+  interface ChildIterator : SALOME_CMOD::GenericObj
   {
 /*!
 
@@ -1117,7 +1117,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
    This interface contains a set of methods used for iteration over the objects in the use case.
 */
-  interface UseCaseIterator : SALOME::GenericObj
+  interface UseCaseIterator : SALOME_CMOD::GenericObj
   {
 /*!
 Activates the %UseCaseIterator.
@@ -1146,7 +1146,7 @@ Activates the %UseCaseIterator.
    Use case in the study represents a user-managed subtree, containing all or some of the objects which exist in the study.
    The %UseCaseBuilder interface contains a set of methods used for management of the use case in the study.
 */
-  interface UseCaseBuilder : SALOME::GenericObj
+  interface UseCaseBuilder : SALOME_CMOD::GenericObj
   {
 /*!
    Adds to the use case an object as a child of the current object of the use case.
@@ -1344,7 +1344,7 @@ study is open, these references are transformed into persintent IORs.
                                    in string aLocalPersistentID,
                                    in boolean isMultiFile,
                                    in boolean isASCII)
-      raises (SALOME::SALOME_Exception);
+      raises (SALOME_CMOD::SALOME_Exception);
 
     // Publishing in the study
 /*! Publishing in the study
@@ -1352,7 +1352,7 @@ study is open, these references are transformed into persintent IORs.
     \return True if the given %Component can publish a definite object with a given IOR in the %study.
     \param theIOR The IOR of a definite object
 */
-    boolean CanPublishInStudy(in Object theIOR) raises (SALOME::SALOME_Exception);
+    boolean CanPublishInStudy(in Object theIOR) raises (SALOME_CMOD::SALOME_Exception);
 /*! \brief Publishing in the study
 
    Publishes the given object in the %study, using the algorithm of this component.

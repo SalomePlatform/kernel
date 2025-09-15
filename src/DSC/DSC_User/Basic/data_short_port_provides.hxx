@@ -21,7 +21,7 @@
 //
 
 //  File   : data_short_port_provides.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _DATA_SHORT_PORT_PROVIDES_HXX_

@@ -32,7 +32,7 @@ class SALOME_NamingService_Abstract;
 class SALOME_ExternalServerLauncher;
 class SALOME_CPythonHelper;
 
-class SALOMELAUNCHER_EXPORT SALOME_ExternalServerHandler : public POA_SALOME::ExternalServerHandler
+class SALOMELAUNCHER_EXPORT SALOME_ExternalServerHandler : public POA_SALOME_CMOD::ExternalServerHandler
 {
  public:
   SALOME_ExternalServerHandler(SALOME_ExternalServerLauncher *boss, const std::string& name, SALOME_NamingService_Abstract *ns, long pid);
@@ -45,7 +45,7 @@ class SALOMELAUNCHER_EXPORT SALOME_ExternalServerHandler : public POA_SALOME::Ex
   void killMe() override;
   void ping() override;
   void shutdown() override;
-  SALOME::LongVec *listOfChildrenPID() override;
+  SALOME_CMOD::LongVec *listOfChildrenPID() override;
  private:
   std::string _name;
   long _pid;

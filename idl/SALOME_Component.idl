@@ -106,7 +106,7 @@ module Engines
     
     vectorOfVectorOfString getAllLogFileNameGroups();
 
-    void execute_python_code( in string code ) raises(SALOME::SALOME_Exception);
+    void execute_python_code( in string code ) raises(SALOME_CMOD::SALOME_Exception);
 
     /*! \brief Loads a new component class (dynamic library).
 
@@ -272,7 +272,7 @@ module Engines
       \param nodeName the name of the PyNode
       \param code python code as text to load in the node
      */
-    PyNode createPyNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
+    PyNode createPyNode(in string nodeName, in string code)  raises(SALOME_CMOD::SALOME_Exception);
 
     //! Retrieves the last created PyNode instance with createPyNode.
     PyNode getDefaultPyNode(in string nodeName);
@@ -282,9 +282,9 @@ module Engines
       \param nodeName the name of the PyScriptNode
       \param code python code as text to load in the node
      */
-    PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
+    PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME_CMOD::SALOME_Exception);
 
-    void removePyScriptNode(in string nodeName) raises(SALOME::SALOME_Exception);
+    void removePyScriptNode(in string nodeName) raises(SALOME_CMOD::SALOME_Exception);
 
     //! Retrieves the last created PyScriptNode instance with createPyScriptNode.
     PyScriptNode getDefaultPyScriptNode(in string nodeName);
@@ -299,7 +299,7 @@ module Engines
     long getNumberOfCPUCores();
 
     //! Return a load of each CPU core.
-    vectorOfDouble loadOfCPUCores() raises(SALOME::SALOME_Exception);
+    vectorOfDouble loadOfCPUCores() raises(SALOME_CMOD::SALOME_Exception);
 
     //! Set custom script to calculate a load of each CPU core.
     /*!
@@ -335,7 +335,7 @@ module Engines
     //!  Determines whether the server has already been loaded or not.
     void ping();
 
-    boolean isSSLMode() raises(SALOME::SALOME_Exception);
+    boolean isSSLMode() raises(SALOME_CMOD::SALOME_Exception);
     //! Remove component instance from container
     /*!
       Deactivates the %Component.
@@ -438,7 +438,7 @@ module Engines
       sends the file's reference.
     */
     Engines::Salome_file getInputFileToService(in string service_name,
-                                               in string Salome_file_name) raises(SALOME::SALOME_Exception);
+                                               in string Salome_file_name) raises(SALOME_CMOD::SALOME_Exception);
 
     //! Check service input files (transfer them if needed)
     /*!
@@ -456,7 +456,7 @@ module Engines
 
       \exception contains information about files that are not in a good state.
     */
-    void checkInputFilesToService(in string service_name)           raises(SALOME::SALOME_Exception);
+    void checkInputFilesToService(in string service_name)           raises(SALOME_CMOD::SALOME_Exception);
 
     //!  This method adds a input Salome_file to a service of the component.
     /*!
@@ -470,7 +470,7 @@ module Engines
       a Salome_file with this name for the service.
     */
     Engines::Salome_file setInputFileToService(in string service_name,
-                                               in string Salome_file_name)   raises(SALOME::SALOME_Exception);
+                                               in string Salome_file_name)   raises(SALOME_CMOD::SALOME_Exception);
 
     //!  Returns a CORBA Ref of a output Salome_file managed by a service.
     /*!
@@ -484,7 +484,7 @@ module Engines
       sends the file's reference.
     */
     Engines::Salome_file getOutputFileToService(in string service_name,
-                                                in string Salome_file_name) raises(SALOME::SALOME_Exception);
+                                                in string Salome_file_name) raises(SALOME_CMOD::SALOME_Exception);
 
     //! Check service output files (transfer them if needed)
     /*!
@@ -502,7 +502,7 @@ module Engines
 
       \exception contains information about files that are not in a good state.
     */
-    void checkOutputFilesToService(in string service_name)        raises(SALOME::SALOME_Exception);
+    void checkOutputFilesToService(in string service_name)        raises(SALOME_CMOD::SALOME_Exception);
 
     //!  This method adds an output Salome_file to a service of the component.
     /*!
@@ -516,7 +516,7 @@ module Engines
       a Salome_file with this name for the service.
     */
     Engines::Salome_file setOutputFileToService(in string service_name,
-                                                in string Salome_file_name)  raises(SALOME::SALOME_Exception);
+                                                in string Salome_file_name)  raises(SALOME_CMOD::SALOME_Exception);
 
     //! Indicate if the component instance provides custom information about its objects.
     /*!
@@ -557,8 +557,8 @@ module Engines
   interface ImportableComponent
   {
     /*! \brief Get a list of supported formats */
-    SALOME::StringSeq GetImportableFormats();
-    boolean           ImportDataAs(in string format, in SALOME::GenericObj exporter);
+    SALOME_CMOD::StringSeq GetImportableFormats();
+    boolean           ImportDataAs(in string format, in SALOME_CMOD::GenericObj exporter);
   };
 
   //!  A block of binary data used for file transfer. The maximum size of the block is defined on server side.
@@ -568,7 +568,7 @@ module Engines
      The fileTransfer and fileRef interfaces provide a file transfer service
      between different computers.
   */
-  interface fileTransfer : SALOME::GenericObj
+  interface fileTransfer : SALOME_CMOD::GenericObj
   {
     //! Open the file transfer
     /*!
@@ -655,7 +655,7 @@ module Engines
 
       \exception contains information of errors if the loading doesn't succeed.
      */
-    void load(in string hdf5_file)                            raises (SALOME::SALOME_Exception);
+    void load(in string hdf5_file)                            raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Save a Salome_file into a hdf5_file.
     /*!
@@ -665,7 +665,7 @@ module Engines
       \exception contains information of errors if the save doesn't succeed.
 
     */
-    void save(in string hdf5_file)                            raises (SALOME::SALOME_Exception);
+    void save(in string hdf5_file)                            raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Save a Salome_file into a hdf5_file.
     /*!
@@ -676,7 +676,7 @@ module Engines
       \exception contains information of errors if the save doesn't succeed.
 
     */
-    void save_all(in string hdf5_file)                            raises (SALOME::SALOME_Exception);
+    void save_all(in string hdf5_file)                            raises (SALOME_CMOD::SALOME_Exception);
 
 /**************/
 
@@ -687,7 +687,7 @@ module Engines
 
       \exception raised if the file is already added into the Salome_file.
     */
-    void setLocalFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
+    void setLocalFile(in string comp_file_name) raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Add a Distributed file to the Salome_file.
     /*!
@@ -696,7 +696,7 @@ module Engines
 
       \exception raised if the file is already added into the Salome_file.
     */
-    void setDistributedFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
+    void setDistributedFile(in string comp_file_name) raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Connect a Salome_file with another Salome_file.
     /*!
@@ -706,7 +706,7 @@ module Engines
 
       \exception raised if there is more or less than one file.
     */
-    void connect(in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+    void connect(in Engines::Salome_file source_Salome_file) raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Connect the managed file file_name to a Salome_file.
     /*!
@@ -717,7 +717,7 @@ module Engines
       \exception raised if the file doesn't exist.
     */
     void connectDistributedFile(in string file_name,
-                                in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+                                in Engines::Salome_file source_Salome_file) raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Connect the file_name with a Distributed file_name.
     /*!
@@ -728,7 +728,7 @@ module Engines
       \exception raised if the file doesn't exist.
     */
     void setDistributedSourceFile(in string file_name,
-                                  in string source_file_name) raises (SALOME::SALOME_Exception);
+                                  in string source_file_name) raises (SALOME_CMOD::SALOME_Exception);
 
 /**************/
 
@@ -737,7 +737,7 @@ module Engines
 
       \exception raised if some of the files are not ok.
     */
-    void recvFiles()                                            raises (SALOME::SALOME_Exception) ;
+    void recvFiles()                                            raises (SALOME_CMOD::SALOME_Exception) ;
 
 /**************/
 
@@ -748,7 +748,7 @@ module Engines
 
       \exception raised if the file doesn't exist.
     */
-    void removeFile(in string file_name)                    raises (SALOME::SALOME_Exception);
+    void removeFile(in string file_name)                    raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Remove all the files of the Salome_file.
     void removeFiles();
@@ -770,7 +770,7 @@ module Engines
 
       \exception raised if the file doesn't exist.
     */
-    Engines::file  getFileInfos(in string file_name) raises (SALOME::SALOME_Exception);
+    Engines::file  getFileInfos(in string file_name) raises (SALOME_CMOD::SALOME_Exception);
 
     //!  Return the state of the Salome_file.
     Engines::SfState getSalome_fileState();

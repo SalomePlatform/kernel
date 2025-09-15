@@ -85,7 +85,7 @@ bool TEST_getSalomeLauncher() {
       SALOME_UNUSED(pid); // unused in release mode
       LOG("["<<i<<"] SALOME launcher PID = " << pid);
     }
-    catch (const SALOME::SALOME_Exception & ex) {
+    catch (const SALOME_CMOD::SALOME_Exception & ex) {
       LOG("SALOME Exception in createJob !" <<ex.details.text.in());
       return false;
     }

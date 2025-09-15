@@ -32,14 +32,14 @@
 
 namespace SALOMESDS
 {
-  class PickelizedPyObjServer : public BasicDataServer, public virtual POA_SALOME::PickelizedPyObjServer
+  class PickelizedPyObjServer : public BasicDataServer, public virtual POA_SALOME_CMOD::PickelizedPyObjServer
   {
   public:
-    PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value);
     PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     virtual ~PickelizedPyObjServer();
-    void setSerializedContent(const SALOME::ByteVec& newValue);
-    SALOME::ByteVec *fetchSerializedContent();
+    void setSerializedContent(const SALOME_CMOD::ByteVec& newValue);
+    SALOME_CMOD::ByteVec *fetchSerializedContent();
   public:
     bool isDict();
     void checkKeyNotAlreadyPresent(PyObject *key);
@@ -51,9 +51,9 @@ namespace SALOMESDS
     virtual void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value) = 0;
     virtual std::string getAccessStr() const = 0;
   public:
-    static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
-    static void FromCppToByteSeq(const std::string& strToBeConv, SALOME::ByteVec& ret);
-    static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
+    static void FromByteSeqToCpp(const SALOME_CMOD::ByteVec& bsToBeConv, std::string& ret);
+    static void FromCppToByteSeq(const std::string& strToBeConv, SALOME_CMOD::ByteVec& ret);
+    static SALOME_CMOD::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
     static PyObject *GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb);
     static PyObject *GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb);
     static std::string Pickelize(PyObject *obj, DataScopeServerBase *dsb);
@@ -61,7 +61,7 @@ namespace SALOMESDS
     PyObject *getPyObjFromPickled(const std::vector<unsigned char>& pickledData);
     std::string pickelize(PyObject *obj);
     void setNewPyObj(PyObject *obj);
-    void setSerializedContentInternal(const SALOME::ByteVec& newValue);
+    void setSerializedContentInternal(const SALOME_CMOD::ByteVec& newValue);
     static PyObject *CreateDftObjFromType(PyObject *globals, const std::string& typeName);
   private:
     void checkKeyPresence(PyObject *key, bool presence);
@@ -74,7 +74,7 @@ namespace SALOMESDS
   class PickelizedPyObjServerModifiable : public PickelizedPyObjServer
   {
   public:
-    PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value);
     PickelizedPyObjServerModifiable(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
   public:
     void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);

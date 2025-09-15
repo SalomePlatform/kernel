@@ -115,7 +115,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
   return jobNumber;
 }
@@ -130,7 +130,7 @@ SALOME_Launcher::launchJob(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -145,7 +145,7 @@ SALOME_Launcher::getJobState(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
   return CORBA::string_dup(result.c_str());
 }
@@ -162,7 +162,7 @@ SALOME_Launcher::getAssignedHostnames(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
   return CORBA::string_dup(result.c_str());
 }
@@ -177,7 +177,7 @@ SALOME_Launcher::exportInputFiles(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -191,7 +191,7 @@ SALOME_Launcher::getJobResults(CORBA::Long job_id, const char * directory)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -205,7 +205,7 @@ SALOME_Launcher::clearJobWorkingDir(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -220,7 +220,7 @@ SALOME_Launcher::getJobDumpState(CORBA::Long job_id, const char * directory)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
   return rtn;
 }
@@ -236,7 +236,7 @@ SALOME_Launcher::getJobWorkFile(CORBA::Long job_id, const char * work_file, cons
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
   return rtn;
 }
@@ -259,7 +259,7 @@ SALOME_Launcher::removeJob(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -276,7 +276,7 @@ SALOME_Launcher::stopJob(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 
@@ -291,7 +291,7 @@ SALOME_Launcher::dumpJob(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
   return CORBA::string_dup(result.c_str());
 }
@@ -311,7 +311,7 @@ SALOME_Launcher::restoreJob(const char * dumpedJob)
   }
   catch(const LauncherException &ex){
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 
   return jobId;
@@ -334,7 +334,7 @@ SALOME_Launcher::createJobWithFile(const char * xmlExecuteFile,
   }
   catch(const LauncherException &ex){
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 
   return jobId;
@@ -374,7 +374,7 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
   }
   catch(const LauncherException &ex){
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
   return rtn;
 }
@@ -463,7 +463,7 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   catch(const LauncherException &ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME_CMOD::BAD_PARAM);
   }
 
   return job_parameters._retn();
@@ -486,7 +486,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
   catch (const LauncherException & ex)
   {
     INFOS(ex.msg.c_str());
-    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(), SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(), SALOME_CMOD::INTERNAL_ERROR);
   }
 
   // Notify observers of the new jobs

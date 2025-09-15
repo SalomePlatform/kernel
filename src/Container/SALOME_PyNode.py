@@ -36,8 +36,8 @@ from typing import TextIO
 
 from . import Engines__POA
 from . import KernelBasis
-from . import SALOME
-from . import SALOME__POA
+from . import SALOME_CMOD
+from . import SALOME_CMOD__POA
 from . import Engines
 from . import Engines__POA
 from .SALOME_ContainerHelper import ScriptExecInfo
@@ -49,7 +49,7 @@ MY_PERFORMANCE_LOG_ENTRY_IN_GLBS = "my_log_4_this_session"
 MY_KEY_TO_DETECT_FINISH = "neib av tuot"
 
 
-class Generic(SALOME__POA.GenericObj):
+class Generic(SALOME_CMOD__POA.GenericObj):
   """A Python implementation of the GenericObj CORBA IDL"""
   def __init__(self,poa):
     self.poa=poa
@@ -107,7 +107,7 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       ccode=compile(code,self.nodeName,'exec')
       exec(ccode, self.context)
     except Exception:
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
   def execute(self,funcName,argsin):
     """Execute the function funcName found in local context with pickled args (argsin)"""
@@ -120,9 +120,9 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
 
-class SenderByte_i(SALOME__POA.SenderByte,Generic):
+class SenderByte_i(SALOME_CMOD__POA.SenderByte,Generic):
   def __init__(self,poa,bytesToSend):
     Generic.__init__(self,poa)
     self.bytesToSend = bytesToSend
@@ -1007,13 +1007,13 @@ class ContextExchanger_i(Engines__POA.ContextExchanger):
     try:
       self._out_ctx += ctx
     except Exception as e:
-      raise SALOME.SALOME_Exception( SALOME.ExceptionStruct(SALOME.INTERNAL_ERROR,str(e),"pushOutputContext",0) )
+      raise SALOME_CMOD.SALOME_Exception( SALOME_CMOD.ExceptionStruct(SALOME_CMOD.INTERNAL_ERROR,str(e),"pushOutputContext",0) )
 
   def finishPushContext(self):
     try:
       self._output_context = pickle.loads( self._out_ctx )
     except Exception as e:
-      raise SALOME.SALOME_Exception( SALOME.ExceptionStruct(SALOME.INTERNAL_ERROR,str(e),"finishPushContext",0) )
+      raise SALOME_CMOD.SALOME_Exception( SALOME_CMOD.ExceptionStruct(SALOME_CMOD.INTERNAL_ERROR,str(e),"finishPushContext",0) )
 
   def getOutputContext(self):
     return self._output_context
@@ -1421,14 +1421,14 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
       ccode=compile(code,self.nodeName,'exec')
       exec(ccode, self.context)
     except Exception:
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"","PyScriptNode (%s) : code to be executed \"%s\"" %(self.nodeName,code),0))
 
   def assignNewCompiledCode(self,codeStr):
     try:
       self.code=codeStr
       self.ccode=compile(codeStr,self.nodeName,'exec')
     except Exception:
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"","PyScriptNode.assignNewCompiledCode (%s) : code to be executed \"%s\"" %(self.nodeName,codeStr),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"","PyScriptNode.assignNewCompiledCode (%s) : code to be executed \"%s\"" %(self.nodeName,codeStr),0))
 
   def executeSimple(self, key, val):
     """
@@ -1441,7 +1441,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" % (self.nodeName),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode: %s" % (self.nodeName),0))
     
   def execute(self,outargsname,argsin):
     """Execute the script stored in attribute ccode with pickled args (argsin)"""
@@ -1460,7 +1460,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
 
   def executeFirst(self,argsin):
     """ Same than first part of self.execute to reduce memory peak."""
@@ -1486,7 +1486,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:First %s" % (self.nodeName),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode:First %s" % (self.nodeName),0))
 
   def executeSecond(self,outargsname):
     """ Same than second part of self.execute to reduce memory peak."""
@@ -1521,7 +1521,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
         retArg = SenderByte_i( self.poa,argPickle )
         id_o = self.poa.activate_object(retArg)
         retObj = self.poa.id_to_reference(id_o)
-        ret.append( retObj._narrow( SALOME.SenderByte ) )
+        ret.append( retObj._narrow( SALOME_CMOD.SenderByte ) )
         outputMem += len(argPickle)
       self.addInfoOnLevel2("outputMem",outputMem)
       self.addInfoOnLevel2("outputHDDMem",vis)
@@ -1532,7 +1532,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       print("".join(l)) ; sys.stdout.flush() # print error also in logs of remote container
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
 
   def listAllVarsInContext(self):
       import re
@@ -1549,7 +1549,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
     pass
   
   def assignVarInContext(self, varName, value):
@@ -1558,7 +1558,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
     pass
 
   def callMethodOnVarInContext(self, varName, methodName, args):
@@ -1567,7 +1567,7 @@ class PyScriptNode_Abstract_i(Engines__POA.PyScriptNode,Generic,abc.ABC):
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
-      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
+      raise SALOME_CMOD.SALOME_Exception(SALOME_CMOD.ExceptionStruct(SALOME_CMOD.BAD_PARAM,"".join(l),"PyScriptNode: %s" %self.nodeName,0))
     pass
 
   def beginOfCurrentExecutionSession(self):

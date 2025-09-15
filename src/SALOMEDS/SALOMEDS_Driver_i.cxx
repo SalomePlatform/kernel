@@ -382,7 +382,7 @@ SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const std::string
     // It can be "light" module
     obj = _name_service->Resolve("/Kernel/Session");
     if (!CORBA::is_nil(obj)) {
-      SALOME::Session_var session = SALOME::Session::_narrow(obj);
+      SALOME_CMOD::Session_var session = SALOME_CMOD::Session::_narrow(obj);
       if (!CORBA::is_nil(session)) {
         Engines::EngineComponent_var anEngine = session->GetComponent(theComponentType.c_str());
         if (!CORBA::is_nil(anEngine))

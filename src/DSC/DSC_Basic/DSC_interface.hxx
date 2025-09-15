@@ -21,7 +21,7 @@
 //
 
 //  File   : DSC_interface.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _DSC_INTERFACE_HXX_

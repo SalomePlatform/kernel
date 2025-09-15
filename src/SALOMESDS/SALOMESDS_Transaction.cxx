@@ -29,7 +29,7 @@
 
 using namespace SALOMESDS;
 
-void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret)
+void Transaction::FromByteSeqToVB(const SALOME_CMOD::ByteVec& bsToBeConv, std::vector<unsigned char>& ret)
 {
   std::size_t sz(bsToBeConv.length());
   ret.resize(sz);
@@ -38,7 +38,7 @@ void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector
     buf[i]=bsToBeConv[(CORBA::ULong)i]; //!< TODO: size_t to CORBA::ULong
 }
 
-void Transaction::FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret)
+void Transaction::FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME_CMOD::ByteVec& ret)
 {
   std::size_t sz(bsToBeConv.size());
   ret.length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
@@ -50,7 +50,7 @@ Transaction::~Transaction()
 {
 }
 
-TransactionVarCreate::TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):Transaction(dsct,varName)
+TransactionVarCreate::TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue):Transaction(dsct,varName)
 {
   FromByteSeqToVB(constValue,_data);
 }
@@ -75,19 +75,19 @@ void TransactionVarCreate::notify()
 
 void TransactionRdOnlyVarCreate::perform()
 {
-  SALOME::ByteVec data2;
+  SALOME_CMOD::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   _dsct->createRdOnlyVarInternal(_var_name,data2);
 }
 
 void TransactionRdExtVarCreate::perform()
 {
-  SALOME::ByteVec data2;
+  SALOME_CMOD::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   _dsct->createRdExtVarInternal(_var_name,data2);
 }
 
-TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent):TransactionRdExtVarCreate(dsct,varName,constValue),_cmp_func_content(compareFuncContent),_cmp_func(nullptr)
+TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& constValue, const char *compareFuncContent):TransactionRdExtVarCreate(dsct,varName,constValue),_cmp_func_content(compareFuncContent),_cmp_func(nullptr)
 {
   constexpr char EXPECTED_COMPARE_FUNC_NAME[]="comptchev";
   SALOME::AutoPyRef context(PyDict_New());
@@ -123,7 +123,7 @@ void TransactionRdExtVarFreeStyleCreate::rollBack()
 
 void TransactionRdExtVarFreeStyleCreate::perform()
 {
-  SALOME::ByteVec data2;
+  SALOME_CMOD::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   try
     {
@@ -138,14 +138,14 @@ void TransactionRdExtVarFreeStyleCreate::perform()
 
 void TransactionRdExtInitVarCreate::perform()
 {
-  SALOME::ByteVec data2;
+  SALOME_CMOD::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   _dsct->createRdExtInitVarInternal(_var_name,data2);
 }
 
 void TransactionRdWrVarCreate::perform()
 {
-  SALOME::ByteVec data2;
+  SALOME_CMOD::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   _dsct->createRdWrVarInternal(_var_name,data2);
 }
@@ -203,7 +203,7 @@ void TransactionDictModify::rollBack()
   _zeDataBefore.clear();
 }
 
-TransactionAddKeyValue::TransactionAddKeyValue(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):TransactionDictModify(dsct,varName)
+TransactionAddKeyValue::TransactionAddKeyValue(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value):TransactionDictModify(dsct,varName)
 {
   std::vector<unsigned char> key2,value2;
   FromByteSeqToVB(key,key2);
@@ -229,7 +229,7 @@ TransactionAddKeyValue::~TransactionAddKeyValue()
   Py_XDECREF(_value);
 }
 
-TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):TransactionAddKeyValue(dsct,varName,key,value)
+TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value):TransactionAddKeyValue(dsct,varName,key,value)
 {
 }
 
@@ -238,7 +238,7 @@ void TransactionAddKeyValueHard::perform()
   _varc->addKeyValueHard(_key,_value);
 }
 
-TransactionAddKeyValueErrorIfAlreadyExisting::TransactionAddKeyValueErrorIfAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):TransactionAddKeyValue(dsct,varName,key,value)
+TransactionAddKeyValueErrorIfAlreadyExisting::TransactionAddKeyValueErrorIfAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value):TransactionAddKeyValue(dsct,varName,key,value)
 {
   _varc->checkKeyNotAlreadyPresent(_key);
 }
@@ -248,7 +248,7 @@ void TransactionAddKeyValueErrorIfAlreadyExisting::perform()
   _varc->addKeyValueErrorIfAlreadyExisting(_key,_value);
 }
 
-TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key):TransactionDictModify(dsct,varName),_key(0)
+TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME_CMOD::ByteVec& key):TransactionDictModify(dsct,varName),_key(0)
 {
   std::vector<unsigned char> key2;
   FromByteSeqToVB(key,key2);
@@ -276,10 +276,10 @@ TransactionMorphRdWrIntoRdOnly::TransactionMorphRdWrIntoRdOnly(DataScopeServerTr
 {
 }
 
-SALOME::PickelizedPyObjRdWrServer_ptr TransactionMorphRdWrIntoRdOnly::getVar()
+SALOME_CMOD::PickelizedPyObjRdWrServer_ptr TransactionMorphRdWrIntoRdOnly::getVar()
 {
-  SALOME::BasicDataServer_var obj(_dsct->retrieveVarInternal(_var_name.c_str()));
-  SALOME::PickelizedPyObjRdWrServer_ptr ret(SALOME::PickelizedPyObjRdWrServer::_narrow(obj));
+  SALOME_CMOD::BasicDataServer_var obj(_dsct->retrieveVarInternal(_var_name.c_str()));
+  SALOME_CMOD::PickelizedPyObjRdWrServer_ptr ret(SALOME_CMOD::PickelizedPyObjRdWrServer::_narrow(obj));
   if(CORBA::is_nil(ret))
     {
       std::ostringstream oss; oss << "TransactionMorphRdWrIntoRdOnly::getVar : var \"" << _var_name << "\" has not expected PickelizedPyObjRdWrServer type !";
@@ -320,7 +320,7 @@ TransactionMultiKeyAddSession::TransactionMultiKeyAddSession(DataScopeServerTran
   _dsct->moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(_var_name);
 }
 
-void TransactionMultiKeyAddSession::addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+void TransactionMultiKeyAddSession::addKeyValueInVarErrorIfAlreadyExistingNow(const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value)
 {
   _dsct->checkVarExistingAndDict(_var_name);
   TransactionAddKeyValueErrorIfAlreadyExisting ret(_dsct,_var_name,key,value);

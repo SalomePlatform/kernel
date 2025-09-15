@@ -18,7 +18,7 @@
 //
 
 //  File   : SALOME_PACOExtension.idl
-//  Author : André RIBES, EDF
+//  Author : Andre RIBES, EDF
 
 #ifndef _SALOME_PACOExtension_IDL_
 #define _SALOME_PACOExtension_IDL_
@@ -40,7 +40,7 @@ module Engines
     // Replicated Method used by the proxy to create
     // a PACO Component
     void create_paco_component_node_instance(in string registeredName,
-					     in string proxy_containerName) raises(SALOME::SALOME_Exception);
+					     in string proxy_containerName) raises(SALOME_CMOD::SALOME_Exception);
 
     void updateInstanceNumber();
   };
@@ -84,7 +84,7 @@ module Engines
 
       \exception raised if the file doesn't exist.
     */
-    void setFileNode(in string file_name, in long node_nbr) raises (SALOME::SALOME_Exception);
+    void setFileNode(in string file_name, in long node_nbr) raises (SALOME_CMOD::SALOME_Exception);
 
     /*!
       Get the number of the node that actually managed the file.
@@ -95,7 +95,7 @@ module Engines
 
       \exception raised if the file doesn't exist.
      */
-    long getFileNode(in string file_name) raises (SALOME::SALOME_Exception);
+    long getFileNode(in string file_name) raises (SALOME_CMOD::SALOME_Exception);
 
     /*!
       This method update the state of file for the Parallel_Salome_file. 
@@ -109,7 +109,7 @@ module Engines
 
       \exception raised if the file cannot be ok.
      */
-    void recvFiles_node() raises (SALOME::SALOME_Exception);
+    void recvFiles_node() raises (SALOME_CMOD::SALOME_Exception);
   };
 };
 

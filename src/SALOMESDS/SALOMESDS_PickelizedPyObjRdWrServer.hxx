@@ -30,15 +30,15 @@
 
 namespace SALOMESDS
 {
-  class PickelizedPyObjRdWrServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME::PickelizedPyObjRdWrServer
+  class PickelizedPyObjRdWrServer : public PickelizedPyObjServerModifiable, public virtual POA_SALOME_CMOD::PickelizedPyObjRdWrServer
   {
   public:
     PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& typeName, const std::string& varName);
-    PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value);
     PickelizedPyObjRdWrServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjRdWrServer();
-    void setSerializedContent(const SALOME::ByteVec& newValue);
-    SALOME::PickelizedPyObjRdWrServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
+    void setSerializedContent(const SALOME_CMOD::ByteVec& newValue);
+    SALOME_CMOD::PickelizedPyObjRdWrServer_ptr invokePythonMethodOn(const char *method, const SALOME_CMOD::ByteVec& args);
   public:
     std::string getAccessStr() const;
     void addKeyValueHard(PyObject *key, PyObject *value);

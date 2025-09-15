@@ -60,7 +60,7 @@ Commands:
     connect         In SWS context, Connect a Python console to the active SALOME instance.
     kill <port(s)>  In SWS context, Terminate SALOME instances running on given ports for current user.
                     Port numbers must be separated by blank characters.
-    killall         Terminate *all* SALOME running SWS instances for current user.
+    killall         Terminate *all* SALOME_CMOD.running SWS instances for current user.
                     Do not start a new one.
 %(appended_cmd_doc)s
 If no command is given, default is start.

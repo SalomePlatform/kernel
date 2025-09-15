@@ -21,7 +21,7 @@
 //
 
 //  File   : provides_port.cxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #include "provides_port.hxx"

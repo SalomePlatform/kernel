@@ -420,7 +420,7 @@ def killMyPortSpy(pid, port):
         orb = omniORB.CORBA.ORB_init(sys.argv, omniORB.CORBA.ORB_ID)
         from . import SALOME_NamingServicePy
         naming_service = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb, 3, True)
-        from . import SALOME #@UnresolvedImport @UnusedImport # pragma pylint: disable=unused-import
+        from . import SALOME_CMOD #@UnresolvedImport @UnusedImport # pragma pylint: disable=unused-import
         session = naming_service.Resolve('/Kernel/Session')
         assert session
     except: # pragma pylint: disable=bare-except

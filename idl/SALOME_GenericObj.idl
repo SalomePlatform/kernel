@@ -30,7 +30,7 @@
 /*! \file SALOME_GenericObj.idl \brief interface for common behavior of %SALOME transient CORBA objects 
 */
 
-module SALOME {
+module SALOME_CMOD {
 
   typedef sequence<string> StringSeq;
 

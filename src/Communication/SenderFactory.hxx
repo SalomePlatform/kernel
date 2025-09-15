@@ -40,10 +40,10 @@ class SALOME_SenderInt_i;
 class COMMUNICATION_EXPORT SenderFactory
 {
 public:
-  static SALOME::SenderDouble_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab=false);
-  static SALOME::SenderInt_ptr buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab=false);
-  static SALOME::SenderDouble_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderDouble_i *src);
-  static SALOME::SenderInt_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderInt_i *src);
+  static SALOME_CMOD::SenderDouble_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab=false);
+  static SALOME_CMOD::SenderInt_ptr buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab=false);
+  static SALOME_CMOD::SenderDouble_ptr buildSender(SALOME_CMOD::TypeOfCommunication NewType,SALOME_SenderDouble_i *src);
+  static SALOME_CMOD::SenderInt_ptr buildSender(SALOME_CMOD::TypeOfCommunication NewType,SALOME_SenderInt_i *src);
 };
 
 template<class T>
@@ -54,13 +54,13 @@ struct mapCppSender {
 template<>
 struct mapCppSender<int>
 {
-  typedef SALOME::SenderInt_var SenderVarType;
+  typedef SALOME_CMOD::SenderInt_var SenderVarType;
 };
 
 template<>
 struct mapCppSender<double>
 {
-  typedef SALOME::SenderDouble_var SenderVarType;
+  typedef SALOME_CMOD::SenderDouble_var SenderVarType;
 };
 
 #endif

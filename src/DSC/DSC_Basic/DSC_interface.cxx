@@ -21,7 +21,7 @@
 //
 
 //  File   : DSC_interface.cxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #include <string>

@@ -181,13 +181,13 @@ CORBA::Boolean Engines_Component_i::isSSLMode()
 {
   PortableServer::ServantBase *serv(_poa->reference_to_servant(_container));
   if(!serv)
-    THROW_SALOME_CORBA_EXCEPTION("_container and component are not managed by the same POA ! Looks bad !", SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION("_container and component are not managed by the same POA ! Looks bad !", SALOME_CMOD::INTERNAL_ERROR);
   Abstract_Engines_Container_i *elt=dynamic_cast<Abstract_Engines_Container_i *>(serv);
   if(!elt)
-    THROW_SALOME_CORBA_EXCEPTION("_container servant object if not a Abstract_Engines_Container_i ! It smells bad !", SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION("_container servant object if not a Abstract_Engines_Container_i ! It smells bad !", SALOME_CMOD::INTERNAL_ERROR);
   SALOME_NamingService_Container_Abstract *ns(elt->getNS());
   if(!ns)
-    THROW_SALOME_CORBA_EXCEPTION("_container servant object points to a nullptr NS ! It smells bad !", SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION("_container servant object points to a nullptr NS ! It smells bad !", SALOME_CMOD::INTERNAL_ERROR);
   return elt->isSSLMode() && (!dynamic_cast<SALOME_NamingService *>(ns));
 }
 
@@ -920,20 +920,20 @@ Engines_Component_i::getInputFileToService(const char* service_name,
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
   if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have salome files";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
 
   // Try to find the Salome_file ...
   _Salome_file_map_it = _map->find(Salome_file_name);
   if (_Salome_file_map_it ==  _map->end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have this Salome_file";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   Salome_file_i * Sfile = (*_map)[Salome_file_name];
 
@@ -991,20 +991,20 @@ Engines_Component_i::getOutputFileToService(const char* service_name,
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
   if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have salome files";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
 
   // Try to find the Salome_file ...
   _Salome_file_map_it = _map->find(Salome_file_name);
   if (_Salome_file_map_it ==  _map->end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have this Salome_file";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   Salome_file_i * Sfile = (*_map)[Salome_file_name];
 

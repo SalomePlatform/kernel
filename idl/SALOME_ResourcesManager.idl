@@ -167,10 +167,10 @@ interface ResourcesManager
   /*! 
        The constraints are resource constraints (params) and components constraints (componentList)
   */
-  ResourceList GetFittingResources(in ResourceParameters params) raises (SALOME::SALOME_Exception);
+  ResourceList GetFittingResources(in ResourceParameters params) raises (SALOME_CMOD::SALOME_Exception);
 
   //!  Get definition of a resource
-  ResourceDefinition GetResourceDefinition(in string name) raises (SALOME::SALOME_Exception);
+  ResourceDefinition GetResourceDefinition(in string name) raises (SALOME_CMOD::SALOME_Exception);
 
   //! Add a new resource to the resource_manager
   /*!
@@ -179,7 +179,7 @@ interface ResourcesManager
       the resource in its first ResourceCatalog file
     */
   void AddResource(in ResourceDefinition new_resource, in boolean write, in string xml_file) 
-    raises (SALOME::SALOME_Exception);
+    raises (SALOME_CMOD::SALOME_Exception);
 
   //! Remove a new resource to the resource_manager
   /*!
@@ -188,18 +188,18 @@ interface ResourcesManager
       the resource in its first ResourceCatalog file
     */
   void RemoveResource(in string resource_name, in boolean write, in string xml_file) 
-    raises (SALOME::SALOME_Exception);
+    raises (SALOME_CMOD::SALOME_Exception);
 
   //! Create a machine file for PaCO container
   string getMachineFile(in string resource_name, in long nb_procs, in string parallelLib)
-    raises (SALOME::SALOME_Exception);
+    raises (SALOME_CMOD::SALOME_Exception);
 
   //! Return list of resources available (regarding content of CatalogResources.xml). And for each resource the number of proc available of it.
-  void ListAllAvailableResources(out ResourceList machines, out IntegerList nbProcsOfMachines) raises (SALOME::SALOME_Exception);
+  void ListAllAvailableResources(out ResourceList machines, out IntegerList nbProcsOfMachines) raises (SALOME_CMOD::SALOME_Exception);
 
-  ResourceList ListAllResourcesInCatalog() raises (SALOME::SALOME_Exception);
+  ResourceList ListAllResourcesInCatalog() raises (SALOME_CMOD::SALOME_Exception);
   
-  ResourceList ListAllResourceEntriesInCatalog() raises (SALOME::SALOME_Exception);
+  ResourceList ListAllResourceEntriesInCatalog() raises (SALOME_CMOD::SALOME_Exception);
 };
 
 };

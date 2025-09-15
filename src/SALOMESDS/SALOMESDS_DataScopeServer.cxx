@@ -55,22 +55,22 @@ RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerTransaction 
 {
 }
 
-SALOME::StringVec *RequestSwitcher::listVars()
+SALOME_CMOD::StringVec *RequestSwitcher::listVars()
 {
   return _ds->listVars();
 }
 
-SALOME::ByteVec *RequestSwitcher::fetchSerializedContent(const char *varName)
+SALOME_CMOD::ByteVec *RequestSwitcher::fetchSerializedContent(const char *varName)
 {
   return _ds->fetchSerializedContent(varName);
 }
 
-void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data)
+void RequestSwitcher::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME_CMOD::ByteVec_out data)
 {
   return _ds->fetchAndGetAccessOfVar(varName,access,data);
 }
 
-DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):_ns(ns),_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
+DataScopeServerBase::DataScopeServerBase(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME_CMOD::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):_ns(ns),_pyHelper(pyHelper),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName),_killer(killer)
 {
 }
 
@@ -80,7 +80,7 @@ DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):omniS
 
 DataScopeServerBase::~DataScopeServerBase()
 {
-  for(std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it=_vars.begin();it!=_vars.end();it++)
+  for(std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator it=_vars.begin();it!=_vars.end();it++)
     {
        BasicDataServer *obj((*it).second);
        if(obj)
@@ -109,12 +109,12 @@ char *DataScopeServerBase::getScopeName()
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::StringVec *DataScopeServerBase::listVars()
+SALOME_CMOD::StringVec *DataScopeServerBase::listVars()
 {
-  SALOME::StringVec *ret(new SALOME::StringVec);
+  SALOME_CMOD::StringVec *ret(new SALOME_CMOD::StringVec);
   std::size_t sz(_vars.size());
   ret->length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(_vars.begin());
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
     {
       BasicDataServer *obj((*it).second);
@@ -126,22 +126,22 @@ SALOME::StringVec *DataScopeServerBase::listVars()
 
 CORBA::Boolean DataScopeServerBase::existVar(const char *varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
   for(;it!=_vars.end();it++)
     if((*it).second->getVarNameCpp()==varName)
       return true;
   return false;
 }
 
-SALOME::BasicDataServer_ptr DataScopeServerBase::retrieveVarInternal(const char *varName)
+SALOME_CMOD::BasicDataServer_ptr DataScopeServerBase::retrieveVarInternal(const char *varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(retrieveVarInternal3(varName));
-  return SALOME::BasicDataServer::_duplicate((*it0).first);
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(retrieveVarInternal3(varName));
+  return SALOME_CMOD::BasicDataServer::_duplicate((*it0).first);
 }
 
 BasicDataServer *DataScopeServerBase::retrieveVarInternal2(const std::string& varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(retrieveVarInternal3(varName));
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(retrieveVarInternal3(varName));
   return (*it0).second;
 }
 
@@ -157,16 +157,16 @@ void DataScopeServerBase::deleteVar(const char *varName)
       throw Exception(oss.str());
     }
   std::size_t pos(std::distance(allNames.begin(),it));
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
   for(std::size_t ii=0;ii<pos;ii++,it0++);
   (*it0).second->decrRef();
   _vars.erase(it0);
 }
 
-CORBA::Boolean DataScopeServerBase::shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer)
+CORBA::Boolean DataScopeServerBase::shutdownIfNotHostedByDSM(SALOME_CMOD::DataScopeKiller_out killer)
 {
   CORBA::Object_var obj(_ns->Resolve(DataServerManager::NAME_IN_NS));
-  SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(obj));
+  SALOME_CMOD::DataServerManager_var dsm(SALOME_CMOD::DataServerManager::_narrow(obj));
   if(CORBA::is_nil(dsm))
     throw Exception("Unable to reach in the NS the unique DataServerManager instance of the Session !");
   // destroy ref in the naming service
@@ -183,19 +183,19 @@ CORBA::Boolean DataScopeServerBase::shutdownIfNotHostedByDSM(SALOME::DataScopeKi
   if(!ret)
     {
       enforcedRelease();
-      killer=SALOME::DataScopeKiller::_duplicate(_killer);
+      killer=SALOME_CMOD::DataScopeKiller::_duplicate(_killer);
       return true;
     }
   else
     {
       ret->_remove_ref();
       enforcedRelease();
-      killer=SALOME::DataScopeKiller::_duplicate(_killer);
+      killer=SALOME_CMOD::DataScopeKiller::_duplicate(_killer);
       return false;
     }
 }
 
-SALOME::ByteVec *DataScopeServerBase::fetchSerializedContent(const char *varName)
+SALOME_CMOD::ByteVec *DataScopeServerBase::fetchSerializedContent(const char *varName)
 {
   BasicDataServer *var(retrieveVarInternal2(varName));
   PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
@@ -207,7 +207,7 @@ SALOME::ByteVec *DataScopeServerBase::fetchSerializedContent(const char *varName
   return varc->fetchSerializedContent();
 }
 
-SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const char *varName)
+SALOME_CMOD::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const char *varName)
 {
   BasicDataServer *var(retrieveVarInternal2(varName));
   PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
@@ -228,7 +228,7 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
       throw Exception(oss.str());
     }
   Py_ssize_t sz(PyList_Size(keys));
-  SALOME::SeqOfByteVec *ret(new SALOME::SeqOfByteVec);
+  SALOME_CMOD::SeqOfByteVec *ret(new SALOME_CMOD::SeqOfByteVec);
   ret->length((CORBA::ULong)sz); //!< TODO: convert Py_ssize_t in CORBA::ULong
   for(Py_ssize_t i=0;i<sz;i++)
     {
@@ -241,7 +241,7 @@ SALOME::SeqOfByteVec *DataScopeServerBase::getAllKeysOfVarWithTypeDict(const cha
   return ret;
 }
 
-SALOME::ByteVec *DataScopeServerBase::getValueOfVarWithTypeDict(const char *varName, const SALOME::ByteVec& constKey)
+SALOME_CMOD::ByteVec *DataScopeServerBase::getValueOfVarWithTypeDict(const char *varName, const SALOME_CMOD::ByteVec& constKey)
 {
   BasicDataServer *var(retrieveVarInternal2(varName));
   PickelizedPyObjServer *varc(dynamic_cast<PickelizedPyObjServer *>(var));
@@ -298,7 +298,7 @@ void DataScopeServerBase::setPOA(PortableServer::POA_var poa)
   _poa=poa;
 }
 
-void DataScopeServerBase::registerInNS(SALOME::DataScopeServerBase_ptr ptr)
+void DataScopeServerBase::registerInNS(SALOME_CMOD::DataScopeServerBase_ptr ptr)
 {
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
   _ns->Register(ptr,fullScopeName.c_str());
@@ -315,7 +315,7 @@ std::vector< std::string > DataScopeServerBase::getAllVarNames() const
 {
   std::size_t sz(_vars.size());
   std::vector<std::string> ret(sz);
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
     ret[i]=(*it).second->getVarNameCpp();
   return ret;
@@ -368,38 +368,38 @@ PickelizedPyObjServer *DataScopeServerBase::checkVarExistingAndDict(const std::s
 
 void DataScopeServerBase::moveStatusOfVarFromRdWrToRdOnly(const std::string& varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * >& p(*it);
   PickelizedPyObjRdWrServer *varc(dynamic_cast<PickelizedPyObjRdWrServer *>(p.second));
   if(!varc)
     throw Exception("DataScopeServerBase::moveStatusOfVarFromRdWrToRdOnly : var is not a RdWr !");
   PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
   PickelizedPyObjRdOnlyServer *newVar(new PickelizedPyObjRdOnlyServer(this,varName,pyobj));
   CORBA::Object_var obj(newVar->activate());
-  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+  SALOME_CMOD::BasicDataServer_var obj2(SALOME_CMOD::BasicDataServer::_narrow(obj));
   p.first=obj2; p.second=newVar;
   varc->decrRef();
 }
 
 void DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr(const std::string& varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * >& p(*it);
   PickelizedPyObjRdOnlyServer *varc(dynamic_cast<PickelizedPyObjRdOnlyServer *>(p.second));
   if(!varc)
     throw Exception("DataScopeServerBase::moveStatusOfVarFromRdOnlyToRdWr : var is not a RdWr !");
   PyObject *pyobj(varc->getPyObj()); Py_XINCREF(pyobj);
   PickelizedPyObjRdWrServer *newVar(new PickelizedPyObjRdWrServer(this,varName,pyobj));
   CORBA::Object_var obj(newVar->activate());
-  SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+  SALOME_CMOD::BasicDataServer_var obj2(SALOME_CMOD::BasicDataServer::_narrow(obj));
   p.first=obj2; p.second=newVar;
   varc->decrRef();
 }
 
 void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const std::string& varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * >& p(*it);
   PickelizedPyObjRdExtServer *varc0(dynamic_cast<PickelizedPyObjRdExtServer *>(p.second));
   PickelizedPyObjRdExtInitServer *varc1(dynamic_cast<PickelizedPyObjRdExtInitServer *>(p.second));
   if(!varc0 && !varc1)
@@ -409,7 +409,7 @@ void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const s
       PickelizedPyObjRdExtInitServer *newVar(varc0->buildInitInstanceFrom(varName));
       newVar->incrNbClients();
       CORBA::Object_var obj(newVar->activate());
-      SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+      SALOME_CMOD::BasicDataServer_var obj2(SALOME_CMOD::BasicDataServer::_narrow(obj));
       p.first=obj2; p.second=newVar;
       varc0->decrRef();
     }
@@ -419,8 +419,8 @@ void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const s
 
 void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExt(const std::string& varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * >& p(*it);
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it(retrieveVarInternal4(varName));
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * >& p(*it);
   PickelizedPyObjRdExtInitServer *varc0(dynamic_cast<PickelizedPyObjRdExtInitServer *>(p.second));
   PickelizedPyObjRdExtServer *varc1(dynamic_cast<PickelizedPyObjRdExtServer *>(p.second));
   if(!varc0 && !varc1)
@@ -431,14 +431,14 @@ void DataScopeServerBase::moveStatusOfVarFromRdExtOrRdExtInitToRdExt(const std::
         {
           PickelizedPyObjRdExtServer *newVar(varc0->buildStdInstanceFrom(varName));
           CORBA::Object_var obj(newVar->activate());
-          SALOME::BasicDataServer_var obj2(SALOME::BasicDataServer::_narrow(obj));
+          SALOME_CMOD::BasicDataServer_var obj2(SALOME_CMOD::BasicDataServer::_narrow(obj));
           p.first=obj2; p.second=newVar;
           varc0->decrRef();
         }
     }
 }
 
-std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator DataScopeServerBase::retrieveVarInternal3(const std::string& varName) const
+std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator DataScopeServerBase::retrieveVarInternal3(const std::string& varName) const
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
@@ -449,12 +449,12 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_
       throw Exception(oss.str());
     }
   std::size_t pos(std::distance(allNames.begin(),it));
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(_vars.begin());
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(_vars.begin());
   for(std::size_t i=0;i<pos;i++,it0++);
   return it0;
 }
 
-std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator DataScopeServerBase::retrieveVarInternal4(const std::string& varName)
+std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator DataScopeServerBase::retrieveVarInternal4(const std::string& varName)
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
@@ -465,14 +465,14 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterat
       throw Exception(oss.str());
     }
   std::size_t pos(std::distance(allNames.begin(),it));
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
+  std::list< std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
   for(std::size_t i=0;i<pos;i++,it0++);
   return it0;
 }
 
 ///////
 
-DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
+DataScopeServer::DataScopeServer(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME_CMOD::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
 {
 }
 
@@ -480,37 +480,37 @@ DataScopeServer::DataScopeServer(const DataScopeServer& other):omniServant(other
 {
 }
 
-SALOME::PickelizedPyObjRdOnlyServer_ptr DataScopeServer::createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::PickelizedPyObjRdOnlyServer_ptr DataScopeServer::createRdOnlyVar(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varNameCpp);
   PickelizedPyObjRdOnlyServer *tmp(new PickelizedPyObjRdOnlyServer(this,varNameCpp,constValue));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
-  return SALOME::PickelizedPyObjRdOnlyServer::_narrow(ret);
+  return SALOME_CMOD::PickelizedPyObjRdOnlyServer::_narrow(ret);
 }
 
-SALOME::PickelizedPyObjRdExtServer_ptr DataScopeServer::createRdExtVar(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::PickelizedPyObjRdExtServer_ptr DataScopeServer::createRdExtVar(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varNameCpp);
   PickelizedPyObjRdExtServer *tmp(new PickelizedPyObjRdExtServer(this,varNameCpp,constValue));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
-  return SALOME::PickelizedPyObjRdExtServer::_narrow(ret);
+  return SALOME_CMOD::PickelizedPyObjRdExtServer::_narrow(ret);
 }
 
-SALOME::PickelizedPyObjRdWrServer_ptr DataScopeServer::createRdWrVar(const char *typeName, const char *varName)
+SALOME_CMOD::PickelizedPyObjRdWrServer_ptr DataScopeServer::createRdWrVar(const char *typeName, const char *varName)
 {
   std::string varNameCpp(varName),typeNameCpp(typeName);
   checkNotAlreadyExistingVar(varNameCpp);
   PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,typeNameCpp,varNameCpp));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
-  return SALOME::PickelizedPyObjRdWrServer::_narrow(ret);
+  return SALOME_CMOD::PickelizedPyObjRdWrServer::_narrow(ret);
 }
 
 DataScopeServer::~DataScopeServer()
@@ -519,7 +519,7 @@ DataScopeServer::~DataScopeServer()
 
 ////////
 
-DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
+DataScopeServerTransaction::DataScopeServerTransaction(const SALOME_CPythonHelper *pyHelper, CORBA::ORB_ptr orb, SALOME_CMOD::DataScopeKiller_var killer, const std::string& scopeName, SALOME_NamingService_Container_Abstract *ns):DataScopeServerBase(pyHelper,orb,killer,scopeName,ns)
 {
   CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
@@ -556,37 +556,37 @@ char *DataScopeServerTransaction::getAccessOfVar(const char *varName)
 /*!
  * This method is here to retrieve atomically accessStr and picklization.
  */
-void DataScopeServerTransaction::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME::ByteVec_out data)
+void DataScopeServerTransaction::fetchAndGetAccessOfVar(const char *varName, CORBA::String_out access, SALOME_CMOD::ByteVec_out data)
 {
   access=getAccessOfVar(varName);
   data=fetchSerializedContent(varName);
 }
 
-void DataScopeServerTransaction::createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+void DataScopeServerTransaction::createRdOnlyVarInternal(const std::string& varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdOnlyServer *tmp(new PickelizedPyObjRdOnlyServer(this,varName,constValue));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
 
-void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdExtServer *tmp(new PickelizedPyObjRdExtServer(this,varName,constValue));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
 
-void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME::ByteVec& constValue, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc)
+void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::string& varName, const SALOME_CMOD::ByteVec& constValue, std::string&& compareFuncContent, SALOME::AutoPyRef&& compareFunc)
 {
   if(!isExistingVar(varName))
     {
       PickelizedPyObjRdExtFreeStyleServer *tmp(new PickelizedPyObjRdExtFreeStyleServer(this,varName,constValue,std::move(compareFuncContent),std::move(compareFunc)));
       CORBA::Object_var ret(tmp->activate());
-      std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+      std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
       _vars.push_back(p);
     }
   else
@@ -625,61 +625,61 @@ void DataScopeServerTransaction::createRdExtVarFreeStyleInternal(const std::stri
     }
 }
 
-void DataScopeServerTransaction::createRdExtInitVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+void DataScopeServerTransaction::createRdExtInitVarInternal(const std::string& varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdExtInitServer *tmp(new PickelizedPyObjRdExtInitServer(this,varName,constValue));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
 
-void DataScopeServerTransaction::createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+void DataScopeServerTransaction::createRdWrVarInternal(const std::string& varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,varName,constValue));
   CORBA::Object_var ret(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   TransactionRdOnlyVarCreate *ret(new TransactionRdOnlyVarCreate(this,varName,constValue));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   TransactionRdExtVarCreate *ret(new TransactionRdExtVarCreate(this,varName,constValue));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarFreeStyleTransac(const char *varName, const SALOME::ByteVec& constValue, const char *compareFuncContent)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::createRdExtVarFreeStyleTransac(const char *varName, const SALOME_CMOD::ByteVec& constValue, const char *compareFuncContent)
 {// no check on varName done here. Will be done on perform
   TransactionRdExtVarFreeStyleCreate *ret(new TransactionRdExtVarFreeStyleCreate(this,varName,constValue,compareFuncContent));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtInitVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::createRdExtInitVarTransac(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   TransactionRdExtInitVarCreate *ret(new TransactionRdExtInitVarCreate(this,varName,constValue));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::createRdWrVarTransac(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   checkNotAlreadyExistingVar(varName);
   TransactionRdWrVarCreate *ret(new TransactionRdWrVarCreate(this,varName,constValue));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
 void DataScopeServerTransaction::addWaitKey(KeyWaiter *kw)
@@ -768,71 +768,71 @@ void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject 
   _waiting_keys=newList;
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const char *varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value)
 {
   checkVarExistingAndDict(varName);
   TransactionAddKeyValueHard *ret(new TransactionAddKeyValueHard(this,varName,key,value));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME_CMOD::ByteVec& key, const SALOME_CMOD::ByteVec& value)
 {
   checkVarExistingAndDict(varName);
   TransactionAddKeyValueErrorIfAlreadyExisting *ret(new TransactionAddKeyValueErrorIfAlreadyExisting(this,varName,key,value));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::TransactionMultiKeyAddSession_ptr DataScopeServerTransaction::addMultiKeyValueSession(const char *varName)
+SALOME_CMOD::TransactionMultiKeyAddSession_ptr DataScopeServerTransaction::addMultiKeyValueSession(const char *varName)
 {
   checkVarExistingAndDict(varName);
   TransactionMultiKeyAddSession *ret(new TransactionMultiKeyAddSession(this,varName));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::TransactionMultiKeyAddSession::_narrow(obj);
+  return SALOME_CMOD::TransactionMultiKeyAddSession::_narrow(obj);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME_CMOD::ByteVec& key)
 {
   checkVarExistingAndDict(varName);
   TransactionRemoveKeyInVarErrorIfNotAlreadyExisting *ret(new TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(this,varName,key));
   CORBA::Object_var obj(ret->activate());
-  return SALOME::Transaction::_narrow(obj);
+  return SALOME_CMOD::Transaction::_narrow(obj);
 }
 
-SALOME::TransactionRdWrAccess_ptr DataScopeServerTransaction::createWorkingVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+SALOME_CMOD::TransactionRdWrAccess_ptr DataScopeServerTransaction::createWorkingVarTransac(const char *varName, const SALOME_CMOD::ByteVec& constValue)
 {
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,varNameCpp,constValue));
   CORBA::Object_var obj(tmp->activate());
-  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(obj),tmp);
+  std::pair< SALOME_CMOD::BasicDataServer_var, BasicDataServer * > p(SALOME_CMOD::BasicDataServer::_narrow(obj),tmp);
   _vars.push_back(p);
   //
   TransactionMorphRdWrIntoRdOnly *ret(new TransactionMorphRdWrIntoRdOnly(this,varName));
   CORBA::Object_var obj2(ret->activate());
-  return SALOME::TransactionRdWrAccess::_narrow(obj2);
+  return SALOME_CMOD::TransactionRdWrAccess::_narrow(obj2);
 }
 
-SALOME::Transaction_ptr DataScopeServerTransaction::killVarTransac(const char *varName)
+SALOME_CMOD::Transaction_ptr DataScopeServerTransaction::killVarTransac(const char *varName)
 {
   std::string varNameCpp(varName);
   checkExistingVar(varNameCpp);
   //
   TransactionKillVar *ret(new TransactionKillVar(this,varName));
   CORBA::Object_var obj2(ret->activate());
-  return SALOME::Transaction::_narrow(obj2);
+  return SALOME_CMOD::Transaction::_narrow(obj2);
 }
 
-SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal)
+SALOME_CMOD::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME_CMOD::ByteVec& keyVal)
 {
   PickelizedPyObjServer *pickelObj(checkVarExistingAndDict(varName));
   KeyWaiter *ret(new KeyWaiter(pickelObj,keyVal));
   CORBA::Object_var obj(ret->activate());//KeyWaiter instance activated inside a multithread POA contrary to all of objects in SALOMESDS in single thread !
-  return SALOME::KeyWaiter::_narrow(obj);
+  return SALOME_CMOD::KeyWaiter::_narrow(obj);
 }
 
-SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac)
+SALOME_CMOD::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVarAndKillIt(const char *varName, const SALOME_CMOD::ByteVec& keyVal, SALOME_CMOD::Transaction_out transac)
 {
   PickelizedPyObjServer *pickelObj(checkVarExistingAndDict(varName));
   KeyWaiter *ret0(new KeyWaiter(pickelObj,keyVal));
@@ -840,12 +840,12 @@ SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVarAndKillIt(const
   //
   TransactionRemoveKeyInVarErrorIfNotAlreadyExisting *ret1(new TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(this,varName,keyVal));
   CORBA::Object_var obj2(ret1->activate());
-  transac=SALOME::Transaction::_narrow(obj2);
+  transac=SALOME_CMOD::Transaction::_narrow(obj2);
   //
-  return SALOME::KeyWaiter::_narrow(obj);
+  return SALOME_CMOD::KeyWaiter::_narrow(obj);
 }
 
-SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter_ptr kw)
+SALOME_CMOD::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME_CMOD::KeyWaiter_ptr kw)
 {
   PortableServer::ServantBase *ret(0);
   try
@@ -857,12 +857,12 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
   retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
-  SALOME::ByteVec *zeRet(retc->waitForMonoThr());
+  SALOME_CMOD::ByteVec *zeRet(retc->waitForMonoThr());
   retc->enforcedRelease();
   return zeRet;
 }
 
-SALOME::ByteVec *DataScopeServerTransaction::waitForAndKill(SALOME::KeyWaiter_ptr kw)
+SALOME_CMOD::ByteVec *DataScopeServerTransaction::waitForAndKill(SALOME_CMOD::KeyWaiter_ptr kw)
 {
   PortableServer::ServantBase *ret(0);
   try
@@ -874,12 +874,12 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForAndKill(SALOME::KeyWaiter_pt
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
   retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
-  SALOME::ByteVec *zeRet(retc->waitForAndKill());
+  SALOME_CMOD::ByteVec *zeRet(retc->waitForAndKill());
   retc->enforcedRelease();
   return zeRet;
 }
 
-void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& transactions)
+void DataScopeServerTransaction::atomicApply(const SALOME_CMOD::ListOfTransaction& transactions)
 {
   std::size_t sz(transactions.length());
   if(sz==0)
@@ -924,12 +924,12 @@ DataScopeServerTransaction::~DataScopeServerTransaction()
 {
 }
 
-SALOME::RequestSwitcher_ptr DataScopeServerTransaction::getRequestSwitcher()
+SALOME_CMOD::RequestSwitcher_ptr DataScopeServerTransaction::getRequestSwitcher()
 {
   if(_rs.isNull())
     {
       _rs=new RequestSwitcher(_orb,this);
     }
   CORBA::Object_var obj(_rs->activate());
-  return SALOME::RequestSwitcher::_narrow(obj);
+  return SALOME_CMOD::RequestSwitcher::_narrow(obj);
 }

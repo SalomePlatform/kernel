@@ -117,9 +117,9 @@ void SALOME_ExternalServerHandler::shutdown()
   _boss->cleanServersInNS();
 }
 
-SALOME::LongVec *SALOME_ExternalServerHandler::listOfChildrenPID()
+SALOME_CMOD::LongVec *SALOME_ExternalServerHandler::listOfChildrenPID()
 {
-  SALOME::LongVec *ret(new SALOME::LongVec);
+  SALOME_CMOD::LongVec *ret(new SALOME_CMOD::LongVec);
   const SALOME_CPythonHelper *pyh(_boss->getPyHelper());
 #ifndef WIN32
   std::ostringstream oss;

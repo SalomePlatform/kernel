@@ -84,7 +84,7 @@ interface ContainerManager
   //! GiveContainer - use mode parameter of ContainerParameters to configure
   //! how this method works
   //! Currently: get, start, getorstart, findorstart, find
-  Container GiveContainer(in ContainerParameters params) raises (SALOME::SALOME_Exception);
+  Container GiveContainer(in ContainerParameters params) raises (SALOME_CMOD::SALOME_Exception);
 
   //!  Shutdown all containers that have been launched by the container manager. This termination is soft. It means that orb.shutdown is invoked meaning that completion of all CORBA
   void ShutdownContainers();

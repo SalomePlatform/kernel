@@ -31,7 +31,7 @@
 class COMMUNICATION_EXPORT MatrixClient
 {
 public:
-  static double *getValue(SALOME::Matrix_ptr distMat, int& columnSize, int& rowSize);
+  static double *getValue(SALOME_CMOD::Matrix_ptr distMat, int& columnSize, int& rowSize);
 };
 
 #endif

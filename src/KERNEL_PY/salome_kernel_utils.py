@@ -55,7 +55,7 @@ def list_of_catalogs_regarding_environement():
 
 def salome_kernel_init():
     from salome.kernel import Engines
-    from salome.kernel import SALOME
+    from salome.kernel import SALOME_CMOD
     from salome.kernel import SALOME_ModuleCatalog
     from omniORB import CORBA
     from salome.kernel.SALOME_NamingServicePy import SALOME_NamingServicePy_i
@@ -77,10 +77,10 @@ def salome_kernel_init():
         cm = obj._narrow(Engines.ContainerManager)
         # get External Server Manager
         obj = naming_service.Resolve('/ExternalServers')
-        esm = obj._narrow(SALOME.ExternalServerLauncher)
+        esm = obj._narrow(SALOME_CMOD.ExternalServerLauncher)
         #
         obj = naming_service.Resolve('/DataServerManager')
-        dsm = obj._narrow(SALOME.DataServerManager)
+        dsm = obj._narrow(SALOME_CMOD.DataServerManager)
         #
         obj = naming_service.Resolve('Kernel/ModulCatalog')
         modulcat = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)

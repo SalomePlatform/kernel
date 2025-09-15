@@ -31,7 +31,7 @@
   between components
  */
 
-module SALOME {
+module SALOME_CMOD {
   
   enum TypeOfDataTransmitted { _DOUBLE_,_INT_ };
 

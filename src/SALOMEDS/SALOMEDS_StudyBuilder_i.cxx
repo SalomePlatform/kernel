@@ -44,7 +44,7 @@
 #include <DF_Document.hxx>
 #include <stdlib.h> 
 
-UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception)
+UNEXPECT_CATCH(SBSalomeException, SALOME_CMOD::SALOME_Exception)
 UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 //============================================================================
@@ -219,7 +219,7 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
   delete driver;
 
   if(!isDone && _impl->IsError()) {
-    THROW_SALOME_CORBA_EXCEPTION(_impl->GetErrorCode().c_str(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(_impl->GetErrorCode().c_str(),SALOME_CMOD::BAD_PARAM);
   }
 }
 

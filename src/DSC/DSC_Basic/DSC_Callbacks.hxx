@@ -21,7 +21,7 @@
 //
 
 //  File   : DSC_Callbacks.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _DSC_CALLBACKS_HXX_

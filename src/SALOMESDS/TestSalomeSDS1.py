@@ -20,7 +20,7 @@
 # Author : Anthony Geay
 
 from salome.kernel import salome
-from salome.kernel import SALOME
+from salome.kernel import SALOME_CMOD
 import pickle
 import gc
 import SalomeSDSClt

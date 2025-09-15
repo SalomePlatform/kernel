@@ -206,7 +206,7 @@ omniORBpyAPI* api=0;
        PyErr_SetString(PyExc_RuntimeError,e.what());
        return NULL;
     }
-    catch (SALOME::SALOME_Exception &e) {
+    catch (SALOME_CMOD::SALOME_Exception &e) {
        Py_BLOCK_THREADS
        PyErr_SetString(PyExc_RuntimeError,e.details.text);
        return NULL;

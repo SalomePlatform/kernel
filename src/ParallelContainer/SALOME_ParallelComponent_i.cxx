@@ -22,7 +22,7 @@
 
 //  SALOME_ParallelComponent : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelComponent_i.cxx
-//  Author : Andr� RIBES, EDF
+//  Author : Andre RIBES, EDF
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //
 #include "SALOME_ParallelComponent_i.hxx"
@@ -1025,20 +1025,20 @@ Engines_Parallel_Component_i::getInputFileToService(const char* service_name,
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Proxy_Service_file_map_it = _Proxy_Input_Service_file_map.find(service_name);
   if (_Proxy_Service_file_map_it ==  _Proxy_Input_Service_file_map.end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have salome files";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   _t_Proxy_Salome_file_map * _map = _Proxy_Input_Service_file_map[service_name];
 
   // Try to find the Salome_file ...
   _Proxy_Salome_file_map_it = _map->find(Salome_file_name);
   if (_Proxy_Salome_file_map_it ==  _map->end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have this Salome_file";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   // Client get the proxy object
@@ -1053,20 +1053,20 @@ Engines_Parallel_Component_i::getOutputFileToService(const char* service_name,
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Proxy_Service_file_map_it = _Proxy_Output_Service_file_map.find(service_name);
   if (_Proxy_Service_file_map_it ==  _Proxy_Output_Service_file_map.end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have salome files";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
   _t_Proxy_Salome_file_map * _map = _Proxy_Output_Service_file_map[service_name];
 
   // Try to find the Salome_file ...
   _Proxy_Salome_file_map_it = _map->find(Salome_file_name);
   if (_Proxy_Salome_file_map_it ==  _map->end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = "service doesn't have this Salome_file";
-    throw SALOME::SALOME_Exception(es);
+    throw SALOME_CMOD::SALOME_Exception(es);
   }
 
   // Client get the proxy object

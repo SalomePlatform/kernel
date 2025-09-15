@@ -81,7 +81,7 @@ public:
     return oss_.str();
   }
 
-  // Surtout ne pas �crire le code suivant:
+  // Surtout ne pas ecrire le code suivant:
   // car oss_.str() renvoie une string temporaire
   //   operator const char*()
   //   {
@@ -93,13 +93,13 @@ public:
 
 struct DSC_Exception : public SALOME_Exception {
 
-  // Attention, en cas de modification des param�tres par d�faut
+  // Attention, en cas de modification des parametres par defaut
   // il est necessaire de les repporter dans la macro DSC_EXCEPTION ci-dessous
   // Le constructeur de la SALOME_Exception demande une chaine non vide
-  // Du coup on est obliger de la d�sallouer avant d'y mettre la notre
+  // Du coup on est obliger de la desallouer avant d'y mettre la notre
   // car le what n'est pas virtuel donc il faut que le contenu de SALOME_Exception::_text
   // soit utilisable.
-  // Ne pas mettre lineNumber=0 � cause du calcul log dans la SALOME_Exception si fileName est d�fini
+  // Ne pas mettre lineNumber=0 e cause du calcul log dans la SALOME_Exception si fileName est defini
   DSC_Exception( const std::string & text, 
                  const char *fileName="", 
                  const unsigned int lineNumber=0, 
@@ -128,10 +128,10 @@ struct DSC_Exception : public SALOME_Exception {
     return _what.c_str()  ;
   }
 
-  // L'op�rateur = de SALOME_Exception n'est pas d�fini
-  // probl�me potentiel concernant la recopie de son pointeur _text
+  // L'operateur = de SALOME_Exception n'est pas defini
+  // probleme potentiel concernant la recopie de son pointeur _text
     
-  // Le destructeur de la SALOME_Exception devrait �tre virtuel
+  // Le destructeur de la SALOME_Exception devrait etre virtuel
   // sinon pb avec nos attributs de type pointeur.
   virtual ~DSC_Exception(void) noexcept {};
 
@@ -166,8 +166,8 @@ protected:
     virtual ~Derived(void) noexcept;\
 };\
 
-//Sert � eviter le probl�me d'identification RTTI des exceptions
-//Cr�e un unique typeInfo pour tous les biblioth�ques composants SALOME
+//Sert e eviter le probleme d'identification RTTI des exceptions
+//Cree un unique typeInfo pour tous les bibliotheques composants SALOME
 //dans un fichier cxx
 #define DSC_EXCEPTION_CXX(NameSpace,Derived) NameSpace::Derived::~Derived(void) noexcept {}
 

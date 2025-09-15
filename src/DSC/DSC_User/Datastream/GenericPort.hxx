@@ -24,7 +24,7 @@
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
 // Modified by : $LastChangedBy$
-// Date        : $LastChangedDate: 2007-02-28 15:26:32 +0100 (mer, 28 fÃ©v 2007) $
+// Date        : $LastChangedDate: 2007-02-28 15:26:32 +0100 (mer, 28 fÃƒÂ©v 2007) $
 // Id          : $Id$
 //
 #ifndef _GENERIC_PORT_HXX_
@@ -52,15 +52,15 @@
 // --------------------------------
 //
 // Definition: Implemente un port de type "data-stream"
-// Cette implémentation gère tous les types de données définies par DataManipulator::type
-// Ce port est soumis à une politique d'itération sur les identificateurs de données (DataId)
-// Un identificateur de données est construit à partir d'un ou plusieurs paramètres de la méthode put
-// tels que :  une date, une itération, un pas de temps ou une combinaison de ces paramètres.
+// Cette implÃ©mentation gÃ¨re tous les types de donnÃ©es dÃ©finies par DataManipulator::type
+// Ce port est soumis Ã  une politique d'itÃ©ration sur les identificateurs de donnÃ©es (DataId)
+// Un identificateur de donnÃ©es est construit Ã  partir d'un ou plusieurs paramÃ¨tres de la mÃ©thode put
+// tels que :  une date, une itÃ©ration, un pas de temps ou une combinaison de ces paramÃ¨tres.
 
 template < typename DataManipulator, class COUPLING_POLICY >
 class GenericPort : public COUPLING_POLICY  {
 public:
-  // Type de données manipulés 
+  // Type de donnÃ©es manipulÃ©s 
   typedef typename DataManipulator::Type         DataType;
   typedef typename DataManipulator::CorbaInType  CorbaInDataType;
 
@@ -81,20 +81,20 @@ private:
   typedef typename COUPLING_POLICY::DataId DataId;
   typedef std::map< DataId, DataType>      DataTable;
 
-  // Stockage des donnees recues et non encore distribuées
+  // Stockage des donnees recues et non encore distribuÃ©es
   DataTable storedDatas ;
 
-  // Indicateur que le destinataire attend une instance particuliere de données
+  // Indicateur que le destinataire attend une instance particuliere de donnÃ©es
   bool     waitingForConvenientDataId;
-  // Indicateur que le destinataire attend n'importe qu'elle instance de données
+  // Indicateur que le destinataire attend n'importe qu'elle instance de donnÃ©es
   bool     waitingForAnyDataId;
 
-  // Identificateur de la donné que le destinataire (propriétaire du port) attend
+  // Identificateur de la donnÃ© que le destinataire (propriÃ©taire du port) attend
   DataId   expectedDataId ;
-  // Sauvegarde du DataId courant pour la méthode next 
+  // Sauvegarde du DataId courant pour la mÃ©thode next 
   DataId   lastDataId;
   bool     lastDataIdSet;
-  // Exclusion mutuelle d'acces a la table des données reçues
+  // Exclusion mutuelle d'acces a la table des donnÃ©es reÃ§ues
   omni_mutex     storedDatas_mutex;
   // Condition d'attente d'une instance (Le processus du Get attend la condition declaree par le processus Put)
   omni_condition cond_instance;
@@ -111,7 +111,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::~GenericPort() {
   typename DataTable::iterator it;
   for (it=storedDatas.begin(); it!=storedDatas.end(); ++it) {
     if (SALOME::VerbosityActivated())
-      std::cerr << "~GenericPort() : destruction de la donnnée associée au DataId :" << (*it).first << std::endl;
+      std::cerr << "~GenericPort() : destruction de la donnnÃ©e associÃ©e au DataId :" << (*it).first << std::endl;
 
     DataManipulator::delete_data( (*it).second );
   }
@@ -165,15 +165,15 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       DataManipulator::dump(dataParam);
     }
   
-    // L'intérêt des paramètres time et tag pour ce port est décidé dans la politique de couplage
-    // Il est possible de filtrer en prenant en compte uniquement un paramètre time/tag ou les deux
-    // Il est également possible de convertir les données recues ou bien de les dupliquer
-    // pour plusieurs  valeurs de time et/ou tag (d'où la notion de container dans la politique de couplage)
+    // L'intÃ©rÃªt des paramÃ¨tres time et tag pour ce port est dÃ©cidÃ© dans la politique de couplage
+    // Il est possible de filtrer en prenant en compte uniquement un paramÃ¨tre time/tag ou les deux
+    // Il est Ã©galement possible de convertir les donnÃ©es recues ou bien de les dupliquer
+    // pour plusieurs  valeurs de time et/ou tag (d'oÃ¹ la notion de container dans la politique de couplage)
     typedef typename COUPLING_POLICY::DataIdContainer DataIdContainer;  
     typedef typename COUPLING_POLICY::DataId          DataId;
 
     DataId          dataId(time,tag);
-    // Effectue les traitements spécifiques à la politique de couplage 
+    // Effectue les traitements spÃ©cifiques Ã  la politique de couplage 
     // pour construire une liste d'ids (par filtrage, conversion ...)
     // DataIdContainer dataIds(dataId,*(static_cast<const COUPLING_POLICY *>(this)));   
     DataIdContainer dataIds(dataId, *this);   
@@ -189,8 +189,8 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
     if (SALOME::VerbosityActivated())
       std::cout << "-------- Put : MARK 1bis ------------------" << std::endl;
 
-    // Recupere les donnees venant de l'ORB et relâche les structures CORBA 
-    // qui n'auraient plus cours en sortie de méthode put
+    // Recupere les donnees venant de l'ORB et relÃ¢che les structures CORBA 
+    // qui n'auraient plus cours en sortie de mÃ©thode put
     DataType data = DataManipulator::get_data(dataParam);
 
     int nbOfIter = 0;
@@ -206,7 +206,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Put : MARK 3 ------------------" << std::endl;
 
-      // Duplique l'instance de donnée pour les autres dataIds 
+      // Duplique l'instance de donnÃ©e pour les autres dataIds 
       if (nbOfIter > 0) data = DataManipulator::clone(data);
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Put : MARK 3bis -----"<< dataIdIt.operator*() <<"------------" << std::endl;
@@ -219,19 +219,19 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       std::cout << "-------- Put : MARK 4 ------------------" << std::endl;
     }
  
-      // Ajoute l'instance de la donnee a sa place dans la table de données
-      // ou remplace une instance précédente si elle existe
+      // Ajoute l'instance de la donnee a sa place dans la table de donnÃ©es
+      // ou remplace une instance prÃ©cÃ©dente si elle existe
     
-      // Recherche la première clé telle quelle ne soit pas <  currentDataId
-      // pour celà l'opérateur de comparaison storedDatas.key_comp() est utilisé
-      // <=> premier emplacement où l'on pourrait insérer notre DataId
-      // <=> en général équivaux à (*wDataIt).first >= currentDataId
+      // Recherche la premiÃ¨re clÃ© telle quelle ne soit pas <  currentDataId
+      // pour celÃ  l'opÃ©rateur de comparaison storedDatas.key_comp() est utilisÃ©
+      // <=> premier emplacement oÃ¹ l'on pourrait insÃ©rer notre DataId
+      // <=> en gÃ©nÃ©ral Ã©quivaux Ã  (*wDataIt).first >= currentDataId
       typename DataTable::iterator wDataIt = storedDatas.lower_bound(currentDataId);
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Put : MARK 5 ------------------" << std::endl;
 
-      // On n'a pas trouvé de dataId supérieur au notre ou 
-      // on a trouvé une clé >  à cet Id          
+      // On n'a pas trouvÃ© de dataId supÃ©rieur au notre ou 
+      // on a trouvÃ© une clÃ© >  Ã  cet Id          
       if (wDataIt == storedDatas.end() || storedDatas.key_comp()(currentDataId,(*wDataIt).first) ) {
         if (SALOME::VerbosityActivated())
           std::cout << "-------- Put : MARK 6 ------------------" << std::endl;
@@ -240,12 +240,12 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
         wDataIt = storedDatas.insert(wDataIt, make_pair (currentDataId, data));
       } else  {
         // Si on n'est pas en fin de liste et qu'il n'y a pas de relation d'ordre strict
-        // entre notre dataId et le DataId pointé c'est qu'ils sont identiques
+        // entre notre dataId et le DataId pointÃ© c'est qu'ils sont identiques
         if (SALOME::VerbosityActivated())
           std::cout << "-------- Put : MARK 7 ------------------" << std::endl;
 
-        // Les données sont remplacées par les nouvelles valeurs
-        // lorsque que le dataId existe déjà
+        // Les donnÃ©es sont remplacÃ©es par les nouvelles valeurs
+        // lorsque que le dataId existe dÃ©jÃ 
         DataType old_data = (*wDataIt).second;
         (*wDataIt).second = data;
         // Detruit la vieille donnee
@@ -255,7 +255,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Put : MARK 8 ------------------" << std::endl;
 
-      // Compte le nombre de dataIds à traiter
+      // Compte le nombre de dataIds Ã  traiter
       ++nbOfIter;
 
       if (SALOME::VerbosityActivated())
@@ -268,18 +268,18 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       }
 
       // A simplifier mais :
-      // - pas possible de mettre des arguments optionnels à cause
-      //   du type itérator qui n'est pas connu (pas de possibilité de déclarer un static )
-      // - compliquer de créer une méthode sans les paramètres inutiles tout en réutilisant
-      //   la méthode initiale car cette dernière ne peut pas être déclarée virtuelle 
-      //   à cause de ses paramètres templates. Du coup, il faudrait aussi redéfinir la
-      //   méthode simplifiée dans les classes définissant une politique 
-      //   de couplage particulière ...
+      // - pas possible de mettre des arguments optionnels Ã  cause
+      //   du type itÃ©rator qui n'est pas connu (pas de possibilitÃ© de dÃ©clarer un static )
+      // - compliquer de crÃ©er une mÃ©thode sans les paramÃ¨tres inutiles tout en rÃ©utilisant
+      //   la mÃ©thode initiale car cette derniÃ¨re ne peut pas Ãªtre dÃ©clarÃ©e virtuelle 
+      //   Ã  cause de ses paramÃ¨tres templates. Du coup, il faudrait aussi redÃ©finir la
+      //   mÃ©thode simplifiÃ©e dans les classes dÃ©finissant une politique 
+      //   de couplage particuliÃ¨re ...
       bool dummy1,dummy2; typename DataTable::iterator dummy3;
       // Par construction, les valeurs de waitingForAnyDataId, waitingForConvenientDataId et de 
-      // expectedDataId ne peuvent pas être modifiées pendant le traitement de la boucle
-      // sur les dataIds (à cause du lock utilisé dans la méthode put et les méthodes get )
-      // rem : Utilisation de l'évaluation gauche droite du logical C or
+      // expectedDataId ne peuvent pas Ãªtre modifiÃ©es pendant le traitement de la boucle
+      // sur les dataIds (Ã  cause du lock utilisÃ© dans la mÃ©thode put et les mÃ©thodes get )
+      // rem : Utilisation de l'Ã©valuation gauche droite du logical C or
       if ( waitingForAnyDataId || 
            ( waitingForConvenientDataId && 
              this->isDataIdConveniant(storedDatas, expectedDataId, dummy1, dummy2, dummy3) ) 
@@ -288,7 +288,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
         if (SALOME::VerbosityActivated())
           std::cout << "-------- Put : MARK 10 ------------------" << std::endl;
 
-        //Doit pouvoir réveiller le get ici (a vérifier)
+        //Doit pouvoir rÃ©veiller le get ici (a vÃ©rifier)
         expectedDataReceived = true;
       }
     }
@@ -297,21 +297,21 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Put : MARK 11 ------------------" << std::endl;
 
-      // si waitingForAnyDataId était positionné, c'est forcément lui qui a activer
-      // expectedDataReceived à true
+      // si waitingForAnyDataId Ã©tait positionnÃ©, c'est forcÃ©ment lui qui a activer
+      // expectedDataReceived Ã  true
       if (waitingForAnyDataId) 
         waitingForAnyDataId        = false;
       else 
         waitingForConvenientDataId = false;
       // Reveille le thread du destinataire (stoppe son attente)
-      // Ne faudrait-il pas réveiller plutôt tous les threads ?
-      // Celui  réveillé ne correspond pas forcément à celui qui demande
+      // Ne faudrait-il pas rÃ©veiller plutÃ´t tous les threads ?
+      // Celui  rÃ©veillÃ© ne correspond pas forcÃ©ment Ã  celui qui demande
       // cet expectedDataReceived.
-      // Pb1 : cas d'un un get séquentiel et d'un get sur un dataId que l'on vient de recevoir.
-      // Si l'on reveille le mauvais thread, l'autre va attendre indéfiniment ! (sauf timeout)
-      // Pb2 : également si deux attentes de DataIds même différents car on n'en stocke qu'un !
-      // Conclusion : Pour l'instant on ne gère pas un service multithreadé qui effectue
-      // des lectures simultanées sur le même port !
+      // Pb1 : cas d'un un get sÃ©quentiel et d'un get sur un dataId que l'on vient de recevoir.
+      // Si l'on reveille le mauvais thread, l'autre va attendre indÃ©finiment ! (sauf timeout)
+      // Pb2 : Ã©galement si deux attentes de DataIds mÃªme diffÃ©rents car on n'en stocke qu'un !
+      // Conclusion : Pour l'instant on ne gÃ¨re pas un service multithreadÃ© qui effectue
+      // des lectures simultanÃ©es sur le mÃªme port !
       if (SALOME::VerbosityActivated())
         std::cerr << "-------- Put : new datas available ------------------" << std::endl;
 
@@ -333,9 +333,9 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
 
   } // Catch les exceptions SALOME//C++ pour la transformer en une exception SALOME//CORBA  
   catch ( const SALOME_Exception & ex ) {
-    // On évite de laisser un  mutex
+    // On Ã©vite de laisser un  mutex
     storedDatas_mutex.unlock();
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::INTERNAL_ERROR);
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME_CMOD::INTERNAL_ERROR);
   }
 
 }
@@ -351,12 +351,12 @@ GenericPort<DataManipulator, COUPLING_POLICY>::erase(TimeType time, TagType  tag
 }
 
 // Version du Get en 0 copy
-// ( n'effectue pas de recopie de la donnée trouvée dans storedDatas )
-// ( L'utilisateur devra être attentif à la politique de gestion de l'historique
-//   spécifique au mode de couplage car il peut y avoir une suppression potentielle 
-//   d'une donnée utilisée directement dans le code utilisateur )
-//  Le code doit prendre connaissance du transfert de propriété ou non des données
-//  auprès du mode de couplage choisi. 
+// ( n'effectue pas de recopie de la donnÃ©e trouvÃ©e dans storedDatas )
+// ( L'utilisateur devra Ãªtre attentif Ã  la politique de gestion de l'historique
+//   spÃ©cifique au mode de couplage car il peut y avoir une suppression potentielle 
+//   d'une donnÃ©e utilisÃ©e directement dans le code utilisateur )
+//  Le code doit prendre connaissance du transfert de propriÃ©tÃ© ou non des donnÃ©es
+//  auprÃ¨s du mode de couplage choisi. 
 template < typename DataManipulator, typename COUPLING_POLICY >
 template < typename TimeType,typename TagType>
 typename DataManipulator::Type 
@@ -364,11 +364,11 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
                                                    TagType  tag)
 // REM : Laisse passer toutes les exceptions
 //       En particulier les SALOME_Exceptions qui viennent de la COUPLING_POLICY
-//       Pour déclarer le throw avec l'exception spécifique il faut que je vérifie
-//       qu'un setunexpeted est positionné sinon le C++ arrête tout par appel à terminate
+//       Pour dÃ©clarer le throw avec l'exception spÃ©cifique il faut que je vÃ©rifie
+//       qu'un setunexpeted est positionnÃ© sinon le C++ arrÃªte tout par appel Ã  terminate
 {
   typedef typename COUPLING_POLICY::DataId DataId;
-  // (Pointeur sur séquence) ou valeur..
+  // (Pointeur sur sÃ©quence) ou valeur..
   DataType dataToTransmit ;
   bool     isEqual, isBounded;
   typedef typename DataManipulator::InnerType InnerType;
@@ -383,35 +383,35 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
   typename DataTable::iterator wDataIt1;
 
   try {
-    storedDatas_mutex.lock(); // Gérer les Exceptions ds le corps de la méthode
+    storedDatas_mutex.lock(); // GÃ©rer les Exceptions ds le corps de la mÃ©thode
   
     while ( true ) {
  
-      // Renvoie isEqual si le dataId attendu est trouvé dans storedDatas :
-      //   - l'itérateur wDataIt1 pointe alors sur ce dataId
-      // Renvoie isBounded si le dataId attendu n'est pas trouvé mais encadrable et 
-      // que la politique  gére ce cas de figure 
-      //   - l'itérateur wDataIt1 est tel que wDataIt1->first < wdataId < (wDataIt1+1)->first
-      // Méthode provenant de la COUPLING_POLICY
+      // Renvoie isEqual si le dataId attendu est trouvÃ© dans storedDatas :
+      //   - l'itÃ©rateur wDataIt1 pointe alors sur ce dataId
+      // Renvoie isBounded si le dataId attendu n'est pas trouvÃ© mais encadrable et 
+      // que la politique  gÃ©re ce cas de figure 
+      //   - l'itÃ©rateur wDataIt1 est tel que wDataIt1->first < wdataId < (wDataIt1+1)->first
+      // MÃ©thode provenant de la COUPLING_POLICY
       this->isDataIdConveniant(storedDatas,expectedDataId,isEqual,isBounded,wDataIt1);
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Get : MARK 3 ------------------" << std::endl;
 
-      // L'ordre des différents tests est important
+      // L'ordre des diffÃ©rents tests est important
       if ( isEqual ) {
         if (SALOME::VerbosityActivated())
           std::cout << "-------- Get : MARK 4 ------------------" << std::endl;
 
-        // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM.
-        // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent
-        // C'est EraseDataId qui choisi ou non de supprimer la donnée
+        // La propriÃ©tÃ© de la donnÃ©es N'EST PAS transmise Ã  l'utilisateur en mode CALCIUM.
+        // Si l'utilisateur supprime la donnÃ©e, storedDataIds devient incohÃ©rent
+        // C'est EraseDataId qui choisi ou non de supprimer la donnÃ©e
         // Du coup interaction potentielle entre le 0 copy et gestion de l'historique
         dataToTransmit = (*wDataIt1).second; 
 
         if (SALOME::VerbosityActivated())
         {
           std::cout << "-------- Get : MARK 5 ------------------" << std::endl;
-          std::cout << "-------- Get : Données trouvées à t : " << std::endl;
+          std::cout << "-------- Get : DonnÃ©es trouvÃ©es Ã  t : " << std::endl;
           typename DataManipulator::InnerType const * const InIt1 = DataManipulator::getPointer(dataToTransmit);
           size_t   N = DataManipulator::size(dataToTransmit);
           std::copy(InIt1,        InIt1 + N,
@@ -419,9 +419,9 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
           std::cout << std::endl;
         }
 
-        // Décide de la suppression de certaines  instances de données 
-        // La donnée contenu dans la structure CORBA et son dataId sont désallouées
-        // Méthode provenant de la COUPLING_POLICY 
+        // DÃ©cide de la suppression de certaines  instances de donnÃ©es 
+        // La donnÃ©e contenu dans la structure CORBA et son dataId sont dÃ©sallouÃ©es
+        // MÃ©thode provenant de la COUPLING_POLICY 
         typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
         processEraseDataId.apply(storedDatas,wDataIt1);
         if (SALOME::VerbosityActivated())
@@ -434,14 +434,14 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
         std::cout << "-------- Get : MARK 7 ------------------" << std::endl;
 
       //if (  isBounded() && COUPLING_POLICY::template needToProcessBoundedDataId() ) {
-      // Le DataId demandé n'est pas trouvé mais est encadré ET la politique de couplage
-      // implémente une méthode processBoundedDataId capable de générer les données à retourner
+      // Le DataId demandÃ© n'est pas trouvÃ© mais est encadrÃ© ET la politique de couplage
+      // implÃ©mente une mÃ©thode processBoundedDataId capable de gÃ©nÃ©rer les donnÃ©es Ã  retourner
       if (  isBounded ) {
-        // Pour être cohérent avec la politique du bloc précédent
-        // on stocke la paire (dataId,données interpolées ).
-        // CALCIUM ne stockait pas les données interpolées. 
-        // Cependant  comme les données sont censées être produites
-        // par ordre croissant de DataId, de nouvelles données ne devrait pas améliorer
+        // Pour Ãªtre cohÃ©rent avec la politique du bloc prÃ©cÃ©dent
+        // on stocke la paire (dataId,donnÃ©es interpolÃ©es ).
+        // CALCIUM ne stockait pas les donnÃ©es interpolÃ©es. 
+        // Cependant  comme les donnÃ©es sont censÃ©es Ãªtre produites
+        // par ordre croissant de DataId, de nouvelles donnÃ©es ne devrait pas amÃ©liorer
         // l'interpolation.
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Get : MARK 8 ------------------" << std::endl;
@@ -454,15 +454,15 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
         //BDIP processBoundedDataId;
         processBoundedDataId.apply(dataToTransmit,expectedDataId,wDataIt1);
   
-        // Il ne peut pas y avoir déjà une clé expectedDataId dans storedDatas (utilisation de la notation [] )
-        // La nouvelle donnée produite est stockée, ce n'était pas le cas dans CALCIUM
-        // Cette opération n'a peut être pas un caractère générique.
-        // A déplacer en paramètre de la méthode précédente ? ou déléguer ce choix au mode de couplage ?
+        // Il ne peut pas y avoir dÃ©jÃ  une clÃ© expectedDataId dans storedDatas (utilisation de la notation [] )
+        // La nouvelle donnÃ©e produite est stockÃ©e, ce n'Ã©tait pas le cas dans CALCIUM
+        // Cette opÃ©ration n'a peut Ãªtre pas un caractÃ¨re gÃ©nÃ©rique.
+        // A dÃ©placer en paramÃ¨tre de la mÃ©thode prÃ©cÃ©dente ? ou dÃ©lÃ©guer ce choix au mode de couplage ?
         storedDatas[expectedDataId]=dataToTransmit;
 
         if (SALOME::VerbosityActivated())
         {
-          std::cout << "-------- Get : Données calculées à t : " << std::endl;
+          std::cout << "-------- Get : DonnÃ©es calculÃ©es Ã  t : " << std::endl;
           typename DataManipulator::InnerType const * const InIt1 = DataManipulator::getPointer(dataToTransmit);
           size_t   N = DataManipulator::size(dataToTransmit);
   
@@ -478,23 +478,23 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
         break;
       }
   
-      // Délègue au mode de couplage la gestion d'une demande de donnée non disponible 
-      // si le port est deconnecté
+      // DÃ©lÃ¨gue au mode de couplage la gestion d'une demande de donnÃ©e non disponible 
+      // si le port est deconnectÃ©
       typename COUPLING_POLICY::template DisconnectProcessor<DataManipulator> processDisconnect(*this);
       if ( processDisconnect.apply(storedDatas, expectedDataId, wDataIt1) ) continue;
     
-      // Réception bloquante sur le dataId demandé
-      // Si l'instance de donnée n'est pas trouvee
+      // RÃ©ception bloquante sur le dataId demandÃ©
+      // Si l'instance de donnÃ©e n'est pas trouvee
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Get : MARK 10 ------------------" << std::endl;
 
-      //Positionné à faux dans la méthode put
+      //PositionnÃ© Ã  faux dans la mÃ©thode put
       waitingForConvenientDataId = true; 
       if (SALOME::VerbosityActivated())
       {
         std::cout << "-------- Get : MARK 11 ------------------" << std::endl;
       
-        // Ici on attend que la méthode put recoive la donnée 
+        // Ici on attend que la mÃ©thode put recoive la donnÃ©e 
         std::cout << "-------- Get : waiting datas ------------------" << std::endl;
       }
 
@@ -531,9 +531,9 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
   if (SALOME::VerbosityActivated())
     std::cout << "-------- Get : MARK 13 ------------------" << std::endl;
 
-  // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM
-  // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent
-  // c'est eraseDataId qui choisi ou non de supprimer la donnée
+  // La propriÃ©tÃ© de la donnÃ©es N'EST PAS transmise Ã  l'utilisateur en mode CALCIUM
+  // Si l'utilisateur supprime la donnÃ©e, storedDataIds devient incohÃ©rent
+  // c'est eraseDataId qui choisi ou non de supprimer la donnÃ©e
   // Du coup interaction potentielle entre le 0 copy et gestion des niveaux 
   return dataToTransmit; 
 
@@ -551,7 +551,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType& ti,
 
 
 // Version du next en 0 copy
-// ( n'effectue pas de recopie de la donnée trouvée dans storedDatas )
+// ( n'effectue pas de recopie de la donnÃ©e trouvÃ©e dans storedDatas )
 template < typename DataManipulator, typename COUPLING_POLICY >
 template < typename TimeType,typename TagType>
 typename DataManipulator::Type 
@@ -564,7 +564,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
   DataId   dataId;
 
   try {
-    storedDatas_mutex.lock();// Gérer les Exceptions ds le corps de la méthode
+    storedDatas_mutex.lock();// GÃ©rer les Exceptions ds le corps de la mÃ©thode
 
     if (SALOME::VerbosityActivated())
       std::cout << "-------- Next : MARK 1 ---lastDataIdSet ("<<lastDataIdSet<<")---------------" << std::endl;
@@ -572,14 +572,14 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
     typename DataTable::iterator wDataIt1;
     wDataIt1 = storedDatas.end();
 
-    //Recherche le prochain dataId à renvoyer
+    //Recherche le prochain dataId Ã  renvoyer
     // - lastDataIdset == true indique que lastDataId
-    // contient le dernier DataId renvoyé
+    // contient le dernier DataId renvoyÃ©
     // - lastDataIdset == false indique que l'on renverra
-    //   le premier dataId trouvé
+    //   le premier dataId trouvÃ©
     // - upper_bound(lastDataId) situe le prochain DataId
-    // à renvoyer
-    // Rem : les données renvoyées ne sont effacées par eraseDataIds
+    // Ã  renvoyer
+    // Rem : les donnÃ©es renvoyÃ©es ne sont effacÃ©es par eraseDataIds
     //       si necessaire
     if (lastDataIdSet) 
       wDataIt1 = storedDatas.upper_bound(lastDataId);
@@ -592,8 +592,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
 
     while ( storedDatas.empty() || wDataIt1 == storedDatas.end() ) {
 
-      // Délègue au mode de couplage la gestion d'une demande de donnée non disponible 
-      // si le port est deconnecté
+      // DÃ©lÃ¨gue au mode de couplage la gestion d'une demande de donnÃ©e non disponible 
+      // si le port est deconnectÃ©
       if ( processDisconnect.apply(storedDatas, lastDataId, wDataIt1) )  {
         waitingForAnyDataId = false; break;
       }
@@ -601,13 +601,13 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
       if (SALOME::VerbosityActivated())
         std::cout << "-------- Next : MARK 2 ------------------" << std::endl;
 
-      //Positionné à faux dans la méthode put
+      //PositionnÃ© Ã  faux dans la mÃ©thode put
       waitingForAnyDataId   = true;
 
       if (SALOME::VerbosityActivated())
       {
         std::cout << "-------- Next : MARK 3 ------------------" << std::endl;
-        // Ici on attend que la méthode put recoive la donnée 
+        // Ici on attend que la mÃ©thode put recoive la donnÃ©e 
         std::cout << "-------- Next : waiting datas ------------------" << std::endl;
       }
 
@@ -674,9 +674,9 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
   if (SALOME::VerbosityActivated())
     std::cout << "-------- Next : MARK 9 ------------------" << std::endl;
 
-  // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM
-  // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent
-  // c'est eraseDataId qui choisi ou non de supprimer la donnée
+  // La propriÃ©tÃ© de la donnÃ©es N'EST PAS transmise Ã  l'utilisateur en mode CALCIUM
+  // Si l'utilisateur supprime la donnÃ©e, storedDataIds devient incohÃ©rent
+  // c'est eraseDataId qui choisi ou non de supprimer la donnÃ©e
   // Du coup interaction potentielle entre le 0 copy et gestion des niveaux 
   return dataToTransmit; 
 

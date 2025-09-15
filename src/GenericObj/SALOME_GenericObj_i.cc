@@ -133,7 +133,7 @@ namespace SALOME
   */
   void GenericObj_i::Destroy()
   {
-    MESSAGE("WARNING SALOME::GenericObj::Destroy() function is obsolete! Use UnRegister() instead.");
+    MESSAGE("WARNING SALOME_CMOD::GenericObj::Destroy() function is obsolete! Use UnRegister() instead.");
     UnRegister();
   }
 

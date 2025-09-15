@@ -62,7 +62,7 @@
 #include <unistd.h>
 #endif
 
-UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception)
+UNEXPECT_CATCH(SalomeException,SALOME_CMOD::SALOME_Exception)
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
@@ -258,7 +258,7 @@ namespace SALOMEDS
       {
         CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
         if ( obj->_non_existent() ) return;
-        SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
+        SALOME_CMOD::GenericObj_var gobj = SALOME_CMOD::GenericObj::_narrow(obj);
         if(! CORBA::is_nil(gobj) )
         {
           gobj->Register();
@@ -274,7 +274,7 @@ namespace SALOMEDS
       {
         CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
         if ( obj->_non_existent() ) return;
-        SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
+        SALOME_CMOD::GenericObj_var gobj = SALOME_CMOD::GenericObj::_narrow(obj);
         if(! CORBA::is_nil(gobj) )
         {
           gobj->UnRegister();
@@ -292,11 +292,11 @@ namespace SALOMEDS
 
   //================================================================================
   /*!
-   * \brief emitMessageOneWay to SALOME::Session
+   * \brief emitMessageOneWay to SALOME_CMOD::Session
    */
   //================================================================================
 
-  void sendMessageToGUIGivenSession(SALOME::Session_ptr session, const char* msg )
+  void sendMessageToGUIGivenSession(SALOME_CMOD::Session_ptr session, const char* msg )
   {
     if ( !CORBA::is_nil(session) ) {
       SALOMEDS::unlock();
@@ -307,14 +307,14 @@ namespace SALOMEDS
 
   //================================================================================
   /*!
-   * \brief emitMessageOneWay to SALOME::Session
+   * \brief emitMessageOneWay to SALOME_CMOD::Session
    */
   //================================================================================
 
   void sendMessageToGUI(SALOME_NamingService_Abstract *aNamingService, const char* msg)
   {
     CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
-    SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+    SALOME_CMOD::Session_var aSession = SALOME_CMOD::Session::_narrow(obj);
     sendMessageToGUIGivenSession(aSession,msg);
   }
 
@@ -328,7 +328,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME_NamingService_Abst
   _factory = new SALOMEDS_DriverFactory_i(_orb,_ns);
   _closed  = true;
   CORBA::Object_var obj = _ns->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  SALOME_CMOD::Session_var aSession = SALOME_CMOD::Session::_narrow(obj);
   Init(aSession);
 }
 
@@ -337,7 +337,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME_NamingService_Abst
  *  Purpose  : SALOMEDS_Study_i constructor
  */
 //============================================================================
-SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME::Session_ptr session)
+SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME_CMOD::Session_ptr session)
 {
   _ns = KERNEL::getNamingService();
   _orb     = CORBA::ORB::_duplicate(orb);
@@ -367,7 +367,7 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 void SALOMEDS_Study_i::Init()
 {
   CORBA::Object_var obj = _ns->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  SALOME_CMOD::Session_var aSession = SALOME_CMOD::Session::_narrow(obj);
   Init(aSession);
 }
 
@@ -376,7 +376,7 @@ void SALOMEDS_Study_i::Init()
  *  Purpose  : Initialize study components
  */
 //============================================================================
-void SALOMEDS_Study_i::Init(SALOME::Session_ptr session)
+void SALOMEDS_Study_i::Init(SALOME_CMOD::Session_ptr session)
 {
   if (!_closed)
     //throw SALOMEDS::Study::StudyInvalidReference();
@@ -509,7 +509,7 @@ bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
   SALOMEDS::sendMessageToGUI( _ns, "connect_to_study" );
 
   if ( !res )
-    THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
+    THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME_CMOD::BAD_PARAM)
   return res;
 }
 
@@ -1083,7 +1083,7 @@ void SALOMEDS_Study_i::URL(const wchar_t* wurl)
 
   // update desktop title with new study name
   CORBA::Object_var obj = _ns->Resolve("/Kernel/Session");
-  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  SALOME_CMOD::Session_var aSession = SALOME_CMOD::Session::_narrow(obj);
   NameChanged(aSession);
 }
 
@@ -1215,7 +1215,7 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
   for (i = 0; i < aSize; i++) {
     try {
       CORBA::Object_var obj = _orb->string_to_object(anIORs[i].c_str());
-      SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
+      SALOME_CMOD::GenericObj_var aGeneric = SALOME_CMOD::GenericObj::_narrow(obj);
       //rnv: To avoid double deletion of the Salome Generic Objects:
       //rnv: 1. First decrement of the reference count in the SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR();
       //rnv: 2. Second decrement of the reference count in the next string : aGeneric->UnRegister();
@@ -1789,7 +1789,7 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
   return reinterpret_cast<CORBA::LongLong>(_impl);
 }
 
-void SALOMEDS_Study_i::NameChanged(SALOME::Session_ptr session)
+void SALOMEDS_Study_i::NameChanged(SALOME_CMOD::Session_ptr session)
 {
 
   SALOMEDS::sendMessageToGUIGivenSession(session,"studyNameChanged" );

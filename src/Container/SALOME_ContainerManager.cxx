@@ -272,12 +272,12 @@ void SALOME_ContainerManager::ShutdownContainersGeneric(std::function<void(Engin
   MESSAGE("ShutdownContainersGeneric");
   if(!_NS)
     return ;
-  SALOME::Session_var session = SALOME::Session::_nil();
+  SALOME_CMOD::Session_var session = SALOME_CMOD::Session::_nil();
   CORBA::Long pid = 0;
   CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
   if (!CORBA::is_nil(objS))
   {
-    session = SALOME::Session::_narrow(objS);
+    session = SALOME_CMOD::Session::_narrow(objS);
     if (!CORBA::is_nil(session))
       pid = session->getPID();
   }

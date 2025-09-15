@@ -21,7 +21,7 @@
 //
 
 //  File   : basic_port_factory.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _BASIC_PORT_FACTORY_HXX_

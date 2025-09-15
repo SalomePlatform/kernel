@@ -39,7 +39,7 @@ namespace SALOME
         seq[i]->UnRegister();
   }
 
-  // This class is intended to free the user of objects, iherited from SALOME::GenericObj,
+  // This class is intended to free the user of objects, iherited from SALOME_CMOD::GenericObj,
   // from a need to call UnRegister() after having finished using the object.
   // The behavior of this class is similar to that of var CORBA class and thus it
   // can replace var types of wrapped CORBA classes in some code like follows:

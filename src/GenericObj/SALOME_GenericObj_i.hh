@@ -48,7 +48,7 @@
 namespace SALOME
 {
   class GENERICOBJ_EXPORT GenericObj_i : 
-    public virtual POA_SALOME::GenericObj,
+    public virtual POA_SALOME_CMOD::GenericObj,
     public virtual PortableServer::ServantBase
   {
   protected:

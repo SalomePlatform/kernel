@@ -51,7 +51,7 @@ int CommonDataScopeServerMain(int argc, char *argv[], CORBA::ORB_var orb, const 
   mgr->activate();
   //
   SALOMESDS::DataScopeKiller *killer(new SALOMESDS::DataScopeKiller(orb));
-  SALOME::DataScopeKiller_var killerObj(killer->_this());
+  SALOME_CMOD::DataScopeKiller_var killerObj(killer->_this());
   //
   {
     SALOME_CPythonHelper cPyHelper;
@@ -75,7 +75,7 @@ int CommonDataScopeServerMain(int argc, char *argv[], CORBA::ORB_var orb, const 
     //
     server->setPOA(poa2);
     obj=server->activate();
-    SALOME::DataScopeServerBase_var serverPtr(SALOME::DataScopeServerBase::_narrow(obj));
+    SALOME_CMOD::DataScopeServerBase_var serverPtr(SALOME_CMOD::DataScopeServerBase::_narrow(obj));
     server->registerInNS(serverPtr);
     //
     orb->run();

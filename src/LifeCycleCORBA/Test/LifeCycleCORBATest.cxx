@@ -411,13 +411,13 @@ LifeCycleCORBATest::testFindOrLoad_Component_UnknownMachine()
   std::string containerName = "aFarAwayComputer";
   containerName += "/theContainer";
 //   CPPUNIT_ASSERT_THROW(Engines::Component_var mycompo =
-//                     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME::SALOME_Exception);
+//                     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME_CMOD::SALOME_Exception);
   try
     {
       Engines::EngineComponent_var mycompo =
         _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
     }
-  catch(const SALOME::SALOME_Exception &ex)
+  catch(const SALOME_CMOD::SALOME_Exception &ex)
     {
       CPPUNIT_ASSERT(true);
 //       std::string expectedMessage = "BAD PARAM";

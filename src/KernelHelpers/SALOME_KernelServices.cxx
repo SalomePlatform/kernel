@@ -93,12 +93,12 @@ namespace KERNEL {
    * SALOME session can be used to retrieve some objects of the
    * current session, as the SALOME study.
    */
-  SALOME::Session_ptr getSalomeSession() {
-    static SALOME::Session_ptr salomeSession;
+  SALOME_CMOD::Session_ptr getSalomeSession() {
+    static SALOME_CMOD::Session_ptr salomeSession;
     if(CORBA::is_nil(salomeSession)){
       SALOME_NamingService_Abstract *aNamingService = getNamingService();
       CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
-      salomeSession = SALOME::Session::_narrow(obj);
+      salomeSession = SALOME_CMOD::Session::_narrow(obj);
     }
     return salomeSession;
   }
@@ -167,11 +167,11 @@ namespace KERNEL {
   // for other helper functions
   //
 
-  SALOME::SALOME_Exception createSalomeException(const char * text) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
+  SALOME_CMOD::SALOME_Exception createSalomeException(const char * text) {
+    SALOME_CMOD::ExceptionStruct es;
+    es.type = SALOME_CMOD::INTERNAL_ERROR;
     es.text = CORBA::string_dup(text);
-    return SALOME::SALOME_Exception(es);
+    return SALOME_CMOD::SALOME_Exception(es);
   }
   
   void RegisterCompo(const std::string& compoName, CORBA::Object_var compoPtr)

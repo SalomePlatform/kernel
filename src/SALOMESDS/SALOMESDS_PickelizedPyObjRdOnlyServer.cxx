@@ -24,7 +24,7 @@ using namespace SALOMESDS;
 
 const char PickelizedPyObjRdOnlyServer::ACCESS_REPR[]="RdOnly";
 
-PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):PickelizedPyObjServer(father,varName,value)
+PickelizedPyObjRdOnlyServer::PickelizedPyObjRdOnlyServer(DataScopeServerBase *father, const std::string& varName, const SALOME_CMOD::ByteVec& value):PickelizedPyObjServer(father,varName,value)
 {
 }
 

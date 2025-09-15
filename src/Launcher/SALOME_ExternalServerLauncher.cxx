@@ -49,7 +49,7 @@ SALOME_ExternalServerLauncher::SALOME_ExternalServerLauncher(const SALOME_CPytho
   _NS = ns == nullptr ? new SALOME_NamingService(orb) : ns;
   PortableServer::ObjectId_var id(_poa->activate_object(this));
   CORBA::Object_var obj(_poa->id_to_reference(id));
-  SALOME::ExternalServerLauncher_var refPtr(SALOME::ExternalServerLauncher::_narrow(obj));
+  SALOME_CMOD::ExternalServerLauncher_var refPtr(SALOME_CMOD::ExternalServerLauncher::_narrow(obj));
   _NS->Register(refPtr,NAME_IN_NS);
 }
 
@@ -83,7 +83,7 @@ private:
   std::string _od;
 };
 
-SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(const char *server_name, const char *working_dir, const SALOME::CmdList& command_list )
+SALOME_CMOD::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(const char *server_name, const char *working_dir, const SALOME_CMOD::CmdList& command_list )
 {
   std::vector<std::string> servers(ListOfExternalServersCpp(_NS));
   if(std::find(servers.begin(),servers.end(),server_name)!=servers.end())
@@ -110,7 +110,7 @@ SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::launchServer(co
   PortableServer::ObjectId_var id(_poa->activate_object(retServ));
   CORBA::Object_var obj(_poa->id_to_reference(id));
   std::string fullServerName(CreateAbsNameInNSFromServerName(server_name));
-  SALOME::ExternalServerHandler_ptr ret(SALOME::ExternalServerHandler::_narrow(obj));
+  SALOME_CMOD::ExternalServerHandler_ptr ret(SALOME_CMOD::ExternalServerHandler::_narrow(obj));
   _NS->Register(ret,fullServerName.c_str());
   return ret;
 }
@@ -146,7 +146,7 @@ void SALOME_ExternalServerLauncher::shutdownServers()
   std::vector<std::string> lioes(ListOfExternalServersCpp(_NS));
   for(auto servName : lioes)
     {
-      SALOME::ExternalServerHandler_var proc(GetServerHandlerGivenName(_NS,servName));
+      SALOME_CMOD::ExternalServerHandler_var proc(GetServerHandlerGivenName(_NS,servName));
       PortableServer::ServantBase *procServ(_poa->reference_to_servant(proc));
       SALOME_ExternalServerHandler *procServC(dynamic_cast<SALOME_ExternalServerHandler *>(procServ));
       try
@@ -159,9 +159,9 @@ void SALOME_ExternalServerLauncher::shutdownServers()
   cleanServersInNS();
 }
 
-SALOME::StringVec *SALOME_ExternalServerLauncher::listServersInNS()
+SALOME_CMOD::StringVec *SALOME_ExternalServerLauncher::listServersInNS()
 {
-  SALOME::StringVec *ret(new SALOME::StringVec);
+  SALOME_CMOD::StringVec *ret(new SALOME_CMOD::StringVec);
   std::vector<std::string> loes(ListOfExternalServersCpp(_NS));
   std::size_t sz(loes.size());
   ret->length(sz);
@@ -172,9 +172,9 @@ SALOME::StringVec *SALOME_ExternalServerLauncher::listServersInNS()
   return ret;
 }
 
-SALOME::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::retrieveServerRefGivenNSEntry( const char *ns_entry )
+SALOME_CMOD::ExternalServerHandler_ptr SALOME_ExternalServerLauncher::retrieveServerRefGivenNSEntry( const char *ns_entry )
 {
-  SALOME::ExternalServerHandler_var ret(GetServerHandlerGivenName(_NS,ns_entry));
+  SALOME_CMOD::ExternalServerHandler_var ret(GetServerHandlerGivenName(_NS,ns_entry));
   return ret._retn();
 }
 
@@ -184,7 +184,7 @@ char *SALOME_ExternalServerLauncher::gethostname()
   return CORBA::string_dup(ret.c_str());
 }
 
-SALOME::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const char *file_name)
+SALOME_CMOD::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const char *file_name)
 {
   std::ifstream t(file_name);
   if(!t.good())
@@ -198,7 +198,7 @@ SALOME::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const ch
   t.seekg(0);
   t.read(buffer.get(),size);
   //
-  std::unique_ptr<SALOME::ByteVec> ret(new SALOME::ByteVec);
+  std::unique_ptr<SALOME_CMOD::ByteVec> ret(new SALOME_CMOD::ByteVec);
   ret->length(size);
   for(size_t i=0;i<size;++i)
     (*ret)[i] = buffer.get()[i];
@@ -224,7 +224,7 @@ std::string SALOME_ExternalServerLauncher::CreateAbsNameInNSFromServerName(const
   return oss.str();
 }
 
-bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME::ExternalServerHandler_ptr server)
+bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME_CMOD::ExternalServerHandler_ptr server)
 {
   bool ret(true);
   try
@@ -238,13 +238,13 @@ bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME::ExternalServerHand
 
 bool SALOME_ExternalServerLauncher::IsAliveAndKicking(SALOME_NamingService_Abstract *ns, const std::string& serverName)
 {
-  SALOME::ExternalServerHandler_var pt(GetServerHandlerGivenName(ns, serverName));
+  SALOME_CMOD::ExternalServerHandler_var pt(GetServerHandlerGivenName(ns, serverName));
   if( CORBA::is_nil(pt) )
     return false;
   return IsAliveAndKicking(pt);
 }
 
-SALOME::ExternalServerHandler_var SALOME_ExternalServerLauncher::GetServerHandlerGivenName(SALOME_NamingService_Abstract *ns, const std::string& serverName)
+SALOME_CMOD::ExternalServerHandler_var SALOME_ExternalServerLauncher::GetServerHandlerGivenName(SALOME_NamingService_Abstract *ns, const std::string& serverName)
 {
   std::vector<std::string> serverNames(ListOfExternalServersCpp(ns));
   if(std::find(serverNames.begin(),serverNames.end(),serverName)==serverNames.end())
@@ -254,6 +254,6 @@ SALOME::ExternalServerHandler_var SALOME_ExternalServerLauncher::GetServerHandle
     }
   std::string fullServerName(CreateAbsNameInNSFromServerName(serverName));
   CORBA::Object_var obj(ns->Resolve(fullServerName.c_str()));
-  SALOME::ExternalServerHandler_var ret(SALOME::ExternalServerHandler::_narrow(obj));
+  SALOME_CMOD::ExternalServerHandler_var ret(SALOME_CMOD::ExternalServerHandler::_narrow(obj));
   return ret;
 }

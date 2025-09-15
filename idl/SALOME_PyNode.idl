@@ -40,7 +40,7 @@ module Engines
   typedef sequence<string> listofstring;
   interface Container;
 
-  interface PyNodeBase : SALOME::GenericObj
+  interface PyNodeBase : SALOME_CMOD::GenericObj
   {
     Container getContainer();
 
@@ -52,13 +52,13 @@ module Engines
       This method allows to define a new global var called \a varName. This newly created var will be
       set to value \a valueOfVar.
      */
-    void defineNewCustomVar(in string varName, in pickledArgs valueOfVar) raises (SALOME::SALOME_Exception);
+    void defineNewCustomVar(in string varName, in pickledArgs valueOfVar) raises (SALOME_CMOD::SALOME_Exception);
 
     /*!
     This method executes the python code in \a codeStr and can append/remove symboles in context to make them available or not for future call of execute on this.
     \param [in] codeStr - the python code (without statement) to be executed, that can modify the context initialized at initialization.
      */
-    void executeAnotherPieceOfCode(in string codeStr) raises (SALOME::SALOME_Exception);
+    void executeAnotherPieceOfCode(in string codeStr) raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface PyNode : PyNodeBase
@@ -69,7 +69,7 @@ module Engines
       \param inargs input argument values (tuple,dict) provided as a python pickle
       \return output argument values (tuple) as a python pickle
     */
-    pickledArgs execute(in string functionName, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
+    pickledArgs execute(in string functionName, in pickledArgs inargs) raises (SALOME_CMOD::SALOME_Exception);
 
   };
 
@@ -80,7 +80,7 @@ module Engines
       on execute step.
       \param codeStr - the python code (without statement) to be executed, that can modify the context initialized at initialization.
      */
-    void assignNewCompiledCode(in string codeStr) raises (SALOME::SALOME_Exception);
+    void assignNewCompiledCode(in string codeStr) raises (SALOME_CMOD::SALOME_Exception);
 
     /*! \brief execute a python script defined in the node
 
@@ -88,34 +88,34 @@ module Engines
       \param inargs input argument values (dict) provided as a python pickle
       \return output argument values (tuple) as a python pickle
     */
-    pickledArgs execute(in listofstring outargsname, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
+    pickledArgs execute(in listofstring outargsname, in pickledArgs inargs) raises (SALOME_CMOD::SALOME_Exception);
 
-    void executeSimple(in listofstring key, in listofstring val) raises (SALOME::SALOME_Exception);
+    void executeSimple(in listofstring key, in listofstring val) raises (SALOME_CMOD::SALOME_Exception);
 
     /*! \brief first part of whole execute method. This split is to reduce the memory peak.
     */
-    void executeFirst(in SALOME::SenderByte inargs) raises (SALOME::SALOME_Exception);
+    void executeFirst(in SALOME_CMOD::SenderByte inargs) raises (SALOME_CMOD::SALOME_Exception);
 
     /*! \brief second and last part of execute method. This split is to reduce the memory peak.
     */
-    SALOME::SenderByteSeq executeSecond(in listofstring outargsname) raises (SALOME::SALOME_Exception);
+    SALOME_CMOD::SenderByteSeq executeSecond(in listofstring outargsname) raises (SALOME_CMOD::SALOME_Exception);
 
-    pickledArgs getValueOfVarInContext(in string varName) raises (SALOME::SALOME_Exception);
+    pickledArgs getValueOfVarInContext(in string varName) raises (SALOME_CMOD::SALOME_Exception);
 
-    void assignVarInContext(in string varName, in pickledArgs value) raises (SALOME::SALOME_Exception);
+    void assignVarInContext(in string varName, in pickledArgs value) raises (SALOME_CMOD::SALOME_Exception);
 
-    pickledArgs callMethodOnVarInContext(in string varName, in string methodName, in pickledArgs args) raises (SALOME::SALOME_Exception);
+    pickledArgs callMethodOnVarInContext(in string varName, in string methodName, in pickledArgs args) raises (SALOME_CMOD::SALOME_Exception);
     
-    listofstring listAllVarsInContext() raises (SALOME::SALOME_Exception);
+    listofstring listAllVarsInContext() raises (SALOME_CMOD::SALOME_Exception);
 
-    void removeAllVarsInContext() raises (SALOME::SALOME_Exception);
+    void removeAllVarsInContext() raises (SALOME_CMOD::SALOME_Exception);
   } ;
 
   interface ContextExchanger
   {
-    SALOME::SenderByte getInputContext() raises (SALOME::SALOME_Exception);
-    void pushOutputContext( in pickledArgs ctx ) raises (SALOME::SALOME_Exception);
-    void finishPushContext() raises (SALOME::SALOME_Exception);
+    SALOME_CMOD::SenderByte getInputContext() raises (SALOME_CMOD::SALOME_Exception);
+    void pushOutputContext( in pickledArgs ctx ) raises (SALOME_CMOD::SALOME_Exception);
+    void finishPushContext() raises (SALOME_CMOD::SALOME_Exception);
   };
 
   interface GlobalsHolder
@@ -123,9 +123,9 @@ module Engines
   /*!
   Simply a key / val holder.
   */
-    void setAttr(in string ctx, in pickledArgs glbsAttachedToCtx) raises (SALOME::SALOME_Exception);
-    pickledArgs getAttr(in string ctx) raises (SALOME::SALOME_Exception);
-    void execute(in listofstring args, out long returnCode, out pickledArgs standardOutput, out pickledArgs standardError) raises (SALOME::SALOME_Exception);
+    void setAttr(in string ctx, in pickledArgs glbsAttachedToCtx) raises (SALOME_CMOD::SALOME_Exception);
+    pickledArgs getAttr(in string ctx) raises (SALOME_CMOD::SALOME_Exception);
+    void execute(in listofstring args, out long returnCode, out pickledArgs standardOutput, out pickledArgs standardError) raises (SALOME_CMOD::SALOME_Exception);
   };
 };
 

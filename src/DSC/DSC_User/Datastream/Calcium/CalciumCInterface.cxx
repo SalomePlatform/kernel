@@ -28,30 +28,30 @@
   { std::cerr << std::flush << __FILE__ << " [" << __LINE__ << "] : " << msg << std::endl << std::flush; } \
   else (void)0
 
-/* Définition de l'Interface entre l'API C  et l'API C++
+/* Definition de l'Interface entre l'API C  et l'API C++
    L'utilisateur CALCIUM n'a normalement pas a utliser cette interface
-   En C/C++ il utilisera celle définie dans Calcium.c (calcium.h)
+   En C/C++ il utilisera celle definie dans Calcium.c (calcium.h)
    En C++/CORBA directement celle de CalciumCxxInterface.hxx
 */
 
 
 #define STAR *
 
-/* Définition de ecp_lecture_... , ecp_ecriture_..., ecp_free_... */
+/* Definition de ecp_lecture_... , ecp_ecriture_..., ecp_free_... */
 
-/*  Le premier argument est utilisée :
-    - comme suffixe dans la définition des noms ecp_lecture_ , ecp_ecriture_ et ecp_free_
-    - comme second argument template à l'appel de la méthode C++ correspondante
+/*  Le premier argument est utilisee :
+    - comme suffixe dans la definition des noms ecp_lecture_ , ecp_ecriture_ et ecp_free_
+    - comme second argument template e l'appel de la methode C++ correspondante
         ( le type de port correspondant est alors obtenu par un trait)
-   Le second argument est utilisée :
-   - pour typer le paramètre data de la procédure générée 
-   - pour déduire le type des paramètres t, ti tf via un trait
-   - comme premier paramètre template à l'appel de la méthode C++ correspondante
-         (pour typer les données passées en paramètre )
+   Le second argument est utilisee :
+   - pour typer le parametre data de la procedure generee 
+   - pour deduire le type des parametres t, ti tf via un trait
+   - comme premier parametre template e l'appel de la methode C++ correspondante
+         (pour typer les donnees passees en parametre )
    Notons que dans le cas CALCIUM_C2CPP_INTERFACE_(int,int,), le type int n'existe pas
-   en CORBA, le port CALCIUM correspondant utilise une séquence de long. La méthode
-   C++ CALCIUM de lecture repère cette différence de type et charge 
-   le manipulateur de données d'effectuer  une recopie (qui fonctionne si les types sont compatibles). 
+   en CORBA, le port CALCIUM correspondant utilise une sequence de long. La methode
+   C++ CALCIUM de lecture repere cette difference de type et charge 
+   le manipulateur de donnees d'effectuer  une recopie (qui fonctionne si les types sont compatibles). 
 */
 // CALCIUM_C2CPP_INTERFACE_CXX_(_name,_porttype,_type,_qual)
 CALCIUM_C2CPP_INTERFACE_CXX_(intc,int,int,)
@@ -71,7 +71,7 @@ CALCIUM_C2CPP_INTERFACE_CXX_(bool,bool,int,)
 CALCIUM_C2CPP_INTERFACE_CXX_(cplx,cplx,float,)
 CALCIUM_C2CPP_INTERFACE_CXX_(str,str,char*,)
 
-/* Définition de ecp_fin */
+/* Definition de ecp_fin */
 extern "C" CalciumTypes::InfoType 
 ecp_fin_ (void * component, int code) {
 
@@ -83,7 +83,7 @@ ecp_fin_ (void * component, int code) {
   try {                                                                 
     CalciumInterface::ecp_fin( *_component,                             
                                provideLastGivenValue); 
-  } catch ( const CalciumException & ex) { //tester l'arrêt par exception
+  } catch ( const CalciumException & ex) { //tester l'arret par exception
     DEBTRACE( ex.what() );
     return ex.getInfo();                                                
   }                                                                     
@@ -166,9 +166,9 @@ ecp_efft_ (void * component, char* nomvar, float t)
   return CalciumTypes::CPOK;
 }
 
-// INTERFACE C/CPP pour les chaines de caractères
-// Le paramètre supplémentaire strsize n'étant pas utilisé
-// j'utilise la génération par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);
+// INTERFACE C/CPP pour les chaines de caracteres
+// Le parametre supplementaire strsize n'etant pas utilise
+// j'utilise la generation par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);
 // extern "C" CalciumTypes::InfoType ecp_lecture_str (void * component, int dependencyType, 
 //                                                 float * ti, float * tf, long * i, 
 //                                                 const char * const nomvar, size_t bufferLength, 
@@ -219,7 +219,7 @@ ecp_efft_ (void * component, char* nomvar, float t)
 //                                                  char ** data, int strsize ) { 
 
 //     Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
-//     /* Je ne sais pas pourquoi, je n'arrive pas à passer t par valeur : corruption de la pile*/ 
+//     /* Je ne sais pas pourquoi, je n'arrive pas e passer t par valeur : corruption de la pile*/ 
 //     double         _t=*t;                                            
 //     size_t         _bufferLength=bufferLength;                               
 

@@ -21,7 +21,7 @@
 //
 
 //  File   : Superv_Component_i.cxx
-//  Author : André RIBES (EDF), Eric Fayolle (EDF)
+//  Author : Andre RIBES (EDF), Eric Fayolle (EDF)
 //  Module : KERNEL
 //
 #include "Superv_Component_i.hxx"

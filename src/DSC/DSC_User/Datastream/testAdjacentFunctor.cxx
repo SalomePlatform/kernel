@@ -58,37 +58,37 @@ int main() {
 
   //TEST1
   std::generate(vect.begin(),vect.end(),myRand);
-  std::cout << "Vecteur généré aléatoirement :" << std::endl;
+  std::cout << "Vecteur genere aleatoirement :" << std::endl;
   copy(vect.begin(),vect.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
 
   int valueToFind = myRand();
-  std::cout << "La valeur recherchée est : " << valueToFind << std::endl;
+  std::cout << "La valeur recherchee est : " << valueToFind << std::endl;
 
   std::sort(vect.begin(),vect.end(),std::less< Type > ());
-  std::cout << "Vecteur trié par ordre croissant :" << std::endl;
+  std::cout << "Vecteur trie par ordre croissant :" << std::endl;
   copy(vect.begin(),vect.end(),std::ostream_iterator<Type>(std::cout," "));
   std::cout<< std::endl;
 
   std::vector<Type>::iterator it,it1,it2;
   AdjacentFunctor<Type> ap(valueToFind);
   AdjacentFunctor<Type> & vap(ap);
-  // Ne peut pas marcher à cause de la recopie du prédicat !!
+  // Ne peut pas marcher e cause de la recopie du predicat !!
   it = std::find_if(vect.begin(),vect.end(),vap);
-  // On peut garder la valeur prédente de l'itérateur
-  // si l'itérateur n'est pas reverse
+  // On peut garder la valeur predente de l'iterateur
+  // si l'iterateur n'est pas reverse
 //   for (it = vect.begin(); it!=vect.end(); ++it) 
 //      if ( ap(*it) ) break;
 
   if ( it == vect.end() ) {
-    std::cout << " Je n'ai pas trouvé la valeur " << valueToFind << std::endl;
+    std::cout << " Je n'ai pas trouve la valeur " << valueToFind << std::endl;
   } else {
-    if ( (*it) == valueToFind ) std::cout << " La valeur est trouvée *it :" << (*it) << std::endl;
+    if ( (*it) == valueToFind ) std::cout << " La valeur est trouvee *it :" << (*it) << std::endl;
     else {
       //      Type min,max;
       //      if ( ap.getBounds(min,max) ) {
       it2=it;it2--;
-      std::cout << "La valeur : " << valueToFind << " est encadrée par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
+      std::cout << "La valeur : " << valueToFind << " est encadree par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
     }
   }
   
@@ -96,14 +96,14 @@ int main() {
 
          
  //  if ( it == vect.end() ) {
-//     std::cout << " Je n'ai pas trouvé la valeur " << valueToFind << std::endl;
+//     std::cout << " Je n'ai pas trouve la valeur " << valueToFind << std::endl;
 //   } else {
-//     if ( (*it) == valueToFind ) std::cout << " La valeur est trouvée *it :" << (*it) << std::endl;
+//     if ( (*it) == valueToFind ) std::cout << " La valeur est trouvee *it :" << (*it) << std::endl;
 //     else {
 //       Type min,max;
 //       if ( ap.getBounds(min,max) ) {
 //         it2=it;it2--;
-//      std::cout << "La valeur : " << valueToFind << " est encadrée par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
+//      std::cout << "La valeur : " << valueToFind << " est encadree par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
 //       }
 //     }
 //   }
@@ -114,7 +114,7 @@ int main() {
 //   MapIntDouble::const_iterator itM1,itM2;
 //   for(it=vect.begin(); it!=vect.end(); ++it) myMap[*it] = myRand();
   
-//   std::cout << "Clés de la Map :" << std::endl;
+//   std::cout << "Cles de la Map :" << std::endl;
 //   for(itM1=myMap.begin();itM1!=myMap.end();++itM1)
 //     //std::cout << &((*itM1).first) 
 //     std::cout << (*itM1).first << " ";
@@ -125,14 +125,14 @@ int main() {
 //      if ( apMap(itM1->first) ) break;
          
 //   if ( itM1 == myMap.end() ) {
-//     std::cout << " Je n'est pas trouvé la valeur " << valueToFind << std::endl;
+//     std::cout << " Je n'est pas trouve la valeur " << valueToFind << std::endl;
 //   } else {
-//     if ( (itM1->first) == valueToFind ) std::cout << " La valeur est trouvée itM1->first :" << (itM1->first) << std::endl;
+//     if ( (itM1->first) == valueToFind ) std::cout << " La valeur est trouvee itM1->first :" << (itM1->first) << std::endl;
 //     else {
 //       Type min,max;
 //       if ( apMap.getBounds(min,max) ) {
 //         itM2=itM1;itM2--;
-//      std::cout << "La valeur " << valueToFind << " est encadrée par  (itM1->first) :" << (itM1->first) << " et valeur de (it-1)->first :" << (itM2->first) << std::endl;
+//      std::cout << "La valeur " << valueToFind << " est encadree par  (itM1->first) :" << (itM1->first) << " et valeur de (it-1)->first :" << (itM2->first) << std::endl;
 //       }
 //     }
 //   }
@@ -144,7 +144,7 @@ int main() {
 //   for(it=vect.begin(); it!=vect.end(); ++it) myMapP[std::make_pair<int,double>(*it,myRand())] = myRand();
 //   //myMapP[std::make_pair<int,double>(*(vect.begin()),myRand())] = myRand();
   
-//   std::cout << "Clés de la MapP :" << std::endl;
+//   std::cout << "Cles de la MapP :" << std::endl;
 //   for(itMP1=myMapP.begin();itMP1!=myMapP.end();++itMP1)
 //     std::cout << (*itMP1).first  << " " ;
 //   std::cout<< std::endl;
@@ -157,14 +157,14 @@ int main() {
 //      if ( apMapP(itMP1->first) ) break;
 
 //   if ( itMP1 == myMapP.end() ) {
-//     std::cout << " Je n'est pas trouvé la valeur " << valuePToFind << std::endl;
+//     std::cout << " Je n'est pas trouve la valeur " << valuePToFind << std::endl;
 //   } else {
-//     if ( (itMP1->first) == valuePToFind ) std::cout << " La valeur est trouvée itMP1->first :" << (itMP1->first) << std::endl;
+//     if ( (itMP1->first) == valuePToFind ) std::cout << " La valeur est trouvee itMP1->first :" << (itMP1->first) << std::endl;
 //     else {
 //       MapIntDouble_Double::key_type min,max;
 //       if ( apMapP.getBounds(min,max) ) {
 //         itMP2=itMP1;itMP2--;
-//      std::cout << "La valeur " << valuePToFind << " est encadrée par  (itMP1->first) :" << (itMP1->first) << " et valeur de (it-1)->first :" << (itMP2->first) << std::endl;
+//      std::cout << "La valeur " << valuePToFind << " est encadree par  (itMP1->first) :" << (itMP1->first) << " et valeur de (it-1)->first :" << (itMP2->first) << std::endl;
 //       }
 //     }
 //   }

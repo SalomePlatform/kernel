@@ -142,6 +142,6 @@ void SALOME_SalomeException()
   txt << "INTERNAL_ERROR, backtrace stack:" << nbLines << std::endl;
   printBacktrace(stacklines, nbLines, txt);
 #endif
-  THROW_SALOME_CORBA_EXCEPTION(txt.str().c_str(), SALOME::INTERNAL_ERROR);
+  THROW_SALOME_CORBA_EXCEPTION(txt.str().c_str(), SALOME_CMOD::INTERNAL_ERROR);
 }
 

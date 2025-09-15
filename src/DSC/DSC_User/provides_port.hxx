@@ -21,7 +21,7 @@
 //
 
 //  File   : provides_port.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _PROVIDES_PORT_HXX_

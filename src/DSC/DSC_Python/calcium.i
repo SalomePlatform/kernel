@@ -771,7 +771,7 @@ CORBAPTR(PortableServer::POA)
       PyErr_SetString(PyExc_RuntimeError,e.what());
       return NULL;
    }
-   catch (SALOME::SALOME_Exception &e) {
+   catch (SALOME_CMOD::SALOME_Exception &e) {
       Py_BLOCK_THREADS
       //This one should be converted into a python corba exception
       PyErr_SetString(PyExc_RuntimeError,e.details.text);

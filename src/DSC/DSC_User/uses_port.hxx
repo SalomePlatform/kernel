@@ -21,7 +21,7 @@
 //
 
 //  File   : uses_port.hxx
-//  Author : André RIBES (EDF)
+//  Author : Andre RIBES (EDF)
 //  Module : KERNEL
 //
 #ifndef _USES_PORT_HXX_
