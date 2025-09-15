@@ -357,7 +357,7 @@ class SalomeContext:
       # try to default to "start" command
       command = "_sessionless"
 
-    self._run_function(command, options)
+    return self._run_function(command, options)
   #
 
   def _run_function(self, command, options):
@@ -520,7 +520,7 @@ class SalomeContext:
     #runSalomeOnDemand.set_ext_env()
     #sys.path = sys_path_init
 
-    # Run  
+    # Run
     self._run_function(command, args)
 
   def _runRemote(self, args=None):
