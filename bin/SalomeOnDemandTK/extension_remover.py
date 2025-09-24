@@ -37,9 +37,9 @@ import shutil
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    SALOME_EXTDIR, EXTCOMPONENT_KEY, \
+    SALOME_EXTDIR, EXTISGUI_KEY, EXTSMOGULENAME_KEY, EXTNAME_KEY, \
     isvalid_dirname, list_dependants, is_empty_dir, \
-    find_envpy, value_from_salomexd, check_if_installed
+    find_envpy, value_from_salomexd, check_if_installed, get_module_name, find_postinstall
 
 
 def remove_if_empty(top_dir, directory):
@@ -123,7 +123,7 @@ def remove_bylist(root_dir, salomexc):
 
     return True
 
-def remove_salomex(install_dir, salomex_name):
+def remove_salomex(install_dir, salomex_name, force = False):
     """
     Remove a salome extension from SALOME install root.
 
@@ -137,30 +137,32 @@ def remove_salomex(install_dir, salomex_name):
 
     logger.debug('Starting remove a salome extension %s', salomex_name)
 
-    # Return value
-    components = None
-
     # Check if provided dirname is valid
     if not isvalid_dirname(install_dir):
-        return components
+        return None
 
     # Check if the given extension is installed
     salomexd, salomexc = check_if_installed(install_dir, salomex_name)
     if not salomexc:
         logger.debug('Going to exit from extension removing process.')
-        return components
+        return None
 
     # Check if we cannot remove an extension because of dependencies
     dependants = list_dependants(install_dir, salomex_name)
     if len(dependants) > 0:
-        logger.error('Cannot remove an extension %s because followed extensions depend on it: %s! '
-            'Going to exit from extension removing process.',
-            salomex_name, dependants)
-        return components
+        if not force:
+            logger.error('Cannot remove an extension %s because followed extensions depend on it: %s! '
+                'Going to exit from extension removing process.',
+                salomex_name, dependants)
+            return None
+        else:
+            logger.debug('Forcibly removing this extension %s may break the following dependent applications: %s!',
+                salomex_name, dependants)
 
     # Try to remove all the files listed in the control file
     if not remove_bylist(os.path.join(install_dir, SALOME_EXTDIR), salomexc):
-        return components
+        logger.error("Cannot remove all files listed in the control file")
+        return None
 
     # Remove control file
     os.remove(salomexc)
@@ -172,17 +174,24 @@ def remove_salomex(install_dir, salomex_name):
     else:
         logger.warning('Cannot find and remove %s file! ', env_py)
 
+    # Remove post_install script
+    post_install_file = find_postinstall(install_dir, salomex_name)
+    if post_install_file:
+        os.remove(post_install_file)
+    else:
+        logger.warning('Cannot find and remove %s file! ', post_install_file)
+
     # Remove description file
+    module_name = ""
     if salomexd:
-        # Get components to deactivate in UI if the case
-        components = value_from_salomexd(salomexd, EXTCOMPONENT_KEY)
+        # Get salomemodule_name to deactivate in UI if the case
+        module_name = get_module_name(install_dir, salomex_name)
         os.remove(salomexd)
-
-    logger.debug('An extension %s was removed from %s',
-        salomex_name, install_dir)
-
-    return components if components else []
-
+    else:
+        logger.warning('Cannot find and remove %s file! ', salomexd)
+    if not module_name:
+        module_name = salomex_name
+    return module_name
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:

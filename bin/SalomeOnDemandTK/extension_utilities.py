@@ -45,14 +45,22 @@ import re
 # Usually logging verbosity is set inside bin/runSalomeCommon.py when salome is starting.
 # Here we do just the same for a case if we call this package stand alone.
 FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+SOD_DEBUG=os.getenv("SOD_DEBUG")
+if SOD_DEBUG:
+    logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+else:
+    logging.basicConfig(format=FORMAT, level=logging.INFO)
+
 logger = logging.getLogger()
 
-# SalomeContext sets the logging verbosity level on its own,
-# and we put it here, so it doesn't override the local format above.
-#pylint: disable=wrong-import-position
-import salomeContext
-#pylint: enable=wrong-import-position
+# version of extension metadata model
+ModelVersion = "1.0.0"
+
+EXT_MNG_DIR = "ext_mng"
+DFILES_DIR = os.path.join(EXT_MNG_DIR,"metadata")
+CFILES_DIR = os.path.join(EXT_MNG_DIR,"control_files")
+ENVFILES_DIR = os.path.join(EXT_MNG_DIR,"env")
+POSTINSTALL_DIR = os.path.join(EXT_MNG_DIR,"postinstall")
 
 SALOME_EXTDIR = '__SALOME_EXT__'
 ARCFILE_EXT = 'salomex'
@@ -61,55 +69,24 @@ CFILE_EXT = 'salomexc'
 DFILE_EXT = 'salomexd'
 PYFILE_EXT = 'py'
 ENVPYFILE_SUF = '_env.py'
+INSTALLFILE_EXT = 'post_install'
 
 EXTNAME_KEY = 'name'
+EXTVERSION_KEY = 'version'
 EXTDESCR_KEY = 'descr'
 EXTDEPENDSON_KEY = 'depends_on'
 EXTAUTHOR_KEY = 'author'
-EXTCOMPONENT_KEY = 'components'
+EXTCOMPONENT_KEY = 'ext_components'
+EXTISGUI_KEY = 'salomegui'
+EXTSMOGULENAME_KEY = 'salomemodule_name'
+License_KEY = 'License'
+MODELVERSION_KEY = 'ModelVersion'
+EXTSUFFIX_KEY = "suffix"
 
-
-def create_salomexd(name, descr='', depends_on=None, author='', components=None):
-    """
-    Create a basic salomexd file from provided args.
-    Current version is a json file with function args as the keys.
-
-    Args:
-        name - the name of the corresponding salome extension.
-        depends_on - list of the modules that current extension depends on.
-        author - an author of the extension.
-        components - the names of the modules those current extension was built from.
-
-    Returns:
-        None
-    """
-
-    logger.debug('Create salomexd file...')
-
-    if depends_on is None:
-        depends_on = []
-
-    if components is None:
-        components = []
-
-    json_string = json.dumps(
-        {
-            EXTNAME_KEY: name,
-            EXTDESCR_KEY: descr,
-            EXTDEPENDSON_KEY: depends_on,
-            EXTAUTHOR_KEY: author,
-            EXTCOMPONENT_KEY: components
-        },
-        indent=4
-    )
-
-    try:
-        with open(name + '.' + DFILE_EXT, "w", encoding="utf-8") as file:
-            file.write(json_string)
-
-    except OSError:
-        logger.error(format_exc())
-
+EXTDEPNAME_KEY = 'name'
+EXTDEPVERSION_KEY = 'version'
+DKEY_LIST = [ EXTNAME_KEY, EXTDESCR_KEY, EXTDEPENDSON_KEY, EXTAUTHOR_KEY, EXTCOMPONENT_KEY, EXTSMOGULENAME_KEY, EXTISGUI_KEY ]
+ITERACTIVE_EXTCOMPONENT_KEY = 'salome_interactive'
 
 def read_salomexd(file_path):
     """
@@ -135,6 +112,36 @@ def read_salomexd(file_path):
         return {}
 
 
+def override_salomexd(file_path, item):
+    """
+    Override a salomexd file
+
+    Args:
+        file_path - the file_path of salomexd file
+        item - A dictionary containing all item modified
+               Key of these item must be declared in DKEY_LIST
+
+    Returns:
+        None
+    """
+    file_dir = os.path.dirname(file_path)
+    if file_dir:
+        os.chdir(file_dir)
+    data = read_salomexd(file_path)
+    for key in item:
+        if key not in DKEY_LIST:
+            logger.warning('Key %s was not declared in DKEY_LIST'%key)
+        else:   
+            data[key] = item[key]
+    create_salomexd(
+                    data[EXTNAME_KEY],
+                    descr = data[EXTNAME_KEY],
+                    depends_on = data[EXTDEPENDSON_KEY],
+                    author = data[EXTAUTHOR_KEY],
+                    components = data[EXTCOMPONENT_KEY]
+                    )
+
+
 def value_from_salomexd(file_path, key):
     """
     Reads a content of a salomexd file and return a value for the given key.
@@ -152,9 +159,22 @@ def value_from_salomexd(file_path, key):
         logger.debug('Key: %s, value: %s', key, file_content[key])
         return file_content[key]
 
-    logger.warning('Cannot get a value for key %s in salomexd file %s', key, file_path)
+    logger.debug('Cannot get a value for key %s in salomexd file %s', key, file_path)
     return None
 
+def get_module_name(salome_root, salomex_name):
+    """
+    Get salome module name from salomexd. If salome module name is not declared, the extension name will be given
+    Normally, the extension name declared in the salomexd is the same of extension config files name (salomexd, salomexb, _env.py)
+
+    Args:
+        install_dir - directory where the given extension is installed.
+        salomex_name - the given extension's name.
+    """
+    module_name = ext_info_bykey(salome_root, salomex_name, EXTSMOGULENAME_KEY)
+    if not module_name:
+        logger.debug(f'salomemodule_name is not declared in {salomex_name}.salomexd .')
+    return module_name
 
 def ext_info_bykey(salome_root, salomex_name, key):
     """
@@ -176,32 +196,6 @@ def ext_info_bykey(salome_root, salomex_name, key):
     return None
 
 
-def create_salomexb(name, included):
-    """
-    Create a salomexb file from a list of included file names.
-    For example:
-    */*.py
-    doc/*.html
-    doc/*.jp
-
-    Args:
-        name - the name of the corresponding salome extension.
-        included - list of the directories those must be included inside a salomex.
-
-    Returns:
-        None
-    """
-
-    logger.debug('Create salomexb file...')
-
-    try:
-        with open(name + '.' + BFILE_EXT, "w", encoding="utf-8") as file:
-            file.write('\n'.join(included[0:]))
-
-    except OSError:
-        logger.error(format_exc())
-
-
 def read_salomexb(file_path):
     """
     Returns a content af a salomexb file as a list of strings.
@@ -217,7 +211,6 @@ def read_salomexb(file_path):
     """
 
     logger.debug('Read salomexb file %s', file_path)
-
     try:
         with open(file_path, 'r', encoding='UTF-8') as file:
             return [line.rstrip() for line in file]
@@ -435,7 +428,7 @@ def list_dependants(install_dir, salomex_name):
 
     logger.debug('Check if there are other extensions that depends on %s...', salomex_name)
     dependants = []
-    salomexd_files = list_files_ext(install_dir, DFILE_EXT)
+    salomexd_files = list_files_ext(os.path.join(install_dir,DFILES_DIR), DFILE_EXT)
 
     for salomexd_file in salomexd_files:
         dependant_name, _ = os.path.splitext(os.path.basename(salomexd_file))
@@ -449,9 +442,10 @@ def list_dependants(install_dir, salomex_name):
 
         if EXTDEPENDSON_KEY in salomexd_content and salomexd_content[EXTDEPENDSON_KEY]:
             depends_on = salomexd_content[EXTDEPENDSON_KEY]
-            logger.debug('List of dependencies: %s', depends_on)
+            depends_on_no_version = [ext["name"] for ext in depends_on ]
+            logger.debug('List of dependencies: %s', depends_on_no_version)
 
-            if salomex_name in depends_on:
+            if salomex_name in depends_on_no_version:
                 dependants.append(dependant_name)
 
     if len(dependants) > 0:
@@ -509,7 +503,7 @@ def find_salomexd(install_dir, salomex_name):
         Abs path if the file exist, otherwise None.
     """
 
-    return find_file(install_dir, salomex_name + '.' + DFILE_EXT)
+    return find_file(install_dir, os.path.join(DFILES_DIR, salomex_name + '.' + DFILE_EXT))
 
 
 def find_salomexc(install_dir, salomex_name):
@@ -524,7 +518,7 @@ def find_salomexc(install_dir, salomex_name):
         Abs path if the file exist, otherwise None.
     """
 
-    return find_file(install_dir, salomex_name + '.' + CFILE_EXT)
+    return find_file(install_dir, os.path.join(CFILES_DIR, salomex_name + '.' + CFILE_EXT))
 
 
 def find_envpy(install_dir, salomex_name):
@@ -539,7 +533,22 @@ def find_envpy(install_dir, salomex_name):
         Abs path if the file exist, otherwise None.
     """
 
-    return find_file(install_dir, salomex_name + ENVPYFILE_SUF)
+    return find_file(install_dir, os.path.join(ENVFILES_DIR, salomex_name + ENVPYFILE_SUF))
+
+
+def find_postinstall(install_dir, salomex_name):
+    """
+    Finds a _env.py file for the given extension.
+
+    Args:
+        install_dir - path to directory to check.
+        salomex_name - extension's name.
+
+    Returns:
+        Abs path if the file exist, otherwise None.
+    """
+
+    return find_file(install_dir, os.path.join(POSTINSTALL_DIR, salomex_name + '.' +INSTALLFILE_EXT))
 
 
 def module_from_filename(filename):
@@ -577,48 +586,6 @@ def module_from_filename(filename):
     spec.loader.exec_module(module)
 
     return module
-
-
-def set_selext_env(install_dir, salomex_name, context=None):
-    """
-    Finds and run _env.py file for the given extension.
-
-    Args:
-        install_dir - path to directory to check.
-        salomex_name - extension's name.
-        context - SalomeContext object.
-
-    Returns:
-        True if an envpy file was found and run its init func.
-    """
-
-    logger.debug('Set an env for salome extension: %s...', salomex_name)
-
-    # Set the root dir as env variable
-    if not context:
-        context = salomeContext.SalomeContext(None)
-        context.setVariable('SALOME_APPLICATION_DIR', install_dir, overwrite=False)
-
-    # Find env file
-    ext_envpy = find_envpy(install_dir, salomex_name)
-    if not ext_envpy:
-        return False
-
-    # Get a module
-    envpy_module = module_from_filename(ext_envpy)
-    if not envpy_module:
-        return False
-
-    # Set env if we have something to set
-    ext_dir = os.path.join(install_dir, SALOME_EXTDIR)
-    if hasattr(envpy_module, 'init'):
-        envpy_module.init(context, ext_dir)
-        return True
-    else:
-        logger.warning('Env file %s doesnt have init func:!', ext_envpy)
-
-    logger.warning('Setting an env for salome extension %s failed!', salomex_name)
-    return False
 
 
 def get_app_root(levels_up=5):
@@ -667,3 +634,77 @@ def check_if_installed(install_dir, salomex_name):
         logger.debug('An extension %s IS NOT installed.', salomex_name)
 
     return salomexd, salomexc
+
+
+def comp_interaction_treat(components):
+    """
+    Convert a dict of modules groups into dict containing modules names as key and its interactive_mode as value
+    All the modules belong group salome_interactive has interactive_mode == True, so it has salome gui.
+
+    Args:
+        A dict {string: string list} containing group name and modules lists associated
+
+    Returns:
+        A dict {string, bool} containing modules name and interative mode associated
+    """
+    interactive = False
+    dict_treated = {}
+    if type(components) == dict:
+        for group in components:
+            if group != ITERACTIVE_EXTCOMPONENT_KEY:
+                interactive = False
+            else:
+                interactive = True
+            for component in components[group]:
+                dict_treated[component] = interactive
+    elif type(components) == list:
+        interactive = True
+        for component in components:
+            dict_treated[component] = interactive
+    return dict_treated
+
+def findReplace(directory, find, replace, filePattern):
+    for path, dirs, files in os.walk(os.path.abspath(directory)):
+        for filename in fnmatch.filter(files, filePattern):
+            filepath = os.path.join(path, filename)
+            with open(filepath) as f:
+                s = f.read()
+            for s_find in re.findall(find,s):
+                s = s.replace(s_find, replace)
+            with open(filepath, "w") as f:
+                f.write(s)
+
+def get_OS_ID():
+    """
+    Get identification of operating system
+
+    return: on Linux: <id>_<version_number> (Ex: debian_12)
+            on Windows: windows
+    """
+    os_name = sys.platform
+    if os_name  == "linux":
+        import distro
+        return distro.id() + "_" + distro.version()
+    else:
+        return os_name
+
+def get_salome_version():
+    """
+    Get SALOME APP version from SALOME_APPLICATION_DIR/__RUN_SALOME__/bin/salome/VERSION
+    """
+    salome_app_dir = os.getenv( "SALOME_APPLICATION_DIR" )
+    if salome_app_dir:
+        try:
+            filename = os.path.join(salome_app_dir, "__RUN_SALOME__","bin","salome","VERSION")
+            f = open( filename )
+            data = f.readlines()
+            f.close()
+            for l in data:
+                if l.strip().startswith("#") or ":" not in l: continue
+                key = ":".join( l.split( ":" )[ :-1 ] ).strip()
+                val = l.split( ":" )[ -1 ].strip()
+                if "salomeapp" in key.lower():
+                    return val
+        except Exception:
+            pass
+    return ""

@@ -22,7 +22,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from ORBConfigFile_impl import writeORBConfigFile, readORBConfigFile, writeORBConfigFileSSL
+from salome.kernel.ORBConfigFile_impl import writeORBConfigFile, readORBConfigFile, writeORBConfigFileSSL
 
 if __name__ == "__main__":
   import sys

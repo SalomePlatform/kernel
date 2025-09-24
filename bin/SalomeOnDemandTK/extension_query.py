@@ -39,8 +39,8 @@ import sys
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    SALOME_EXTDIR, DFILE_EXT, EXTDEPENDSON_KEY, EXTDESCR_KEY, EXTAUTHOR_KEY, EXTCOMPONENT_KEY, \
-    isvalid_dirname, find_salomexc, list_files_ext, read_salomexd
+    SALOME_EXTDIR, DFILE_EXT, EXTDEPENDSON_KEY, EXTDESCR_KEY, EXTAUTHOR_KEY, EXTCOMPONENT_KEY, DFILES_DIR, EXTVERSION_KEY, EXTSUFFIX_KEY, \
+    isvalid_dirname, find_salomexc, list_files_ext, read_salomexd, comp_interaction_treat
 
 
 def size_to_str(size, format_in_bytes=False):
@@ -140,7 +140,7 @@ def size_bylist(root_dir, salomexc):
                 path_to_file = os.path.join(root_dir, line.strip())
                 #logger.debug('Check the file %s...', path_to_file)
 
-                if os.path.isfile(path_to_file):
+                if os.path.isfile(path_to_file) and not os.path.islink(path_to_file):
                     size = os.path.getsize(path_to_file)
                     total_size += size
                     logger.debug('%s size: %s', path_to_file, size)
@@ -238,11 +238,12 @@ def dependency_tree(directory):
         { 'A': ['B', 'C', 'D'], 'B': ['C', 'E'], 'C': [], 'D': ['E'], 'E': [] }.
     """
 
-    logger.debug('Build dependency tree for extensions in %s', directory)
+    salomexd_dir = os.path.join(directory,DFILES_DIR)
+    logger.debug('Build dependency tree for extensions in %s', salomexd_dir)
 
     tree = {}
-    salomexd_files = list_files_ext(directory, DFILE_EXT)
-    logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
+    salomexd_files = list_files_ext(salomexd_dir, DFILE_EXT)
+    logger.debug('There are %s extensions in %s', len(salomexd_files), salomexd_dir)
 
     for salomexd_file in salomexd_files:
         ext_name, _ = os.path.splitext(os.path.basename(salomexd_file))
@@ -252,13 +253,61 @@ def dependency_tree(directory):
 
         if EXTDEPENDSON_KEY in salomexd_content:
             depends_on = salomexd_content[EXTDEPENDSON_KEY]
-            logger.debug('List of dependencies: %s', depends_on)
+            depends_on_no_version = [ext["name"] for ext in depends_on ]
+            logger.debug('List of dependencies: %s', depends_on_no_version)
 
-            tree[ext_name] = depends_on
+            tree[ext_name] = depends_on_no_version
 
     logger.debug('Dependency tree: %s', tree)
     return tree
 
+def ext_dependency_tree( salomexd_files_dir, ext_name ):
+    r"""
+    Create a dependency tree for one salome extensions
+    Data is retrieved from the directory containning all of salomexd files.
+    ext_name.salomexd must be present dans salomexd files directory
+
+    Args:
+        salomexd_files_dir - salomexd files directory
+        ext_name - the extension name
+
+    Returns:
+        A dictionary like that for extensions A, B, C, D and E:
+          A
+         /|\
+        / B D
+        \/ \/
+        C   E
+
+        { 'A': ['B', 'C', 'D'], 'B': ['C', 'E'], 'C': [], 'D': ['E'], 'E': [] }.
+    """
+
+    tree = {}
+    ext_salomexd_file = os.path.join(salomexd_files_dir,ext_name + "." + DFILE_EXT)
+    salomexd_content = read_salomexd(ext_salomexd_file)
+    depends_on = salomexd_content[EXTDEPENDSON_KEY]
+    depends_on_no_version = [ext["name"] for ext in depends_on ]
+    tree[ext_name] = depends_on_no_version
+    if tree[ext_name]:
+        for ext_dep_name in tree[ext_name]:
+            tree.update(ext_dependency_tree(salomexd_files_dir, ext_dep_name))
+    return tree
+
+def get_depends_on_list( ext_list, salomexd_files_dir = ""):
+    """
+    Get an orderd list of depends_on of an extensions list from *.salomexd
+    This list is used to automate the installation of an extension and its prerequis
+    """
+    if not salomexd_files_dir:
+        salomexd_files_dir = os.getenv("SALOMEXD_FILES_DIR") if os.getenv("SALOMEXD_FILES_DIR") else ""
+    if os.path.isdir(salomexd_files_dir):
+        tree = {}
+        for module_name in ext_list:
+            tree.update(ext_dependency_tree(salomexd_files_dir,module_name))
+        return ext_by_dependants(tree)
+    else:
+        logger.error(f"salomexd files directory \"{salomexd_files_dir}\" not found!!")
+        return None
 
 def ext_info_dict(directory):
     r"""
@@ -268,14 +317,15 @@ def ext_info_dict(directory):
         directory - the given ext install directory.
 
     Returns:
-        A dictionary {name: [descr, author, components, size]}.
+        A dictionary {name: {salomexd_content}}.
     """
 
-    logger.debug('Build info dictionary for extensions in %s', directory)
+    salomexd_dir = os.path.join(directory, DFILES_DIR)
+    logger.debug('Build info dictionary for extensions in %s', salomexd_dir)
 
     ext_info = {}
-    salomexd_files = list_files_ext(directory, DFILE_EXT)
-    logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
+    salomexd_files = list_files_ext(salomexd_dir, DFILE_EXT)
+    logger.debug('There are %s extensions in %s', len(salomexd_files), salomexd_dir)
 
     for salomexd_file in salomexd_files:
         # Collect size info
@@ -285,26 +335,65 @@ def ext_info_dict(directory):
         # Collect salomexd info
         salomexd_content = read_salomexd(salomexd_file)
 
+        ext_info[ext_name] = salomexd_content
+        ext_info[ext_name]["size"] = size
+
+    logger.debug('Installed extensions info dict: %s', ext_info)
+    return ext_info
+
+def ext_info_list(directory):
+    r"""
+    Get installed salome extensions info.
+
+    Args:
+        directory - the given ext install directory.
+
+    Returns:
+        A dictionary {name: [descr, author, components, size, version, suffix]}.
+    """
+
+    info_dict = ext_info_dict(directory)
+
+    ext_info = {}
+    for ext_name in info_dict:
+
         descr = ''
-        if EXTDESCR_KEY in salomexd_content:
-            descr = salomexd_content[EXTDESCR_KEY]
+        if EXTDESCR_KEY in info_dict[ext_name]:
+            descr = info_dict[ext_name][EXTDESCR_KEY]
             logger.debug('descr: %s', descr)
 
         author = ''
-        if EXTAUTHOR_KEY in salomexd_content:
-            author = salomexd_content[EXTAUTHOR_KEY]
+        if EXTAUTHOR_KEY in info_dict[ext_name]:
+            author = info_dict[ext_name][EXTAUTHOR_KEY]
             logger.debug('author: %s', author)
 
         components = ''
-        if EXTCOMPONENT_KEY in salomexd_content:
-            components = ', '.join(salomexd_content[EXTCOMPONENT_KEY])
+        if EXTCOMPONENT_KEY in info_dict[ext_name]:
+            components = ', '.join(comp_interaction_treat(info_dict[ext_name][EXTCOMPONENT_KEY]))
             logger.debug('components: %s', components)
 
-        ext_info[ext_name] = [descr, author, components, size]
+        version = ''
+        if EXTVERSION_KEY in info_dict[ext_name]:
+            version = info_dict[ext_name][EXTVERSION_KEY]
+            logger.debug('version: %s', version)
+
+        suffix = 1
+        if EXTSUFFIX_KEY in info_dict[ext_name]:
+            suffix = info_dict[ext_name][EXTSUFFIX_KEY]
+            logger.debug('suffix: %s', suffix)
+
+        size = 0
+        if "size" in info_dict[ext_name]:
+            size = info_dict[ext_name]["size"]
+            logger.debug('size: %s', size)
+        else:
+            logger.error(f'size of {ext_name} is not received')
+            return None
+
+        ext_info[ext_name] = [descr, author, components, size, version, suffix]
 
     logger.debug('Installed extensions info: %s', ext_info)
     return ext_info
-
 
 def ext_by_dependants(dep_tree, depends_on=None):
     r"""
@@ -385,10 +474,11 @@ def ext_by_name(directory):
     """
 
     logger.debug('directory: %s', directory)
+    salomexd_dir = os.path.join(directory, DFILES_DIR)
 
     # Get ext files
-    salomexd_files = list_files_ext(directory, DFILE_EXT)
-    logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
+    salomexd_files = list_files_ext(salomexd_dir, DFILE_EXT)
+    logger.debug('There are %s extensions in %s', len(salomexd_files), salomexd_dir)
 
     # Get ext names
     res_names = []
@@ -446,6 +536,76 @@ def ext_canremove_flags(directory):
 
     return res_dict
 
+def get_ext_version(ext_name, root_dir = os.getenv("SALOME_APPLICATION_DIR")):
+    r"""
+    Get version de l'extension from salomexd
+
+    Args:
+        ext_name - the extension name
+
+    Returns:
+        version - string
+    """
+
+    if not root_dir or not os.path.isdir(root_dir):
+        logger.error(f'Installation directory {root_dir} is not found')
+        return None
+
+    salomexd_dir = os.path.join(root_dir, DFILES_DIR)
+    ext_salomexd_file = os.path.join(salomexd_dir,ext_name + "." + DFILE_EXT)
+    salomexd_content = read_salomexd(ext_salomexd_file)
+    return salomexd_content[EXTVERSION_KEY]
+
+def get_ext_version_major( ext_name ):
+    r"""
+    Get version de l'extension from salomexd
+
+    Args:
+        ext_name - the extension name
+
+    Returns:
+        version major - string
+    """
+    ver = get_ext_version( ext_name )
+    try:
+        return ver.split( "." )[ 0 ]
+    except Exception:
+        pass
+    return None
+
+def get_ext_version_minor( ext_name ):
+    r"""
+    Get version de l'extension from salomexd
+
+    Args:
+        ext_name - the extension name
+
+    Returns:
+        version minor - string
+    """
+    ver = get_ext_version( ext_name )
+    try:
+        return ver.split( "." )[ 1 ]
+    except Exception:
+        pass
+    return None
+
+def get_ext_version_release( ext_name ):
+    r"""
+    Get version de l'extension from salomexd
+
+    Args:
+        ext_name - the extension name
+
+    Returns:
+        version release - string
+    """
+    ver = get_ext_version( ext_name )
+    try:
+        return ver.split( "." )[ 2 ]
+    except Exception:
+        pass
+    return None
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

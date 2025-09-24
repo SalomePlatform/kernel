@@ -30,7 +30,7 @@
 """
 
 import sys
-from runSalomeOnDemand_impl import set_ext_env, logger
+from salome.kernel.runSalomeOnDemand_impl import set_ext_env, logger
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
