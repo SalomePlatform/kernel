@@ -260,6 +260,7 @@ RM_NAME_IN_NS = "/ResourcesManager"
 DSM_NAME_IN_NS = "/DataServerManager"
 ESM_NAME_IN_NS = "/ExternalServers"
 LOGM_NAME_IN_NS = "/LogManager"
+LAUNCHER_NAME_IN_NS = "/SalomeLauncher"
 
 def salome_init_without_session_attached(path=None, embedded=False):
     """
@@ -296,6 +297,9 @@ def salome_init_without_session_attached(path=None, embedded=False):
     #
     lm = orb.string_to_object( nsAbroad.Resolve(KernelLauncher.GetLockMasterEntryInNS()).decode() )
     naming_service.Register(lm,KernelLauncher.GetLockMasterEntryInNS())
+    #
+    sl = orb.string_to_object( nsAbroad.Resolve(LAUNCHER_NAME_IN_NS).decode() )
+    naming_service.Register(sl, LAUNCHER_NAME_IN_NS)
 
 def salome_init_with_session(path=None, embedded=False):
     """
