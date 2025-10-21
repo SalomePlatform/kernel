@@ -30,7 +30,7 @@ python
 In either cases, %SALOME services access is done with:
 
 \code
-import salome
+from salome.kernel import salome
 salome.salome_init()
 \endcode
 
@@ -49,14 +49,14 @@ In the following example, a test component provided in KERNEL is launched
 in the local container, "FactoryServer", created when %SALOME starts:
 
 \code
-import salome
+from salome.kernel import salome
 salome.salome_init()
    
 import LifeCycleCORBA
 lcc = LifeCycleCORBA.LifeCycleCORBA()
 obj=lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent")
    
-import Engines
+from salome.kernel import Engines
 comp=obj._narrow(Engines.TestComponent)
  
 comp.Coucou(1)
@@ -85,7 +85,7 @@ The container process is created here if it does not exists, and a new
 component instance is created:
 
 \code
-import salome
+from salome.kernel import salome
 salome.salome_init()
 import LifeCycleCORBA
 lcc = LifeCycleCORBA.LifeCycleCORBA()
@@ -93,7 +93,7 @@ lcc = LifeCycleCORBA.LifeCycleCORBA()
 import Utils_Identity
 host  = Utils_Identity.getShortHostName()
 
-import Engines
+from salome.kernel import Engines
 params={}
 params['hostname']=host
 params['container_name']='myContainer'
@@ -150,7 +150,7 @@ required. %A container is created on remote computer if it does not exist,
 to handle the file transfer:
 
 \code
-import salome
+from salome.kernel import salome
 salome.salome_init()
 
 import LifeCycleCORBA

@@ -62,7 +62,6 @@ SET(SCRIPTS
   salomeContext.py
   salome_utils.py
   searchFreePort.py
-  server.py
   setenv.py
   showNS.py
   virtual_salome.py
@@ -94,7 +93,6 @@ SET(SCRIPTS
   salome_utils.py
   salomeContext_impl.py
   searchFreePort.py
-  server.py
   setenv_impl.py
 )
 

@@ -92,7 +92,7 @@ def main():
 
   import argparse
   from pathlib import Path
-  import salome
+  from salome.kernel import salome
   salome.salome_init()
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description = "To be used in association of a process launched nested inside a salome_process_launcher session.")
   parser.add_argument("rendez_vous_file", type=Path, help="Rendez vous file specified in corresponding salome_process_launcher.")

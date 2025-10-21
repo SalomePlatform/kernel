@@ -27,7 +27,7 @@ idbox = batchmode_geompy.addToStudy(box,"box")
 
 
 geom = batchmode_geompy.geom
-import SMESH
+from salome.kernel import SMESH
 import batchmode_smesh
 ShapeType = batchmode_smesh.ShapeType
 
@@ -411,7 +411,7 @@ if father is None:
 SuperV = lcc.FindOrLoadComponent("SuperVisionContainer","Supervision")
 Builder = openedStudy.NewBuilder()
 Builder.LoadWith(father, SuperV)
-import SALOMEDS
+from salome.kernel import SALOMEDS
 
 aChildIterator = openedStudy.NewChildIterator(father)
 
@@ -511,7 +511,7 @@ if father is None:
 SuperV = lcc.FindOrLoadComponent("SuperVisionContainer","Supervision")
 Builder = openedStudy.NewBuilder()
 Builder.LoadWith(father, SuperV)
-import SALOMEDS
+from salome.kernel import SALOMEDS
 
 aChildIterator = openedStudy.NewChildIterator(father)
 

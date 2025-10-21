@@ -20,7 +20,7 @@
 #
 
 import signal
-import salome
+from salome.kernel import salome
 import sys
 import os
 

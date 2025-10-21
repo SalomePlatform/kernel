@@ -20,7 +20,7 @@ of the study editor to manipulate some objects can be done with a set
 of instructions as:
 
 \code
-from salome.kernel.studyedit import getStudyEditor
+from salome.kernel.salome.kernel.studyedit import getStudyEditor
 
 studyEditor = getStudyEditor()  # Get an editor for the current study
  
