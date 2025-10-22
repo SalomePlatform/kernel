@@ -40,15 +40,16 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../Launcher
   )
 
-ADD_LIBRARY(LauncherWrapHelper LauncherResourceDefinition.cxx)
-TARGET_LINK_LIBRARIES(LauncherWrapHelper Launcher)
-set_target_properties(LauncherWrapHelper PROPERTIES INSTALL_RPATH "$ORIGIN")
-INSTALL(TARGETS LauncherWrapHelper EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 IF(WIN32)
   ADD_LIBRARY(LauncherWrapHelper_static STATIC  LauncherResourceDefinition.cxx)
   SET_TARGET_PROPERTIES(LauncherWrapHelper_static PROPERTIES OUTPUT_NAME LauncherWrapHelper)
   TARGET_LINK_LIBRARIES(LauncherWrapHelper_static  Launcher)
   INSTALL(TARGETS LauncherWrapHelper_static EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+ELSE(WIN32)
+  ADD_LIBRARY(LauncherWrapHelper LauncherResourceDefinition.cxx)
+  TARGET_LINK_LIBRARIES(LauncherWrapHelper Launcher)
+  SET_TARGET_PROPERTIES(LauncherWrapHelper PROPERTIES INSTALL_RPATH "$ORIGIN")
+  INSTALL(TARGETS LauncherWrapHelper EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 ENDIF(WIN32)
 SWIG_ADD_LIBRARY(${Launcher_target_name} LANGUAGE python SOURCES Launcher.i)
 
