@@ -24,7 +24,7 @@ import os
 from optparse import OptionParser
 import subprocess
 from salome.kernel.salome_utils import getUserName
-from salomeContextUtils import getShortAndExtraArgs
+from salome.kernel.salomeContextUtils import getShortAndExtraArgs
 
 # Use to display newlines (\n) in epilog
 class MyParser(OptionParser):
@@ -37,7 +37,7 @@ def _writeConfigFile(port, host):
     path = os.environ['OMNIORB_USER_PATH']
     kwargs = {'with_username' : getUserName()}
 
-    from ORBConfigFile import writeORBConfigFile
+    from salome.kernel.ORBConfigFile_impl import writeORBConfigFile
     [ filename, msgSize ] = writeORBConfigFile(path, host, port, kwargs)
 
     os.environ['OMNIORB_CONFIG'] = filename
