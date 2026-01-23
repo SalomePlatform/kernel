@@ -181,7 +181,7 @@ def getScriptsAndArgs(args=None, searchPathList=None):
       # myscript.py args:['file1','file2'],val1,"done",[1,2,3],[True,False],"ok"
       # With such a call, an elt variable contains the string representing ['file1','file2'],val1,"done",[1,2,3],[True,False],"ok" that is '[file1,file2],val1,done,[1,2,3],[True,False],ok'
       # We have to split elt to obtain: ['[file1,file2]','val1','done','[1,2,3]','[True,False]','ok']
-      contains_list = re.findall('(\[[^\]]*\])', elt)
+      contains_list = re.findall(r'(\[[^\]]*\])', elt)
       if contains_list:
         extracted_args = []
         x = elt.split(",")
@@ -298,7 +298,7 @@ def formatScriptsAndArgs(scriptArgs=None, escapeSpaces=False):
           cmd = cmd.replace(' ', ' "', 1)
           cmd = cmd + '"'
         else:
-          cmd = cmd.replace(' ', '\ ').replace('\ ', ' ', 1)
+          cmd = cmd.replace(' ', r'\ ').replace(r'\ ', ' ', 1)
       if sa_obj.args:
         cmd = " ".join([cmd]+sa_obj.args)
       commands.append(cmd)
