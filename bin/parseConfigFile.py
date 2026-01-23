@@ -42,7 +42,7 @@ DEFAULT_VARS_SECTION_NAME = 'SALOME DEFAULT VALUES'
 def _expandSystemVariables(key, val):
   expandedVal = os.path.expandvars(val) # expand environment variables
   # Search for not expanded variables (i.e. non-existing environment variables)
-  pattern = re.compile('\${ ( [^}]* ) }', re.VERBOSE) # string enclosed in ${ and }
+  pattern = re.compile(r'\${ ( [^}]* ) }', re.VERBOSE) # string enclosed in ${ and }
   expandedVal = pattern.sub(r'', expandedVal) # remove matching patterns
 
   if not "DLIM8VAR" in key: # special case: DISTENE licence key can contain double clons (::)
