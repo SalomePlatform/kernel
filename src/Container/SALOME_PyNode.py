@@ -614,7 +614,7 @@ with open("{tempOutFile}","a") as f:
     szOfDirStr = "fail"
     try:
       st = sp.check_output(["du","-sh","{dirNameToInspect2}"]).decode()
-      szOfDirStr = re.split("[\s]+",st)[0]
+      szOfDirStr = re.split("[\\s]+",st)[0]
     except:
       pass
     f.write( "{{}}\\n".format( str( datetime.datetime.now().timestamp() ) ) )
