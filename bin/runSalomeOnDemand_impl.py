@@ -31,10 +31,10 @@
 
 import os,sys
 import salomeContext
-from SalomeOnDemandTK.extension_utilities import logger, \
+from SalomeOnDemandTK.extension_utilities import get_logger, \
     find_envpy, module_from_filename, get_app_root, find_file, \
     SALOME_EXTDIR
-from SalomeOnDemandTK.extension_query import ext_by_dependants, dependency_tree
+from SalomeOnDemandTK.extension_query_impl import ext_by_dependants, dependency_tree
 
 def set_selext_env(install_dir, salomex_name, context=None):
     """
@@ -49,7 +49,7 @@ def set_selext_env(install_dir, salomex_name, context=None):
         True if an envpy file was found and run its init func.
     """
 
-    logger.debug('Set an env for salome extension: %s...', salomex_name)
+    get_logger().debug('Set an env for salome extension: %s...', salomex_name)
 
     # Set the root dir as env variable
     if not context:
@@ -73,9 +73,9 @@ def set_selext_env(install_dir, salomex_name, context=None):
         envpy_module.init(context, ext_dir)
         return True
     else:
-        logger.warning('Env file %s doesnt have init func:!', ext_envpy)
+        get_logger().warning('Env file %s doesnt have init func:!', ext_envpy)
 
-    logger.warning('Setting an env for salome extension %s failed!', salomex_name)
+    get_logger().warning('Setting an env for salome extension %s failed!', salomex_name)
     return False
 
 def set_ext_env(app_name='', version=''):
@@ -90,13 +90,13 @@ def set_ext_env(app_name='', version=''):
         None.
     """
 
-    logger.debug('Set an env for app: %s, version: %s...', app_name, version)
+    get_logger().debug('Set an env for app: %s, version: %s...', app_name, version)
 
     # Get the root directory
     app_root = os.environ.get('SALOME_APPLICATION_DIR', '')
     if not app_root:
         app_root = get_app_root()
-        logger.warning(
+        get_logger().warning(
             'Env var SALOME_APPLICATION_DIR is not set! It will be setted by default in %s.'%app_root)
 
     # Set the root dir as env variable
@@ -106,9 +106,9 @@ def set_ext_env(app_name='', version=''):
     # Find and source all _env.py files for installed extensions
     tree = dependency_tree(app_root)
     installed_ext = ext_by_dependants(tree)
-    logger.debug('Installed extensions: %s', installed_ext)
+    get_logger().debug('Installed extensions: %s', installed_ext)
     if not installed_ext:
-        logger.debug('There are not any extensions in %s!', app_root)
+        get_logger().debug('There are not any extensions in %s!', app_root)
         return
 
     # Execute env file as a module

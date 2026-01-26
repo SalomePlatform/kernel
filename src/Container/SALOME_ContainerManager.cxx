@@ -1033,14 +1033,20 @@ std::string GetCommandFromTemplate(const std::string& theScriptName,
                                    std::queue<std::string>& theScriptParameters)
 {
   std::string command;
+  MESSAGE("Generating container launch command using python template : \"" << theScriptName << "\" ");
   AutoGIL agil;
   // manage GIL
 
-  PyObject* mod(PyImport_ImportModule(theScriptName.c_str()));
-  MESSAGE("Template name :"<< theScriptName.c_str());
+  PyObject* mod(nullptr);
+
+  {
+    PyErrorGuard peg( SALOME::VerbosityActivated() );
+    mod = PyImport_ImportModule(theScriptName.c_str());
+  }
 
   if (!mod)
   {
+    MESSAGE( "As template " <<  theScriptName  << " has not been found try with default templates defined in KERNEL install");
     AutoPyRef sys = PyImport_ImportModule("sys");
     AutoPyRef sys_path = PyObject_GetAttrString(sys, "path");
     AutoPyRef folder_path = PyUnicode_FromString(getScriptTemplateFilePath().c_str());

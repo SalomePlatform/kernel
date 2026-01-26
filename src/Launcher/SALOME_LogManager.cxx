@@ -72,6 +72,7 @@ PortableServer::POA_var SALOME_ContainerScriptExecPerfLog::getPOA()
 
 void SALOME_ContainerScriptExecPerfLog::assign(const SALOME_CMOD::vectorOfByte& value)
 {
+  AutoGIL gstate;
   auto sz = value.length();
   _data.resize( sz );
   for(auto i = 0 ; i < sz ; ++i)
@@ -99,6 +100,7 @@ void SALOME_ContainerScriptExecPerfLog::assignAndAppendFreestyle(const SALOME_CM
     {
       std::string error("can not assignAndAppendFreestyle");
       PyErr_Print();
+      PyErr_Clear();
       THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     _data = FromPyToCpp(result);
@@ -123,6 +125,7 @@ void SALOME_ContainerScriptExecPerfLog::start()
   {
     std::string error("can not start");
     PyErr_Print();
+    PyErr_Clear();
     THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
 }
@@ -137,6 +140,7 @@ AutoPyRef SALOME_ContainerScriptExecPerfLog::end()
   {
     std::string error("can not end");
     PyErr_Print();
+    PyErr_Clear();
     THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
   }
   return result;
@@ -184,6 +188,7 @@ Engines::ContainerScriptExecPerfLog_ptr SALOME_ContainerScriptPerfLog::addExecut
     {
       std::string error("can not addExecution");
       PyErr_Print();
+      PyErr_Clear();
       THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     execution->setPyObj( result.retn() );//ownership of result is transfered to execution
@@ -227,6 +232,7 @@ Engines::ContainerScriptPerfLog_ptr SALOME_ContainerPerfLog::addScript(const cha
     {
       std::string error("can not addScript");
       PyErr_Print();
+      PyErr_Clear();
       THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     script->setPyObj( result );
@@ -344,6 +350,7 @@ Engines::ContainerPerfLog_ptr SALOME_LogManager::declareContainer(const char *co
     {
       std::string error("can not declareContainer");
       PyErr_Print();
+      PyErr_Clear();
       THROW_SALOME_CORBA_EXCEPTION(error.c_str(),SALOME_CMOD::INTERNAL_ERROR);
     }
     cont->setPyObj( result );
