@@ -76,5 +76,5 @@ if __name__ == "__main__":
         arg_1, arg_2 = sys.argv[1:]
         set_ext_env(arg_1, arg_2)
     else:
-        logger.error('You must provide all the arguments!')
-        logger.info(set_ext_env.__doc__)
+        get_logger().error('You must provide all the arguments!')
+        get_logger().info(set_ext_env.__doc__)
