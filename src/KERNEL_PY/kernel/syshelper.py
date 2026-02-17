@@ -41,7 +41,7 @@ def findFiles(rootpath, excludes=None):
         exclude_options+="-e %s "%excludepath
 
     listfiles=[]        
-    stream=os.popen("find %s -type f | grep -v -e '\.svn' %s 2>/dev/null"%(rootpath,exclude_options))
+    stream=os.popen(r"find %s -type f | grep -v -e '\.svn' %s 2>/dev/null"%(rootpath,exclude_options))
     for line in stream.readlines():
         listfiles.append(line.split('\n')[0])
         

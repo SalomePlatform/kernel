@@ -30,7 +30,7 @@ def readORBConfigFile(filename):
   import re
   host, port = None, None
   for line in contents:
-    m = re.match("(ORB)?InitRef = NameService=corbaname::([\D\d]+):(\d*)", line)
+    m = re.match(r"(ORB)?InitRef = NameService=corbaname::([\D\d]+):(\d*)", line)
     if m:
       host = m.group(2)
       port = m.group(3)
