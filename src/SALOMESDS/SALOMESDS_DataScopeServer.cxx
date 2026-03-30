@@ -29,6 +29,7 @@
 #include "SALOMESDS_Transaction.hxx"
 #include "SALOME_NamingService_Abstract.hxx"
 #include "SALOMESDS_Exception.hxx"
+#include "PythonCppUtils.hxx"
 
 #include <sstream>
 #include <iterator>
@@ -691,6 +692,7 @@ void DataScopeServerTransaction::addWaitKey(KeyWaiter *kw)
 
 void DataScopeServerTransaction::pingKey(PyObject *keyObj)
 {
+  AutoGIL agil;
   std::size_t ii(0);
   // this part does nothing except to be sure that in notify key all will be OK.
   PyObject *args(PyTuple_New(1));
@@ -724,6 +726,7 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
 
 void DataScopeServerTransaction::notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj)
 {
+  AutoGIL agil;
   std::size_t ii(0);
   PyObject *args(PyTuple_New(1));
   PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
