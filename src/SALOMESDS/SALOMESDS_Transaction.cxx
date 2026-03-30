@@ -24,6 +24,7 @@
 #include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_TrustTransaction.hxx"
+#include "PythonCppUtils.hxx"
 
 #include <sstream>
 
@@ -192,8 +193,11 @@ void TransactionDictModify::prepareRollBackInCaseOfFailure()
 {
   _zeDataBefore.clear();
   PyObject *zeDictPy(_varc->getPyObj());
-  Py_XINCREF(zeDictPy);
-  _zeDataBefore=_varc->pickelize(zeDictPy);
+  {
+    AutoGIL agil;
+    Py_XINCREF(zeDictPy);
+    _zeDataBefore=_varc->pickelize(zeDictPy);
+  }
 }
 
 void TransactionDictModify::rollBack()
@@ -225,6 +229,7 @@ void TransactionAddKeyValue::notify()
 
 TransactionAddKeyValue::~TransactionAddKeyValue()
 {
+  AutoGIL agil;
   Py_XDECREF(_key);
   Py_XDECREF(_value);
 }
@@ -269,6 +274,7 @@ void TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::notify()
 
 TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::~TransactionRemoveKeyInVarErrorIfNotAlreadyExisting()
 {
+  AutoGIL agil;
   Py_XDECREF(_key);
 }
 

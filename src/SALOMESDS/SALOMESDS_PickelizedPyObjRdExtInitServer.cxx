@@ -22,6 +22,7 @@
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
+#include "PythonCppUtils.hxx"
 
 #include <iostream>
 #include <sstream>
@@ -43,11 +44,13 @@ PickelizedPyObjRdExtInitServer::PickelizedPyObjRdExtInitServer(DataScopeServerBa
 
 PickelizedPyObjRdExtInitServer::~PickelizedPyObjRdExtInitServer()
 {
+  AutoGIL agil;
   Py_XDECREF(_self_deep_copy);
 }
 
 PickelizedPyObjRdExtServer *PickelizedPyObjRdExtInitServer::buildStdInstanceFrom(const std::string& varName)
 {
+  AutoGIL agil;
   PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
   return new PickelizedPyObjRdExtServer(getFather(),varName,pyobj);
 }
@@ -59,12 +62,14 @@ std::string PickelizedPyObjRdExtInitServer::getAccessStr() const
 
 SALOME_CMOD::ByteVec *PickelizedPyObjRdExtInitServer::fetchSerializedContent()
 {
+  AutoGIL agil;
   Py_XINCREF(_self_deep_copy);//because pickelize consume _self_deep_copy
   return FromCppToByteSeq(pickelize(_self_deep_copy));
 }
 
 PyObject *PickelizedPyObjRdExtInitServer::DeepCopyPyObj(PyObject *pyobj)
 {
+  AutoGIL agil;
   PyObject *mod(PyImport_ImportModule("copy"));//new value
   PyObject *meth(PyObject_GetAttrString(mod,"deepcopy"));//new value
   PyObject *args(PyTuple_New(1));
@@ -78,6 +83,7 @@ PyObject *PickelizedPyObjRdExtInitServer::DeepCopyPyObj(PyObject *pyobj)
 
 PickelizedPyObjRdExtServer *PickelizedPyObjRdExtInitFreeStyleServer::buildStdInstanceFrom(const std::string& varName)
 {
+  AutoGIL agil;
   PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
   return new PickelizedPyObjRdExtFreeStyleServer(getFather(),varName,pyobj,std::move(_cmp_func_content),std::move(_cmp_func));
 }

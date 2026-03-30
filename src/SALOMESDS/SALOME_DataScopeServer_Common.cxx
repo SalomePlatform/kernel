@@ -56,6 +56,7 @@ int CommonDataScopeServerMain(int argc, char *argv[], CORBA::ORB_var orb, const 
   {
     SALOME_CPythonHelper cPyHelper;
     cPyHelper.initializePython(argc,argv);
+    cPyHelper.allowPythonCallsFromDifferentThread();
     //
     SALOMESDS::DataScopeServerBase *server(nullptr);
     if(!isTransac)

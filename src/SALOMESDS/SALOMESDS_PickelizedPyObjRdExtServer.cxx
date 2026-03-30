@@ -22,6 +22,7 @@
 #include "SALOMESDS_PickelizedPyObjRdExtInitServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
+#include "PythonCppUtils.hxx"
 
 #include <iostream>
 #include <sstream>
@@ -48,6 +49,7 @@ PickelizedPyObjRdExtServer::~PickelizedPyObjRdExtServer()
  */
 SALOME_CMOD::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonMethodOn(const char *method, const SALOME_CMOD::ByteVec& args)
 {
+  AutoGIL agil;
   if(!_self)
     throw Exception("PickelizedPyObjRdExtServer::invokePythonMethodOn : self is NULL !");
   std::string argsCpp;
@@ -78,12 +80,14 @@ SALOME_CMOD::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePy
 
 PickelizedPyObjRdExtInitServer *PickelizedPyObjRdExtServer::buildInitInstanceFrom(const std::string& varName)
 {
+  AutoGIL agil;
   PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
   return new PickelizedPyObjRdExtInitServer(getFather(),varName,pyobj);
 }
 
 void PickelizedPyObjRdExtServer::checkRdExtnessOf(const std::string& methodName, PyObject *argsPy)
 {
+  AutoGIL agil;
   if(!_self)
     {
       Py_XDECREF(argsPy);
@@ -101,6 +105,7 @@ void PickelizedPyObjRdExtServer::checkRdExtnessOf(const std::string& methodName,
 
 void PickelizedPyObjRdExtServer::checkListRdExtnessOf(const std::string& methodName, PyObject *argsPy)
 {
+  AutoGIL agil;
   static const char *THE_RDEXT_METH_OF_LIST[]={"__getitem__","append","extend","insert","reverse","sort"};
   for(std::size_t i=0;i<sizeof(THE_RDEXT_METH_OF_LIST)/sizeof(const char *);i++)
     if(methodName==THE_RDEXT_METH_OF_LIST[i])
@@ -112,6 +117,7 @@ void PickelizedPyObjRdExtServer::checkListRdExtnessOf(const std::string& methodN
 
 void PickelizedPyObjRdExtServer::checkDictRdExtnessOf(const std::string& methodName, PyObject *argsPy)
 {
+  AutoGIL agil;
   static const char *THE_RDEXT_METH_OF_DICT[]={"__getitem__","get","items","keys","setdefault","update","values"};
   for(std::size_t i=0;i<sizeof(THE_RDEXT_METH_OF_DICT)/sizeof(const char *);i++)
     if(methodName==THE_RDEXT_METH_OF_DICT[i])
@@ -126,6 +132,7 @@ void PickelizedPyObjRdExtServer::checkDictRdExtnessOf(const std::string& methodN
   throw Exception(oss.str());
 }
 
+// GIL is supposed to be acquire by callee
 void PickelizedPyObjRdExtServer::checkDictSetitemRdExtness(PyObject *argsPy)
 {
   if(PyTuple_Check(argsPy)==0)
@@ -153,6 +160,7 @@ std::string PickelizedPyObjRdExtServer::getAccessStr() const
 
 PickelizedPyObjRdExtInitServer *PickelizedPyObjRdExtFreeStyleServer::buildInitInstanceFrom(const std::string& varName)
 {
+  AutoGIL agil;
   PyObject *pyobj(this->getPyObj()); Py_XINCREF(pyobj);
   return new PickelizedPyObjRdExtInitFreeStyleServer(getFather(),varName,pyobj,std::move(_cmp_func_content),std::move(_cmp_func));
 }

@@ -21,6 +21,7 @@
 #include "SALOMESDS_KeyWaiter.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
+#include "PythonCppUtils.hxx"
 
 #include <sstream>
 
@@ -37,33 +38,37 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME_CMOD::ByteVec& key
   std::string st;
   PickelizedPyObjServer::FromByteSeqToCpp(keyVal,st);
   _ze_key=PickelizedPyObjServer::GetPyObjFromPickled(st,getDSS());
-  PyObject *selfMeth(PyObject_GetAttrString(_var->getPyObj(),"__contains__"));//new ref
-  PyObject *args(PyTuple_New(1));
-  PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
-  PyObject *retPy(PyObject_CallObject(selfMeth,args));
-  Py_XDECREF(args);
-  Py_XDECREF(selfMeth);
-  //
-  if(retPy!=Py_False && retPy!=Py_True)
-    throw Exception("KeyWaiter constructor : unexpected return of dict.__contains__ !");
-  if(retPy==Py_True)
-    {
-      PyObject *retPy2(PyDict_GetItem(_var->getPyObj(),_ze_key));
-      if(retPy2==NULL)
-        throw Exception("KeyWaiter constructor : dict.getitem fails !");
-      Py_XINCREF(retPy2);
-      _ze_value=retPy2;
-      go();//notify that value already arrives -> unlock
-    }
-  else
-    {
-      getDSS()->addWaitKey(this);// key not present let the DataScope managing it !
-    }
-  Py_XDECREF(retPy);
+  {
+    AutoGIL agil;
+    PyObject *selfMeth(PyObject_GetAttrString(_var->getPyObj(),"__contains__"));//new ref
+    PyObject *args(PyTuple_New(1));
+    PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
+    PyObject *retPy(PyObject_CallObject(selfMeth,args));
+    Py_XDECREF(args);
+    Py_XDECREF(selfMeth);
+    //
+    if(retPy!=Py_False && retPy!=Py_True)
+      throw Exception("KeyWaiter constructor : unexpected return of dict.__contains__ !");
+    if(retPy==Py_True)
+      {
+        PyObject *retPy2(PyDict_GetItem(_var->getPyObj(),_ze_key));
+        if(retPy2==NULL)
+          throw Exception("KeyWaiter constructor : dict.getitem fails !");
+        Py_XINCREF(retPy2);
+        _ze_value=retPy2;
+        go();//notify that value already arrives -> unlock
+      }
+    else
+      {
+        getDSS()->addWaitKey(this);// key not present let the DataScope managing it !
+      }
+    Py_XDECREF(retPy);
+  }
 }
 
 KeyWaiter::~KeyWaiter()
 {
+  AutoGIL agil;
   Py_XDECREF(_ze_key);
   if(_ze_value)
     Py_XDECREF(_ze_value);
@@ -90,6 +95,7 @@ void KeyWaiter::waitFor()
  */
 SALOME_CMOD::ByteVec *KeyWaiter::waitForMonoThr()
 {
+  AutoGIL agil;
   if(!_ze_value)
     throw Exception("KeyWaiter::waitForMonoThr : no value ! invalid call of this method !");
   Py_XINCREF(_ze_value);
@@ -99,6 +105,7 @@ SALOME_CMOD::ByteVec *KeyWaiter::waitForMonoThr()
 
 SALOME_CMOD::ByteVec *KeyWaiter::waitForAndKill()
 {
+  AutoGIL agil;
   if(!_ze_value)
     throw Exception("KeyWaiter::waitForAndKill : no value ! invalid call of this method !");
   Py_XINCREF(_ze_value);
@@ -115,6 +122,7 @@ SALOME_CMOD::ByteVec *KeyWaiter::waitForAndKill()
  */
 void KeyWaiter::valueJustCome(PyObject *val)
 {
+  AutoGIL agil;
   if(_ze_value==val)
     return ;
   if(_ze_value)

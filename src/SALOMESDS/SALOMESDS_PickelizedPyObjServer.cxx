@@ -21,6 +21,7 @@
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
+#include "PythonCppUtils.hxx"
 
 #include <iostream>
 #include <sstream>
@@ -40,6 +41,7 @@ PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const 
 
 PickelizedPyObjServer::~PickelizedPyObjServer()
 {
+  AutoGIL agil;
   Py_XDECREF(_self);
 }
 
@@ -48,12 +50,14 @@ PickelizedPyObjServer::~PickelizedPyObjServer()
  */
 SALOME_CMOD::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
 {
+  AutoGIL agil;
   Py_XINCREF(_self);//because pickelize consume _self
   return FromCppToByteSeq(pickelize(_self));
 }
 
 bool PickelizedPyObjServer::isDict()
 {
+  AutoGIL agil;
   if(PyDict_Check(_self))
     return true;
   else
@@ -110,6 +114,7 @@ SALOME_CMOD::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string&
 //! New reference returned
 PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb)
 {
+  AutoGIL agil;
   std::size_t sz(pickledData.size());
   PyObject *pickledDataPy(PyBytes_FromStringAndSize(NULL,sz));// agy : do not use PyUnicode_FromString because std::string hides a vector of byte.
   char *buf(PyBytes_AS_STRING(pickledDataPy));// this buf can be used thanks to python documentation.
@@ -132,6 +137,7 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledD
 //! New reference returned
 PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb)
 {
+  AutoGIL agil;
   std::size_t sz(pickledData.size());
   PyObject *pickledDataPy(PyBytes_FromStringAndSize(NULL,sz));// agy : do not use PyUnicode_FromString because std::string hides a vector of byte.
   char *buf(PyBytes_AS_STRING(pickledDataPy));// this buf can be used thanks to python documentation.
@@ -154,6 +160,7 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::vector<unsigned 
 //! obj is consumed by this method.
 std::string PickelizedPyObjServer::Pickelize(PyObject *obj, DataScopeServerBase *dsb)
 {
+  AutoGIL agil;
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,obj);
   PyTuple_SetItem(args,1,PyLong_FromLong(3));// because "assert(pickle.HIGHEST_PROTOCOL is 3)"
@@ -180,6 +187,7 @@ std::string PickelizedPyObjServer::pickelize(PyObject *obj)
 //! obj is consumed by this method.
 void PickelizedPyObjServer::setNewPyObj(PyObject *obj)
 {
+  AutoGIL agil;
   if(!obj)
     throw Exception("PickelizedPyObjServer::setNewPyObj : trying to assign a NULL pyobject in this !");
   if(obj==_self)
@@ -211,6 +219,7 @@ void PickelizedPyObjServer::setSerializedContentInternal(const SALOME_CMOD::Byte
 
 PyObject *PickelizedPyObjServer::CreateDftObjFromType(PyObject *globals, const std::string& typeName)
 {
+  AutoGIL agil;
   PyObject *builtins(PyDict_GetItemString(globals,"__builtins__"));
   if(!builtins)
     throw Exception("PickelizedPyObjServer constructor : no __builtins__ in globals !");
@@ -231,6 +240,7 @@ PyObject *PickelizedPyObjServer::CreateDftObjFromType(PyObject *globals, const s
 
 void PickelizedPyObjServer::checkKeyPresence(PyObject *key, bool presence)
 {
+  AutoGIL agil;
   if(!isDict())
     throw Exception("PickelizedPyObjServer::checkKeyPresence : not a dict !");
   PyObject *selfMeth(PyObject_GetAttrString(_self,"__contains__"));//new ref
@@ -266,14 +276,20 @@ PickelizedPyObjServerModifiable::PickelizedPyObjServerModifiable(DataScopeServer
 void PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
 {
   checkKeyNotAlreadyPresent(key);
-  bool isOK(PyDict_SetItem(_self,key,value)==0);
-  if(!isOK)
-    throw Exception("PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
+  {
+    AutoGIL agil;
+    bool isOK(PyDict_SetItem(_self,key,value)==0);
+    if(!isOK)
+      throw Exception("PickelizedPyObjServerModifiable::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
+  }
 }
 
 void PickelizedPyObjServerModifiable::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
 {
   checkKeyPresent(key);
-  if(PyDict_DelItem(_self,key)!=0)
-    throw Exception("PickelizedPyObjServerModifiable::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
+  {
+    AutoGIL agil;
+    if(PyDict_DelItem(_self,key)!=0)
+      throw Exception("PickelizedPyObjServerModifiable::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
+  }
 }
