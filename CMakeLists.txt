@@ -43,7 +43,7 @@ INCLUDE(${CONFIGURATION_ROOT_DIR}/cmake/ConfigureRPath.cmake)
 
 # Versioning
 # ===========
-SALOME_SETUP_VERSION(9.15.0)
+SALOME_SETUP_VERSION(9.16.0)
 MESSAGE(STATUS "Building ${PROJECT_NAME_UC} ${${PROJECT_NAME_UC}_VERSION} from \"${${PROJECT_NAME_UC}_GIT_SHA1}\"")
 
 # Platform setup
