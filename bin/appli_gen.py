@@ -399,7 +399,7 @@ def install(prefix, config_file, verbose=0):
 
     config_file = absolute_appli_path / "config_appli.xml"
     if from_json:
-        absolute_appli_path / "config_appli.json"
+        config_file = absolute_appli_path / "config_appli.json"
     if filename != config_file:
         shutil.copyfile(filename, config_file)
 
