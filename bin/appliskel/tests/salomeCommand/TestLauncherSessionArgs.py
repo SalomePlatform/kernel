@@ -22,7 +22,6 @@ import unittest
 
 import os
 import sys
-import imp
 from io import StringIO
 import logging
 
