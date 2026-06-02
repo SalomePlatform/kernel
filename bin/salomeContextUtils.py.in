@@ -23,6 +23,8 @@ import os
 import re
 import socket
 import sys
+import tempfile
+from pathlib import Path
 
 """
 Define a specific exception class to manage exceptions related to SalomeContext
@@ -327,7 +329,7 @@ def setOmniOrbUserPath():
   omniorbUserPath = os.getenv("OMNIORB_USER_PATH")
   if omniorbUserPath:
     if not os.access(omniorbUserPath, os.W_OK):
-      raise Exception("Unable to get write access to directory: %s"%omniorbUserPath)
+      raise Exception(f"Unable to get write access to directory: {omniorbUserPath}")
     pass
   else:
     # Must be in /tmp (or equivalent) to handle application concurrency

@@ -11,7 +11,6 @@ import sys
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import List
 
 appli_path = Path(__file__)
 appli_name = appli_path.name
@@ -47,7 +46,7 @@ def __initialize() -> None:
         sys.exit(1)
 
 
-def __update_args(args: List[str]) -> List[str]:
+def __update_args(args: list[str]) -> list[str]:
     """Take into account the SALOME_APPLI_OPTIONS env variable and the presence of the env_modules.json file."""
     salome_appli_options = os.environ.get("SALOME_APPLI_OPTIONS")
     if salome_appli_options:
@@ -67,7 +66,7 @@ def __update_args(args: List[str]) -> List[str]:
 
 
 # salome doc only works for virtual applications. Therefore we overwrite it with this function
-def _showDoc(modules: List[str]) -> None:
+def _showDoc(modules: list[str]) -> None:
     if "-h" in modules:
         print(f"""Usage: {appli_name} doc MODULE1 MODULE2
 
@@ -113,6 +112,28 @@ def _load_extra_env(extradir: Path, context) -> None:
 
 def update_context(context, args: list[str], with_venv=True):
     from salomeContext import SalomeContextException  # type: ignore
+    from salomeContextUtils import getConfigFileNames  # type: ignore
+
+    # If a parent appli is declared, the "update_context" function of
+    # this appli script is called.
+    parent_application = config_appli.get("parent_application")
+    if parent_application:
+        parent_salome_appli_path = Path(parent_application)
+        parent_salome_appli_name = parent_salome_appli_path.stem
+        _specs = spec_from_loader(
+            parent_salome_appli_name,
+            SourceFileLoader(parent_salome_appli_name, f"{parent_application}"),
+        )
+        _module = module_from_spec(_specs)
+        _specs.loader.exec_module(_module)
+        parent_configFileNames, args, unexisting = getConfigFileNames(
+            args,
+            checkExistence=True,
+            default_cfg_directory=f"{_module.__get_absolute_appli_path() / 'env.d'}",
+        )
+        if parent_configFileNames:
+            context.configFileNames = parent_configFileNames + context.configFileNames
+        context, args = _module.update_context(context, args, with_venv=False)
 
     # [APPLI variables]
     context.setVariable("APPLI", f"{appli_path}", overwrite=True)
@@ -127,13 +148,14 @@ def update_context(context, args: list[str], with_venv=True):
 
     # [Python]
     python_version = config_appli.get("python")
-    if not python_version:
+    if python_version:
+        context.setVariable("PYTHON_VERSION", python_version, overwrite=True)
+        python_lib_dir = f"lib/python{python_version}/site-packages"
+        context.setVariable("PYTHON_LIBDIR", f"{python_lib_dir}", overwrite=True)
+    elif not os.getenv("PYTHON_VERSION"):
         raise SalomeContextException(
             f"Python version is missing in {config_appli_file}"
         )
-    context.setVariable("PYTHON_VERSION", python_version, overwrite=True)
-    python_lib_dir = f"lib/python{python_version}/site-packages"
-    context.setVariable("PYTHON_LIBDIR", f"{python_lib_dir}", overwrite=True)
 
     # [MODULES]
     modules: dict = config_appli.get("modules", {})
@@ -205,11 +227,11 @@ def update_context(context, args: list[str], with_venv=True):
     return context, args
 
 
-def main(args: List[str]) -> None:
+def main(args: list[str]) -> None:
     # Identify application path then locate configuration files
     __initialize()
     args = __update_args(args=args)
-    from salomeContextUtils import getConfigFileNames # type: ignore
+    from salomeContextUtils import getConfigFileNames  # type: ignore
 
     configFileNames, args, unexisting = getConfigFileNames(
         args,
@@ -233,9 +255,7 @@ def main(args: List[str]) -> None:
     from salomeContext import SalomeContext, SalomeContextException  # type: ignore
 
     try:
-        # configFileNames = __get_absolute_appli_path().joinpath("env.d").glob("*.cfg")
         context = SalomeContext(
-            # configFileNames=[f"{config_file}" for config_file in configFileNames],
             configFileNames=configFileNames,
             name=Path(__file__).name,
         )
@@ -243,27 +263,6 @@ def main(args: List[str]) -> None:
         # Logger level error
         context.getLogger().setLevel(logging.ERROR)
         context.getLogger().debug(f"args: {args}")
-
-        # If a parent appli is declared, the "update_context" function of
-        # this appli script is called.
-        parent_application = config_appli.get("parent_application")
-        if parent_application:
-            parent_salome_appli_path = Path(parent_application)
-            parent_salome_appli_name = parent_salome_appli_path.stem
-            _specs = spec_from_loader(
-                parent_salome_appli_name,
-                SourceFileLoader(parent_salome_appli_name, f"{parent_application}"),
-            )
-            _module = module_from_spec(_specs)
-            _specs.loader.exec_module(_module)
-            parent_configFileNames, args, unexisting = getConfigFileNames(
-                args,
-                checkExistence=True,
-                default_cfg_directory=f"{_module.__get_absolute_appli_path() / 'env.d'}",
-            )
-            if parent_configFileNames:
-                context.configFileNames = parent_configFileNames + context.configFileNames
-            context, args = _module.update_context(context, args, with_venv=False)
 
         # Update context of current appli
         context, args = update_context(context, args)
