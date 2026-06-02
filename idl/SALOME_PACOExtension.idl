@@ -18,7 +18,7 @@
 //
 
 //  File   : SALOME_PACOExtension.idl
-//  Author : André RIBES, EDF
+//  Author : AndrÃ© RIBES, EDF
 
 #ifndef _SALOME_PACOExtension_IDL_
 #define _SALOME_PACOExtension_IDL_

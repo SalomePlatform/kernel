@@ -73,7 +73,7 @@ def undestdir(path: str) -> str:
     return path
 
 
-def path_with_destdir(path_str: str | Path) -> Path:
+def path_with_destdir(path_str: str| Path) -> Path:
     path = Path(path_str)
     if DESTDIR and Path(DESTDIR) not in path.parents:
         path = Path(DESTDIR) / path.relative_to(path.root)
@@ -205,22 +205,6 @@ class xml_parser:
         self.read = None
 
 
-class params:
-    pass
-
-
-def makedirs(namedir):
-    if os.path.exists(namedir):
-        dirbak = namedir + ".bak"
-        if os.path.exists(dirbak):
-            shutil.rmtree(dirbak)
-        os.rename(namedir, dirbak)
-        os.listdir(
-            dirbak
-        )  # sert seulement a mettre a jour le systeme de fichier sur certaines machines
-    os.makedirs(namedir)
-
-
 def install(
     prefix: Path, config_file: Path, force: bool = False, verbose: int = 0
 ) -> int:
@@ -241,16 +225,10 @@ def install(
     appli_dir.mkdir(parents=True, exist_ok=force)
 
     _config = {}
-    from_json = False
-    if filename.suffix == ".json":
-        try:
-            _config = json.loads(filename.read_text()).get(appli_tag)
-            from_json = True
-        except json.JSONDecodeError as e:
-            print(e.msg)
-            print(f"Configure parser: parse error in configuration file {filename}")
-            return 1
-    else:
+    try:
+        # We try to load config as JSON format
+        _config = json.loads(filename.read_text()).get(appli_tag)
+    except json.JSONDecodeError:
         try:
             parser = xml_parser(filename)
             _config = parser.config
@@ -272,12 +250,7 @@ def install(
         for cle, val in _config.items():
             print(cle, val)
 
-    json_config = {
-        appli_tag: {
-            modules_tag: {},
-            extra_tests_tag: [],
-        }
-    }
+    json_config = {appli_tag: {}}
 
     absolute_appli_dir: str = (
         _config.get(absolute_appli_dir_tag) or DEFAULT_ABSOLUTE_APPLI_DIR
@@ -298,14 +271,9 @@ def install(
     env_d = absolute_appli_path / "env.d"
     env_d.mkdir(parents=True)
 
-    users_d = absolute_appli_path / "USERS"
-    users_d.mkdir(parents=True)
-    os.chmod(users_d, 0o777)
-
     # Copy launcher and make it executable
-    name = _config.get(runner_tag)
-    if not name:
-        name = DEFAULT_LAUNCHER_NAME
+    name = _config.get(runner_tag, DEFAULT_LAUNCHER_NAME)
+    json_config[appli_tag][runner_tag] = name
     launcher = appli_dir / name
     shutil.copyfile(APPLISKEL_DIR / "appli_launcher", launcher)
     mode = os.stat(launcher).st_mode
@@ -316,21 +284,21 @@ def install(
     for script in "parseConfigFile.py", "salomeContext.py", "salomeContextUtils.py":
         shutil.copyfile(CURDIR / script, bin_salome_d / script)
 
-    for module, module_path in _config.get(modules_tag, {}).items():
-        module_path = undestdir(module_path)
-        print("--- add module", module, module_path)
-        json_config[appli_tag][modules_tag][module] = module_path
+    modules: dict[str, str] = _config.get(modules_tag, {})
+    if modules:
+        json_config[appli_tag][modules_tag] = {}
+        for module, module_path in modules.items():
+            module_path = undestdir(module_path)
+            print("--- add module", module, module_path)
+            json_config[appli_tag][modules_tag][module] = module_path
 
-    for extra_test, extra_test_path in _config.get(extra_tests_tag, {}).items():
-        extra_test_path = undestdir(extra_test_path)
-        print("--- add extra test", extra_test, extra_test_path)
-        json_config[appli_tag][extra_tests_tag].append(extra_test_path)
-
-    config_file = absolute_appli_path / "config_appli.xml"
-    if from_json:
-        config_file = absolute_appli_path / "config_appli.json"
-    if filename != config_file:
-        shutil.copyfile(filename, config_file)
+    extra_tests: dict[str, str] = _config.get(extra_tests_tag, {})
+    if extra_tests:
+        json_config[appli_tag][extra_tests_tag] = []
+        for extra_test, extra_test_path in extra_tests.items():
+            extra_test_path = undestdir(extra_test_path)
+            print("--- add extra test", extra_test, extra_test_path)
+            json_config[appli_tag][extra_tests_tag].append(extra_test_path)
 
     venv_directory = _config.get(venv_directory_tag)
     if venv_directory:
@@ -353,52 +321,62 @@ def install(
     # Add .salome-completion.sh file
     #  shutil.copyfile(APPLISKEL_DIR / ".salome-completion.sh", appli_dir / ".salome-completion.sh")
 
-    if prereq_tag:
+    if prereq_tag in _config:
         prereq_tag_path = path_with_destdir(_config[prereq_tag])
         if prereq_tag_path.is_file():
-            shutil.copyfile(prereq_tag_path, env_d / "envProducts.sh")
+            target = env_d / "envProducts.sh"
+            shutil.copyfile(prereq_tag_path, target)
+            json_config[appli_tag][prereq_tag] = f"{target}"
         else:
             print(f"WARNING: prerequisite file {prereq_tag_path} does not exist")
 
     if context_tag in _config:
         context_tag_path = path_with_destdir(_config[context_tag])
         if context_tag_path.is_file():
-            shutil.copyfile(context_tag_path, env_d / "envProducts.cfg")
+            target = env_d / "envProducts.cfg"
+            shutil.copyfile(context_tag_path, target)
+            json_config[appli_tag][context_tag] = f"{target}"
         else:
             print(f"WARNING: context file {context_tag_path} does not exist")
 
     if sha1_collect_tag in _config:
         sha1_collect_tag_path = path_with_destdir(_config[sha1_collect_tag])
         if sha1_collect_tag_path.is_file():
-            shutil.copyfile(sha1_collect_tag_path, env_d / "sha1_collections.txt")
+            target = env_d / "sha1_collections.txt"
+            shutil.copyfile(sha1_collect_tag_path, target)
+            json_config[appli_tag][sha1_collect_tag] = f"{target}"
         else:
             print(f"WARNING: sha1 collections file {sha1_collect_tag_path} does not exist")
 
-    version_python = f"{sys.version_info.major}.{sys.version_info.minor}"
-    if python_tag in _config:
-        version_python_split = _config[python_tag].split(".")
-        version_python = version_python_split[0] + "." + version_python_split[1]
-    elif _config.get(prereq_tag):
-        cmd = ""
-        prereq_tag_path = path_with_destdir(_config[prereq_tag])
-        if prereq_tag_path.exists():
-            cmd += f"source {DESTDIR}{_config[prereq_tag]} && "
-        cmd += 'python3 -c "import sys ; sys.stdout.write(f\\"{sys.version_info.major}.{sys.version_info.minor}\\")"'
-        version_python = subprocess.check_output(["/bin/bash", "-l", "-c", cmd]).decode(
-            "utf-8"
-        )
-    else:
-        print("ERROR: impossible to retrieve python version")
-        return 1
-    json_config[appli_tag][python_tag] = version_python
+    if not parent_application:
+        version_python = f"{sys.version_info.major}.{sys.version_info.minor}"
+        if python_tag in _config:
+            version_python_split = _config[python_tag].split(".")
+            version_python = version_python_split[0] + "." + version_python_split[1]
+        elif _config.get(prereq_tag):
+            cmd = ""
+            if prereq_tag in _config:
+                prereq_tag_path = path_with_destdir(_config[prereq_tag])
+                if prereq_tag_path.exists():
+                    cmd += f"source {DESTDIR}{_config[prereq_tag]} && "
+            cmd += 'python3 -c "import sys ; sys.stdout.write(f\\"{sys.version_info.major}.{sys.version_info.minor}\\")"'
+            version_python = subprocess.check_output(["/bin/bash", "-l", "-c", cmd]).decode(
+                "utf-8"
+            )
+        else:
+            print("ERROR: impossible to retrieve python version")
+            return 1
+        json_config[appli_tag][python_tag] = version_python
 
     config_salome_lines = []
     if samples_tag in _config:
-        config_salome_lines.append(f"DATA_DIR={undestdir(_config[samples_tag])}\n")
+        config_salome_lines.append(f"DATA_DIR={_config[samples_tag]}\n")
+        json_config[appli_tag][samples_tag] = _config[samples_tag]
     if resources_tag in _config and Path(_config[resources_tag]).is_file():
         config_salome_lines.append(
-            f"USER_CATALOG_RESOURCES_FILE={undestdir(Path(_config[resources_tag]).absolute().as_posix())}\n"
+            f"USER_CATALOG_RESOURCES_FILE={Path(_config[resources_tag]).absolute().as_posix()}\n"
         )
+        json_config[appli_tag][resources_tag] = _config[resources_tag]
 
     if config_salome_lines:
         config_salome_lines.insert(0, "[SALOME ROOT_DIR (modules) Configuration]")
@@ -406,8 +384,8 @@ def install(
         with config_salome.open("w") as f:
             f.write("\n".join(config_salome_lines))
 
-    with open(appli_dir / "config_appli.json", "w") as json_config_file:
-        json.dump(json_config, json_config_file, indent=4)
+    json_config_file = appli_dir / "config_appli.json"
+    json_config_file.write_text(json.dumps(json_config, indent=4))
 
 
 def main() -> int:
