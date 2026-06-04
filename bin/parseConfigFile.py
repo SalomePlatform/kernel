@@ -17,21 +17,21 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os
-import sys
+""" This file must be compatible with python 3.6 as it is used by the salome boostrap."""
+
 import configparser
-if sys.version_info[:2] >= (3,2):
-  from configparser import ConfigParser as SafeConfigParser
-else:
-  from configparser import SafeConfigParser
 import logging
+import os
 import re
-from io import StringIO
-import subprocess
-import collections
+import sys
 from collections import OrderedDict, namedtuple
 
-from salomeContextUtils import SalomeContextException #@UnresolvedImport
+from salomeContextUtils import SalomeContextException # type: ignore
+
+if sys.version_info[:2] >= (3, 2):
+    from configparser import ConfigParser
+else:
+    from configparser import SafeConfigParser as ConfigParser
 
 logging.basicConfig()
 logConfigParser = logging.getLogger(__name__)
@@ -52,6 +52,7 @@ def _trimColons(var):
     v = pattern.sub(r":", v)  # remove matching patterns
     return v
 
+
 def _expandSystemVariables(key, val):
     if not isinstance(val, str):
         return val
@@ -60,10 +61,10 @@ def _expandSystemVariables(key, val):
         splittedComments[0]
     )  # expand environment variables
     # Search for not expanded variables (i.e. non-existing environment variables)
-    pattern = re.compile(r"\${ ( [^}]* ) }", re.VERBOSE)  # string enclosed in ${ and }
+    pattern = re.compile(r"${ ( [^}]* ) }", re.VERBOSE)  # string enclosed in ${ and }
     expandedVal = pattern.sub(r"", expandedVal)  # remove matching patterns
 
-    if not "DLIM8VAR" in key:
+    if "DLIM8VAR" not in key:
         # special case: DISTENE licence key can contain double clons (::)
         expandedVal = _trimColons(expandedVal)
 
@@ -149,7 +150,7 @@ class MultiOrderedDict(OrderedDict):
             super().__setitem__(key, value)
 
 
-class MultiOptSafeConfigParser(SafeConfigParser):
+class MultiOptSafeConfigParser(ConfigParser):
     def __init__(self):
         super().__init__(strict=False, dict_type=MultiOrderedDict)
 

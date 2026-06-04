@@ -17,14 +17,16 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-from __future__ import annotations
+
+""" This file must be compatible with python 3.6 as it is used by the salome boostrap."""
+
 import logging
 import os
 import sys
 import pickle
 import platform
 import subprocess
-from typing import Any
+from typing import Any, List, Optional, Tuple, Union
 
 from parseConfigFile import parseConfigFile
 from salomeContextUtils import SalomeContextException # type: ignore
@@ -92,7 +94,7 @@ class SalomeContext:
     These files should be in appropriate .cfg format.
     """
 
-    def __init__(self, configFileNames: None | list[str] = None, name: str = "salome"):
+    def __init__(self, configFileNames: Optional[List[str]] = None, name: str = "salome"):
         self.getLogger().setLevel(logging.INFO)
         # it could be None explicitly (if user use multiples setVariable...for standalone)
         self.configFileNames = None
@@ -130,7 +132,7 @@ class SalomeContext:
                     "Unrecognized extension for configuration file: %s", filename
                 )
 
-    def __loadEnvModules(self, env_modules: list[str]) -> None:
+    def __loadEnvModules(self, env_modules: List[str]) -> None:
         modulecmd = os.getenv("LMOD_CMD")
         if not modulecmd:
             raise SalomeContextException("Lmod module environment not present")
@@ -144,7 +146,7 @@ class SalomeContext:
                 f"Failed to load env modules: {' '.join(env_modules)} with error {err.decode()}"
             )
 
-    def runSalome(self, args: list[str]) -> tuple[bytes, bytes, int | Any]:
+    def runSalome(self, args: List[str]) -> Tuple[bytes, bytes, Union[int, Any]]:
         # Run this module as a script, in order to use appropriate Python interpreter
         # according to current path (initialized from context files).
         env_modules_option = "--with-env-modules="
@@ -302,7 +304,7 @@ class SalomeContext:
     # This begins the private section #
     ###################################
 
-    def __parseArguments(self, args: list[str]) -> tuple[None | str, list[str]]:
+    def __parseArguments(self, args: List[str]) -> Tuple[Optional[str], List[str]]:
         if len(args) == 0 or args[0].startswith("-"):
             return None, args
 
@@ -332,7 +334,7 @@ class SalomeContext:
 
         return availableCommands[command], options
 
-    def _startSalome(self, args: list[str]) -> int:
+    def _startSalome(self, args: List[str]) -> int:
         """
         Run SALOME!
         Args consist in a mandatory command followed by optional parameters.
@@ -380,7 +382,7 @@ class SalomeContext:
             return 1
 
     def __setContextFromConfigFile(
-        self, filename: str, reserved: None | list[str] = None
+        self, filename: str, reserved: Optional[List[str]] = None
     ) -> int:
         mesa_root_dir = "MESA_ROOT_DIR"
         if reserved is None:
@@ -430,7 +432,7 @@ class SalomeContext:
         sys.path[:0] = pythonpath
         return 0
 
-    def _runAppli(self, args: None | list[str] = None) -> int:
+    def _runAppli(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         # Initialize SALOME environment
@@ -444,7 +446,7 @@ class SalomeContext:
         runSalomeOld.runSalome()
         return 0
 
-    def _sessionless(self, args: None | list[str] = None) -> int:
+    def _sessionless(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         sys.argv = ["runSalome"] + args
@@ -457,7 +459,7 @@ class SalomeContext:
         runSalome.runSalome()
         return 0
 
-    def _setContext(self, args: None | list[str] = None) -> int:
+    def _setContext(self, args: Optional[List[str]] = None) -> int:
         salome_context_set = os.getenv("SALOME_CONTEXT_SET")
         if salome_context_set:
             print("***")
@@ -480,7 +482,7 @@ class SalomeContext:
         proc.communicate()
         return proc.returncode
 
-    def _runSession(self, args: None | list[str] = None) -> int:
+    def _runSession(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         sys.argv = ["runSession"] + args
@@ -495,7 +497,7 @@ class SalomeContext:
 
         return runSession.runSession(params, args)
 
-    def _runRemote(self, args: None | list[str] = None) -> int:
+    def _runRemote(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         #   complete salome environment
@@ -508,7 +510,7 @@ class SalomeContext:
 
         return runRemote.runRemote(args)
 
-    def _runConsole(self, args: None | list[str] = None) -> int:
+    def _runConsole(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         # Initialize SALOME environment
@@ -521,7 +523,7 @@ class SalomeContext:
 
         return runConsole.connect(args)
 
-    def _kill(self, args: None | list[str] = None) -> int:
+    def _kill(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         ports = args
@@ -545,7 +547,7 @@ class SalomeContext:
             proc.communicate()
         return 0
 
-    def _killAll(self, args: None | list[str] = None) -> int:
+    def _killAll(self, args: Optional[List[str]] = None) -> int:
         sys.argv = ["killAll"]
         import setenv
 
@@ -582,7 +584,7 @@ class SalomeContext:
         killList()
         return 0
 
-    def _runTests(self, args: None | list[str] = None) -> int:
+    def _runTests(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
         sys.argv = ["runTests"]
@@ -594,7 +596,7 @@ class SalomeContext:
 
         return runTests.runTests(args, exe="salome test")
 
-    def _showSoftwareVersions(self, softwares: None | list[str] = None) -> None:
+    def _showSoftwareVersions(self, softwares: Optional[List[str]] = None) -> None:
         absoluteAppliPath = os.getenv("ABSOLUTE_APPLI_PATH")
         filename = os.path.join(absoluteAppliPath, "sha1_collections.txt")
         if not os.path.exists(filename):
@@ -621,7 +623,7 @@ class SalomeContext:
             for name, version in od.items():
                 print(name.rjust(max_len), versions[name])
 
-    def _showInfo(self, args: None | list[str] = None) -> int:
+    def _showInfo(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
 
@@ -678,7 +680,7 @@ Available options are:
 
         return 0
 
-    def _showDoc(self, args: None | list[str] = None) -> int:
+    def _showDoc(self, args: Optional[List[str]] = None) -> int:
         if args is None:
             args = []
 
@@ -704,10 +706,10 @@ Available options are:
             else:
                 print("Online documentation is not accessible for module:", module)
 
-    def _usage(self, unused: None | list[str] = None) -> None:
+    def _usage(self, unused: Optional[List[str]] = None) -> None:
         usage()
 
-    def _makeCoffee(self, unused: None | list[str] = None) -> None:
+    def _makeCoffee(self, unused: Optional[List[str]] = None) -> None:
         print("                        (")
         print("                          )     (")
         print("                   ___...(-------)-....___")
@@ -734,7 +736,7 @@ Available options are:
         print("                    SALOME is working for you; what else?")
         print("")
 
-    def _getCar(self, unused: None | list[str] = None) -> None:
+    def _getCar(self, unused: Optional[List[str]] = None) -> None:
         print("                                              _____________")
         print("                                  ..---:::::::-----------. ::::;;.")
         print("                               .\'\"\"\"\"\"\"                  ;;   \\  \":.")
