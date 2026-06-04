@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
-"""This file is the main launcher for a SALOME application."""
+"""This file is the main launcher for a SALOME application.
+It must be compatible with python 3.6 as the salome boostrap.
+"""
 
 import importlib
 import importlib.util
@@ -11,6 +13,7 @@ import sys
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
+from typing import List
 
 appli_path = Path(__file__)
 appli_name = appli_path.name
@@ -46,7 +49,7 @@ def __initialize() -> None:
         sys.exit(1)
 
 
-def __update_args(args: list[str]) -> list[str]:
+def __update_args(args: List[str]) -> List[str]:
     """Take into account the SALOME_APPLI_OPTIONS env variable and the presence of the env_modules.json file."""
     salome_appli_options = os.environ.get("SALOME_APPLI_OPTIONS")
     if salome_appli_options:
@@ -66,7 +69,7 @@ def __update_args(args: list[str]) -> list[str]:
 
 
 # salome doc only works for virtual applications. Therefore we overwrite it with this function
-def _showDoc(modules: list[str]) -> None:
+def _showDoc(modules: List[str]) -> None:
     if "-h" in modules:
         print(f"""Usage: {appli_name} doc MODULE1 MODULE2
 
@@ -110,7 +113,7 @@ def _load_extra_env(extradir: Path, context) -> None:
                 _module.init(context)
 
 
-def update_context(context, args: list[str], with_venv=True):
+def update_context(context, args: List[str], with_venv: bool=True):
     from salomeContext import SalomeContextException  # type: ignore
     from salomeContextUtils import getConfigFileNames  # type: ignore
 
@@ -227,7 +230,7 @@ def update_context(context, args: list[str], with_venv=True):
     return context, args
 
 
-def main(args: list[str]) -> None:
+def main(args: List[str]) -> None:
     # Identify application path then locate configuration files
     __initialize()
     args = __update_args(args=args)

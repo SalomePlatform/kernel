@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+""" This file must be compatible with python 3.6 as it is used by the salome boostrap."""
+
 import glob
 import json
 import os

@@ -17,14 +17,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os
-import sys
+""" This file must be compatible with python 3.6 as it is used by the salome boostrap."""
+
 import configparser
-if sys.version_info[:2] >= (3,2):
-  from configparser import ConfigParser as SafeConfigParser
-else:
-  from configparser import SafeConfigParser
 import logging
+import os
 import re
 from io import StringIO
 import subprocess
@@ -50,18 +47,19 @@ def _trimColons(var):
     v = pattern.sub(r":", v)  # remove matching patterns
     return v
 
+
 def _expandSystemVariables(key, val):
     if not isinstance(val, str):
         return val
-    splittedComments = val.split("#")
+   splittedComments = val.split("#")
     expandedVal = os.path.expandvars(
         splittedComments[0]
     )  # expand environment variables
     # Search for not expanded variables (i.e. non-existing environment variables)
-    pattern = re.compile(r"\${ ( [^}]* ) }", re.VERBOSE)  # string enclosed in ${ and }
+    pattern = re.compile(r"${ ( [^}]* ) }", re.VERBOSE)  # string enclosed in ${ and }
     expandedVal = pattern.sub(r"", expandedVal)  # remove matching patterns
 
-    if not "DLIM8VAR" in key:
+    if "DLIM8VAR" not in key:
         # special case: DISTENE licence key can contain double clons (::)
         expandedVal = _trimColons(expandedVal)
 
@@ -147,7 +145,7 @@ class MultiOrderedDict(OrderedDict):
             super().__setitem__(key, value)
 
 
-class MultiOptSafeConfigParser(SafeConfigParser):
+class MultiOptSafeConfigParser(ConfigParser):
     def __init__(self):
         super().__init__(strict=False, dict_type=MultiOrderedDict)
 

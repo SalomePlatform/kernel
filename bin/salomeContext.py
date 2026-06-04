@@ -32,7 +32,7 @@ import tempfile
 import pickle
 import platform
 import subprocess
-from typing import Any
+from typing import Any, List, Optional, Tuple, Union
 
 from salome.kernel.salomeContext_impl import SalomeContext, SalomeContextException, usage
 
