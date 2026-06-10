@@ -74,7 +74,7 @@ class Server:
         for sapcfg in ["SalomeAppSLConfig","SalomeAppConfig"]:
           if sapcfg in os.environ:
             logging.getLogger().debug("{}={}".format(sapcfg,os.environ[sapcfg]))
-        command1 = (" ".join(command)).replace("(","\\\(") ; command1 = command1.replace(")","\\\)")
+        command1 = (" ".join(command))
         logging.getLogger().debug("Command to be launched : {}".format(command1))
         # print("command = ", command)
         if sys.platform == "win32":
