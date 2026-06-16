@@ -329,23 +329,14 @@ def setOmniOrbUserPath():
   else:
     # Must be in /tmp (or equivalent) to handle application concurrency
     try:
-      import tempfile
-      temp = tempfile.NamedTemporaryFile()
-      temp_dir = os.path.dirname(temp.name)
-      temp.close()
+      # #35633 If using tempfile.TemporaryDirectory() os.access(omniorbUserPath, os.W_OK)
+      # can return False in some situations
+      temp_dir = tempfile.gettempdir()
       if not os.access(temp_dir, os.W_OK):
-        raise Exception("Unable to get write access to directory: %s"%temp_dir)
+        raise Exception(f"Unable to get write access to directory: {temp_dir}")
       os.environ["OMNIORB_USER_PATH"] = temp_dir
-    except Exception:
-      homePath = os.path.realpath(os.path.expanduser('~'))
-      #defaultOmniorbUserPath = os.path.join(homePath, ".salomeConfig/USERS")
-      defaultOmniorbUserPath = homePath
-      if os.getenv("APPLI"):
-        appli_users_path=os.path.join(homePath, os.getenv("APPLI"), "USERS")
-        if os.access(appli_users_path, os.W_OK):
-          defaultOmniorbUserPath = appli_users_path
-        pass
-      os.environ["OMNIORB_USER_PATH"] = defaultOmniorbUserPath
+    except Exception as e:
+      os.environ["OMNIORB_USER_PATH"] = Path.home().as_posix()
 #
 
 def getHostname():
