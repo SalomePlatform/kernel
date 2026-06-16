@@ -336,11 +336,13 @@ def setOmniOrbUserPath():
   else:
     # Must be in /tmp (or equivalent) to handle application concurrency
     try:
-      with tempfile.TemporaryDirectory() as temp:
-        temp_dir = Path(temp)
-      temp_dir.mkdir()
-      os.environ["OMNIORB_USER_PATH"] = temp_dir.as_posix()
-    except Exception:
+      # #35633 If using tempfile.TemporaryDirectory() os.access(omniorbUserPath, os.W_OK)
+      # can return False in some situations
+      temp_dir = tempfile.gettempdir()
+      if not os.access(temp_dir, os.W_OK):
+        raise Exception(f"Unable to get write access to directory: {temp_dir}")
+      os.environ["OMNIORB_USER_PATH"] = temp_dir
+    except Exception as e:
       os.environ["OMNIORB_USER_PATH"] = Path.home().as_posix()
 #
 
