@@ -51,17 +51,31 @@ IF(WIN32)
      Registry
      SalomeNotification
      SalomeResourcesManager
-     SalomeNS
+     SalomeNS 
      SALOMELocalTrace
      SalomeGenericObj
      SalomeIDLKernel
      SalomeTestComponentEngine
   )
 ENDIF(WIN32)
+IF(APPLE)
+  LIST (APPEND COMMON_LIBS
+     ArgvKeeper
+     SalomeContainer
+     Registry
+     SalomeNotification
+     SalomeResourcesManager
+     SalomeNS 
+     SALOMELocalTrace
+     SalomeGenericObj
+     SalomeIDLKernel
+  )
+ENDIF(WIN32)
+
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
 
 INSTALL(TARGETS SalomeTestComponentEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 

@@ -34,6 +34,16 @@
 #include <Basics_Utils.hxx>
 #endif
 
+#if defined(__APPLE__)
+char* get_current_dir_name(){
+  char* cwd = getcwd(nullptr, 0);
+  if(cwd==nullptr){
+    perror("getcwd");
+  }
+  return cwd;
+}
+#endif
+
 #include <sstream>
 #include <fstream>
 #include <algorithm>

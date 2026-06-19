@@ -47,6 +47,11 @@
 int SIGUSR1 = 1000;
 #endif
 
+#if defined(__APPLE__)
+#include <crt_externs.h>
+#define environ (*_NSGetEnviron())
+#endif
+
 #include "utilities.h"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)

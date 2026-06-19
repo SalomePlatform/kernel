@@ -42,6 +42,10 @@
 omniORBpyAPI* api=0;
 PyObject* dsc ;
 
+#if PY_VERSION_HEX >= 0x030C0000  /* Python 3.12.0 */
+  #define PyEval_CallObject(func, arg) PyObject_CallObject(func, arg)
+#endif
+
 %}
 
 %init
@@ -92,7 +96,25 @@ typedef PyArrayObject ArrayObject;
 /* Macros to extract array attributes.
  */
 #define is_array(a)            ((a) && PyArray_Check((PyArrayObject *)a))
+#ifdef __APPLE__
+  // Fix NumPy >= 1.24 C-API strict typing
+  #ifndef PyArray_TYPE
+  #include <numpy/arrayobject.h>
+  #endif
+  #define array_type(a) (int)(PyArray_TYPE((PyArrayObject*)(a)))
+  #ifndef PyArray_NOTYPE
+  #define PyArray_NOTYPE NPY_NOTYPE
+  #endif
+   #define PyArray_INT     NPY_INT
+    #define PyArray_LONG    NPY_LONG
+    #define PyArray_DOUBLE  NPY_DOUBLE
+    #define PyArray_FLOAT   NPY_FLOAT
+    #define PyArray_STRING  NPY_STRING
+    #define PyArray_CFLOAT  NPY_CFLOAT
+#else
 #define array_type(a)          (int)(PyArray_TYPE(a))
+#endif
+
 #define array_dimensions(a)    (((PyArrayObject *)a)->nd)
 #define array_size(a,i)        (((PyArrayObject *)a)->dimensions[i])
 #define array_is_contiguous(a) (PyArray_ISCONTIGUOUS(a))

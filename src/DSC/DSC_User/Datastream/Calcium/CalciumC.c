@@ -38,21 +38,56 @@ typedef int InfoType;
 typedef char bool;
 
 //TODO: ajouter les prototypes pour eviter les pbs de passage par valeur
+InfoType ecp_fin_ (void * component, int code) ;
+InfoType ecp_cd_ (void * component, char * instanceName);
 InfoType ecp_fint_ (void * component, char* nomVar, float t);
 InfoType ecp_fini_ (void * component, char* nomVar, int i);
 InfoType ecp_efft_ (void * component, char* nomVar, float t);
 InfoType ecp_effi_ (void * component, char* nomVar, int i);
 
+#define CALCIUM_C2CPP_INTERFACE_CXX_PROTO(_name,porttype,_type,_qual)                                                \
+   InfoType ecp_lecture_##_name (void * component, int dependencyType,                   \
+                                                        _type _qual * ti,              \
+                                                        _type _qual * tf, long * i,    \
+                                                         const char * const nomvar, size_t bufferLength,         \
+                                                         size_t * nRead, _type _qual ** data ) ;         \
+    void ecp_lecture_##_name##_free ( _type _qual * data);                                               \
+                                                                                                                  \
+                                                                                                                  \
+    InfoType ecp_ecriture_##_name (void * component, int dependencyType,                   \
+                                                           _type _qual  *t,                \
+                                                          long  i,                                                \
+                                                          const char * const nomvar, size_t bufferLength,         \
+                                                          _type _qual * data );                                   \
+
+
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(intc,int,int,)
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(long,long,long,)
+
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(integer,integer,cal_int,)
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(int2integer ,integer,  int,)
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(long2integer, integer, long,)
+
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(float,float,float, )
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(double,double,double,)
+
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(float2double,double,float, )
+
+/*  Fonnctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);*/
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(bool,bool,int,)
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(cplx,cplx,float,)
+CALCIUM_C2CPP_INTERFACE_CXX_PROTO(str,str,char*,)
+
 /************************************/
 /* INTERFACES DE LECTURE EN 0 COPIE */
 /************************************/
 
-/* Definition des méthodes calcium étendues en 0 copie */
-/* Le buffer est alloué par le port pas par l'utilisateur */
+/* Definition des mï¿½thodes calcium ï¿½tendues en 0 copie */
+/* Le buffer est allouï¿½ par le port pas par l'utilisateur */
 /* Remarquer le type ** de data */
-/* L'utilisateur devra appeler ecp_..._free pour désallouer le buffer interne */
-/* Attention en cas de lectures multiples : le buffer retourné est le même */
-/* Attention si les niveaux sont actifs le buffer peut être supprimé automatiquement par calcium. */
+/* L'utilisateur devra appeler ecp_..._free pour dï¿½sallouer le buffer interne */
+/* Attention en cas de lectures multiples : le buffer retournï¿½ est le mï¿½me */
+/* Attention si les niveaux sont actifs le buffer peut ï¿½tre supprimï¿½ automatiquement par calcium. */
 
 #define CALCIUM_EXT_LECT_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual) \
   InfoType ecp_##_name (void * component, int mode,                     \
@@ -86,10 +121,10 @@ InfoType ecp_effi_ (void * component, char* nomVar, int i);
   }
 
 
-/* L'interface de cette routine diffère de celle obtenue par la macro :
+/* L'interface de cette routine diffï¿½re de celle obtenue par la macro :
    CALCIUM_LECT_INTERFACE_C_.
-   Le paramètre supplémentaire strSize indique la taille fixe et identique
-   des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
+   Le paramï¿½tre supplï¿½mentaire strSize indique la taille fixe et identique
+   des chaï¿½nes stockï¿½es dans data (les ports CALCIUM n'en n'ont pas besoin)
 */
 InfoType ecp_lch(void * component, int mode, float * ti,        float * tf, int * i,
                 char  * nomvar, int bufferLength, int * nRead,
@@ -104,7 +139,7 @@ InfoType ecp_lch(void * component, int mode, float * ti,        float * tf, int 
                                     nomvar, bufferLength, &_nRead,
                                     data);/*, strSize );
                                              strSize est  inutile pour les ports CALCIUM
-                                             qui gèrent des tailles quelconques de chaines. */
+                                             qui gï¿½rent des tailles quelconques de chaines. */
   if(mode == CP_SEQUENTIEL)
     *i = _i;
   *nRead=_nRead;
@@ -121,7 +156,7 @@ void ecp_lch_free (char* * data) {                              \
 /*REVERIFIER MAINTENANT 0 COPY avec int2integer*/
 CALCIUM_EXT_LECT_INTERFACE_C_(len,float,int,int2integer,)
 CALCIUM_EXT_LECT_INTERFACE_C_(lre,float,float,float,)
-/*Permet d'envoyer/recevoir des réels sur un port Double  */
+/*Permet d'envoyer/recevoir des rï¿½els sur un port Double  */
 CALCIUM_EXT_LECT_INTERFACE_C_(lrd,float ,float  ,float2double,)
 CALCIUM_EXT_LECT_INTERFACE_C_(ldb,double,double,double,)
 
@@ -167,10 +202,10 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,)
   }
 
 
-/* L'interface de cette routine diffère de celle obtenue par la macro :
+/* L'interface de cette routine diffï¿½re de celle obtenue par la macro :
    CALCIUM_LECT_INTERFACE_C_.
-   Le paramètre supplémentaire strSize indique la taille fixe et identique
-   des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
+   Le paramï¿½tre supplï¿½mentaire strSize indique la taille fixe et identique
+   des chaï¿½nes stockï¿½es dans data (les ports CALCIUM n'en n'ont pas besoin)
 */
 
 /* InfoType cp_lch(void * component, int mode, float * ti,      float * tf, int * i, */
@@ -187,7 +222,7 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,)
 /*                                  &data);*/
 /*, strSize );  */
 /*                                           strSize est  inutile pour les ports CALCIUM */
-/*                                           qui gèrent des tailles quelconques de chaines.  */
+/*                                           qui gï¿½rent des tailles quelconques de chaines.  */
 /*   if(mode == CP_SEQUENTIEL)                                           */
 /*     *i = _i;                                                          */
 /*   *nRead=_nRead;                                                      */
@@ -197,19 +232,19 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,)
 /* };                                                                    */
 
 
-/* Definition des méthodes calcium standard  */
-/* CALCIUM_LECT_INTERFACE_C_( <suffixe du nom de l'interface à générer>, <type du paramètre temporel>, <type d'entier à utiliser pour les paramètres de type entier>,
-                              <type de données>, <nom de l'interface C2CPP à utiliser>, <qualificateur de type optionnel des données>,<paramètres supplémentaire ignoré>)*/
+/* Definition des mï¿½thodes calcium standard  */
+/* CALCIUM_LECT_INTERFACE_C_( <suffixe du nom de l'interface ï¿½ gï¿½nï¿½rer>, <type du paramï¿½tre temporel>, <type d'entier ï¿½ utiliser pour les paramï¿½tres de type entier>,
+                              <type de donnï¿½es>, <nom de l'interface C2CPP ï¿½ utiliser>, <qualificateur de type optionnel des donnï¿½es>,<paramï¿½tres supplï¿½mentaire ignorï¿½>)*/
 
 CALCIUM_LECT_INTERFACE_C_(len,float ,int,int    ,int2integer,,)
 /*llg ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
-  sinon problème de conversion de 64bits vers 32bits */
+  sinon problï¿½me de conversion de 64bits vers 32bits */
 CALCIUM_LECT_INTERFACE_C_(llg,float ,int,long   ,long2integer,,)
 
 CALCIUM_LECT_INTERFACE_C_(lln,float ,int,long   ,long,,)
 
 CALCIUM_LECT_INTERFACE_C_(lre,float ,int,float  ,float,,)
-/*Permet d'envoyer/recevoir des réels sur un port Double  */
+/*Permet d'envoyer/recevoir des rï¿½els sur un port Double  */
 CALCIUM_LECT_INTERFACE_C_(lrd,float ,int,float  ,float2double,,)
 CALCIUM_LECT_INTERFACE_C_(ldb,double,int,double ,double,,)
 
@@ -220,13 +255,13 @@ CALCIUM_LECT_INTERFACE_C_(lcp,float ,int,float  ,cplx,,)
 CALCIUM_LECT_INTERFACE_C_(lch,float ,int,char   ,str,STAR, LCH_LAST_PARAM )
 
 
-/* Definition des méthodes calcium destinées à l'interfaçage fortran
-   avec une taille des INTEGER fortran paramétrés à la configuration du KERNEL  */
+/* Definition des mï¿½thodes calcium destinï¿½es ï¿½ l'interfaï¿½age fortran
+   avec une taille des INTEGER fortran paramï¿½trï¿½s ï¿½ la configuration du KERNEL  */
 
 CALCIUM_LECT_INTERFACE_C_(len_fort_,float ,cal_int,cal_int ,integer,,)
 CALCIUM_LECT_INTERFACE_C_(lin_fort_,float ,cal_int,int     ,int2integer,,)
 /*llg_fort_ ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
-  sinon problème de conversion de 64bits vers 32bits */
+  sinon problï¿½me de conversion de 64bits vers 32bits */
 CALCIUM_LECT_INTERFACE_C_(llg_fort_,float ,cal_int,long    ,long2integer,,)
 
 CALCIUM_LECT_INTERFACE_C_(lre_fort_,float ,cal_int,float   ,float,,)
@@ -239,7 +274,7 @@ CALCIUM_LECT_INTERFACE_C_(lch_fort_,float ,cal_int,char    ,str,STAR, LCH_LAST_P
 CALCIUM_LECT_INTERFACE_C_(lln_fort_,float ,cal_int,long    ,long,,)
 
 /**********************************************/
-/*  INTERFACES DE DÉBUT ET DE FIN DE COUPLAGE */
+/*  INTERFACES DE Dï¿½BUT ET DE FIN DE COUPLAGE */
 /**********************************************/
 
 InfoType cp_cd (void * component, char * instanceName) {
@@ -248,7 +283,7 @@ InfoType cp_cd (void * component, char * instanceName) {
 }
 
 InfoType cp_fin (void * component, int code) {
-  /* TODO : gérer avec les callbacks des ports DSC */
+  /* TODO : gï¿½rer avec les callbacks des ports DSC */
 
   InfoType info =  ecp_fin_(component,code);
 
@@ -307,14 +342,14 @@ InfoType cp_fin (void * component, int code) {
 /*   return info;                                                        */
 /* };                                                                    */
 
-/*  Definition des méthodes calcium standard  */
+/*  Definition des mï¿½thodes calcium standard  */
 /*  CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_calInt,type,_typeName,_qual) */
 CALCIUM_ECR_INTERFACE_C_(een,float ,int,int   ,int2integer,,)
 /*elg ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
-  sinon problème de conversion de 64bits vers 32bits */
+  sinon problï¿½me de conversion de 64bits vers 32bits */
 CALCIUM_ECR_INTERFACE_C_(elg,float ,int,long  ,long2integer,,)
 CALCIUM_ECR_INTERFACE_C_(ere,float ,int,float ,float,,)
-/*Permet d'envoyer/recevoir des réels sur un port Double  */
+/*Permet d'envoyer/recevoir des rï¿½els sur un port Double  */
 CALCIUM_ECR_INTERFACE_C_(erd,float ,int,float ,float2double,,)
 CALCIUM_ECR_INTERFACE_C_(edb,double,int,double,double,,)
 
@@ -324,12 +359,12 @@ CALCIUM_ECR_INTERFACE_C_(ech,float ,int,char  ,str,STAR,LCH_LAST_PARAM )
 
 CALCIUM_ECR_INTERFACE_C_(eln,float ,int,long  ,long,,)
 
-/* Definition des méthodes calcium destinées à l'interfaçage fortran
-   avec une taille des INTEGER fortran paramétrés à la configuration du KERNEL  */
+/* Definition des mï¿½thodes calcium destinï¿½es ï¿½ l'interfaï¿½age fortran
+   avec une taille des INTEGER fortran paramï¿½trï¿½s ï¿½ la configuration du KERNEL  */
 
 CALCIUM_ECR_INTERFACE_C_(een_fort_,float ,cal_int,cal_int,integer,,)
 /*elg_fort_ ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
-  sinon problème de conversion de 64bits vers 32bits */
+  sinon problï¿½me de conversion de 64bits vers 32bits */
 CALCIUM_ECR_INTERFACE_C_(elg_fort_,float ,cal_int,long   ,long2integer,,)
 CALCIUM_ECR_INTERFACE_C_(ein_fort_,float ,cal_int,int    ,int2integer,,)
 CALCIUM_ECR_INTERFACE_C_(ere_fort_,float ,cal_int,float ,float,,)

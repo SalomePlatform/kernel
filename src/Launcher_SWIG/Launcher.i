@@ -112,7 +112,7 @@ public:
 {
   try
   {
-    $function
+    $action
   }
   catch (ResourcesException& e)
   {
@@ -186,7 +186,7 @@ public:
 {
   try
   {
-    $function
+    $action
   }
   catch (LauncherException& e)
   {

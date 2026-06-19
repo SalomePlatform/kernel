@@ -22,9 +22,9 @@ SET(SUBDIRS_COMMON
 )
 
 IF(NOT WIN32)
-  SET(SUBDIRS_ADD
-    DSC_User
+ SET(SUBDIRS_ADD
     DSC_Python
+    DSC_User
   )
 ENDIF()
 

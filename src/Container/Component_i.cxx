@@ -400,13 +400,18 @@ bool Engines_Component_i::Kill_impl()
 //          << dec ) ;
 
   bool RetVal = false ;
-#ifndef WIN32
+#if  !defined(WIN32) && !defined(__APPLE__)
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , SIGUSR2 ) ;
       _ThreadId = (pthread_t ) -1 ;
     }
-
+#elif defined(__APPLE__)
+  if ( _ThreadId && !pthread_equal(pthread_self(), _ThreadId ))
+    {
+      RetVal = Killer( _ThreadId , SIGUSR2 ) ;
+      _ThreadId = (pthread_t ) -1 ;
+    }
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
     {
@@ -442,8 +447,14 @@ bool Engines_Component_i::Stop_impl()
 
 
   bool RetVal = false ;
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__APPLE__)
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+    {
+      RetVal = Killer( _ThreadId , 0 ) ;
+      _ThreadId = (pthread_t ) -1 ;
+    }
+#elif defined(__APPLE__)
+  if ( _ThreadId && !pthread_equal(pthread_self(), _ThreadId ))
     {
       RetVal = Killer( _ThreadId , 0 ) ;
       _ThreadId = (pthread_t ) -1 ;
@@ -481,8 +492,10 @@ bool Engines_Component_i::Suspend_impl()
 #endif
 
   bool RetVal = false ;
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__APPLE__)
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#elif defined(__APPLE__)
+  if ( _ThreadId && !pthread_equal(pthread_self(), _ThreadId ))
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
 #endif
@@ -527,8 +540,10 @@ bool Engines_Component_i::Resume_impl()
           << std::dec << " _ThreadId " << _ThreadId );
 #endif
   bool RetVal = false ;
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__APPLE__)
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#elif defined(__APPLE__)
+  if ( _ThreadId && !pthread_equal(pthread_self(), _ThreadId ))
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
 #endif
@@ -557,7 +572,7 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
   long cpu = 0 ;
   if ( _ThreadId || _Executed )
     {
-    if ( _ThreadId > 0 )
+    if ( _ThreadId )
       {
 #ifndef WIN32
       if ( pthread_self() != _ThreadId )
