@@ -385,7 +385,7 @@ def install(prefix, config_file, verbose=0):
         if prereq_tag_path.is_file():
             target = env_d / "envProducts.sh"
             shutil.copyfile(prereq_tag_path, target)
-            json_config[appli_tag][prereq_tag] = f"{target}"
+            json_config[appli_tag][prereq_tag] = undestdir(f"{target}")
         else:
             print(f"WARNING: prerequisite file {prereq_tag_path} does not exist")
 
@@ -394,7 +394,7 @@ def install(prefix, config_file, verbose=0):
         if context_tag_path.is_file():
             target = env_d / "envProducts.cfg"
             shutil.copyfile(context_tag_path, target)
-            json_config[appli_tag][context_tag] = f"{target}"
+            json_config[appli_tag][context_tag] = undestdir(f"{target}")
         else:
             print(f"WARNING: context file {context_tag_path} does not exist")
 
@@ -403,7 +403,7 @@ def install(prefix, config_file, verbose=0):
         if sha1_collect_tag_path.is_file():
             target = env_d / "sha1_collections.txt"
             shutil.copyfile(sha1_collect_tag_path, target)
-            json_config[appli_tag][sha1_collect_tag] = f"{target}"
+            json_config[appli_tag][sha1_collect_tag] = undestdir(f"{target}")
         else:
             print(f"WARNING: sha1 collections file {sha1_collect_tag_path} does not exist")
 
@@ -429,10 +429,9 @@ def install(prefix, config_file, verbose=0):
         config_salome_lines.append(f"DATA_DIR={_config[samples_tag]}\n")
         json_config[appli_tag][samples_tag] = _config[samples_tag]
     if resources_tag in _config and Path(_config[resources_tag]).is_file():
-        config_salome_lines.append(
-            f"USER_CATALOG_RESOURCES_FILE={Path(_config[resources_tag]).absolute().as_posix()}\n"
-        )
-        json_config[appli_tag][resources_tag] = _config[resources_tag]
+        resource_file = undestdir(Path(_config[resources_tag]).absolute())
+        config_salome_lines.append(f"USER_CATALOG_RESOURCES_FILE={resource_file}\n")
+        json_config[appli_tag][resources_tag] = resource_file
 
     if config_salome_lines:
         config_salome_lines.insert(0, "[SALOME ROOT_DIR (modules) Configuration]")
