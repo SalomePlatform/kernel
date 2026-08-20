@@ -88,7 +88,7 @@ installation works without further modification for a single computer (unless
 some modules needs a special environment not defined in the above script).
 
 For a distributed application (several computers), one must copy and adapt
-CatalogResources.xml from ${KERNEL_ROOT_DIR}/bin/salome/appliskel (see below).
+CatalogResources.xml from ${KERNEL_ROOT_DIR}/bin/salome/appli (see below).
 
 The application directory contains the elements required to run %SALOME, for example the \ref salome_command, and some context files in env.d directory.
 

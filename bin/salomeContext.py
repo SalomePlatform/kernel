@@ -19,37 +19,28 @@
 #
 
 
-import sys
-import logging
-import configparser
-if sys.version_info[:2] >= (3,12):
-  from configparser import ConfigParser as SafeConfigParser
-else:
-  from configparser import SafeConfigParser
-from salome.kernel.parseConfigFile import parseConfigFile
-
-import tempfile
 import pickle
-import platform
-import subprocess
-from typing import Any, List, Optional, Tuple, Union
+import sys
 
-from salome.kernel.salomeContext_impl import SalomeContext, SalomeContextException, usage
+from salome.kernel.salomeContext_impl import SalomeContext, usage
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(usage=usage(do_print=False))
     parser.add_argument(
         "context",
         # type=bytes,
-        help="The pickled context class object")
+        help="The pickled context class object",
+    )
     parser.add_argument(
         "args",
         # type=bytes,
-        help="The pickled args")
+        help="The pickled args",
+    )
     args = parser.parse_args()
 
-    context : SalomeContext = pickle.loads(args.context.encode("latin1"))
-    cargs: str= pickle.loads(args.args.encode("latin1"))
+    context: SalomeContext = pickle.loads(args.context.encode("latin1"))
+    cargs: str = pickle.loads(args.args.encode("latin1"))
     status = context._startSalome(cargs)
     sys.exit(status)

@@ -29,12 +29,19 @@
 """Run SALOME app in the context of adding modules as extensions.
 """
 
-import os,sys
-import salomeContext
-from SalomeOnDemandTK.extension_utilities import get_logger, \
-    find_envpy, module_from_filename, get_app_root, find_file, \
-    SALOME_EXTDIR
-from SalomeOnDemandTK.extension_query_impl import ext_by_dependants, dependency_tree
+import os
+import sys
+
+import salomeContext_impl
+from SalomeOnDemandTK.extension_query_impl import dependency_tree, ext_by_dependants
+from SalomeOnDemandTK.extension_utilities import (
+    SALOME_EXTDIR,
+    find_envpy,
+    get_app_root,
+    get_logger,
+    module_from_filename,
+)
+
 
 def set_selext_env(install_dir, salomex_name, context=None):
     """
@@ -53,7 +60,7 @@ def set_selext_env(install_dir, salomex_name, context=None):
 
     # Set the root dir as env variable
     if not context:
-        context = salomeContext.SalomeContext(None)
+        context = salomeContext_impl.SalomeContext(None)
         context.setVariable('SALOME_APPLICATION_DIR', install_dir, overwrite=False)
 
 
@@ -100,7 +107,7 @@ def set_ext_env(app_name='', version=''):
             'Env var SALOME_APPLICATION_DIR is not set! It will be setted by default in %s.'%app_root)
 
     # Set the root dir as env variable
-    context = salomeContext.SalomeContext(None)
+    context = salomeContext_impl.SalomeContext(None)
     context.setVariable('SALOME_APPLICATION_DIR', app_root, overwrite=True)
 
     # Find and source all _env.py files for installed extensions

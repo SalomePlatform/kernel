@@ -24,25 +24,18 @@
 # \file appli_gen.py
 #  Create a %SALOME application (virtual Salome installation)
 #
-from __future__ import annotations
+"""This file is the SALOME application generator.
+It must be compatible with python 3.6."""
 
 import argparse
 import json
 import os
-from pathlib import Path
-import sys
 import shutil
-import virtual_salome
-import xml.sax
 import subprocess
-import venv
-
-usage = """%(prog)s [options]
-Typical use is:
-  %(prog)s
-Typical use with options is:
-  %(prog)s --verbose --prefix=<install directory> --config=<configuration file>
-"""
+import sys
+import xml.sax
+from pathlib import Path
+from typing import Dict, Union
 
 # --- names of tags in XML configuration file
 appli_tag = "application"
@@ -70,7 +63,7 @@ gui_att = "gui"
 version_att = "version"
 
 CURDIR = Path(__file__).parent
-APPLISKEL_DIR = CURDIR / "appliskel"
+APPLISKEL_DIR = CURDIR / "appli"
 DEFAULT_LAUNCHER_NAME = "salome"
 DEFAULT_ABSOLUTE_APPLI_DIR = "SALOME"
 DESTDIR = os.getenv("DESTDIR", "")
@@ -82,7 +75,7 @@ def undestdir(path: str) -> str:
     return path
 
 
-def path_with_destdir(path_str: str| Path) -> Path:
+def path_with_destdir(path_str: Union[str, Path]) -> Path:
     path = Path(path_str)
     if DESTDIR and Path(DESTDIR) not in path.parents:
         path = Path(DESTDIR) / path.relative_to(path.root)
@@ -281,7 +274,7 @@ def install(prefix, config_file, verbose=0):
     _config = {}
     try:
         # We try to load config as JSON format
-        _config = json.loads(filename.read_text()).get(appli_tag)
+        _config = json.loads(filename.read_text()).get(appli_tag, {})
     except json.JSONDecodeError:
         try:
             parser = xml_parser(filename)
@@ -306,39 +299,10 @@ def install(prefix, config_file, verbose=0):
 
     json_config = {appli_tag: {}}
 
-    # Add KERNEL if not in config
-    # We use KERNEL that provides appli_gen script
-    modules = _config.get("modules", [])
-    if "KERNEL" not in modules:
-        # We suppose that appli_gen is installed in KERNEL_ROOT_DIR/bin/salome
-        kernel_path = Path(__file__).resolve().parents[2].as_posix()
-        _config["KERNEL"] = kernel_path
-        modules.insert(0, "KERNEL")
-    kernel_module_path = None
-
-    for module in modules:
-        if module in _config:
-            module_path = _config[module]
-            print("--- add module ", module, module_path)
-            options = params()
-            options.verbose = verbose
-            options.clear = 0
-            options.prefix = home_dir
-            options.module_name = module
-            options.module_path = module_path
-            virtual_salome.link_module(options)
-            # To fix GEOM_TestXAO issue https://codev-tuleap.cea.fr/plugins/tracker/?aid=16599
-            if module == "GEOM":
-                # link <appli_path>/bin/salome/test/<module> to <module_path>/bin/salome/test
-                test_dir=os.path.join(home_dir,'bin','salome', 'test')
-                module_dir=os.path.abspath(options.module_path)
-                xao_link=os.path.join(module_dir,'bin','salome', 'test', "xao")
-                print("link %s --> %s"%(os.path.join(test_dir, "xao"), xao_link))
-                virtual_salome.symlink(xao_link, os.path.join(test_dir, "xao"))
-            if module == "KERNEL":
-                kernel_module_path = module_path
-            pass
-        pass
+    absolute_appli_dir: str = (
+        _config.get(absolute_appli_dir_tag) or DEFAULT_ABSOLUTE_APPLI_DIR
+    )
+    json_config[appli_tag][absolute_appli_dir_tag] = absolute_appli_dir
 
     absolute_appli_path = appli_dir / absolute_appli_dir
     if absolute_appli_path.is_dir():
@@ -354,13 +318,14 @@ def install(prefix, config_file, verbose=0):
     env_d = absolute_appli_path / "env.d"
     env_d.mkdir(parents=True)
 
-    for fn in ('envd',
-               'runRemote.sh',
-               'runRemoteSSL.sh',
-               '.bashrc',
-               ):
-        virtual_salome.symlink( os.path.join( appliskel_dir, fn ), os.path.join( home_dir, fn) )
-        pass
+    # Copy launcher and make it executable
+    name = _config.get(runner_tag, DEFAULT_LAUNCHER_NAME)
+    json_config[appli_tag][runner_tag] = name
+    launcher = appli_dir / name
+    shutil.copyfile(APPLISKEL_DIR / "appli_launcher", launcher)
+    mode = os.stat(launcher).st_mode
+    mode |= (mode & 0o444) >> 2  # copy R bits to X
+    os.chmod(launcher, mode)
 
     # Copy launcher and make it executable
     name = _config.get(runner_tag, DEFAULT_LAUNCHER_NAME)
@@ -372,10 +337,13 @@ def install(prefix, config_file, verbose=0):
     os.chmod(launcher, mode)
 
     # Copy utilitaries needed by the launcher
-    for script in "parseConfigFile.py", "salomeContext.py", "salomeContextUtils.py":
-        shutil.copyfile(CURDIR / script, bin_salome_d / script)
+    for script in "parseConfigFile.py", "salomeContext_impl.py", "salomeContextUtils.py":
+        shutil.copyfile(CURDIR / "appli" / script, bin_salome_d / script)
+    bashrc_file = CURDIR / "appli" / ".bashrc"
+    if bashrc_file.exists():
+        shutil.copyfile(bashrc_file, absolute_appli_path / ".bashrc")
 
-    modules: dict[str, str] = _config.get(modules_tag, {})
+    modules: Dict[str, str] = _config.get(modules_tag, {})
     if modules:
         json_config[appli_tag][modules_tag] = {}
         for module, module_path in modules.items():
@@ -383,7 +351,7 @@ def install(prefix, config_file, verbose=0):
             print("--- add module", module, module_path)
             json_config[appli_tag][modules_tag][module] = module_path
 
-    extra_tests: dict[str, str] = _config.get(extra_tests_tag, {})
+    extra_tests: Dict[str, str] = _config.get(extra_tests_tag, {})
     if extra_tests:
         json_config[appli_tag][extra_tests_tag] = []
         for extra_test, extra_test_path in extra_tests.items():
@@ -407,24 +375,7 @@ def install(prefix, config_file, verbose=0):
     # In the same way as: module load [MODULE_LIST]
     env_modules = _config.get(env_modules_tag, [])
     if env_modules:
-        with open(os.path.join(home_dir, 'env_modules.json'), 'w') as fd:
-            json.dump({"env_modules": env_modules}, fd)
-        with open(os.path.join(home_dir, 'env.d', 'envModules.sh'), 'w') as fd:
-            fd.write('#!/bin/bash\n')
-            fd.write('module load %s\n' % (' '.join(env_modules)))
-
-    # Copy salome / salome_mesa scripts:
-    for scripts in ('getAppliPath.py',
-                    'kill_remote_containers.py',
-                    '.salome_run',
-                    'update_catalogs.py',
-                    'salome',
-                    'salome_mesa',
-                    ):
-        salome_script = os.path.join(appliskel_dir, scripts)
-        salome_file = os.path.join(home_dir, scripts)
-        update_shebang(salome_script, salome_file, home_dir)
-        os.chmod(salome_file, 0o755)
+        json_config[appli_tag][env_modules_tag] = env_modules
 
     # Add .salome-completion.sh file
     #  shutil.copyfile(APPLISKEL_DIR / ".salome-completion.sh", appli_dir / ".salome-completion.sh")
@@ -438,47 +389,14 @@ def install(prefix, config_file, verbose=0):
         else:
             print(f"WARNING: prerequisite file {prereq_tag_path} does not exist")
 
-    with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
-        for module in _config.get("modules", []):
-            command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
-            f.write(command)
-            pass
-        if "samples_path" in _config:
-            command = 'export DATA_DIR=' + _config["samples_path"] +'\n'
-            f.write(command)
-            pass
-        if "resources_path" in _config and os.path.isfile(_config["resources_path"]):
-            command = 'export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
-            f.write(command)
-        command ="""\
-export PATH=${HOME}/${APPLI}/bin/salome:$PATH
-export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
-"""
-        f.write(command)
-        # Create environment variable for the salome test
-        for module in _config.get("modules", []):
-            command = "export LD_LIBRARY_PATH=${HOME}/${APPLI}/bin/salome/test/" + module + "/lib:$LD_LIBRARY_PATH\n"
-            f.write(command)
-            pass
-        # Create environment for plugins GEOM
-        command = "export GEOM_PluginsList=BREPPlugin:STEPPlugin:IGESPlugin:STLPlugin:XAOPlugin:VTKPlugin:AdvancedGEOM\n"
-        f.write(command)
-        # Create environment for Healing
-        command = "export CSF_ShHealingDefaults=${HOME}/${APPLI}/share/salome/resources/geom\n"
-        f.write(command)
-        # Create environment for Meshers
-        command = "export SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin:GHS3DPRLPlugin\nexport SALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
-        f.write(command)
-        # Create environment for virtual env
-        if venv_directory_path:
-            command = """# SALOME venv Configuration
-export SALOME_VENV_DIRECTORY=${HOME}/${APPLI}/venv
-export PATH=${HOME}/${APPLI}/venv/bin:$PATH
-export LD_LIBRARY_PATH=${HOME}/${APPLI}/venv/lib:$LD_LIBRARY_PATH
-export PYTHONPATH=${HOME}/${APPLI}/venv/lib/python%s/site-packages
-""" % (versionPython)
-            f.write(command)
-            pass
+    if context_tag in _config:
+        context_tag_path = path_with_destdir(_config[context_tag])
+        if context_tag_path.is_file():
+            target = env_d / "envProducts.cfg"
+            shutil.copyfile(context_tag_path, target)
+            json_config[appli_tag][context_tag] = f"{target}"
+        else:
+            print(f"WARNING: context file {context_tag_path} does not exist")
 
     if sha1_collect_tag in _config:
         sha1_collect_tag_path = path_with_destdir(_config[sha1_collect_tag])
@@ -490,24 +408,21 @@ export PYTHONPATH=${HOME}/${APPLI}/venv/lib/python%s/site-packages
             print(f"WARNING: sha1 collections file {sha1_collect_tag_path} does not exist")
 
     if not parent_application:
-        version_python = f"{sys.version_info.major}.{sys.version_info.minor}"
+        version_python = None
         if python_tag in _config:
             version_python_split = _config[python_tag].split(".")
             version_python = version_python_split[0] + "." + version_python_split[1]
         elif _config.get(prereq_tag):
             cmd = ""
-            if prereq_tag in _config:
-                prereq_tag_path = path_with_destdir(_config[prereq_tag])
-                if prereq_tag_path.exists():
-                    cmd += f"source {DESTDIR}{_config[prereq_tag]} && "
+            prereq_tag_path = path_with_destdir(_config[prereq_tag])
+            if prereq_tag_path.exists():
+                cmd += f"source {DESTDIR}{_config[prereq_tag]} && "
             cmd += 'python3 -c "import sys ; sys.stdout.write(f\\"{sys.version_info.major}.{sys.version_info.minor}\\")"'
             version_python = subprocess.check_output(["/bin/bash", "-l", "-c", cmd]).decode(
                 "utf-8"
             )
-        else:
-            print("ERROR: impossible to retrieve python version")
-            return 1
-        json_config[appli_tag][python_tag] = version_python
+        if version_python:
+            json_config[appli_tag][python_tag] = version_python
 
     config_salome_lines = []
     if samples_tag in _config:
@@ -528,23 +443,33 @@ export PYTHONPATH=${HOME}/${APPLI}/venv/lib/python%s/site-packages
     json_config_file = appli_dir / "config_appli.json"
     json_config_file.write_text(json.dumps(json_config, indent=4))
 
-def main():
-    parser = argparse.ArgumentParser(usage=usage)
 
-    parser.add_argument('--prefix', default='.', metavar="<install directory>",
-                      help="Installation directory (default %(default)s)")
+def main() -> int:
+    parser = argparse.ArgumentParser()
 
-    parser.add_argument('--config', default='config_appli.xml',
-                      metavar="<configuration file>",
-                      help="XML configuration file (default %(default)s)")
+    parser.add_argument(
+        "--prefix",
+        type=Path,
+        default=Path.cwd(),
+        metavar="<install directory>",
+        help="Installation directory (default %(default)s)",
+    )
 
-    parser.add_argument('-v', '--verbose', action='count',
-                      default=0, help="Increase verbosity")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("config_appli.xml"),
+        metavar="<configuration file>",
+        help="XML or JSON configuration file (default %(default)s)",
+    )
 
-    options = parser.parse_args()
-    if not os.path.exists(options.config):
-        print("ERROR: config file %s does not exist. It is mandatory." % options.config)
-        sys.exit(1)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase verbosity",
+    )
 
     parser.add_argument(
         "-f",

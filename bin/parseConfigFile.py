@@ -23,10 +23,15 @@ import configparser
 import logging
 import os
 import re
-from io import StringIO
-import subprocess
-import collections
-from .salomeContextUtils import SalomeContextException #@UnresolvedImport
+import sys
+from collections import OrderedDict, namedtuple
+
+from .salomeContextUtils import SalomeContextException # type: ignore
+
+if sys.version_info[:2] >= (3, 2):
+    from configparser import ConfigParser
+else:
+    from configparser import SafeConfigParser as ConfigParser
 
 logging.basicConfig()
 logConfigParser = logging.getLogger(__name__)

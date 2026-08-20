@@ -932,7 +932,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
                 dirs.append(gui_resources_dir)
             pass
         else:
-            kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appliskel')
+            kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appli')
             if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( kernel_resources_dir ):
               dirs.append(kernel_resources_dir)
             pass

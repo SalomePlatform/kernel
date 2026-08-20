@@ -26,29 +26,39 @@
 # \brief Module that provides services to launch SALOME
 #
 
-import sys, os, string, glob, time, pickle, re
-from . import orbmodule
-from . import setenv_impl
-from .launchConfigureParser import verbose
-from .server import process_id, Server
-import json
+import os
+import pickle
 import subprocess
-from .salomeContextUtils import ScriptAndArgsObjectEncoder
-import platform
-from .runSalomeCommon import setVerbose, InterpServer, CatalogServer, SalomeDSServer, ConnectionManagerServer, RegistryServer, ContainerCPPServer, LoggerServer, CommonSessionServer, SessionServer, LauncherServer
-# -----------------------------------------------------------------------------
+import sys
 
+from salome.kernel import setenv_impl
+from salome.kernel.launchConfigureParser import verbose
+from salome.kernel.runSalomeCommon import (
+    CatalogServer,
+    ConnectionManagerServer,
+    ContainerCPPServer,
+    InterpServer,
+    LauncherServer,
+    LoggerServer,
+    RegistryServer,
+    SalomeDSServer,
+    SessionServer,
+)
+from salome.kernel.server import Server, process_id
+
+# -----------------------------------------------------------------------------
 from .killSalome_impl import killAllPorts
 
-def killLocalPort():
+
+def killLocalPort(args=None):
     """
     kill servers from a previous SALOME execution, if needed,
     on the CORBA port given in args of runSalome
     """
 
-    from .killSalomeWithPort_impl import killMyPort
-    my_port=str(args['port'])
+    from salome.kernel.killSalomeWithPort_impl import killMyPort
     try:
+        my_port=str(args['port'])
         killMyPort(my_port)
     except Exception:
         print("problem in killLocalPort()")
@@ -61,7 +71,7 @@ def givenPortKill(port):
     on the same CORBA port
     """
 
-    from killSalomeWithPort import killMyPort
+    from salome.kernel.killSalomeWithPort_impl import killMyPort
     my_port=port
     try:
         killMyPort(my_port)
@@ -84,11 +94,13 @@ def kill_salome(args):
 
 def startGUI(clt):
     """Salome Session Graphic User Interface activation"""
-    from . import Engines
-    from . import SALOME_CMOD
-    from . import SALOMEDS
-    from . import SALOME_ModuleCatalog
-    from . import SALOME_Session_idl
+    from salome.kernel import (
+        SALOME_CMOD,
+        SALOMEDS,
+        Engines,
+        SALOME_ModuleCatalog,
+        SALOME_Session_idl,
+    )
     session=clt.waitNS("/Kernel/Session",SALOME_CMOD.Session)
     session.GetInterface()
 
@@ -137,11 +149,13 @@ def startSalome(args, modules_list, modules_root_dir):
     # Wake up session option
     #
     if args['wake_up_session']:
-        from . import Engines
-        from . import SALOME_CMOD
-        from . import SALOMEDS
-        from . import SALOME_ModuleCatalog
-        from . import SALOME_Session_idl
+        from salome.kernel import (
+            SALOME_CMOD,
+            SALOMEDS,
+            Engines,
+            SALOME_ModuleCatalog,
+            SALOME_Session_idl,
+        )
         session = clt.waitNS("/Kernel/Session",SALOME_CMOD.Session)
         status = session.GetStatSession()
         if status.activeGUI:
@@ -205,7 +219,7 @@ def startSalome(args, modules_list, modules_root_dir):
         cataServer=CatalogServer(args)
         cataServer.setpath(modules_list,modules_root_dir)
         cataServer.run()
-        from . import SALOME_ModuleCatalog
+        from salome.kernel import SALOME_ModuleCatalog
         if sys.platform == "win32":
           clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
         else:
@@ -246,10 +260,10 @@ def startSalome(args, modules_list, modules_root_dir):
       myConnectionServer = ConnectionManagerServer(args)
       myConnectionServer.run()
 
-    from .Utils_Identity import getShortHostName
+    from salome.kernel.Utils_Identity import getShortHostName
 
-    if os.getenv("HOSTNAME") == None:
-        if os.getenv("HOST") == None:
+    if os.getenv("HOSTNAME") is None:
+        if os.getenv("HOST") is None:
             os.environ["HOSTNAME"]=getShortHostName()
         else:
             os.environ["HOSTNAME"]=os.getenv("HOST")
@@ -279,11 +293,13 @@ def startSalome(args, modules_list, modules_root_dir):
 
     if args["gui"] and not args['launcher_only']:
 ##----------------
-        from . import Engines
-        from . import SALOME_CMOD
-        from . import SALOMEDS
-        from . import SALOME_ModuleCatalog
-        from . import SALOME_Session_idl
+        from salome.kernel import (
+            SALOME_CMOD,
+            SALOMEDS,
+            Engines,
+            SALOME_ModuleCatalog,
+            SALOME_Session_idl,
+        )
         if sys.platform == "win32":
           session=clt.waitNS("/Kernel/Session",SALOME_CMOD.Session)
         else:
@@ -352,8 +368,8 @@ def useSalome(args, modules_list, modules_root_dir):
 
     # print(process_id)
 
-    from .addToKillList_impl import addToKillList
-    from .killSalomeWithPort_impl import getPiDict
+    from salome.kernel.addToKillList_impl import addToKillList
+    from salome.kernel.killSalomeWithPort_impl import getPiDict
 
     filedict = getPiDict(args['port'])
     for pid, cmd in list(process_id.items()):
@@ -378,7 +394,7 @@ def useSalome(args, modules_list, modules_root_dir):
     #  Print Naming Service directory list
     #
 
-    if clt != None:
+    if clt is not None:
         if verbose():
             print()
             print(" --- registered objects tree in Naming Service ---")
@@ -390,7 +406,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 class __utils__:
                     def __init__(self, port):
                         self.port = port
-                        from . import killSalomeWithPort_impl
+                        from salome.kernel import killSalomeWithPort_impl
                         self.killSalomeWithPort = killSalomeWithPort_impl
                         return
                     def __del__(self):
@@ -415,7 +431,7 @@ def useSalome(args, modules_list, modules_root_dir):
                         salome.salome_init_with_session(path=toopen)
                 if 'pyscript' in args:
                     toimport = args['pyscript']
-        from .salomeContextUtils import formatScriptsAndArgs
+        from salome.kernel.salomeContextUtils import formatScriptsAndArgs
         command = formatScriptsAndArgs(toimport, escapeSpaces=True)
         if command:
             proc = subprocess.Popen(command, shell=True)
@@ -457,7 +473,7 @@ def no_main():
     args, modules_list, modules_root_dir = pickle.load(fenv)
     fenv.close()
     kill_salome(args)
-    from .searchFreePort import searchFreePort
+    from salome.kernel.searchFreePort import searchFreePort
     searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt
@@ -466,7 +482,7 @@ def no_main():
 
 def addToPidict(args):
     global process_id
-    from .addToKillList_impl import addToKillList
+    from salome.kernel.addToKillList_impl import addToKillList
     for pid, cmd in list(process_id.items()):
         addToKillList(pid, cmd, args['port'])
 
@@ -477,7 +493,7 @@ def main(exeName=None):
 
     # define folder to store omniorb config (initially in virtual application folder)
     try:
-        from .salomeContextUtils import setOmniOrbUserPath
+        from salome.kernel.salomeContextUtils import setOmniOrbUserPath
         setOmniOrbUserPath()
     except Exception as e:
         print(e)
@@ -498,7 +514,7 @@ def main(exeName=None):
         test = False
         pass
     if test and not 'launcher' in args:
-        from .searchFreePort import searchFreePort
+        from salome.kernel.searchFreePort import searchFreePort
         searchFreePort(args, save_config, args.get('useport'))
         pass
     # --
@@ -566,7 +582,7 @@ def foreGround(clt, args):
             pass
         pass
     except KeyboardInterrupt:
-        from killSalomeWithPort import killMyPort
+        from salome.kernel.killSalomeWithPort_impl import killMyPort
         killMyPort(port)
         pass
     return

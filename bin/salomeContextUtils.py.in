@@ -84,6 +84,23 @@ def __getEnvironmentFileNames(args, optionPrefix, checkExistence):
           configFileNames += [elt]
 
   return configFileNames, args, unexisting
+
+def __getEnvironmentFileNames2(configs: str, checkExistence):
+
+  configFileNames = []
+  unexisting = []
+  elements = configs.split(',')
+  for elt in elements:
+    elt = Path(elt).expanduser().resolve()
+    if elt.is_dir():
+      configFileNames += __listDirectory(elt)
+    else:
+      if checkExistence and not elt.is_file():
+        unexisting += [elt.as_posix()]
+      else:
+        configFileNames += [elt.as_posix()]
+
+  return configFileNames, unexisting
 #
 
 def getConfigFileNames(args, checkExistence=False, default_cfg_directory=""):
@@ -96,6 +113,16 @@ def getConfigFileNames(args, checkExistence=False, default_cfg_directory=""):
     configFileNames, args, unexist = __getEnvironmentFileNames(args, configOptionPrefix, checkExistence)
 
   return configFileNames, args, unexist
+#
+
+def getConfigFileNames2(configs: str, checkExistence=False, default_cfg_directory=""):
+  if not configs:
+    configFileNames, unexist = __getConfigFileNamesDefault(default_cfg_directory=default_cfg_directory), []
+  else:
+    # get configuration filenames
+    configFileNames, unexist = __getEnvironmentFileNames2(configs, checkExistence)
+
+  return configFileNames, unexist
 #
 
 def __getScriptPath(scriptName, searchPathList):

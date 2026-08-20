@@ -88,7 +88,7 @@ class TestEnvironment:
     
     # start salome
     import imp
-    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
+    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appli")]
     self.salome_module = imp.load_source("SALOME", os.path.join(appli_dir, "salome"))
     try:
       self.salome_module.main(["start", "-t"])

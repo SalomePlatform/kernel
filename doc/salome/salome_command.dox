@@ -154,7 +154,7 @@ if __name__ == "__main__":
 Finally the module can be called from another script, for example a test script. Considering a Python variable \c path_to_launcher that identifies the absolute path to a launcher, one can write:
 \code
 appli_dir = os.path.dirname(path_to_launcher)
-sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
+sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appli")]
 self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
 try:
   self.SALOME.main(["shell", "hello.py"])
