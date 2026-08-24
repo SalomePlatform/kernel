@@ -56,7 +56,7 @@ def _trimColons(var):
 def _expandSystemVariables(key, val):
     if not isinstance(val, str):
         return val
-   splittedComments = val.split("#")
+    splittedComments = val.split("#")
     expandedVal = os.path.expandvars(
         splittedComments[0]
     )  # expand environment variables

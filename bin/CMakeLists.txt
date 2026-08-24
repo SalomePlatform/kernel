@@ -50,6 +50,7 @@ SET(SCRIPTS
   runIDLparser
   runRemote.py
   runSalomeNoServer.py
+  runSalome.py
   runSalomeOld.py
   runSalomeOnDemand.py
   runSalomeNoServer.py
@@ -83,6 +84,7 @@ SET(SCRIPTS
   PortManager.py
   runConsole_impl.py
   runSalomeCommon.py
+  runSalome_impl.py
   runSalomeOld_impl.py
   runSalomeOnDemand_impl.py
   runSalomeNoServer_impl.py

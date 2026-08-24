@@ -462,19 +462,14 @@ class SalomeContext:
         return 0
 
     def _sessionless(self, args: Optional[List[str]] = None) -> int:
-        try:
-            from salome.kernel import runSalomeOld_impl # type: ignore
-        except ImportError:
-            self.getLogger().error("Cannot import runSalome driver, please install SALOME-GUI extension")
-            return 1
         if args is None:
             args = []
         sys.argv = ["runSalome"] + args
-        from salome.kernel import setenv_impl  # type: ignore
+        from salome.kernel import setenv_impl, runSalome_impl  # type: ignore
 
         setenv_impl.main(True, exeName=f"{self.name} withsession")
 
-        runSalomeOld_impl.runSalome()
+        runSalome_impl.runSalome()
         return 0
 
     def _setContext(self, args: Optional[List[str]] = None) -> int:

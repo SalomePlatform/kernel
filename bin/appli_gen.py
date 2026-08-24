@@ -207,42 +207,6 @@ class xml_parser:
         self.read = None
 
 
-class params:
-    pass
-
-
-
-def update_shebang(source_path, target_path, home_dir):
-    # Chemin vers l'interpréteur Python de l'application
-    python_executable = Path(home_dir, "bin") / Path(sys.executable).name
-
-    # Lire le contenu du fichier source
-    source_file = Path(source_path)
-    lines = source_file.read_text().splitlines()
-
-    # Vérifier et mettre à jour le shebang
-    if lines[0].startswith('#!'):
-        lines[0] = f'#!{python_executable}'
-    else:
-        lines.insert(0, f'#!{python_executable}')
-
-    # Écrire le contenu mis à jour dans le fichier cible
-    target_file = Path(target_path)
-    target_file.write_text('\n'.join(lines) + '\n')
-
-
-def makedirs(namedir):
-    if os.path.exists(namedir):
-        dirbak = namedir + ".bak"
-        if os.path.exists(dirbak):
-            shutil.rmtree(dirbak)
-        os.rename(namedir, dirbak)
-        os.listdir(
-            dirbak
-        )  # sert seulement a mettre a jour le systeme de fichier sur certaines machines
-    os.makedirs(namedir)
-
-
 def install(
     prefix: Path, config_file: Path, force: bool = False, verbose: int = 0
 ) -> int:
@@ -261,15 +225,6 @@ def install(
             )
             return 1
     appli_dir.mkdir(parents=True, exist_ok=force)
-
-def install(prefix, config_file, verbose=0):
-    home_dir = os.path.abspath(os.path.expanduser(prefix))
-    filename = os.path.abspath(os.path.expanduser(config_file))
-
-    venv.create(
-        env_dir=home_dir,
-        with_pip=True,
-    )
 
     _config = {}
     try:
@@ -317,15 +272,6 @@ def install(prefix, config_file, verbose=0):
 
     env_d = absolute_appli_path / "env.d"
     env_d.mkdir(parents=True)
-
-    # Copy launcher and make it executable
-    name = _config.get(runner_tag, DEFAULT_LAUNCHER_NAME)
-    json_config[appli_tag][runner_tag] = name
-    launcher = appli_dir / name
-    shutil.copyfile(APPLISKEL_DIR / "appli_launcher", launcher)
-    mode = os.stat(launcher).st_mode
-    mode |= (mode & 0o444) >> 2  # copy R bits to X
-    os.chmod(launcher, mode)
 
     # Copy launcher and make it executable
     name = _config.get(runner_tag, DEFAULT_LAUNCHER_NAME)
