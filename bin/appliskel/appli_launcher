@@ -119,6 +119,7 @@ def update_context(context, args: List[str], with_venv: bool=True):
 
     # If a parent appli is declared, the "update_context" function of
     # this appli script is called.
+    venv_directory = config_appli.get("venv_directory")
     parent_application = config_appli.get("parent_application")
     if parent_application:
         parent_salome_appli_path = Path(parent_application)
@@ -136,7 +137,7 @@ def update_context(context, args: List[str], with_venv: bool=True):
         )
         if parent_configFileNames:
             context.configFileNames = parent_configFileNames + context.configFileNames
-        context, args = _module.update_context(context, args, with_venv=False)
+        context, args = _module.update_context(context, args, with_venv=venv_directory is None)
 
     # [APPLI variables]
     context.setVariable("APPLI", f"{appli_path}", overwrite=True)
@@ -181,7 +182,6 @@ def update_context(context, args: List[str], with_venv: bool=True):
         raise SalomeContextException("SALOME KERNEL component is missing.")
 
     # [VENV]
-    venv_directory = config_appli.get("venv_directory")
     if venv_directory and with_venv:
         context.setVariable("VENV_ROOT", f"{venv_directory}", overwrite=True)
         context.addToPath(f"{venv_directory}/bin")
