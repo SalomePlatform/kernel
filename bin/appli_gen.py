@@ -35,7 +35,7 @@ import subprocess
 import sys
 import xml.sax
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 # --- names of tags in XML configuration file
 appli_tag = "application"
@@ -91,7 +91,7 @@ class xml_parser:
         self.config = {}
         self.config[modules_tag] = {}
         self.config["guimodules"] = []
-        self.config[extra_tests_tag] = {}
+        self.config[extra_tests_tag] = []
         self.config[env_modules_tag] = []
         parser = xml.sax.make_parser()
         parser.setContentHandler(self)
@@ -183,9 +183,8 @@ class xml_parser:
             and name_att in attrs.getNames()
             and path_att in attrs.getNames()
         ):
-            name = attrs.getValue(name_att)
             path = undestdir(attrs.getValue(path_att))
-            self.config[extra_tests_tag][name] = path
+            self.config[extra_tests_tag].append(path)
 
     def endElement(self, name):
         self.space.pop()
@@ -297,12 +296,12 @@ def install(
             print("--- add module", module, module_path)
             json_config[appli_tag][modules_tag][module] = module_path
 
-    extra_tests: Dict[str, str] = _config.get(extra_tests_tag, {})
+    extra_tests: List[str] = _config.get(extra_tests_tag, [])
     if extra_tests:
         json_config[appli_tag][extra_tests_tag] = []
-        for extra_test, extra_test_path in extra_tests.items():
+        for extra_test_path in extra_tests:
             extra_test_path = undestdir(extra_test_path)
-            print("--- add extra test", extra_test, extra_test_path)
+            print("--- add extra test", extra_test_path)
             json_config[appli_tag][extra_tests_tag].append(extra_test_path)
 
     venv_directory = _config.get(venv_directory_tag)
