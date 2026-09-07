@@ -23,6 +23,7 @@
 # \brief Module that provides services to launch SALOME
 #
 
+import psutil
 import sys, os, string, glob, time, pickle, re
 from . import setenv_impl
 from .server import process_id, Server
@@ -284,9 +285,21 @@ def foreGround(args, ior_fakens_filename):
     dt = 1.0
     try:
         while 1:
+            alive = psutil.pid_exists(session_pid)
+            if not alive:
+                logger.debug("pid {} does not exist anymore".format(session_pid))
+                # break to call killProcessSSL when the pid of
+                # SALOME_Session_Server_No_Server does not exist anymore
+                break
             try:
                 status = session.GetStatSession()
                 assert status.activeGUI
+            except CORBA.TRANSIENT:
+                # do not break in case of network lost
+                logger.debug("Network lost!!!!!!!!! CORBA.TRANSIENT")
+            except CORBA.COMM_FAILURE:
+                # do not break in case of comm failure
+                logger.debug("Network lost!!!!!!!!! CORBA.COMM_FAILURE")
             except Exception:
                 logger.debug("Process of the session under monitoring {} has vanished !".format(session_pid))
                 break
