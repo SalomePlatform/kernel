@@ -23,23 +23,18 @@
 # \brief Module that provides services to launch SALOME
 #
 
-import psutil
-import sys, os, string, glob, time, pickle, re
-from . import setenv_impl
-from .server import process_id, Server
-import json
-import subprocess
-from .salomeContextUtils import ScriptAndArgsObjectEncoder
-from . import runSalomeNoServer_impl
-from . import runSalomeCommon
-import platform
-from .launchConfigureParser import verbosity_nam
 import logging
+import os
+import subprocess
+import sys
+
+from . import runSalomeCommon, runSalomeNoServer_impl, setenv_impl
+from .killSalome_impl import killAllPorts
+from .launchConfigureParser import verbosity_nam
+from .server import process_id
+
 logger = logging.getLogger()
 
-# -----------------------------------------------------------------------------
-
-from .killSalome_impl import killAllPorts
 
 def kill_salome(args):
     """
@@ -210,7 +205,6 @@ def main(exeName=None):
 
 def foreGround(args, ior_fakens_filename):
     # --
-    import os
     gui_detected = False
     dt = 0.1
     nbtot = 200
@@ -225,6 +219,7 @@ def foreGround(args, ior_fakens_filename):
     # do not comment following lines to downcast safely orb.string_to_object(ior_fakens.Resolve("/Kernel/Session").decode())
     from . import Engines
     from . import SALOME_CMOD
+    import psutil
     from time import sleep
     orb = CORBA.ORB_init([''], CORBA.ORB_ID)
     ior_fakens = None
