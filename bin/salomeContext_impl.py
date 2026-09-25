@@ -535,7 +535,7 @@ class SalomeContext:
 
         setenv_impl.main(True)
 
-        from salome.kernel import runRemote  # type: ignore
+        import runRemote  # type: ignore
 
         return runRemote.runRemote(args)
 
