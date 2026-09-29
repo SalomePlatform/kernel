@@ -48,7 +48,6 @@ SET(SCRIPTS
   pythonpath_reduction.py
   runConsole.py
   runIDLparser
-  runRemote.py
   runSalomeNoServer.py
   runSalome.py
   runSalomeOld.py
@@ -56,7 +55,6 @@ SET(SCRIPTS
   runSalomeNoServer.py
   runSession.py
   runConsole.py
-  runRemote.py
   runTests.py
   ${CMAKE_CURRENT_BINARY_DIR}/salomeContextUtils.py
   salomeContext.py
@@ -83,6 +81,7 @@ SET(SCRIPTS
   parseConfigFile.py
   PortManager.py
   runConsole_impl.py
+  runRemote.py
   runSalomeCommon.py
   runSalome_impl.py
   runSalomeOld_impl.py
