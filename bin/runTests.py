@@ -94,6 +94,7 @@ def runTests(args, exe=None):
         )
     absolute_appli_path: Path = Path(absolute_appli)
     testPath = absolute_appli_path / __testSubDir
+    originalTestPath = testPath
 
     cfg, args = __configureTests(args, exe)
 
@@ -132,11 +133,12 @@ set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE 1048576) # 1MB
     if run_dir_arg and run_dir_arg != "run_in_default" and not salome_tests_path:
         appli_dir = Path(absolute_appli_path).parent
         prefix = appli_dir.parents[2]
-        for path in testPath.glob("CTest*"):
+        for path in originalTestPath.glob("CTest*"):
             if not path.is_file():
                 continue
             content = path.read_text()
             content = content.replace("../../../../../../..", str(prefix))
+            content = content.replace("../../../..", str(appli_dir))
             content = content.replace("../../..", str(appli_dir))
             run_dir.joinpath(path.name).write_text(content)
 
