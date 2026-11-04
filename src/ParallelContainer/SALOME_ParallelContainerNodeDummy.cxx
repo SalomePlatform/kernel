@@ -115,7 +115,6 @@ int main(int argc, char* argv[])
   {
     setsig(SIGSEGV,&Handler);
     set_terminate(&terminateHandler);
-    set_unexpected(&unexpectedHandler);
   }
 
   // Initialise the ORB.

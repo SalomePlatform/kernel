@@ -35,7 +35,7 @@
 #include "DisplayPair.hxx"
 
 template < typename T >
-struct FindKeyPredicate : public std::unary_function < T, bool > 
+struct FindKeyPredicate
 {
   T _value;
   FindKeyPredicate(const T& value):_value(value){}
@@ -63,7 +63,7 @@ struct FindKeyPredicate : public std::unary_function < T, bool >
 // };
 
 template <typename T1, typename T2>
-struct FindKeyPredicate<  std::pair<T1,T2> > : public std::unary_function < std::pair<T1,T2>, bool > 
+struct FindKeyPredicate<  std::pair<T1,T2> >
 {
   T1 _value;
   FindKeyPredicate(const T1 & value):_value(value){

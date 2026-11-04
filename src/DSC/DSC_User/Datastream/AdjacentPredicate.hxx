@@ -35,7 +35,7 @@
 #include "DisplayPair.hxx"
 
 template < typename T >
-struct AdjacentPredicate : public std::binary_function < T, T, bool > 
+struct AdjacentPredicate
 {
   T _value;
   AdjacentPredicate(const T& value):_value(value){}
@@ -46,9 +46,7 @@ struct AdjacentPredicate : public std::binary_function < T, T, bool >
 
 // Pour les MAPs avec une clef sous forme de pair
 template <typename T1, typename T2, typename T3>
-struct AdjacentPredicate<  std::pair<const std::pair<T1,T2>, T3 > > : 
-  public std::binary_function < std::pair<const std::pair<T1,T2>, T3 >,
-                                std::pair<const std::pair<T1,T2>, T3 >, bool > 
+struct AdjacentPredicate<  std::pair<const std::pair<T1,T2>, T3 > >
 {
   std::pair<T1,T2> _value;
   AdjacentPredicate(const std::pair<T1,T2> & value):_value(value){
@@ -62,7 +60,7 @@ struct AdjacentPredicate<  std::pair<const std::pair<T1,T2>, T3 > > :
 };
 
 template <typename T1, typename T2>
-struct AdjacentPredicate<  std::pair<T1,T2> > : public std::binary_function < std::pair<T1,T2>, std::pair<T1,T2>, bool > 
+struct AdjacentPredicate<  std::pair<T1,T2> >
 {
   T1 _value;
   AdjacentPredicate(const T1 & value):_value(value){

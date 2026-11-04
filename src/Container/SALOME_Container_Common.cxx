@@ -143,7 +143,6 @@ int container_common_main(int argc, char* argv[], std::unique_ptr<SALOME_NamingS
       setsig(SIGSEGV,&Handler);
       setsig(SIGFPE,&Handler);
       std::set_terminate(&terminateHandler);
-      std::set_unexpected(&unexpectedHandler);
     }
 #endif
 
