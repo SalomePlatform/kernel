@@ -132,7 +132,6 @@ int main(int argc, char* argv[])
     setsig(SIGSEGV,&Handler);
     //set_terminate(&terminateHandler);
     set_terminate(__gnu_cxx::__verbose_terminate_handler);
-    set_unexpected(&unexpectedHandler);
   }
 #endif
 

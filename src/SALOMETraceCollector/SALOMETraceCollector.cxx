@@ -58,12 +58,22 @@ BaseTraceCollector* SALOMETraceCollector::instance()
         {                                      // the lock after the first test
           BaseTraceCollector* myInstance = new SALOMETraceCollector();
 
+#if defined(__APPLE__)
+          if (_sem)                            // semaphore of a previous instance
+            dispatch_release(_sem);
+          _sem = dispatch_semaphore_create(0); // to wait until run thread is initialized
+#else
           sem_init(&_sem,0,0); // to wait until run thread is initialized
+#endif
           pthread_t traceThread;
           int bid = 0;
           pthread_create(&traceThread, NULL,
                                    SALOMETraceCollector::run, &bid);
+#if defined(__APPLE__)
+          dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
+#else
           sem_wait(&_sem);
+#endif
           _singleton = myInstance; // _singleton known only when init done
         }
       pthread_mutex_unlock(&_singletonMutex); // release lock
@@ -86,7 +96,11 @@ void* SALOMETraceCollector::run(void* /*bid*/)
 {
   _threadId = new pthread_t;
   *_threadId = pthread_self();
+#if defined(__APPLE__)
+  dispatch_semaphore_signal(_sem);
+#else
   sem_post(&_sem); // unlock instance
+#endif
 
   LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
   LocalTrace_TraceInfo myTrace;

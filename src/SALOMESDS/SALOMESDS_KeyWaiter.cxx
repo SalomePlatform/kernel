@@ -29,7 +29,12 @@ using namespace SALOMESDS;
 
 KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME_CMOD::ByteVec& keyVal):_var(var),_ze_key(0),_ze_value(0)
 {
+#if defined(__APPLE__)
+  _sem=dispatch_semaphore_create(0);// put value to 0 to lock by default
+  if(!_sem)
+#else
   if(sem_init(&_sem,0,0)!=0)// put value to 0 to lock by default
+#endif
     throw Exception("KeyWaiter constructor : Error on initialization of semaphore !");
   if(!var)
     throw Exception("KeyWaiter constructor : Invalid glob var is NULL !");
@@ -72,6 +77,9 @@ KeyWaiter::~KeyWaiter()
   Py_XDECREF(_ze_key);
   if(_ze_value)
     Py_XDECREF(_ze_value);
+#if defined(__APPLE__)
+  dispatch_release(_sem);
+#endif
 }
 
 PortableServer::POA_var KeyWaiter::getPOA() const
@@ -85,7 +93,11 @@ PortableServer::POA_var KeyWaiter::getPOA() const
  */
 void KeyWaiter::waitFor()
 {
+#if defined(__APPLE__)
+  dispatch_semaphore_wait(_sem,DISPATCH_TIME_FOREVER);
+#else
   sem_wait(&_sem);
+#endif
   if(!_ze_value)
     throw Exception("KeyWaiter::waitFor : internal error 1 !");
 }
@@ -133,9 +145,13 @@ void KeyWaiter::valueJustCome(PyObject *val)
 
 void KeyWaiter::go()
 {
+#if defined(__APPLE__)
+  dispatch_semaphore_signal(_sem);// cannot fail
+#else
   if(sem_post(&_sem)!=0)
     {
       std::ostringstream oss; oss << "KeyWaiter::go : error on post of semaphore ! ";
       throw Exception(oss.str());
     }
+#endif
 }

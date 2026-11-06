@@ -43,6 +43,37 @@ InfoType ecp_fini_ (void * component, char* nomVar, int i);
 InfoType ecp_efft_ (void * component, char* nomVar, float t);
 InfoType ecp_effi_ (void * component, char* nomVar, int i);
 
+#if defined(__APPLE__)
+/* macOS: clang rejects implicit function declarations (C99 and later).
+   Prototypes of the C++ functions defined by CALCIUM_C2CPP_INTERFACE_CXX_
+   (see CalciumMacroCInterface.hxx and CalciumCInterface.hxx) */
+InfoType ecp_cd_  (void * component, char* instanceName);
+InfoType ecp_fin_ (void * component, int code);
+
+#define CALCIUM_C2CPP_INTERFACE_C_DECL_(_name,_timeType,_type)                          \
+  InfoType ecp_lecture_##_name (void * component, int dependencyType,                  \
+                                _timeType * ti, _timeType * tf, long * i,              \
+                                const char * const nomvar, size_t bufferLength,        \
+                                size_t * nRead, _type ** data );                       \
+  void ecp_lecture_##_name##_free ( _type * data);                                     \
+  InfoType ecp_ecriture_##_name (void * component, int dependencyType,                 \
+                                 _timeType * t, long i,                                \
+                                 const char * const nomvar, size_t bufferLength,       \
+                                 _type * data );
+
+CALCIUM_C2CPP_INTERFACE_C_DECL_(intc,float,int)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(long,float,long)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(integer,float,cal_int)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(int2integer,float,int)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(long2integer,float,long)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(float,float,float)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(double,double,double)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(float2double,float,float)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(bool,float,int)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(cplx,float,float)
+CALCIUM_C2CPP_INTERFACE_C_DECL_(str,float,char*)
+#endif
+
 /************************************/
 /* INTERFACES DE LECTURE EN 0 COPIE */
 /************************************/

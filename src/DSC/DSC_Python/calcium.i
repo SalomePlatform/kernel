@@ -120,7 +120,11 @@ typedef PyArrayObject ArrayObject;
 /* Macros to extract array attributes.
  */
 #define is_array(a)            ((a) && PyArray_Check((PyArrayObject *)a))
+#if defined(__APPLE__)
+#define array_type(a)          (int)(PyArray_TYPE((PyArrayObject *)(a)))
+#else
 #define array_type(a)          (int)(PyArray_TYPE(a))
+#endif
 #define array_dimensions(a)    (((PyArrayObject *)a)->nd)
 #define array_size(a,i)        (((PyArrayObject *)a)->dimensions[i])
 #define array_is_contiguous(a) (PyArray_ISCONTIGUOUS(a))

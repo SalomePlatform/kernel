@@ -1112,11 +1112,19 @@ void EffectiveOverrideEnvironment( const Engines::FieldsDict& env )
   }
 }
 
+#if defined(__APPLE__)
+#include <crt_externs.h> // _NSGetEnviron(): environ is not available to dylibs
+#endif
+
 std::vector< std::pair<std::string,std::string> > GetOSEnvironment()
 {
   std::vector< std::pair<std::string,std::string> > ret;
 #ifndef WIN32
+#if defined(__APPLE__)
+  char **envPt( *_NSGetEnviron() );
+#else
   char **envPt( environ );
+#endif
   for(;*envPt != nullptr; ++envPt)
   {
     std::string s( *envPt );

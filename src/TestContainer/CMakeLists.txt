@@ -45,7 +45,7 @@ SET(COMMON_LIBS
   SalomeIDLKernel
 )
 
-IF(WIN32)
+IF(WIN32 OR APPLE)
   LIST (APPEND COMMON_LIBS
      ArgvKeeper
      SalomeContainer
@@ -57,7 +57,7 @@ IF(WIN32)
      SalomeGenericObj
      SalomeIDLKernel
   )
-ENDIF(WIN32)
+ENDIF(WIN32 OR APPLE)
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})

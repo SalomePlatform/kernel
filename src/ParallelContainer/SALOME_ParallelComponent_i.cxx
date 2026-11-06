@@ -287,7 +287,12 @@ bool Engines_Parallel_Component_i::Kill_impl()
 
   bool RetVal = false ;
 #ifndef WIN32
+#if defined(__APPLE__)
+  // macOS: pthread_t is a pointer type, ordered comparison with 0 is not allowed
+  if ( _ThreadId && !pthread_equal( pthread_self() , _ThreadId ) )
+#else
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#endif
     {
       RetVal = Killer( _ThreadId , SIGUSR2 ) ;
       _ThreadId = (pthread_t ) -1 ;
@@ -329,7 +334,12 @@ bool Engines_Parallel_Component_i::Stop_impl()
 
   bool RetVal = false ;
 #ifndef WIN32
+#if defined(__APPLE__)
+  // macOS: pthread_t is a pointer type, ordered comparison with 0 is not allowed
+  if ( _ThreadId && !pthread_equal( pthread_self() , _ThreadId ) )
+#else
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#endif
     {
       RetVal = Killer( _ThreadId , 0 ) ;
       _ThreadId = (pthread_t ) -1 ;
@@ -368,7 +378,12 @@ bool Engines_Parallel_Component_i::Suspend_impl()
 
   bool RetVal = false ;
 #ifndef WIN32
+#if defined(__APPLE__)
+  // macOS: pthread_t is a pointer type, ordered comparison with 0 is not allowed
+  if ( _ThreadId && !pthread_equal( pthread_self() , _ThreadId ) )
+#else
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#endif
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
 #endif
@@ -414,7 +429,12 @@ bool Engines_Parallel_Component_i::Resume_impl()
 #endif
   bool RetVal = false ;
 #ifndef WIN32
+#if defined(__APPLE__)
+  // macOS: pthread_t is a pointer type, ordered comparison with 0 is not allowed
+  if ( _ThreadId && !pthread_equal( pthread_self() , _ThreadId ) )
+#else
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#endif
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
 #endif
@@ -443,10 +463,18 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
   long cpu = 0 ;
   if ( _ThreadId || _Executed )
     {
+#if defined(__APPLE__)
+    if ( _ThreadId )
+#else
     if ( _ThreadId > 0 )
+#endif
       {
 #ifndef WIN32
+#if defined(__APPLE__)
+      if ( !pthread_equal( pthread_self() , _ThreadId ) )
+#else
       if ( pthread_self() != _ThreadId )
+#endif
 #else
       if ( pthread_self().p != _ThreadId->p )
 #endif

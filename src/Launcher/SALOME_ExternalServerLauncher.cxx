@@ -62,7 +62,12 @@ class ChdirRAII
 {
 public:
 #ifndef WIN32
+#if defined(__APPLE__)
+  // macOS: get_current_dir_name() is glibc only, getcwd(nullptr,0) also returns a malloc'ed buffer
+  ChdirRAII(const std::string& wd):_wd(wd) { if(_wd.empty()) return ; char *pwd(getcwd(nullptr,0)); _od = pwd; free(pwd); chdir(_wd.c_str()); }
+#else
   ChdirRAII(const std::string& wd):_wd(wd) { if(_wd.empty()) return ; char *pwd(get_current_dir_name()); _od = pwd; free(pwd); chdir(_wd.c_str()); }
+#endif
   ~ChdirRAII() { if(_od.empty()) return ; chdir(_od.c_str()); }
 #else
 	ChdirRAII(const std::string& wd) : _wd(wd) { 

@@ -31,7 +31,12 @@
 
 #include <Python.h>
 
+#if defined(__APPLE__)
+// macOS: unnamed POSIX semaphores (sem_init) are not implemented
+#include <dispatch/dispatch.h>
+#else
 #include <semaphore.h>
+#endif
 
 namespace SALOMESDS
 {
@@ -56,7 +61,11 @@ namespace SALOMESDS
     PickelizedPyObjServer *_var;
     PyObject *_ze_key;
     PyObject *_ze_value;
+#if defined(__APPLE__)
+    dispatch_semaphore_t _sem;
+#else
     sem_t _sem;
+#endif
   };
 }
 

@@ -35,10 +35,16 @@
 
 typedef void (*PVF)();
 
+// std::set_unexpected was removed in C++17 (dynamic exception specifications
+// no longer exist, so the unexpected handler can never be called).
+// Unexpect is kept as a no-op for source compatibility.
 class UTILS_EXPORT Unexpect { //save / retrieve unexpected exceptions treatment
   PVF old;
   public :
-#ifndef WIN32
+#if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+    Unexpect( PVF ) : old(nullptr) {}
+  ~Unexpect() {}
+#elif !defined(WIN32)
     Unexpect( PVF f ) 
       { old = std::set_unexpected(f); }
   ~Unexpect() { std::set_unexpected(old); }
